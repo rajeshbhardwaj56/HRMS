@@ -1,0 +1,21 @@
+.paging_simple_numbers a.current {
+	background-color: #1b6796;
+}
+
+.paging_simple_numbers a {
+	margin: 3px 5px;
+	padding: 4px 12px;
+	background-color: #2081aa;
+	color: #fff;
+}
+
+.field-validation-error {
+	color: red;
+}
+
+.RoudedBorder {
+	margin: 5px;
+	border-radius: 8px;
+	border: 1px solid #e8f1e2;
+	background-repeat: repeat;
+}

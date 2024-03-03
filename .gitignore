@@ -1,0 +1,25 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/HRMS.Web/.vs/ProjectEvaluation
+/HRMS.Web/HRMS.API.BusinessLayer/bin/Debug/net8.0
+/HRMS.Web/HRMS.API.BusinessLayer/obj
+/HRMS.Web/HRMS.API.Web/bin/Debug/net8.0
+/HRMS.Web/HRMS.API.Web/obj
+/HRMS.Web/HRMS.API.Web/Properties
+/HRMS.Web/HRMS.API.Web/HRMS.API.Web.csproj
+/HRMS.Web/HRMS.API.Web/HRMS.API.Web.csproj.user
+/HRMS.Web/HRMS.API.Web/HRMS.API.Web.http
+/HRMS.Web/HRMS.Models/bin/Debug/net8.0
+/HRMS.Web/HRMS.Models/obj
+/HRMS.Web/HRMS.Web/bin/Debug/net8.0
+/HRMS.Web/HRMS.Web/obj
+/HRMS.Web/.vs/HRMS.Web
+/HRMS.Web/HRMS.API.BusinessLayer.ITF/bin/Debug/net8.0
+/HRMS.Web/HRMS.API.BusinessLayer.ITF/obj
+/HRMS.Web/HRMS.API.DataLayer/bin/Debug/net8.0
+/HRMS.Web/HRMS.API.DataLayer/obj
+/HRMS.Web/HRMS.API.DataLayer.ITF/bin/Debug/net8.0
+/HRMS.Web/HRMS.API.DataLayer.ITF/obj
