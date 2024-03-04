@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
 
-namespace HRMS.API.Controllers.Common
+namespace HRMS.API.Web.Controllers.Common
 {
     [Route("[controller]")]
     [ApiController]

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic;
+﻿using HRMS.Models.Common;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using System.Data;
 using System.Text;
@@ -12,6 +13,8 @@ namespace HRMS.Web.BusinessLayer
         public IConfiguration _configuration { get; set; }
         public Task<object> SendPostAPIRequest(object body, string ActionUrl, string BearerToken, bool isTokenRequired = true);
         public Task<object> SendGetAPIRequest(string ActionUrl, string BearerToken, bool isTokenRequired = true);
+        public string GetControllarNameByRole(int RoleID);
+        public string GetAreaNameByRole(int RoleID);
 
     }
 
@@ -72,6 +75,34 @@ namespace HRMS.Web.BusinessLayer
         private string GetFullAPIUrl(string ActionUrl)
         {
             return BaseAPIUrl + ActionUrl;
+        }
+
+        public string GetAreaNameByRole(int RoleID)
+        {
+            string RootName = "";
+            switch (RoleID)
+            {
+                case (int)Roles.Admin:
+                    RootName = HRMS.Models.Common.Constants.ManageAdmin;
+                    break;
+                case (int)Roles.HR:
+                    RootName = HRMS.Models.Common.Constants.ManageHR;
+                    break;
+                case (int)Roles.Employee:
+                    RootName = HRMS.Models.Common.Constants.ManageEmployee;
+                    break;
+                default:
+                    break;
+            }
+            return RootName;
+        }
+
+
+        public string GetControllarNameByRole(int RoleID)
+        {
+            string RootName = "DashBoard";
+
+            return RootName;
         }
     }
 }

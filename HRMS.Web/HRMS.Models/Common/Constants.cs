@@ -15,5 +15,25 @@ namespace HRMS.Models.Common
         public const string RoleID = "RoleID";
         public const string Role = "Role";
         public const string Alias = "Alias";
+        public const string Index = "index";
+        public const string RootUrlFormat = "{0}/{1}";
+        public const string ManageAdmin = "admin";
+        public const string ManageHR = "hr";
+        public const string ManageEmployee = "employee";
+    }
+
+    public class RoleConstants
+    {
+        // Roles
+        public const string Admin = "Admin";
+        public const string HR = "HR";
+        public const string Employee = "Employee";
+    }
+
+    public enum Roles
+    {
+        HR = 1,
+        Admin,
+        Employee
     }
 }

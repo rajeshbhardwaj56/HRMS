@@ -23,7 +23,7 @@ namespace HRMS.API.BusinessLayer
         public LoginUser LoginUser(LoginUser loginUser)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@Email", loginUser.Email));
+            sqlParameter.Add(new SqlParameter("@UserName", loginUser.Email));
             sqlParameter.Add(new SqlParameter("@Password", loginUser.Password));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_LoginUser, sqlParameter);
 
@@ -41,17 +41,37 @@ namespace HRMS.API.BusinessLayer
                 loginUser = dataSet.Tables[0].AsEnumerable()
                                .Select(dataRow => new LoginUser
                                {
-                                   UserID = dataRow.Field<long>("UserID"),
-                                   FirstName = dataRow.Field<string>("FirstName"),
-                                   LastName = dataRow.Field<string>("LastName"),
-                                   Email = dataRow.Field<string>("EmailId"),
-                                   Alias = dataRow.Field<string>("Alias"),
+                                   UserID = dataRow.Field<int>("UserID"),
+                                   //FirstName = dataRow.Field<string>("FirstName"),
+                                   //LastName = dataRow.Field<string>("LastName"),
+                                   //Email = dataRow.Field<string>("EmailId"),
+                                   //Alias = dataRow.Field<string>("Alias"),
                                    Role = dataRow.Field<string>("Role"),
                                    RoleId = dataRow.Field<int>("RoleId"),
                                }).ToList().FirstOrDefault();
             }
             return loginUser;
         }
+                
 
+        public string GetFullUrlByRole(int RoleID)
+        {
+            string RootName = "";
+            switch (RoleID)
+            {
+                case (int)Roles.Admin:
+                    RootName = string.Format(Constants.RootUrlFormat, Constants.ManageAdmin, Roles.Admin.ToString());
+                    break;
+                case (int)Roles.HR:
+                    RootName = string.Format(Constants.RootUrlFormat, Constants.ManageHR, Roles.HR.ToString());
+                    break;
+                case (int)Roles.Employee:
+                    RootName = string.Format(Constants.RootUrlFormat, Constants.ManageEmployee, Roles.Employee.ToString());
+                    break;
+                default:
+                    break;
+            }
+            return RootName;
+        }
     }
 }
