@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Web.Areas.Employee.Controllers
 {
     [Area(Constants.ManageEmployee)]
-    [Authorize(Roles = RoleConstants.Employee)]
+    [Authorize(Roles = RoleConstants.Employee+","+ RoleConstants.Admin)]
     public class DashBoardController : Controller
     {
         public IActionResult Index()
