@@ -1,4 +1,223 @@
-﻿@{
+﻿@model HRMS.Models.EmployeeModel
+@{
     Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Employee";
 }
+<div class="Container">
+    <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+        <label for="validationDefault01" class="form-label">Personal Details </label>
+
+
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="col-md-12">
+                First Name
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.FirstName)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Middle Name
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.MiddleName, new { @class = "form-control" })
+            </div>
+        </div>
+
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Surname
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.Surname)
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Address of Currespondence
+            </div>
+            <div class="col-md-12">
+                @Html.TextAreaFor(a => a.CorrespondenceAddress, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.CorrespondenceAddress)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                City
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.CorrespondenceCity, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.CorrespondenceCity)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Pin
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.CorrespondencePinCode, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.CorrespondencePinCode)
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                State
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.CorrespondenceState, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.CorrespondenceState)
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Landline
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.Landline, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Landline)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Mobile
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Mobile)
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Personal Email Address
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.PersonalEmailAddress)
+            </div>
+        </div>
+
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Permanent Address
+            </div>
+            <div class="col-md-12">
+                @Html.TextAreaFor(a => a.PermanentAddress, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.PermanentAddress)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                City
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.PermanentCity, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.PermanentCity)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Pin
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.PermanentPinCode, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.PermanentPinCode)
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                State
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.PermanentState, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.PermanentState)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Telephone
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.Telephone, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Telephone)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Contact Persion Name for Verification
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.VerificationContactPersonName, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.VerificationContactPersonName)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Contact No
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.VerificationContactPersonContactNo)
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Date of Birth
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.DateOfBirth, new { @class = "form-control", @type = "date", @required = "required" })
+                @Html.ValidationMessageFor(m => m.DateOfBirth)
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Place of Birth
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.PlaceOfBirth)
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Place of Birth
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.PlaceOfBirth)
+            </div>
+        </div>
+    </div>
+</div>

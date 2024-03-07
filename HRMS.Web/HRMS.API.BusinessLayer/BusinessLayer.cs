@@ -41,7 +41,7 @@ namespace HRMS.API.BusinessLayer
                 loginUser = dataSet.Tables[0].AsEnumerable()
                                .Select(dataRow => new LoginUser
                                {
-                                   UserID = dataRow.Field<int>("UserID"),
+                                   UserID = dataRow.Field<long>("UserID"),
                                    //FirstName = dataRow.Field<string>("FirstName"),
                                    //LastName = dataRow.Field<string>("LastName"),
                                    //Email = dataRow.Field<string>("EmailId"),
