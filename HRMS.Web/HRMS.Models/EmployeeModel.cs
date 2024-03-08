@@ -14,7 +14,7 @@ namespace HRMS.Models
         public Guid guid { get; set; }
         public long EmployeeTypeID { get; set; }
         public long DepartmentID { get; set; }
-        public string EmployeeNumber { get; set; } = string.Empty;       
+        public string EmployeeNumber { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string MiddleName { get; set; } = string.Empty;
         public string Surname { get; set; } = string.Empty;
@@ -49,5 +49,20 @@ namespace HRMS.Models
         public long UpdatedByUserID { get; set; }
         public DateTime InsertedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public List<FamilyDetails> FamilyDetails { get; set; } = new List<FamilyDetails>() {
+        new FamilyDetails(){
+        }, new FamilyDetails(){
+        }
+        };
+
+    }
+
+    public class FamilyDetails
+    {
+        public long EmployeesFamilyDetailID { get; set; }
+        public string FamilyName { get; set; } = string.Empty;
+        public string Relationship { get; set; } = string.Empty;
+        public string Age { get; set; } = string.Empty;
+        public string Details { get; set; } = string.Empty;
     }
 }

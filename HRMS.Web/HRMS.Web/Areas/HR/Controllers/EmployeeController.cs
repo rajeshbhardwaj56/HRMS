@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Common;
+﻿using HRMS.Models;
+using HRMS.Models.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +11,8 @@ namespace HRMS.Web.Areas.HR.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            EmployeeModel employee = new EmployeeModel();   
+            return View(employee);
         }
     }
 }

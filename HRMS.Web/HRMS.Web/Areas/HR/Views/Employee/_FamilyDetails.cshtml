@@ -1,0 +1,70 @@
+﻿@model HRMS.Models.EmployeeModel
+@{
+    int familyDetailIndex = 0;
+}
+<div class="row">
+    <div class="col-md-3">
+        <div class="col-md-12">
+            Name
+        </div>
+      
+    </div>
+
+    <div class="col-md-3">
+        <div class="col-md-12">
+            Relationship
+        </div>
+      
+    </div>
+
+    <div class="col-md-3">
+        <div class="col-md-12">
+            Age
+        </div>
+       
+    </div>
+
+    <div class="col-md-3">
+        <div class="col-md-12">
+            if employed, perticulars
+        </div>
+       
+    </div>
+</div>
+@foreach (var familyDetail in Model.FamilyDetails)
+{
+    <div class="row">
+        <div class="col-md-3">         
+            <div class="col-md-12">
+                @Html.HiddenFor(m => m.FamilyDetails[familyDetailIndex].EmployeesFamilyDetailID)
+                @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].FamilyName, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].FamilyName)
+            </div>
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Relationship, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Relationship)
+            </div>
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Age, new { @class = "form-control", @required = "required" })
+                @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Age)
+            </div>
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Details, new { @class = "form-control"})
+                @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Details)
+            </div>
+        </div>
+    </div>
+    familyDetailIndex++;
+}
