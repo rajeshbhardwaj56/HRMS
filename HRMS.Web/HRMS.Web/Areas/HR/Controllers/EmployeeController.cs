@@ -11,7 +11,27 @@ namespace HRMS.Web.Areas.HR.Controllers
     {
         public IActionResult Index()
         {
-            EmployeeModel employee = new EmployeeModel();   
+            EmployeeModel employee = new EmployeeModel();
+            employee.FamilyDetails.Add(new FamilyDetails());
+            return View(employee);
+        }
+
+
+        [HttpPost]
+        public ActionResult AddNewFamilyMember(EmployeeModel employee, bool isDeleted)
+        {
+            if (!isDeleted)
+            {
+                employee.FamilyDetails.Add(new FamilyDetails() { });
+            }
+            return PartialView("_FamilyDetails", employee);
+        }
+
+
+        [HttpPost]
+        public IActionResult Index(EmployeeModel employee)
+        {
+           
             return View(employee);
         }
     }

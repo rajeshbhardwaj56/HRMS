@@ -2,69 +2,83 @@
 @{
     int familyDetailIndex = 0;
 }
+
+
 <div class="row">
-    <div class="col-md-3">
-        <div class="col-md-12">
-            Name
-        </div>
-      
+    <div class="col-md-1">
+        <b>SNo</b>
+    </div>
+
+    <div class="col-md-2">
+        <b>Name</b>
+    </div>
+
+    <div class="col-md-2">
+        <b>Relationship</b>
     </div>
 
     <div class="col-md-3">
-        <div class="col-md-12">
-            Relationship
-        </div>
-      
+        <b>Age</b>
     </div>
 
     <div class="col-md-3">
-        <div class="col-md-12">
-            Age
-        </div>
-       
+        <b>if employed, perticulars</b>
     </div>
 
-    <div class="col-md-3">
-        <div class="col-md-12">
-            if employed, perticulars
-        </div>
-       
+    <div class="col-md-1">
+        <b>Delete</b>
     </div>
 </div>
+@{
+    int index = 1;
+}
 @foreach (var familyDetail in Model.FamilyDetails)
 {
-    <div class="row">
-        <div class="col-md-3">         
-            <div class="col-md-12">
-                @Html.HiddenFor(m => m.FamilyDetails[familyDetailIndex].EmployeesFamilyDetailID)
-                @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].FamilyName, new { @class = "form-control", @required = "required" })
-                @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].FamilyName)
-            </div>
+
+    var delete = (index.ToString()) + "Delete";
+
+
+    <div class="row" id="@(delete)">
+        <div class="col-md-1">
+            @(index).
+        </div>
+        <div class="col-md-2">
+
+            @Html.HiddenFor(m => m.FamilyDetails[familyDetailIndex].EmployeesFamilyDetailID)
+            @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].FamilyName, new { @class = "form-control FamilyName", @required = "required" })
+            @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].FamilyName)
+
+        </div>
+
+        <div class="col-md-2">
+            @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Relationship, new { @class = "form-control", @required = "required" })
+            @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Relationship)
+
         </div>
 
         <div class="col-md-3">
 
-            <div class="col-md-12">
-                @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Relationship, new { @class = "form-control", @required = "required" })
-                @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Relationship)
-            </div>
+            @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Age, new { @class = "form-control", @required = "required" })
+            @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Age)
+
         </div>
 
         <div class="col-md-3">
-
-            <div class="col-md-12">
-                @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Age, new { @class = "form-control", @required = "required" })
-                @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Age)
-            </div>
+            @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Details, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Details)
         </div>
 
-        <div class="col-md-3">
-
-            <div class="col-md-12">
-                @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Details, new { @class = "form-control"})
-                @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Details)
-            </div>
+        <div class="col-md-1">
+            <a onclick="deleteFamilyDetails('@(delete)')"><img  style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
         </div>
     </div>
     familyDetailIndex++;
+    index++;
 }
+
+<script type="text/javascript">
+    function deleteFamilyDetails(Id) {        
+        $("#" + Id).remove();
+        AddNewFamily(true);
+    }
+</script>
