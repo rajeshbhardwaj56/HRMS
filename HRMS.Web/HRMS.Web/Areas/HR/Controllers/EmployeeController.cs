@@ -13,6 +13,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             EmployeeModel employee = new EmployeeModel();
             employee.FamilyDetails.Add(new FamilyDetails());
+            employee.EducationalDetails.Add(new EducationalDetail());
             return View(employee);
         }
 
@@ -26,10 +27,22 @@ namespace HRMS.Web.Areas.HR.Controllers
             return PartialView("_FamilyDetails", employee);
         }
 
+
+        [HttpPost]
+        public ActionResult AddNewEducationalDetail(EmployeeModel employee, bool isDeleted)
+        {
+            if (!isDeleted)
+            {
+                employee.EducationalDetails.Add(new EducationalDetail() { });
+            }
+            return PartialView("_EducationalDetails", employee);
+        }
+        
+
         [HttpPost]
         public IActionResult Index(EmployeeModel employee)
         {
-           
+            
             return View(employee);
         }
     }

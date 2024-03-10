@@ -1,0 +1,90 @@
+﻿@model HRMS.Models.EmployeeModel
+@{
+    int familyDetailIndex = 0;
+}
+
+
+<div class="row">
+    <div class="col-md-1">
+        <b>SNo</b>
+    </div>
+
+    <div class="col-md-2">
+        <b>School/University</b>
+    </div>
+
+    <div class="col-md-2">
+        <b>Qualification (Degree/Deploma)</b>
+    </div>
+
+    <div class="col-md-1">
+        <b>Year of Passing</b>
+    </div>
+
+    <div class="col-md-2">
+        <b>Class/ Percentage</b>
+    </div>
+    <div class="col-md-3">
+        <b>Mazor/Optional Subjects</b>
+    </div>
+    <div class="col-md-1">
+        <b>Delete</b>
+    </div>
+</div>
+@{
+    int index = 1;
+}
+@foreach (var familyDetail in Model.EducationalDetails)
+{
+
+    var delete = (index.ToString()) + "EducationalDetailsDelete";
+
+
+    <div class="row" id="@(delete)">
+        <div class="col-md-1">
+            @(index).
+        </div>
+        <div class="col-md-2">
+
+            @Html.HiddenFor(m => m.EducationalDetails[familyDetailIndex].EducationDetailID)
+            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].School_University, new { @class = "form-control EducationalDetails", @required = "required" })
+           
+        </div>
+
+        <div class="col-md-2">
+            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].Qualification, new { @class = "form-control", @required = "required" })
+           
+
+        </div>
+
+        <div class="col-md-1">
+
+            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].YearOfPassing, new { @class = "form-control", @required = "required" })
+           
+
+        </div>
+
+        <div class="col-md-2">
+            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].Percentage, new { @class = "form-control" })
+           
+        </div>
+
+        <div class="col-md-3">
+            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].Major_OptionalSubjects, new { @class = "form-control" })
+
+        </div>
+
+        <div class="col-md-1">
+            <a onclick="deleteEducationalDetails('@(delete)')"><img style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
+        </div>
+    </div>
+    familyDetailIndex++;
+    index++;
+}
+
+<script type="text/javascript">
+    function deleteEducationalDetails(Id) {        
+        $("#" + Id).remove();
+        AddNewEducation(true);
+    }
+</script>

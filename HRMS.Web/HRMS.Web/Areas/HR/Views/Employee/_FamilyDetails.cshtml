@@ -46,26 +46,25 @@
 
             @Html.HiddenFor(m => m.FamilyDetails[familyDetailIndex].EmployeesFamilyDetailID)
             @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].FamilyName, new { @class = "form-control FamilyName", @required = "required" })
-            @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].FamilyName)
-
+           
         </div>
 
         <div class="col-md-2">
             @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Relationship, new { @class = "form-control", @required = "required" })
-            @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Relationship)
+           
 
         </div>
 
         <div class="col-md-3">
 
             @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Age, new { @class = "form-control", @required = "required" })
-            @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Age)
+           
 
         </div>
 
         <div class="col-md-3">
             @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Details, new { @class = "form-control" })
-            @Html.ValidationMessageFor(m => m.FamilyDetails[familyDetailIndex].Details)
+           
         </div>
 
         <div class="col-md-1">

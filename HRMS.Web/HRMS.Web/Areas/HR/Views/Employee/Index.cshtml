@@ -227,7 +227,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-                    <label for="validationDefault01" class="form-label">Family Details </label>   <input type="button" style="float:right;" id="AddNewFamily" value="Add New Family" />
+                    <label for="validationDefault01" class="form-label">Family Details </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewFamily" value="Add New Family" />
                 </div>
             </div>
 
@@ -242,12 +242,119 @@
             </div>
 
             <div class="row">
+                <div class="col-md-8">
+                    Do you have any relatives working with Eternity Logistics?
+                </div>
+                <div class="col-md-1">
+                    <input type="radio" group="group" /> Yes
+                </div>
+                <div class="col-md-1">
+                    <input type="radio" group="group" /> No
+                </div>
+            </div>
+
+             <div class="row">
+                <div class="col-md-6">
+                    if Yes Elaborate
+                </div>
+                <div class="col-md-6">
+                    @Html.TextAreaFor(a => a.RelativesWorkingWithCompany, new { @class = "form-control" })
+                </div>
+            </div>
+
+            
+            <div class="row">
+                <div class="col-md-8">
+                    Have you been refered by an Eternity Logistics employee?
+                </div>
+                <div class="col-md-1">
+                    <input type="radio" group="group" /> Yes
+                </div>
+                <div class="col-md-1">
+                    <input type="radio" group="group" /> No
+                </div>
+            </div>
+
+
+             <div class="row">
+                <div class="col-md-6">
+                    if Yes Please mention Name and Designition
+                </div>
+                <div class="col-md-6">
+                    @Html.TextAreaFor(a => a.ReferredByEmployeeID, new { @class = "form-control" })
+                </div>
+            </div>
+
+
+             <div class="row">
+                <div class="col-md-3">
+                    Blood Group
+                </div>
+                <div class="col-md-3">
+                    @Html.TextBoxFor(a => a.BloodGroup, new { @class = "form-control" })
+                </div>
+
+                 <div class="col-md-3">
+                  Allergies
+                </div>
+                <div class="col-md-3">
+                    @Html.TextBoxFor(a => a.Allergies, new { @class = "form-control" })
+                </div>
+
+            </div>
+
+
+             <div class="row">
+                <div class="col-md-6">
+                    Please mention, if you any mazor illness/Handicap/Permanent disabilities or any gamily history on same.
+                </div>
+                <div class="col-md-6">
+                    @Html.TextAreaFor(a => a.MajorIllnessOrDisability, new { @class = "form-control" })
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-3">
+                   Pan No
+                </div>
+                <div class="col-md-3">
+                    @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-3">
+                  Adhar card No
+                </div>
+                <div class="col-md-3">
+                    @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @required = "required" })
+                </div>
+
+            </div>
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+            <div class="row">
+                <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+                    <label for="validationDefault01" class="form-label">Educational/Professional Trainnings </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEducation" value="Add New Education" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12" id="EducationalDetails">
+                    @Html.Partial("_EducationalDetails", Model)
+                </div>
+            </div>
+
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+            <div class="row">
                 <div class="col-md-12">
-                   @*  <input type="reset" class="btn btn-danger" value="Reset" style="float:right" /> &nbsp;&nbsp;&nbsp;&nbsp; *@
-                    
                     <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
-
-
                 </div>
             </div>
         </div>
@@ -256,7 +363,7 @@
 <script type="text/javascript">
 
     var url = "@Url.Action("AddNewFamilyMember", "Employee")";
-
+    var urlEducationalDetails = "@Url.Action("AddNewEducationalDetail", "Employee")";
     function AddNewFamily(isDeleted) {
         var familyMembers = [];
         if ($('.FamilyName').length > 0) {
@@ -283,11 +390,43 @@
         });
     }
 
+
+    function AddNewEducation(isDeleted) {
+        var EducationalDetails = [];
+        if ($('.EducationalDetails').length > 0) {
+            var elementID = '';
+            $('.EducationalDetails').each(function (index, element) {
+                elementID = element.id;
+                var EducationalDetail = {
+                    School_University: $("#" + elementID).val(),
+                    EducationDetailID: $("#" + elementID.replace("School_University", "EducationDetailID")).val(),
+                    Qualification: $("#" + elementID.replace("School_University", "Qualification")).val(),
+                    YearOfPassing: $("#" + elementID.replace("School_University", "YearOfPassing")).val(),
+                    Percentage: $("#" + elementID.replace("School_University", "Percentage")).val(),
+                    Major_OptionalSubjects: $("#" + elementID.replace("School_University", "Major_OptionalSubjects")).val()
+                };
+                EducationalDetails.push(EducationalDetail);
+            });
+        }
+        var model = { EducationalDetails: EducationalDetails, isDeleted: isDeleted };
+
+        $.post(urlEducationalDetails, model, function (res) {
+            //res contains the markup returned by the partial view
+            //You probably want to set that to some Div.
+            $("#EducationalDetails").html(res);
+        });
+    }
+
     $(document).ready(function () {
         var familyMembers = [];
         $('#AddNewFamily').click(function () {
             AddNewFamily(false);
         });
+
+        $('#AddNewEducation').click(function () {
+            AddNewEducation(false);
+        });
+        
     });
 
 

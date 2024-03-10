@@ -50,6 +50,7 @@ namespace HRMS.Models
         public DateTime InsertedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public List<FamilyDetails> FamilyDetails { get; set; } = new List<FamilyDetails>();
+        public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();
 
     }
 
@@ -60,5 +61,18 @@ namespace HRMS.Models
         public string Relationship { get; set; } = string.Empty;
         public string Age { get; set; } = string.Empty;
         public string Details { get; set; } = string.Empty;
+    }
+
+
+    public class EducationalDetail
+    {
+        public long EducationDetailID { get; set; }
+        public long EducationID { get; set; }
+        public string School_University { get; set; } = string.Empty;
+        public string Qualification { get; set; } = string.Empty;
+        public string YearOfPassing { get; set; } = string.Empty;
+        public string Percentage { get; set; } = string.Empty;
+        public string Major_OptionalSubjects { get; set; } = string.Empty;
+        
     }
 }
