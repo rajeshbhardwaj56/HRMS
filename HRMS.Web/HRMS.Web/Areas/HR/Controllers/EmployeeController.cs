@@ -16,7 +16,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(employee);
         }
 
-
         [HttpPost]
         public ActionResult AddNewFamilyMember(EmployeeModel employee, bool isDeleted)
         {
@@ -26,7 +25,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             return PartialView("_FamilyDetails", employee);
         }
-
 
         [HttpPost]
         public IActionResult Index(EmployeeModel employee)
