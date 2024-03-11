@@ -12,7 +12,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         public IActionResult Index()
         {
             EmployeeModel employee = new EmployeeModel();
-            employee.FamilyDetails.Add(new FamilyDetails());
+            employee.FamilyDetails.Add(new FamilyDetail());
             employee.EducationalDetails.Add(new EducationalDetail());
             return View(employee);
         }
@@ -22,7 +22,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             if (!isDeleted)
             {
-                employee.FamilyDetails.Add(new FamilyDetails() { });
+                employee.FamilyDetails.Add(new FamilyDetail() { });
             }
             return PartialView("_FamilyDetails", employee);
         }
