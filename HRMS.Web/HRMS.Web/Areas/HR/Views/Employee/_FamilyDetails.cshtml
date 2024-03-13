@@ -1,6 +1,7 @@
-﻿@model HRMS.Models.EmployeeModel
+﻿@using HRMS.Models.Employee;
+@model EmployeeModel
 @{
-    int familyDetailIndex = 0;
+    int Index = 0;
 }
 
 
@@ -44,26 +45,26 @@
         </div>
         <div class="col-md-2">
 
-            @Html.HiddenFor(m => m.FamilyDetails[familyDetailIndex].EmployeesFamilyDetailID)
-            @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].FamilyName, new { @class = "form-control FamilyName", @required = "required" })
+            @Html.HiddenFor(m => m.FamilyDetails[Index].EmployeesFamilyDetailID)
+            @Html.TextBoxFor(a => a.FamilyDetails[Index].FamilyName, new { @class = "form-control FamilyName", @required = "required" })
            
         </div>
 
         <div class="col-md-2">
-            @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Relationship, new { @class = "form-control", @required = "required" })
+            @Html.TextBoxFor(a => a.FamilyDetails[Index].Relationship, new { @class = "form-control", @required = "required" })
            
 
         </div>
 
         <div class="col-md-3">
 
-            @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Age, new { @class = "form-control", @required = "required" })
+            @Html.TextBoxFor(a => a.FamilyDetails[Index].Age, new { @class = "form-control", @required = "required" })
            
 
         </div>
 
         <div class="col-md-3">
-            @Html.TextBoxFor(a => a.FamilyDetails[familyDetailIndex].Details, new { @class = "form-control" })
+            @Html.TextBoxFor(a => a.FamilyDetails[Index].Details, new { @class = "form-control" })
            
         </div>
 
@@ -71,7 +72,7 @@
             <a onclick="deleteFamilyDetails('@(delete)')"><img  style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
         </div>
     </div>
-    familyDetailIndex++;
+    Index++;
     index++;
 }
 

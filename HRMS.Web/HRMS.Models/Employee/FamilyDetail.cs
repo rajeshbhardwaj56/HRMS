@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HRMS.Models
+namespace HRMS.Models.Employee
 {
     public class FamilyDetail
     {

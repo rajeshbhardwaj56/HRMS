@@ -1,6 +1,7 @@
-﻿@model HRMS.Models.EmployeeModel
+﻿@using HRMS.Models.Employee;
+@model EmployeeModel
 @{
-    int familyDetailIndex = 0;
+    int Index = 0;
 }
 
 
@@ -46,31 +47,33 @@
         </div>
         <div class="col-md-2">
 
-            @Html.HiddenFor(m => m.EducationalDetails[familyDetailIndex].EducationDetailID)
-            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].School_University, new { @class = "form-control EducationalDetails", @required = "required" })
-           
+            @Html.HiddenFor(m => m.EducationalDetails[Index].EducationDetailID)
+            @Html.TextBoxFor(a => a.EducationalDetails[Index].School_University, new { @class = "form-control EducationalDetails", @required = "required" })
+
+
+
         </div>
 
         <div class="col-md-2">
-            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].Qualification, new { @class = "form-control", @required = "required" })
+            @Html.TextBoxFor(a => a.EducationalDetails[Index].Qualification, new { @class = "form-control", @required = "required" })
            
 
         </div>
 
         <div class="col-md-1">
 
-            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].YearOfPassing, new { @class = "form-control", @required = "required" })
+            @Html.TextBoxFor(a => a.EducationalDetails[Index].YearOfPassing, new { @class = "form-control", @required = "required" })
            
 
         </div>
 
         <div class="col-md-2">
-            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].Percentage, new { @class = "form-control" })
+            @Html.TextBoxFor(a => a.EducationalDetails[Index].Percentage, new { @class = "form-control" })
            
         </div>
 
         <div class="col-md-3">
-            @Html.TextBoxFor(a => a.EducationalDetails[familyDetailIndex].Major_OptionalSubjects, new { @class = "form-control" })
+            @Html.TextBoxFor(a => a.EducationalDetails[Index].Major_OptionalSubjects, new { @class = "form-control" })
 
         </div>
 
@@ -78,7 +81,7 @@
             <a onclick="deleteEducationalDetails('@(delete)')"><img style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
         </div>
     </div>
-    familyDetailIndex++;
+    Index++;
     index++;
 }
 

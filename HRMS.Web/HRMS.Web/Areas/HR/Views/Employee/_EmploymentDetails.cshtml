@@ -1,0 +1,239 @@
+﻿@using HRMS.Models.Employee;
+@model EmployeeModel
+
+@{
+    int Index = 0;
+    int index = 1;
+}
+@foreach (var familyDetail in Model.EmploymentDetails)
+{
+
+    var delete = (index.ToString()) + "EmploymentDetailsDelete";
+
+
+    <div class="row" id="@(delete)">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-10">
+                    <b> Employer-@(index)</b>
+                </div>
+
+                <div class="col-md-1">
+                </div>
+
+                <div class="col-md-1">
+                    <a onclick="deleteEmploymentDetails('@(delete)')"><img style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3">
+                            Company Name
+                        </div>
+                        <div class="col-md-3">
+                            Employee ID
+                        </div>
+                        <div class="col-md-3">
+                            From
+                        </div>
+
+                        <div class="col-md-3">
+                            To
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+
+                            @Html.HiddenFor(m => m.EmploymentDetails[Index].EmploymentDetailID)
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].CompanyName, new { @class = "form-control EmploymentDetail", @required = "required" })
+
+                        </div>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].EmployementID, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].From, new { @class = "form-control", @required = "required" })
+
+                        </div>
+
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].To, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            Address/Branch
+                        </div>
+                        <div class="col-md-6">
+                            Phone
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].Address, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                        <div class="col-md-6">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].Phone, new { @class = "form-control", @required = "required" })
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            City
+                        </div>
+                        <div class="col-md-3">
+                            State
+                        </div>
+                        <div class="col-md-3">
+                            Country
+                        </div>
+                        <div class="col-md-3">
+                            Postal Code
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].City, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].State, new { @class = "form-control", @required = "required" })
+
+                        </div>
+
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].Country, new { @class = "form-control", @required = "required" })
+
+                        </div>
+
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].PostalCode, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            Reasion for Leaving
+                        </div>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].ReasionFoLeaving, new { @class = "form-control", @required = "required" })
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            Designition (As per document)
+                        </div>
+                        <div class="col-md-6">
+                            Final Gross Salary(as per Company Letter)
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].Designition, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                        <div class="col-md-6">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].GrossSalary, new { @class = "form-control", @required = "required" })
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            Supervisor Name
+                        </div>
+                        <div class="col-md-4">
+                            Supervisor's Designition
+                        </div>
+                        <div class="col-md-4">
+                            Supervisor's ContactNo
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].SupervisorName, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].SupervisorDesignition, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].SupervisorContactNo, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            HR Manager Name
+                        </div>
+                        <div class="col-md-4">
+                            HR Manager's ContactNo
+                        </div>
+                        <div class="col-md-4">
+                            HR Manager's Email
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].HRName, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].HREmail, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].HRContactNo, new { @class = "form-control", @required = "required" })
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row">
+                &nbsp;
+                <hr style="width:100%" />
+            </div>
+        </div>
+    </div>
+
+    Index++;
+    index++;
+}
+
+<script type="text/javascript">
+    function deleteEmploymentDetails(Id) {
+        $("#" + Id).remove();
+        AddNewEmployment(true);
+    }
+</script>

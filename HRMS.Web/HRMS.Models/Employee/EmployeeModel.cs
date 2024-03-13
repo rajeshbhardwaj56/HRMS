@@ -5,8 +5,10 @@ using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using HRMS.Models.Common;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace HRMS.Models
+namespace HRMS.Models.Employee
 {
     public class EmployeeModel
     {
@@ -45,15 +47,26 @@ namespace HRMS.Models
         public string RelativesWorkingWithCompany { get; set; } = string.Empty;
         public string RelativesDetails { get; set; } = string.Empty;
         public string MajorIllnessOrDisability { get; set; } = string.Empty;
+
+        public string AwardsAchievements { get; set; } = string.Empty;
+        public string EducationGap { get; set; } = string.Empty;
+
+        public string ITSkillsKnowledge { get; set; } = string.Empty;
         public long InsertedByUserID { get; set; }
         public long UpdatedByUserID { get; set; }
         public DateTime InsertedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
         public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();
+        public List<LanguageDetail> LanguageDetails { get; set; } = new List<LanguageDetail>();
+        public List<EmploymentDetail> EmploymentDetails { get; set; } = new List<EmploymentDetail>();
 
+        // Master Details
+        public List<SelectListItem> Languages = new List<SelectListItem>();
+        public List<SelectListItem> Educations = new List<SelectListItem>();
+        
     }
-    
 
-   
+
+
 }

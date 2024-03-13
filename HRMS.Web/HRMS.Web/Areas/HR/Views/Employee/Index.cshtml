@@ -1,4 +1,5 @@
-﻿@model HRMS.Models.EmployeeModel
+﻿@using HRMS.Models.Employee;
+@model EmployeeModel
 @{
     Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Employee";
@@ -253,7 +254,7 @@
                 </div>
             </div>
 
-             <div class="row">
+            <div class="row">
                 <div class="col-md-6">
                     if Yes Elaborate
                 </div>
@@ -262,7 +263,7 @@
                 </div>
             </div>
 
-            
+
             <div class="row">
                 <div class="col-md-8">
                     Have you been refered by an Eternity Logistics employee?
@@ -276,7 +277,7 @@
             </div>
 
 
-             <div class="row">
+            <div class="row">
                 <div class="col-md-6">
                     if Yes Please mention Name and Designition
                 </div>
@@ -286,7 +287,7 @@
             </div>
 
 
-             <div class="row">
+            <div class="row">
                 <div class="col-md-3">
                     Blood Group
                 </div>
@@ -294,8 +295,8 @@
                     @Html.TextBoxFor(a => a.BloodGroup, new { @class = "form-control" })
                 </div>
 
-                 <div class="col-md-3">
-                  Allergies
+                <div class="col-md-3">
+                    Allergies
                 </div>
                 <div class="col-md-3">
                     @Html.TextBoxFor(a => a.Allergies, new { @class = "form-control" })
@@ -304,7 +305,7 @@
             </div>
 
 
-             <div class="row">
+            <div class="row">
                 <div class="col-md-6">
                     Please mention, if you any mazor illness/Handicap/Permanent disabilities or any gamily history on same.
                 </div>
@@ -316,14 +317,14 @@
 
             <div class="row">
                 <div class="col-md-3">
-                   Pan No
+                    Pan No
                 </div>
                 <div class="col-md-3">
                     @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
                 </div>
 
                 <div class="col-md-3">
-                  Adhar card No
+                    Adhar card No
                 </div>
                 <div class="col-md-3">
                     @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @required = "required" })
@@ -347,6 +348,74 @@
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col-md-12">
+                    Mention any Awards/Achievements/Scholarship recieved in you educational career
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    @Html.TextAreaFor(x => x.AwardsAchievements, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    State gaps in education, if any
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    @Html.TextAreaFor(x => x.EducationGap, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+            <div class="row">
+                <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+                    <label for="validationDefault01" class="form-label">Language Proficiency </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" id="LanguageDetails">
+                    @Html.Partial("_LanguageDetails", Model)
+                </div>
+            </div>
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    IT Skills/Knowledge (Indicate your level of Proficiency)
+                </div>
+            </div>
+
+            <div class="row">
+                @Html.TextAreaFor(x => x.ITSkillsKnowledge)
+            </div>
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+            <div class="row">
+                <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+                    <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" id="EmploymentDetails">
+                    @Html.Partial("_EmploymentDetails", Model)
+                </div>
+            </div>
 
             <div class="row">
                 &nbsp;
@@ -364,6 +433,9 @@
 
     var url = "@Url.Action("AddNewFamilyMember", "Employee")";
     var urlEducationalDetails = "@Url.Action("AddNewEducationalDetail", "Employee")";
+    var urlAddNewLanguageDetails = "@Url.Action("AddNewLanguageDetail", "Employee")";
+    var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentDetail", "Employee")";
+
     function AddNewFamily(isDeleted) {
         var familyMembers = [];
         if ($('.FamilyName').length > 0) {
@@ -417,6 +489,73 @@
         });
     }
 
+
+    function AddNewLanguage(isDeleted) {
+        var LanguageDetails = [];
+        if ($('.LanguageID').length > 0) {
+            var elementID = '';
+            $('.LanguageID').each(function (index, element) {
+                elementID = element.id;
+                var LanguageDetail = {
+                    LanguageID: $("#" + elementID).val(),
+                    LanguageDetailID: $("#" + elementID.replace("LanguageID", "EducationDetailID")).val(),
+                    IsSpeak: $("#" + elementID.replace("LanguageID", "IsSpeak")).is(":checked"),
+                    IsRead: $("#" + elementID.replace("LanguageID", "IsRead")).is(":checked"),
+                    IsWrite: $("#" + elementID.replace("LanguageID", "IsWrite")).is(":checked")
+                };
+                LanguageDetails.push(LanguageDetail);
+            });
+        }
+        var model = { LanguageDetails: LanguageDetails, isDeleted: isDeleted };
+
+        $.post(urlAddNewLanguageDetails, model, function (res) {
+            //res contains the markup returned by the partial view
+            //You probably want to set that to some Div.
+            $("#LanguageDetails").html(res);
+        });
+    }
+
+    function AddNewEmployment(isDeleted) {
+        debugger
+        var EmploymentDetails = [];
+        if ($('.EmploymentDetail').length > 0) {
+            var elementID = '';
+            $('.EmploymentDetail').each(function (index, element) {
+                elementID = element.id;
+                var EmploymentDetail = {
+                    CompanyName: $("#" + elementID).val(),
+                    EmployementID: $("#" + elementID.replace("CompanyName", "EmployementID")).val(),
+                    From: $("#" + elementID.replace("CompanyName", "From")).val(),
+                    To: $("#" + elementID.replace("CompanyName", "To")).val(),
+                    Address: $("#" + elementID.replace("CompanyName", "Address")).val(),
+                    Phone: $("#" + elementID.replace("CompanyName", "Phone")).val(),
+                    City: $("#" + elementID.replace("CompanyName", "City")).val(),
+                    State: $("#" + elementID.replace("CompanyName", "State")).val(),
+                    Country: $("#" + elementID.replace("CompanyName", "Country")).val(),
+                    PostalCode: $("#" + elementID.replace("CompanyName", "PostalCode")).val(),
+                    ReasionFoLeaving: $("#" + elementID.replace("CompanyName", "ReasionFoLeaving")).val(),
+                    Designition: $("#" + elementID.replace("CompanyName", "Designition")).val(),
+                    GrossSalary: $("#" + elementID.replace("CompanyName", "GrossSalary")).val(),
+                    SupervisorName: $("#" + elementID.replace("CompanyName", "SupervisorName")).val(),
+                    SupervisorDesignition: $("#" + elementID.replace("CompanyName", "SupervisorDesignition")).val(),
+                    SupervisorContactNo: $("#" + elementID.replace("CompanyName", "SupervisorContactNo")).val(),
+                    HRName: $("#" + elementID.replace("CompanyName", "HRName")).val(),
+                    HREmail: $("#" + elementID.replace("CompanyName", "HREmail")).val(),
+                    HRContactNo: $("#" + elementID.replace("CompanyName", "HRContactNo")).val(),
+                };
+
+                EmploymentDetails.push(EmploymentDetail);
+            });
+        }
+        var model = { EmploymentDetails: EmploymentDetails, isDeleted: isDeleted };
+
+        $.post(urlAddNewEmploymentDetails, model, function (res) {
+            //res contains the markup returned by the partial view
+            //You probably want to set that to some Div.
+            $("#EmploymentDetails").html(res);
+        });
+    }
+
     $(document).ready(function () {
         var familyMembers = [];
         $('#AddNewFamily').click(function () {
@@ -426,7 +565,13 @@
         $('#AddNewEducation').click(function () {
             AddNewEducation(false);
         });
-        
+        $('#AddNewLanguage').click(function () {
+            AddNewLanguage(false);
+        });
+        $('#AddNewEmployment').click(function () {
+            AddNewEmployment(false);
+        });
+
     });
 
 
