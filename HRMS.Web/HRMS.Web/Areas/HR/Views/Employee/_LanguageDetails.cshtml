@@ -46,8 +46,8 @@
         <div class="col-md-4">
 
             @Html.HiddenFor(m => m.LanguageDetails[Index].LanguageDetailID)
-          
-            @Html.DropDownListFor(x => x.LanguageDetails[Index].LanguageID, Model.Languages, "-- Select Language --", new { @class = "form-control LanguageID", @required = "required" })
+
+            @Html.DropDownListFor(x => x.LanguageDetails[Index].LanguageID, Model.Languages, HRMS.Models.Common.Constants.SelectLanguage, new { @class = "form-control LanguageID", @required = "required" })
 
         </div>
 

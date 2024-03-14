@@ -55,12 +55,12 @@
 
                         </div>
                         <div class="col-md-3">
-                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].From, new { @class = "form-control", @required = "required" })
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].From, new { @class = "form-control", @type = "date", @required = "required" })
 
                         </div>
 
                         <div class="col-md-3">
-                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].To, new { @class = "form-control", @required = "required" })
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].To, new { @class = "form-control", @type = "date", @required = "required" })
 
                         </div>
                     </div>
@@ -117,8 +117,7 @@
                         </div>
 
                         <div class="col-md-3">
-                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].Country, new { @class = "form-control", @required = "required" })
-
+                            @Html.DropDownListFor(x => x.EmploymentDetails[Index].CountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
                         </div>
 
                         <div class="col-md-3">
@@ -128,10 +127,10 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             Reasion for Leaving
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             @Html.TextBoxFor(a => a.EmploymentDetails[Index].ReasionFoLeaving, new { @class = "form-control", @required = "required" })
 
                         </div>

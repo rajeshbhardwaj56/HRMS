@@ -3,6 +3,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography.Xml;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
@@ -17,6 +18,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.EducationalDetails.Add(new EducationalDetail());
             employee.LanguageDetails.Add(new LanguageDetail());
             employee.EmploymentDetails.Add(new EmploymentDetail());
+            
             return View(employee);
         }
 

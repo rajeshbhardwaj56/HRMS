@@ -18,7 +18,7 @@ namespace HRMS.Models.Employee
         public string Phone { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string State { get; set; } = string.Empty;
-        public string Country { get; set; } = string.Empty;
+        public long CountryID { get; set; }
         public string PostalCode { get; set; } = string.Empty;
         public string ReasionFoLeaving { get; set; } = string.Empty;
         public string Designition { get; set; } = string.Empty;

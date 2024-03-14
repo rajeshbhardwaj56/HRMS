@@ -20,6 +20,8 @@ namespace HRMS.Models.Common
         public const string ManageAdmin = "admin";
         public const string ManageHR = "hr";
         public const string ManageEmployee = "employee";
+        public const string SelectLanguage = "-- Select Language --";
+        public const string SelectCountry = "-- Select Country --";
     }
 
     public class RoleConstants

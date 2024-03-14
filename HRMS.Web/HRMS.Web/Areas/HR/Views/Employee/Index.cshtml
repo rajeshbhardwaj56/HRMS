@@ -86,6 +86,14 @@
                 </div>
             </div>
 
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Country
+                </div>
+                <div class="col-md-12">
+                    @Html.DropDownListFor(x => x.CorrespondenceCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
 
             <div class="col-md-4">
                 <div class="col-md-12">
@@ -118,7 +126,12 @@
                 </div>
             </div>
 
-
+            <div class="col-md-4">
+                <div class="col-md-12">
+                </div>
+                <div class="col-md-12">
+                </div>
+            </div>
 
             <div class="col-md-4">
                 <div class="col-md-12">
@@ -160,6 +173,16 @@
                     @Html.ValidationMessageFor(m => m.PermanentState)
                 </div>
             </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Country
+                </div>
+                <div class="col-md-12">
+                    @Html.DropDownListFor(x => x.PermanentCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+
 
             <div class="col-md-4">
                 <div class="col-md-12">
@@ -422,12 +445,121 @@
             </div>
 
             <div class="row">
+                <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+                    <label class="form-label">References </label>
+                </div>
+
+                <div class="col-md-12" id="ReferenceDetails">
+                    @Html.Partial("_ReferenceDetails", Model)
+                </div>
+
+
+                <div class="row">
+                    &nbsp;
+                </div>
+
+
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+                    <label class="form-label">General Information </label>
+                </div>
+
                 <div class="col-md-12">
-                    <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+                    Information of extra-curricular/liesure activities, Hobbies
+                </div>
+
+
+
+                <div class="col-md-12">
+                    @Html.TextAreaFor(a => a.ExtraCuricuarActivities, new { @class = "form-control" })
+
+                </div>
+
+
+                <div class="row">
+                    &nbsp;
+                </div>
+
+
+
+                <div class="col-md-12">
+                    Foriegn Countries visited in last 5 years
+                </div>
+
+
+
+                <div class="col-md-12">
+                    @Html.TextAreaFor(a => a.ForiegnCountryVisits, new { @class = "form-control" })
+
+                </div>
+
+
+                <div class="row">
+                    &nbsp;
+                </div>
+
+
+
+
+                <div class="col-md-12">
+                    <b> Person to be contacted, in case of emergency</b>
+                </div>
+
+
+                <div class="col-md-3">
+                    Contact Person Name
+
+                </div>
+                <div class="col-md-3">
+                    Relationship
+                </div>
+
+                <div class="col-md-3">
+                    Mobile
+
+                </div>
+
+                <div class="col-md-3">
+                    Tel
+
+                </div>
+
+
+
+                <div class="col-md-3">
+                    @Html.TextBoxFor(a => a.ContactPersonName, new { @class = "form-control" })
+
+                </div>
+                <div class="col-md-3">
+                    @Html.TextBoxFor(a => a.ContactPersonRelationship, new { @class = "form-control" })
+
+                </div>
+
+                <div class="col-md-3">
+                    @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control" })
+
+                </div>
+
+                <div class="col-md-3">
+                    @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control" })
+
+                </div>
+
+
+                <div class="row">
+                    &nbsp;
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 </form>
 <script type="text/javascript">
 
@@ -531,7 +663,7 @@
                     Phone: $("#" + elementID.replace("CompanyName", "Phone")).val(),
                     City: $("#" + elementID.replace("CompanyName", "City")).val(),
                     State: $("#" + elementID.replace("CompanyName", "State")).val(),
-                    Country: $("#" + elementID.replace("CompanyName", "Country")).val(),
+                    CountryID: $("#" + elementID.replace("CompanyName", "CountryID")).val(),
                     PostalCode: $("#" + elementID.replace("CompanyName", "PostalCode")).val(),
                     ReasionFoLeaving: $("#" + elementID.replace("CompanyName", "ReasionFoLeaving")).val(),
                     Designition: $("#" + elementID.replace("CompanyName", "Designition")).val(),
