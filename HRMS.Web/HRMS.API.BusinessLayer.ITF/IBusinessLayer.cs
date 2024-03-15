@@ -10,5 +10,7 @@ namespace HRMS.API.BusinessLayer.ITF
     public interface IBusinessLayer
     {
         LoginUser LoginUser(LoginUser loginUser);
+        public Results GetAllCountries();
+        public Results GetAllLangueges();
     }
 }

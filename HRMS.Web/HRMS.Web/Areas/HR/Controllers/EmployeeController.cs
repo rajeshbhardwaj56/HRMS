@@ -1,8 +1,10 @@
 ﻿using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
+using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Security.Cryptography.Xml;
 
 namespace HRMS.Web.Areas.HR.Controllers
@@ -11,14 +13,30 @@ namespace HRMS.Web.Areas.HR.Controllers
     [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin))]
     public class EmployeeController : Controller
     {
+
+        IConfiguration _configuration;
+        IBusinessLayer _businessLayer;
+        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer)
+        {
+            _configuration = configuration;
+            _businessLayer = businessLayer;
+        }
+
         public IActionResult Index(string id)
         {
             EmployeeModel employee = new EmployeeModel();
-            employee.FamilyDetails.Add(new FamilyDetail());
-            employee.EducationalDetails.Add(new EducationalDetail());
-            employee.LanguageDetails.Add(new LanguageDetail());
-            employee.EmploymentDetails.Add(new EmploymentDetail());
-            
+            if (string.IsNullOrEmpty(id))
+            {
+                employee.FamilyDetails.Add(new FamilyDetail());
+                employee.EducationalDetails.Add(new EducationalDetail());
+                employee.LanguageDetails.Add(new LanguageDetail());
+                employee.EmploymentDetails.Add(new EmploymentDetail());
+            }
+
+            var data = _businessLayer.SendPostAPIRequest(null, "Common/GetAllResults", HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            employee.Languages = result.Langueges;
+            employee.Countries = result.Countries;
             return View(employee);
         }
 
@@ -72,6 +90,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 
 
-       
+
     }
 }

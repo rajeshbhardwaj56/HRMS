@@ -1,6 +1,7 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
 using HRMS.API.DataLayer.ITF;
 using HRMS.Models.Common;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace HRMS.API.BusinessLayer
 {
-    public class BusinessLayer: IBusinessLayer
+    public class BusinessLayer : IBusinessLayer
     {
         IDataLayer DataLayer { get; set; }
         public BusinessLayer(IConfiguration configuration, IDataLayer dataLayer)
@@ -52,7 +53,7 @@ namespace HRMS.API.BusinessLayer
             }
             return loginUser;
         }
-                
+
 
         public string GetFullUrlByRole(int RoleID)
         {
@@ -72,6 +73,64 @@ namespace HRMS.API.BusinessLayer
                     break;
             }
             return RootName;
+        }
+
+
+        public Results GetAllCountries()
+        {
+            Results model = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+          
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Counteres, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow => new Results
+                   {
+                       Result = dataRow.Field<int>("Result").ToString(),
+                   }).ToList().FirstOrDefault();
+
+            }
+            else
+            {
+                model.Countries = dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new SelectListItem
+                               {
+                                   Text = dataRow.Field<string>("Name"),
+                                   Value = dataRow.Field<long>("CountryID").ToString()
+                               }).ToList();
+            }
+            return model;
+        }
+
+
+        public Results GetAllLangueges()
+        {
+            Results model = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Languages, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow => new Results
+                   {
+                       Result = dataRow.Field<int>("Result").ToString(),
+                   }).ToList().FirstOrDefault();
+
+            }
+            else
+            {
+                model.Langueges = dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new SelectListItem
+                               {
+                                   Text = dataRow.Field<string>("Name"),
+                                   Value = dataRow.Field<long>("LanguageID").ToString()
+                               }).ToList();
+            }
+            return model;
         }
     }
 }
