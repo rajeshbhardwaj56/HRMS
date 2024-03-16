@@ -51,12 +51,10 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
-
                 employee.Languages = results.Langueges;
                 employee.Countries = results.Countries;
                 employee.EmploymentTypes = results.EmploymentTypes;
                 employee.Departments = results.Departments;
-
                 return View(employee);
             }
             else
