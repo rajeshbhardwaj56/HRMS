@@ -9,8 +9,18 @@ namespace HRMS.Models.Common
 {
     public class Results
     {
-        public string Result { get; set; }
-        public List<SelectListItem> Countries { get; set; }
-        public List<SelectListItem> Langueges { get; set; }
+        public Result Result { get; set; } = new Result();
+        public List<SelectListItem> Countries { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Langueges { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
+    }
+
+
+
+    public class Result
+    {
+        public string Message { get; set; }
+        public string ErrorCode { get; set; }
     }
 }

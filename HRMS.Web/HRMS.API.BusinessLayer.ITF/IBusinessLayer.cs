@@ -1,4 +1,6 @@
 ﻿using HRMS.Models.Common;
+using HRMS.Models.Employee;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +14,9 @@ namespace HRMS.API.BusinessLayer.ITF
         LoginUser LoginUser(LoginUser loginUser);
         public Results GetAllCountries();
         public Results GetAllLangueges();
+        public Results GetAllCompanyLangueges(long companyID);
+        public Results GetAllCompanyDepartments(long companyID);
+        public Results GetAllCompanyEmployeeTypes(long companyID);
+        public Result AddUpdateEmployee(EmployeeModel model);
     }
 }

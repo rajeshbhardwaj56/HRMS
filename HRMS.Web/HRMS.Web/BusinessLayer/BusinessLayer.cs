@@ -16,6 +16,7 @@ namespace HRMS.Web.BusinessLayer
         public string GetControllarNameByRole(int RoleID);
         public string GetAreaNameByRole(int RoleID);
 
+        public string GetFormattedAPIUrl(string ApiControllarName, string APIActionName);
     }
 
 
@@ -33,6 +34,10 @@ namespace HRMS.Web.BusinessLayer
             BaseAPIUrl = _configuration.GetSection("AppSettings").GetSection("BaseAPIUrl").Value;
         }
 
+        public string GetFormattedAPIUrl(string ApiControllarName, string APIActionName)
+        {
+            return string.Format("{0}/{1}", ApiControllarName, APIActionName);
+        }
         public async Task<object> SendPostAPIRequest(object body, string ActionUrl, string BearerToken, bool isTokenRequired = true)
         {
             _httpClient = new HttpClient();
@@ -49,7 +54,7 @@ namespace HRMS.Web.BusinessLayer
             var requestContent = new StringContent(requestData, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(apiUrl, requestContent);
-           
+
             response.EnsureSuccessStatusCode();
             _httpClient.DefaultRequestHeaders.Clear();
             return await response.Content.ReadAsStringAsync();

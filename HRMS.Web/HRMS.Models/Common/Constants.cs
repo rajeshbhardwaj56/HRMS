@@ -22,6 +22,9 @@ namespace HRMS.Models.Common
         public const string ManageEmployee = "employee";
         public const string SelectLanguage = "-- Select Language --";
         public const string SelectCountry = "-- Select Country --";
+        public const string SelectEmployeeType = "-- Select Employee Type --";
+        public const string SelectDeportment = "-- Select Deportment --";
+
     }
 
     public class RoleConstants
@@ -37,5 +40,17 @@ namespace HRMS.Models.Common
         HR = 1,
         Admin,
         Employee
+    }
+
+
+    public class APIControllarsConstants
+    {
+        public const string Employee = "Employee";      
+    }
+
+    public class APIApiActionConstants
+    {
+        public const string AddUpdateEmployee = "AddUpdateEmployee";
+
     }
 }

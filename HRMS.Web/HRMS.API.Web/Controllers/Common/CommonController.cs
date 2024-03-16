@@ -19,14 +19,16 @@ namespace HRMS.API.Web.Controllers.Common
             _businessLayer = businessLayer;
         }
 
-        [HttpPost]
+        [HttpGet]
         [OutputCache(Duration = 999999)]
-        public IActionResult GetAllResults()
+        public IActionResult GetAllResults(long CompanyID)
         {
             IActionResult response = Unauthorized();
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             results.Countries = _businessLayer.GetAllCountries().Countries;
-            results.Langueges = _businessLayer.GetAllLangueges().Langueges;
+            results.Langueges = _businessLayer.GetAllCompanyLangueges(CompanyID).Langueges;
+            results.Departments = _businessLayer.GetAllCompanyDepartments(CompanyID).Departments;
+            results.EmploymentTypes = _businessLayer.GetAllCompanyEmployeeTypes(CompanyID).EmploymentTypes;
             response = Ok(results);
             return response;
         }

@@ -7,9 +7,52 @@
 
 <form method="post">
     <div class="Container">
+
+        <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+            <label class="form-label">Employment Details </label>
+
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Employment Type
+                </div>
+                <div class="col-md-12">
+                    @Html.DropDownListFor(x => x.EmployeeTypeID, Model.EmploymentTypes, HRMS.Models.Common.Constants.SelectEmployeeType, new { @class = "form-control", @required = "required" })
+
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Department
+                </div>
+                <div class="col-md-12">
+                    @Html.DropDownListFor(x => x.DepartmentID, Model.Departments, HRMS.Models.Common.Constants.SelectDeportment, new { @class = "form-control", @required = "required" })
+
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Official Email Address
+                </div>
+                <div class="col-md-12">
+                    @Html.TextBoxFor(a => a.EmailAddress, new { @class = "form-control" , @required = "required" })
+                    @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                &nbsp;
+            </div>
+        </div>
+
         <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
             <label for="validationDefault01" class="form-label">Personal Details </label>
-
+            @Html.HiddenFor(m => m.EmployeeID)
+            @Html.HiddenFor(m => m.CompanyID)
 
         </div>
         <div class="row">
@@ -19,7 +62,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.FirstName)
+                    @*  @Html.ValidationMessageFor(m => m.FirstName) *@
                 </div>
             </div>
 
@@ -38,7 +81,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.Surname)
+                    @*   @Html.ValidationMessageFor(m => m.Surname) *@
                 </div>
             </div>
 
@@ -48,7 +91,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextAreaFor(a => a.CorrespondenceAddress, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.CorrespondenceAddress)
+                    @*  @Html.ValidationMessageFor(m => m.CorrespondenceAddress) *@
                 </div>
             </div>
 
@@ -58,7 +101,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.CorrespondenceCity, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.CorrespondenceCity)
+                    @*   @Html.ValidationMessageFor(m => m.CorrespondenceCity) *@
                 </div>
             </div>
 
@@ -68,7 +111,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.CorrespondencePinCode, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.CorrespondencePinCode)
+                    @*  @Html.ValidationMessageFor(m => m.CorrespondencePinCode) *@
                 </div>
             </div>
 
@@ -78,7 +121,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.CorrespondenceState, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.CorrespondenceState)
+                    @* @Html.ValidationMessageFor(m => m.CorrespondenceState) *@
                 </div>
             </div>
 
@@ -97,7 +140,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.Landline, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Landline)
+                    @*  @Html.ValidationMessageFor(m => m.Landline) *@
                 </div>
             </div>
 
@@ -106,8 +149,8 @@
                     Mobile
                 </div>
                 <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Mobile)
+                    @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control", @required = "required" })
+                    @*  @Html.ValidationMessageFor(m => m.Mobile) *@
                 </div>
             </div>
 
@@ -116,8 +159,8 @@
                     Personal Email Address
                 </div>
                 <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.PersonalEmailAddress)
+                    @Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control", @required = "required" })
+                    @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
                 </div>
             </div>
 
@@ -133,8 +176,8 @@
                     Permanent Address
                 </div>
                 <div class="col-md-12">
-                    @Html.TextAreaFor(a => a.PermanentAddress, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.PermanentAddress)
+                    @Html.TextAreaFor(a => a.PermanentAddress, new { @class = "form-control", @required = "required" })
+                    @*     @Html.ValidationMessageFor(m => m.PermanentAddress) *@
                 </div>
             </div>
 
@@ -144,7 +187,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.PermanentCity, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.PermanentCity)
+                    @*  @Html.ValidationMessageFor(m => m.PermanentCity) *@
                 </div>
             </div>
 
@@ -154,7 +197,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.PermanentPinCode, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.PermanentPinCode)
+                    @*   @Html.ValidationMessageFor(m => m.PermanentPinCode) *@
                 </div>
             </div>
 
@@ -164,7 +207,7 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.PermanentState, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.PermanentState)
+                    @*  @Html.ValidationMessageFor(m => m.PermanentState) *@
                 </div>
             </div>
 
@@ -183,17 +226,42 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.Telephone, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Telephone)
+                    @*  @Html.ValidationMessageFor(m => m.Telephone) *@
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Date of Birth
+                </div>
+                <div class="col-md-12">
+                    @Html.TextBoxFor(a => a.DateOfBirth, new { @class = "form-control", @type = "date", @required = "required" })
+                    @* @Html.ValidationMessageFor(m => m.DateOfBirth) *@
                 </div>
             </div>
 
+
+
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Place of Birth
+                </div>
+                <div class="col-md-12">
+                    @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
+                    @*   @Html.ValidationMessageFor(m => m.PlaceOfBirth) *@
+                </div>
+            </div>
+
+            <div class="row">
+                &nbsp;
+            </div>
             <div class="col-md-4">
                 <div class="col-md-12">
                     Contact Persion Name for Verification
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.VerificationContactPersonName, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.VerificationContactPersonName)
+                    @*  @Html.ValidationMessageFor(m => m.VerificationContactPersonName) *@
                 </div>
             </div>
 
@@ -203,41 +271,11 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.VerificationContactPersonContactNo)
+                    @* @Html.ValidationMessageFor(m => m.VerificationContactPersonContactNo) *@
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="col-md-12">
-                    Date of Birth
-                </div>
-                <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.DateOfBirth, new { @class = "form-control", @type = "date", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.DateOfBirth)
-                </div>
-            </div>
-
-
-            <div class="col-md-4">
-                <div class="col-md-12">
-                    Place of Birth
-                </div>
-                <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.PlaceOfBirth)
-                </div>
-            </div>
-
-
-            <div class="col-md-4">
-                <div class="col-md-12">
-                    Place of Birth
-                </div>
-                <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
-                    @Html.ValidationMessageFor(m => m.PlaceOfBirth)
-                </div>
-            </div>
+           
 
             <div class="row">
                 &nbsp;
@@ -263,10 +301,9 @@
                     Do you have any relatives working with Eternity Logistics?
                 </div>
                 <div class="col-md-1">
-                    <input type="radio" group="group" /> Yes
+                    @Html.CheckBoxFor(x => x.IsRelativesWorkingWithCompany)
                 </div>
                 <div class="col-md-1">
-                    <input type="radio" group="group" /> No
                 </div>
             </div>
 
@@ -275,7 +312,8 @@
                     if Yes Elaborate
                 </div>
                 <div class="col-md-6">
-                    @Html.TextAreaFor(a => a.RelativesWorkingWithCompany, new { @class = "form-control" })
+                    
+                    @Html.TextAreaFor(a => a.RelativesDetails, new { @class = "form-control" })
                 </div>
             </div>
 
@@ -284,11 +322,10 @@
                 <div class="col-md-8">
                     Have you been refered by an Eternity Logistics employee?
                 </div>
-                <div class="col-md-1">
-                    <input type="radio" group="group" /> Yes
+                <div class="col-md-1">                    
+                    @Html.CheckBoxFor(x => x.IsReferredByExistingEmployee)
                 </div>
                 <div class="col-md-1">
-                    <input type="radio" group="group" /> No
                 </div>
             </div>
 
@@ -553,7 +590,12 @@
                     </div>
                 </div>
             </div>
+
+        </div>
+    </div>
 </form>
+
+
 <script type="text/javascript">
 
     var url = "@Url.Action("AddNewFamilyMember", "Employee")";
