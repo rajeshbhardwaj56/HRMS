@@ -26,7 +26,7 @@ namespace HRMS.API.Web.Controllers.Common
             IActionResult response = Unauthorized();
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             results.Countries = _businessLayer.GetAllCountries().Countries;
-            results.Langueges = _businessLayer.GetAllCompanyLangueges(CompanyID).Langueges;
+            results.Languages = _businessLayer.GetAllCompanyLanguages(CompanyID).Languages;
             results.Departments = _businessLayer.GetAllCompanyDepartments(CompanyID).Departments;
             results.EmploymentTypes = _businessLayer.GetAllCompanyEmployeeTypes(CompanyID).EmploymentTypes;
             response = Ok(results);
@@ -46,10 +46,10 @@ namespace HRMS.API.Web.Controllers.Common
 
         [HttpGet]
         [OutputCache(Duration = 999999)]
-        public IActionResult GetAllLangueges()
+        public IActionResult GetAllLanguages()
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllLangueges());
+            response = Ok(_businessLayer.GetAllLanguages());
             return response;
         }
 

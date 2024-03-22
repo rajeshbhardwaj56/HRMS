@@ -1,8 +1,10 @@
-﻿using HRMS.Models;
+﻿using DocumentFormat.OpenXml.InkML;
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Cryptography.Xml;
@@ -35,11 +37,10 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
 
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
-            employee.Languages = results.Langueges;
+            employee.Languages = results.Languages;
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
             employee.Departments = results.Departments;
-
             return View(employee);
         }
 
@@ -51,7 +52,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
-                employee.Languages = results.Langueges;
+                employee.Languages = results.Languages;
                 employee.Countries = results.Countries;
                 employee.EmploymentTypes = results.EmploymentTypes;
                 employee.Departments = results.Departments;
@@ -59,7 +60,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             else
             {
-                employee.Languages = results.Langueges;
+                employee.Languages = results.Languages;
                 employee.Countries = results.Countries;
                 employee.EmploymentTypes = results.EmploymentTypes;
                 employee.Departments = results.Departments;
@@ -70,11 +71,21 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         private HRMS.Models.Common.Results GetAllResults(long CompanyID)
         {
-
-            var data = _businessLayer.SendGetAPIRequest("Common/GetAllResults?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            HRMS.Models.Common.Results result = null;
+            var data = "";
+            if (HttpContext.Session.GetString(Constants.ResultsData) != null)
+            {
+                data = HttpContext.Session.GetString(Constants.ResultsData);
+            }
+            else
+            {
+                data = _businessLayer.SendGetAPIRequest("Common/GetAllResults?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();                              
+            }
+            HttpContext.Session.SetString(Constants.ResultsData, data);
+            result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             return result;
         }
+
         [HttpPost]
         public ActionResult AddNewEmploymentDetail(EmployeeModel employee, bool isDeleted)
         {
@@ -110,6 +121,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpPost]
         public ActionResult AddNewLanguageDetail(EmployeeModel employee, bool isDeleted)
         {
+            employee.Languages = GetAllResults(employee.CompanyID).Languages;
             if (!isDeleted)
             {
                 employee.LanguageDetails.Add(new LanguageDetail() { });

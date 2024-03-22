@@ -112,7 +112,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public Results GetAllLangueges()
+        public Results GetAllLanguages()
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -133,7 +133,7 @@ namespace HRMS.API.BusinessLayer
             }
             else
             {
-                model.Langueges = dataSet.Tables[0].AsEnumerable()
+                model.Languages = dataSet.Tables[0].AsEnumerable()
                                .Select(dataRow => new SelectListItem
                                {
                                    Text = dataRow.Field<string>("Name"),
@@ -144,7 +144,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public Results GetAllCompanyLangueges(long companyID)
+        public Results GetAllCompanyLanguages(long companyID)
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -164,7 +164,7 @@ namespace HRMS.API.BusinessLayer
             }
             else
             {
-                model.Langueges = dataSet.Tables[0].AsEnumerable()
+                model.Languages = dataSet.Tables[0].AsEnumerable()
                                .Select(dataRow => new SelectListItem
                                {
                                    Text = dataRow.Field<string>("Name"),

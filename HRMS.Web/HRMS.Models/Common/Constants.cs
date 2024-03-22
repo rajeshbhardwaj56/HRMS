@@ -24,7 +24,12 @@ namespace HRMS.Models.Common
         public const string SelectCountry = "-- Select Country --";
         public const string SelectEmployeeType = "-- Select Employee Type --";
         public const string SelectDeportment = "-- Select Deportment --";
-
+        public const string Languages = "Languages";
+        public const string Countries = "Countries";
+        public const string EmploymentTypes = "EmploymentTypes";
+        public const string Departments = "Departments";
+        public const string ResultsData = "ResultsData";
+        
     }
 
     public class RoleConstants

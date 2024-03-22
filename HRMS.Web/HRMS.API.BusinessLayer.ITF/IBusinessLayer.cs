@@ -13,8 +13,8 @@ namespace HRMS.API.BusinessLayer.ITF
     {
         LoginUser LoginUser(LoginUser loginUser);
         public Results GetAllCountries();
-        public Results GetAllLangueges();
-        public Results GetAllCompanyLangueges(long companyID);
+        public Results GetAllLanguages();
+        public Results GetAllCompanyLanguages(long companyID);
         public Results GetAllCompanyDepartments(long companyID);
         public Results GetAllCompanyEmployeeTypes(long companyID);
         public Result AddUpdateEmployee(EmployeeModel model);

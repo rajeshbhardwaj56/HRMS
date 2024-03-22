@@ -11,7 +11,7 @@ namespace HRMS.Models.Common
     {
         public Result Result { get; set; } = new Result();
         public List<SelectListItem> Countries { get; set; } = new List<SelectListItem>();
-        public List<SelectListItem> Langueges { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Languages { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
     }
