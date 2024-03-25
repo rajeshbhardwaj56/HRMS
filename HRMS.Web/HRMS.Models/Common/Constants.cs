@@ -29,7 +29,7 @@ namespace HRMS.Models.Common
         public const string EmploymentTypes = "EmploymentTypes";
         public const string Departments = "Departments";
         public const string ResultsData = "ResultsData";
-        
+
     }
 
     public class RoleConstants
@@ -56,6 +56,8 @@ namespace HRMS.Models.Common
     public class APIApiActionConstants
     {
         public const string AddUpdateEmployee = "AddUpdateEmployee";
+        public const string GetAllEmployees = "GetAllEmployees";
+        
 
     }
 }

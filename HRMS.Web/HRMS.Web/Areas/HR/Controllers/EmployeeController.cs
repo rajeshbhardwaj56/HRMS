@@ -23,6 +23,15 @@ namespace HRMS.Web.Areas.HR.Controllers
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
+               
+        public IActionResult EmployeeListing()
+        {
+            EmployeeInputParans employee = new EmployeeInputParans();
+           // employee.CompanyID = 1;
+            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            return View(result);
+        }
 
         public IActionResult Index(string id)
         {

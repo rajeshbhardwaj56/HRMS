@@ -5,122 +5,86 @@
 }
 
 
-<!-- Favicons -->
-<link href="assets/img/favicon.png" rel="icon">
-<link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-<!-- Google Fonts -->
-<link href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-
-<!-- Vendor CSS Files -->
-<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-<link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-<link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-<link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
-<link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
-<link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
-<link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
-
-<!-- Template Main CSS File -->
-<link href="assets/css/style.css" rel="stylesheet">
-<style type="text/css">
-
-    body {
-        background-image: url('/assets/img/loginbackground.jpg');
-        background-attachment: fixed;
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
-</style>
-
-<main>
-    <div class="container">
-
-        <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
-            <div class="container">
-                <div class="row justify-content-center" style="justify-content: right!important;">
-                    <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
-
-                        <div class="d-flex justify-content-center py-4">
-                        </div><!-- End Logo -->
-
-                        <div class="card mb-3">
-
-                            <div class="card-body">
-
-                                <div class="pt-4 pb-2">
-                                    <a href="#" class="logo d-flex align-items-center w-auto" style="margin-left:100px;">
-                                        <img src="assets/img/Protalk_Logo-small.jpg" alt="ProTalk">
-                                        @*   <span class="d-none d-lg-block">ProTalk</span>*@
-                                    </a>
-                                    <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
-                                    <p class="text-center small">Enter your username & password to login</p>
-                                </div>
-
-                                <form class="row g-3 needs-validation" novalidate method="post">
-
-                                    <div class="col-12">
-                                        <label for="yourUsername" class="form-label">Username</label>
-                                        <div class="input-group has-validation">
-                                            <span class="input-group-text" id="inputGroupPrepend">@@</span>
-                                            <input type="text" name="Email" class="form-control" id="yourUsername" required>
-                                            <div class="invalid-feedback">Please enter your username.</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label for="yourPassword" class="form-label">Password</label>
-                                        <input type="password" name="Password" class="form-control" id="yourPassword" required>
-                                        <div class="invalid-feedback">Please enter your password!</div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe">
-                                            <label class="form-check-label" for="rememberMe">Remember me</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <button class="btn btn-primary w-100" type="submit">Login</button>
-                                    </div>
-                                    @*  <div class="col-12">
-                                    <p class="small mb-0">Don't have account? <a href="pages-register.html">Create an account</a></p>
-                                    </div> *@
-                                </form>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+</head>
+<body class="bg-light">
+    <div class="container-xxl">
+        <div class="authentication-wrapper authentication-basic container-p-y">
+            <div class="authentication-inner">
+                <div class="row justify-content-center">
+                    <div class="card" style="width:30%; margin-top: 100px;">
+                        <div class="card-body">
+                            <!-- App Brand Logo -->
+                            <div class="app-brand text-center">
+                                <a class="app-brand-link gap-2">
+                                    <span class="app-brand-logo demo">
+                                        <img src="~/assets/img/logo/logo-large.png" height="80" />
+                                    </span>
+                                </a>
                             </div>
+                            <!-- Welcome Message -->
+                            <h4 class="mb-2 text-center" style="font-family:Montserrat; font-size:28px;">
+                                Welcome to <strong>
+                                    <span style="color:#05397b">HRMS!</span>
+                                </strong>
+                            </h4>
+                            <!-- Login Form -->
+                            <form id="formAuthentication" class="mb-3" novalidate method="post">
+                               
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="text" class="form-control" id="email" name="Email" required placeholder="Enter your email" autofocus />
+                                   
+                                </div>
+                                <div class="mb-3 form-password-toggle">
+                                    <div class="d-flex justify-content-between">
+                                        <label class="form-label" for="password">Password</label>
+                                    </div>
+                                    <div class="input-group input-group-merge">
+                                        <input type="password" id="Password" class="form-control" name="Password" placeholder="Password" aria-describedby="password" />
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <!-- Remember Me Checkbox -->
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="remember-me" />
+                                            <label class="form-check-label" for="remember-me"> Remember Me </label>
+                                        </div>
+                                        <!-- Forgot Password Link -->
+                                        <a href="">
+                                            <small>Forgot Password?</small>
+                                        </a>
+                                    </div>
+                                </div>
+                                <!-- Sign in Button -->
+                                <div class="mb-3">
+                                    <button type="submit" class="btn d-grid w-100" type="submit" style="background-color: #05397b; color:white;">Sign in</button>
+                                </div>
+                            </form>
+                            <br />
+                            <div></div>
                         </div>
-
-                        <div class="credits">
-                            <!-- All the links in the footer should remain intact. -->
-                            <!-- You can delete the links only if you purchased the pro version. -->
-                            <!-- Licensing information: https://www.eternitylogistic.co/ -->
-                            <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-                            Designed by <a href="https://www.eternitylogistic.co/">Protalk Solutions</a>
-                        </div>
-
                     </div>
                 </div>
             </div>
-
-        </section>
-
+        </div>
     </div>
-</main><!-- End #main -->
-
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-<!-- Vendor JS Files -->
-<script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
-<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/vendor/chart.js/chart.umd.js"></script>
-<script src="assets/vendor/echarts/echarts.min.js"></script>
-<script src="assets/vendor/quill/quill.min.js"></script>
-<script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
-<script src="assets/vendor/tinymce/tinymce.min.js"></script>
-<script src="assets/vendor/php-email-form/validate.js"></script>
-
-<!-- Template Main JS File -->
-<script src="assets/js/main.js"></script>
-
+    <!-- JavaScript Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

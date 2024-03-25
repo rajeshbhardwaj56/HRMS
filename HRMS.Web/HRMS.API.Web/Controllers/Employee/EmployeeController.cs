@@ -29,5 +29,13 @@ namespace HRMS.API.Web.Controllers.Employee
             response = Ok(result);
             return response;
         }
+
+        [HttpPost]
+        public IActionResult GetAllEmployees(EmployeeInputParans model)
+        {
+            IActionResult response = Unauthorized();            
+            response = Ok(_businessLayer.GetAllEmployees(model));
+            return response;
+        }
     }
 }

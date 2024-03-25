@@ -18,5 +18,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCompanyDepartments(long companyID);
         public Results GetAllCompanyEmployeeTypes(long companyID);
         public Result AddUpdateEmployee(EmployeeModel model);
+        public Results GetAllEmployees(EmployeeInputParans model);
     }
 }

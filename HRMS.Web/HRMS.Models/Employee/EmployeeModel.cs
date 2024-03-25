@@ -10,6 +10,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HRMS.Models.Employee
 {
+    public class EmployeeInputParans
+    {
+        public long CompanyID { get; set; }
+    }
+
+
     public class EmployeeModel
     {
         public long EmployeeID { get; set; }
@@ -35,7 +41,7 @@ namespace HRMS.Models.Employee
         public string? PermanentCity { get; set; } = string.Empty;
         public string? PermanentPinCode { get; set; } = string.Empty;
         public string? PermanentState { get; set; } = string.Empty;
-        public string? PermanentCountryID { get; set; } = string.Empty;
+        public long PermanentCountryID { get; set; }
         public string? PeriodOfStay { get; set; } = string.Empty;
         public string? VerificationContactPersonName { get; set; } = string.Empty;
         public string? VerificationContactPersonContactNo { get; set; } = string.Empty;

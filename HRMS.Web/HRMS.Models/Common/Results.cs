@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using HRMS.Models.Employee;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace HRMS.Models.Common
         public List<SelectListItem> Languages { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
+        public List<EmployeeModel> Employees { get; set; } = new List<EmployeeModel>();
     }
 
 
