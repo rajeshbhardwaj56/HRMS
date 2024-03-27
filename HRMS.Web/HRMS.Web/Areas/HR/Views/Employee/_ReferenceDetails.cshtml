@@ -40,7 +40,7 @@
             @(index).
         </div>
         <div class="col-md-3">
-            @Html.HiddenFor(m => m.References[Index].ReferenceID)
+            @Html.HiddenFor(m => m.References[Index].ReferenceDetailID)
             @Html.TextBoxFor(a => a.References[Index].Name, new { @class = "form-control ReferenceDetails", @required = "required" })
         </div>
 

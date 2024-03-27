@@ -1,6 +1,230 @@
 ﻿@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
 @model Results
 @{
     Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Employee";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
 }
+
+<div class="addcomp px-4">
+    <h4>Employee List</h4>
+    <a href="~/HR/employee"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Employee</button></a>
+</div>
+
+
+<div class="container-fluid">
+    <table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th class="first">First Name</th>
+                <th>Middle Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#tblEmployeeListing').DataTable({
+            "ajax": {
+                "url": "EmployeeListings/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "firstName", "autoWidth": true },
+                { "data": "middleName", "autoWidth": true },
+                {
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+                        // alert(JSON.stringify(row))
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.employeeID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        return linkEdit;
+                    }
+                },
+
+                // { "data": "title", "autoWidth": true },
+                // // { "data": "description", "autoWidth": true },
+
+                // {
+                //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         return row["description"];
+                //     }
+                // },
+                // { "data": "status", "autoWidth": true },
+                // { "data": "createdDate", "autoWidth": true },
+
+                // // {
+                // //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         // alert(JSON.stringify(row))
+                //         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="@Url.Action("index", "BriefingUpdate")?id=' + row.briefingUpdateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                //         return linkEdit;
+                //     }
+                // },
+
+                // {
+                //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         // alert(JSON.stringify(row))
+                //         var linkDelete = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#"  title=""  data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>';
+                //         return linkDelete;
+                //     }
+                // }
+
+                // for edit icon = < i class= "mdi mdi-border-color" ></i >
+                // for delete icon =  <i class="mdi mdi-delete"></i>
+            ],
+            "columnDefs": [
+                {
+                    "targets": [1], //first and last not sortable
+                    "orderable": false,
+                    "defaultContent": " "
+                }
+            ]
+            , "responsive": true
+
+        });
+
+
+    });
+
+
+    // var table = $(document).ready(function () {
+
+    //     // new DataTable('#tblEmployeeListing', {
+    //     //     ajax: 'EmployeeListings/',
+    //     //     columns: [
+    //     //         {
+    //     //             data: 'FirstName'
+    //     //         },
+    //     //         {
+    //     //             data: 'MiddleName'
+    //     //         }
+    //     //     ]
+    //     // });
+
+
+
+    //     $('#tblEmployeeListing').DataTable({
+    //         "bServerSide": true,
+    //         "bProcessing": true,
+    //         "bSearchable": true,
+    //         "sAjaxSource": "EmployeeListings/",
+    //         "sServerMethod": "POST",
+    //         "order": [[0, "desc"]],
+    //         "aoColumns": [
+    //             { "data": "FirstName", "autoWidth": true },
+    //             { "data": "MiddleName", "autoWidth": true }
+
+
+
+    //             // {
+    //             //     //this is Actions Column
+    //             //     // mRender: function (data, type, row) {
+    //             //     //     debugger;
+
+    //             //     //     var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item"  href="@Url.Action("ViewMCCheck", "Career", new { MCCheckID = -1 })" title=""  data-original-title="View"><img src="/assets/images/view.png" /></a>';
+    //             //     //     linkEdit = linkEdit.replace("-1", row.MCCheckID);
+    //             //     //     return linkEdit;
+    //             //     // }
+    //             // }
+
+    //             // for edit icon = < i class= "mdi mdi-border-color" ></i >
+    //             // for delete icon =  <i class="mdi mdi-delete"></i>
+    //         ],
+    //         "columnDefs": [
+    //             //{
+    //             //    "targets": [2], //first and last not sortable
+    //             //    "orderable": false,
+    //             //    "defaultContent": " "
+    //             //},
+
+    //         ]
+    //         , "responsive": true
+
+    //     });
+
+
+    // });
+    // setInterval(function () {
+    //     $('#tblEmployeeListing').DataTable().ajax.reload();
+    // }, 10000);
+    // var err = '@Err';
+    // var success = '@success';
+    // if (err != null && err != '') {
+
+    //     ShowError(err);
+    // }
+    // if (success != null && success != '') {
+
+    //     ShowSucess(success);
+    // }
+    // function ShowSucess(msg) {
+    //     $.notifyBar({ cssClass: "success", html: msg });
+    // }
+    // function ShowError(msg) {
+    //     $.notifyBar({ cssClass: "error", html: msg });
+    // }
+
+    // function DeleteFunction(CareerID) {
+    //     debugger;
+    //     if (confirm('Are you sure you want to delete this Carrier?')) {
+    //         $("#divLoader").show();
+    //         var data = { "CareerID": CareerID };
+    //         $.ajax({
+    //             type: 'POST',
+    //             url: 'Delete',
+    //             contentType: 'application/json; charset=utf-8',
+    //             data: JSON.stringify(data),
+    //             dataType: 'json',
+    //             success: function (s) {
+    //                 debugger;
+    //                 if (s.data > 0) {
+    //                     $('#tblMCCheck').DataTable().ajax.reload();
+    //                     $("#divLoader").hide();
+    //                     ShowSucess(s.msg);
+    //                 }
+    //                 else {
+    //                     if (s.timeout == true) {
+    //                         $("#divLoader").hide();
+
+    //                         window.location.href = "/Account/Login";
+    //                     }
+    //                     else {
+    //                         ShowError(s.msg); $("#divLoader").hide();
+    //                     }
+    //                 }
+
+    //             },
+    //             error: function (s) {
+    //                 debugger;
+    //                 if (s.timeout == true) {
+
+    //                     window.location.href = "/Account/Login";
+    //                 }
+    //             }
+    //         });
+
+    //         return true;
+    //     }
+    //     else {
+    //         return false;
+    //     }
+    // }
+</script>

@@ -47,6 +47,8 @@ namespace HRMS.API.BusinessLayer
                                .Select(dataRow => new LoginUser
                                {
                                    UserID = dataRow.Field<long>("UserID"),
+                                   CompanyID = dataRow.Field<long>("CompanyID"),
+
                                    //FirstName = dataRow.Field<string>("FirstName"),
                                    //LastName = dataRow.Field<string>("LastName"),
                                    //Email = dataRow.Field<string>("EmailId"),
@@ -62,12 +64,13 @@ namespace HRMS.API.BusinessLayer
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetails, sqlParameter);
             result.Employees = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new EmployeeModel
                               {
-                                EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
                                   guid = dataRow.Field<Guid>("guid"),
                                   EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
                                   CompanyID = dataRow.Field<long>("CompanyID"),
@@ -111,11 +114,111 @@ namespace HRMS.API.BusinessLayer
                                   ContactPersonMobile = dataRow.Field<string>("ContactPersonMobile"),
                                   ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
                                   ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
-                                  ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),                                
+                                  ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
 
 
-                                  
+
                               }).ToList();
+
+            if (model.EmployeeID > 0)
+            {
+                result.employeeModel = result.Employees.FirstOrDefault();
+
+                //////////////////////// FamilyDetails
+                result.employeeModel.FamilyDetails = dataSet.Tables[1].AsEnumerable()
+                             .Select(dataRow => new FamilyDetail
+                             {
+                                 EmployeesFamilyDetailID = dataRow.Field<long>("EmployeesFamilyDetailID"),
+                                 Age = dataRow.Field<string>("Age"),
+                                 FamilyName = dataRow.Field<string>("FamilyName"),
+                                 Relationship = dataRow.Field<string>("Relationship"),
+                                 Details = dataRow.Field<string>("Details"),
+                             }).ToList();
+                if (result.employeeModel.FamilyDetails == null)
+                {
+                    result.employeeModel.FamilyDetails = new List<FamilyDetail>();
+                }
+
+                //////////////////////// EducationalDetails
+                result.employeeModel.EducationalDetails = dataSet.Tables[2].AsEnumerable()
+                           .Select(dataRow => new EducationalDetail
+                           {
+                               EducationDetailID = dataRow.Field<long>("EducationDetailID"),
+                               Major_OptionalSubjects = dataRow.Field<string>("Major_OptionalSubjects"),
+                               Percentage = dataRow.Field<string>("Percentage"),
+                               Qualification = dataRow.Field<string>("Qualification"),
+                               School_University = dataRow.Field<string>("School_University"),
+                               YearOfPassing = dataRow.Field<string>("YearOfPassing"),
+                           }).ToList();
+                if (result.employeeModel.EducationalDetails == null)
+                {
+                    result.employeeModel.EducationalDetails = new List<EducationalDetail>();
+                }
+
+                //////////////////////// LanguageDetails
+                result.employeeModel.LanguageDetails = dataSet.Tables[3].AsEnumerable()
+                           .Select(dataRow => new LanguageDetail
+                           {
+                               LanguageDetailID = dataRow.Field<long>("LanguageDetailID"),
+                               IsRead = dataRow.Field<bool>("IsRead"),
+                               IsSpeak = dataRow.Field<bool>("IsSpeak"),
+                               IsWrite = dataRow.Field<bool>("IsWrite"),
+                               LanguageID = dataRow.Field<long>("LanguageID")
+                           }).ToList();
+                if (result.employeeModel.LanguageDetails == null)
+                {
+                    result.employeeModel.LanguageDetails = new List<LanguageDetail>();
+                }
+
+
+                //////////////////////// EmploymentDetails
+                result.employeeModel.EmploymentDetails = dataSet.Tables[4].AsEnumerable()
+                           .Select(dataRow => new EmploymentDetail
+                           {
+                               EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
+                               Address = dataRow.Field<string>("Address"),
+                               City = dataRow.Field<string>("City"),
+                               CompanyName = dataRow.Field<string>("CompanyName"),
+                               CountryID = dataRow.Field<long>("CountryID"),
+                               Designition = dataRow.Field<string>("Designition"),
+                               EmployeeID = dataRow.Field<long>("EmployeeID"),
+                               EmploymentID = dataRow.Field<string>("EmploymentID"),
+                               From = dataRow.Field<DateTime>("From"),
+                               GrossSalary = dataRow.Field<string>("GrossSalary"),
+                               HRContactNo = dataRow.Field<string>("HRContactNo"),
+                               HREmail = dataRow.Field<string>("HREmail"),
+                               HRName = dataRow.Field<string>("HRName"),
+                               Phone = dataRow.Field<string>("Phone"),
+                               PostalCode = dataRow.Field<string>("PostalCode"),
+                               ReasionFoLeaving = dataRow.Field<string>("ReasionFoLeaving"),
+                               State = dataRow.Field<string>("State"),
+                               SupervisorContactNo = dataRow.Field<string>("SupervisorContactNo"),
+                               SupervisorDesignition = dataRow.Field<string>("SupervisorDesignition"),
+                               SupervisorName = dataRow.Field<string>("SupervisorName"),
+                               To = dataRow.Field<DateTime>("To"),
+
+                           }).ToList();
+                if (result.employeeModel.EmploymentDetails == null)
+                {
+                    result.employeeModel.EmploymentDetails = new List<EmploymentDetail>();
+                }
+
+
+                //////////////////////// References
+                result.employeeModel.References = dataSet.Tables[5].AsEnumerable()
+                           .Select(dataRow => new Reference
+                           {
+                               ReferenceDetailID = dataRow.Field<long>("ReferenceDetailID"),
+                               Contact = dataRow.Field<string>("Contact"),
+                               Name = dataRow.Field<string>("Name"),
+                               OrgnizationName = dataRow.Field<string>("OrgnizationName"),
+                               RelationWithCandidate = dataRow.Field<string>("RelationWithCandidate")
+                           }).ToList();
+                if (result.employeeModel.References == null)
+                {
+                    result.employeeModel.References = new List<Reference>();
+                }
+            }
 
             return result;
         }

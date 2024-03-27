@@ -84,7 +84,7 @@ namespace HRMS.Web.Controllers
             {
                 _context.HttpContext.Session.SetString(Constants.SessionBearerToken, result.token);
                 _context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
-               
+                _context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());
                 var identity = new ClaimsIdentity(new[] {
                     new Claim(ClaimTypes.Name, result.UserID.ToString()),
                      new Claim(ClaimTypes.Role,  result.Role)

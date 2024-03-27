@@ -13,6 +13,8 @@ namespace HRMS.Models.Common
         public const string Email = "Email";
         public const string UserID = "UserID";
         public const string RoleID = "RoleID";
+        public const string CompanyID = "CompanyID";
+        
         public const string Role = "Role";
         public const string Alias = "Alias";
         public const string Index = "index";

@@ -13,6 +13,7 @@ namespace HRMS.Models.Employee
     public class EmployeeInputParans
     {
         public long CompanyID { get; set; }
+        public long EmployeeID { get; set; }        
     }
 
 
@@ -76,7 +77,7 @@ namespace HRMS.Models.Employee
         public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();
         public List<LanguageDetail> LanguageDetails { get; set; } = new List<LanguageDetail>();
         public List<EmploymentDetail> EmploymentDetails { get; set; } = new List<EmploymentDetail>();
-        public List<Reference> References { get; set; } = new List<Reference>() { new Reference(), new Reference() };
+        public List<Reference> References { get; set; } = new List<Reference>();
 
         // Master Details
         public List<SelectListItem> Languages = new List<SelectListItem>();

@@ -1,0 +1,67 @@
+﻿.container-fluid {
+    width: 100%;
+    padding-right: 20px;
+    padding-left: 20px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+table thead th, table tfoot th {
+    background-color: #05397b !important;
+    color: white !important;
+}
+
+tbody tr {
+    border-style: solid;
+    border-color: white;
+    height: 50px;
+    vertical-align: middle;
+    border-width: 5px 0px 5px 0px !important;
+}
+
+table tbody tr:hover {
+    background-color: #cfd8e3 !important;
+    color: #05397b !important;
+    transform: scale(1.015);
+    cursor: pointer;
+    transition: transform 0.4s ease, background-color 0.4s ease;
+}
+
+thead, tr {
+    height: 60px;
+    vertical-align: middle;
+}
+
+th.first {
+    border-top-left-radius: 10px !important;
+}
+
+th.last {
+    border-top-right-radius: 10px !important;
+}
+
+body {
+    background-color: #cfd8e3;
+}
+
+.body-text {
+    font-family: system-ui !important;
+    font-size: 14px !important;
+}
+
+.btn-addcompany {
+    background-color: #cfd8e3;
+    color: #05397b;
+}
+
+.addcomp {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #05397b;
+}
+
+.btn-addcompany:hover {
+    background-color: #05397b;
+    color: white;
+}

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Cryptography.Xml;
+using System.Text;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
@@ -23,27 +24,68 @@ namespace HRMS.Web.Areas.HR.Controllers
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
-               
+
         public IActionResult EmployeeListing()
         {
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            return View(results);
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
             EmployeeInputParans employee = new EmployeeInputParans();
-           // employee.CompanyID = 1;
+            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            return View(result);
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            //var totalRecord = results.Employees.Count();
+            //var result = results.Employees.Skip(iDisplayStart).Take(iDisplayLength).ToList();
+            //StringBuilder sb = new StringBuilder();
+            //sb.Clear();
+            //sb.Append("{");
+            //sb.Append("\"sEcho\": ");
+            //sb.Append(sEcho);
+            //sb.Append(",");
+            //sb.Append("\"iTotalRecords\": ");
+            //sb.Append(totalRecord);
+            //sb.Append(",");
+            //sb.Append("\"iTotalDisplayRecords\": ");
+            //sb.Append(totalRecord);
+            //sb.Append(",");
+            //sb.Append("\"aaData\": ");
+            //sb.Append(JsonConvert.SerializeObject(result));
+            //sb.Append("}");
+            // return sb.ToString();
+
+            return Json(new { data = results.Employees });
+
         }
 
         public IActionResult Index(string id)
         {
             EmployeeModel employee = new EmployeeModel();
-            employee.CompanyID = 1;
+            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
             if (string.IsNullOrEmpty(id))
             {
                 employee.FamilyDetails.Add(new FamilyDetail());
                 employee.EducationalDetails.Add(new EducationalDetail());
                 employee.LanguageDetails.Add(new LanguageDetail());
                 employee.EmploymentDetails.Add(new EmploymentDetail());
+                employee.References = new List<HRMS.Models.Employee.Reference>() {
+                    new HRMS.Models.Employee.Reference(),
+                    new HRMS.Models.Employee.Reference()
+                };
             }
+            else
+            {
+                employee.EmployeeID = Convert.ToInt64(id);
+                var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
+            }
+
 
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
             employee.Languages = results.Languages;
@@ -88,7 +130,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             else
             {
-                data = _businessLayer.SendGetAPIRequest("Common/GetAllResults?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();                              
+                data = _businessLayer.SendGetAPIRequest("Common/GetAllResults?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             }
             HttpContext.Session.SetString(Constants.ResultsData, data);
             result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
