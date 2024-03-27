@@ -20,7 +20,9 @@
     <table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
-                <th class="first">First Name</th>
+                <th class="first" style="visibility:hidden"> /th>
+                <th>Employee Number</th>
+                <th >First Name</th>
                 <th>Middle Name</th>
                 <th>Action</th>
             </tr>
@@ -46,6 +48,8 @@
             "searching": true,
             "info": true,
             "columns": [
+                { "data": "employeeID", "autoWidth": true,  },
+                { "data": "employeeNumber", "autoWidth": true, },
                 { "data": "firstName", "autoWidth": true },
                 { "data": "middleName", "autoWidth": true },
                 {
@@ -92,10 +96,25 @@
             ],
             "columnDefs": [
                 {
-                    "targets": [1], //first and last not sortable
+            target: 2,
+            visible: false,
+            searchable: false
+        },
+
+                {
+
+                    "targets": [0], //first and last not sortable
                     "orderable": false,
+                    "visible": false
+                },
+
+                {
+
+                    "targets": [1], //first and last not sortable
+                    "orderable": true,
                     "defaultContent": " "
                 }
+
             ]
             , "responsive": true
 
