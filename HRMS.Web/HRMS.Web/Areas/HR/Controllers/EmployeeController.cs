@@ -116,6 +116,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employee.EmploymentTypes = results.EmploymentTypes;
                 employee.Departments = results.Departments;
                 return View(employee);
+
             }
         }
 
