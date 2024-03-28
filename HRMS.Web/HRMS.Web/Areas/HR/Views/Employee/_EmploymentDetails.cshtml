@@ -55,12 +55,12 @@
 
                         </div>
                         <div class="col-md-3">
-                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].From, new { @class = "form-control", @type = "date", @required = "required" })
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].From, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
 
                         </div>
 
                         <div class="col-md-3">
-                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].To, new { @class = "form-control", @type = "date", @required = "required" })
+                            @Html.TextBoxFor(a => a.EmploymentDetails[Index].To, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
 
                         </div>
                     </div>

@@ -234,7 +234,7 @@
                     Date of Birth
                 </div>
                 <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.DateOfBirth, new { @class = "form-control", @type = "date", @required = "required" })
+                    @Html.TextBoxFor(a => a.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
                     @* @Html.ValidationMessageFor(m => m.DateOfBirth) *@
                 </div>
             </div>

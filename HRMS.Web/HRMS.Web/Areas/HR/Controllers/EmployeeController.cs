@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.InkML;
+﻿using DocumentFormat.OpenXml.Drawing.Diagrams;
+using DocumentFormat.OpenXml.InkML;
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
@@ -84,8 +85,18 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employee.EmployeeID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
+                if (employee.References == null || employee.References.Count == 0)
+                {
+                    employee.References = new List<HRMS.Models.Employee.Reference>() {
+                    new HRMS.Models.Employee.Reference(),
+                    new HRMS.Models.Employee.Reference()
+                    };
+                }
+                else if (employee.References.Count == 1)
+                {
+                    employee.References.Add(new HRMS.Models.Employee.Reference());
+                };
             }
-
 
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
             employee.Languages = results.Languages;

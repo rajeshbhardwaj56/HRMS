@@ -12,8 +12,8 @@ namespace HRMS.Models.Employee
         public long EmployeeID { get; set; }
         public string CompanyName { get; set; } = string.Empty;
         public string EmploymentID { get; set; } = string.Empty;//Identity card Number
-        public DateTime From { get; set; }
-        public DateTime To { get; set; }
+        public DateTime? From { get; set; }
+        public DateTime? To { get; set; }
         public string Address { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
