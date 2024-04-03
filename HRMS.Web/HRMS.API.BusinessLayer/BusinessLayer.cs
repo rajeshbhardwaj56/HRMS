@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Xml;
 using System.ComponentModel.Design;
+using HRMS.Models.Template;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -475,7 +476,32 @@ namespace HRMS.API.BusinessLayer
         }
 
 
+        public Result AddUpdateTemplate(TemplateModel templateModel)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
+            sqlParameter.Add(new SqlParameter("@TemplateID", templateModel.TemplateID));
+            sqlParameter.Add(new SqlParameter("@LetterHeadName", templateModel.LetterHeadName));
+            sqlParameter.Add(new SqlParameter("@HeaderImage", templateModel.HeaderImage));
+            sqlParameter.Add(new SqlParameter("@CompanyID", templateModel.CompanyID));
+            sqlParameter.Add(new SqlParameter("@FooterImage", templateModel.FooterImage));
+            sqlParameter.Add(new SqlParameter("@Description", templateModel.Description));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString()
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
 
 
         #region XML Serialization

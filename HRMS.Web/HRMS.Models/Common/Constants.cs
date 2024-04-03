@@ -52,14 +52,16 @@ namespace HRMS.Models.Common
 
     public class APIControllarsConstants
     {
-        public const string Employee = "Employee";      
+        public const string Employee = "Employee";
+        public const string Template = "Template";
     }
 
     public class APIApiActionConstants
     {
         public const string AddUpdateEmployee = "AddUpdateEmployee";
         public const string GetAllEmployees = "GetAllEmployees";
-        
+        public const string AddUpdateTemplate = "AddUpdateTemplate";
+        public const string GetAllTemplates = "GetAllTemplates";
 
     }
 }

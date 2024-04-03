@@ -1,5 +1,6 @@
 ﻿using HRMS.Models.Common;
 using HRMS.Models.Employee;
+using HRMS.Models.Template;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -19,5 +20,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCompanyEmployeeTypes(long companyID);
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParans model);
+        public Result AddUpdateTemplate(TemplateModel model);
+        public Results GetAllTemplates(TemplateInputParans model);
     }
 }

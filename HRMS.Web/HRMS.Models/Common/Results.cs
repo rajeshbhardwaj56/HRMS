@@ -1,4 +1,5 @@
 ﻿using HRMS.Models.Employee;
+using HRMS.Models.Template;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace HRMS.Models.Common
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<EmployeeModel> Employees { get; set; } = new List<EmployeeModel>();
         public EmployeeModel employeeModel { get; set; } = new EmployeeModel();
+        public List<TemplateModel> Template { get; set; } = new List<TemplateModel>();
+        public TemplateModel templateModel { get; set; } = new TemplateModel();
     }
 
 
