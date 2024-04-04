@@ -4,10 +4,14 @@
     Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Employee";
     var ProfilePhoto = "";
-    if (!string.IsNullOrEmpty(Model.ProfilePhoto))    
+    if (!string.IsNullOrEmpty(Model.ProfilePhoto))
     {
-        ProfilePhoto = "/Uploads/ProfilePhoto/" + Model.EmployeeID +"/"+ Model.ProfilePhoto;
-    }  
+        ProfilePhoto = "/Uploads/ProfilePhoto/" + Model.EmployeeID + "/" + Model.ProfilePhoto;
+    }
+    else    
+    {
+        ProfilePhoto = "/assets/img/No_image.png";
+    }
 }
 
 <form method="post" enctype="multipart/form-data">
@@ -97,7 +101,7 @@
                 </div>
                 <div class="col-md-12">
                     <div class="col-md-4">
-                        <img src="@ProfilePhoto" />
+                        <img src="@ProfilePhoto" style="width:150px; height:200px" />
                     </div>
                     <div class="col-md-8">
                         <input type="file" name="postedFiles" accept="image/*" />
