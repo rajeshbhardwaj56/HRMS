@@ -3,9 +3,15 @@
 @{
     Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Employee";
+    var ProfilePhoto = "";
+    if (!string.IsNullOrEmpty(Model.ProfilePhoto))    
+    {
+        ProfilePhoto = "/Uploads/ProfilePhoto/" + Model.EmployeeID +"/"+ Model.ProfilePhoto;
+    }
+  
 }
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     <div class="Container">
 
         <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
@@ -38,9 +44,10 @@
                     Official Email Address
                 </div>
                 <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.EmailAddress, new { @class = "form-control" , @required = "required" })
+                    @Html.TextBoxFor(a => a.EmailAddress, new { @class = "form-control", @required = "required" })
                     @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
                 </div>
+
             </div>
         </div>
         <div class="row">
@@ -82,6 +89,22 @@
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })
                     @*   @Html.ValidationMessageFor(m => m.Surname) *@
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Photo
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-4">
+                        <img src="@ProfilePhoto" />
+                    </div>
+                    <div class="col-md-8">
+                        <input type="file" name="postedFiles" accept="image/*" />
+                    </div>
+
+
                 </div>
             </div>
 
@@ -275,7 +298,7 @@
                 </div>
             </div>
 
-           
+
 
             <div class="row">
                 &nbsp;
@@ -312,7 +335,7 @@
                     if Yes Elaborate
                 </div>
                 <div class="col-md-6">
-                    
+
                     @Html.TextAreaFor(a => a.RelativesDetails, new { @class = "form-control" })
                 </div>
             </div>
@@ -322,7 +345,7 @@
                 <div class="col-md-8">
                     Have you been refered by an Eternity Logistics employee?
                 </div>
-                <div class="col-md-1">                    
+                <div class="col-md-1">
                     @Html.CheckBoxFor(x => x.IsReferredByExistingEmployee)
                 </div>
                 <div class="col-md-1">

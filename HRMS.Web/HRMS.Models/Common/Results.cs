@@ -23,6 +23,7 @@ namespace HRMS.Models.Common
 
     public class Result
     {
+        public long PKNo { get; set; }
         public string Message { get; set; }
         public string ErrorCode { get; set; }
     }

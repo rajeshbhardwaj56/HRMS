@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Cryptography.Xml;
 using System.Text;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
@@ -20,8 +21,12 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer)
+
+        private IHostingEnvironment Environment;
+
+        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
         {
+            Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
@@ -107,13 +112,41 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(EmployeeModel employee)
+        public IActionResult Index(EmployeeModel employee, List<IFormFile> postedFiles)
         {
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
+
+            string wwwPath = Environment.WebRootPath;
+            string contentPath = this.Environment.ContentRootPath;
+
+
+
+
             if (ModelState.IsValid)
             {
+                string fileName = null;
+                foreach (IFormFile postedFile in postedFiles)
+                {
+                    fileName = postedFile.FileName.Replace(" ", "");
+                }
+                employee.ProfilePhoto = fileName;
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
+
+                string path = Path.Combine(this.Environment.WebRootPath, "Uploads/ProfilePhoto/" + result.PKNo.ToString());
+
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                foreach (IFormFile postedFile in postedFiles)
+                {
+                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                    {
+                        postedFile.CopyTo(stream);
+                    }
+                }
+
                 employee.Languages = results.Languages;
                 employee.Countries = results.Countries;
                 employee.EmploymentTypes = results.EmploymentTypes;

@@ -24,6 +24,7 @@ namespace HRMS.Models.Employee
         public long EmployeeTypeID { get; set; }
         public long CompanyID { get; set; } = 1;
         public long DepartmentID { get; set; }
+        public string? ProfilePhoto { get; set; } = string.Empty;
         public string? EmployeeNumber { get; set; } = string.Empty;
         public string? FirstName { get; set; } = string.Empty;
         public string? MiddleName { get; set; } = string.Empty;

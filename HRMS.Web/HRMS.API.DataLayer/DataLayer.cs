@@ -81,6 +81,61 @@ namespace HRMS.API.DataLayer
             }
         }
 
+
+        public DataSet GetDataSetByStoredProcedure(string pStoredProcedureName, List<SqlParameter> pParams, ref SqlParameterCollection pOutputParams)
+        {
+
+            setConectionString();
+            
+            DataSet dataSet = new DataSet();
+            StringBuilder queryBuilder = new StringBuilder(pStoredProcedureName);
+            using (SqlConnection conLocal = new SqlConnection(conStr))
+            {
+                using (SqlDataAdapter daSql = new SqlDataAdapter())
+                {
+                    using (SqlCommand cmdSql = new SqlCommand(queryBuilder.ToString(), conLocal))
+                    {
+                        try
+                        {
+                            if (conLocal.State == ConnectionState.Closed)
+                            {
+                                conLocal.Open();
+                            }
+                            if (pParams != null)
+                            {
+                                cmdSql.Parameters.AddRange(pParams.ToArray());
+                            }                           
+
+                            cmdSql.CommandType = CommandType.StoredProcedure;
+                            cmdSql.CommandTimeout = 0; //--- 120 for 2 min and 0 for infinite
+                            daSql.SelectCommand = cmdSql;
+                            daSql.Fill(dataSet);
+                            pOutputParams = cmdSql.Parameters;
+                            return dataSet;
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(conLocal + ex.Message);
+                            //ex.Message = ex.Message+ conLocal;
+                            throw new Exception(conLocal + conStr + ex.Message);
+                            // throw ex;
+                        }
+                        finally
+                        {
+                            if (conLocal.State == ConnectionState.Open)
+                            {
+                                conLocal.Close();
+                            }
+                            cmdSql.Dispose();
+                            daSql.Dispose();
+                            queryBuilder = null;
+                            dataSet = null;
+                        }
+                    }
+                }
+            }
+        }
+
         public bool InsertUpdateByStoredProcedure(string pStoredProcedureName, List<SqlParameter> pParams = null)
         {
             setConectionString();

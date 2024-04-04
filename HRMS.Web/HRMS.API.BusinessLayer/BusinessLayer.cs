@@ -71,6 +71,7 @@ namespace HRMS.API.BusinessLayer
                               .Select(dataRow => new EmployeeModel
                               {
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),                                  
                                   guid = dataRow.Field<Guid>("guid"),
                                   EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
                                   CompanyID = dataRow.Field<long>("CompanyID"),
@@ -412,6 +413,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@DepartmentID", employeeModel.DepartmentID));
             sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeNumber", employeeModel.EmployeeNumber));
+            sqlParameter.Add(new SqlParameter("@ProfilePhoto", employeeModel.ProfilePhoto));
             sqlParameter.Add(new SqlParameter("@FirstName", employeeModel.FirstName));
             sqlParameter.Add(new SqlParameter("@MiddleName", employeeModel.MiddleName));
             sqlParameter.Add(new SqlParameter("@Surname", employeeModel.Surname));
@@ -458,8 +460,11 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@LanguageDetails", this.ConvertObjectToXML(employeeModel.LanguageDetails)));
             sqlParameter.Add(new SqlParameter("@EmploymentDetails", this.ConvertObjectToXML(employeeModel.EmploymentDetails)));
             sqlParameter.Add(new SqlParameter("@References", this.ConvertObjectToXML(employeeModel.References)));
+            sqlParameter.Add(new SqlParameter("@RetEmployeeID", employeeModel.EmployeeID));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter);
+            SqlParameterCollection pOutputParams = null;
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -467,7 +472,8 @@ namespace HRMS.API.BusinessLayer
                    .Select(dataRow =>
                         new Result()
                         {
-                            Message = dataRow.Field<string>("Result").ToString()
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = Convert.ToInt64(pOutputParams["@RetEmployeeID"].Value)
                         }
                    ).ToList().FirstOrDefault();
             }
