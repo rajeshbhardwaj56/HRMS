@@ -476,6 +476,28 @@ namespace HRMS.API.BusinessLayer
         }
 
 
+        public Results GetAllTemplates(TemplateInputParans model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@TemplateID", model.TemplateID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_TemplateDetails, sqlParameter);
+            result.Template = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new TemplateModel
+                              {
+                                  TemplateID = dataRow.Field<long>("TemplateID"),
+                                  LetterHeadName = dataRow.Field<string>("LetterHeadName"),
+                                  HeaderImage = dataRow.Field<string>("HeaderImage"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  FooterImage = dataRow.Field<string>("FooterImage"),
+                                  Description = dataRow.Field<string>("Description")
+
+
+                              }).ToList();
+
+                return result;
+        }
         public Result AddUpdateTemplate(TemplateModel templateModel)
         {
             Result model = new Result();
@@ -488,7 +510,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@FooterImage", templateModel.FooterImage));
             sqlParameter.Add(new SqlParameter("@Description", templateModel.Description));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Template, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {

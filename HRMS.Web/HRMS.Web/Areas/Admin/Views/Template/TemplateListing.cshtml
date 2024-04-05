@@ -1,0 +1,98 @@
+﻿@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model Results
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Template";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+
+<div class="addcomp px-4">
+    <h4>Template List</h4>
+    <a href="~/Admin/Template"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Template</button></a>
+</div>
+
+
+<div class="container-fluid">
+    <table id="tblTemplateListing" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden"> /th>
+                <th>TemplateID</th>
+                <th>CompanyID</th>
+                <th>LetterHeadName</th>
+                <th>HeaderImage</th>
+                <th>FooterImage</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#tblTemplateListing').DataTable({
+            "ajax": {
+                "url": "TemplateListings/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "TemplateID", "autoWidth": true, },
+                { "data": "CompanyID", "autoWidth": true, },
+                { "data": "LetterHeadName", "autoWidth": true },
+                { "data": "HeaderImage", "autoWidth": true },
+                { "data": "FooterImage", "autoWidth": true },
+                { "data": "Description", "autoWidth": true },
+
+
+                {
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+                        // alert(JSON.stringify(row))
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.TemplateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        return linkEdit;
+                    }
+                },
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+
+                {
+
+                    "targets": [0], //first and last not sortable
+                    "orderable": false,
+                    "visible": false
+                },
+
+                {
+
+                    "targets": [1], //first and last not sortable
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+
+            ]
+            , "responsive": true
+
+        });
+
+
+    });
+</script>

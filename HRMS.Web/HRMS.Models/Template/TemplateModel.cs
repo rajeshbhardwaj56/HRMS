@@ -1,4 +1,6 @@
-﻿namespace HRMS.Models.Template
+﻿using HRMS.Models.Employee;
+
+namespace HRMS.Models.Template
 {
     public class TemplateInputParans
     {
@@ -15,5 +17,6 @@
         public string HeaderImage { get; set; } = string.Empty;
         public string FooterImage { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public List<TemplateModel> TemplateList { get; set; } = new List<TemplateModel>();
     }
 }
