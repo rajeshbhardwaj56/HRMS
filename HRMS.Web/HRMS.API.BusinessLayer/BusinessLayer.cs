@@ -71,7 +71,7 @@ namespace HRMS.API.BusinessLayer
                               .Select(dataRow => new EmployeeModel
                               {
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),                                  
+                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
                                   guid = dataRow.Field<Guid>("guid"),
                                   EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
                                   CompanyID = dataRow.Field<long>("CompanyID"),
@@ -271,6 +271,38 @@ namespace HRMS.API.BusinessLayer
                                {
                                    Text = dataRow.Field<string>("Name"),
                                    Value = dataRow.Field<long>("CountryID").ToString()
+                               }).ToList();
+            }
+            return model;
+        }
+
+
+        public Results GetAllCurrencies(long companyID)
+        {
+            Results model = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+           // sqlParameter.Add(new SqlParameter("@CompanyID", companyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Currencies, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                  .Select(dataRow => new Results
+                  {
+                      Result = new Result()
+                      {
+                          Message = dataRow.Field<int>("Result").ToString()
+                      },
+                  }).ToList().FirstOrDefault();
+
+            }
+            else
+            {
+                model.Currencies = dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new SelectListItem
+                               {
+                                   Text = dataRow.Field<string>("Name"),
+                                   Value = dataRow.Field<long>("CurrencyID").ToString()
                                }).ToList();
             }
             return model;

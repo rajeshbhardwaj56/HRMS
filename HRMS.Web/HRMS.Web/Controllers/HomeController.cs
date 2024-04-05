@@ -94,13 +94,6 @@ namespace HRMS.Web.Controllers
 
                 var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-
-                //if (!_roleManager.RoleExistsAsync(_businessLayer.GetAreaNameByRole(result.loginModel.RoleID)).Result)
-                //{
-                //    var role = new IdentityRole();
-                //    role.Name = _businessLayer.GetAreaNameByRole(result.loginModel.RoleID);
-                //    _roleManager.CreateAsync(role);
-                //}
                 return RedirectToActionPermanent(
                    Constants.Index,
                   _businessLayer.GetControllarNameByRole(result.RoleId),

@@ -29,6 +29,7 @@ namespace HRMS.API.Web.Controllers.Common
             results.Languages = _businessLayer.GetAllCompanyLanguages(CompanyID).Languages;
             results.Departments = _businessLayer.GetAllCompanyDepartments(CompanyID).Departments;
             results.EmploymentTypes = _businessLayer.GetAllCompanyEmployeeTypes(CompanyID).EmploymentTypes;
+            results.Currencies = _businessLayer.GetAllCurrencies(CompanyID).Currencies;
             response = Ok(results);
             return response;
         }

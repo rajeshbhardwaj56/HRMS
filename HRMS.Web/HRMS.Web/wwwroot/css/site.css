@@ -20,3 +20,89 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+
+li.top-bar:hover, li.top-bar:active {
+    background-color: white;
+    color: #05397b;
+    font-weight: bold;
+}
+
+li.top-bar:link, li.top-bar:visited {
+    background-color: white;
+    color: #05397b;
+    font-weight: bold;
+}
+
+body {
+    background-color: #cfd8e3;
+}
+
+header {
+    background-color: #cfd8e3;
+}
+
+
+.top-bar.active {
+    background-color: white !important;
+    color: #05397b !important;
+    font-weight: bold !important;
+}
+
+    .top-bar.active a {
+        color: #05397b !important;
+    }
+
+.body-text {
+    font-family: system-ui !important;
+    font-size: 14px !important;
+}
+
+i.fa.fa-calendar {
+    padding: 4px;
+}
+
+.datepicker td, th {
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.datepicker {
+    border: 1px solid black;
+}
+
+.section-tabs {
+    background-color: #05397b;
+    color: white;
+    border: none;
+}
+
+    .section-tabs .nav-link:not(.active) {
+        color: white !important;
+    }
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,.125);
+    font-size: 16px !important;
+}
+
+
+
+.accordion-button:not(.collapsed) {
+    background-color: #cfd8e3;
+    color: #05397b;
+    margin-bottom: 0px !important;
+    font-size: 16px !important;
+}
+
+.accordion-button {
+    border: 2px solid #05397b !important;
+    border-radius: 5px !important;
+    font-size: 16px !important;
+    margin-bottom: 20px;
+    padding: 10px 20px 10px 20px;
+}
+

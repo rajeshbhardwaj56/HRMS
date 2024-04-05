@@ -1,0 +1,149 @@
+﻿@using HRMS.Models.Company;
+@model CompanyModel
+@{
+    Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Employee";
+    var CompanyLogo = "";
+    if (!string.IsNullOrEmpty(Model.CompanyLogo))
+    {
+        CompanyLogo = HRMS.Models.Common.Constants.EmployeePhotoPath + Model.CompanyID + "/" + Model.CompanyLogo;
+    }
+    else
+    {
+        CompanyLogo = HRMS.Models.Common.Constants.NoImagePath;
+    }
+}
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+
+        <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+            <label class="form-label">Company Details </label>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Company Name
+                </div>
+                <div class="col-md-12">
+                    @Html.HiddenFor(x => x.CountryID)
+                    @Html.TextBoxFor(a => a.Name, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Default Letter Head
+                </div>
+                <div class="col-md-12">
+                    @Html.TextBoxFor(a => a.DefaultLetterHead, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Company Abbreviation Name
+                </div>
+                <div class="col-md-12">
+                    @Html.TextBoxFor(a => a.Abbr, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Company Logo
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-4">
+                        <img src="@CompanyLogo" style="width:100px; height:100px" />
+                    </div>
+                    <div class="col-md-8">
+                        <input type="file" name="postedFiles" accept="image/*" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            TaxID
+                        </div>
+                        <div class="col-md-12">
+                            @Html.TextBoxFor(a => a.TaxID, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            Domain
+                        </div>
+                        <div class="col-md-12">
+                            @Html.TextBoxFor(a => a.Domain, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            Date of establishment
+                        </div>
+                        <div class="col-md-12">
+                            @Html.TextBoxFor(a => a.DateOfEstablished, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            Country
+                        </div>
+                        <div class="col-md-12">
+                            @Html.DropDownListFor(x => x.CountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            Currency
+                        </div>
+                        <div class="col-md-12">
+                            @Html.DropDownListFor(x => x.DefaultCurrencyID, Model.Currencies, HRMS.Models.Common.Constants.SelectCurrency, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            IsGroup
+                        </div>
+                        <div class="col-md-12">
+                            @Html.CheckBoxFor(a => a.IsGroup)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            Parent Company
+                        </div>
+                        <div class="col-md-12">
+                            @Html.TextBoxFor(a => a.ParentCompany, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>

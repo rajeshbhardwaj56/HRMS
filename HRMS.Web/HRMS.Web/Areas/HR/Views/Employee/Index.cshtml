@@ -6,11 +6,11 @@
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.ProfilePhoto))
     {
-        ProfilePhoto = "/Uploads/ProfilePhoto/" + Model.EmployeeID + "/" + Model.ProfilePhoto;
+        ProfilePhoto = HRMS.Models.Common.Constants.EmployeePhotoPath + Model.EmployeeID + "/" + Model.ProfilePhoto;
     }
     else    
     {
-        ProfilePhoto = "/assets/img/No_image.png";
+        ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
     }
 }
 

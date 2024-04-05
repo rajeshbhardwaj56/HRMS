@@ -24,6 +24,7 @@ namespace HRMS.Models.Common
         public const string ManageEmployee = "employee";
         public const string SelectLanguage = "-- Select Language --";
         public const string SelectCountry = "-- Select Country --";
+        public const string SelectCurrency = "-- Select Currency --";
         public const string SelectEmployeeType = "-- Select Employee Type --";
         public const string SelectDeportment = "-- Select Deportment --";
         public const string Languages = "Languages";
@@ -31,6 +32,9 @@ namespace HRMS.Models.Common
         public const string EmploymentTypes = "EmploymentTypes";
         public const string Departments = "Departments";
         public const string ResultsData = "ResultsData";
+        public const string EmployeePhotoPath = "Uploads/ProfilePhoto/";
+        public const string CompanyLogoPath = "Uploads/CompanyLogo/";
+        public const string NoImagePath = "/assets/img/No_image.png";
 
     }
 
@@ -52,14 +56,23 @@ namespace HRMS.Models.Common
 
     public class APIControllarsConstants
     {
-        public const string Employee = "Employee";      
+        public const string Employee = "Employee";
+        public const string Company = "Company";
+    }
+
+    public class WebControllarsConstants
+    {
+        public const string Employee = "Employee";
+        public const string Company = "Company";
     }
 
     public class APIApiActionConstants
     {
         public const string AddUpdateEmployee = "AddUpdateEmployee";
         public const string GetAllEmployees = "GetAllEmployees";
-        
 
+        public const string AddUpdateCompany = "AddUpdateCompany";
+        public const string GetAllCompanies = "GetAllCompanies";
     }
+
 }

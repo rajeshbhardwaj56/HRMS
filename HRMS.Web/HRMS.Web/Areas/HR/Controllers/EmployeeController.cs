@@ -46,24 +46,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            //var totalRecord = results.Employees.Count();
-            //var result = results.Employees.Skip(iDisplayStart).Take(iDisplayLength).ToList();
-            //StringBuilder sb = new StringBuilder();
-            //sb.Clear();
-            //sb.Append("{");
-            //sb.Append("\"sEcho\": ");
-            //sb.Append(sEcho);
-            //sb.Append(",");
-            //sb.Append("\"iTotalRecords\": ");
-            //sb.Append(totalRecord);
-            //sb.Append(",");
-            //sb.Append("\"iTotalDisplayRecords\": ");
-            //sb.Append(totalRecord);
-            //sb.Append(",");
-            //sb.Append("\"aaData\": ");
-            //sb.Append(JsonConvert.SerializeObject(result));
-            //sb.Append("}");
-            // return sb.ToString();
 
             return Json(new { data = results.Employees });
 
@@ -133,7 +115,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
 
-                string path = Path.Combine(this.Environment.WebRootPath, "Uploads/ProfilePhoto/" + result.PKNo.ToString());
+                string path = Path.Combine(this.Environment.WebRootPath, Constants.EmployeePhotoPath + result.PKNo.ToString());
 
                 if (!Directory.Exists(path))
                 {
@@ -153,7 +135,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employee.Departments = results.Departments;
                 return RedirectToActionPermanent(
                    Constants.Index,
-                  "Employee",
+                    WebControllarsConstants.Employee,
                   new { id = result.PKNo.ToString() }
                );
             }
@@ -169,7 +151,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
 
-        private HRMS.Models.Common.Results GetAllResults(long CompanyID)
+        public HRMS.Models.Common.Results GetAllResults(long CompanyID)
         {
             HRMS.Models.Common.Results result = null;
             var data = "";
