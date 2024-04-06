@@ -481,19 +481,17 @@ namespace HRMS.API.BusinessLayer
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            sqlParameter.Add(new SqlParameter("@TemplateID", model.TemplateID));
+            //sqlParameter.Add(new SqlParameter("@TemplateID", model.TemplateID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_TemplateDetails, sqlParameter);
             result.Template = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new TemplateModel
                               {
                                   TemplateID = dataRow.Field<long>("TemplateID"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
                                   LetterHeadName = dataRow.Field<string>("LetterHeadName"),
                                   HeaderImage = dataRow.Field<string>("HeaderImage"),
-                                  CompanyID = dataRow.Field<long>("CompanyID"),
                                   FooterImage = dataRow.Field<string>("FooterImage"),
                                   Description = dataRow.Field<string>("Description")
-
-
                               }).ToList();
 
                 return result;

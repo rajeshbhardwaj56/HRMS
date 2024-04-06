@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
-    [Area(Constants.ManageHR)]
+    [Area(Constants.ManageAdmin)]
     [Authorize(Roles = ( RoleConstants.Admin))]
     public class TemplateController : Controller
     {
@@ -65,7 +65,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public JsonResult TemplateListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             TemplateInputParans Template = new TemplateInputParans();
-            Template.TemplateID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
 

@@ -11,12 +11,11 @@ namespace HRMS.Models.Template
 
     public class TemplateModel
     {
-        public long TemplateID { get; set; }
         public long CompanyID { get; set; }
-        public string LetterHeadName { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public string HeaderImage { get; set; } = string.Empty;
         public string FooterImage { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public List<TemplateModel> TemplateList { get; set; } = new List<TemplateModel>();
+        public string LetterHeadName { get; set; } = string.Empty;
+        public long TemplateID { get; set; }
     }
 }
