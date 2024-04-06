@@ -17,7 +17,8 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_CompanyEmployeeTypes = "usp_Get_CompanyEmployeeTypes";
         public const string usp_Get_CompanyLanguages = "usp_Get_CompanyLanguages";
         public const string usp_Get_EmployeeDetails = "usp_Get_EmployeeDetails";
-
+        public const string usp_Get_Companies = "usp_Get_Companies";
+        public const string usp_AddUpdate_Company = "usp_AddUpdate_Company";
 
     }
 }

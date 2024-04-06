@@ -86,7 +86,7 @@ namespace HRMS.API.DataLayer
         {
 
             setConectionString();
-            
+
             DataSet dataSet = new DataSet();
             StringBuilder queryBuilder = new StringBuilder(pStoredProcedureName);
             using (SqlConnection conLocal = new SqlConnection(conStr))
@@ -104,7 +104,7 @@ namespace HRMS.API.DataLayer
                             if (pParams != null)
                             {
                                 cmdSql.Parameters.AddRange(pParams.ToArray());
-                            }                           
+                            }
 
                             cmdSql.CommandType = CommandType.StoredProcedure;
                             cmdSql.CommandTimeout = 0; //--- 120 for 2 min and 0 for infinite

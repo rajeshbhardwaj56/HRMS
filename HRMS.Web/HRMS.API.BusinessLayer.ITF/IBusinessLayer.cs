@@ -1,4 +1,5 @@
 ﻿using HRMS.Models.Common;
+using HRMS.Models.Company;
 using HRMS.Models.Employee;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -20,5 +21,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCurrencies(long companyID);
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParans model);
+        public Result AddUpdateCompany(CompanyModel model);
+        public Results GetAllCompanies(EmployeeInputParans model);
     }
 }

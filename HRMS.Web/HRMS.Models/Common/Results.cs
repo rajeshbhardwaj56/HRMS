@@ -20,6 +20,7 @@ namespace HRMS.Models.Common
         public List<EmployeeModel> Employees { get; set; } = new List<EmployeeModel>();
         public EmployeeModel employeeModel { get; set; } = new EmployeeModel();
         public CompanyModel companyModel { get; set; } = new CompanyModel();
+        public List<CompanyModel> Companies { get; set; } = new List<CompanyModel>();
 
     }
 

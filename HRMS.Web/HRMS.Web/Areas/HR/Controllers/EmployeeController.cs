@@ -18,12 +18,9 @@ namespace HRMS.Web.Areas.HR.Controllers
     [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin))]
     public class EmployeeController : Controller
     {
-
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-
         private IHostingEnvironment Environment;
-
         public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
         {
             Environment = _environment;
@@ -46,9 +43,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-
             return Json(new { data = results.Employees });
-
         }
 
         public IActionResult Index(string id)
@@ -100,9 +95,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             string wwwPath = Environment.WebRootPath;
             string contentPath = this.Environment.ContentRootPath;
-
-
-
 
             if (ModelState.IsValid)
             {
@@ -210,9 +202,5 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             return PartialView("_LanguageDetails", employee);
         }
-
-
-
-
     }
 }

@@ -14,10 +14,10 @@ namespace HRMS.Models.Company
         public string DefaultLetterHead { get; set; } = string.Empty;
         public string Abbr { get; set; } = string.Empty;
         public string TaxID { get; set; } = string.Empty;
-        public long DefaultCurrencyID { get; set; }
+        public long? DefaultCurrencyID { get; set; }
         public string Domain { get; set; } = string.Empty;
-        public long CountryID { get; set; }
-        public string DateOfEstablished { get; set; } = string.Empty;
+        public long? CountryID { get; set; }
+        public DateTime? DateOfEstablished { get; set; }
         public bool IsGroup { get; set; }
         public string ParentCompany { get; set; } = string.Empty;
         public string CompanyLogo { get; set; } = string.Empty;

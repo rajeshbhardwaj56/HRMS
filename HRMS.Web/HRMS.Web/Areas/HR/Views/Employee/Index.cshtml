@@ -24,7 +24,7 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Employment Type
+                    Employment Type <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.DropDownListFor(x => x.EmployeeTypeID, Model.EmploymentTypes, HRMS.Models.Common.Constants.SelectEmployeeType, new { @class = "form-control", @required = "required" })
@@ -34,7 +34,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Department
+                    Department <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.DropDownListFor(x => x.DepartmentID, Model.Departments, HRMS.Models.Common.Constants.SelectDeportment, new { @class = "form-control", @required = "required" })
@@ -44,7 +44,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Official Email Address
+                    Official Email Address <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.EmailAddress, new { @class = "form-control", @required = "required" })
@@ -60,7 +60,7 @@
         </div>
 
         <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Personal Details </label>
+            <label for="validationDefault01" class="form-label">Personal Details </label> 
             @Html.HiddenFor(m => m.EmployeeID)
             @Html.HiddenFor(m => m.CompanyID)
 
@@ -68,7 +68,7 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="col-md-12">
-                    First Name
+                    First Name <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
@@ -87,7 +87,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Surname
+                    Surname <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })
@@ -113,7 +113,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Address of Currespondence
+                    Address of Currespondence <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextAreaFor(a => a.CorrespondenceAddress, new { @class = "form-control", @required = "required" })
@@ -123,7 +123,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    City
+                    City <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.CorrespondenceCity, new { @class = "form-control", @required = "required" })
@@ -133,7 +133,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Pin
+                    Pin <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.CorrespondencePinCode, new { @class = "form-control", @required = "required" })
@@ -143,7 +143,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    State
+                    State <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.CorrespondenceState, new { @class = "form-control", @required = "required" })
@@ -153,7 +153,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Country
+                    Country <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.DropDownListFor(x => x.CorrespondenceCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
@@ -162,7 +162,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Landline
+                    Landline <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.Landline, new { @class = "form-control" })
@@ -172,7 +172,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Mobile
+                    Mobile <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control", @required = "required" })
@@ -182,7 +182,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Personal Email Address
+                    Personal Email Address <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control", @required = "required" })
@@ -199,7 +199,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Permanent Address
+                    Permanent Address <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextAreaFor(a => a.PermanentAddress, new { @class = "form-control", @required = "required" })
@@ -209,7 +209,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    City
+                    City <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.PermanentCity, new { @class = "form-control", @required = "required" })
@@ -219,7 +219,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Pin
+                    Pin <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.PermanentPinCode, new { @class = "form-control", @required = "required" })
@@ -229,7 +229,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    State
+                    State <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.PermanentState, new { @class = "form-control", @required = "required" })
@@ -239,7 +239,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Country
+                    Country <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.DropDownListFor(x => x.PermanentCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
@@ -257,7 +257,7 @@
             </div>
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Date of Birth
+                    Date of Birth <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
@@ -270,7 +270,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Place of Birth
+                    Place of Birth <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
@@ -283,7 +283,7 @@
             </div>
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Contact Persion Name for Verification
+                    Contact Persion Name for Verification <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.VerificationContactPersonName, new { @class = "form-control", @required = "required" })
@@ -293,7 +293,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Contact No
+                    Contact No <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control", @required = "required" })
@@ -396,14 +396,14 @@
 
             <div class="row">
                 <div class="col-md-3">
-                    Pan No
+                    Pan No <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-3">
                     @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
                 </div>
 
                 <div class="col-md-3">
-                    Adhar card No
+                    Adhar card No <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-3">
                     @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @required = "required" })
@@ -429,7 +429,7 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    Mention any Awards/Achievements/Scholarship recieved in you educational career
+                    Mention any Awards/Achievements/Scholarship recieved in you educational career <label class="Mandetory">*</label>
                 </div>
             </div>
 
@@ -441,7 +441,7 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    State gaps in education, if any
+                    State gaps in education, if any <label class="Mandetory">*</label>
                 </div>
             </div>
 

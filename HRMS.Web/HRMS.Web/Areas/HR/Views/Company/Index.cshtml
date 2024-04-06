@@ -22,16 +22,17 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Company Name
+                    Company Name <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
-                    @Html.HiddenFor(x => x.CountryID)
+                    @Html.HiddenFor(x => x.CompanyID)
                     @Html.TextBoxFor(a => a.Name, new { @class = "form-control", @required = "required" })
+                   
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Default Letter Head
+                    Default Letter Head <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.DefaultLetterHead, new { @class = "form-control", @required = "required" })
@@ -41,7 +42,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Company Abbreviation Name
+                    Company Abbreviation Name <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.Abbr, new { @class = "form-control", @required = "required" })
@@ -50,7 +51,7 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Company Logo
+                    Company Logo 
                 </div>
                 <div class="col-md-12">
                     <div class="col-md-4">
@@ -66,7 +67,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="col-md-12">
-                            TaxID
+                            TaxID <label class="Mandetory">*</label>
                         </div>
                         <div class="col-md-12">
                             @Html.TextBoxFor(a => a.TaxID, new { @class = "form-control", @required = "required" })
@@ -76,7 +77,7 @@
 
                     <div class="col-md-6">
                         <div class="col-md-12">
-                            Domain
+                            Domain <label class="Mandetory">*</label>
                         </div>
                         <div class="col-md-12">
                             @Html.TextBoxFor(a => a.Domain, new { @class = "form-control", @required = "required" })
@@ -85,16 +86,16 @@
 
                     <div class="col-md-6">
                         <div class="col-md-12">
-                            Date of establishment
+                            Date of establishment <label class="Mandetory">*</label>
                         </div>
                         <div class="col-md-12">
-                            @Html.TextBoxFor(a => a.DateOfEstablished, new { @class = "form-control", @required = "required" })
+                            @Html.TextBoxFor(a => a.DateOfEstablished, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="col-md-12">
-                            Country
+                            Country <label class="Mandetory">*</label>
                         </div>
                         <div class="col-md-12">
                             @Html.DropDownListFor(x => x.CountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
@@ -103,7 +104,7 @@
 
                     <div class="col-md-6">
                         <div class="col-md-12">
-                            Currency
+                            Currency <label class="Mandetory">*</label>
                         </div>
                         <div class="col-md-12">
                             @Html.DropDownListFor(x => x.DefaultCurrencyID, Model.Currencies, HRMS.Models.Common.Constants.SelectCurrency, new { @class = "form-control", @required = "required" })
@@ -111,7 +112,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="col-md-12">
-                            IsGroup
+                            IsGroup 
                         </div>
                         <div class="col-md-12">
                             @Html.CheckBoxFor(a => a.IsGroup)
@@ -119,7 +120,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="col-md-12">
-                            Parent Company
+                            Parent Company <label class="Mandetory">*</label>
                         </div>
                         <div class="col-md-12">
                             @Html.TextBoxFor(a => a.ParentCompany, new { @class = "form-control", @required = "required" })

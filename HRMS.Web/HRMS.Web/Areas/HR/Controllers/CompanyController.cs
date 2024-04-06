@@ -16,33 +16,42 @@ namespace HRMS.Web.Areas.HR.Controllers
     {
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-
         private IHostingEnvironment Environment;
-       
-
         public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
-        {           
+        {
             Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
 
+        public IActionResult CompanyListing()
+        {
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            return View(results);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult CompanyListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            EmployeeInputParans employee = new EmployeeInputParans();            
+            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            return Json(new { data = results.Companies });
+        }
+
         public IActionResult Index(string id)
         {
-            CompanyModel model = new CompanyModel();
-
-            model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            CompanyModel model = new CompanyModel();           
 
             if (!string.IsNullOrEmpty(id))
             {
-
                 model.CompanyID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyModel;
-
             }
 
-            HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
+            HRMS.Models.Common.Results results = GetAllResults(Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)));
             model.Countries = results.Countries;
             model.Currencies = results.Currencies;
             return View(model);
@@ -62,13 +71,13 @@ namespace HRMS.Web.Areas.HR.Controllers
                 string contentPath = this.Environment.ContentRootPath;
 
 
-                string fileName = null;
+                string fileName = string.Empty;
                 foreach (IFormFile postedFile in postedFiles)
                 {
                     fileName = postedFile.FileName.Replace(" ", "");
                 }
                 model.CompanyLogo = fileName;
-                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.AddUpdateCompany), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
 
                 string path = Path.Combine(this.Environment.WebRootPath, Constants.CompanyLogoPath + result.PKNo.ToString());
@@ -83,8 +92,8 @@ namespace HRMS.Web.Areas.HR.Controllers
                     {
                         postedFile.CopyTo(stream);
                     }
-                }              
-              
+                }
+
 
                 return RedirectToActionPermanent(
                    Constants.Index,
