@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.OutputCaching;
 
 namespace HRMS.API.Web.Controllers
 {
+
     [Route("[controller]/[action]")]
     [ApiController]
     [Authorize]
