@@ -1,40 +1,39 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
+using HRMS.Models.Company;
 using HRMS.Models.Employee;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 
-namespace HRMS.API.Web.Controllers.Employee
+namespace HRMS.API.Web.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
-    [Authorize]
-    public class EmployeeController : ControllerBase
+    //[Authorize]
+    public class CompanyController : ControllerBase
     {
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer)
+        public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
 
         [HttpPost]
-        public IActionResult AddUpdateEmployee(EmployeeModel model)
+        public IActionResult AddUpdateCompany(CompanyModel model)
         {
             IActionResult response = Unauthorized();
-            Result result = _businessLayer.AddUpdateEmployee(model);
+            Result result = _businessLayer.AddUpdateCompany(model);
             response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetAllEmployees(EmployeeInputParans model)
+        public IActionResult GetAllCompanies(EmployeeInputParans model)
         {
-            IActionResult response = Unauthorized();            
-            response = Ok(_businessLayer.GetAllEmployees(model));
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllCompanies(model));
             return response;
         }
     }

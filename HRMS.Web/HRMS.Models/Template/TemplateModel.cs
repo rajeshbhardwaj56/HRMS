@@ -17,5 +17,6 @@ namespace HRMS.Models.Template
         public string FooterImage { get; set; } = string.Empty;
         public string LetterHeadName { get; set; } = string.Empty;
         public long TemplateID { get; set; }
+        public string TemplateName { get; set; } = string.Empty;
     }
 }

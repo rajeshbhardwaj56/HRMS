@@ -3,29 +3,30 @@
 
 @model Results
 @{
-    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Template";
+    Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Company";
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
 
 <div class="addcomp px-4">
-    <h4>Template List</h4>
-    <a href="~/Admin/Template"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Template</button></a>
+    <h4>Company List</h4>
+    <a href="~/HR/Company"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Company</button></a>
 </div>
 
 
 <div class="container-fluid">
-    <table id="tblTemplateListing" class="table table-striped body-text" style="width:100%">
+    <table id="tblCompanyListing" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden"> /th>
-                <th>Template Name</th>
-                <th>Company ID</th>
-                <th>Letter Head Name</th>
-                <th>Header Image</th>
-                <th>Footer Image</th>
+                <th>Company Name</th>
+                <th>Abbreviation Name</th>
+                <th>TaxID</th>
+                <th>Domain</th>
+                <th>Parent Company</th>
+                @* <th>Company Logo</th> *@
                 <th>Action</th>
             </tr>
         </thead>
@@ -38,9 +39,10 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        $('#tblTemplateListing').DataTable({
+
+        $('#tblCompanyListing').DataTable({
             "ajax": {
-                "url": "TemplateListings/",
+                "url": "CompanyListings/",
                 "type": "POST",
                 "datatype": "json"
             },
@@ -49,22 +51,21 @@
             "searching": true,
             "info": true,
             "columns": [
-                { "data": "templateID", "autoWidth": true, },
-                { "data": "templateName", "autoWidth": true, },
                 { "data": "companyID", "autoWidth": true, },
-                { "data": "letterHeadName", "autoWidth": true },
-                { "data": "headerImage", "autoWidth": true },
-                { "data": "footerImage", "autoWidth": true },
-
-
+                { "data": "name", "autoWidth": true, },
+                { "data": "abbr", "autoWidth": true },
+                { "data": "taxID", "autoWidth": true },
+                { "data": "domain", "autoWidth": true },
+                { "data": "parentCompany", "autoWidth": true },
+                // { "data": "companyLogo", "autoWidth": true },
                 {
                     // this is Actions Column
                     mRender: function (data, type, row) {
-                        //alert(JSON.stringify(row))
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.templateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        // alert(JSON.stringify(row))
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.companyID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
                         return linkEdit;
                     }
-                },
+                }              
             ],
             "columnDefs": [
                 {
@@ -91,7 +92,6 @@
             , "responsive": true
 
         });
-
-
     });
+
 </script>

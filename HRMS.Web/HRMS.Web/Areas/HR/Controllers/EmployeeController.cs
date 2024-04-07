@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Cryptography.Xml;
 using System.Text;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
@@ -17,11 +18,12 @@ namespace HRMS.Web.Areas.HR.Controllers
     [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin))]
     public class EmployeeController : Controller
     {
-
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer)
+        private IHostingEnvironment Environment;
+        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
         {
+            Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
@@ -41,27 +43,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            //var totalRecord = results.Employees.Count();
-            //var result = results.Employees.Skip(iDisplayStart).Take(iDisplayLength).ToList();
-            //StringBuilder sb = new StringBuilder();
-            //sb.Clear();
-            //sb.Append("{");
-            //sb.Append("\"sEcho\": ");
-            //sb.Append(sEcho);
-            //sb.Append(",");
-            //sb.Append("\"iTotalRecords\": ");
-            //sb.Append(totalRecord);
-            //sb.Append(",");
-            //sb.Append("\"iTotalDisplayRecords\": ");
-            //sb.Append(totalRecord);
-            //sb.Append(",");
-            //sb.Append("\"aaData\": ");
-            //sb.Append(JsonConvert.SerializeObject(result));
-            //sb.Append("}");
-            // return sb.ToString();
-
             return Json(new { data = results.Employees });
-
         }
 
         public IActionResult Index(string id)
@@ -107,18 +89,47 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(EmployeeModel employee)
+        public IActionResult Index(EmployeeModel employee, List<IFormFile> postedFiles)
         {
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
+
+            string wwwPath = Environment.WebRootPath;
+            string contentPath = this.Environment.ContentRootPath;
+
             if (ModelState.IsValid)
             {
+                string fileName = null;
+                foreach (IFormFile postedFile in postedFiles)
+                {
+                    fileName = postedFile.FileName.Replace(" ", "");
+                }
+                employee.ProfilePhoto = fileName;
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
+
+                string path = Path.Combine(this.Environment.WebRootPath, Constants.EmployeePhotoPath + result.PKNo.ToString());
+
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                foreach (IFormFile postedFile in postedFiles)
+                {
+                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                    {
+                        postedFile.CopyTo(stream);
+                    }
+                }
+
                 employee.Languages = results.Languages;
                 employee.Countries = results.Countries;
                 employee.EmploymentTypes = results.EmploymentTypes;
                 employee.Departments = results.Departments;
-                return View(employee);
+                return RedirectToActionPermanent(
+                   Constants.Index,
+                    WebControllarsConstants.Employee,
+                  new { id = result.PKNo.ToString() }
+               );
             }
             else
             {
@@ -132,7 +143,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
 
-        private HRMS.Models.Common.Results GetAllResults(long CompanyID)
+        public HRMS.Models.Common.Results GetAllResults(long CompanyID)
         {
             HRMS.Models.Common.Results result = null;
             var data = "";
@@ -191,9 +202,5 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             return PartialView("_LanguageDetails", employee);
         }
-
-
-
-
     }
 }

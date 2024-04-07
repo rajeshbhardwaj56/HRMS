@@ -1,5 +1,114 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using HRMS.Models.Template;
+@model TemplateModel
+
 @{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Template";
+    var HeaderImage = "";
+    var FooterImage = "";
+    if (!string.IsNullOrEmpty(Model.HeaderImage))
+    {
+        HeaderImage = HRMS.Models.Common.Constants.EmployeePhotoPath + Model.CompanyID + "/" + Model.HeaderImage;
+    }
+    else
+    {
+        HeaderImage = HRMS.Models.Common.Constants.NoImagePath;
+    }
+
+    if (!string.IsNullOrEmpty(Model.FooterImage))
+    {
+        FooterImage = HRMS.Models.Common.Constants.EmployeePhotoPath + Model.CompanyID + "/" + Model.FooterImage;
+    }
+    else
+    {
+        FooterImage = HRMS.Models.Common.Constants.NoImagePath;
+    }
 }
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+
+        <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+            <label class="form-label">Template Details </label>
+        </div>
+        <div class="row">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="col-md-12">
+                        Template Name <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.HiddenFor(x => x.TemplateID)
+                        @Html.TextBoxFor(a => a.TemplateName, new { @class = "form-control", @required = "required" })
+
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="col-md-12">
+                        Letter Head Name<label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(a => a.LetterHeadName, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="col-md-12">
+                        Header Image
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-4">
+                            <img src="@HeaderImage" style="width:100px; height:100px" />
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" name="postedFiles" accept="image/*" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="col-md-4">
+                    <div class="col-md-12">
+                        Footer Image
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-4">
+                            <img src="@FooterImage" style="width:100px; height:100px" />
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" name="postedFiles" accept="image/*" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                &nbsp;
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Set column width to full width -->
+                    <div class="col-md-12">
+                        Description <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.TextAreaFor(a => a.Description, new { @class = "form-control", @required = "required", style = "width: 100%; min-height:200px" })
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>

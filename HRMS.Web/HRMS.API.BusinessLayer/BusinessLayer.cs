@@ -15,6 +15,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.ComponentModel.Design;
 using HRMS.Models.Template;
+using HRMS.Models.Company;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -276,7 +277,36 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
+        public Results GetAllCurrencies(long companyID)
+        {
+            Results model = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            // sqlParameter.Add(new SqlParameter("@CompanyID", companyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Currencies, sqlParameter);
 
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                  .Select(dataRow => new Results
+                  {
+                      Result = new Result()
+                      {
+                          Message = dataRow.Field<int>("Result").ToString()
+                      },
+                  }).ToList().FirstOrDefault();
+
+            }
+            else
+            {
+                model.Currencies = dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new SelectListItem
+                               {
+                                   Text = dataRow.Field<string>("Name"),
+                                   Value = dataRow.Field<long>("CurrencyID").ToString()
+                               }).ToList();
+            }
+            return model;
+        }
         public Results GetAllLanguages()
         {
             Results model = new Results();
@@ -481,7 +511,6 @@ namespace HRMS.API.BusinessLayer
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            //sqlParameter.Add(new SqlParameter("@TemplateID", model.TemplateID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_TemplateDetails, sqlParameter);
             result.Template = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new TemplateModel
@@ -491,11 +520,18 @@ namespace HRMS.API.BusinessLayer
                                   LetterHeadName = dataRow.Field<string>("LetterHeadName"),
                                   HeaderImage = dataRow.Field<string>("HeaderImage"),
                                   FooterImage = dataRow.Field<string>("FooterImage"),
-                                  Description = dataRow.Field<string>("Description")
+                                  Description = dataRow.Field<string>("Description"),
+                                  TemplateName = dataRow.Field<string>("TemplateName")
                               }).ToList();
 
-                return result;
+            if (model.CompanyID > 0)
+            {
+                result.templateModel = result.Template.FirstOrDefault();
+            }
+
+            return result;
         }
+
         public Result AddUpdateTemplate(TemplateModel templateModel)
         {
             Result model = new Result();
@@ -507,6 +543,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@CompanyID", templateModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@FooterImage", templateModel.FooterImage));
             sqlParameter.Add(new SqlParameter("@Description", templateModel.Description));
+            sqlParameter.Add(new SqlParameter("@TemplateName", templateModel.TemplateName));
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Template, sqlParameter);
 
@@ -523,6 +560,75 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
+        public Results GetAllCompanies(EmployeeInputParans model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
+            result.Companies = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new CompanyModel
+                              {
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  CompanyLogo = dataRow.Field<string>("CompanyLogo"),
+                                  Abbr = dataRow.Field<string>("Abbr"),
+                                  CountryID = dataRow.Field<long?>("CountryID"),
+                                  DateOfEstablished = dataRow.Field<DateTime?>("DateOfEstablished"),
+                                  DefaultCurrencyID = dataRow.Field<long?>("DefaultCurrencyID"),
+                                  DefaultLetterHead = dataRow.Field<string>("DefaultLetterHead"),
+                                  Domain = dataRow.Field<string>("Domain"),
+                                  Name = dataRow.Field<string>("Name"),
+                                  ParentCompany = dataRow.Field<string>("ParentCompany"),
+                                  TaxID = dataRow.Field<string>("TaxID"),
+                                  IsGroup = dataRow.Field<bool>("IsGroup"),
+
+                              }).ToList();
+
+            if (model.CompanyID > 0)
+            {
+                result.companyModel = result.Companies.FirstOrDefault();
+            }
+
+            return result;
+        }
+
+        public Result AddUpdateCompany(CompanyModel companyModel)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@CompanyID", companyModel.CompanyID));
+            sqlParameter.Add(new SqlParameter("@RetCompanyID", companyModel.CompanyID));
+            sqlParameter.Add(new SqlParameter("@Abbr", companyModel.Abbr));
+            sqlParameter.Add(new SqlParameter("@CountryID", companyModel.CountryID));
+            sqlParameter.Add(new SqlParameter("@DefaultCurrencyID", companyModel.DefaultCurrencyID));
+            sqlParameter.Add(new SqlParameter("@TaxID", companyModel.TaxID));
+            sqlParameter.Add(new SqlParameter("@Name", companyModel.Name));
+            sqlParameter.Add(new SqlParameter("@DefaultLetterHead", companyModel.DefaultLetterHead));
+            sqlParameter.Add(new SqlParameter("@Domain", companyModel.Domain));
+            sqlParameter.Add(new SqlParameter("@DateOfEstablished", companyModel.DateOfEstablished));
+            sqlParameter.Add(new SqlParameter("@IsGroup", companyModel.IsGroup));
+            sqlParameter.Add(new SqlParameter("@ParentCompany", companyModel.ParentCompany));
+            sqlParameter.Add(new SqlParameter("@CompanyLogo", companyModel.CompanyLogo));
+
+
+            SqlParameterCollection pOutputParams = null;
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Company, sqlParameter, ref pOutputParams);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = Convert.ToInt64(pOutputParams["@RetCompanyID"].Value)
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
 
         #region XML Serialization
         public string ConvertObjectToXML(object obj)
