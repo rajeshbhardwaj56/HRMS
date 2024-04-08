@@ -6,7 +6,7 @@
     var CompanyLogo = "";
     if (!string.IsNullOrEmpty(Model.CompanyLogo))
     {
-        CompanyLogo = HRMS.Models.Common.Constants.EmployeePhotoPath + Model.CompanyID + "/" + Model.CompanyLogo;
+        CompanyLogo = "/" + HRMS.Models.Common.Constants.CompanyLogoPath + Model.CompanyID + "/" + Model.CompanyLogo;
     }
     else
     {
@@ -27,7 +27,7 @@
                 <div class="col-md-12">
                     @Html.HiddenFor(x => x.CompanyID)
                     @Html.TextBoxFor(a => a.Name, new { @class = "form-control", @required = "required" })
-                   
+
                 </div>
             </div>
             <div class="col-md-4">
@@ -51,11 +51,11 @@
 
             <div class="col-md-4">
                 <div class="col-md-12">
-                    Company Logo 
+                    Company Logo
                 </div>
                 <div class="col-md-12">
                     <div class="col-md-4">
-                        <img src="@CompanyLogo" style="width:100px; height:100px" />
+                        <img src="@CompanyLogo" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
                     </div>
                     <div class="col-md-8">
                         <input type="file" name="postedFiles" accept="image/*" />
@@ -112,7 +112,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="col-md-12">
-                            IsGroup 
+                            IsGroup
                         </div>
                         <div class="col-md-12">
                             @Html.CheckBoxFor(a => a.IsGroup)

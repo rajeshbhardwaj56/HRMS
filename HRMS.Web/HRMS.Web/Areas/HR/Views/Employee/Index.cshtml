@@ -6,7 +6,7 @@
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.ProfilePhoto))
     {
-        ProfilePhoto = HRMS.Models.Common.Constants.EmployeePhotoPath + Model.EmployeeID + "/" + Model.ProfilePhoto;
+        ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.EmployeeID + "/" + Model.ProfilePhoto;
     }
     else    
     {
@@ -101,7 +101,7 @@
                 </div>
                 <div class="col-md-12">
                     <div class="col-md-4">
-                        <img src="@ProfilePhoto" style="width:150px; height:200px" />
+                        <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:150px; height:200px" />
                     </div>
                     <div class="col-md-8">
                         <input type="file" name="postedFiles" accept="image/*" />
