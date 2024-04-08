@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Xml;
 using System.ComponentModel.Design;
+using HRMS.Models.Template;
 using HRMS.Models.Company;
 
 namespace HRMS.API.BusinessLayer
@@ -72,7 +73,6 @@ namespace HRMS.API.BusinessLayer
                               .Select(dataRow => new EmployeeModel
                               {
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
                                   guid = dataRow.Field<Guid>("guid"),
                                   EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
                                   CompanyID = dataRow.Field<long>("CompanyID"),
@@ -277,7 +277,6 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-
         public Results GetAllCurrencies(long companyID)
         {
             Results model = new Results();
@@ -308,8 +307,6 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-
-
         public Results GetAllLanguages()
         {
             Results model = new Results();
@@ -446,7 +443,6 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@DepartmentID", employeeModel.DepartmentID));
             sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeNumber", employeeModel.EmployeeNumber));
-            sqlParameter.Add(new SqlParameter("@ProfilePhoto", employeeModel.ProfilePhoto));
             sqlParameter.Add(new SqlParameter("@FirstName", employeeModel.FirstName));
             sqlParameter.Add(new SqlParameter("@MiddleName", employeeModel.MiddleName));
             sqlParameter.Add(new SqlParameter("@Surname", employeeModel.Surname));
@@ -493,11 +489,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@LanguageDetails", this.ConvertObjectToXML(employeeModel.LanguageDetails)));
             sqlParameter.Add(new SqlParameter("@EmploymentDetails", this.ConvertObjectToXML(employeeModel.EmploymentDetails)));
             sqlParameter.Add(new SqlParameter("@References", this.ConvertObjectToXML(employeeModel.References)));
-            sqlParameter.Add(new SqlParameter("@RetEmployeeID", employeeModel.EmployeeID));
 
-            SqlParameterCollection pOutputParams = null;
-
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -505,14 +498,67 @@ namespace HRMS.API.BusinessLayer
                    .Select(dataRow =>
                         new Result()
                         {
-                            Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo = Convert.ToInt64(pOutputParams["@RetEmployeeID"].Value)
+                            Message = dataRow.Field<string>("Result").ToString()
                         }
                    ).ToList().FirstOrDefault();
             }
             return model;
         }
 
+
+        public Results GetAllTemplates(TemplateInputParans model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_TemplateDetails, sqlParameter);
+            result.Template = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new TemplateModel
+                              {
+                                  TemplateID = dataRow.Field<long>("TemplateID"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  LetterHeadName = dataRow.Field<string>("LetterHeadName"),
+                                  HeaderImage = dataRow.Field<string>("HeaderImage"),
+                                  FooterImage = dataRow.Field<string>("FooterImage"),
+                                  Description = dataRow.Field<string>("Description"),
+                                  TemplateName = dataRow.Field<string>("TemplateName")
+                              }).ToList();
+
+            if (model.CompanyID > 0)
+            {
+                result.templateModel = result.Template.FirstOrDefault();
+            }
+
+            return result;
+        }
+
+        public Result AddUpdateTemplate(TemplateModel templateModel)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@TemplateID", templateModel.TemplateID));
+            sqlParameter.Add(new SqlParameter("@LetterHeadName", templateModel.LetterHeadName));
+            sqlParameter.Add(new SqlParameter("@HeaderImage", templateModel.HeaderImage));
+            sqlParameter.Add(new SqlParameter("@CompanyID", templateModel.CompanyID));
+            sqlParameter.Add(new SqlParameter("@FooterImage", templateModel.FooterImage));
+            sqlParameter.Add(new SqlParameter("@Description", templateModel.Description));
+            sqlParameter.Add(new SqlParameter("@TemplateName", templateModel.TemplateName));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Template, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString()
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
 
         public Results GetAllCompanies(EmployeeInputParans model)
         {

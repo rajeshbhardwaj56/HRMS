@@ -262,6 +262,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CKEditor" Version="3.6.4" />
     <PackageReference Include="ClosedXML" Version="0.102.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.1.21" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.1.3" />
