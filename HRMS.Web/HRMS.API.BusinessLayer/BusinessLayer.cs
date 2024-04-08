@@ -78,6 +78,7 @@ namespace HRMS.API.BusinessLayer
                                   CompanyID = dataRow.Field<long>("CompanyID"),
                                   DepartmentID = dataRow.Field<long>("DepartmentID"),
                                   EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
+                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
                                   FirstName = dataRow.Field<string>("FirstName"),
                                   MiddleName = dataRow.Field<string>("MiddleName"),
                                   Surname = dataRow.Field<string>("Surname"),
@@ -439,6 +440,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
             sqlParameter.Add(new SqlParameter("@EmployeeID", employeeModel.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@RetEmployeeID", employeeModel.EmployeeID));
             sqlParameter.Add(new SqlParameter("@EmployeeTypeID", employeeModel.EmployeeTypeID));
             sqlParameter.Add(new SqlParameter("@DepartmentID", employeeModel.DepartmentID));
             sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));
@@ -490,7 +492,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@EmploymentDetails", this.ConvertObjectToXML(employeeModel.EmploymentDetails)));
             sqlParameter.Add(new SqlParameter("@References", this.ConvertObjectToXML(employeeModel.References)));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter);
+            SqlParameterCollection pOutputParams = null;
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter,ref pOutputParams);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -498,7 +501,8 @@ namespace HRMS.API.BusinessLayer
                    .Select(dataRow =>
                         new Result()
                         {
-                            Message = dataRow.Field<string>("Result").ToString()
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = Convert.ToInt64(pOutputParams["@RetEmployeeID"].Value)
                         }
                    ).ToList().FirstOrDefault();
             }
