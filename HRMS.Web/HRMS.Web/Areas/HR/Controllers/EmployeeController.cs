@@ -28,7 +28,13 @@ namespace HRMS.Web.Areas.HR.Controllers
             _businessLayer = businessLayer;
         }
 
-        public IActionResult EmployeeListing()
+        public IActionResult MyInfo(string id)
+        {
+
+            return View();
+        }
+
+            public IActionResult EmployeeListing()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);

@@ -26,5 +26,10 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllTemplates(TemplateInputParans model);
         public Result AddUpdateCompany(CompanyModel model);
         public Results GetAllCompanies(EmployeeInputParans model);
+
+      //  public Results GetAllLanguages();
+        //public Results GetLeaveDurationTypes();
+        //public Results GetLeaveStatus();
+        //public Results GetLeaveTypes();
     }
 }

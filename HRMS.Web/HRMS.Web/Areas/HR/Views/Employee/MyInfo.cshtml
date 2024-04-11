@@ -1,0 +1,349 @@
+﻿@using HRMS.Models.Employee;
+@model EmployeeModel
+@{
+    Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Employee";
+    var ProfilePhoto = "";
+    // if (!string.IsNullOrEmpty(Model.ProfilePhoto))
+    // {
+    //     ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.EmployeeID + "/" + Model.ProfilePhoto;
+    // }
+    // else
+    // {
+    //     ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+    // }
+}
+
+
+<section class="upper-section d-flex justify-content-lg-start justify-content-center align-items-start theme fixed-top pt-2 z-2" style="background-color: #05397b; height: 151px; margin-top: 75px;">
+    <div class="container-fluid">
+        <div class="row px-4">
+            <div class="col-lg-3 px-5">
+
+                <img src="/assets/img/avatars/1.png" alt="mdo" width="175" height="175" class="rounded-circle fixed z-5">
+            </div>
+            <div class="col-lg-9">
+                <div class="row py-2 my-3">
+                    <h2 style="color: white; font-family:cursive;">Gurdeep Singh</h2>
+                </div>
+
+                <div class="row pt-1">
+                    <ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Personal Info</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab" aria-controls="attendance" aria-selected="true">Professional Info</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Profile</button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#timeoff" type="button" role="tab" aria-controls="timeoff" aria-selected="false" tabindex="-1">Time Off</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab" aria-controls="attendance" aria-selected="true">Attendance</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab" aria-controls="attendance" aria-selected="true">Separation</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid" style="margin-top:225px;">
+    <div class="row">
+        <div class="col-lg-3 py-4">
+            <div class="card z-0 fixed-top" style="margin-top:220px; margin-left:1%; width:24%;">
+                <div class="card-body body-side-text">
+
+                    <div class="px-3 pt-5">
+                        <h6 class="card-title">Joining Date:</h6>
+                        <p>
+                            Jan 02, 2024 <br>
+                            0y - 63d
+
+                        </p>
+                    </div>
+                    <hr>
+                    <ul class="list-group py-1 pb-4">
+                        <li class="list-group-item"><img src="/assets/img/icons/id.png" width="20" height="20" title="Employee ID">&nbsp;&nbsp;ELS0349</li>
+                        <li class="list-group-item"><img src="/assets/img/icons/status.png" width="20" height="20" title="Status">&nbsp;&nbsp;Active - Full Time</li>
+                        <li class="list-group-item"><img src="/assets/img/icons/designation.png" width="20" height="20" title="Designation">&nbsp;&nbsp;Business Analyst</li>
+                        <li class="list-group-item"><img src="/assets/img/icons/department.png" width="20" height="20" title="Department">&nbsp;&nbsp;Operations</li>
+                        <li class="list-group-item"><img src="/assets/img/icons/location.png" width="20" height="20" title="Location">&nbsp;&nbsp;Mohali, Punjab</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-9">
+            <div class="tab-content" id="myTabContentSection">
+                <div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <ul class="nav nav-tabs" id="myTab-timeoff" role="tablist" style="background-color: #cfd8e3; border-radius:5px;">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link page-head-link active" id="apply-tab" data-bs-toggle="tab" data-bs-target="#apply" type="button" role="tab" aria-controls="apply" aria-selected="false" tabindex="-1">Apply Leave</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link page-head-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Leave Summary</button>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content pt-2" id="myTabContent-timeoff">
+                                        <div class="tab-pane fade active show" id="apply" role="tabpanel" aria-labelledby="apply-tab">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <form class="body-text" method="post" enctype="multipart/form-data">
+
+                                                                <div class="row py-2">
+                                                                    <div class="col-lg-6 col-md-12">
+                                                                        <label for="leavetype" class="form-label">Leave Type:</label>
+                                                                        <select class="form-select body-text" aria-label="Default select example">
+                                                                            <option selected="">Select leave type</option>
+                                                                            <option value="Casual Leave">Full Day</option>
+                                                                            <option value="Sick Leave">Half Day</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row py-2">
+                                                                    <div class="col-lg-5 col-md-12">
+                                                                        <label for="datepicker1" class="form-label">From:</label>
+                                                                        <div class="position-relative">
+                                                                            <div class="input-group date" id="datepickerdiv1">
+                                                                                <input type="text" class="form-control body-text" id="datepicker1" placeholder="Select date">
+                                                                                <span class="input-group-append">
+                                                                                    <span class="input-group-text bg-light d-block">
+                                                                                        <i class="fa fa-calendar"></i>
+                                                                                    </span>
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-5 col-md-12">
+                                                                        <label for="datepicker2" class="form-label">To:</label>
+                                                                        <div class="position-relative">
+                                                                            <div class="input-group date" id="datepickerdiv2">
+                                                                                <input type="text" class="form-control body-text" id="datepicker2" placeholder="Select date">
+                                                                                <span class="input-group-append">
+                                                                                    <span class="input-group-text bg-light d-block">
+                                                                                        <i class="fa fa-calendar"></i>
+                                                                                    </span>
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row py-3 mb-1">
+                                                                    <div class="col-lg-12">
+                                                                        <div class="input-group">
+                                                                            <span class="input-group-text body-text">Reason</span>
+                                                                            <textarea class="form-control body-text" aria-label="Reason"></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <button class="btn btn-primary mb-2 body-text" type="submit">Submit Application</button>
+                                                                <button class="btn btn-secondary mb-2 body-text" type="submit">Cancel</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 px-4">
+                                                    <div class="row mb-3">
+                                                        <div class="card" style="height:60px;">
+                                                            <div class="card-body">
+                                                                <ul class="list-group" style="width:100%;">
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center body-text" style="border:none; margin-top:-7px;">
+                                                                        Leave Balance
+                                                                        <span class="badge rounded-pill body-text" style="background-color: #05397b">2 / 6</span>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="card">
+                                                            <div class="accordion accordion-flush" id="accordionFlushExample">
+                                                                <div class="accordion-item">
+                                                                    <h2 class="accordion-header" id="flush-headingOne">
+                                                                        <button class="accordion-button collapsed body-text  z-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                                                                            Holiday List
+                                                                        </button>
+                                                                    </h2>
+                                                                    <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                                                        <div class="accordion-body">
+                                                                            <ul class="list-group body-text">
+                                                                                <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                    01-Jan-2024
+                                                                                    <span class="badge holiday-list-text bg-primary rounded-pill">New Year</span>
+                                                                                </li>
+                                                                                <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                    26-Jan-2024
+                                                                                    <span class="badge holiday-list-text bg-primary rounded-pill">Republic Day</span>
+                                                                                </li>
+                                                                                <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                    25-Mar-2024
+                                                                                    <span class="badge holiday-list-text bg-primary rounded-pill">Holi</span>
+                                                                                </li>
+                                                                                <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                    17-Apr-2024
+                                                                                    <span class="badge holiday-list-text bg-primary rounded-pill">Ram Navmi</span>
+                                                                                </li>
+                                                                                <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                    15-Aug-2024
+                                                                                    <span class="badge holiday-list-text bg-primary rounded-pill">Independence Day</span>
+                                                                                </li>
+                                                                                <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                    31-Oct-2024
+                                                                                    <span class="badge holiday-list-text bg-primary rounded-pill">Diwali</span>
+                                                                                </li>
+                                                                                <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                    15-Nov-2024
+                                                                                    <span class="badge holiday-list-text bg-primary rounded-pill">Gurpurab</span>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+
+
+
+
+
+
+
+
+                                        <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+                                            <div class="row">
+                                                <div class="col-12 col-lg-12 col-xxl-9 d-flex">
+                                                    <div class="card flex-fill">
+                                                        <table class="table table-hover my-0 body-text" style="text-align: center;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th class="d-none d-xl-table-cell">Request Date</th>
+                                                                    <th class="d-none d-xl-table-cell">Start Date</th>
+                                                                    <th class="d-none d-xl-table-cell">End Date</th>
+                                                                    <th class="d-none d-md-table-cell">Type</th>
+                                                                    <th>Days</th>
+                                                                    <th>Status</th>
+                                                                    <th>Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-md-table-cell">Casual</td>
+                                                                    <td><span class="fw-bold text-primary">1</span></td>
+                                                                    <td><span class="fw-bold text-primary">Pending Approval</span></td>
+                                                                    <td class="d-none d-md-table-cell"><a href="#"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp; <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-md-table-cell">Casual</td>
+                                                                    <td><span class="fw-bold text-primary">1</span></td>
+                                                                    <td><span class="fw-bold text-primary">Pending Approval</span></td>
+                                                                    <td class="d-none d-md-table-cell"><a href="#"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp; <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-md-table-cell">Casual</td>
+                                                                    <td><span class="fw-bold text-success">1</span></td>
+                                                                    <td><span class="fw-bold text-success">Approved</span></td>
+                                                                    <td class="d-none d-md-table-cell"><a href="#"><i class="fa fa-edit" style="font-size: 20px; color: grey;"></i></a> &nbsp; <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-md-table-cell">Casual</td>
+                                                                    <td><span class="fw-bold text-success">1</span></td>
+                                                                    <td><span class="fw-bold text-success">Approved</span></td>
+                                                                    <td class="d-none d-md-table-cell"><a href="#"><i class="fa fa-edit" style="font-size: 20px; color: grey;"></i></a> &nbsp; <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-md-table-cell">Casual</td>
+                                                                    <td><span class="fw-bold text-danger">1</span></td>
+                                                                    <td><span class="fw-bold text-danger">Not Approved</span></td>
+                                                                    <td class="d-none d-md-table-cell"><a><i class="fa fa-edit" style="font-size:20px;color:grey;"></i></a> &nbsp; <a><i class="fa fa-close" style="font-size:22px;color:grey"></i></a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-md-table-cell">Casual</td>
+                                                                    <td><span class="fw-bold text-danger">1</span></td>
+                                                                    <td><span class="fw-bold text-danger">Not Approved</span></td>
+                                                                    <td class="d-none d-md-table-cell"><a><i class="fa fa-edit" style="font-size:20px;color:grey;"></i></a> &nbsp; <a><i class="fa fa-close" style="font-size:22px;color:grey"></i></a></td>
+                                                                </tr>
+
+                                                                <tr>
+                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-md-table-cell">Casual</td>
+                                                                    <td><span class="fw-bold text-secondary">1</span></td>
+                                                                    <td><span class="fw-bold text-secondary">Cancelled</span></td>
+                                                                    <td class="d-none d-md-table-cell"><a><i class="fa fa-edit" style="font-size:20px;color:grey;"></i></a> &nbsp; <a><i class="fa fa-close" style="font-size:22px;color:grey"></i></a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
+                                                                    <td class="d-none d-md-table-cell">Casual</td>
+                                                                    <td><span class="fw-bold text-secondary">1</span></td>
+                                                                    <td><span class="fw-bold text-secondary">Cancelled</span></td>
+                                                                    <td class="d-none d-md-table-cell"><a><i class="fa fa-edit" style="font-size:20px;color:grey;"></i></a> &nbsp; <a><i class="fa fa-close" style="font-size:22px;color:grey"></i></a></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="attendance" role="tabpanel" aria-labelledby="attendance-tab">
+                <div><h3 class="themetx" style="color: #05397b;">Nothing to show...</h3></div>
+
+            </div>
+        </div>
+    </div>
+</div>
