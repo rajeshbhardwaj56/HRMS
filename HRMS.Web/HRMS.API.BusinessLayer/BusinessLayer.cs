@@ -16,6 +16,7 @@ using System.Xml;
 using System.ComponentModel.Design;
 using HRMS.Models.Template;
 using HRMS.Models.Company;
+using HRMS.Models.LeavePolicy;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -511,6 +512,7 @@ namespace HRMS.API.BusinessLayer
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@TemplateID", model.TemplateID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_TemplateDetails, sqlParameter);
             result.Template = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new TemplateModel
@@ -524,7 +526,7 @@ namespace HRMS.API.BusinessLayer
                                   TemplateName = dataRow.Field<string>("TemplateName")
                               }).ToList();
 
-            if (model.CompanyID > 0)
+            if (model.TemplateID > 0)
             {
                 result.templateModel = result.Template.FirstOrDefault();
             }
@@ -546,6 +548,78 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@TemplateName", templateModel.TemplateName));
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Template, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString()
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
+
+        public Results GetAllLeavePolicies(LeavePolicyInputParans model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameters.Add(new SqlParameter("@LeavePolicyID", model.LeavePolicyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePolicyDetails, sqlParameters);
+            result.LeavePolicy = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new LeavePolicyModel
+                              {
+                                  LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  LeavePolicyName = dataRow.Field<string>("LeavePolicyName"),
+                                  MaximumLeaveAllocationAllowed = dataRow.Field<int>("MaximumLeaveAllocationAllowed"),
+                                  ApplicableAfterWorkingDays = dataRow.Field<int>("ApplicableAfterWorkingDays"),
+                                  MaximumConsecutiveLeavesAllowed = dataRow.Field<int>("MaximumConsecutiveLeavesAllowed"),
+                                  IsCarryForward = dataRow.Field<bool>("IsCarryForward"),
+                                  IsLeaveWithoutPay = dataRow.Field<bool>("IsLeaveWithoutPay"),
+                                  IsPartiallyPaidLeave = dataRow.Field<bool>("IsPartiallyPaidLeave"),
+                                  IsOptionalLeave = dataRow.Field<bool>("IsOptionalLeave"),
+                                  IsAllowNegativeBalance = dataRow.Field<bool>("IsAllowNegativeBalance"),
+                                  IsAllowOverAllocation = dataRow.Field<bool>("IsAllowOverAllocation"),
+                                  IsIncludeHolidaysWithinLeavesAsLeaves = dataRow.Field<bool>("IsIncludeHolidaysWithinLeavesAsLeaves"),
+                                  IsCompendatory = dataRow.Field<bool>("IsCompendatory"),
+                                  IsAllowEncashment = dataRow.Field<bool>("IsAllowEncashment"),
+                                  IsEarnedLeave = dataRow.Field<bool>("IsEarnedLeave")
+                              }).ToList();
+
+            if (model.LeavePolicyID > 0)
+            {
+                result.LeavePolicyModel = result.LeavePolicy.FirstOrDefault();
+            }
+
+            return result;
+        }
+
+        public Result AddUpdateLeavePolicy(LeavePolicyModel leavePolicyModel)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+
+            sqlParameters.Add(new SqlParameter("@LeavePolicyID", leavePolicyModel.LeavePolicyID));
+            sqlParameters.Add(new SqlParameter("@LeavePolicyName", leavePolicyModel.LeavePolicyName));
+            sqlParameters.Add(new SqlParameter("@MaximumLeaveAllocationAllowed", leavePolicyModel.MaximumLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@ApplicableAfterWorkingDays", leavePolicyModel.ApplicableAfterWorkingDays));
+            sqlParameters.Add(new SqlParameter("@MaximumConsecutiveLeavesAllowed", leavePolicyModel.MaximumConsecutiveLeavesAllowed));
+            sqlParameters.Add(new SqlParameter("@IsCarryForward", leavePolicyModel.IsCarryForward));
+            sqlParameters.Add(new SqlParameter("@IsLeaveWithoutPay", leavePolicyModel.IsLeaveWithoutPay));
+            sqlParameters.Add(new SqlParameter("@IsPartiallyPaidLeave", leavePolicyModel.IsPartiallyPaidLeave));
+            sqlParameters.Add(new SqlParameter("@IsOptionalLeave", leavePolicyModel.IsOptionalLeave));
+            sqlParameters.Add(new SqlParameter("@IsAllowNegativeBalance", leavePolicyModel.IsAllowNegativeBalance));
+            sqlParameters.Add(new SqlParameter("@IsAllowOverAllocation", leavePolicyModel.IsAllowOverAllocation));
+            sqlParameters.Add(new SqlParameter("@IsIncludeHolidaysWithinLeavesAsLeaves", leavePolicyModel.IsIncludeHolidaysWithinLeavesAsLeaves));
+            sqlParameters.Add(new SqlParameter("@IsCompendatory", leavePolicyModel.IsCompendatory));
+            sqlParameters.Add(new SqlParameter("@IsAllowEncashment", leavePolicyModel.IsAllowEncashment));
+            sqlParameters.Add(new SqlParameter("@IsEarnedLeave", leavePolicyModel.IsEarnedLeave));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicy, sqlParameters);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {

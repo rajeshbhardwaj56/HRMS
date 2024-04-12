@@ -35,6 +35,7 @@ namespace HRMS.Models.Common
         public const string EmployeePhotoPath = "Uploads/ProfilePhoto/";
         public const string CompanyLogoPath = "Uploads/CompanyLogo/";
         public const string NoImagePath = "/assets/img/No_image.png";
+        
 
     }
 
@@ -66,6 +67,7 @@ namespace HRMS.Models.Common
         public const string Employee = "Employee";
         public const string Company = "Company";
         public const string Template = "Template";
+        public const string TemplateListing = "TemplateListing";
     }
 
     public class APIApiActionConstants

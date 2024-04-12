@@ -9,7 +9,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = ( RoleConstants.Admin + "," + RoleConstants.HR))]
+    [Authorize(Roles = (RoleConstants.Admin + "," + RoleConstants.HR))]
     public class TemplateController : Controller
     {
         IConfiguration _configuration;
@@ -52,50 +52,32 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
             }
 
-           
+
             return View(Template);
         }
 
         [HttpPost]
-        public IActionResult Index(TemplateModel template, List<IFormFile> postedFiles)
+        public IActionResult Index(TemplateModel template, IFormFile HeaderImage, IFormFile FooterImage)
         {
             if (ModelState.IsValid)
             {
-                string wwwPath = Environment.WebRootPath;
-                string contentPath = this.Environment.ContentRootPath;
+                template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+                template.HeaderImage = _businessLayer.ConvertIFormFileToBase64(HeaderImage);
+                template.FooterImage = _businessLayer.ConvertIFormFileToBase64(FooterImage);
 
-
-                string fileName = string.Empty;
-                foreach (IFormFile postedFile in postedFiles)
-                {
-                    fileName = postedFile.FileName.Replace(" ", "");
-                }
-                template.HeaderImage = fileName;
-
-                template.FooterImage = fileName;
                 var data = _businessLayer.SendPostAPIRequest(template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.AddUpdateTemplate), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
 
-                string path = Path.Combine(this.Environment.WebRootPath, Constants.CompanyLogoPath + result.PKNo.ToString());
-
-                if (!Directory.Exists(path))
+                if (template.TemplateID > 0)
                 {
-                    Directory.CreateDirectory(path);
+                    return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.Template, new { id = template.TemplateID.ToString() }
+                 );
                 }
-                foreach (IFormFile postedFile in postedFiles)
+                else
                 {
-                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-                    {
-                        postedFile.CopyTo(stream);
-                    }
+                    return RedirectToActionPermanent(WebControllarsConstants.TemplateListing, WebControllarsConstants.Template);
                 }
 
-
-                return RedirectToActionPermanent(
-                  Constants.Index,
-               WebControllarsConstants.Template,
-                 new { id = result.PKNo.ToString() }
-              );
             }
             else
             {
@@ -104,6 +86,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
         }
 
-        
+
     }
 }

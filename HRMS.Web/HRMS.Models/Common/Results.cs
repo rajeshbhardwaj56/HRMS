@@ -2,6 +2,7 @@ using HRMS.Models.Employee;
 using HRMS.Models.Template;
 using HRMS.Models.Company;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using HRMS.Models.LeavePolicy;
 
 namespace HRMS.Models.Common
 {
@@ -19,6 +20,9 @@ namespace HRMS.Models.Common
         public TemplateModel templateModel { get; set; } = new TemplateModel();
         public CompanyModel companyModel { get; set; } = new CompanyModel();
         public List<CompanyModel> Companies { get; set; } = new List<CompanyModel>();
+
+        public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();
+        public LeavePolicyModel LeavePolicyModel { get; set; } = new LeavePolicyModel();
 
     }
 

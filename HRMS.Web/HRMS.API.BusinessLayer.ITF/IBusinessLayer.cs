@@ -1,6 +1,7 @@
 ﻿using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.Employee;
+using HRMS.Models.LeavePolicy;
 using HRMS.Models.Template;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,6 +25,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllEmployees(EmployeeInputParans model);
         public Result AddUpdateTemplate(TemplateModel model);
         public Results GetAllTemplates(TemplateInputParans model);
+        public Result AddUpdateLeavePolicy(LeavePolicyModel model);
+        public Results GetAllLeavePolicys(LeavePolicyInputParans model);
         public Result AddUpdateCompany(CompanyModel model);
         public Results GetAllCompanies(EmployeeInputParans model);
     }

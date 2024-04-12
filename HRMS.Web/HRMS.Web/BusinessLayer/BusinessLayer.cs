@@ -17,6 +17,8 @@ namespace HRMS.Web.BusinessLayer
         public string GetAreaNameByRole(int RoleID);
 
         public string GetFormattedAPIUrl(string ApiControllarName, string APIActionName);
+
+        public string ConvertIFormFileToBase64(IFormFile file);
     }
 
 
@@ -109,5 +111,30 @@ namespace HRMS.Web.BusinessLayer
 
             return RootName;
         }
+
+
+        public string ConvertIFormFileToBase64(IFormFile file)
+        {
+            // Check if the file is not null and has content
+            if (file != null && file.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    // Copy the file content into the memory stream
+                    file.CopyTo(memoryStream);
+
+                    // Convert the memory stream to byte array
+                    byte[] fileBytes = memoryStream.ToArray();
+
+                    // Convert byte array to Base64 string
+                    string base64String = Convert.ToBase64String(fileBytes);
+
+                    return base64String;
+                }
+            }
+
+            return null; // Or throw an exception, depending on your requirements
+        }
+
     }
 }
