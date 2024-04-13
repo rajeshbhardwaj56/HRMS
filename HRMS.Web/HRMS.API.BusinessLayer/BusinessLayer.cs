@@ -63,7 +63,7 @@ namespace HRMS.API.BusinessLayer
             return loginUser;
         }
 
-        public Results GetAllEmployees(EmployeeInputParans model)
+        public Results GetAllEmployees(EmployeeInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -511,7 +511,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public Results GetAllTemplates(TemplateInputParans model)
+        public Results GetAllTemplates(TemplateInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -565,7 +565,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAllCompanies(EmployeeInputParans model)
+        public Results GetAllCompanies(EmployeeInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -668,7 +668,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public LeaveResults GetlLeavesSummary(LeaveSummayModel model)
+        public LeaveResults GetlLeavesSummary(LeaveInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -696,6 +696,8 @@ namespace HRMS.API.BusinessLayer
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                               }).ToList();
 
+            result.leaveTypes = GetLeaveTypes(model).leaveTypes;
+            result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
             if (model.LeaveSummaryID > 0)
             {
                 result.leaveSummayModel = result.leavesSummay.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
@@ -704,6 +706,39 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+
+        public LeaveResults GetLeaveDurationTypes(LeaveInputParams model)
+        {
+            LeaveResults result = new LeaveResults();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveDurationTypes, sqlParameter);
+            result.leaveDurationTypes = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new SelectListItem
+                              {
+                                  Value = dataRow.Field<long>("LeaveDurationTypeID").ToString(),
+                                  Text = dataRow.Field<string>("Name"),
+                              }).ToList();
+
+            return result;
+        }
+
+
+        public LeaveResults GetLeaveTypes(LeaveInputParams model)
+        {
+            LeaveResults result = new LeaveResults();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveTypes, sqlParameter);
+            result.leaveTypes = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new SelectListItem
+                              {
+                                  Value = dataRow.Field<long>("LeaveTypeID").ToString(),
+                                  Text = dataRow.Field<string>("Name"),
+                              }).ToList();
+
+            return result;
+        }
 
         #endregion
         #region XML Serialization

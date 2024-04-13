@@ -7,11 +7,23 @@ using System.Threading.Tasks;
 
 namespace HRMS.Models.Leave
 {
+
+    public class LeaveInputParams
+    {
+        public long PKNo { get; set; }
+        public long LeaveSummaryID { get; set; }
+        public long EmployeeID { get; set; }
+        public long CompanyID { get; set; }
+        public long UserID { get; set; }
+
+
+
+    }
     public class LeaveSummayModel
     {
         public long LeaveSummaryID { get; set; }
         public long LeaveStatusID { get; set; }
-        public string LeaveStatusName { get; set; } = string.Empty; 
+        public string LeaveStatusName { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
         public DateTime? RequestDate { get; set; }
         public DateTime? StartDate { get; set; }
@@ -25,15 +37,15 @@ namespace HRMS.Models.Leave
         public bool IsDeleted { get; set; } = false;
         public long UserID { get; set; }
         public long EmployeeID { get; set; }
-        
+
     }
 
     public class LeaveResults
     {
         public LeaveSummayModel leaveSummayModel { get; set; } = new LeaveSummayModel();
         public List<LeaveSummayModel> leavesSummay { get; set; } = new List<LeaveSummayModel>();
-        public List<SelectListItem> leaveTypes = new List<SelectListItem>();
-        public List<SelectListItem> leaveDurationTypes = new List<SelectListItem>();
-        public List<SelectListItem> leaveStatuses = new List<SelectListItem>();
+        public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> leaveDurationTypes { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> leaveStatuses { get; set; } = new List<SelectListItem>();
     }
 }

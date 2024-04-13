@@ -32,7 +32,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [AllowAnonymous]
         public JsonResult TemplateListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            TemplateInputParans Template = new TemplateInputParans();
+            TemplateInputParams Template = new TemplateInputParams();
             Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);

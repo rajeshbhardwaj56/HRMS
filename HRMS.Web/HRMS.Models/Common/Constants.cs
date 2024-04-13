@@ -76,9 +76,11 @@ namespace HRMS.Models.Common
         public const string GetAllEmployees = "GetAllEmployees";
         public const string AddUpdateTemplate = "AddUpdateTemplate";
         public const string GetAllTemplates = "GetAllTemplates";
-
         public const string AddUpdateCompany = "AddUpdateCompany";
         public const string GetAllCompanies = "GetAllCompanies";
+        public const string GetlLeavesSummary = "GetlLeavesSummary";
+        public const string AddUpdateLeave = "AddUpdateLeave";
+        public const string GetLeaveDurationTypes = "GetLeaveDurationTypes";
+        public const string GetLeaveTypes = "GetLeaveTypes";
     }
-
 }

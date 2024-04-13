@@ -22,15 +22,14 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCompanyEmployeeTypes(long companyID);
         public Results GetAllCurrencies(long companyID);
         public Result AddUpdateEmployee(EmployeeModel model);
-        public Results GetAllEmployees(EmployeeInputParans model);
+        public Results GetAllEmployees(EmployeeInputParams model);
         public Result AddUpdateTemplate(TemplateModel model);
-        public Results GetAllTemplates(TemplateInputParans model);
+        public Results GetAllTemplates(TemplateInputParams model);
         public Result AddUpdateCompany(CompanyModel model);
-        public Results GetAllCompanies(EmployeeInputParans model);
-        public Results GetlLeavesSummary(LeaveSummayModel model);
+        public Results GetAllCompanies(EmployeeInputParams model);
+        public LeaveResults GetlLeavesSummary(LeaveInputParams model);
         public Result AddUpdateLeave(LeaveSummayModel leaveSummayModel);       
-        public Results GetLeaveDurationTypes();      
-        public LeaveResults GetLeaveTypes();
-        public LeaveResults GetLeaveStatus();
+        public LeaveResults GetLeaveDurationTypes(LeaveInputParams leaveInputParams);      
+        public LeaveResults GetLeaveTypes(LeaveInputParams leaveInputParams);       
     }
 }

@@ -1,9 +1,11 @@
 ﻿using DocumentFormat.OpenXml.InkML;
 using HRMS.Models;
 using HRMS.Models.Common;
+using HRMS.Models.Leave;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.Employee.Controllers
@@ -26,9 +28,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         public IActionResult Index(string id)
         {
-            MyInfoModel model = new MyInfoModel();
-            model.leaveSummayModel.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
-            model.leaveSummayModel.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
+            LeaveInputParams model = new LeaveInputParams();
+            model.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
+            model.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
+            model.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetlLeavesSummary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
             return View(model);
         }
 

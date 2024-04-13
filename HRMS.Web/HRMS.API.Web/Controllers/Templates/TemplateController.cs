@@ -31,7 +31,7 @@ namespace HRMS.API.Web.Controllers.Template
         }
 
         [HttpPost]
-        public IActionResult GetAllTemplates(TemplateInputParans model)
+        public IActionResult GetAllTemplates(TemplateInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAllTemplates(model));

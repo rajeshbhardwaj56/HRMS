@@ -34,7 +34,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         [AllowAnonymous]
         public JsonResult CompanyListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            EmployeeInputParans employee = new EmployeeInputParans();            
+            EmployeeInputParams employee = new EmployeeInputParams();            
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             return Json(new { data = results.Companies });

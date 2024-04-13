@@ -2,7 +2,7 @@
 
 namespace HRMS.Models.Template
 {
-    public class TemplateInputParans
+    public class TemplateInputParams
     {
         public long CompanyID { get; set; }
         public long TemplateID { get; set; }

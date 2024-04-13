@@ -30,7 +30,7 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetAllCompanies(EmployeeInputParans model)
+        public IActionResult GetAllCompanies(EmployeeInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAllCompanies(model));

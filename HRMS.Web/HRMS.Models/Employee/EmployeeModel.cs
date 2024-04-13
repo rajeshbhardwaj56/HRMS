@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HRMS.Models.Employee
 {
-    public class EmployeeInputParans
+    public class EmployeeInputParams
     {
         public long LeaveSummaryID { get; set; }
         public long CompanyID { get; set; }
