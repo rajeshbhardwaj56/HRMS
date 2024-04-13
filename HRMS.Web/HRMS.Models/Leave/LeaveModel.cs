@@ -21,6 +21,11 @@ namespace HRMS.Models.Leave
         public long LeaveDurationTypeID { get; set; }
         public string LeaveDurationTypeName { get; set; } = string.Empty;
         public int NoOfDays { get; set; }
+        public bool IsActive { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public long UserID { get; set; }
+        public long EmployeeID { get; set; }
+        
     }
 
     public class LeaveResults

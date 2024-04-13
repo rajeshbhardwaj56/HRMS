@@ -50,21 +50,21 @@
                                     <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                                         <ul class="navbar-nav flex-grow-1">
                                             <li class="nav-item">
-                                                <a class="nav-link text-dark" asp-area="HR" asp-controller="employee" asp-action="Index">New Employee</a>
+                                                <a class="nav-link text-dark" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="employee" asp-action="Index">New Employee</a>
                                             </li>
 
                                             <li class="nav-item">
-                                                <a class="nav-link text-dark" asp-area="HR" asp-controller="employee" asp-action="EmployeeListing">Employee Listing</a>
+                                                <a class="nav-link text-dark" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="employee" asp-action="EmployeeListing">Employee Listing</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link text-dark" asp-area="HR" asp-controller="employee" asp-action="myinfo">My Info</a>
+                                                <a class="nav-link text-dark" asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="myinfo" asp-action="Index">My Info</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link text-dark" asp-area="HR" asp-controller="company" asp-action="Index">New Company</a>
+                                                <a class="nav-link text-dark" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="company" asp-action="Index">New Company</a>
                                             </li>
 
                                             <li class="nav-item">
-                                                <a class="nav-link text-dark" asp-area="HR" asp-controller="company" asp-action="CompanyListing">Company Listing</a>
+                                                <a class="nav-link text-dark" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="company" asp-action="CompanyListing">Company Listing</a>
                                             </li>
                                          
                                         </ul>

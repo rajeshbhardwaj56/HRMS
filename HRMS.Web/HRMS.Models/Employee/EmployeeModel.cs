@@ -12,8 +12,9 @@ namespace HRMS.Models.Employee
 {
     public class EmployeeInputParans
     {
+        public long LeaveSummaryID { get; set; }
         public long CompanyID { get; set; }
-        public long EmployeeID { get; set; }        
+        public long EmployeeID { get; set; }
     }
 
 

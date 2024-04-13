@@ -16,6 +16,7 @@ using System.Xml;
 using System.ComponentModel.Design;
 using HRMS.Models.Template;
 using HRMS.Models.Company;
+using HRMS.Models.Leave;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -493,7 +494,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@References", this.ConvertObjectToXML(employeeModel.References)));
 
             SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter,ref pOutputParams);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -600,7 +601,6 @@ namespace HRMS.API.BusinessLayer
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-
             sqlParameter.Add(new SqlParameter("@CompanyID", companyModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@RetCompanyID", companyModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@Abbr", companyModel.Abbr));
@@ -619,6 +619,40 @@ namespace HRMS.API.BusinessLayer
             SqlParameterCollection pOutputParams = null;
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Company, sqlParameter, ref pOutputParams);
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = Convert.ToInt64(pOutputParams["@RetCompanyID"].Value)
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
+
+        #region Leaves
+        public Result AddUpdateLeave(LeaveSummayModel leaveSummayModel)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", leaveSummayModel.LeaveSummaryID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", leaveSummayModel.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@LeaveStatusID", leaveSummayModel.LeaveStatusID));
+            sqlParameter.Add(new SqlParameter("@LeaveDurationTypeID", leaveSummayModel.LeaveDurationTypeID));
+            sqlParameter.Add(new SqlParameter("@Reason", leaveSummayModel.Reason));
+            sqlParameter.Add(new SqlParameter("@StartDate", leaveSummayModel.StartDate));
+            sqlParameter.Add(new SqlParameter("@EndDate", leaveSummayModel.EndDate));
+            sqlParameter.Add(new SqlParameter("@LeaveTypeID", leaveSummayModel.LeaveTypeID));
+            sqlParameter.Add(new SqlParameter("@NoOfDays", leaveSummayModel.NoOfDays));
+            sqlParameter.Add(new SqlParameter("@IsActive", leaveSummayModel.IsActive));
+            sqlParameter.Add(new SqlParameter("@IsDeleted", leaveSummayModel.IsDeleted));
+            sqlParameter.Add(new SqlParameter("@UserID", leaveSummayModel.UserID));
+            SqlParameterCollection pOutputParams = null;
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -634,6 +668,44 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
+        public LeaveResults GetlLeavesSummary(LeaveSummayModel model)
+        {
+            LeaveResults result = new LeaveResults();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavesSummary, sqlParameter);
+            result.leavesSummay = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new LeaveSummayModel
+                              {
+                                  LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
+                                  LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
+                                  LeaveTypeID = dataRow.Field<long>("LeaveTypeID"),
+                                  LeaveDurationTypeID = dataRow.Field<long>("LeaveDurationTypeID"),
+                                  LeaveStatusName = dataRow.Field<string>("LeaveStatusName"),
+                                  Reason = dataRow.Field<string>("Reason"),
+                                  RequestDate = dataRow.Field<DateTime?>("RequestDate"),
+                                  StartDate = dataRow.Field<DateTime?>("StartDate"),
+                                  EndDate = dataRow.Field<DateTime?>("EndDate"),
+                                  LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
+                                  LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
+                                  NoOfDays = dataRow.Field<int>("NoOfDays"),
+                                  IsActive = dataRow.Field<bool>("IsActive"),
+                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),
+                                  UserID = dataRow.Field<long>("UserID"),
+                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
+                              }).ToList();
+
+            if (model.LeaveSummaryID > 0)
+            {
+                result.leaveSummayModel = result.leavesSummay.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
+            }
+
+            return result;
+        }
+
+
+        #endregion
         #region XML Serialization
         public string ConvertObjectToXML(object obj)
         {

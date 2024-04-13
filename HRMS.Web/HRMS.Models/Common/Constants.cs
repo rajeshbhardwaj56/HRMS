@@ -14,7 +14,7 @@ namespace HRMS.Models.Common
         public const string UserID = "UserID";
         public const string RoleID = "RoleID";
         public const string CompanyID = "CompanyID";
-        
+
         public const string Role = "Role";
         public const string Alias = "Alias";
         public const string Index = "index";
@@ -27,6 +27,8 @@ namespace HRMS.Models.Common
         public const string SelectCurrency = "-- Select Currency --";
         public const string SelectEmployeeType = "-- Select Employee Type --";
         public const string SelectDeportment = "-- Select Deportment --";
+        public const string SelectLeaveType = "-- Select Leave Type --";
+
         public const string Languages = "Languages";
         public const string Countries = "Countries";
         public const string EmploymentTypes = "EmploymentTypes";

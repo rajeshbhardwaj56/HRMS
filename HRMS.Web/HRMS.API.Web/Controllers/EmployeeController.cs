@@ -1,6 +1,7 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
+using HRMS.Models.Leave;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,23 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAllEmployees(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetlLeavesSummary(LeaveSummayModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetlLeavesSummary(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult AddUpdateLeave(LeaveSummayModel model)
+        {
+            IActionResult response = Unauthorized();
+            Result result = _businessLayer.AddUpdateLeave(model);
+            response = Ok(result);
             return response;
         }
     }

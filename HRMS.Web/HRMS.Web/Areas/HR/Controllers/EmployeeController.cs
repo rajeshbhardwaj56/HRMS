@@ -34,7 +34,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View();
         }
 
-            public IActionResult EmployeeListing()
+        public IActionResult EmployeeListing()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
