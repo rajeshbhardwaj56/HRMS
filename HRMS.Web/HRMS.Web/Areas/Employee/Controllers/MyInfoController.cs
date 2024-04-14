@@ -34,7 +34,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             model.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetlLeavesSummary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
-            return View(model);
+            return View(results);
         }
 
         [HttpPost]

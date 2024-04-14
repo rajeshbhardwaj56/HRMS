@@ -28,7 +28,7 @@ namespace HRMS.Models.Common
         public const string SelectEmployeeType = "-- Select Employee Type --";
         public const string SelectDeportment = "-- Select Deportment --";
         public const string SelectLeaveType = "-- Select Leave Type --";
-
+        public const string SelectLeaveDurationType = "-- Select --";
         public const string Languages = "Languages";
         public const string Countries = "Countries";
         public const string EmploymentTypes = "EmploymentTypes";

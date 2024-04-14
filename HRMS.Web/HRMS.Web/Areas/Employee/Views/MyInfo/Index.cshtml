@@ -108,6 +108,14 @@
                                                         <div class="card-body">
                                                             <form class="body-text" method="post" enctype="multipart/form-data">
 
+                                                                 <div class="row py-2">
+                                                                    <div class="col-lg-6 col-md-12">
+                                                                        <label for="leavetype" class="form-label">Leave Type:</label>                                                                      
+                                                                        @Html.DropDownListFor(x => x.leaveSummayModel.LeaveDurationTypeID, Model.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
+
+                                                                    </div>
+                                                                </div>
+
                                                                 <div class="row py-2">
                                                                     <div class="col-lg-6 col-md-12">
                                                                         <label for="leavetype" class="form-label">Leave Type:</label>
