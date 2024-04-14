@@ -2,6 +2,7 @@
 using HRMS.Models.Company;
 using HRMS.Models.Employee;
 using HRMS.Models.Leave;
+using HRMS.Models.LeavePolicy;
 using HRMS.Models.Template;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -30,6 +31,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public LeaveResults GetlLeavesSummary(LeaveInputParams model);
         public Result AddUpdateLeave(LeaveSummayModel leaveSummayModel);       
         public LeaveResults GetLeaveDurationTypes(LeaveInputParams leaveInputParams);      
-        public LeaveResults GetLeaveTypes(LeaveInputParams leaveInputParams);       
+        public LeaveResults GetLeaveTypes(LeaveInputParams leaveInputParams);
+        public Result AddUpdateLeavePolicy(LeavePolicyModel model);
+        public Results GetAllLeavePolicies(LeavePolicyInputParans model);
     }
 }

@@ -38,6 +38,7 @@ namespace HRMS.Models.Common
         public const string CompanyLogoPath = "Uploads/CompanyLogo/";
         public const string NoImagePath = "/assets/img/No_image.png";
 
+
     }
 
     public class RoleConstants
@@ -61,17 +62,24 @@ namespace HRMS.Models.Common
         public const string Employee = "Employee";
         public const string Template = "Template";
         public const string Company = "Company";
+        public const string LeavePolicy = "LeavePolicy";
     }
 
     public class WebControllarsConstants
     {
+
+        public const string LeavePolicyListing = "LeavePolicyListing";
+        public const string LeavePolicy = "LeavePolicy";
         public const string Employee = "Employee";
         public const string Company = "Company";
         public const string Template = "Template";
+        public const string TemplateListing = "TemplateListing";
     }
 
     public class APIApiActionConstants
     {
+        public const string AddUpdateLeavePolicy = "AddUpdateLeavePolicy";
+        public const string GetAllLeavePolicys = "GetAllLeavePolicys";
         public const string AddUpdateEmployee = "AddUpdateEmployee";
         public const string GetAllEmployees = "GetAllEmployees";
         public const string AddUpdateTemplate = "AddUpdateTemplate";

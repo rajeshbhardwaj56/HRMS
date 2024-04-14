@@ -53,8 +53,18 @@
                 { "data": "templateName", "autoWidth": true, },
                 { "data": "companyID", "autoWidth": true, },
                 { "data": "letterHeadName", "autoWidth": true },
-                { "data": "headerImage", "autoWidth": true },
-                { "data": "footerImage", "autoWidth": true },
+                {
+                    "data": "headerImage",
+                    "render": function (data, type, row) {
+                        return '<img src="data:image/png;base64,' + data + '" alt="Header Image" style="width:30px;">';
+                    }
+                },
+                {
+                    "data": "footerImage",
+                    "render": function (data, type, row) {
+                        return '<img src="data:image/png;base64,' + data + '" alt="Footer Image" style="width:30px;">';
+                    }
+                },
 
 
                 {
