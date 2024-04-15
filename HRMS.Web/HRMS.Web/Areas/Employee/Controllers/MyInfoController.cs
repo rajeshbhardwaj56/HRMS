@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Wordprocessing;
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Leave;
@@ -28,7 +29,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         public IActionResult Index(string id)
         {
-            LeaveInputParams model = new LeaveInputParams();
+            LeaveInputParams model = new LeaveInputParams()
+            {
+                LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(id),
+            };
             model.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
             model.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
             model.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
@@ -38,10 +42,29 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(MyInfoModel model)
+        public IActionResult Index(LeaveResults model)
         {
-            model.leaveSummayModel.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
-            model.leaveSummayModel.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
+            model.leaveSummayModel.NoOfDays = (model.leaveSummayModel.EndDate - model.leaveSummayModel.StartDate).Days + 1;
+            if ((int)LeaveDay.HalfDay == model.leaveSummayModel.LeaveDurationTypeID)
+            {
+                model.leaveSummayModel.NoOfDays = model.leaveSummayModel.NoOfDays / 2;
+            }
+
+            if (ModelState.IsValid && model.leaveSummayModel.NoOfDays > 0)
+            {
+                model.leaveSummayModel.LeaveStatusID = (int)LeaveStatus.PendingApproval;
+
+                model.leaveSummayModel.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
+                model.leaveSummayModel.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
+                model.leaveSummayModel.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
+                var data = _businessLayer.SendPostAPIRequest(model.leaveSummayModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Result>(data);
+                return RedirectToActionPermanent(
+                  Constants.Index,
+                   WebControllarsConstants.MyInfo,
+                 new { id = result.PKNo.ToString() });
+            }
             return View(model);
         }
     }

@@ -1,4 +1,6 @@
 ﻿@using HRMS.Models;
+@using HRMS.Models.Common;
+@using System.Globalization;
 @model HRMS.Models.Leave.LeaveResults
 @{
     Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
@@ -108,9 +110,9 @@
                                                         <div class="card-body">
                                                             <form class="body-text" method="post" enctype="multipart/form-data">
 
-                                                                 <div class="row py-2">
+                                                                <div class="row py-2">
                                                                     <div class="col-lg-6 col-md-12">
-                                                                        <label for="leavetype" class="form-label">Leave Type:</label>                                                                      
+                                                                        <label for="leavetype" class="form-label">Leave Type:</label>
                                                                         @Html.DropDownListFor(x => x.leaveSummayModel.LeaveDurationTypeID, Model.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
 
                                                                     </div>
@@ -119,6 +121,8 @@
                                                                 <div class="row py-2">
                                                                     <div class="col-lg-6 col-md-12">
                                                                         <label for="leavetype" class="form-label">Leave Type:</label>
+                                                                        @Html.HiddenFor(x => x.leaveSummayModel.CompanyID)
+                                                                        @Html.HiddenFor(x => x.leaveSummayModel.LeaveSummaryID)
                                                                         @Html.HiddenFor(x => x.leaveSummayModel.EmployeeID)
                                                                         @Html.HiddenFor(x => x.leaveSummayModel.UserID)
                                                                         @Html.DropDownListFor(x => x.leaveSummayModel.LeaveTypeID, Model.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required" })
@@ -168,8 +172,8 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <button class="btn btn-primary mb-2 body-text" type="submit">Submit Application</button>
-                                                                <button class="btn btn-secondary mb-2 body-text" type="submit">Cancel</button>
+                                                                <button class="btn btn-primary mb-2 body-text" type="submit">Submit</button>
+                                                                <button class="btn btn-secondary mb-2 body-text" type="reset">Cancel</button>
                                                             </form>
                                                         </div>
                                                     </div>
@@ -265,79 +269,37 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                <tr>
-                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-md-table-cell">Casual</td>
-                                                                    <td><span class="fw-bold text-primary">1</span></td>
-                                                                    <td><span class="fw-bold text-primary">Pending Approval</span></td>
-                                                                    <td class="d-none d-md-table-cell"><a href="#"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp; <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-md-table-cell">Casual</td>
-                                                                    <td><span class="fw-bold text-primary">1</span></td>
-                                                                    <td><span class="fw-bold text-primary">Pending Approval</span></td>
-                                                                    <td class="d-none d-md-table-cell"><a href="#"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp; <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-md-table-cell">Casual</td>
-                                                                    <td><span class="fw-bold text-success">1</span></td>
-                                                                    <td><span class="fw-bold text-success">Approved</span></td>
-                                                                    <td class="d-none d-md-table-cell"><a href="#"><i class="fa fa-edit" style="font-size: 20px; color: grey;"></i></a> &nbsp; <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-md-table-cell">Casual</td>
-                                                                    <td><span class="fw-bold text-success">1</span></td>
-                                                                    <td><span class="fw-bold text-success">Approved</span></td>
-                                                                    <td class="d-none d-md-table-cell"><a href="#"><i class="fa fa-edit" style="font-size: 20px; color: grey;"></i></a> &nbsp; <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-md-table-cell">Casual</td>
-                                                                    <td><span class="fw-bold text-danger">1</span></td>
-                                                                    <td><span class="fw-bold text-danger">Not Approved</span></td>
-                                                                    <td class="d-none d-md-table-cell"><a><i class="fa fa-edit" style="font-size:20px;color:grey;"></i></a> &nbsp; <a><i class="fa fa-close" style="font-size:22px;color:grey"></i></a></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-md-table-cell">Casual</td>
-                                                                    <td><span class="fw-bold text-danger">1</span></td>
-                                                                    <td><span class="fw-bold text-danger">Not Approved</span></td>
-                                                                    <td class="d-none d-md-table-cell"><a><i class="fa fa-edit" style="font-size:20px;color:grey;"></i></a> &nbsp; <a><i class="fa fa-close" style="font-size:22px;color:grey"></i></a></td>
-                                                                </tr>
+                                                                @foreach (var item in Model.leavesSummay)
+                                                                {
+                                                                    <tr>
+                                                                        <td class="d-none d-xl-table-cell">@item.RequestDate</td>
+                                                                        <td class="d-none d-xl-table-cell">@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
+                                                                        <td class="d-none d-xl-table-cell">@item.EndDate.ToString("dd/M/yyyy")</td>
+                                                                        <td class="d-none d-md-table-cell">@item.LeaveTypeName</td>
+                                                                        <td><span class="fw-bold text-primary">@item.NoOfDays</span></td>
+                                                                        @switch (item.LeaveStatusID)
+                                                                        {
+                                                                            case (int)LeaveStatus.Approved:
+                                                                                <td><span class="fw-bold text-success">@item.LeaveStatusName</span></td>
+                                                                                break;
+                                                                            case (int)LeaveStatus.PendingApproval:
+                                                                                <td><span class="fw-bold text-primary">@item.LeaveStatusName</span></td>
+                                                                                break;
+                                                                            case (int)LeaveStatus.NotApproved:
+                                                                                <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
+                                                                                break;
+                                                                            case (int)LeaveStatus.Cancelled:
+                                                                                <td><span class="fw-bold text-secondary">@item.LeaveStatusName</span></td>
+                                                                                break;
+                                                                        }
 
-                                                                <tr>
-                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-md-table-cell">Casual</td>
-                                                                    <td><span class="fw-bold text-secondary">1</span></td>
-                                                                    <td><span class="fw-bold text-secondary">Cancelled</span></td>
-                                                                    <td class="d-none d-md-table-cell"><a><i class="fa fa-edit" style="font-size:20px;color:grey;"></i></a> &nbsp; <a><i class="fa fa-close" style="font-size:22px;color:grey"></i></a></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="d-none d-xl-table-cell">03/12/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-xl-table-cell">03/17/2023</td>
-                                                                    <td class="d-none d-md-table-cell">Casual</td>
-                                                                    <td><span class="fw-bold text-secondary">1</span></td>
-                                                                    <td><span class="fw-bold text-secondary">Cancelled</span></td>
-                                                                    <td class="d-none d-md-table-cell"><a><i class="fa fa-edit" style="font-size:20px;color:grey;"></i></a> &nbsp; <a><i class="fa fa-close" style="font-size:22px;color:grey"></i></a></td>
-                                                                </tr>
+                                                                        <td class="d-none d-md-table-cell">
+                                                                            <a href="~/employee/myinfo/Index/@(item.LeaveSummaryID)"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+                                                                            <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+
                                                             </tbody>
                                                         </table>
                                                     </div>

@@ -25,18 +25,19 @@ namespace HRMS.Models.Leave
         public long LeaveStatusID { get; set; }
         public string LeaveStatusName { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
-        public DateTime? RequestDate { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateTime RequestDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public long LeaveTypeID { get; set; }
         public string LeaveTypeName { get; set; } = string.Empty;
         public long LeaveDurationTypeID { get; set; }
         public string LeaveDurationTypeName { get; set; } = string.Empty;
-        public int NoOfDays { get; set; }
+        public decimal NoOfDays { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; } = false;
         public long UserID { get; set; }
         public long EmployeeID { get; set; }
+        public long CompanyID { get; set; }
 
     }
 

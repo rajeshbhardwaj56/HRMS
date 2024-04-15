@@ -736,7 +736,7 @@ namespace HRMS.API.BusinessLayer
                         new Result()
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo = Convert.ToInt64(pOutputParams["@RetCompanyID"].Value)
+                            PKNo = Convert.ToInt64(pOutputParams["@LeaveSummaryID"].Value)
                         }
                    ).ToList().FirstOrDefault();
             }
@@ -759,15 +759,14 @@ namespace HRMS.API.BusinessLayer
                                   LeaveDurationTypeID = dataRow.Field<long>("LeaveDurationTypeID"),
                                   LeaveStatusName = dataRow.Field<string>("LeaveStatusName"),
                                   Reason = dataRow.Field<string>("Reason"),
-                                  RequestDate = dataRow.Field<DateTime?>("RequestDate"),
-                                  StartDate = dataRow.Field<DateTime?>("StartDate"),
-                                  EndDate = dataRow.Field<DateTime?>("EndDate"),
+                                  RequestDate = dataRow.Field<DateTime>("RequestDate"),
+                                  StartDate = dataRow.Field<DateTime>("StartDate"),
+                                  EndDate = dataRow.Field<DateTime>("EndDate"),
                                   LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
                                   LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
-                                  NoOfDays = dataRow.Field<int>("NoOfDays"),
+                                  NoOfDays = dataRow.Field<decimal>("NoOfDays"),
                                   IsActive = dataRow.Field<bool>("IsActive"),
-                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),
-                                  UserID = dataRow.Field<long>("UserID"),
+                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),                                
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                               }).ToList();
 

@@ -71,6 +71,7 @@ namespace HRMS.Models.Common
         public const string LeavePolicyListing = "LeavePolicyListing";
         public const string LeavePolicy = "LeavePolicy";
         public const string Employee = "Employee";
+        public const string MyInfo = "MyInfo";
         public const string Company = "Company";
         public const string Template = "Template";
         public const string TemplateListing = "TemplateListing";
