@@ -1,10 +1,14 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
 using HRMS.Models.LeavePolicy;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.API.Web.Controllers
 {
+    [Route("[controller]/[action]")]
+    [ApiController]
+    [Authorize]
     public class LeavePolicyController : Controller
     {
         private readonly IConfiguration _configuration;

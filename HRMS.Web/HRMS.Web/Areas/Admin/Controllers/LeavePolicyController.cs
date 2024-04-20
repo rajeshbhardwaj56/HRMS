@@ -2,8 +2,6 @@
 using HRMS.Models.LeavePolicy;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Results = HRMS.Models.Common.Results;
@@ -36,7 +34,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             LeavePolicyInputParans leavePolicyParams = new LeavePolicyInputParans();
             leavePolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-            var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicys), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
 
             return Json(new { data = results.LeavePolicy });
@@ -51,15 +49,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(id))
             {
                 leavePolicyModel.LeavePolicyID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicys), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).LeavePolicyModel;
+                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).leavePolicyModel;
             }
 
             return View(leavePolicyModel);
         }
 
         [HttpPost]
-        public IActionResult Index(LeavePolicyModel leavePolicyModel, IFormFile HeaderImage, IFormFile FooterImage)
+        public IActionResult Index(LeavePolicyModel leavePolicyModel)
         {
             if (ModelState.IsValid)
             {

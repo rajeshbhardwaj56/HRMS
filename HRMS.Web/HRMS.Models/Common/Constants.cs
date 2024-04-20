@@ -37,6 +37,7 @@ namespace HRMS.Models.Common
         public const string EmployeePhotoPath = "Uploads/ProfilePhoto/";
         public const string CompanyLogoPath = "Uploads/CompanyLogo/";
         public const string NoImagePath = "/assets/img/No_image.png";
+        public const string EmptySelection = "-- Please select a value --";
 
 
     }
@@ -80,7 +81,7 @@ namespace HRMS.Models.Common
     public class APIApiActionConstants
     {
         public const string AddUpdateLeavePolicy = "AddUpdateLeavePolicy";
-        public const string GetAllLeavePolicys = "GetAllLeavePolicys";
+        public const string GetAllLeavePolicies = "GetAllLeavePolicies";
         public const string AddUpdateEmployee = "AddUpdateEmployee";
         public const string GetAllEmployees = "GetAllEmployees";
         public const string AddUpdateTemplate = "AddUpdateTemplate";

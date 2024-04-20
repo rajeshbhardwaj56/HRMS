@@ -22,7 +22,7 @@ namespace HRMS.Models.Common
         public List<CompanyModel> Companies { get; set; } = new List<CompanyModel>();
 
         public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();
-        public LeavePolicyModel LeavePolicyModel { get; set; } = new LeavePolicyModel();
+        public LeavePolicyModel leavePolicyModel { get; set; } = new LeavePolicyModel();
 
     }
 

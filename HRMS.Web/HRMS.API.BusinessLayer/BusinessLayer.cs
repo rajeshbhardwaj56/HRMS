@@ -665,7 +665,7 @@ namespace HRMS.API.BusinessLayer
 
             if (model.LeavePolicyID > 0)
             {
-                result.LeavePolicyModel = result.LeavePolicy.FirstOrDefault();
+                result.leavePolicyModel = result.LeavePolicy.FirstOrDefault();
             }
 
             return result;
@@ -677,6 +677,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
 
             sqlParameters.Add(new SqlParameter("@LeavePolicyID", leavePolicyModel.LeavePolicyID));
+            sqlParameters.Add(new SqlParameter("@CompanyID", leavePolicyModel.CompanyID));
             sqlParameters.Add(new SqlParameter("@LeavePolicyName", leavePolicyModel.LeavePolicyName));
             sqlParameters.Add(new SqlParameter("@MaximumLeaveAllocationAllowed", leavePolicyModel.MaximumLeaveAllocationAllowed));
             sqlParameters.Add(new SqlParameter("@ApplicableAfterWorkingDays", leavePolicyModel.ApplicableAfterWorkingDays));
@@ -817,6 +818,7 @@ namespace HRMS.API.BusinessLayer
 
 
         #endregion
+
         #region XML Serialization
         public string ConvertObjectToXML(object obj)
         {
