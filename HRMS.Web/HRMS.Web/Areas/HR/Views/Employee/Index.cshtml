@@ -28,7 +28,7 @@
             <label class="form-label">Employment Details </label>
 
             </div> *@
-            <div class="row">
+       @*      <div class="row">
                 <div class="col-md-4 form-group">
                     <label>Employment Type <span class="Mandetory">*</span></label>
                     @Html.DropDownListFor(x => x.EmployeeTypeID, Model.EmploymentTypes, HRMS.Models.Common.Constants.SelectEmployeeType, new { @class = "form-control", @required = "required" })
@@ -44,11 +44,11 @@
                 <div class="col-md-4 form-group">
                     <label>Official Email Address <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.EmailAddress, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
+                    
                 </div>
 
 
-            </div>
+            </div> *@
         </div>
 
 
@@ -405,7 +405,7 @@
         </div>
         <div class="row">
             <div class="col-md-12" id="EmploymentDetails">
-            @Html.Partial("_EmploymentDetails", Model)
+            @Html.Partial("_EmploymentHistory", Model)
             </div>
         </div>
 
