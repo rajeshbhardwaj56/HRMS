@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace HRMS.Models.Employee
 {
-    public class EmploymentDetail
+    public class EmploymentHistory
     {
-        public long EmploymentDetailID { get; set; }
+        public long EmploymentHistoryID { get; set; }
         public long EmployeeID { get; set; }
         public string CompanyName { get; set; } = string.Empty;
         public string EmploymentID { get; set; } = string.Empty;//Identity card Number

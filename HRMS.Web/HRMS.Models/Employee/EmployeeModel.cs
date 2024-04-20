@@ -22,11 +22,8 @@ namespace HRMS.Models.Employee
     {
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
-        public long EmployeeTypeID { get; set; }
         public long CompanyID { get; set; } = 1;
-        public long DepartmentID { get; set; }
         public string? ProfilePhoto { get; set; } = string.Empty;
-        public string? EmployeeNumber { get; set; } = string.Empty;
         public string? FirstName { get; set; } = string.Empty;
         public string? MiddleName { get; set; } = string.Empty;
         public string? Surname { get; set; } = string.Empty;
@@ -78,7 +75,7 @@ namespace HRMS.Models.Employee
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
         public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();
         public List<LanguageDetail> LanguageDetails { get; set; } = new List<LanguageDetail>();
-        public List<EmploymentDetail> EmploymentDetails { get; set; } = new List<EmploymentDetail>();
+        public List<EmploymentHistory> EmploymentHistory { get; set; } = new List<EmploymentHistory>();
         public List<Reference> References { get; set; } = new List<Reference>();
 
         // Master Details

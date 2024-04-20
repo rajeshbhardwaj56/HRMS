@@ -8,18 +8,15 @@ using System.Threading.Tasks;
 namespace HRMS.Models.Leave
 {
 
-    public class LeaveInputParams
+    public class MyInfoInputParams
     {
         public long PKNo { get; set; }
         public long LeaveSummaryID { get; set; }
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
         public long UserID { get; set; }
-
-
-
     }
-    public class LeaveSummayModel
+    public class LeaveSummaryModel
     {
         public long LeaveSummaryID { get; set; }
         public long LeaveStatusID { get; set; }
@@ -43,10 +40,10 @@ namespace HRMS.Models.Leave
 
     public class LeaveResults
     {
-        public LeaveSummayModel leaveSummayModel { get; set; } = new LeaveSummayModel();
-        public List<LeaveSummayModel> leavesSummay { get; set; } = new List<LeaveSummayModel>();
+        public LeaveSummaryModel leaveSummaryModel { get; set; } = new LeaveSummaryModel();
+        public List<LeaveSummaryModel> leavesSummary { get; set; } = new List<LeaveSummaryModel>();
         public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveDurationTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveStatuses { get; set; } = new List<SelectListItem>();
-    }
+    }   
 }

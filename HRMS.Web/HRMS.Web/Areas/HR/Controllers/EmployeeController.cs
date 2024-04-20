@@ -62,7 +62,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employee.FamilyDetails.Add(new FamilyDetail());
                 employee.EducationalDetails.Add(new EducationalDetail());
                 employee.LanguageDetails.Add(new LanguageDetail());
-                employee.EmploymentDetails.Add(new EmploymentDetail());
+                employee.EmploymentHistory.Add(new EmploymentHistory());
                 employee.References = new List<HRMS.Models.Employee.Reference>() {
                     new HRMS.Models.Employee.Reference(),
                     new HRMS.Models.Employee.Reference()
@@ -167,13 +167,13 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddNewEmploymentDetail(EmployeeModel employee, bool isDeleted)
+        public ActionResult AddNewEmploymentHistory(EmployeeModel employee, bool isDeleted)
         {
             if (!isDeleted)
             {
-                employee.EmploymentDetails.Add(new EmploymentDetail() { });
+                employee.EmploymentHistory.Add(new EmploymentHistory() { });
             }
-            return PartialView("_EmploymentDetails", employee);
+            return PartialView("_EmploymentHistory", employee);
         }
 
 

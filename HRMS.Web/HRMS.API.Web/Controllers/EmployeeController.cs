@@ -41,7 +41,7 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetlLeavesSummary(LeaveInputParams model)
+        public IActionResult GetlLeavesSummary(MyInfoInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetlLeavesSummary(model));
@@ -49,7 +49,7 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddUpdateLeave(LeaveSummayModel model)
+        public IActionResult AddUpdateLeave(LeaveSummaryModel model)
         {
             IActionResult response = Unauthorized();
             Result result = _businessLayer.AddUpdateLeave(model);
@@ -58,7 +58,7 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetLeaveTypes(LeaveInputParams model)
+        public IActionResult GetLeaveTypes(MyInfoInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetLeaveTypes(model));
@@ -66,11 +66,20 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetLeaveDurationTypes(LeaveInputParams model)
+        public IActionResult GetLeaveDurationTypes(MyInfoInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetLeaveDurationTypes(model));
             return response;
         }
+
+        [HttpPost]
+        public IActionResult GetMyInfo(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetMyInfo(model));
+            return response;
+        }
+        
     }
 }
