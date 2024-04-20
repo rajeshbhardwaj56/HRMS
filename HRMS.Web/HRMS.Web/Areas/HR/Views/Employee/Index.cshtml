@@ -17,7 +17,7 @@
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
 
-        <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+       @*  <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
             <label class="form-label">Employment Details </label>
 
         </div>
@@ -48,11 +48,11 @@
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.EmailAddress, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
+                   
                 </div>
 
             </div>
-        </div>
+        </div> *@
         <div class="row">
             <div class="col-md-12">
                 &nbsp;
@@ -491,8 +491,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12" id="EmploymentDetails">
-                    @Html.Partial("_EmploymentDetails", Model)
+                <div class="col-md-12" id="EmploymentHistory">
+                    @Html.Partial("_EmploymentHistory", Model)
                 </div>
             </div>
 
@@ -627,7 +627,7 @@
     var url = "@Url.Action("AddNewFamilyMember", "Employee")";
     var urlEducationalDetails = "@Url.Action("AddNewEducationalDetail", "Employee")";
     var urlAddNewLanguageDetails = "@Url.Action("AddNewLanguageDetail", "Employee")";
-    var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentDetail", "Employee")";
+    var urlAddNewEmploymentHistory = "@Url.Action("AddNewEmploymentHistory", "Employee")";
 
     function AddNewFamily(isDeleted) {
         var familyMembers = [];
@@ -710,12 +710,12 @@
 
     function AddNewEmployment(isDeleted) {
         debugger
-        var EmploymentDetails = [];
-        if ($('.EmploymentDetail').length > 0) {
+        var EmploymentHistory = [];
+        if ($('.EmploymentHistory').length > 0) {
             var elementID = '';
-            $('.EmploymentDetail').each(function (index, element) {
+            $('.EmploymentHistory').each(function (index, element) {
                 elementID = element.id;
-                var EmploymentDetail = {
+                var EmploymentHistory = {
                     CompanyName: $("#" + elementID).val(),
                     EmployementID: $("#" + elementID.replace("CompanyName", "EmployementID")).val(),
                     From: $("#" + elementID.replace("CompanyName", "From")).val(),
@@ -737,15 +737,15 @@
                     HRContactNo: $("#" + elementID.replace("CompanyName", "HRContactNo")).val(),
                 };
 
-                EmploymentDetails.push(EmploymentDetail);
+                EmploymentHistory.push(EmploymentHistory);
             });
         }
-        var model = { EmploymentDetails: EmploymentDetails, isDeleted: isDeleted };
+        var model = { EmploymentHistory: EmploymentHistory, isDeleted: isDeleted };
 
-        $.post(urlAddNewEmploymentDetails, model, function (res) {
+        $.post(urlAddNewEmploymentHistory, model, function (res) {
             //res contains the markup returned by the partial view
             //You probably want to set that to some Div.
-            $("#EmploymentDetails").html(res);
+            $("#EmploymentHistory").html(res);
         });
     }
 

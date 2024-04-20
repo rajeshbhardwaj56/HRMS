@@ -10,8 +10,8 @@ namespace HRMS.Models
 {
     public class MyInfoModel
     {
-        public LeaveSummayModel leaveSummayModel { get; set; } = new LeaveSummayModel();
-        public List<LeaveSummayModel> leavesSummay { get; set; } = new List<LeaveSummayModel>();
+        public LeaveSummaryModel leaveSummaryModel { get; set; } = new LeaveSummaryModel();
+        public List<LeaveSummaryModel> leavesSummary { get; set; } = new List<LeaveSummaryModel>();
         public List<SelectListItem> leaveTypes = new List<SelectListItem>();
         public List<SelectListItem> leaveDurationTypes = new List<SelectListItem>();
         public List<SelectListItem> leaveStatuses = new List<SelectListItem>();

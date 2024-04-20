@@ -18,6 +18,7 @@ using HRMS.Models.Template;
 using HRMS.Models.Company;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
+using HRMS.Models.MyInfo;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -52,11 +53,7 @@ namespace HRMS.API.BusinessLayer
                                {
                                    UserID = dataRow.Field<long>("UserID"),
                                    CompanyID = dataRow.Field<long>("CompanyID"),
-
-                                   //FirstName = dataRow.Field<string>("FirstName"),
-                                   //LastName = dataRow.Field<string>("LastName"),
-                                   //Email = dataRow.Field<string>("EmailId"),
-                                   //Alias = dataRow.Field<string>("Alias"),
+                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                                    Role = dataRow.Field<string>("Role"),
                                    RoleId = dataRow.Field<int>("RoleId"),
                                }).ToList().FirstOrDefault();
@@ -75,11 +72,8 @@ namespace HRMS.API.BusinessLayer
                               .Select(dataRow => new EmployeeModel
                               {
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                  guid = dataRow.Field<Guid>("guid"),
-                                  EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
-                                  CompanyID = dataRow.Field<long>("CompanyID"),
-                                  DepartmentID = dataRow.Field<long>("DepartmentID"),
-                                  EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
+                                  guid = dataRow.Field<Guid>("guid"),                                 
+                                  CompanyID = dataRow.Field<long>("CompanyID"),                                 
                                   ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
                                   FirstName = dataRow.Field<string>("FirstName"),
                                   MiddleName = dataRow.Field<string>("MiddleName"),
@@ -176,11 +170,11 @@ namespace HRMS.API.BusinessLayer
                 }
 
 
-                //////////////////////// EmploymentDetails
-                result.employeeModel.EmploymentDetails = dataSet.Tables[4].AsEnumerable()
-                           .Select(dataRow => new EmploymentDetail
+                //////////////////////// EmploymentHistory
+                result.employeeModel.EmploymentHistory = dataSet.Tables[4].AsEnumerable()
+                           .Select(dataRow => new EmploymentHistory
                            {
-                               EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
+                               EmploymentHistoryID = dataRow.Field<long>("EmploymentHistoryID"),
                                Address = dataRow.Field<string>("Address"),
                                City = dataRow.Field<string>("City"),
                                CompanyName = dataRow.Field<string>("CompanyName"),
@@ -203,9 +197,9 @@ namespace HRMS.API.BusinessLayer
                                To = dataRow.Field<DateTime>("To"),
 
                            }).ToList();
-                if (result.employeeModel.EmploymentDetails == null)
+                if (result.employeeModel.EmploymentHistory == null)
                 {
-                    result.employeeModel.EmploymentDetails = new List<EmploymentDetail>();
+                    result.employeeModel.EmploymentHistory = new List<EmploymentHistory>();
                 }
 
 
@@ -443,10 +437,7 @@ namespace HRMS.API.BusinessLayer
 
             sqlParameter.Add(new SqlParameter("@EmployeeID", employeeModel.EmployeeID));
             sqlParameter.Add(new SqlParameter("@RetEmployeeID", employeeModel.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@EmployeeTypeID", employeeModel.EmployeeTypeID));
-            sqlParameter.Add(new SqlParameter("@DepartmentID", employeeModel.DepartmentID));
-            sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));
-            sqlParameter.Add(new SqlParameter("@EmployeeNumber", employeeModel.EmployeeNumber));
+            sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));            
             sqlParameter.Add(new SqlParameter("@FirstName", employeeModel.FirstName));
             sqlParameter.Add(new SqlParameter("@MiddleName", employeeModel.MiddleName));
             sqlParameter.Add(new SqlParameter("@Surname", employeeModel.Surname));
@@ -469,6 +460,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@VerificationContactPersonName", employeeModel.VerificationContactPersonName));
             sqlParameter.Add(new SqlParameter("@VerificationContactPersonContactNo", employeeModel.VerificationContactPersonContactNo));
             sqlParameter.Add(new SqlParameter("@DateOfBirth", employeeModel.DateOfBirth));
+            sqlParameter.Add(new SqlParameter("@ProfilePhoto", employeeModel.ProfilePhoto));
             sqlParameter.Add(new SqlParameter("@PlaceOfBirth", employeeModel.PlaceOfBirth));
             sqlParameter.Add(new SqlParameter("@IsReferredByExistingEmployee", employeeModel.IsReferredByExistingEmployee));
             sqlParameter.Add(new SqlParameter("@ReferredByEmployeeID", employeeModel.ReferredByEmployeeID));
@@ -491,7 +483,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@FamilyDetails", this.ConvertObjectToXML(employeeModel.FamilyDetails)));
             sqlParameter.Add(new SqlParameter("@EducationalDetails", this.ConvertObjectToXML(employeeModel.EducationalDetails)));
             sqlParameter.Add(new SqlParameter("@LanguageDetails", this.ConvertObjectToXML(employeeModel.LanguageDetails)));
-            sqlParameter.Add(new SqlParameter("@EmploymentDetails", this.ConvertObjectToXML(employeeModel.EmploymentDetails)));
+            sqlParameter.Add(new SqlParameter("@EmploymentHistory", this.ConvertObjectToXML(employeeModel.EmploymentHistory)));
             sqlParameter.Add(new SqlParameter("@References", this.ConvertObjectToXML(employeeModel.References)));
 
             SqlParameterCollection pOutputParams = null;
@@ -709,23 +701,23 @@ namespace HRMS.API.BusinessLayer
         #endregion
 
         #region Leaves
-        public Result AddUpdateLeave(LeaveSummayModel leaveSummayModel)
+        public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
-            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", leaveSummayModel.LeaveSummaryID));
-            sqlParameter.Add(new SqlParameter("@EmployeeID", leaveSummayModel.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@LeaveStatusID", leaveSummayModel.LeaveStatusID));
-            sqlParameter.Add(new SqlParameter("@LeaveDurationTypeID", leaveSummayModel.LeaveDurationTypeID));
-            sqlParameter.Add(new SqlParameter("@Reason", leaveSummayModel.Reason));
-            sqlParameter.Add(new SqlParameter("@StartDate", leaveSummayModel.StartDate));
-            sqlParameter.Add(new SqlParameter("@EndDate", leaveSummayModel.EndDate));
-            sqlParameter.Add(new SqlParameter("@LeaveTypeID", leaveSummayModel.LeaveTypeID));
-            sqlParameter.Add(new SqlParameter("@NoOfDays", leaveSummayModel.NoOfDays));
-            sqlParameter.Add(new SqlParameter("@IsActive", leaveSummayModel.IsActive));
-            sqlParameter.Add(new SqlParameter("@IsDeleted", leaveSummayModel.IsDeleted));
-            sqlParameter.Add(new SqlParameter("@UserID", leaveSummayModel.UserID));
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", leaveSummaryModel.LeaveSummaryID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", leaveSummaryModel.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@LeaveStatusID", leaveSummaryModel.LeaveStatusID));
+            sqlParameter.Add(new SqlParameter("@LeaveDurationTypeID", leaveSummaryModel.LeaveDurationTypeID));
+            sqlParameter.Add(new SqlParameter("@Reason", leaveSummaryModel.Reason));
+            sqlParameter.Add(new SqlParameter("@StartDate", leaveSummaryModel.StartDate));
+            sqlParameter.Add(new SqlParameter("@EndDate", leaveSummaryModel.EndDate));
+            sqlParameter.Add(new SqlParameter("@LeaveTypeID", leaveSummaryModel.LeaveTypeID));
+            sqlParameter.Add(new SqlParameter("@NoOfDays", leaveSummaryModel.NoOfDays));
+            sqlParameter.Add(new SqlParameter("@IsActive", leaveSummaryModel.IsActive));
+            sqlParameter.Add(new SqlParameter("@IsDeleted", leaveSummaryModel.IsDeleted));
+            sqlParameter.Add(new SqlParameter("@UserID", leaveSummaryModel.UserID));
             SqlParameterCollection pOutputParams = null;
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
 
@@ -743,15 +735,15 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public LeaveResults GetlLeavesSummary(LeaveInputParams model)
+        public LeaveResults GetlLeavesSummary(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavesSummary, sqlParameter);
-            result.leavesSummay = dataSet.Tables[0].AsEnumerable()
-                              .Select(dataRow => new LeaveSummayModel
+            result.leavesSummary = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new LeaveSummaryModel
                               {
                                   LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
                                   LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
@@ -766,7 +758,7 @@ namespace HRMS.API.BusinessLayer
                                   LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
                                   NoOfDays = dataRow.Field<decimal>("NoOfDays"),
                                   IsActive = dataRow.Field<bool>("IsActive"),
-                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),                                
+                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                               }).ToList();
 
@@ -774,14 +766,14 @@ namespace HRMS.API.BusinessLayer
             result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
             if (model.LeaveSummaryID > 0)
             {
-                result.leaveSummayModel = result.leavesSummay.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
+                result.leaveSummaryModel = result.leavesSummary.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
             }
 
             return result;
         }
 
 
-        public LeaveResults GetLeaveDurationTypes(LeaveInputParams model)
+        public LeaveResults GetLeaveDurationTypes(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -798,7 +790,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public LeaveResults GetLeaveTypes(LeaveInputParams model)
+        public LeaveResults GetLeaveTypes(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -838,6 +830,21 @@ namespace HRMS.API.BusinessLayer
                 return stream.ToString();
             }
         }
+
+        public MyInfoResults GetMyInfo(MyInfoInputParams model)
+        {
+            MyInfoResults myInfoResults = new MyInfoResults();
+            myInfoResults.leaveResults = GetlLeavesSummary(model);
+            EmployeeInputParams employeeInputParams = new EmployeeInputParams();
+            employeeInputParams.EmployeeID = model.EmployeeID;
+            employeeInputParams.CompanyID = model.CompanyID;
+            myInfoResults.employeeModel = GetAllEmployees(employeeInputParams).employeeModel;
+            return myInfoResults;
+        }
+
+
+
+
         #endregion
 
     }

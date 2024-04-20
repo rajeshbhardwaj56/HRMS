@@ -9,6 +9,7 @@ namespace HRMS.Models.Common
         public string Result { get; set; } = "";
         public long UserID { get; set; }
         public long CompanyID { get; set; }
+        public long EmployeeID { get; set; }
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string Alias { get; set; } = "";

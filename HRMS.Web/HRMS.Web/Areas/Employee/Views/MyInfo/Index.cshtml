@@ -1,19 +1,20 @@
 ﻿@using HRMS.Models;
 @using HRMS.Models.Common;
 @using System.Globalization;
-@model HRMS.Models.Leave.LeaveResults
+@using HRMS.Models.MyInfo;
+@model MyInfoResults
 @{
     Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Employee";
     var ProfilePhoto = "";
-    // if (!string.IsNullOrEmpty(Model.ProfilePhoto))
-    // {
-    //     ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.EmployeeID + "/" + Model.ProfilePhoto;
-    // }
-    // else
-    // {
-    //     ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
-    // }
+    if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
+    {
+        ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.employeeModel.EmployeeID + "/" + Model.employeeModel.ProfilePhoto;
+    }
+    else
+    {
+        ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+    }
 }
 
 
@@ -21,12 +22,13 @@
     <div class="container-fluid">
         <div class="row px-4">
             <div class="col-lg-3 px-5">
+                <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" width="175" height="175" class="rounded-circle fixed z-5" />
 
-                <img src="/assets/img/avatars/1.png" alt="mdo" width="175" height="175" class="rounded-circle fixed z-5">
+               
             </div>
             <div class="col-lg-9">
                 <div class="row py-2 my-3">
-                    <h2 style="color: white; font-family:cursive;">Gurdeep Singh</h2>
+                    <h2 style="color: white; font-family:cursive;">@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
                 </div>
 
                 <div class="row pt-1">
@@ -113,7 +115,7 @@
                                                                 <div class="row py-2">
                                                                     <div class="col-lg-6 col-md-12">
                                                                         <label for="leavetype" class="form-label">Leave Type:</label>
-                                                                        @Html.DropDownListFor(x => x.leaveSummayModel.LeaveDurationTypeID, Model.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
+                                                                        @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
 
                                                                     </div>
                                                                 </div>
@@ -121,11 +123,11 @@
                                                                 <div class="row py-2">
                                                                     <div class="col-lg-6 col-md-12">
                                                                         <label for="leavetype" class="form-label">Leave Type:</label>
-                                                                        @Html.HiddenFor(x => x.leaveSummayModel.CompanyID)
-                                                                        @Html.HiddenFor(x => x.leaveSummayModel.LeaveSummaryID)
-                                                                        @Html.HiddenFor(x => x.leaveSummayModel.EmployeeID)
-                                                                        @Html.HiddenFor(x => x.leaveSummayModel.UserID)
-                                                                        @Html.DropDownListFor(x => x.leaveSummayModel.LeaveTypeID, Model.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required" })
+                                                                        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
+                                                                        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
+                                                                        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
+                                                                        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
+                                                                        @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required" })
 
                                                                     </div>
                                                                 </div>
@@ -136,7 +138,7 @@
                                                                         <div class="position-relative">
                                                                             <div class="input-group date" id="datepickerdiv1">
 
-                                                                                @Html.TextBoxFor(a => a.leaveSummayModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required" })
+                                                                                @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required" })
 
                                                                                 @*  <span class="input-group-append">
                                                                                 <span class="input-group-text bg-light d-block">
@@ -151,7 +153,7 @@
                                                                         <div class="position-relative">
                                                                             <div class="input-group date" id="datepickerdiv2">
 
-                                                                                @Html.TextBoxFor(a => a.leaveSummayModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required" })
+                                                                                @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required" })
 
                                                                                 @* <span class="input-group-append">
                                                                                 <span class="input-group-text bg-light d-block">
@@ -167,7 +169,7 @@
                                                                     <div class="col-lg-12">
                                                                         <div class="input-group">
                                                                             <span class="input-group-text body-text">Reason</span>
-                                                                            @Html.TextAreaFor(a => a.leaveSummayModel.Reason, new { @class = "form-control", @required = "required" })
+                                                                            @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required" })
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -269,7 +271,7 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                @foreach (var item in Model.leavesSummay)
+                                                                @foreach (var item in Model.leaveResults.leavesSummary)
                                                                 {
                                                                     <tr>
                                                                         <td class="d-none d-xl-table-cell">@item.RequestDate</td>
