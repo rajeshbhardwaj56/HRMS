@@ -75,7 +75,7 @@ namespace HRMS.Models.Common
         public const string MyInfo = "MyInfo";
         public const string Company = "Company";
         public const string Template = "Template";
-        public const string TemplateListing = "TemplateListing";
+        public const string TemplateListing = "TemplateListing";      
     }
 
     public class APIApiActionConstants
@@ -87,7 +87,8 @@ namespace HRMS.Models.Common
         public const string AddUpdateTemplate = "AddUpdateTemplate";
         public const string GetAllTemplates = "GetAllTemplates";
         public const string AddUpdateCompany = "AddUpdateCompany";
-        public const string GetAllCompanies = "GetAllCompanies";
+        public const string GetAllCompanies = "GetAllCompanies";       
+        public const string GetAllLeavePolicys = "GetAllLeavePolicys";
         public const string GetlLeavesSummary = "GetlLeavesSummary";
         public const string GetMyInfo = "GetMyInfo";
         public const string AddUpdateLeave = "AddUpdateLeave";
