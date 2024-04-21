@@ -3,73 +3,66 @@
 @{
     int Index = 0;
 }
+<div class="table-responsive">
+    <table class="table table-striped body-text dataTable no-footer">
+        <thead>
+            <tr>
+                <th>SNo</th>
+                <th>Language</th>
+                <th>Read</th>
+                <th>Write</th>
+                <th>Speak</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                int index = 1;
+            }
+            @foreach (var familyDetail in Model.LanguageDetails)
+            {
+
+                var delete = (index.ToString()) + "DeleteLanguageDetails";
 
 
-<div class="row">
-    <div class="col-md-1">
-        <b>SNo</b>
-    </div>
+                <tr id="@(delete)">
+                    <td>
+                        @(index).
+                    </td>
+                    <td>
 
-    <div class="col-md-4">
-        <b>Language</b>
-    </div>
+                        @Html.HiddenFor(m => m.LanguageDetails[Index].LanguageDetailID)
 
-    <div class="col-md-2">
-        <b>Read</b>
-    </div>
+                        @Html.DropDownListFor(x => x.LanguageDetails[Index].LanguageID, Model.Languages, HRMS.Models.Common.Constants.SelectLanguage, new { @class = "form-control LanguageID", @required = "required" })
 
-    <div class="col-md-2">
-        <b>Write</b>
-    </div>
+                    </td>
 
-    <div class="col-md-2">
-        <b>Speak</b>
-    </div>
+                    <td>
+                        @Html.CheckBoxFor(a => a.LanguageDetails[Index].IsRead)
+                    </td>
 
-    <div class="col-md-1">
-        <b>Delete</b>
-    </div>
-</div>
-@{
-    int index = 1;
-}
-@foreach (var familyDetail in Model.LanguageDetails)
-{
+                    <td>
+                        @Html.CheckBoxFor(a => a.LanguageDetails[Index].IsWrite)
+                    </td>
 
-    var delete = (index.ToString()) + "DeleteLanguageDetails";
+                    <td>
+                        @Html.CheckBoxFor(a => a.LanguageDetails[Index].IsSpeak)
+                    </td>
+
+                    <td>
+                        <a onclick="deleteLanguageDetails('@(delete)')"><img style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
+                    </td>
+                </tr>
+                Index++;
+                index++;
+            }
+        </tbody>
+    </table>
+ </div>
+ 
 
 
-    <div class="row" id="@(delete)">
-        <div class="col-md-1">
-            @(index).
-        </div>
-        <div class="col-md-4">
-
-            @Html.HiddenFor(m => m.LanguageDetails[Index].LanguageDetailID)
-
-            @Html.DropDownListFor(x => x.LanguageDetails[Index].LanguageID, Model.Languages, HRMS.Models.Common.Constants.SelectLanguage, new { @class = "form-control LanguageID", @required = "required" })
-
-        </div>
-
-        <div class="col-md-2">
-            @Html.CheckBoxFor(a => a.LanguageDetails[Index].IsRead)
-        </div>
-
-        <div class="col-md-2">
-            @Html.CheckBoxFor(a => a.LanguageDetails[Index].IsWrite)
-        </div>
-
-        <div class="col-md-2">
-            @Html.CheckBoxFor(a => a.LanguageDetails[Index].IsSpeak)
-        </div>
-
-        <div class="col-md-1">
-            <a onclick="deleteLanguageDetails('@(delete)')"><img style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
-        </div>
-    </div>
-    Index++;
-    index++;
-}
 
 <script type="text/javascript">
     function deleteLanguageDetails(Id) {

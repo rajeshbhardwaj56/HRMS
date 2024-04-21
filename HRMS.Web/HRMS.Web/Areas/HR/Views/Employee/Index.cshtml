@@ -305,195 +305,119 @@
             @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
             </div>
 
-
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <label class="Mandetory">*</label>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-            @Html.TextAreaFor(x => x.AwardsAchievements, new { @class = "form-control", @required = "required" })
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                State gaps in education, if any <label class="Mandetory">*</label>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-            @Html.TextAreaFor(x => x.EducationGap, new { @class = "form-control", @required = "required" })
-            </div>
-        </div>
-
-        <div class="row">
-            &nbsp;
-        </div>
-
-        <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-                <label for="validationDefault01" class="form-label">Language Proficiency </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12" id="LanguageDetails">
-            @Html.Partial("_LanguageDetails", Model)
-            </div>
-        </div>
-
-        <div class="row">
-            &nbsp;
-        </div>
-
-
-        <div class="row">
-            <div class="col-md-12">
-                IT Skills/Knowledge (Indicate your level of Proficiency)
-            </div>
-        </div>
-
-        <div class="row">
-        @Html.TextAreaFor(x => x.ITSkillsKnowledge)
-        </div>
-
-        <div class="row">
-            &nbsp;
-        </div>
-
-        <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-                <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12" id="EmploymentDetails">
-            @Html.Partial("_EmploymentHistory", Model)
-            </div>
-        </div>
-
-        <div class="row">
-            &nbsp;
-        </div>
-
-        <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-                <label class="form-label">References </label>
+            <div class="form-group">
+                <label>Mention any Awards/Achievements/Scholarship recieved in you educational career <span class="Mandetory">*</span></label>
+                @Html.TextAreaFor(x => x.AwardsAchievements, new { @class = "form-control", @required = "required" })
             </div>
 
-            <div class="col-md-12" id="ReferenceDetails">
-            @Html.Partial("_ReferenceDetails", Model)
+            <div class="form-group">
+                <label>State gaps in education, if any <span class="Mandetory">*</span></label>
+                @Html.TextAreaFor(x => x.EducationGap, new { @class = "form-control", @required = "required" })
             </div>
 
 
+        </div>
+
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">Language Proficiency <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" /></div>
+            @* <div class="row">
+                <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+                    <label for="validationDefault01" class="form-label">Language Proficiency </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" />
+                </div>
+            </div> *@
             <div class="row">
-                &nbsp;
+                <div class="col-md-12" id="LanguageDetails">
+                    @Html.Partial("_LanguageDetails", Model)
+                </div>
             </div>
-
-
-
+            <div class="form-group mt-3">
+                <label>IT Skills/Knowledge (Indicate your level of Proficiency)</label>
+                @Html.TextAreaFor(x => x.ITSkillsKnowledge, new { @class = "form-control" })
+            </div>
         </div>
 
-        <div class="row">
+
+
+
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">Employment Record <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" /></div>
+            @*  <div class="row">
             <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-                <label class="form-label">General Information </label>
+            <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
             </div>
-
-            <div class="col-md-12">
-                Information of extra-curricular/liesure activities, Hobbies
-            </div>
-
-
-
-            <div class="col-md-12">
-            @Html.TextAreaFor(a => a.ExtraCuricuarActivities, new { @class = "form-control" })
-
-            </div>
-
-
+            </div> *@
             <div class="row">
-                &nbsp;
+                <div class="col-md-12" id="EmploymentDetails">
+                    @Html.Partial("_EmploymentHistory", Model)
+                </div>
+            </div>            
+        </div>
+        
+
+
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">References</div>
+            @*  <div class="row">
+            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+            <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
             </div>
-
-
-
-            <div class="col-md-12">
-                Foriegn Countries visited in last 5 years
-            </div>
-
-
-
-            <div class="col-md-12">
-            @Html.TextAreaFor(a => a.ForiegnCountryVisits, new { @class = "form-control" })
-
-            </div>
-
-
+            </div> *@
             <div class="row">
-                &nbsp;
+                <div class="col-md-12" id="ReferenceDetails">
+                    @Html.Partial("_ReferenceDetails", Model)
+                </div>
             </div>
+        </div>    
 
 
 
-
-            <div class="col-md-12">
-                <b> Person to be contacted, in case of emergency</b>
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">General Information</div>            
+            <div class="form-group mt-3">
+                <label>Information of extra-curricular/liesure activities, Hobbies</label>
+                @Html.TextAreaFor(a => a.ExtraCuricuarActivities, new { @class = "form-control" })
             </div>
-
-
-            <div class="col-md-3">
-                Contact Person Name
-
+            <div class="form-group mt-3">
+                <label>Foriegn Countries visited in last 5 years</label>
+                @Html.TextAreaFor(a => a.ForiegnCountryVisits, new { @class = "form-control" })
             </div>
-            <div class="col-md-3">
-                Relationship
-            </div>
-
-            <div class="col-md-3">
-                Mobile
-
-            </div>
-
-            <div class="col-md-3">
-                Tel
-
-            </div>
-
-
-
-            <div class="col-md-3">
-            @Html.TextBoxFor(a => a.ContactPersonName, new { @class = "form-control" })
-
-            </div>
-            <div class="col-md-3">
-            @Html.TextBoxFor(a => a.ContactPersonRelationship, new { @class = "form-control" })
-
-            </div>
-
-            <div class="col-md-3">
-            @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control" })
-
-            </div>
-
-            <div class="col-md-3">
-            @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control" })
-
-            </div>
-
-
-            <div class="row">
-                &nbsp;
-            </div>
-
 
             <div class="row">
                 <div class="col-md-12">
-                    <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+                    <b> Person to be contacted, in case of emergency</b>
                 </div>
+
+                <div class="col-md-3">
+                    <label>Contact Person Name</label>
+                    @Html.TextBoxFor(a => a.ContactPersonName, new { @class = "form-control" })
+                </div>
+                <div class="col-md-3">
+                    <label>Relationship</label>
+                    @Html.TextBoxFor(a => a.ContactPersonRelationship, new { @class = "form-control" })
+                </div>
+
+                <div class="col-md-3">
+                    <label>Mobile</label>
+                    @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control" })
+
+                </div>
+
+                <div class="col-md-3">
+                    <label>Tel</label>
+                    @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>    
+
+
+
+
+
+        
+
+        <div class="row">
+            <div class="col-md-12">
+                <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
             </div>
         </div>
 

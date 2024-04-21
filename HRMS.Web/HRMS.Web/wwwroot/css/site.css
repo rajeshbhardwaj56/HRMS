@@ -117,6 +117,7 @@ i.fa.fa-calendar {
 /**************************************************************************************
                                 Custom css
 ***************************************************************************************/
+
 :root {
     --theme-bg: #fff;
     --body-color: #05397b;
@@ -438,4 +439,76 @@ textarea.form-control {
     background-repeat: no-repeat;
     background-position: 96%;
     color: var(--body-color);
+}
+.btn-addBtn {
+    background-color: var(--body-bg);
+    color:var(--white-text-color);
+}
+.btn-addBtn:hover {
+    background-color: var(--secondry-color);
+    color: var(--white-text-color);
+}
+.dataTables_length {
+    float: left;
+    margin-bottom:15px;
+}
+.dataTables_filter {
+    float: right;
+    margin-bottom: 15px;
+}
+table.dataTable {
+    border: 1px solid var(--search-bg);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background: var(--search-bg);
+}
+.dataTables_info {
+    float: left;
+    margin-top: 15px;
+    padding-top:0px !important;
+}
+div.dataTables_wrapper div.dataTables_paginate {
+    float: right;
+    margin-top: 15px !important;
+}
+.dataTables_wrapper .paging_simple_numbers a {
+    background-color: var(--body-bg);
+    text-decoration: none;
+    cursor:pointer;
+}
+    .dataTables_wrapper .paging_simple_numbers a.current, .dataTables_wrapper .paging_simple_numbers a:hover {
+        background-color: var(--secondry-color);
+    }
+.btn-info{
+    background:var(--body-bg);
+    color:var(--white-text-color);
+    border-color:var(--body-bg);
+}
+.btn-info:hover {
+    background: var(--secondry-color);
+    color: var(--white-text-color);
+    border-color: var(--secondry-color);
+}
+.btn-success {
+    background: var(--secondry-color);
+    color: var(--white-text-color);
+    border-color: var(--secondry-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 18px;
+    min-width: 170px;
+    margin-top: 20px;
+    padding: 12px;
+}
+    .btn-success:hover {
+        background: var(--body-bg);
+        color: var(--white-text-color);
+        border-color: var(--body-bg);
+    }
+table thead th, table tfoot th {
+    background-color: var(--body-bg) !important;
+    color: var(--white-text-color) !important;
 }
