@@ -6,28 +6,24 @@ using System.Threading.Tasks;
 
 namespace HRMS.Models.Employee
 {
-    public class EmploymentHistory
+    public class EmploymentDetail
     {
-        public long EmploymentHistoryID { get; set; }
+        public long EmploymentDetailID { get; set; }
         public long EmployeeID { get; set; }
-        public string CompanyName { get; set; } = string.Empty;
-        public string EmploymentID { get; set; } = string.Empty;//Identity card Number
-        public DateTime? From { get; set; }
-        public DateTime? To { get; set; }
-        public string Address { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string City { get; set; } = string.Empty;
-        public string State { get; set; } = string.Empty;
-        public long CountryID { get; set; }
-        public string PostalCode { get; set; } = string.Empty;
-        public string ReasionFoLeaving { get; set; } = string.Empty;
-        public string Designition { get; set; } = string.Empty;
-        public string GrossSalary { get; set; } = string.Empty;
-        public string SupervisorName { get; set; } = string.Empty;
-        public string SupervisorDesignition { get; set; } = string.Empty;
-        public string SupervisorContactNo { get; set; } = string.Empty;
-        public string HRName { get; set; } = string.Empty;
-        public string HREmail { get; set; } = string.Empty;
-        public string HRContactNo { get; set; } = string.Empty;
+        public long DesignationID { get; set; }
+        public long EmployeeTypeID { get; set; }
+        public long DepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public long ReportingToID { get; set; }
+        public string OfficialEmailID { get; set; } = string.Empty;
+        public string OfficialContactNo { get; set; } = string.Empty;
+        public DateTime? JoiningDate { get; set; }
+        public DateTime? JobSeprationDate { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsDeleted { get; set; }
+        public long UserID { get; set; }
+        public DateTime? InsertedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+
     }
 }

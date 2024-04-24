@@ -626,6 +626,44 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
+
+
+        public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@EmploymentDetailID", employmentDetails.EmploymentDetailID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", employmentDetails.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@DesignationID", employmentDetails.DesignationID));
+            sqlParameter.Add(new SqlParameter("@EmployeeTypeID", employmentDetails.EmployeeTypeID));
+            sqlParameter.Add(new SqlParameter("@DepartmentID", employmentDetails.DepartmentID));
+            sqlParameter.Add(new SqlParameter("@JobLocationID", employmentDetails.JobLocationID));
+            sqlParameter.Add(new SqlParameter("@OfficialEmailID", employmentDetails.OfficialEmailID));
+            sqlParameter.Add(new SqlParameter("@OfficialContactNo", employmentDetails.OfficialContactNo));
+            sqlParameter.Add(new SqlParameter("@JoiningDate", employmentDetails.JoiningDate));
+            sqlParameter.Add(new SqlParameter("@JobSeprationDate", employmentDetails.JobSeprationDate));
+            sqlParameter.Add(new SqlParameter("@ReportingToID", employmentDetails.ReportingToID));
+            sqlParameter.Add(new SqlParameter("@IsActive", employmentDetails.IsActive));
+            sqlParameter.Add(new SqlParameter("@IsDeleted", employmentDetails.IsDeleted));
+            sqlParameter.Add(new SqlParameter("@UserID", employmentDetails.UserID));    
+
+            SqlParameterCollection pOutputParams = null;
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmploymentDetails, sqlParameter, ref pOutputParams);
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value)
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
+
         #region Leave Policies
         public Results GetAllLeavePolicies(LeavePolicyInputParans model)
         {

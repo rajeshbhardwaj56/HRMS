@@ -12,7 +12,7 @@ namespace HRMS.API.Web.Controllers
 
     [Route("[controller]/[action]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class EmployeeController : ControllerBase
     {
         IConfiguration _configuration;
@@ -78,6 +78,14 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetMyInfo(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult AddUpdateEmploymentDetails(EmploymentDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmploymentDetails(model));
             return response;
         }
         

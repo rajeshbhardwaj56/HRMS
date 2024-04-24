@@ -36,5 +36,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
         public Results GetAllLeavePolicies(LeavePolicyInputParans model);
         public MyInfoResults GetMyInfo(MyInfoInputParams model);
+        public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails);
     }
 }
