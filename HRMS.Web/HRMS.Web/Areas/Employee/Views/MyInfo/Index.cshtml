@@ -2,9 +2,12 @@
 @using HRMS.Models.Common;
 @using System.Globalization;
 @using HRMS.Models.MyInfo;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @model MyInfoResults
 @{
-    Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
     ViewData["Title"] = "Employee";
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))

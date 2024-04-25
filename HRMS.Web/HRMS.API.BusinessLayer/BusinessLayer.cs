@@ -222,6 +222,68 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+
+        public Results GetAllActiveEmployees(EmployeeInputParams model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ActiveEmployeeDetails, sqlParameter);
+            result.Employees = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new EmployeeModel
+                              {
+                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                  guid = dataRow.Field<Guid>("guid"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
+                                  FirstName = dataRow.Field<string>("FirstName"),
+                                  MiddleName = dataRow.Field<string>("MiddleName"),
+                                  Surname = dataRow.Field<string>("Surname"),
+                                  CorrespondenceAddress = dataRow.Field<string>("CorrespondenceAddress"),
+                                  CorrespondenceCity = dataRow.Field<string>("CorrespondenceCity"),
+                                  CorrespondencePinCode = dataRow.Field<string>("CorrespondencePinCode"),
+                                  CorrespondenceState = dataRow.Field<string>("CorrespondenceState"),
+                                  CorrespondenceCountryID = dataRow.Field<long>("CorrespondenceCountryID"),
+                                  EmailAddress = dataRow.Field<string>("EmailAddress"),
+                                  Landline = dataRow.Field<string>("Landline"),
+                                  Mobile = dataRow.Field<string>("Mobile"),
+                                  Telephone = dataRow.Field<string>("Telephone"),
+                                  PersonalEmailAddress = dataRow.Field<string>("PersonalEmailAddress"),
+                                  PermanentAddress = dataRow.Field<string>("PermanentAddress"),
+                                  PermanentCity = dataRow.Field<string>("PermanentCity"),
+                                  PermanentPinCode = dataRow.Field<string>("PermanentPinCode"),
+                                  PermanentState = dataRow.Field<string>("PermanentPinCode"),
+                                  PermanentCountryID = dataRow.Field<long>("PermanentCountryID"),
+                                  VerificationContactPersonName = dataRow.Field<string>("VerificationContactPersonName"),
+                                  VerificationContactPersonContactNo = dataRow.Field<string>("VerificationContactPersonContactNo"),
+                                  DateOfBirth = dataRow.Field<DateTime?>("DateOfBirth"),
+                                  PlaceOfBirth = dataRow.Field<string>("PlaceOfBirth"),
+                                  IsReferredByExistingEmployee = dataRow.Field<bool>("IsReferredByExistingEmployee"),
+                                  ReferredByEmployeeID = dataRow.Field<string>("ReferredByEmployeeID"),
+                                  BloodGroup = dataRow.Field<string>("BloodGroup"),
+                                  PANNo = dataRow.Field<string>("PANNo"),
+                                  AadharCardNo = dataRow.Field<string>("AadharCardNo"),
+                                  Allergies = dataRow.Field<string>("Allergies"),
+                                  RelativesDetails = dataRow.Field<string>("RelativesDetails"),
+                                  MajorIllnessOrDisability = dataRow.Field<string>("MajorIllnessOrDisability"),
+                                  AwardsAchievements = dataRow.Field<string>("AwardsAchievements"),
+                                  EducationGap = dataRow.Field<string>("EducationGap"),
+                                  ExtraCuricuarActivities = dataRow.Field<string>("ExtraCuricuarActivities"),
+                                  ForiegnCountryVisits = dataRow.Field<string>("ForiegnCountryVisits"),
+                                  ContactPersonName = dataRow.Field<string>("ContactPersonName"),
+                                  ContactPersonMobile = dataRow.Field<string>("ContactPersonMobile"),
+                                  ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
+                                  ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
+                                  ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
+
+
+
+                              }).ToList();
+         
+
+            return result;
+        }
         public string GetFullUrlByRole(int RoleID)
         {
             string RootName = "";

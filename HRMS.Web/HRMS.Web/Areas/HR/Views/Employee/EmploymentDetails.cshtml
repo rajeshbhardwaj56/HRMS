@@ -1,6 +1,8 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿﻿@using HRMS.Models.Employee;
+@using Microsoft.AspNetCore.Http
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmployeeModel
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Employment Details";   
 }

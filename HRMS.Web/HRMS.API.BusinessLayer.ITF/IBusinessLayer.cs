@@ -25,6 +25,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCurrencies(long companyID);
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParams model);
+        public Results GetAllActiveEmployees(EmployeeInputParams model);
         public Result AddUpdateTemplate(TemplateModel model);
         public Results GetAllTemplates(TemplateInputParams model);
         public Result AddUpdateCompany(CompanyModel model);

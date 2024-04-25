@@ -1,7 +1,11 @@
 ﻿@using HRMS.Models.Company;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
 @model CompanyModel
 @{
-    Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
     ViewData["Title"] = "Employee";
     var CompanyLogo = "";
     if (!string.IsNullOrEmpty(Model.CompanyLogo))

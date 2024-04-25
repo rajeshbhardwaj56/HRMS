@@ -41,6 +41,14 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
+        public IActionResult GetAllActiveEmployees(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllActiveEmployees(model));
+            return response;
+        }
+
+        [HttpPost]
         public IActionResult GetlLeavesSummary(MyInfoInputParams model)
         {
             IActionResult response = Unauthorized();

@@ -15,6 +15,7 @@ namespace HRMS.Models.Common
         public const string RoleID = "RoleID";
         public const string CompanyID = "CompanyID";
         public const string EmployeeID = "EmployeeID";
+        public const string AreaName = "AreaName";
         public const string Role = "Role";
         public const string Alias = "Alias";
         public const string Index = "index";
@@ -84,6 +85,7 @@ namespace HRMS.Models.Common
         public const string GetAllLeavePolicies = "GetAllLeavePolicies";
         public const string AddUpdateEmployee = "AddUpdateEmployee";
         public const string GetAllEmployees = "GetAllEmployees";
+        public const string GetAllActiveEmployees = "GetAllActiveEmployees";        
         public const string AddUpdateTemplate = "AddUpdateTemplate";
         public const string GetAllTemplates = "GetAllTemplates";
         public const string AddUpdateCompany = "AddUpdateCompany";

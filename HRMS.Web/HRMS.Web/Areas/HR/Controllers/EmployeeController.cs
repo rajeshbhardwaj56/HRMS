@@ -208,5 +208,33 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             return PartialView("_LanguageDetails", employee);
         }
+
+
+        public IActionResult ActiveEmployeeListing()
+        {
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            return View(results);
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult ActiveEmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            EmployeeInputParams employee = new EmployeeInputParams();
+            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllActiveEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            return Json(new { data = results.Employees });
+        }
+
+        [HttpGet]
+        public ActionResult EmploymentDetails(string id)
+        {
+           
+            return View();
+        }
+
+
     }
 }
