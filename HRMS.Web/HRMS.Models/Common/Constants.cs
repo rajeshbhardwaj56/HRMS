@@ -36,6 +36,8 @@ namespace HRMS.Models.Common
         public const string ResultsData = "ResultsData";
         public const string EmployeePhotoPath = "Uploads/ProfilePhoto/";
         public const string CompanyLogoPath = "Uploads/CompanyLogo/";
+        public const string TemplatePath = "Uploads/Template/";
+        public const string CKEditorImagesPath = "Uploads/ckeditor/";
         public const string NoImagePath = "/assets/img/No_image.png";
         public const string EmptySelection = "-- Please select a value --";
 
@@ -64,6 +66,7 @@ namespace HRMS.Models.Common
         public const string Template = "Template";
         public const string Company = "Company";
         public const string LeavePolicy = "LeavePolicy";
+        public const string Holiday = "Holiday";
     }
 
     public class WebControllarsConstants
@@ -76,6 +79,8 @@ namespace HRMS.Models.Common
         public const string Company = "Company";
         public const string Template = "Template";
         public const string TemplateListing = "TemplateListing";
+        public const string Holiday = "Holiday";
+        public const string HolidayListing = "HolidayListing";
     }
 
     public class APIApiActionConstants
@@ -93,5 +98,7 @@ namespace HRMS.Models.Common
         public const string AddUpdateLeave = "AddUpdateLeave";
         public const string GetLeaveDurationTypes = "GetLeaveDurationTypes";
         public const string GetLeaveTypes = "GetLeaveTypes";
+        public const string AddUpdateHoliday = "AddUpdateHoliday";
+        public const string GetAllHoliday = "GetAllHoliday";
     }
 }

@@ -1,3 +1,6 @@
 ﻿.ck.ck-editor__editable.ck-rounded-corners:not(.ck-editor__nested-editable) {
     background-color: white;
 }
+div#editor {
+    min-height: 200px;
+}
