@@ -72,8 +72,8 @@ namespace HRMS.API.BusinessLayer
                               .Select(dataRow => new EmployeeModel
                               {
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                  guid = dataRow.Field<Guid>("guid"),                                 
-                                  CompanyID = dataRow.Field<long>("CompanyID"),                                 
+                                  guid = dataRow.Field<Guid>("guid"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
                                   ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
                                   FirstName = dataRow.Field<string>("FirstName"),
                                   MiddleName = dataRow.Field<string>("MiddleName"),
@@ -277,10 +277,22 @@ namespace HRMS.API.BusinessLayer
                                   ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
                                   ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
 
+                                  // Employment Details
 
+                                  EmployeNumber = dataRow.Field<string>("EmployeNumber"),
+                                  DesignationID = dataRow.Field<long>("DesignationID"),
+                                  EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
+                                  DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                  JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                  ReportingToID = dataRow.Field<long>("ReportingToID"),
+                                  DesignationName = dataRow.Field<string>("DesignationName"),
+                                  EmployeeTypeName = dataRow.Field<string>("EmployeeTypeName"),
+                                  DepartmentName = dataRow.Field<string>("DepartmentName"),
+                                  JobLocationName = dataRow.Field<string>("JobLocationName"),
+                                  ReportingToName = dataRow.Field<string>("ReportingToName")
 
                               }).ToList();
-         
+
 
             return result;
         }
@@ -499,7 +511,7 @@ namespace HRMS.API.BusinessLayer
 
             sqlParameter.Add(new SqlParameter("@EmployeeID", employeeModel.EmployeeID));
             sqlParameter.Add(new SqlParameter("@RetEmployeeID", employeeModel.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));            
+            sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@FirstName", employeeModel.FirstName));
             sqlParameter.Add(new SqlParameter("@MiddleName", employeeModel.MiddleName));
             sqlParameter.Add(new SqlParameter("@Surname", employeeModel.Surname));
@@ -707,7 +719,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@ReportingToID", employmentDetails.ReportingToID));
             sqlParameter.Add(new SqlParameter("@IsActive", employmentDetails.IsActive));
             sqlParameter.Add(new SqlParameter("@IsDeleted", employmentDetails.IsDeleted));
-            sqlParameter.Add(new SqlParameter("@UserID", employmentDetails.UserID));    
+            sqlParameter.Add(new SqlParameter("@UserID", employmentDetails.UserID));
 
             SqlParameterCollection pOutputParams = null;
 

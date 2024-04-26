@@ -72,6 +72,21 @@ namespace HRMS.Models.Employee
         public long UpdatedByUserID { get; set; }
         public DateTime InsertedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+
+        // Employment Details
+        public long DesignationID { get; set; }
+        public long EmployeeTypeID { get; set; }
+        public long DepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public long ReportingToID { get; set; }
+        public string? DesignationName { get; set; } = string.Empty;
+        public string? EmployeeTypeName { get; set; } = string.Empty;
+        public string? DepartmentName { get; set; } = string.Empty;
+        public string? JobLocationName { get; set; } = string.Empty;
+        public string? ReportingToName { get; set; } = string.Empty;
+        public string? EmployeNumber { get; set; } = string.Empty;
+        
+        // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
         public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();
         public List<LanguageDetail> LanguageDetails { get; set; } = new List<LanguageDetail>();
