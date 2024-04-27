@@ -4,11 +4,13 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Template";
+
+
     var HeaderImage = "";
     var FooterImage = "";
     if (!string.IsNullOrEmpty(Model.HeaderImage))
     {
-        HeaderImage = Model.HeaderImage;// HRMS.Models.Common.Constants.EmployeePhotoPath + Model.CompanyID + "/" + Model.HeaderImage;
+        HeaderImage = "/" + HRMS.Models.Common.Constants.TemplatePath + Model.HeaderImage;
     }
     else
     {
@@ -17,14 +19,14 @@
 
     if (!string.IsNullOrEmpty(Model.FooterImage))
     {
-        FooterImage = Model.FooterImage;// HRMS.Models.Common.Constants.EmployeePhotoPath + Model.CompanyID + "/" + Model.FooterImage;
+        FooterImage = "/" + HRMS.Models.Common.Constants.TemplatePath + Model.FooterImage;
     }
     else
     {
         FooterImage = HRMS.Models.Common.Constants.NoImagePath;
     }
 }
-<form method="post" enctype="multipart/form-data">
+<form method="post" id="submitForm" enctype="multipart/form-data">
     <div class="Container">
 
         <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
@@ -60,24 +62,26 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="col-md-12">
-                        Header Image
+                        Header Image <label class="Mandetory">*</label>
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-4">
-                            <img src="data:image/png;base64,@HeaderImage" style="width:100px; height:100px" />
-                            <input type="file" name="HeaderImage" accept="image/*" />
+                            <img src="@HeaderImage" style="width:100px; height:100px" />
+                            <input type="file" name="HeaderImageFile" accept="image/*" />
+                            @Html.HiddenFor(x => x.HeaderImage)
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="col-md-12">
-                        Footer Image
+                        Footer Image <label class="Mandetory">*</label>
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-4">
-                            <img src="data:image/png;base64,@FooterImage" style="width:100px; height:100px" />
-                            <input type="file" name="FooterImage" accept="image/*" />
+                            <img src="@FooterImage" style="width:100px; height:100px" />
+                            <input type="file" name="FooterImageFile" accept="image/*" />
+                            @Html.HiddenFor(x => x.FooterImage)
                         </div>
 
                     </div>
@@ -114,7 +118,7 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+                    <input style="float:right" id="submitBtn" type="submit" value="Submit" class="btn btn-success" />
                     <input id="cancelButton" style="float:right; margin:0 16px;" type="button" value="Cancel" class="btn btn-success" />
                 </div>
 
@@ -128,21 +132,59 @@
     const editor = document.querySelector('#editor');
     const editorDataInput = document.querySelector('#description');
     DecoupledEditor
-        .create(editor)
+        .create(editor, {
+            toolbar: {
+                items: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'underline',
+                    'strikethrough',
+                    '|',
+                    'alignment',
+                    '|',
+                    'link',
+                    'blockquote',
+                    'insertTable',
+                    '|',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'indent',
+                    'outdent',
+                    '|',
+                    'fontFamily',
+                    'fontSize',
+                    'fontColor',
+                    'fontBackgroundColor',
+                    '|',
+                    'removeFormat',
+                    'sourceEditing',
+                    '|',
+                    'undo',
+                    'redo'
+                ]
+            }
+        })
         .then(editor => {
             const toolbarContainer = document.querySelector('#toolbar-container');
             toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-            editor.setData('@Model.Description', { isHtml: true });
 
-            const editorData = editor.getData();
-            editorDataInput.value = editorData;
+            // Set initial data to the editor
+            editor.setData('@Html.Raw(Model.Description)');
+
+            // Get the editor's data and update the input field
+            const editorDataInput = document.querySelector('#description');
+            editorDataInput.value = editor.getData();
 
             // Listen for changes in the editor's content
-            editor.model.document.on('change', () => {
+            editor.model.document.on('change:data', () => {
                 // Get the current content of the editor
                 const editorContent = editor.getData();
-                // Do something with the editor content, such as updating a preview or saving it
+                // Update the input field with the editor content
                 editorDataInput.value = editorContent;
+                console.log("eidtor data", editorContent)
             });
 
         })
@@ -150,8 +192,24 @@
             console.error(error);
         });
 
+
     document.getElementById('cancelButton').addEventListener('click', function () {
         window.location.href = '@Url.Action("TemplateListing", "Template")';
     });
 
+    $('#FooterImageFile').attr('src', '@Model.FooterImage').show();
+
+    $('#HeaderImageFile').attr('src', '@Model.HeaderImage').show();
+
+    $("#submitForm").on("submit", function () {
+        var footerImg = $('#FooterImageFile').attr('src');
+        var headerImg = $('#HeaderImageFile').attr('src');
+        console.log("footerImg", footerImg);
+        console.log("headerImg", headerImg);
+
+        if ('@Model.TemplateID' == '0' && (footerImg == null || footerImg == undefined || headerImg == null || headerImg == undefined)) {
+            console.log("header and footer images required")
+            return false;
+        }
+    })
 </script>

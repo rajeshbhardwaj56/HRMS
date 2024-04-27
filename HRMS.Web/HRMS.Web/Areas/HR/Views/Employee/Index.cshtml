@@ -16,14 +16,14 @@
     }
 }
 
-<div class="main-header anim" style="--delay: 0s">Manage Employee</div>
+
+
+<div class="main-header anim" style="--delay: 0s">New Employee</div>
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
 
 
         <div class="group-box anim" style="--delay: .3s">
-
-
             <div class="small-header">Personal Details</div>
             @Html.HiddenFor(m => m.EmployeeID)
             @Html.HiddenFor(m => m.CompanyID)
@@ -419,7 +419,8 @@
 
         <div class="row">
             <div class="col-md-12">
-                <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+                <input type="submit" value="Submit" class="btn btn-success" />
+                <button class="btn btn-danger" type="reset">Cancel</button>
             </div>
         </div>
 

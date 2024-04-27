@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Common;
+﻿using HRMS.Models;
+using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.Employee;
 using HRMS.Models.Leave;
@@ -41,5 +42,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
 
         
+        public Result AddUpdateHoliday(HolidayModel model);
+        public Results GetAllHolidays(HolidayInputParams model);
     }
 }

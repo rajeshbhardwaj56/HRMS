@@ -4,29 +4,27 @@
 @model Results
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Template";
+    ViewData["Title"] = "Holiday";
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
-    var rootPath = "/" + HRMS.Models.Common.Constants.TemplatePath;
 }
 
 <div class="addcomp px-4">
-    <h4>Template List</h4>
-    <a href="~/Admin/Template"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Template</button></a>
+    <h4>Holiday List</h4>
+    <a href="~/Admin/Holiday"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Holiday</button></a>
 </div>
 
 
 <div class="container-fluid">
-    <table id="tblTemplateListing" class="table table-striped body-text" style="width:100%">
+    <table id="tblHolidayListing" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden"> /th>
-                <th>Template Name</th>
-                <th>Company ID</th>
-                <th>Letter Head Name</th>
-                <th>Header Image</th>
-                <th>Footer Image</th>
+                <th>Holiday Name</th>
+                <th>Holiday Date</th>
+                <th>Description</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -39,9 +37,9 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        $('#tblTemplateListing').DataTable({
+        $('#tblHolidayListing').DataTable({
             "ajax": {
-                "url": "TemplateListings/",
+                "url": "HolidayListings/",
                 "type": "POST",
                 "datatype": "json"
             },
@@ -50,28 +48,22 @@
             "searching": true,
             "info": true,
             "columns": [
-                { "data": "templateID", "autoWidth": true, },
-                { "data": "templateName", "autoWidth": true, },
-                { "data": "companyID", "autoWidth": true, },
-                { "data": "letterHeadName", "autoWidth": true },
+                { "data": "holidayID", "autoWidth": true, },
+                { "data": "holidayName", "autoWidth": true, },
                 {
-                    "data": "headerImage",
-                    "render": function (data, type, row) {
-                        return '<img src="@rootPath' + data + '" alt="Header Image" style="width:30px;">';
+                    "data": "date", "autoWidth": true, "render": function (data, type, row) {
+                        var dateObj = new Date(data);
+                        var formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); // Change the format as per your requirement
+                        return formattedDate;
                     }
                 },
-                {
-                    "data": "footerImage",
-                    "render": function (data, type, row) {
-                        return '<img src="@rootPath' + data + '" alt="Footer Image" style="width:30px;">';
-                    }
-                },
-
+                { "data": "description", "autoWidth": true },
+                { "data": "status", "autoWidth": true },
 
                 {
                     // this is Actions Column
                     mRender: function (data, type, row) {
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.templateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.holidayID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
                         return linkEdit;
                     }
                 },

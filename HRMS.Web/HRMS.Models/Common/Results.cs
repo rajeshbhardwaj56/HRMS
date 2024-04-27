@@ -24,6 +24,9 @@ namespace HRMS.Models.Common
         public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();
         public LeavePolicyModel leavePolicyModel { get; set; } = new LeavePolicyModel();
 
+        public List<HolidayModel> Holiday { get; set; } = new List<HolidayModel>();
+        public HolidayModel holidayModel { get; set; } = new HolidayModel();
+
     }
 
 

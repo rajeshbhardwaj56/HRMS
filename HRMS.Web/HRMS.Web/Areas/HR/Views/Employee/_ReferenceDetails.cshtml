@@ -5,64 +5,64 @@
 }
 
 
-<div class="row">
-    <div class="col-md-1">
-        <b>SNo</b>
-    </div>
 
-    <div class="col-md-3">
-        <b>Full Name of Reference</b>
-    </div>
+<div class="table-responsive">
+    <table class="table table-striped body-text dataTable no-footer">
+        <thead>
+            <tr>
+                <th>SNo</th>
+                <th>Full Name of Reference</th>
+                <th>Contact</th>
+                <th>Orgnization</th>
+                <th>Relationship with candidate</th>
+            </tr>
+        </thead>
+        <tbody>
 
-    <div class="col-md-2">
-        <b>Contact</b>
-    </div>
+            @{
+                int index = 1;
+            }
+            @foreach (var familyDetail in Model.References)
+            {
 
-    <div class="col-md-2">
-        <b>Orgnization</b>
-    </div>
-   
-    <div class="col-md-4">
-        <b>Relationship with candidate</b>
-    </div>
+                var delete = (index.ToString()) + "ReferenceDetailsDelete";
+
+
+                <tr id="@(delete)">
+                    <td>
+                        @(index).
+                    </td>
+                    <td>
+                        @Html.HiddenFor(m => m.References[Index].ReferenceDetailID)
+                        @Html.TextBoxFor(a => a.References[Index].Name, new { @class = "form-control ReferenceDetails", @required = "required" })
+                    </td>
+
+                    <td>
+                        @Html.TextBoxFor(a => a.References[Index].Contact, new { @class = "form-control telephone", @required = "required" })
+
+                    </td>
+
+                    <td>
+                        @Html.TextBoxFor(a => a.References[Index].OrgnizationName, new { @class = "form-control", @required = "required" })
+
+                    </td>
+
+                    <td>
+                        @Html.TextBoxFor(a => a.References[Index].RelationWithCandidate, new { @class = "form-control" })
+                    </td>
+
+
+                </tr>
+                Index++;
+                index++;
+            }
+        </tbody>
+    </table>
 </div>
-@{
-    int index = 1;
-}
-@foreach (var familyDetail in Model.References)
-{
-
-    var delete = (index.ToString()) + "ReferenceDetailsDelete";
 
 
-    <div class="row" id="@(delete)">
-        <div class="col-md-1">
-            @(index).
-        </div>
-        <div class="col-md-3">
-            @Html.HiddenFor(m => m.References[Index].ReferenceDetailID)
-            @Html.TextBoxFor(a => a.References[Index].Name, new { @class = "form-control ReferenceDetails", @required = "required" })
-        </div>
 
-        <div class="col-md-2">
-            @Html.TextBoxFor(a => a.References[Index].Contact, new { @class = "form-control telephone", @required = "required" })          
 
-        </div>
-
-        <div class="col-md-2">
-            @Html.TextBoxFor(a => a.References[Index].OrgnizationName, new { @class = "form-control", @required = "required" })           
-
-        </div>
-
-        <div class="col-md-4">
-            @Html.TextBoxFor(a => a.References[Index].RelationWithCandidate, new { @class = "form-control" })           
-        </div>      
-
-        
-    </div>
-    Index++;
-    index++;
-}
 
 <script type="text/javascript">
     function deleteEducationalDetails(Id) {        
