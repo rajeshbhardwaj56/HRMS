@@ -32,16 +32,16 @@ namespace HRMS.Models.Employee
         public DateTime? InsertedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
 
-        public List<SelectListItem> EmploymentTypes = new List<SelectListItem>();
-        public List<SelectListItem> Departments = new List<SelectListItem>();
-        public List<SelectListItem> JobLocations = new List<SelectListItem>();
-        public List<SelectListItem> Designations = new List<SelectListItem>();
-        public List<EmployeeListModel> EmployeeList = new List<EmployeeListModel>();
+        public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> JobLocations { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Designations { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> EmployeeList { get; set; } = new List<SelectListItem>();
     }
 
     public class EmployeeListModel
     {
         public long EmployeeID { get; set; }
-        public Guid guid { get; set; }
+        public string Name { get; set; }
     }
 }

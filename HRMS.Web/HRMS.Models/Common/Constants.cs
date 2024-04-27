@@ -24,6 +24,8 @@ namespace HRMS.Models.Common
         public const string ManageHR = "hr";
         public const string ManageEmployee = "employee";
         public const string SelectLanguage = "-- Select Language --";
+        public const string SelectJobLocation = "-- Select Job Location --";
+        public const string SelectReportingManager = "-- Select Reporting Manager --";
         public const string SelectCountry = "-- Select Country --";
         public const string SelectCurrency = "-- Select Currency --";
         public const string SelectEmployeeType = "-- Select Employee Type --";
@@ -103,5 +105,8 @@ namespace HRMS.Models.Common
         public const string GetLeaveTypes = "GetLeaveTypes";
         public const string AddUpdateHoliday = "AddUpdateHoliday";
         public const string GetAllHolidays = "GetAllHolidays";
+        public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
+        public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
+        
     }
 }

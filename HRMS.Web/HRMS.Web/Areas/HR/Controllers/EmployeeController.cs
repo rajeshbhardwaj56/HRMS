@@ -231,10 +231,41 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpGet]
         public ActionResult EmploymentDetails(string id)
         {
-           
-            return View();
+            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
+            if (!string.IsNullOrEmpty(id))
+            {
+                employmentDetailInputParams.EmployeeID = long.Parse(id);
+            }
+            employmentDetailInputParams.CompanyID= Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            EmploymentDetail employmentDetail = new EmploymentDetail();
+            var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(data);
+
+            return View(employmentDetail);
         }
 
-
+        [HttpPost]
+        public ActionResult EmploymentDetails(EmploymentDetail employmentDetail)
+        {
+            if (ModelState.IsValid)
+            {
+                var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+            }
+            else {
+                EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
+                employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+               
+                var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(data);
+                employmentDetail.EmployeeList = employmentDetailtemp.EmployeeList;
+                employmentDetail.Departments = employmentDetailtemp.Departments;
+                employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
+                employmentDetail.Designations = employmentDetailtemp.Designations;
+                employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
+            }
+            return View(employmentDetail);
+        }
+        
     }
 }

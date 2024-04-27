@@ -749,7 +749,48 @@ namespace HRMS.API.BusinessLayer
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
         {
             EmploymentDetail employmentDetail = new EmploymentDetail();
-            // employmentDetail.JobLocations
+
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetailsFormDetails, sqlParameter);
+
+            employmentDetail.JobLocations= dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new SelectListItem
+                               {
+                                   Text = dataRow.Field<string>("Name"),
+                                   Value = dataRow.Field<long>("ID").ToString()
+                               }).ToList();
+
+            employmentDetail.EmploymentTypes = dataSet.Tables[1].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Text = dataRow.Field<string>("Name"),
+                                 Value = dataRow.Field<long>("ID").ToString()
+                             }).ToList();
+
+            employmentDetail.Departments = dataSet.Tables[2].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Text = dataRow.Field<string>("Name"),
+                                 Value = dataRow.Field<long>("ID").ToString()
+                             }).ToList();
+
+
+            employmentDetail.Designations = dataSet.Tables[3].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Text = dataRow.Field<string>("Name"),
+                                 Value = dataRow.Field<long>("ID").ToString()
+                             }).ToList();
+
+
+            employmentDetail.EmployeeList = dataSet.Tables[4].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Value = dataRow.Field<long>("EmployeeID").ToString(),
+                                 Text = dataRow.Field<string>("Name")
+                             }).ToList();
 
             return employmentDetail;
         }

@@ -96,6 +96,14 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.AddUpdateEmploymentDetails(model));
             return response;
         }
+
+        [HttpPost]
+        public IActionResult GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmploymentDetailsByEmployee(model));
+            return response;
+        }
         
     }
 }
