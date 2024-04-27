@@ -664,6 +664,14 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+
+        public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
+        {
+            EmploymentDetail employmentDetail = new EmploymentDetail();
+            employmentDetail.JobLocations
+
+            return employmentDetail;
+        }
         public Result AddUpdateCompany(CompanyModel companyModel)
         {
             Result model = new Result();

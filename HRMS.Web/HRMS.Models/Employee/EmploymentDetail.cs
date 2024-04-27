@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace HRMS.Models.Employee
 {
+    public class EmploymentDetailInputParams
+    {
+        public long EmployeeID { get; set; }
+        public long CompanyID { get; set; }
+    }
+
     public class EmploymentDetail
     {
         public long EmploymentDetailID { get; set; }
@@ -25,5 +32,16 @@ namespace HRMS.Models.Employee
         public DateTime? InsertedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
 
+        public List<SelectListItem> EmploymentTypes = new List<SelectListItem>();
+        public List<SelectListItem> Departments = new List<SelectListItem>();
+        public List<SelectListItem> JobLocations = new List<SelectListItem>();
+        public List<SelectListItem> Designations = new List<SelectListItem>();
+        public List<EmployeeListModel> EmployeeList = new List<EmployeeListModel>();
+    }
+
+    public class EmployeeListModel
+    {
+        public long EmployeeID { get; set; }
+        public Guid guid { get; set; }
     }
 }
