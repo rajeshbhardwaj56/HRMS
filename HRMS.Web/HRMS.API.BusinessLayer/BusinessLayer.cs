@@ -19,6 +19,7 @@ using HRMS.Models.Company;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
+using HRMS.Models;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -335,7 +336,6 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-
         public Results GetAllCompanyLanguages(long companyID)
         {
             Results model = new Results();
@@ -365,7 +365,6 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-
 
         public Results GetAllCompanyDepartments(long companyID)
         {
@@ -398,6 +397,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
+        #region Employee
         public Results GetAllCompanyEmployeeTypes(long companyID)
         {
             Results model = new Results();
@@ -427,9 +427,6 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-
-
-
         public Result AddUpdateEmployee(EmployeeModel employeeModel)
         {
             Result model = new Result();
@@ -437,7 +434,7 @@ namespace HRMS.API.BusinessLayer
 
             sqlParameter.Add(new SqlParameter("@EmployeeID", employeeModel.EmployeeID));
             sqlParameter.Add(new SqlParameter("@RetEmployeeID", employeeModel.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));            
+            sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@FirstName", employeeModel.FirstName));
             sqlParameter.Add(new SqlParameter("@MiddleName", employeeModel.MiddleName));
             sqlParameter.Add(new SqlParameter("@Surname", employeeModel.Surname));
@@ -502,8 +499,9 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
+        #endregion
 
-
+        #region Templates
         public Results GetAllTemplates(TemplateInputParams model)
         {
             Results result = new Results();
@@ -526,7 +524,7 @@ namespace HRMS.API.BusinessLayer
                                   TemplateName = dataRow.Field<string>("TemplateName")
                               }).ToList();
 
-            if (model.CompanyID > 0)
+            if (model.TemplateID > 0)
             {
                 result.templateModel = result.Template.FirstOrDefault();
             }
@@ -561,7 +559,9 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
+        #endregion
 
+        #region Companies
         public Results GetAllCompanies(EmployeeInputParams model)
         {
             Results result = new Results();
@@ -629,6 +629,7 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
+        #endregion
 
         #region Leave Policies
         public Results GetAllLeavePolicies(LeavePolicyInputParans model)
@@ -703,6 +704,66 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
+        #endregion
+
+        #region Holidays
+
+        public Results GetAllHolidays(HolidayInputParams model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter =
+            [
+                new SqlParameter("@CompanyID", model.CompanyID),
+                new SqlParameter("@HolidayID", model.HolidayID),
+            ];
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayDetails, sqlParameter);
+            result.Holiday = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new HolidayModel
+                              {
+                                  HolidayID = dataRow.Field<long>("HolidayID"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  HolidayName = dataRow.Field<string>("HolidayName"),
+                                  Date = dataRow.Field<DateTime>("Date"),
+                                  Description = dataRow.Field<string>("Description"),
+                                  Status = dataRow.Field<bool>("Status"),
+                              }).ToList();
+
+            if (model.HolidayID > 0)
+            {
+                result.holidayModel = result.Holiday.FirstOrDefault();
+            }
+
+            return result;
+        }
+
+        public Result AddUpdateHoliday(HolidayModel HolidayModel)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@HolidayID", HolidayModel.HolidayID));
+            sqlParameter.Add(new SqlParameter("@HolidayName", HolidayModel.HolidayName));
+            sqlParameter.Add(new SqlParameter("@Date", HolidayModel.Date));
+            sqlParameter.Add(new SqlParameter("@CompanyID", HolidayModel.CompanyID));
+            sqlParameter.Add(new SqlParameter("@Status", HolidayModel.Status));
+            sqlParameter.Add(new SqlParameter("@Description", HolidayModel.Description));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Holiday, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString()
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
+
         #endregion
 
         #region Leaves

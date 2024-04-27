@@ -99,6 +99,6 @@ namespace HRMS.Models.Common
         public const string GetLeaveDurationTypes = "GetLeaveDurationTypes";
         public const string GetLeaveTypes = "GetLeaveTypes";
         public const string AddUpdateHoliday = "AddUpdateHoliday";
-        public const string GetAllHoliday = "GetAllHoliday";
+        public const string GetAllHolidays = "GetAllHolidays";
     }
 }

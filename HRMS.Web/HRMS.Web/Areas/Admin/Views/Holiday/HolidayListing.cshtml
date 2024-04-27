@@ -22,10 +22,9 @@
             <tr>
                 <th class="first" style="visibility:hidden"> /th>
                 <th>Holiday Name</th>
-                <th>Company ID</th>
-                <th>Letter Head Name</th>
-                <th>Header Image</th>
-                <th>Footer Image</th>
+                <th>Holiday Date</th>
+                <th>Description</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -49,28 +48,22 @@
             "searching": true,
             "info": true,
             "columns": [
-                { "data": "HolidayID", "autoWidth": true, },
-                { "data": "HolidayName", "autoWidth": true, },
-                { "data": "companyID", "autoWidth": true, },
-                { "data": "letterHeadName", "autoWidth": true },
+                { "data": "holidayID", "autoWidth": true, },
+                { "data": "holidayName", "autoWidth": true, },
                 {
-                    "data": "headerImage",
-                    "render": function (data, type, row) {
-                        return '<img src="' + data + '" alt="Header Image" style="width:30px;">';
+                    "data": "date", "autoWidth": true, "render": function (data, type, row) {
+                        var dateObj = new Date(data);
+                        var formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); // Change the format as per your requirement
+                        return formattedDate;
                     }
                 },
-                {
-                    "data": "footerImage",
-                    "render": function (data, type, row) {
-                        return '<img src="' + data + '" alt="Footer Image" style="width:30px;">';
-                    }
-                },
-
+                { "data": "description", "autoWidth": true },
+                { "data": "status", "autoWidth": true },
 
                 {
                     // this is Actions Column
                     mRender: function (data, type, row) {
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.HolidayID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.holidayID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
                         return linkEdit;
                     }
                 },
