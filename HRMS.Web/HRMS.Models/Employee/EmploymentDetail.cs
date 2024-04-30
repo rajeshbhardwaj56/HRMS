@@ -11,6 +11,7 @@ namespace HRMS.Models.Employee
     {
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
+        public long UserID { get; set; }
     }
 
     public class EmploymentDetail
@@ -26,7 +27,7 @@ namespace HRMS.Models.Employee
         public string OfficialContactNo { get; set; } = string.Empty;
         public DateTime? JoiningDate { get; set; }
         public DateTime? JobSeprationDate { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; }
         public long UserID { get; set; }
         public DateTime? InsertedDate { get; set; }

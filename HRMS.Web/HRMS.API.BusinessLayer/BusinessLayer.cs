@@ -669,7 +669,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-       
+
         public Result AddUpdateCompany(CompanyModel companyModel)
         {
             Result model = new Result();
@@ -748,14 +748,38 @@ namespace HRMS.API.BusinessLayer
 
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
         {
-            EmploymentDetail employmentDetail = new EmploymentDetail();
+
 
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetailsFormDetails, sqlParameter);
+            EmploymentDetail employmentDetail = dataSet.Tables[5].AsEnumerable()
+                            .Select(dataRow => new EmploymentDetail()
+                            {
+                                EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
+                                EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
+                                DesignationID = dataRow.Field<long>("DesignationID"),
+                                DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                ReportingToID = dataRow.Field<long>("ReportingToID"),
+                                OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
+                                OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
+                                JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
+                                JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
+                            }).ToList().FirstOrDefault();
 
-            employmentDetail.JobLocations= dataSet.Tables[0].AsEnumerable()
+            if (employmentDetail == null)
+            {
+                employmentDetail = new EmploymentDetail();
+            }
+            if (employmentDetail.EmployeeID <= 0)
+            {
+                employmentDetail.EmployeeID = model.EmployeeID;
+            }
+            employmentDetail.UserID = model.UserID;
+            employmentDetail.JobLocations = dataSet.Tables[0].AsEnumerable()
                                .Select(dataRow => new SelectListItem
                                {
                                    Text = dataRow.Field<string>("Name"),

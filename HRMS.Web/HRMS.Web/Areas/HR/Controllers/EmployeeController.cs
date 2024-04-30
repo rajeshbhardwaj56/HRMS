@@ -231,12 +231,15 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpGet]
         public ActionResult EmploymentDetails(string id)
         {
-            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
+            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
+            {
+                UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
+            };
             if (!string.IsNullOrEmpty(id))
             {
-                employmentDetailInputParams.EmployeeID = long.Parse(id);
+                employmentDetailInputParams.EmployeeID = long.Parse(id);                
             }
-            employmentDetailInputParams.CompanyID= Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             EmploymentDetail employmentDetail = new EmploymentDetail();
             var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(data);
@@ -252,10 +255,11 @@ namespace HRMS.Web.Areas.HR.Controllers
                 var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Result result = JsonConvert.DeserializeObject<Result>(data);
             }
-            else {
+            else
+            {
                 EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
                 employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-               
+
                 var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(data);
                 employmentDetail.EmployeeList = employmentDetailtemp.EmployeeList;
@@ -266,6 +270,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             return View(employmentDetail);
         }
-        
+
     }
 }
