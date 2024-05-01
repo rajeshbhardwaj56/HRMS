@@ -20,6 +20,7 @@ namespace HRMS.Models.Employee
 
     public class EmployeeModel
     {
+        public string EncryptedIdentity { get; set; } = string.Empty;
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
         public long CompanyID { get; set; } = 1;

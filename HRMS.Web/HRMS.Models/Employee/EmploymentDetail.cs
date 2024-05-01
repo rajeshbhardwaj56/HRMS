@@ -16,6 +16,7 @@ namespace HRMS.Models.Employee
 
     public class EmploymentDetail
     {
+        public string EncryptedIdentity { get; set; } = string.Empty;
         public long EmploymentDetailID { get; set; }
         public long EmployeeID { get; set; }
         public long DesignationID { get; set; }

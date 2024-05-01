@@ -6,7 +6,7 @@
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 
-    ViewData["Title"] = "Employee";
+    ViewData["Title"] = "Manage Employee";
     var CompanyLogo = "";
     if (!string.IsNullOrEmpty(Model.CompanyLogo))
     {
@@ -18,7 +18,7 @@
     }
 }
 
-<div class="main-header anim" style="--delay: 0s">New Company</div>
+<div class="main-header anim" style="--delay: 0s">Manage Company</div>
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
 

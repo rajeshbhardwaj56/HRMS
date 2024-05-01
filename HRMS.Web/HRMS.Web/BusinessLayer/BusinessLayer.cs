@@ -1,6 +1,7 @@
 ﻿using HRMS.Models.Common;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using System.Buffers.Text;
 using System.Data;
 using System.Text;
 
@@ -19,6 +20,8 @@ namespace HRMS.Web.BusinessLayer
         public string GetFormattedAPIUrl(string ApiControllarName, string APIActionName);
 
         public string ConvertIFormFileToBase64(IFormFile file);
+        public string EncodeStringBase64(string plainText);
+        public string DecodeStringBase64(string base64EncodedData);
     }
 
 
@@ -136,5 +139,17 @@ namespace HRMS.Web.BusinessLayer
             return null; // Or throw an exception, depending on your requirements
         }
 
+
+        public string EncodeStringBase64(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
+
+        public string DecodeStringBase64(string base64EncodedData)
+        {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
     }
 }

@@ -9,6 +9,7 @@ namespace HRMS.Models.Company
 {
     public class CompanyModel
     {
+        public string EncryptedIdentity { get; set; } = string.Empty;
         public long CompanyID { get; set; }
         public string Name { get; set; } = string.Empty;
         public string DefaultLetterHead { get; set; } = string.Empty;

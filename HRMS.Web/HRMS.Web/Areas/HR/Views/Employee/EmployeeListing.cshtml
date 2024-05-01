@@ -68,8 +68,8 @@
                     // this is Actions Column
                     mRender: function (data, type, row) {
                         // alert(JSON.stringify(row))
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.employeeID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                       var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.employeeID + '"  title=""  data-original-title="Edit"><img src="/assets/img/ReadyStatus.svg" width="20" height="20" /></a></div>';
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/ReadyStatus.svg" width="20" height="20" /></a></div>';
 
                         return linkEdit+moveToActiveEmployee;
                     }

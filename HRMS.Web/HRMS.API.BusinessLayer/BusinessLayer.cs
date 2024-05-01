@@ -642,7 +642,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
-            result.Companies = dataSet.Tables[0].AsEnumerable()
+            result.companyModel = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new CompanyModel
                               {
                                   CompanyID = dataRow.Field<long>("CompanyID"),
@@ -658,12 +658,12 @@ namespace HRMS.API.BusinessLayer
                                   TaxID = dataRow.Field<string>("TaxID"),
                                   IsGroup = dataRow.Field<bool>("IsGroup"),
 
-                              }).ToList();
+                              }).ToList().FirstOrDefault();
 
-            if (model.CompanyID > 0)
-            {
-                result.companyModel = result.Companies.FirstOrDefault();
-            }
+            //if (model.CompanyID > 0)
+            //{
+            //    result.companyModel = result.Companies.FirstOrDefault();
+            //}
 
             return result;
         }

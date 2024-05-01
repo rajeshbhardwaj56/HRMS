@@ -26,7 +26,9 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         public IActionResult CompanyListing()
         {
-            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            EmployeeInputParams employee = new EmployeeInputParams();
+            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             return View(results);
         }
 
@@ -34,7 +36,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         [AllowAnonymous]
         public JsonResult CompanyListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            EmployeeInputParams employee = new EmployeeInputParams();            
+            EmployeeInputParams employee = new EmployeeInputParams();
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             return Json(new { data = results.Companies });
@@ -42,9 +44,9 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         public IActionResult Index(string id)
         {
-            CompanyModel model = new CompanyModel();           
+            CompanyModel model = new CompanyModel();
 
-            if (!string.IsNullOrEmpty(id))
+            //if (!string.IsNullOrEmpty(id))
             {
                 model.CompanyID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();

@@ -49,6 +49,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
             return Json(new { data = results.Employees });
         }
 
@@ -70,6 +71,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             else
             {
+                id = _businessLayer.DecodeStringBase64(id);
                 employee.EmployeeID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
@@ -225,6 +227,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllActiveEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
             return Json(new { data = results.Employees });
         }
 
@@ -237,13 +240,14 @@ namespace HRMS.Web.Areas.HR.Controllers
             };
             if (!string.IsNullOrEmpty(id))
             {
-                employmentDetailInputParams.EmployeeID = long.Parse(id);                
+                id = _businessLayer.DecodeStringBase64(id);
+                employmentDetailInputParams.EmployeeID = long.Parse(id);
             }
             employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             EmploymentDetail employmentDetail = new EmploymentDetail();
             var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(data);
-
+            employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
             return View(employmentDetail);
         }
 
