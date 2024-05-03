@@ -9,15 +9,16 @@
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
-
-<div class="addcomp px-4">
+<div class="main-header anim" style="--delay: 0s">Leave Policy List  <a href="~/Admin/LeavePolicy"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Leave Policy</button></a></div>
+@* <div class="addcomp px-4">
     <h4>Leave Policy List</h4>
     <a href="~/Admin/LeavePolicy"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Leave Policy</button></a>
-</div>
+</div> *@
 
+<div class="table-responsive py-3">
 
-<div class="container-fluid">
     <table id="tblLeavePolicyListing" class="table table-striped body-text" style="width:100%">
+
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden"> /th>
