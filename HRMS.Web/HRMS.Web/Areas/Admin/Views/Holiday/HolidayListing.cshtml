@@ -10,13 +10,14 @@
     var Err = TempData["Error"];
 }
 
-<div class="addcomp px-4">
+<div class="main-header anim" style="--delay: 0s">Holiday List  <a href="~/Admin/Holiday"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Holiday</button></a></div>
+@* <div class="addcomp px-4">
     <h4>Holiday List</h4>
     <a href="~/Admin/Holiday"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Holiday</button></a>
-</div>
+</div> *@
 
 
-<div class="container-fluid">
+<div class="table-responsive py-3">
     <table id="tblHolidayListing" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
