@@ -20,6 +20,7 @@ using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
 using HRMS.Models;
+using System.Net;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -655,8 +656,13 @@ namespace HRMS.API.BusinessLayer
                                   Domain = dataRow.Field<string>("Domain"),
                                   Name = dataRow.Field<string>("Name"),
                                   ParentCompany = dataRow.Field<string>("ParentCompany"),
-                                  TaxID = dataRow.Field<string>("TaxID"),
+                                  GSTIN = dataRow.Field<string>("GSTIN"),
                                   IsGroup = dataRow.Field<bool>("IsGroup"),
+                                  CIN = dataRow.Field<string>("CIN"),
+                                  Address = dataRow.Field<string>("Address"),
+                                  City = dataRow.Field<string>("City"),
+                                  State = dataRow.Field<string>("State"),
+                                  Phone = dataRow.Field<string>("Phone")                                
 
                               }).ToList().FirstOrDefault();
 
@@ -677,9 +683,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@CompanyID", companyModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@RetCompanyID", companyModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@Abbr", companyModel.Abbr));
-            sqlParameter.Add(new SqlParameter("@CountryID", companyModel.CountryID));
-            sqlParameter.Add(new SqlParameter("@DefaultCurrencyID", companyModel.DefaultCurrencyID));
-            sqlParameter.Add(new SqlParameter("@TaxID", companyModel.TaxID));
+           
+            sqlParameter.Add(new SqlParameter("@DefaultCurrencyID", companyModel.DefaultCurrencyID));            
             sqlParameter.Add(new SqlParameter("@Name", companyModel.Name));
             sqlParameter.Add(new SqlParameter("@DefaultLetterHead", companyModel.DefaultLetterHead));
             sqlParameter.Add(new SqlParameter("@Domain", companyModel.Domain));
@@ -688,7 +693,14 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@ParentCompany", companyModel.ParentCompany));
             sqlParameter.Add(new SqlParameter("@CompanyLogo", companyModel.CompanyLogo));
 
-
+            sqlParameter.Add(new SqlParameter("@GSTIN", companyModel.GSTIN));
+            sqlParameter.Add(new SqlParameter("@CIN", companyModel.CIN));
+            sqlParameter.Add(new SqlParameter("@Address", companyModel.Address));
+            sqlParameter.Add(new SqlParameter("@City", companyModel.City));
+            sqlParameter.Add(new SqlParameter("@State", companyModel.State));
+            sqlParameter.Add(new SqlParameter("@Phone", companyModel.Phone));
+            sqlParameter.Add(new SqlParameter("@CountryID", companyModel.CountryID));
+          
             SqlParameterCollection pOutputParams = null;
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Company, sqlParameter, ref pOutputParams);
