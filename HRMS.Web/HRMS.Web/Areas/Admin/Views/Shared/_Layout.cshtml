@@ -35,7 +35,7 @@
     @* CK Editor file *@
     @* <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js"></script> *@
     <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/decoupled-document/ckeditor.js"></script>
-
+    <script src="~/assets/js/jquery.toast.js"></script>
     @* <style>
         li.top-bar:hover, li.top-bar:active {
             background-color: white;
@@ -378,10 +378,7 @@
 
 
 
-   @*  <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script> *@
-    @await RenderSectionAsync("Scripts", required: false)
+ 
 
     <script>
         $(window)
@@ -427,5 +424,10 @@
             })
         });
     </script>
+     @Html.Partial("_Toast")
+    @*  <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script> *@
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

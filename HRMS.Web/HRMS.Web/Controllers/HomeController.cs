@@ -71,12 +71,14 @@ namespace HRMS.Web.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occured, please try later.";
             }
             return View(loginModel);
         }
 
         private IActionResult LoginAndRedirect(LoginUser loginModel)
-        {
+        {           
             var data = _businessLayer.SendPostAPIRequest(loginModel, "Login", HttpContext.Session.GetString(Constants.SessionBearerToken), false).Result.ToString();
             var result = JsonConvert.DeserializeObject<LoginUser>(data);
 
@@ -104,7 +106,8 @@ namespace HRMS.Web.Controllers
             }
             else
             {
-                ViewBag.Message = "Invalid Credential";
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid login credentials, Please try with correct user name and password.";               
             }
             return View("Index", loginModel);
         }

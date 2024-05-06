@@ -10,6 +10,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
     {
         public IActionResult Index()
         {
+           
             return View();
         }
     }

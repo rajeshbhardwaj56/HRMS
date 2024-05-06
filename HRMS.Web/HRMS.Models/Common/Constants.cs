@@ -8,6 +8,14 @@ namespace HRMS.Models.Common
 {
     public class Constants
     {
+
+        public const string toastTypeSuccess = "Success";
+        public const string toastTypeInformation = "Information";
+        public const string toastTypetWarning = "Warning";
+        public const string toastTypeError = "Error";
+
+        public const string toastMessage = "toastMessage";
+        public const string toastType = "toastType";
         public const string SessionBearerToken = "SessionBearerToken";
         public const string UserName = "UserName";
         public const string Email = "Email";
@@ -92,11 +100,11 @@ namespace HRMS.Models.Common
         public const string GetAllLeavePolicies = "GetAllLeavePolicies";
         public const string AddUpdateEmployee = "AddUpdateEmployee";
         public const string GetAllEmployees = "GetAllEmployees";
-        public const string GetAllActiveEmployees = "GetAllActiveEmployees";        
+        public const string GetAllActiveEmployees = "GetAllActiveEmployees";
         public const string AddUpdateTemplate = "AddUpdateTemplate";
         public const string GetAllTemplates = "GetAllTemplates";
         public const string AddUpdateCompany = "AddUpdateCompany";
-        public const string GetAllCompanies = "GetAllCompanies";       
+        public const string GetAllCompanies = "GetAllCompanies";
         public const string GetAllLeavePolicys = "GetAllLeavePolicys";
         public const string GetlLeavesSummary = "GetlLeavesSummary";
         public const string GetMyInfo = "GetMyInfo";
@@ -107,6 +115,7 @@ namespace HRMS.Models.Common
         public const string GetAllHolidays = "GetAllHolidays";
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
-        
+
+
     }
 }
