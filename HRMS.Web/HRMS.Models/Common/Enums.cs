@@ -18,4 +18,18 @@ namespace HRMS.Models.Common
         NotApproved,
         Cancelled
     }
+    public enum Status
+    {
+        Present,
+        Absent,
+        OnLeave,
+        HalfDay,
+        Holiday,
+        WorkFromHome
+    }
+    public enum ShiftSelection
+    {
+        Day = 1,
+        Night = 2
+    }
 }

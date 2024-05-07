@@ -6,12 +6,7 @@ using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
 using HRMS.Models.Template;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HRMS.Models.AttendenceList;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -39,5 +34,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public MyInfoResults GetMyInfo(MyInfoInputParams model);
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
+        public Results GetAllAttendenceList(AttendenceListInputParans model);
+        public Result AddUpdateAttendenceList(AttendenceListModel model);
+        public Results GetAllEmployees();
     }
 }

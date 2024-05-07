@@ -54,5 +54,14 @@ namespace HRMS.API.Web.Controllers.Common
             return response;
         }
 
+        [HttpGet]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetAllEmployees()
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllEmployees());
+            return response;
+        }
+
     }
 }

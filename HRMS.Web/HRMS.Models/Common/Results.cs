@@ -3,12 +3,14 @@ using HRMS.Models.Template;
 using HRMS.Models.Company;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.LeavePolicy;
+using HRMS.Models.AttendenceList;
 
 namespace HRMS.Models.Common
 {
     public class Results
     {
         public Result Result { get; set; } = new Result();
+        public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Countries { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Currencies { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Languages { get; set; } = new List<SelectListItem>();
@@ -26,6 +28,8 @@ namespace HRMS.Models.Common
 
         public List<HolidayModel> Holiday { get; set; } = new List<HolidayModel>();
         public HolidayModel holidayModel { get; set; } = new HolidayModel();
+        public List<AttendenceListModel> AttendenceList { get; set; } = new List<AttendenceListModel>();
+        public AttendenceListModel AttendenceListModel { get; set; } = new AttendenceListModel();
 
     }
 
