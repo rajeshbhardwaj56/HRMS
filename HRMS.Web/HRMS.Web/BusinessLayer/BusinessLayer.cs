@@ -1,4 +1,7 @@
-﻿using HRMS.Models.Common;
+﻿using DocumentFormat.OpenXml.EMMA;
+using HRMS.Models.Common;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using System.Buffers.Text;
@@ -22,6 +25,8 @@ namespace HRMS.Web.BusinessLayer
         public string ConvertIFormFileToBase64(IFormFile file);
         public string EncodeStringBase64(string plainText);
         public string DecodeStringBase64(string base64EncodedData);
+        public string GetSatutation();
+        public string GetProfilePhoto();
     }
 
 
@@ -30,10 +35,12 @@ namespace HRMS.Web.BusinessLayer
         public string bearerToken { get; set; }
         private static readonly object Locker = new object();
         private HttpClient _httpClient;
+        Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor;
         public string BaseAPIUrl { get; set; }
         public IConfiguration _configuration { get; set; }
-        public BusinessLayer(IConfiguration configuration)
+        public BusinessLayer(IConfiguration configuration, Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor)
         {
+            httpContextAccessor = HttpContextAccessor;
             _configuration = configuration;
             _httpClient = new HttpClient();
             BaseAPIUrl = _configuration.GetSection("AppSettings").GetSection("BaseAPIUrl").Value;
@@ -150,6 +157,43 @@ namespace HRMS.Web.BusinessLayer
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        public string GetSatutation()
+        {
+            String Satutation = string.Empty;
+            if (DateTime.Now.Hour <= 12)
+            {
+                Satutation = "Good Morning";
+            }
+            else if (DateTime.Now.Hour <= 16)
+            {
+                Satutation = "Good Afternoon";
+            }
+            else if (DateTime.Now.Hour <= 20)
+            {
+
+                Satutation = "Good Evening";
+            }
+            else
+            {
+                Satutation = "Good Evening";
+            }
+            return Satutation;
+        }
+
+        public string GetProfilePhoto()
+        {
+            var ProfilePhoto = "";
+            if (!string.IsNullOrEmpty(httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto)))
+            {
+                ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeID) + "/" + httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto);
+            }
+            else
+            {
+                ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+            }
+            return ProfilePhoto;
         }
     }
 }

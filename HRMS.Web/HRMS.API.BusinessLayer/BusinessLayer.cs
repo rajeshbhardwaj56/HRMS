@@ -21,6 +21,8 @@ using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
 using HRMS.Models;
 using System.Net;
+using HRMS.Models.DashBoard;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -662,7 +664,7 @@ namespace HRMS.API.BusinessLayer
                                   Address = dataRow.Field<string>("Address"),
                                   City = dataRow.Field<string>("City"),
                                   State = dataRow.Field<string>("State"),
-                                  Phone = dataRow.Field<string>("Phone")                                
+                                  Phone = dataRow.Field<string>("Phone")
 
                               }).ToList().FirstOrDefault();
 
@@ -683,8 +685,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@CompanyID", companyModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@RetCompanyID", companyModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@Abbr", companyModel.Abbr));
-           
-            sqlParameter.Add(new SqlParameter("@DefaultCurrencyID", companyModel.DefaultCurrencyID));            
+
+            sqlParameter.Add(new SqlParameter("@DefaultCurrencyID", companyModel.DefaultCurrencyID));
             sqlParameter.Add(new SqlParameter("@Name", companyModel.Name));
             sqlParameter.Add(new SqlParameter("@DefaultLetterHead", companyModel.DefaultLetterHead));
             sqlParameter.Add(new SqlParameter("@Domain", companyModel.Domain));
@@ -700,7 +702,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@State", companyModel.State));
             sqlParameter.Add(new SqlParameter("@Phone", companyModel.Phone));
             sqlParameter.Add(new SqlParameter("@CountryID", companyModel.CountryID));
-          
+
             SqlParameterCollection pOutputParams = null;
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Company, sqlParameter, ref pOutputParams);
@@ -1076,6 +1078,41 @@ namespace HRMS.API.BusinessLayer
         }
 
 
+        public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model)
+        {
+            DashBoardModel dashBoardModel = new DashBoardModel();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDashBoardDetails, sqlParameter);
+            dashBoardModel = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new DashBoardModel
+                              {
+                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                  guid = dataRow.Field<Guid>("guid"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
+                                  FirstName = dataRow.Field<string>("FirstName"),
+                                  MiddleName = dataRow.Field<string>("MiddleName"),
+                                  Surname = dataRow.Field<string>("Surname"),
+                              }).ToList().FirstOrDefault();
+
+            var OtherDetails = dataSet.Tables[1].AsEnumerable()
+                              .Select(dataRow => new DashBoardModel
+                              {
+                                  NoOfEmployees = dataRow.Field<int>("NoOfEmployees"),
+                                  NoOfCompanies = dataRow.Field<int>("NoOfCompanies")
+                              }).ToList().FirstOrDefault();
+
+            if (dashBoardModel == null)
+            {
+                dashBoardModel = new DashBoardModel();
+            }
+
+            dashBoardModel.NoOfEmployees = OtherDetails.NoOfEmployees;
+            dashBoardModel.NoOfCompanies = OtherDetails.NoOfCompanies;
+
+            return dashBoardModel;
+        }
 
         #endregion
 

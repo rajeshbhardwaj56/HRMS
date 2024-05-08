@@ -9,7 +9,7 @@ namespace HRMS.API.Web.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class CompanyController : ControllerBase
     {
         IConfiguration _configuration;

@@ -1,6 +1,7 @@
 ﻿using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Company;
+using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
@@ -44,5 +45,6 @@ namespace HRMS.API.BusinessLayer.ITF
         
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
+        public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model);
     }
 }

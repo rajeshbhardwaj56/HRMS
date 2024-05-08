@@ -23,6 +23,8 @@ namespace HRMS.Models.Common
         public const string RoleID = "RoleID";
         public const string CompanyID = "CompanyID";
         public const string EmployeeID = "EmployeeID";
+        public const string ProfilePhoto = "ProfilePhoto";
+        
         public const string AreaName = "AreaName";
         public const string Role = "Role";
         public const string Alias = "Alias";
@@ -73,6 +75,8 @@ namespace HRMS.Models.Common
 
     public class APIControllarsConstants
     {
+
+        public const string DashBoard = "DashBoard";
         public const string Employee = "Employee";
         public const string Template = "Template";
         public const string Company = "Company";
@@ -115,6 +119,7 @@ namespace HRMS.Models.Common
         public const string GetAllHolidays = "GetAllHolidays";
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
+        public const string GetDashBoardodel = "GetDashBoardodel";
 
 
     }
