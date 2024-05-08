@@ -23,73 +23,87 @@
 <div class="main-header anim" style="--delay: 0s">My Info</div>
 
 
-    <section class="upper-section d-flex">
+<section class="upper-section d-flex">
 
-        <div class="container-fluid">
-            <div class="profile-header d-flex ">
-                <div class="profile-header-img">
-                        <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"  class="rounded-circle fixed z-5" />
-                </div>
-                <div class="profile-header-small-info">
-                        <h2>@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
+    <div class="container-fluid">
+        <div class="profile-header d-flex ">
+            <div class="profile-header-img">
+                <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="rounded-circle fixed z-5" />
+            </div>
+            <div class="profile-header-small-info">
+                <h2>@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
                 <p class="joiningDate">
-                    <b>Joining Date:</b> Jan 02, 2024 <span>0y - 63d</span>
-                </p>
-                    <div class="myinfo-menu">
-                        <ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Personal Info</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="true">Professional Info</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance"  role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Profile</a>
-                            </li>
+                    <b>Joining Date:</b> &nbsp;@Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyy") &nbsp;
+                    @{                        
+                        if (Model.employmentDetail.JoiningDate != null)
+                        {                           
 
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#timeoff"  role="tab" aria-controls="timeoff" aria-selected="false" tabindex="-1">Time Off</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance"  role="tab" aria-controls="attendance" aria-selected="true">Attendance</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance"  role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance"  role="tab" aria-controls="attendance" aria-selected="true">Separation</a>
-                            </li>
-                        </ul>
-                    </div>
+                            DateTime zeroTime = new DateTime(1, 1, 1);
+                            DateTime TodayDate = DateTime.Now;
+                            DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
+                            TimeSpan span = TodayDate - JoiningDate;
+                            int years = (zeroTime + span).Year - 1;
+                            var Month = (TodayDate - JoiningDate.AddYears(years));
+                            var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
+                            <span>@(years)y - @(Days)d</span>
+                        }
+                    }
+                </p>
+                <div class="myinfo-menu">
+                    <ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Personal Info</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="true">Professional Info</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Profile</a>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#timeoff" role="tab" aria-controls="timeoff" aria-selected="false" tabindex="-1">Time Off</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="true">Attendance</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="true">Separation</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-3 py-4">
             @* <div class="card z-0" style="">
-                <div class="card-body body-side-text">
+            <div class="card-body body-side-text">
 
-                    <div class="px-3 pt-5">
-                        <h6 class="card-title">Joining Date:</h6>
-                        <p>
-                            Jan 02, 2024 <br>
-                            0y - 63d
+            <div class="px-3 pt-5">
+            <h6 class="card-title">Joining Date:</h6>
+            <p>
+            Jan 02, 2024 <br>
+            0y - 63d
 
-                        </p>
-                    </div>
-                    <hr>
-                    <ul class="list-group py-1 pb-4">
-                        <li class="list-group-item"><img src="/assets/img/icons/id.png" width="20" height="20" title="Employee ID">&nbsp;&nbsp;ELS0349</li>
-                        <li class="list-group-item"><img src="/assets/img/icons/status.png" width="20" height="20" title="Status">&nbsp;&nbsp;Active - Full Time</li>
-                        <li class="list-group-item"><img src="/assets/img/icons/designation.png" width="20" height="20" title="Designation">&nbsp;&nbsp;Business Analyst</li>
-                        <li class="list-group-item"><img src="/assets/img/icons/department.png" width="20" height="20" title="Department">&nbsp;&nbsp;Operations</li>
-                        <li class="list-group-item"><img src="/assets/img/icons/location.png" width="20" height="20" title="Location">&nbsp;&nbsp;Mohali, Punjab</li>
-                    </ul>
-                </div>
+            </p>
+            </div>
+            <hr>
+            <ul class="list-group py-1 pb-4">
+            <li class="list-group-item"><img src="/assets/img/icons/id.png" width="20" height="20" title="Employee ID">&nbsp;&nbsp;ELS0349</li>
+            <li class="list-group-item"><img src="/assets/img/icons/status.png" width="20" height="20" title="Status">&nbsp;&nbsp;Active - Full Time</li>
+            <li class="list-group-item"><img src="/assets/img/icons/designation.png" width="20" height="20" title="Designation">&nbsp;&nbsp;Business Analyst</li>
+            <li class="list-group-item"><img src="/assets/img/icons/department.png" width="20" height="20" title="Department">&nbsp;&nbsp;Operations</li>
+            <li class="list-group-item"><img src="/assets/img/icons/location.png" width="20" height="20" title="Location">&nbsp;&nbsp;Mohali, Punjab</li>
+            </ul>
+            </div>
             </div> *@
             <ul class="list-group py-1 pb-4">
                 <li class="list-group-item"><img src="/assets/img/icons/id.png" width="20" height="20" title="Employee ID">&nbsp;&nbsp;ELS0349</li>

@@ -1148,6 +1148,7 @@ namespace HRMS.API.BusinessLayer
             employeeInputParams.EmployeeID = model.EmployeeID;
             employeeInputParams.CompanyID = model.CompanyID;
             myInfoResults.employeeModel = GetAllEmployees(employeeInputParams).employeeModel;
+            myInfoResults.employmentDetail=GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() {  EmployeeID= model .EmployeeID, CompanyID=model.CompanyID});
             return myInfoResults;
         }
 

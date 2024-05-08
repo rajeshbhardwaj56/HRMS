@@ -62,10 +62,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(data);
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave applied successfully.";
                 return RedirectToActionPermanent(
                   Constants.Index,
                    WebControllarsConstants.MyInfo,
-                 new { id = result.PKNo.ToString() });
+                 new { id = _businessLayer.EncodeStringBase64(result.PKNo.ToString()) });
             }
             return View(model);
         }
