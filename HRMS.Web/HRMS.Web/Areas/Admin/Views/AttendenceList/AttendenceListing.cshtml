@@ -1,0 +1,119 @@
+﻿@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model Results
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Attendence List";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+
+<div class="addcomp px-4">
+    <h4>Attendence List</h4>
+    <a href="~/Admin/AttendenceList"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Attendence</button></a>
+</div>
+
+
+<div class="container-fluid">
+    <table id="tblAttendenceListing" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden" /th>
+                <th>Employee Name</th>
+                <th>Series</th>
+                <th>AttendenceDate</th>
+                <th>Status</th>
+                <th>IsActive</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#tblAttendenceListing').DataTable({
+            "ajax": {
+                "url": "GetAllAttendenceList/",
+                "type": "Post",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "id", "autoWidth": true, },
+                { "data": "employeeName", "autoWidth": true, },
+                { "data": "series", "autoWidth": true, },
+                {
+                    "data": "attendenceDate", "autoWidth": true,
+                    "render": function (data, type, row) {
+
+                        var date = new Date(data);
+                        var formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
+                        return formattedDate;
+                    }
+
+                },
+                { "data": "status", "autoWidth": true, },
+                { "data": "isActive", "autoWidth": true, },
+                //{ "data": "isCompendatory", "autoWidth": true },
+                //{ "data": "isAllowOverAllocation", "autoWidth": true }
+                //                 {
+                //     "data": "isAllowEncashment", "autoWidth": true
+                // },
+                // {
+                //     "data": "isEarnedLeave", "autoWidth": true
+                // },
+
+
+                {
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.id + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+
+                        return linkEdit;
+                    }
+                },
+            ],
+            "columnDefs": [
+                {
+                    "targets": [0], // ID column
+                    "visible": false // Hide this column
+                }
+                // {
+                //     target: 2,
+                //     visible: false,
+                //     searchable: false
+                // },
+
+                // {
+
+                //     "targets": [0], //first and last not sortable
+                //     "orderable": false,
+                //     "visible": false
+                // },
+
+                // {
+
+                //     "targets": [1], //first and last not sortable
+                //     "orderable": true,
+                //     "defaultContent": " "
+                // }
+
+            ]
+            , "responsive": true
+
+        });
+
+
+    });
+</script> 

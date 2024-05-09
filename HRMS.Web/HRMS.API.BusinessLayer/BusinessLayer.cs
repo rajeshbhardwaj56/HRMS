@@ -20,6 +20,9 @@ using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
 using HRMS.Models;
+using HRMS.Models.AttendenceList;
+using System.Reflection;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Net;
 using HRMS.Models.DashBoard;
 using Microsoft.AspNetCore.Mvc;
@@ -1078,6 +1081,10 @@ namespace HRMS.API.BusinessLayer
         }
 
 
+
+        #endregion
+
+        #region Dashboard
         public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model)
         {
             DashBoardModel dashBoardModel = new DashBoardModel();
@@ -1162,7 +1169,117 @@ namespace HRMS.API.BusinessLayer
 
             return dashBoardModel;
         }
+        #endregion
 
+        #region AttendenceList
+        public Result AddUpdateAttendenceList(AttendenceListModel AttendenceListModel)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+
+            sqlParameters.Add(new SqlParameter("@ID", AttendenceListModel.ID));
+            sqlParameters.Add(new SqlParameter("@EmployeeID", AttendenceListModel.EmployeeID));
+            sqlParameters.Add(new SqlParameter("@Series", AttendenceListModel.Series));
+            sqlParameters.Add(new SqlParameter("@AttendenceDate", AttendenceListModel.AttendenceDate));
+            sqlParameters.Add(new SqlParameter("@Status", AttendenceListModel.SelectedStatus));
+            sqlParameters.Add(new SqlParameter("@ShiftSelection", AttendenceListModel.SelectedShift.ToString()));
+            sqlParameters.Add(new SqlParameter("@LateEntry", AttendenceListModel.LateEntry));
+            sqlParameters.Add(new SqlParameter("@EarlyExit", AttendenceListModel.EarlyExit));
+            sqlParameters.Add(new SqlParameter("@CreatedAt", AttendenceListModel.CreatedAt));
+            sqlParameters.Add(new SqlParameter("@UpdatedAt", AttendenceListModel.UpdatedAt));
+            //sqlParameters.Add(new SqlParameter("@IsActive", AttendenceListModel.IsActive));
+            //sqlParameters.Add(new SqlParameter("@IsDeleted", AttendenceListModel.IsDeleted));
+            //sqlParameters.Add(new SqlParameter("@CreatedBy", AttendenceListModel.CreatedBy));
+            //sqlParameters.Add(new SqlParameter("@UpdatedBy", AttendenceListModel.UpdatedBy));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_AttendenceList, sqlParameters);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString()
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
+
+        public Results GetAllEmployees()
+        {
+            Results model = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Employees, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                  .Select(dataRow => new Results
+                  {
+                      Result = new Result()
+                      {
+                          Message = dataRow.Field<int>("Result").ToString()
+                      },
+                  }).ToList().FirstOrDefault();
+
+            }
+            else
+            {
+                model.Employee = dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new SelectListItem
+                               {
+                                   Text = dataRow.Field<string>("EmployeeName"),
+                                   Value = dataRow.Field<long>("EmployeeID").ToString()
+                               }).ToList();
+            }
+            return model;
+        }
+
+        public Results GetAllAttendenceList(AttendenceListInputParans model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            sqlParameters.Add(new SqlParameter("@ID", model.ID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AttendanceList, sqlParameters);
+            result.AttendenceList = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new AttendenceListModel
+                              {
+                                  ID = dataRow.Field<long>("ID"),
+                                  Series = dataRow.Field<string>("Series"),
+                                  AttendenceDate = dataRow.Field<DateTime>("AttendenceDate"),
+                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                  Status = dataRow.Field<string>("Status"),
+                                  ShiftSelection = dataRow.Field<int>("ShiftSelection"),
+                                  LateEntry = dataRow.Field<bool>("LateEntry"),
+                                  EarlyExit = dataRow.Field<bool>("EarlyExit"),
+                                  IsActive = dataRow.Field<bool>("IsActive"),
+                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),
+                                  CreatedAt = dataRow.Field<DateTime>("CreatedAt"),
+                                  UpdatedAt = dataRow.Field<DateTime>("UpdatedAt"),
+                                  CreatedBy = dataRow.Field<int>("CreatedBy"),
+                                  UpdatedBy = dataRow.Field<int>("UpdatedBy"),
+                                  EmployeeName = dataRow.Field<string>("EmployeeName"),
+
+                              }).ToList();
+
+            if (model.ID > 0)
+            {
+                var Attendence = result.AttendenceList.FirstOrDefault();
+                if (Attendence != null)
+                {
+                    // Set the selected status and shift values for edit case
+                    Attendence.SelectedStatus = Attendence.Status;
+
+                    Attendence.SelectedShift = Attendence.ShiftSelection.ToString();
+                }
+                result.AttendenceListModel = Attendence;
+            }
+
+            return result;
+        }
         #endregion
 
 

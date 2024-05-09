@@ -57,7 +57,8 @@ namespace HRMS.Models.Common
         public const string CKEditorImagesPath = "Uploads/ckeditor/";
         public const string NoImagePath = "/assets/img/No_image.png";
         public const string EmptySelection = "-- Please select a value --";
-
+        public const string SelectEmployee = " --Select Employee --";
+        public const string ID = "ID";
 
     }
 
@@ -86,7 +87,8 @@ namespace HRMS.Models.Common
         public const string Company = "Company";
         public const string LeavePolicy = "LeavePolicy";
         public const string Holiday = "Holiday";
-    }
+		public const string AttendenceList = "AttendenceList";
+	}
 
     public class WebControllarsConstants
     {
@@ -100,7 +102,9 @@ namespace HRMS.Models.Common
         public const string TemplateListing = "TemplateListing";
         public const string Holiday = "Holiday";
         public const string HolidayListing = "HolidayListing";
-    }
+		public const string AttendenceListing = "AttendenceListing";
+		public const string AttendenceList = "AttendenceList";
+	}
 
     public class APIApiActionConstants
     {
@@ -123,8 +127,8 @@ namespace HRMS.Models.Common
         public const string GetAllHolidays = "GetAllHolidays";
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
-        public const string GetDashBoardodel = "GetDashBoardodel";
-
-
-    }
+        public const string GetDashBoardodel = "GetDashBoardodel";    
+		public const string GetAllAttendenceList = "GetAllAttendenceList";
+		public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
+	}
 }
