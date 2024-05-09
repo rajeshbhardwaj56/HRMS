@@ -1094,6 +1094,55 @@ namespace HRMS.API.BusinessLayer
                                   FirstName = dataRow.Field<string>("FirstName"),
                                   MiddleName = dataRow.Field<string>("MiddleName"),
                                   Surname = dataRow.Field<string>("Surname"),
+                                  CorrespondenceAddress = dataRow.Field<string>("CorrespondenceAddress"),
+                                  CorrespondenceCity = dataRow.Field<string>("CorrespondenceCity"),
+                                  CorrespondencePinCode = dataRow.Field<string>("CorrespondencePinCode"),
+                                  CorrespondenceState = dataRow.Field<string>("CorrespondenceState"),
+                                  CorrespondenceCountryID = dataRow.Field<long>("CorrespondenceCountryID"),
+                                  EmailAddress = dataRow.Field<string>("EmailAddress"),
+                                  Landline = dataRow.Field<string>("Landline"),
+                                  Mobile = dataRow.Field<string>("Mobile"),
+                                  Telephone = dataRow.Field<string>("Telephone"),
+                                  PersonalEmailAddress = dataRow.Field<string>("PersonalEmailAddress"),
+                                  PermanentAddress = dataRow.Field<string>("PermanentAddress"),
+                                  PermanentCity = dataRow.Field<string>("PermanentCity"),
+                                  PermanentPinCode = dataRow.Field<string>("PermanentPinCode"),
+                                  PermanentState = dataRow.Field<string>("PermanentPinCode"),
+                                  PermanentCountryID = dataRow.Field<long>("PermanentCountryID"),
+                                  VerificationContactPersonName = dataRow.Field<string>("VerificationContactPersonName"),
+                                  VerificationContactPersonContactNo = dataRow.Field<string>("VerificationContactPersonContactNo"),
+                                  DateOfBirth = dataRow.Field<DateTime?>("DateOfBirth"),
+                                  PlaceOfBirth = dataRow.Field<string>("PlaceOfBirth"),
+                                  IsReferredByExistingEmployee = dataRow.Field<bool>("IsReferredByExistingEmployee"),
+                                  ReferredByEmployeeID = dataRow.Field<string>("ReferredByEmployeeID"),
+                                  BloodGroup = dataRow.Field<string>("BloodGroup"),
+                                  PANNo = dataRow.Field<string>("PANNo"),
+                                  AadharCardNo = dataRow.Field<string>("AadharCardNo"),
+                                  Allergies = dataRow.Field<string>("Allergies"),
+                                  RelativesDetails = dataRow.Field<string>("RelativesDetails"),
+                                  MajorIllnessOrDisability = dataRow.Field<string>("MajorIllnessOrDisability"),
+                                  AwardsAchievements = dataRow.Field<string>("AwardsAchievements"),
+                                  EducationGap = dataRow.Field<string>("EducationGap"),
+                                  ExtraCuricuarActivities = dataRow.Field<string>("ExtraCuricuarActivities"),
+                                  ForiegnCountryVisits = dataRow.Field<string>("ForiegnCountryVisits"),
+                                  ContactPersonName = dataRow.Field<string>("ContactPersonName"),
+                                  ContactPersonMobile = dataRow.Field<string>("ContactPersonMobile"),
+                                  ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
+                                  ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
+                                  ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
+
+                                  //EmploymentDetails
+                                  EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
+                                  EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
+                                  DesignationID = dataRow.Field<long>("DesignationID"),
+                                  DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                  JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                  ReportingToID = dataRow.Field<long>("ReportingToID"),
+                                  OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
+                                  OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
+                                  JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
+                                  JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate")
+
                               }).ToList().FirstOrDefault();
 
             var OtherDetails = dataSet.Tables[1].AsEnumerable()
@@ -1148,7 +1197,7 @@ namespace HRMS.API.BusinessLayer
             employeeInputParams.EmployeeID = model.EmployeeID;
             employeeInputParams.CompanyID = model.CompanyID;
             myInfoResults.employeeModel = GetAllEmployees(employeeInputParams).employeeModel;
-            myInfoResults.employmentDetail=GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() {  EmployeeID= model .EmployeeID, CompanyID=model.CompanyID});
+            myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
             return myInfoResults;
         }
 

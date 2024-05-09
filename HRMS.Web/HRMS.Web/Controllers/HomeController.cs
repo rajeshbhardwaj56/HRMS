@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Security.Claims;
+using HRMS.Models.DashBoard;
 
 namespace HRMS.Web.Controllers
 {
@@ -97,7 +98,14 @@ namespace HRMS.Web.Controllers
                 var principal = new ClaimsPrincipal(identity);
 
                 var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
+                DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
+                var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardodel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel);
+                _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+                _context.HttpContext.Session.SetString(Constants.FirstName, model.FirstName);
+                _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName);
+                _context.HttpContext.Session.SetString(Constants.Surname, model.Surname);
+                _context.HttpContext.Session.SetString(Constants.OfficialEmailID, model.OfficialEmailID);
                 return RedirectToActionPermanent(
                    Constants.Index,
                   _businessLayer.GetControllarNameByRole(result.RoleId),

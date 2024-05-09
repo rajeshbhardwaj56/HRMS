@@ -24,6 +24,10 @@ namespace HRMS.Models.Common
         public const string CompanyID = "CompanyID";
         public const string EmployeeID = "EmployeeID";
         public const string ProfilePhoto = "ProfilePhoto";
+        public const string FirstName = "FirstName";
+        public const string MiddleName = "MiddleName";
+        public const string Surname = "Surname";
+        public const string OfficialEmailID = "OfficialEmailID";
         
         public const string AreaName = "AreaName";
         public const string Role = "Role";
