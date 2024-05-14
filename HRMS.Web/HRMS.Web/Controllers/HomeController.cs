@@ -101,6 +101,9 @@ namespace HRMS.Web.Controllers
                 DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
                 var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardodel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel);
+                if (string.IsNullOrEmpty(model.ProfilePhoto)) {
+                    model.ProfilePhoto = "";
+                }
                 _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
                 _context.HttpContext.Session.SetString(Constants.FirstName, model.FirstName);
                 _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName);

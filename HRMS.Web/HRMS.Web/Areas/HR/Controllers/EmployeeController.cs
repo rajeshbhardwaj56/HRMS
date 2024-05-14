@@ -278,8 +278,16 @@ namespace HRMS.Web.Areas.HR.Controllers
 			{
 				var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 				Result result = JsonConvert.DeserializeObject<Result>(data);
-				TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-				TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
+				if (result.PKNo > 0)
+				{
+					TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+					TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
+				}
+				else
+				{
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+                }
 
 				EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
 				employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
