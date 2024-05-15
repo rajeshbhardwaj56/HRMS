@@ -30,33 +30,37 @@ namespace HRMS.Web.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public ActionResult Index(LoginUser LoginUser)
-        //{
+        public ActionResult ResetPassword(string un)
+        {
+            ResetPasswordModel model = new ResetPasswordModel();
 
-        //    var data = _businessLayer.SendPostAPIRequest(LoginUser, "Login", HttpContext.Session.GetString(Constants.SessionBearerToken), false).Result.ToString();
-        //    LoginUser = JsonConvert.DeserializeObject<LoginUser>(data);
-        //    if (LoginUser.Result == "-1")
-        //    {
+            model.UserID = un;
+            return View(model);
+        }
 
-        //    }
-        //    else
-        //    {
+        [HttpPost]
+        public ActionResult ResetPassword(ResetPasswordModel model)
+        {
+            //var _LoginService = new LoginService();
+            //try
+            //{
+            //    if (_LoginService.CheckUserByUserID(model.UserID))
+            //    {
+            //        var cus = _LoginService.ChangeUserPassword(model.UserID, model.Password);
 
-        //        HttpContext.Session.SetString(Constants.SessionBearerToken, LoginUser.token);
-        //        HttpContext.Session.SetString(Constants.UserName, LoginUser.FirstName + " " + LoginUser.LastName);
-        //        HttpContext.Session.SetString(Constants.Email, LoginUser.Email);
-        //        HttpContext.Session.SetString(Constants.UserID, LoginUser.UserID.ToString());
-        //        HttpContext.Session.SetString(Constants.RoleID, LoginUser.RoleId.ToString());
-        //        HttpContext.Session.SetString(Constants.Role, LoginUser.Role);
-        //        HttpContext.Session.SetString(Constants.Alias, LoginUser.FirstName);
-        //        // FormsAuthentication.SetAuthCookie(LoginUser.Email, false);
-        //        TempData[Constants.RoleID] = LoginUser.RoleId;
-        //        return RedirectToAction("Index", "Home");
-        //    }
-        //    return View(LoginUser);
-        //}
-
+            //        ViewBag.Success = "Password changed successfully.";
+            //    }
+            //    else
+            //    {
+            //        ViewBag.Error = "Some error occured. Please try again!";
+            //    }
+            //}
+            //catch (Exception ce)
+            //{
+            //    ViewBag.Error = "Some error occured. Please try again!";
+            //}
+            return View(model);
+        }
 
         [HttpPost]
         [AllowAnonymous]
