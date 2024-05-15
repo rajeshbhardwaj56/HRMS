@@ -278,10 +278,10 @@ namespace HRMS.Web.Areas.HR.Controllers
 			{
 				var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 				Result result = JsonConvert.DeserializeObject<Result>(data);
-				if (result.PKNo > 0)
+				if (result.PKNo > 0 && !result.Message.ToLower().Contains("exist"))
 				{
 					TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-					TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
+					TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
 				}
 				else
 				{
