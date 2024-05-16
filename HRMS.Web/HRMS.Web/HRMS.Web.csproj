@@ -259,6 +259,7 @@
     <None Include="wwwroot\assets\vendor\tinymce\themes\silver\theme.min.js" />
     <None Include="wwwroot\assets\vendor\tinymce\tinymce.js" />
     <None Include="wwwroot\assets\vendor\tinymce\tinymce.min.js" />
+    <None Include="wwwroot\css\login.css" />
   </ItemGroup>
 
   <ItemGroup>
