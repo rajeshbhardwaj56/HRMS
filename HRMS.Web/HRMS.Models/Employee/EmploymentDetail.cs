@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,28 +7,43 @@ using System.Threading.Tasks;
 
 namespace HRMS.Models.Employee
 {
-    public class EmploymentHistory
+    public class EmploymentDetailInputParams
     {
-        public long EmploymentHistoryID { get; set; }
         public long EmployeeID { get; set; }
-        public string CompanyName { get; set; } = string.Empty;
-        public string EmploymentID { get; set; } = string.Empty;//Identity card Number
-        public DateTime? From { get; set; }
-        public DateTime? To { get; set; }
-        public string Address { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string City { get; set; } = string.Empty;
-        public string State { get; set; } = string.Empty;
-        public long CountryID { get; set; }
-        public string PostalCode { get; set; } = string.Empty;
-        public string ReasionFoLeaving { get; set; } = string.Empty;
-        public string Designition { get; set; } = string.Empty;
-        public string GrossSalary { get; set; } = string.Empty;
-        public string SupervisorName { get; set; } = string.Empty;
-        public string SupervisorDesignition { get; set; } = string.Empty;
-        public string SupervisorContactNo { get; set; } = string.Empty;
-        public string HRName { get; set; } = string.Empty;
-        public string HREmail { get; set; } = string.Empty;
-        public string HRContactNo { get; set; } = string.Empty;
+        public long CompanyID { get; set; }
+        public long UserID { get; set; }
+    }
+
+    public class EmploymentDetail
+    {
+        public string EncryptedIdentity { get; set; } = string.Empty;
+        public long EmploymentDetailID { get; set; }
+        public long EmployeeID { get; set; }
+        public long DesignationID { get; set; }
+        public long EmployeeTypeID { get; set; }
+        public long DepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public long ReportingToID { get; set; }
+        public string OfficialEmailID { get; set; } = string.Empty;
+        public string OfficialContactNo { get; set; } = string.Empty;
+        public DateTime? JoiningDate { get; set; }
+        public DateTime? JobSeprationDate { get; set; }
+        public bool IsActive { get; set; } = true;
+        public bool IsDeleted { get; set; }
+        public long UserID { get; set; }
+        public DateTime? InsertedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+
+        public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> JobLocations { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Designations { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> EmployeeList { get; set; } = new List<SelectListItem>();
+    }
+
+    public class EmployeeListModel
+    {
+        public long EmployeeID { get; set; }
+        public string Name { get; set; }
     }
 }

@@ -1,9 +1,12 @@
-﻿@using HRMS.Models.Common;
+﻿@using Microsoft.AspNetCore.Http;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 
-@model Results
+@model HRMS.Models.Common.Results
 @{
-    Layout = "~/Areas/HR/Views/Shared/_Layout.cshtml";
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
     ViewData["Title"] = "Employee";
 
     var success = TempData["Success"];
@@ -21,8 +24,8 @@
     <table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
-                <th class="first" style="visibility:hidden"> /th>
-                @* <th>Employee Number</th> *@
+                <th class="first" style="visibility:hidden"> </th>
+                
                 <th >First Name</th>
                 <th>Middle Name</th>
                 <th>Surname</th>
@@ -65,8 +68,10 @@
                     // this is Actions Column
                     mRender: function (data, type, row) {
                         // alert(JSON.stringify(row))
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.employeeID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                        return linkEdit;
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/ReadyStatus.svg" width="20" height="20" /></a></div>';
+
+                        return linkEdit+moveToActiveEmployee;
                     }
                 },
 

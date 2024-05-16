@@ -32,13 +32,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             MyInfoInputParams model = new MyInfoInputParams()
             {
-                LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(id),
+                LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
             };
             model.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID));
             model.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
             model.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetMyInfo), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<MyInfoResults>(data);
+            results.leaveResults.leavesSummary.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.LeaveSummaryID.ToString()));
             return View(results);
         }
 
@@ -61,10 +62,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(data);
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave applied successfully.";
                 return RedirectToActionPermanent(
                   Constants.Index,
                    WebControllarsConstants.MyInfo,
-                 new { id = result.PKNo.ToString() });
+                 new { id = _businessLayer.EncodeStringBase64(result.PKNo.ToString()) });
             }
             return View(model);
         }

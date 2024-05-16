@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Security.Claims;
+using HRMS.Models.DashBoard;
 
 namespace HRMS.Web.Controllers
 {
@@ -29,33 +30,37 @@ namespace HRMS.Web.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public ActionResult Index(LoginUser LoginUser)
-        //{
+        public ActionResult ResetPassword(string un)
+        {
+            ResetPasswordModel model = new ResetPasswordModel();
 
-        //    var data = _businessLayer.SendPostAPIRequest(LoginUser, "Login", HttpContext.Session.GetString(Constants.SessionBearerToken), false).Result.ToString();
-        //    LoginUser = JsonConvert.DeserializeObject<LoginUser>(data);
-        //    if (LoginUser.Result == "-1")
-        //    {
+            model.UserID = un;
+            return View(model);
+        }
 
-        //    }
-        //    else
-        //    {
+        [HttpPost]
+        public ActionResult ResetPassword(ResetPasswordModel model)
+        {
+            //var _LoginService = new LoginService();
+            //try
+            //{
+            //    if (_LoginService.CheckUserByUserID(model.UserID))
+            //    {
+            //        var cus = _LoginService.ChangeUserPassword(model.UserID, model.Password);
 
-        //        HttpContext.Session.SetString(Constants.SessionBearerToken, LoginUser.token);
-        //        HttpContext.Session.SetString(Constants.UserName, LoginUser.FirstName + " " + LoginUser.LastName);
-        //        HttpContext.Session.SetString(Constants.Email, LoginUser.Email);
-        //        HttpContext.Session.SetString(Constants.UserID, LoginUser.UserID.ToString());
-        //        HttpContext.Session.SetString(Constants.RoleID, LoginUser.RoleId.ToString());
-        //        HttpContext.Session.SetString(Constants.Role, LoginUser.Role);
-        //        HttpContext.Session.SetString(Constants.Alias, LoginUser.FirstName);
-        //        // FormsAuthentication.SetAuthCookie(LoginUser.Email, false);
-        //        TempData[Constants.RoleID] = LoginUser.RoleId;
-        //        return RedirectToAction("Index", "Home");
-        //    }
-        //    return View(LoginUser);
-        //}
-
+            //        ViewBag.Success = "Password changed successfully.";
+            //    }
+            //    else
+            //    {
+            //        ViewBag.Error = "Some error occured. Please try again!";
+            //    }
+            //}
+            //catch (Exception ce)
+            //{
+            //    ViewBag.Error = "Some error occured. Please try again!";
+            //}
+            return View(model);
+        }
 
         [HttpPost]
         [AllowAnonymous]
@@ -71,12 +76,14 @@ namespace HRMS.Web.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occured, please try later.";
             }
             return View(loginModel);
         }
 
         private IActionResult LoginAndRedirect(LoginUser loginModel)
-        {
+        {           
             var data = _businessLayer.SendPostAPIRequest(loginModel, "Login", HttpContext.Session.GetString(Constants.SessionBearerToken), false).Result.ToString();
             var result = JsonConvert.DeserializeObject<LoginUser>(data);
 
@@ -86,7 +93,7 @@ namespace HRMS.Web.Controllers
                 _context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
                 _context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());
                 _context.HttpContext.Session.SetString(Constants.EmployeeID, result.EmployeeID.ToString());
-
+                _context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
                 var identity = new ClaimsIdentity(new[] {
                     new Claim(ClaimTypes.Name, result.UserID.ToString()),
                      new Claim(ClaimTypes.Role,  result.Role)
@@ -95,7 +102,17 @@ namespace HRMS.Web.Controllers
                 var principal = new ClaimsPrincipal(identity);
 
                 var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
+                DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
+                var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardodel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel);
+                if (string.IsNullOrEmpty(model.ProfilePhoto)) {
+                    model.ProfilePhoto = "";
+                }
+                _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+                _context.HttpContext.Session.SetString(Constants.FirstName, model.FirstName);
+                _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName);
+                _context.HttpContext.Session.SetString(Constants.Surname, model.Surname);
+                _context.HttpContext.Session.SetString(Constants.OfficialEmailID, model.OfficialEmailID);
                 return RedirectToActionPermanent(
                    Constants.Index,
                   _businessLayer.GetControllarNameByRole(result.RoleId),
@@ -104,7 +121,8 @@ namespace HRMS.Web.Controllers
             }
             else
             {
-                ViewBag.Message = "Invalid Credential";
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid login credentials, Please try with correct user name and password.";               
             }
             return View("Index", loginModel);
         }

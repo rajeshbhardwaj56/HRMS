@@ -12,5 +12,6 @@ namespace HRMS.Models.MyInfo
     {
         public LeaveResults leaveResults { get; set; } = new LeaveResults();
         public EmployeeModel employeeModel { get; set; } = new EmployeeModel();
+        public EmploymentDetail employmentDetail { get; set; } = new EmploymentDetail();
     }
 }

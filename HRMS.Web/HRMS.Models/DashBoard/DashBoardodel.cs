@@ -1,33 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using HRMS.Models.Common;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace HRMS.Models.Employee
+namespace HRMS.Models.DashBoard
 {
-    public class EmployeeInputParams
+
+    public class DashBoardModelInputParams
     {
-        public long LeaveSummaryID { get; set; }
-        public long CompanyID { get; set; }
         public long EmployeeID { get; set; }
     }
-
-
-    public class EmployeeModel
+    public class DashBoardModel
     {
-        public string EncryptedIdentity { get; set; } = string.Empty;
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
-        public long CompanyID { get; set; } = 1;
+        public long CompanyID { get; set; }
         public string? ProfilePhoto { get; set; } = string.Empty;
         public string? FirstName { get; set; } = string.Empty;
         public string? MiddleName { get; set; } = string.Empty;
         public string? Surname { get; set; } = string.Empty;
+
+        public string EncryptedIdentity { get; set; } = string.Empty;
+        public long EmploymentDetailID { get; set; }       
+        public long DesignationID { get; set; }
+        public long EmployeeTypeID { get; set; }
+        public long DepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public long ReportingToID { get; set; }
+        public string OfficialEmailID { get; set; } = string.Empty;
+        public string OfficialContactNo { get; set; } = string.Empty;
+        public DateTime? JoiningDate { get; set; }
+        public DateTime? JobSeprationDate { get; set; }
+        public long NoOfEmployees { get; set; }
+        public long NoOfCompanies { get; set; }
+        public long NoOfLeaves { get; set; }
+        public double Salary { get; set; }        
         public string? CorrespondenceAddress { get; set; } = string.Empty;
         public string? CorrespondenceCity { get; set; } = string.Empty;
         public string? CorrespondencePinCode { get; set; } = string.Empty;
@@ -69,37 +77,5 @@ namespace HRMS.Models.Employee
         public string? ContactPersonTelephone { get; set; } = string.Empty;
         public string? ContactPersonRelationship { get; set; } = string.Empty;
         public string? ITSkillsKnowledge { get; set; } = string.Empty;
-        public long InsertedByUserID { get; set; }
-        public long UpdatedByUserID { get; set; }
-        public DateTime InsertedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
-
-        // Employment Details
-        public long DesignationID { get; set; }
-        public long EmployeeTypeID { get; set; }
-        public long DepartmentID { get; set; }
-        public long JobLocationID { get; set; }
-        public long ReportingToID { get; set; }
-        public string? DesignationName { get; set; } = string.Empty;
-        public string? EmployeeTypeName { get; set; } = string.Empty;
-        public string? DepartmentName { get; set; } = string.Empty;
-        public string? JobLocationName { get; set; } = string.Empty;
-        public string? ReportingToName { get; set; } = string.Empty;
-        public string? EmployeNumber { get; set; } = string.Empty;
-        
-        // Additional Details
-        public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
-        public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();
-        public List<LanguageDetail> LanguageDetails { get; set; } = new List<LanguageDetail>();
-        public List<EmploymentHistory> EmploymentHistory { get; set; } = new List<EmploymentHistory>();
-        public List<Reference> References { get; set; } = new List<Reference>();
-
-        // Master Details
-        public List<SelectListItem> Languages = new List<SelectListItem>();
-        public List<SelectListItem> Educations = new List<SelectListItem>();
-        public List<SelectListItem> Countries = new List<SelectListItem>();
-        public List<SelectListItem> EmploymentTypes = new List<SelectListItem>();
-        public List<SelectListItem> Departments = new List<SelectListItem>();
-
     }
 }

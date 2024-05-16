@@ -37,8 +37,8 @@ namespace HRMS.Models.Common
 
     public class Result
     {
-        public long PKNo { get; set; }
-        public string Message { get; set; }
-        public string ErrorCode { get; set; }
+        public long? PKNo { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public string ErrorCode { get; set; } = string.Empty;
     }
 }

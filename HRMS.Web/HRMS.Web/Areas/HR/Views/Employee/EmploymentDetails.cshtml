@@ -1,0 +1,84 @@
+﻿﻿@using HRMS.Models.Employee;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmploymentDetail
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "Official Details";
+}
+
+<div class="main-header anim" style="--delay: 0s">Official Details <a href="~/HR/employee/index/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Edit</button></a></div>
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+
+
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">
+                @Html.HiddenFor(m => m.EmployeeID)
+                @Html.HiddenFor(m => m.EmploymentDetailID)
+                @Html.HiddenFor(m => m.UserID)
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-4 form-group">
+                    <label>Date of Joining <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.JoiningDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                    @* @Html.ValidationMessageFor(m => m.JoiningDate) *@
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Official Email <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "email", @required = "required" })
+                   
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Official Contact No <span class="Mandetory">*</span> (123-456-7890)</label>
+                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control", @type = "tel", @pattern = "[0-9]{3}-[0-9]{3}-[0-9]{4}", @required = "required" })
+
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Designation <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.DesignationID, Model.Designations, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Reporting Manager<span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.ReportingToID, Model.EmployeeList, HRMS.Models.Common.Constants.SelectReportingManager, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Job Location <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.JobLocationID, Model.JobLocations, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Employment Type <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.EmployeeTypeID, Model.EmploymentTypes, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
+                </div>
+
+
+                <div class="col-md-4 form-group">
+                    <label>Department <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.DepartmentID, Model.Departments, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
+                </div>
+
+
+
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button class="btn btn-danger" type="reset">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>

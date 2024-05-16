@@ -41,6 +41,14 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
+        public IActionResult GetAllActiveEmployees(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllActiveEmployees(model));
+            return response;
+        }
+
+        [HttpPost]
         public IActionResult GetlLeavesSummary(MyInfoInputParams model)
         {
             IActionResult response = Unauthorized();
@@ -78,6 +86,22 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetMyInfo(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult AddUpdateEmploymentDetails(EmploymentDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmploymentDetails(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmploymentDetailsByEmployee(model));
             return response;
         }
         

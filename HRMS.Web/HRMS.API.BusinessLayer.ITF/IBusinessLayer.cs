@@ -1,6 +1,7 @@
 ﻿using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Company;
+using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
@@ -21,6 +22,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCurrencies(long companyID);
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParams model);
+        public Results GetAllActiveEmployees(EmployeeInputParams model);
         public Result AddUpdateTemplate(TemplateModel model);
         public Results GetAllTemplates(TemplateInputParams model);
         public Result AddUpdateCompany(CompanyModel model);
@@ -32,8 +34,13 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
         public Results GetAllLeavePolicies(LeavePolicyInputParans model);
         public MyInfoResults GetMyInfo(MyInfoInputParams model);
+        public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails);
+        public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
+
+        
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
+        public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model);
         public Results GetAllAttendenceList(AttendenceListInputParans model);
         public Result AddUpdateAttendenceList(AttendenceListModel model);
         public Results GetAllEmployees();

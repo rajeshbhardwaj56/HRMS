@@ -8,6 +8,14 @@ namespace HRMS.Models.Common
 {
     public class Constants
     {
+
+        public const string toastTypeSuccess = "Success";
+        public const string toastTypeInformation = "Information";
+        public const string toastTypetWarning = "Warning";
+        public const string toastTypeError = "Error";
+
+        public const string toastMessage = "toastMessage";
+        public const string toastType = "toastType";
         public const string SessionBearerToken = "SessionBearerToken";
         public const string UserName = "UserName";
         public const string Email = "Email";
@@ -15,6 +23,13 @@ namespace HRMS.Models.Common
         public const string RoleID = "RoleID";
         public const string CompanyID = "CompanyID";
         public const string EmployeeID = "EmployeeID";
+        public const string ProfilePhoto = "ProfilePhoto";
+        public const string FirstName = "FirstName";
+        public const string MiddleName = "MiddleName";
+        public const string Surname = "Surname";
+        public const string OfficialEmailID = "OfficialEmailID";
+        
+        public const string AreaName = "AreaName";
         public const string Role = "Role";
         public const string Alias = "Alias";
         public const string Index = "index";
@@ -23,6 +38,8 @@ namespace HRMS.Models.Common
         public const string ManageHR = "hr";
         public const string ManageEmployee = "employee";
         public const string SelectLanguage = "-- Select Language --";
+        public const string SelectJobLocation = "-- Select Job Location --";
+        public const string SelectReportingManager = "-- Select Reporting Manager --";
         public const string SelectCountry = "-- Select Country --";
         public const string SelectCurrency = "-- Select Currency --";
         public const string SelectEmployeeType = "-- Select Employee Type --";
@@ -63,6 +80,8 @@ namespace HRMS.Models.Common
 
     public class APIControllarsConstants
     {
+
+        public const string DashBoard = "DashBoard";
         public const string Employee = "Employee";
         public const string Template = "Template";
         public const string Company = "Company";
@@ -93,10 +112,12 @@ namespace HRMS.Models.Common
         public const string GetAllLeavePolicies = "GetAllLeavePolicies";
         public const string AddUpdateEmployee = "AddUpdateEmployee";
         public const string GetAllEmployees = "GetAllEmployees";
+        public const string GetAllActiveEmployees = "GetAllActiveEmployees";
         public const string AddUpdateTemplate = "AddUpdateTemplate";
         public const string GetAllTemplates = "GetAllTemplates";
         public const string AddUpdateCompany = "AddUpdateCompany";
         public const string GetAllCompanies = "GetAllCompanies";
+        public const string GetAllLeavePolicys = "GetAllLeavePolicys";
         public const string GetlLeavesSummary = "GetlLeavesSummary";
         public const string GetMyInfo = "GetMyInfo";
         public const string AddUpdateLeave = "AddUpdateLeave";
@@ -104,6 +125,9 @@ namespace HRMS.Models.Common
         public const string GetLeaveTypes = "GetLeaveTypes";
         public const string AddUpdateHoliday = "AddUpdateHoliday";
         public const string GetAllHolidays = "GetAllHolidays";
+        public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
+        public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
+        public const string GetDashBoardodel = "GetDashBoardodel";    
 		public const string GetAllAttendenceList = "GetAllAttendenceList";
 		public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
 	}
