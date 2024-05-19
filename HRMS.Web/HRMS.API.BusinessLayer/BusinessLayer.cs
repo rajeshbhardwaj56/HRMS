@@ -285,7 +285,7 @@ namespace HRMS.API.BusinessLayer
                                   ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
 
                                   // Employment Details
-
+                                  OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
                                   EmployeNumber = dataRow.Field<string>("EmployeNumber"),
                                   DesignationID = dataRow.Field<long>("DesignationID"),
                                   EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
@@ -755,7 +755,8 @@ namespace HRMS.API.BusinessLayer
                         new Result()
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value)
+                            PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
+                            IsEligibleForResetPassword = dataRow.Field<bool>("IsEligibleForResetPassword")
                         }
                    ).ToList().FirstOrDefault();
             }
@@ -1106,7 +1107,7 @@ namespace HRMS.API.BusinessLayer
                                   CorrespondencePinCode = dataRow.Field<string>("CorrespondencePinCode"),
                                   CorrespondenceState = dataRow.Field<string>("CorrespondenceState"),
                                   CorrespondenceCountryID = dataRow.Field<long>("CorrespondenceCountryID"),
-                                  EmailAddress = dataRow.Field<string>("EmailAddress"),
+                                  EmailAddress = dataRow.Field<string>("EmailAddress"),                               
                                   Landline = dataRow.Field<string>("Landline"),
                                   Mobile = dataRow.Field<string>("Mobile"),
                                   Telephone = dataRow.Field<string>("Telephone"),

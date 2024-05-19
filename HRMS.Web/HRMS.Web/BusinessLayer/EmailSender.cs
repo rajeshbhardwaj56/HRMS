@@ -5,7 +5,7 @@ namespace HRMS.Web.BusinessLayer
 {
     public class EmailSender
     {
-        static IConfiguration configuration;
+        public static IConfiguration configuration;
         public EmailSender(IConfiguration _configuration)
         {
             configuration = _configuration;
