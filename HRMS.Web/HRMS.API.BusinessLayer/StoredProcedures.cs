@@ -44,7 +44,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_EmploymentDetails = "usp_AddUpdate_EmploymentDetails";
         public const string usp_Get_EmployeeDetailsFormDetails = "usp_Get_EmployeeDetailsFormDetails";
         public const string usp_GetDashBoardDetails = "usp_GetDashBoardDetails";
+        public const string usp_ResetPassword = "usp_ResetPassword";
         
-
     }
 }

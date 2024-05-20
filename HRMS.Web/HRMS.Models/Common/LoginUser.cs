@@ -17,6 +17,8 @@ namespace HRMS.Models.Common
         public int RoleId { get; set; }
         public string token { get; set; } = "";
 
+        public bool IsResetPasswordRequired { get; set; }
+
     }
 
 }

@@ -27,5 +27,6 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_jWTAuthentication.Authenticate(login));
             return response;
         }
+        
     }
 }

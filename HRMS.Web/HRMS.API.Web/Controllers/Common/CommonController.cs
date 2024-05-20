@@ -1,4 +1,6 @@
-﻿using HRMS.API.BusinessLayer.ITF;
+﻿using HRMS.API.BusinessLayer;
+using HRMS.API.BusinessLayer.ITF;
+using HRMS.Models.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -60,6 +62,15 @@ namespace HRMS.API.Web.Controllers.Common
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAllEmployees());
+            return response;
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult ResetPassword(ResetPasswordModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.ResetPassword(model));
             return response;
         }
 

@@ -41,24 +41,24 @@ namespace HRMS.Web.Controllers
         [HttpPost]
         public ActionResult ResetPassword(ResetPasswordModel model)
         {
-            //var _LoginService = new LoginService();
-            //try
-            //{
-            //    if (_LoginService.CheckUserByUserID(model.UserID))
-            //    {
-            //        var cus = _LoginService.ChangeUserPassword(model.UserID, model.Password);
+            var _LoginService = new LoginService();
+            try
+            {
+                if (_LoginService.CheckUserByUserID(model.UserID))
+                {
+                    var cus = _LoginService.ChangeUserPassword(model.UserID, model.Password);
 
-            //        ViewBag.Success = "Password changed successfully.";
-            //    }
-            //    else
-            //    {
-            //        ViewBag.Error = "Some error occured. Please try again!";
-            //    }
-            //}
-            //catch (Exception ce)
-            //{
-            //    ViewBag.Error = "Some error occured. Please try again!";
-            //}
+                    ViewBag.Success = "Password changed successfully.";
+                }
+                else
+                {
+                    ViewBag.Error = "Some error occured. Please try again!";
+                }
+            }
+            catch (Exception ce)
+            {
+                ViewBag.Error = "Some error occured. Please try again!";
+            }
             return View(model);
         }
 

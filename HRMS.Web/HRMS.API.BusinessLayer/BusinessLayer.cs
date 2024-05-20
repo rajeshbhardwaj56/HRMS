@@ -63,9 +63,30 @@ namespace HRMS.API.BusinessLayer
                                    EmployeeID = dataRow.Field<long>("EmployeeID"),
                                    Role = dataRow.Field<string>("Role"),
                                    RoleId = dataRow.Field<int>("RoleId"),
+                                   IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                }).ToList().FirstOrDefault();
             }
             return loginUser;
+        }
+
+        public Result ResetPassword(ResetPasswordModel model)
+        {
+            Result results = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@Password", model.Password));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ResetPassword, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                results = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow => new Result
+                   {
+                       Message = dataRow.Field<string>("Result").ToString(),
+                   }).ToList().FirstOrDefault();
+
+            }
+            return results;
         }
 
         public Results GetAllEmployees(EmployeeInputParams model)
@@ -1107,7 +1128,7 @@ namespace HRMS.API.BusinessLayer
                                   CorrespondencePinCode = dataRow.Field<string>("CorrespondencePinCode"),
                                   CorrespondenceState = dataRow.Field<string>("CorrespondenceState"),
                                   CorrespondenceCountryID = dataRow.Field<long>("CorrespondenceCountryID"),
-                                  EmailAddress = dataRow.Field<string>("EmailAddress"),                               
+                                  EmailAddress = dataRow.Field<string>("EmailAddress"),
                                   Landline = dataRow.Field<string>("Landline"),
                                   Mobile = dataRow.Field<string>("Mobile"),
                                   Telephone = dataRow.Field<string>("Telephone"),
