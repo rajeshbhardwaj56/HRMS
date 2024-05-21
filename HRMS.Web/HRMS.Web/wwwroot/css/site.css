@@ -179,6 +179,13 @@ a{
 .form-group {
     margin-bottom: 15px;
 }
+.container-heading {
+    background-color: #05397b;
+    padding: 10px 0px 0px 10px;
+    margin: 10px 0px;
+    font-size: 16px;
+    color: white;
+}
 textarea.form-control {
     min-height: calc(5.2em + .75rem + 2px);
 }

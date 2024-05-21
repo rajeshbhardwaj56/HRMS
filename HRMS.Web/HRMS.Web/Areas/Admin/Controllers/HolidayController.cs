@@ -45,7 +45,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             HolidayModel HolidayModel = new HolidayModel();
             HolidayModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            HolidayModel.Date = DateTime.Now;
+            HolidayModel.FromDate = DateTime.Now.AddDays(-1);
+            HolidayModel.ToDate = DateTime.Now;
 
             if (!string.IsNullOrEmpty(id))
             {

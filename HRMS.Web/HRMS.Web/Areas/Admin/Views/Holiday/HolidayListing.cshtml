@@ -23,8 +23,8 @@
             <tr>
                 <th class="first" style="visibility:hidden"> /th>
                 <th>Holiday Name</th>
-                <th>Holiday Date</th>
-                <th>Description</th>
+                <th>From Date</th>
+                <th>To Date</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -52,13 +52,19 @@
                 { "data": "holidayID", "autoWidth": true, },
                 { "data": "holidayName", "autoWidth": true, },
                 {
-                    "data": "date", "autoWidth": true, "render": function (data, type, row) {
+                    "data": "fromDate", "autoWidth": true, "render": function (data, type, row) {
                         var dateObj = new Date(data);
                         var formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); // Change the format as per your requirement
                         return formattedDate;
                     }
                 },
-                { "data": "description", "autoWidth": true },
+                {
+                    "data": "toDate", "autoWidth": true, "render": function (data, type, row) {
+                        var dateObj = new Date(data);
+                        var formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); // Change the format as per your requirement
+                        return formattedDate;
+                    }
+                }, 
                 { "data": "status", "autoWidth": true },
 
                 {

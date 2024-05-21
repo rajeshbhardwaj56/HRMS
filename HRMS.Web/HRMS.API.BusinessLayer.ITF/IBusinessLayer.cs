@@ -8,6 +8,8 @@ using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
 using HRMS.Models.Template;
 using HRMS.Models.AttendenceList;
+using HRMS.Models.ShiftType;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -44,5 +46,9 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllAttendenceList(AttendenceListInputParans model);
         public Result AddUpdateAttendenceList(AttendenceListModel model);
         public Results GetAllEmployees();
+
+        public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel);
+        public Results GetAllShiftTypes(ShiftTypeInputParans model);
+        public List<SelectListItem> GetHolidayList(HolidayInputParams model);
     }
 }
