@@ -10,7 +10,7 @@ namespace HRMS.Models.Common
     public class ResetPasswordModel
     {
         public string UserID { get; set; }
-
+        public string EmployeeID { get; set; }
         [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
         [StringLength(15, MinimumLength = 6)]
@@ -23,6 +23,9 @@ namespace HRMS.Models.Common
         [StringLength(15, MinimumLength = 6)]
         [Display(Name = "Confirm Password: ")]
         public string ConfirmPassword { get; set; }
+        public bool IsResetPasswordRequired { get; set; }
+        public bool IsResetPasswordExpired { get; set; }
+
 
     }
 }

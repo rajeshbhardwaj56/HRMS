@@ -16,6 +16,7 @@ namespace HRMS.API.BusinessLayer.ITF
     public interface IBusinessLayer
     {
         LoginUser LoginUser(LoginUser loginUser);
+        public Result ResetPassword(ResetPasswordModel loginUser);
         public Results GetAllCountries();
         public Results GetAllLanguages();
         public Results GetAllCompanyLanguages(long companyID);
@@ -30,8 +31,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateCompany(CompanyModel model);
         public Results GetAllCompanies(EmployeeInputParams model);
         public LeaveResults GetlLeavesSummary(MyInfoInputParams model);
-        public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel);       
-        public LeaveResults GetLeaveDurationTypes(MyInfoInputParams leaveInputParams);      
+        public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel);
+        public LeaveResults GetLeaveDurationTypes(MyInfoInputParams leaveInputParams);
         public LeaveResults GetLeaveTypes(MyInfoInputParams leaveInputParams);
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
         public Results GetAllLeavePolicies(LeavePolicyInputParans model);
@@ -39,7 +40,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails);
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
 
-        
+
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
         public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model);
