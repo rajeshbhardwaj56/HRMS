@@ -25,7 +25,7 @@ namespace HRMS.Models.Common
         public string ConfirmPassword { get; set; }
         public bool IsResetPasswordRequired { get; set; }
         public bool IsResetPasswordExpired { get; set; }
-
+        public DateTime dt { get; set; }
 
     }
 }

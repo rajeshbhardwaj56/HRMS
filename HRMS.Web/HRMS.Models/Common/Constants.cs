@@ -28,7 +28,7 @@ namespace HRMS.Models.Common
         public const string MiddleName = "MiddleName";
         public const string Surname = "Surname";
         public const string OfficialEmailID = "OfficialEmailID";
-        
+        public const string IsLinkExpired = "IsLinkExpired";
         public const string AreaName = "AreaName";
         public const string Role = "Role";
         public const string Alias = "Alias";
@@ -87,8 +87,10 @@ namespace HRMS.Models.Common
         public const string Company = "Company";
         public const string LeavePolicy = "LeavePolicy";
         public const string Holiday = "Holiday";
-		public const string AttendenceList = "AttendenceList";
-	}
+        public const string AttendenceList = "AttendenceList";
+        public const string Common = "Common";
+
+    }
 
     public class WebControllarsConstants
     {
@@ -102,9 +104,9 @@ namespace HRMS.Models.Common
         public const string TemplateListing = "TemplateListing";
         public const string Holiday = "Holiday";
         public const string HolidayListing = "HolidayListing";
-		public const string AttendenceListing = "AttendenceListing";
-		public const string AttendenceList = "AttendenceList";
-	}
+        public const string AttendenceListing = "AttendenceListing";
+        public const string AttendenceList = "AttendenceList";
+    }
 
     public class APIApiActionConstants
     {
@@ -127,8 +129,9 @@ namespace HRMS.Models.Common
         public const string GetAllHolidays = "GetAllHolidays";
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
-        public const string GetDashBoardodel = "GetDashBoardodel";    
-		public const string GetAllAttendenceList = "GetAllAttendenceList";
-		public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
-	}
+        public const string GetDashBoardodel = "GetDashBoardodel";
+        public const string GetAllAttendenceList = "GetAllAttendenceList";
+        public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
+        public const string ResetPassword = "ResetPassword";
+    }
 }

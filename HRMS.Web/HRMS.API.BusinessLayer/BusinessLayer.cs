@@ -777,7 +777,7 @@ namespace HRMS.API.BusinessLayer
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
                             PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
-                            IsEligibleForResetPassword = dataRow.Field<bool>("IsEligibleForResetPassword")
+                            IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired")
                         }
                    ).ToList().FirstOrDefault();
             }

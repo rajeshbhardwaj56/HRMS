@@ -30,34 +30,52 @@ namespace HRMS.Web.Controllers
             return View();
         }
 
-        public ActionResult ResetPassword(string un)
+        public ActionResult ResetPassword(string Id, string dt)
         {
             ResetPasswordModel model = new ResetPasswordModel();
+            try
+            {
+                DateTime date = Convert.ToDateTime(_businessLayer.DecodeStringBase64(dt));
+                model.EmployeeID = _businessLayer.DecodeStringBase64(Id);
+                model.UserID = _businessLayer.DecodeStringBase64(Id);
+                model.dt = date;
 
-            model.UserID = un;
+                if ((DateTime.Now - date).Days > 1)
+                {
+                    TempData[HRMS.Models.Common.Constants.IsLinkExpired] = true;
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password link is expired.";
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+            }
             return View(model);
         }
 
         [HttpPost]
         public ActionResult ResetPassword(ResetPasswordModel model)
         {
-            var _LoginService = new LoginService();
             try
             {
-                if (_LoginService.CheckUserByUserID(model.UserID))
-                {
-                    var cus = _LoginService.ChangeUserPassword(model.UserID, model.Password);
 
-                    ViewBag.Success = "Password changed successfully.";
-                }
-                else
-                {
-                    ViewBag.Error = "Some error occured. Please try again!";
-                }
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.ResetPassword), null, false).Result.ToString();
+                var result = JsonConvert.DeserializeObject<Result>(data);
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
             }
             catch (Exception ce)
             {
-                ViewBag.Error = "Some error occured. Please try again!";
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occured, please try later.";
+            }
+            finally
+            {
+
             }
             return View(model);
         }
@@ -73,17 +91,22 @@ namespace HRMS.Web.Controllers
                     return LoginAndRedirect(loginModel);
                 }
             }
+
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occured, please try later.";
             }
+            finally
+            {
+
+            }
             return View(loginModel);
         }
 
         private IActionResult LoginAndRedirect(LoginUser loginModel)
-        {           
+        {
             var data = _businessLayer.SendPostAPIRequest(loginModel, "Login", HttpContext.Session.GetString(Constants.SessionBearerToken), false).Result.ToString();
             var result = JsonConvert.DeserializeObject<LoginUser>(data);
 
@@ -105,7 +128,8 @@ namespace HRMS.Web.Controllers
                 DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
                 var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardodel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel);
-                if (string.IsNullOrEmpty(model.ProfilePhoto)) {
+                if (string.IsNullOrEmpty(model.ProfilePhoto))
+                {
                     model.ProfilePhoto = "";
                 }
                 _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
@@ -122,7 +146,7 @@ namespace HRMS.Web.Controllers
             else
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid login credentials, Please try with correct user name and password.";               
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid login credentials, Please try with correct user name and password.";
             }
             return View("Index", loginModel);
         }
