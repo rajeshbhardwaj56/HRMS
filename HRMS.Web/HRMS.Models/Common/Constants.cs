@@ -133,5 +133,6 @@ namespace HRMS.Models.Common
         public const string GetAllAttendenceList = "GetAllAttendenceList";
         public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
         public const string ResetPassword = "ResetPassword";
-    }
+		public const string GetFogotPasswordDetails = "GetFogotPasswordDetails";
+	}
 }
