@@ -292,7 +292,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
                 }
 
-                if (result.IsResetPasswordRequired)
+                if (result.IsEligibleForResetPassword)
                 {
                     sendEmailProperties sendEmailProperties = new sendEmailProperties();
                     sendEmailProperties.emailSubject = "Reset Password Email";

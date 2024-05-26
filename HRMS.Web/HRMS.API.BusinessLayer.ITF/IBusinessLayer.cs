@@ -39,7 +39,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public MyInfoResults GetMyInfo(MyInfoInputParams model);
         public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails);
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
-        public Result GetFogotPasswordDetails(ChangePasswordModel model);
+
+
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
         public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model);

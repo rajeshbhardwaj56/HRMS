@@ -74,14 +74,5 @@ namespace HRMS.API.Web.Controllers.Common
             return response;
         }
 
-        [AllowAnonymous]
-        [HttpPost]
-        public IActionResult GetFogotPasswordDetails(ChangePasswordModel model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetFogotPasswordDetails(model));
-            return response;
-        }
-
     }
 }
