@@ -45,7 +45,7 @@ namespace HRMS.Models.Common
         public long? PKNo { get; set; }
         public string Message { get; set; } = string.Empty;
         public string ErrorCode { get; set; } = string.Empty;
-        public bool IsEligibleForResetPassword { get; set; }
-
+        public bool IsResetPasswordRequired { get; set; }
+        public object Data { get; set; }
     }
 }
