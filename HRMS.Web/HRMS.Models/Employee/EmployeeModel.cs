@@ -85,7 +85,7 @@ namespace HRMS.Models.Employee
         public string? DepartmentName { get; set; } = string.Empty;
         public string? JobLocationName { get; set; } = string.Empty;
         public string? ReportingToName { get; set; } = string.Empty;
-        public string? EmployeNumber { get; set; } = string.Empty;
+        public string? EmployeeNumber { get; set; } = string.Empty;
         public string OfficialEmailID { get; set; } = string.Empty;
 
         // Additional Details

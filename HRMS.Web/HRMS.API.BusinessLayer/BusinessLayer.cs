@@ -332,7 +332,7 @@ namespace HRMS.API.BusinessLayer
 
 								  // Employment Details
 								  OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
-								  EmployeNumber = dataRow.Field<string>("EmployeNumber"),
+                                  EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
 								  DesignationID = dataRow.Field<long>("DesignationID"),
 								  EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
 								  DepartmentID = dataRow.Field<long>("DepartmentID"),
