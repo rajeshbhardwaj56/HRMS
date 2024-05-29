@@ -29,11 +29,14 @@ namespace HRMS.API.BusinessLayer
 
         public const string usp_Get_Companies = "usp_Get_Companies";
         public const string usp_AddUpdate_Company = "usp_AddUpdate_Company";
+        public const string usp_Get_AllLeavesSummary = "usp_Get_AllLeavesSummary";
         public const string usp_Get_LeavesSummary = "usp_Get_LeavesSummary";
 
         public const string usp_AddUpdate_LeaveSummary = "usp_AddUpdate_LeaveSummary";
         public const string usp_Get_LeaveDurationTypes = "usp_Get_LeaveDurationTypes";
         public const string usp_Get_LeaveTypes = "usp_Get_LeaveTypes";
+        public const string usp_Get_LeavePolicys = "usp_Get_LeavePolicys";
+        
 
         public const string usp_Get_HolidayDetails = "usp_Get_HolidayDetails";
         public const string usp_AddUpdate_Holiday = "usp_AddUpdate_Holiday";
@@ -50,6 +53,7 @@ namespace HRMS.API.BusinessLayer
 
         public const string usp_Get_ShiftTypeDetails = "usp_Get_ShiftTypeDetails";
         public const string usp_AddUpdate_ShiftType = "usp_AddUpdate_ShiftType";
+
 
 
     }

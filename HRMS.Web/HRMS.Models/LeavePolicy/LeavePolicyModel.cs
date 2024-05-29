@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using HRMS.Models.Leave;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,5 +34,12 @@ namespace HRMS.Models.LeavePolicy
         public bool IsCompendatory { get; set; }
         public bool IsAllowEncashment { get; set; }
         public bool IsEarnedLeave { get; set; }
+    }
+
+    public class LeavePloicyResults
+    {
+        public LeavePolicyModel leavePolicyModel { get; set; } = new LeavePolicyModel();
+        public List<LeavePolicyModel> leavePolicy { get; set; } = new List<LeavePolicyModel>();
+
     }
 }

@@ -1,0 +1,52 @@
+﻿@model HRMS.Models.Leave.LeaveResults
+
+<div class="card">
+    <div class="card-body">
+        <form id="leaveForm" class="body-text" method="post" enctype="multipart/form-data">
+            <div class="row py-2">
+                <div class="col-lg-6 col-md-12">
+                    <label for="leavepolicy" class="form-label">Leave Duration Type:</label>
+                    @Html.DropDownListFor(x => x.leaveSummaryModel.LeaveDurationTypeID, Model.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+            <div class="row py-2">
+                <div class="col-lg-6 col-md-12">
+                    <label for="leavepolicy" class="form-label">Leave Policy:</label>
+                    @Html.HiddenFor(x => x.leaveSummaryModel.CompanyID)
+                    @Html.HiddenFor(x => x.leaveSummaryModel.LeaveSummaryID)
+                    @Html.HiddenFor(x => x.leaveSummaryModel.EmployeeID)
+                    @Html.HiddenFor(x => x.leaveSummaryModel.UserID)
+                    @Html.DropDownListFor(x => x.leaveSummaryModel.LeavePolicyID, Model.leavePolicys, HRMS.Models.Common.Constants.SelectLeavePolicy, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+            <div class="row py-2">
+                <div class="col-lg-5 col-md-12">
+                    <label for="datepicker1" class="form-label">From:</label>
+                    <div class="position-relative">
+                        <div class="input-group date" id="datepickerdiv1">
+                            @Html.TextBoxFor(a => a.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-12">
+                    <label for="datepicker2" class="form-label">To:</label>
+                    <div class="position-relative">
+                        <div class="input-group date" id="datepickerdiv2">
+                            @Html.TextBoxFor(a => a.leaveSummaryModel.EndDate , "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row py-3 mb-1">
+                <div class="col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-text body-text">Reason</span>
+                        @Html.TextAreaFor(a => a.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-success" type="submit">Submit</button>
+            <button class="btn btn-danger" type="reset">Cancel</button>
+        </form>
+    </div>
+</div>

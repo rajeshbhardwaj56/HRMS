@@ -12,7 +12,7 @@ namespace HRMS.Models
     {
         public LeaveSummaryModel leaveSummaryModel { get; set; } = new LeaveSummaryModel();
         public List<LeaveSummaryModel> leavesSummary { get; set; } = new List<LeaveSummaryModel>();
-        public List<SelectListItem> leaveTypes = new List<SelectListItem>();
+        public List<SelectListItem> leavePolicys = new List<SelectListItem>();
         public List<SelectListItem> leaveDurationTypes = new List<SelectListItem>();
         public List<SelectListItem> leaveStatuses = new List<SelectListItem>();
     }

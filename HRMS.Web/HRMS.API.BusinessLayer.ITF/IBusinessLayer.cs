@@ -31,9 +31,10 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateCompany(CompanyModel model);
         public Results GetAllCompanies(EmployeeInputParams model);
         public LeaveResults GetlLeavesSummary(MyInfoInputParams model);
+        public LeaveSummaryResults GetAllLeavesSummary(MyInfoInputParams model);
         public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel);
         public LeaveResults GetLeaveDurationTypes(MyInfoInputParams leaveInputParams);
-        public LeaveResults GetLeaveTypes(MyInfoInputParams leaveInputParams);
+        public LeaveResults GetLeavePolicys(MyInfoInputParams leaveInputParams);
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
         public Results GetAllLeavePolicies(LeavePolicyInputParans model);
         public MyInfoResults GetMyInfo(MyInfoInputParams model);

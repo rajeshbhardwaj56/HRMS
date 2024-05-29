@@ -1053,7 +1053,7 @@ namespace HRMS.API.BusinessLayer
 			sqlParameter.Add(new SqlParameter("@Reason", leaveSummaryModel.Reason));
 			sqlParameter.Add(new SqlParameter("@StartDate", leaveSummaryModel.StartDate));
 			sqlParameter.Add(new SqlParameter("@EndDate", leaveSummaryModel.EndDate));
-			sqlParameter.Add(new SqlParameter("@LeaveTypeID", leaveSummaryModel.LeaveTypeID));
+			sqlParameter.Add(new SqlParameter("@LeavePolicyID", leaveSummaryModel.LeavePolicyID));
 			sqlParameter.Add(new SqlParameter("@NoOfDays", leaveSummaryModel.NoOfDays));
 			sqlParameter.Add(new SqlParameter("@IsActive", leaveSummaryModel.IsActive));
 			sqlParameter.Add(new SqlParameter("@IsDeleted", leaveSummaryModel.IsDeleted));
@@ -1087,14 +1087,14 @@ namespace HRMS.API.BusinessLayer
 							  {
 								  LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
 								  LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
-								  LeaveTypeID = dataRow.Field<long>("LeaveTypeID"),
+                                  LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
 								  LeaveDurationTypeID = dataRow.Field<long>("LeaveDurationTypeID"),
 								  LeaveStatusName = dataRow.Field<string>("LeaveStatusName"),
 								  Reason = dataRow.Field<string>("Reason"),
 								  RequestDate = dataRow.Field<DateTime>("RequestDate"),
 								  StartDate = dataRow.Field<DateTime>("StartDate"),
 								  EndDate = dataRow.Field<DateTime>("EndDate"),
-								  LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
+                                  LeavePolicyName = dataRow.Field<string>("LeavePolicyName"),
 								  LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
 								  NoOfDays = dataRow.Field<decimal>("NoOfDays"),
 								  IsActive = dataRow.Field<bool>("IsActive"),
@@ -1102,7 +1102,7 @@ namespace HRMS.API.BusinessLayer
 								  EmployeeID = dataRow.Field<long>("EmployeeID"),
 							  }).ToList();
 
-			result.leaveTypes = GetLeaveTypes(model).leaveTypes;
+			result.leavePolicys = GetLeavePolicys(model).leavePolicys;
 			result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
 			if (model.LeaveSummaryID > 0)
 			{
@@ -1112,8 +1112,44 @@ namespace HRMS.API.BusinessLayer
 			return result;
 		}
 
+        public LeaveSummaryResults GetAllLeavesSummary(MyInfoInputParams model)
+        {
+            LeaveSummaryResults result = new LeaveSummaryResults();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AllLeavesSummary, sqlParameter);
+            result.leavesSummary = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new LeaveSummaryModel
+                              {
+                                  LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
+                                  LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
+                                  LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
+                                  LeaveDurationTypeID = dataRow.Field<long>("LeaveDurationTypeID"),
+                                  LeaveStatusName = dataRow.Field<string>("LeaveStatusName"),
+                                  Reason = dataRow.Field<string>("Reason"),
+                                  RequestDate = dataRow.Field<DateTime>("RequestDate"),
+                                  StartDate = dataRow.Field<DateTime>("StartDate"),
+                                  EndDate = dataRow.Field<DateTime>("EndDate"),
+                                  LeavePolicyName = dataRow.Field<string>("LeavePolicyName"),
+                                  LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
+                                  NoOfDays = dataRow.Field<decimal>("NoOfDays"),
+                                  IsActive = dataRow.Field<bool>("IsActive"),
+                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),
+                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
+                              }).ToList();
 
-		public LeaveResults GetLeaveDurationTypes(MyInfoInputParams model)
+            
+            if (model.LeaveSummaryID > 0)
+            {
+                result.leaveSummaryModel = result.leavesSummary.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
+            }
+
+            return result;
+        }
+
+
+        public LeaveResults GetLeaveDurationTypes(MyInfoInputParams model)
 		{
 			LeaveResults result = new LeaveResults();
 			List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -1130,17 +1166,17 @@ namespace HRMS.API.BusinessLayer
 		}
 
 
-		public LeaveResults GetLeaveTypes(MyInfoInputParams model)
+		public LeaveResults GetLeavePolicys(MyInfoInputParams model)
 		{
 			LeaveResults result = new LeaveResults();
 			List<SqlParameter> sqlParameter = new List<SqlParameter>();
 			sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-			var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveTypes, sqlParameter);
-			result.leaveTypes = dataSet.Tables[0].AsEnumerable()
+			var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePolicys, sqlParameter);
+			result.leavePolicys = dataSet.Tables[0].AsEnumerable()
 							  .Select(dataRow => new SelectListItem
 							  {
-								  Value = dataRow.Field<long>("LeaveTypeID").ToString(),
-								  Text = dataRow.Field<string>("Name"),
+								  Value = dataRow.Field<long>("LeavePolicyID").ToString(),
+								  Text = dataRow.Field<string>("LeavePolicyName"),
 							  }).ToList();
 
 			return result;
