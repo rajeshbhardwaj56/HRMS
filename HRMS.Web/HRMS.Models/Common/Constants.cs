@@ -134,5 +134,13 @@ namespace HRMS.Models.Common
         public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
         public const string ResetPassword = "ResetPassword";
 		public const string GetFogotPasswordDetails = "GetFogotPasswordDetails";
-	}
+    }
+
+    public class MyInfoTabs {
+        public const string TabPersonalInfo = "TabPersonalInfo";
+        public const string TabProfessionalInfo = "TabProfessionalInfo";
+        public const string TabProfile = "TabProfile";
+        public const string TabTimeOff = "TabTimeOff";
+        public const string TabLeaveInfo = "TabLeaveInfo";
+    }
 }
