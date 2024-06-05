@@ -1,5 +1,14 @@
 ﻿@model HRMS.Models.Leave.LeaveResults
-
+@{
+    if (Model.leaveSummaryModel.StartDate == DateTime.MinValue)
+    {
+        Model.leaveSummaryModel.StartDate = DateTime.Now;
+    }
+    if (Model.leaveSummaryModel.EndDate == DateTime.MinValue)
+    {
+        Model.leaveSummaryModel.EndDate = DateTime.Now;
+    }
+}
 <div class="card">
     <div class="card-body">
         <form id="leaveForm" class="body-text" method="post" enctype="multipart/form-data">
@@ -9,16 +18,19 @@
                     @Html.DropDownListFor(x => x.leaveSummaryModel.LeaveDurationTypeID, Model.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
                 </div>
             </div>
+
             <div class="row py-2">
                 <div class="col-lg-6 col-md-12">
-                    <label for="leavepolicy" class="form-label">Leave Policy:</label>
+                    <label for="leavetype" class="form-label">Leave Type:</label>
                     @Html.HiddenFor(x => x.leaveSummaryModel.CompanyID)
                     @Html.HiddenFor(x => x.leaveSummaryModel.LeaveSummaryID)
                     @Html.HiddenFor(x => x.leaveSummaryModel.EmployeeID)
                     @Html.HiddenFor(x => x.leaveSummaryModel.UserID)
-                    @Html.DropDownListFor(x => x.leaveSummaryModel.LeavePolicyID, Model.leavePolicys, HRMS.Models.Common.Constants.SelectLeavePolicy, new { @class = "form-control", @required = "required" })
+                    @Html.DropDownListFor(x => x.leaveSummaryModel.LeaveTypeID, Model.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required" })
+
                 </div>
             </div>
+            
             <div class="row py-2">
                 <div class="col-lg-5 col-md-12">
                     <label for="datepicker1" class="form-label">From:</label>

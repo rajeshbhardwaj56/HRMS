@@ -35,7 +35,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_LeaveSummary = "usp_AddUpdate_LeaveSummary";
         public const string usp_Get_LeaveDurationTypes = "usp_Get_LeaveDurationTypes";
         public const string usp_Get_LeaveTypes = "usp_Get_LeaveTypes";
-        public const string usp_Get_LeavePolicys = "usp_Get_LeavePolicys";
+        public const string usp_Get_LeavePolicies = "usp_Get_LeavePolicies";
         
 
         public const string usp_Get_HolidayDetails = "usp_Get_HolidayDetails";

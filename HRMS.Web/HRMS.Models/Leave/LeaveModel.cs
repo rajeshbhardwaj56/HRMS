@@ -26,7 +26,9 @@ namespace HRMS.Models.Leave
         public DateTime RequestDate { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public long LeavePolicyID { get; set; }
+        public long LeaveTypeID { get; set; }
+        public string LeaveTypeName { get; set; } = string.Empty;
+        public long? LeavePolicyID { get; set; } = 0;
         public string LeavePolicyName { get; set; } = string.Empty;
         public long LeaveDurationTypeID { get; set; }
         public string LeaveDurationTypeName { get; set; } = string.Empty;
@@ -43,6 +45,7 @@ namespace HRMS.Models.Leave
     {
         public LeaveSummaryModel leaveSummaryModel { get; set; } = new LeaveSummaryModel();
         public List<LeaveSummaryModel> leavesSummary { get; set; } = new List<LeaveSummaryModel>();
+        public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leavePolicys { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveDurationTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveStatuses { get; set; } = new List<SelectListItem>();

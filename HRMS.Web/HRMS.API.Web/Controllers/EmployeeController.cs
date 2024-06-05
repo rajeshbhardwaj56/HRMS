@@ -82,6 +82,14 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
+        public IActionResult GetLeaveTypes(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLeaveTypes(model));
+            return response;
+        }
+
+        [HttpPost]
         public IActionResult GetLeaveDurationTypes(MyInfoInputParams model)
         {
             IActionResult response = Unauthorized();

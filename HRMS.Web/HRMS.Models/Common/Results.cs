@@ -35,6 +35,7 @@ namespace HRMS.Models.Common
         public List<ShiftTypeModel> ShiftType { get; set; } = new List<ShiftTypeModel>();
         public ShiftTypeModel shiftTypeModel { get; set; } = new ShiftTypeModel();
         public List<SelectListItem> HolidayList { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> LeavePolicies { get; set; } = new List<SelectListItem>();
 
     }
 

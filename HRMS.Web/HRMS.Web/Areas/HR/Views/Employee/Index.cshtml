@@ -412,7 +412,13 @@
         </div>
 
 
-
+        <div class="row py-2">
+            <div class="col-lg-6 col-md-12">
+                <label for="leavepolicy" class="form-label">Leave Policy Applied on Employee:</label>
+                
+                @Html.DropDownListFor(x => x.LeavePolicyID, Model.leavePolicies, HRMS.Models.Common.Constants.SelectLeavePolicy, new { @class = "form-control", @required = "required" })
+            </div>
+        </div>
 
 
 

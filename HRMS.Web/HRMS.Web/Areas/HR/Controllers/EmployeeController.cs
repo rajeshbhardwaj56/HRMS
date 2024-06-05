@@ -97,6 +97,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
             employee.Departments = results.Departments;
+            employee.leavePolicies = results.LeavePolicies;
             return View(employee);
         }
 

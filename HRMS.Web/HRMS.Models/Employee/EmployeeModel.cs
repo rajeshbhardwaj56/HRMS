@@ -73,6 +73,7 @@ namespace HRMS.Models.Employee
         public long UpdatedByUserID { get; set; }
         public DateTime InsertedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public long? LeavePolicyID { get; set; } = 0;
 
         // Employment Details
         public long DesignationID { get; set; }
@@ -101,6 +102,7 @@ namespace HRMS.Models.Employee
         public List<SelectListItem> Countries = new List<SelectListItem>();
         public List<SelectListItem> EmploymentTypes = new List<SelectListItem>();
         public List<SelectListItem> Departments = new List<SelectListItem>();
+        public List<SelectListItem> leavePolicies { get; set; } = new List<SelectListItem>();
 
     }
 }

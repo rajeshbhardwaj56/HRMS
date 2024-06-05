@@ -1,5 +1,6 @@
 ﻿using HRMS.Models;
 using HRMS.Models.Common;
+using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
@@ -122,8 +123,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 myInfoInputParams.UserID = model.leaveSummaryModel.UserID;
                 myInfoInputParams.CompanyID = model.leaveSummaryModel.CompanyID;
 
-                model.leaveSummaryModel.LeaveStatusID = (int)CheckLeaveStatus(myInfoInputParams, model);
-
+                var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(_businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = model.leaveSummaryModel.CompanyID, EmployeeID = model.leaveSummaryModel.EmployeeID }, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()).employeeModel;
+                model.leaveSummaryModel.LeavePolicyID = employeeDetails.LeavePolicyID ?? 0;
+                bool isJoiningdayMoreThan90 = (DateTime.Today - employeeDetails.InsertedDate).TotalDays > 90;
+                model.leaveSummaryModel.LeaveStatusID = (int)CheckLeaveStatus(myInfoInputParams, model, isJoiningdayMoreThan90);
                 var data = _businessLayer.SendPostAPIRequest(model.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
@@ -136,54 +139,91 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return PartialView("_LeaveFormPartial", model);
         }
 
-        private LeaveStatus CheckLeaveStatus(MyInfoInputParams myInfoInputParams, LeaveResults leaveResults)
+        private LeaveStatus CheckLeaveStatus(MyInfoInputParams myInfoInputParams, LeaveResults leaveResults, bool isJoiningdayMoreThan90)
         {
-            var leavePolicyInputParams = new LeavePolicyInputParans
+            var leaveStatus = LeaveStatus.PendingApproval;
+
+            var leavePolicy = GetLeavePolicy(leaveResults.leaveSummaryModel.LeavePolicyID ?? 0);
+            if (leavePolicy == null)
+                return leaveStatus;
+
+            var employeeLeavesSummary = GetEmployeeLeavesSummary(myInfoInputParams);
+            if (employeeLeavesSummary == null || employeeLeavesSummary.leavesSummary == null)
+                return leaveStatus;
+
+            var requestedLeaveDays = (int)leaveResults.leaveSummaryModel.NoOfDays;
+            var totalApprovedLeaveDays = GetTotalApprovedLeaveDays(employeeLeavesSummary.leavesSummary, leaveResults.leaveSummaryModel.LeavePolicyID ?? 0);
+
+
+            var leaveType = GetLeaveType(leaveResults.leaveSummaryModel.LeaveTypeName);
+            if (leaveType != null)
             {
-                CompanyID = myInfoInputParams.CompanyID,
-                LeavePolicyID = leaveResults.leaveSummaryModel.LeavePolicyID
-            };
-            var employeeLeavesSummaryResponse = _businessLayer.SendPostAPIRequest(
-                myInfoInputParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetlAllLeavesSummary),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            ).Result.ToString();
-            var employeeLeavesSummary = JsonConvert.DeserializeObject<LeaveSummaryResults>(employeeLeavesSummaryResponse);
+                if (isJoiningdayMoreThan90 && requestedLeaveDays <= leavePolicy.MaximumConsecutiveLeavesAllowed &&
+    (requestedLeaveDays + totalApprovedLeaveDays > leavePolicy.MaximumLeaveAllocationAllowed &&
+    (leavePolicy.IsCarryForward || leavePolicy.IsAllowOverAllocation || leavePolicy.IsAllowNegativeBalance)))
+                {
+                    leaveStatus = LeaveStatus.Approved;
+                }
+                else
+                {
+                    leaveStatus = LeaveStatus.NotApproved;
+                }
+            }
+
+            if (leavePolicy.IsOptionalLeave || leavePolicy.IsPartiallyPaidLeave)
+            {
+                leaveStatus = LeaveStatus.PendingApproval;
+            }
+
+
+            return leaveStatus;
+        }
+
+        private LeavePolicyModel GetLeavePolicy(long leavePolicyID)
+        {
+            var leavePolicyInputParams = new LeavePolicyInputParans { LeavePolicyID = leavePolicyID };
+
             var leavePolicyResponse = _businessLayer.SendPostAPIRequest(
                 leavePolicyInputParams,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
+
             var leavePolicyDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(leavePolicyResponse);
-            var leavePolicy = leavePolicyDetails.leavePolicyModel;
-            int requestedLeaveDays = (int)leaveResults.leaveSummaryModel.NoOfDays;
-            DateTime leaveStartDate = leaveResults.leaveSummaryModel.StartDate;
-            DateTime leaveEndDate = leaveResults.leaveSummaryModel.EndDate;
-            DateTime periodStart = new DateTime(DateTime.Now.Year - 1, 4, 1);
-            DateTime periodEnd = new DateTime(DateTime.Now.Year, 3, 30);
-            var leavesWithinPeriod = employeeLeavesSummary.leavesSummary
-                .Where(x => x.StartDate >= periodStart && x.EndDate <= periodEnd && x.LeaveStatusID == (int)LeaveStatus.Approved)
-                .ToList();
 
-            decimal totalApprovedLeaveDays = leavesWithinPeriod.Sum(leave => leave.NoOfDays);
-
-            if (leavePolicy != null)
-            {
-                if (requestedLeaveDays + totalApprovedLeaveDays > leavePolicy.MaximumLeaveAllocationAllowed)
-                {
-                    return LeaveStatus.NotApproved;
-                }
-
-                if (requestedLeaveDays > leavePolicy.MaximumConsecutiveLeavesAllowed)
-                {
-                    return LeaveStatus.NotApproved;
-                }
-            }
-
-            return LeaveStatus.PendingApproval;
+            return leavePolicyDetails?.leavePolicyModel;
         }
+
+        private LeaveSummaryResults GetEmployeeLeavesSummary(MyInfoInputParams myInfoInputParams)
+        {
+            var employeeLeavesSummaryResponse = _businessLayer.SendPostAPIRequest(
+                myInfoInputParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetlAllLeavesSummary),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            return JsonConvert.DeserializeObject<LeaveSummaryResults>(employeeLeavesSummaryResponse);
+        }
+
+        private decimal GetTotalApprovedLeaveDays(List<LeaveSummaryModel> leavesSummary, long leavePolicyID)
+        {
+            var periodStart = new DateTime(DateTime.Now.Year - 1, 4, 1);
+            var periodEnd = new DateTime(DateTime.Now.Year, 3, 30);
+
+            return leavesSummary?
+                .Where(x => x.StartDate >= periodStart && x.EndDate <= periodEnd && x.LeaveStatusID == (int)LeaveStatus.Approved && x.LeavePolicyID == leavePolicyID)
+                .Sum(leave => (decimal?)leave.NoOfDays) ?? 0;
+        }
+
+        private LeaveTypeName? GetLeaveType(string leaveTypeString)
+        {
+            if (Enum.TryParse<LeaveTypeName>(leaveTypeString, out var leaveType))
+                return leaveType;
+            return null;
+        }
+
 
     }
 }

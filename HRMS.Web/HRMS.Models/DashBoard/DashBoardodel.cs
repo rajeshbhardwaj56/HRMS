@@ -77,5 +77,6 @@ namespace HRMS.Models.DashBoard
         public string? ContactPersonTelephone { get; set; } = string.Empty;
         public string? ContactPersonRelationship { get; set; } = string.Empty;
         public string? ITSkillsKnowledge { get; set; } = string.Empty;
+        public long? LeavePolicyID { get; set; } = 0;
     }
 }

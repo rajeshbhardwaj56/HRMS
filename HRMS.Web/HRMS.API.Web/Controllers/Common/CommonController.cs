@@ -1,6 +1,7 @@
 ﻿using HRMS.API.BusinessLayer;
 using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
+using HRMS.Models.Leave;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,7 @@ namespace HRMS.API.Web.Controllers.Common
             results.Languages = _businessLayer.GetAllCompanyLanguages(CompanyID).Languages;
             results.Departments = _businessLayer.GetAllCompanyDepartments(CompanyID).Departments;
             results.EmploymentTypes = _businessLayer.GetAllCompanyEmployeeTypes(CompanyID).EmploymentTypes;
+            results.LeavePolicies = _businessLayer.GetLeavePolicys(new MyInfoInputParams { CompanyID=CompanyID}).leavePolicys;
             results.Currencies = _businessLayer.GetAllCurrencies(CompanyID).Currencies;
             response = Ok(results);
             return response;
