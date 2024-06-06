@@ -434,7 +434,7 @@
     var url = "@Url.Action("AddNewFamilyMember", "Employee")";
     var urlEducationalDetails = "@Url.Action("AddNewEducationalDetail", "Employee")";
     var urlAddNewLanguageDetails = "@Url.Action("AddNewLanguageDetail", "Employee")";
-    var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentDetail", "Employee")";
+    var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentHistory", "Employee")";
 
     function AddNewFamily(isDeleted) {
         var familyMembers = [];
@@ -515,8 +515,7 @@
         });
     }
 
-    function AddNewEmployment(isDeleted) {
-        debugger
+    function AddNewEmployment(isDeleted) {       
         var EmploymentDetails = [];
         if ($('.EmploymentDetail').length > 0) {
             var elementID = '';

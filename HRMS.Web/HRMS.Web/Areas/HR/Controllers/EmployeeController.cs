@@ -198,6 +198,8 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 employee.EmploymentHistory.Add(new EmploymentHistory() { });
             }
+            HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);           
+            employee.Countries = results.Countries;
             return PartialView("_EmploymentHistory", employee);
         }
 
