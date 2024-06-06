@@ -516,10 +516,10 @@
     }
 
     function AddNewEmployment(isDeleted) {       
-        var EmploymentDetails = [];
-        if ($('.EmploymentDetail').length > 0) {
+        var EmploymentHistory = [];
+        if ($('.EmploymentHistory').length > 0) {
             var elementID = '';
-            $('.EmploymentDetail').each(function (index, element) {
+            $('.EmploymentHistory').each(function (index, element) {
                 elementID = element.id;
                 var EmploymentDetail = {
                     CompanyName: $("#" + elementID).val(),
@@ -543,10 +543,10 @@
                     HRContactNo: $("#" + elementID.replace("CompanyName", "HRContactNo")).val(),
                 };
 
-                EmploymentDetails.push(EmploymentDetail);
+                EmploymentHistory.push(EmploymentDetail);
             });
         }
-        var model = { EmploymentDetails: EmploymentDetails, isDeleted: isDeleted };
+        var model = { EmploymentHistory: EmploymentHistory, isDeleted: isDeleted };
 
         $.post(urlAddNewEmploymentDetails, model, function (res) {
             //res contains the markup returned by the partial view
