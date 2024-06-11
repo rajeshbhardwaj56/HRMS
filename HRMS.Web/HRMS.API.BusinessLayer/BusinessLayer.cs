@@ -1360,9 +1360,14 @@ namespace HRMS.API.BusinessLayer
 			EmployeeInputParams employeeInputParams = new EmployeeInputParams();
 			employeeInputParams.EmployeeID = model.EmployeeID;
 			employeeInputParams.CompanyID = model.CompanyID;
-			myInfoResults.employeeModel = GetAllEmployees(employeeInputParams).employeeModel;
-			myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
-			return myInfoResults;
+
+			var data= GetAllEmployees(employeeInputParams);
+			myInfoResults.employeeModel = data.employeeModel;
+			myInfoResults.employmentHistory = data.employeeModel.EmploymentHistory;
+
+            myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
+          
+            return myInfoResults;
 		}
 
 
