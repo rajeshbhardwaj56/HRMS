@@ -9,7 +9,8 @@
     SelectListItem selectCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.CorrespondenceCountryID.ToString()).FirstOrDefault();
 
     SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
-
+    SelectListItem employmentHistoryCountry;
+    var CountryData = @Model.employeeModel.Countries;
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 
     ViewData["Title"] = "Employee";
@@ -452,11 +453,16 @@
                                                                                 </div>
                                                                                 <div class="col-md-3">
                                                                                     @Model.employmentHistory[Index].State
-
                                                                                 </div>
 
                                                                                 <div class="col-md-3">
-                                                                                    @Model.employmentHistory[Index].CountryID
+                                                                                    @{
+                                                                                        employmentHistoryCountry = @CountryData.Where(x => x.Value == Model.employmentHistory[Index].CountryID.ToString()).FirstOrDefault();
+                                                                                        if (employmentHistoryCountry != null)
+                                                                                        {
+                                                                                            employmentHistoryCountry.Value.ToString();
+                                                                                        }
+                                                                                    }
                                                                                 </div>
 
                                                                                 <div class="col-md-3">
