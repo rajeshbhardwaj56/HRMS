@@ -15,7 +15,7 @@
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-10">
-                    <b> Employer-@(index)</b>
+                    <h6> Employer-@(index)</h6>
                 </div>
 
                 <div class="col-md-1">
@@ -25,10 +25,114 @@
                     <a onclick="deleteEmploymentHistory('@(delete)')"><img style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
                 </div>
             </div>
+
+
+            <div class="row">
+                <div class="col-md-3 form-group">
+                    <label>Company Name</label>                    
+                    @Html.HiddenFor(m => m.EmploymentHistory[Index].EmploymentHistoryID)
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].CompanyName, new { @class = "form-control EmploymentHistory", @required = "required" })
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Employee ID</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].EmploymentID, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>From</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].From, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                </div>
+
+                <div class="col-md-3 form-group">
+                    <label>To</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].To, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label>Address/Branch</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].Address, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Phone</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].Phone, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>City</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].City, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>State</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].State, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Country</label>
+                    @Html.DropDownListFor(x => x.EmploymentHistory[Index].CountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Postal Code</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].PostalCode, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-12 form-group">
+                    <label>Reasion for Leaving</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].ReasionFoLeaving, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label>Designition (As per document)</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].Designition, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Final Gross Salary(as per Company Letter)</label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].GrossSalary, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>
+                        Supervisor Name
+                    </label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].SupervisorName, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>
+                        Supervisor's Designition
+                    </label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].SupervisorDesignition, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>
+                        Supervisor's ContactNo
+                    </label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].SupervisorContactNo, new { @class = "form-control", @required = "required" })
+                </div>
+
+
+                <div class="col-md-4 form-group">
+                    <label>
+                        HR Manager Name
+                    </label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].HRName, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>
+                        HR Manager's ContactNo
+                    </label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].HREmail, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>
+                        HR Manager's Email
+                    </label>
+                    @Html.TextBoxFor(a => a.EmploymentHistory[Index].HRContactNo, new { @class = "form-control", @required = "required" })
+                </div>
+              
+
+                </div>
+          
+
+
             <div class="row">
                 <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-md-3">
+                    @* <div class="row">
+                        <div class="col-md-3 ">
                             Company Name
                         </div>
                         <div class="col-md-3">
@@ -63,7 +167,7 @@
                             @Html.TextBoxFor(a => a.EmploymentHistory[Index].To, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
 
                         </div>
-                    </div>
+                </div> 
 
                     <div class="row">
                         <div class="col-md-6">
@@ -86,7 +190,7 @@
 
                         </div>
 
-                    </div>
+                </div>
 
 
                     <div class="row">
@@ -124,7 +228,7 @@
                             @Html.TextBoxFor(a => a.EmploymentHistory[Index].PostalCode, new { @class = "form-control", @required = "required" })
 
                         </div>
-                    </div>
+                </div>
 
                     <div class="row">
                         <div class="col-md-12">
@@ -135,7 +239,7 @@
 
                         </div>
 
-                    </div>
+                </div>
 
 
                     <div class="row">
@@ -159,7 +263,7 @@
 
                         </div>
 
-                    </div>
+                </div>
 
                     <div class="row">
                         <div class="col-md-4">
@@ -186,7 +290,7 @@
                             @Html.TextBoxFor(a => a.EmploymentHistory[Index].SupervisorContactNo, new { @class = "form-control", @required = "required" })
 
                         </div>
-                    </div>
+                </div>
 
                     <div class="row">
                         <div class="col-md-4">
@@ -214,7 +318,7 @@
                             @Html.TextBoxFor(a => a.EmploymentHistory[Index].HRContactNo, new { @class = "form-control", @required = "required" })
 
                         </div>
-                    </div>
+                </div>*@
 
                 </div>
             </div>

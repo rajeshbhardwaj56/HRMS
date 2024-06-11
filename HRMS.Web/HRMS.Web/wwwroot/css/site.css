@@ -1097,7 +1097,7 @@ section.upper-section {
 .notification {position: absolute;width: 15px; height: 15px; background:red; border-radius: 10px; font-size: 10px; display: flex; justify-content: center; align-items: center; right: 0px;
     top: -4px; color:var(--theme-bg);}
 .notify svg{fill:var(--secondry-color);}
-
+input[type="file"] {max-width: 100%;}
 
 
 
@@ -1141,5 +1141,17 @@ section.upper-section {
 
 
 @media (max-width: 767px) {
+    .main-container{overflow-x:hidden;}
     .small-header {font-size: 16px; font-weight: 600;}
+    section.upper-section{margin:0px -15px;}
+    section.upper-section + .container-fluid {padding:0px;}
+    #myTabContentSection .card{border:none; padding:0px;}
+    #myTabContentSection .card .card-body {padding: 0px;}
+    #holiday-list-container .accordion-body{padding:0px;}
+}
+
+@media (max-width: 540px) {
+    .btn-success, .btn-danger{width:100%}
+    .group-box{padding:15px;}
+    .small-header .btn.btn-info{width:100%;}
 }

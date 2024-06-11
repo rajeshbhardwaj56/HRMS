@@ -15,7 +15,7 @@
             <div class="row py-2">
                 <div class="col-lg-6 col-md-12">
                     <label for="leavepolicy" class="form-label">Leave Duration Type:</label>
-                    @Html.DropDownListFor(x => x.leaveSummaryModel.LeaveDurationTypeID, Model.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
+                    @Html.DropDownListFor(x => x.leaveSummaryModel.LeaveDurationTypeID, Model.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required", @id = "leaveDurationType" })
                 </div>
             </div>
 
@@ -30,13 +30,13 @@
 
                 </div>
             </div>
-            
-            <div class="row py-2">
+
+            <div class="row py-2 fullDayContainer">
                 <div class="col-lg-5 col-md-12">
                     <label for="datepicker1" class="form-label">From:</label>
                     <div class="position-relative">
                         <div class="input-group date" id="datepickerdiv1">
-                            @Html.TextBoxFor(a => a.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01" })
+                            @Html.TextBoxFor(a => a.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01", @id = "startDate" })
                         </div>
                     </div>
                 </div>
@@ -44,7 +44,17 @@
                     <label for="datepicker2" class="form-label">To:</label>
                     <div class="position-relative">
                         <div class="input-group date" id="datepickerdiv2">
-                            @Html.TextBoxFor(a => a.leaveSummaryModel.EndDate , "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01" })
+                            @Html.TextBoxFor(a => a.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01", @id = "endDate" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row py-2 halfDayContainer">
+                <div class="col-lg-5 col-md-12">
+                    <label for="datepicker1" class="form-label">Date:</label>
+                    <div class="position-relative">
+                        <div class="input-group date" id="datepickerdiv1">
+                            @Html.TextBoxFor(a => a.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01", @id = "startDate" })
                         </div>
                     </div>
                 </div>
@@ -62,3 +72,29 @@
         </form>
     </div>
 </div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        function toggleToDateField() {
+            var leaveDurationType = $('#leaveDurationType').val();
+            if (leaveDurationType === '2') { 
+                $('.fullDayContainer').hide();
+                $('.halfDayContainer').show();
+                $('#endDate').removeAttr('required');
+            } else {
+                $('.fullDayContainer').show();
+                $('.halfDayContainer').hide();
+                $('#endDate').attr('required', 'required');
+            }
+        }
+
+        // Initial call
+        toggleToDateField();
+
+        // Call when the leave duration type changes
+        $('#leaveDurationType').change(function () {
+            toggleToDateField();
+        });
+    });
+</script>

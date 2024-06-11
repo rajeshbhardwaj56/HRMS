@@ -3,6 +3,7 @@ using HRMS.Models.LeavePolicy;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using Results = HRMS.Models.Common.Results;
 
@@ -59,6 +60,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Index(LeavePolicyModel leavePolicyModel)
         {
+            // Leaves less than maximum leaves
+
+            if (leavePolicyModel.MaximumCasualLeaveAllocationAllowed + leavePolicyModel.MaximumMedicalLeaveAllocationAllowed + leavePolicyModel.MaximumAnnualLeaveAllocationAllowed > leavePolicyModel.MaximumLeaveAllocationAllowed)
+            {
+                ModelState.AddModelError(string.Empty, "The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.");
+                //return BadRequest("The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.");
+            }
+
             if (ModelState.IsValid)
             {
                 leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -66,14 +75,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicy), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
-                if (leavePolicyModel.LeavePolicyID > 0)
-                {
-                    return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.LeavePolicy, new { id = leavePolicyModel.LeavePolicyID.ToString() });
-                }
-                else
-                {
-                    return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
-                }
+                //if (leavePolicyModel.LeavePolicyID > 0)
+                //{
+                //    return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.LeavePolicy, new { id = leavePolicyModel.LeavePolicyID.ToString() });
+                //}
+                //else
+                //{
+                //    return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
+                //}
+                return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
             }
             else
             {

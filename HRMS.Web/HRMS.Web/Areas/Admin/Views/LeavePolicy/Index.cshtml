@@ -6,12 +6,14 @@
 }
 
 
-<form method="post" enctype="multipart/form-data">
+<form id="leaveForm" method="post" enctype="multipart/form-data">
+   
     <div class="Container">
 
         <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
             <label class="form-label">Leave Policy Details </label>
         </div>
+
         <div class="row">
             <div class="col-md-4">
                 <div class="col-md-12">
@@ -32,137 +34,183 @@
 
                 </div>
             </div>
-
-
             <div class="col-md-4">
                 <div class="col-md-12">
-                    ApplicableAfterWorkingDays <label class="Mandetory">*</label>
+                    Applicable After Working Days <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
                     @Html.TextBoxFor(a => a.ApplicableAfterWorkingDays, new { @class = "form-control", @required = "required" })
                 </div>
             </div>
+
+        </div>
+        <div class="row">
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Maximum Consecutive Leaves Allowed <label class="Mandetory">*</label>
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.MaximumConsecutiveLeavesAllowed, new { @class = "form-control", @required = "required" })
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Maximum Casual Leaves Allocation Allowed <label class="Mandetory">*</label>
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.MaximumCasualLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="col-md-12">
+                Maximum Medical Leaves Allocation Allowed <label class="Mandetory">*</label>
+            </div>
+            <div class="col-md-12">
+                @Html.TextBoxFor(a => a.MaximumMedicalLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+
+            </div>
+        </div>
+        </div>
+      
+        <div class="row">
+
             <div class="col-md-4">
                 <div class="col-md-12">
-                    MaximumConsecutiveLeavesAllowed <label class="Mandetory">*</label>
+                    Maximum Annual Allocation Allowed <label class="Mandetory">*</label>
                 </div>
                 <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.MaximumConsecutiveLeavesAllowed, new { @class = "form-control", @required = "required" })
+                    @Html.TextBoxFor(a => a.MaximumAnnualLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+
                 </div>
             </div>
 
 
 
-            <div class="col-md-8">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Carry Forward <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsCarryForward)
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Leave Without Pay <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsLeaveWithoutPay)
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Partially Paid Leave <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsPartiallyPaidLeave)
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Optional Leave <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsOptionalLeave)
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Allow Negative Balance <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsAllowNegativeBalance)
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Allow Over Allocation
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsAllowOverAllocation)
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Include Holidays Within Leaves As Leaves<label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsIncludeHolidaysWithinLeavesAsLeaves)
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Compendatory
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsCompendatory)
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Allow Encashment <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsAllowEncashment)
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Earned Leave <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsEarnedLeave)
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="row">
-                &nbsp;
-            </div>
-
-
-            <div class="row">
+            <div class="col-md-4">
                 <div class="col-md-12">
-                    <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
-                    <input id="cancelButton" style="float:right; margin:0 16px;" type="button" value="Cancel" class="btn btn-success" />
+                    Is Carry Forward <label class="Mandetory">*</label>
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsCarryForward)
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Leave Without Pay <label class="Mandetory">*</label>
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsLeaveWithoutPay)
                 </div>
             </div>
 
         </div>
+
+        <div class="row">
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Partially Paid Leave <label class="Mandetory">*</label>
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsPartiallyPaidLeave)
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Optional Leave <label class="Mandetory">*</label>
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsOptionalLeave)
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Allow Negative Balance <label class="Mandetory">*</label>
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsAllowNegativeBalance)
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Allow Over Allocation
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsAllowOverAllocation)
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Include Holidays Within Leaves As Leaves<label class="Mandetory">*</label>
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsIncludeHolidaysWithinLeavesAsLeaves)
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Compendatory
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsCompendatory)
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Allow Encashment <label class="Mandetory">*</label>
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsAllowEncashment)
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="col-md-12">
+                    Is Earned Leave <label class="Mandetory">*</label>
+                </div>
+                <div class="col-md-12">
+                    @Html.CheckBoxFor(a => a.IsEarnedLeave)
+                </div>
+            </div>
+
+            <div class="col-md-4"></div>
+
+        </div>
+
+
+        <div class="row">
+            &nbsp;
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-2">
+                <input type="submit" value="Submit" class="btn btn-success" />
+            </div>
+            <div class="col-md-2">
+                <input id="cancelButton" type="button" value="Cancel" class="btn btn-success" />
+            </div>
+        </div>
+
+    </div>
     </div>
 </form>
 
@@ -170,4 +218,17 @@
     document.getElementById('cancelButton').addEventListener('click', function () {
         window.location.href = '@Url.Action("LeavePolicyListing", "LeavePolicy")';
     });
+</script>
+    // Leaves less than max leaves
+<script>
+    document.getElementById('leaveForm').addEventListener('submit', function (event) {
+        var maxleaves = parseInt(document.getElementById('MaximumLeaveAllocationAllowed').value) || 0;
+        var medicalleaves = parseInt(document.getElementById('MaximumMedicalLeaveAllocationAllowed').value) || 0;
+        var causalleaves = parseInt(document.getElementById('MaximumCasualLeaveAllocationAllowed').value) || 0;
+        var annualleaves = parseInt(document.getElementById('MaximumAnnualLeaveAllocationAllowed').value) || 0;
+        if (medicalleaves + causalleaves + annualleaves > maxleaves) { 
+            event.preventDefault();
+            alert("The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.");
+        }
+    })
 </script>
