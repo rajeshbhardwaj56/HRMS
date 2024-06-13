@@ -912,8 +912,11 @@ namespace HRMS.API.BusinessLayer
 								  IsIncludeHolidaysWithinLeavesAsLeaves = dataRow.Field<bool>("IsIncludeHolidaysWithinLeavesAsLeaves"),
 								  IsCompendatory = dataRow.Field<bool>("IsCompendatory"),
 								  IsAllowEncashment = dataRow.Field<bool>("IsAllowEncashment"),
-								  IsEarnedLeave = dataRow.Field<bool>("IsEarnedLeave")
-							  }).ToList();
+								  IsEarnedLeave = dataRow.Field<bool>("IsEarnedLeave"),
+                                  MaximumCasualLeaveAllocationAllowed = dataRow.Field<int>("MaximumCasualLeaveAllocationAllowed"),
+                                  MaximumMedicalLeaveAllocationAllowed = dataRow.Field<int>("MaximumMedicalLeaveAllocationAllowed"),
+                                  MaximumAnnualLeaveAllocationAllowed = dataRow.Field<int>("MaximumAnnualLeaveAllocationAllowed")
+                              }).ToList();
 
 			if (model.LeavePolicyID > 0)
 			{
@@ -944,8 +947,11 @@ namespace HRMS.API.BusinessLayer
 			sqlParameters.Add(new SqlParameter("@IsCompendatory", leavePolicyModel.IsCompendatory));
 			sqlParameters.Add(new SqlParameter("@IsAllowEncashment", leavePolicyModel.IsAllowEncashment));
 			sqlParameters.Add(new SqlParameter("@IsEarnedLeave", leavePolicyModel.IsEarnedLeave));
+            sqlParameters.Add(new SqlParameter("@MaximumCasualLeaveAllocationAllowed", leavePolicyModel.MaximumCasualLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@MaximumMedicalLeaveAllocationAllowed", leavePolicyModel.MaximumMedicalLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@MaximumAnnualLeaveAllocationAllowed", leavePolicyModel.MaximumAnnualLeaveAllocationAllowed));
 
-			var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicy, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicy, sqlParameters);
 
 			if (dataSet.Tables[0].Columns.Contains("Result"))
 			{

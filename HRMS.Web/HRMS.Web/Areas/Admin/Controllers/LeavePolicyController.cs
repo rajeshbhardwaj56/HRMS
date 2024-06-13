@@ -59,6 +59,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Index(LeavePolicyModel leavePolicyModel)
         {
+            // Leaves less than maximum leaves
+
+            if (leavePolicyModel.MaximumCasualLeaveAllocationAllowed + leavePolicyModel.MaximumMedicalLeaveAllocationAllowed + leavePolicyModel.MaximumAnnualLeaveAllocationAllowed > leavePolicyModel.MaximumLeaveAllocationAllowed)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.";
+                return View();
+            }
             if (ModelState.IsValid)
             {
                 leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -66,14 +74,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicy), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
-                if (leavePolicyModel.LeavePolicyID > 0)
-                {
-                    return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.LeavePolicy, new { id = leavePolicyModel.LeavePolicyID.ToString() });
-                }
-                else
-                {
-                    return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
-                }
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
+                return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
             }
             else
             {
