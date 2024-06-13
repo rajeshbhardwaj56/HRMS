@@ -8,6 +8,10 @@
     {
         Model.leaveSummaryModel.EndDate = DateTime.Now;
     }
+    if (Model.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
+    {
+        Model.leaveSummaryModel.HalfDayDate = DateTime.Now;
+    }
 }
 <div class="card">
     <div class="card-body">
@@ -51,10 +55,10 @@
             </div>
             <div class="row py-2 halfDayContainer">
                 <div class="col-lg-5 col-md-12">
-                    <label for="datepicker1" class="form-label">Date:</label>
+                    <label for="halfDayDatepicker" class="form-label">Date:</label>
                     <div class="position-relative">
-                        <div class="input-group date" id="datepickerdiv1">
-                            @Html.TextBoxFor(a => a.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01", @id = "startDate" })
+                        <div class="input-group date" id="halfDayDatepickerdiv">
+                            @Html.TextBoxFor(a => a.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = "1990-01-01", @id = "halfDayDate" })
                         </div>
                     </div>
                 </div>
@@ -73,19 +77,22 @@
     </div>
 </div>
 
-
 <script type="text/javascript">
     $(document).ready(function () {
         function toggleToDateField() {
             var leaveDurationType = $('#leaveDurationType').val();
-            if (leaveDurationType === '2') { 
+            if (leaveDurationType === '2') {
                 $('.fullDayContainer').hide();
                 $('.halfDayContainer').show();
+                $('#startDate').removeAttr('required');
                 $('#endDate').removeAttr('required');
+                $('#halfDayDate').attr('required', 'required');
             } else {
                 $('.fullDayContainer').show();
                 $('.halfDayContainer').hide();
+                $('#startDate').attr('required', 'required');
                 $('#endDate').attr('required', 'required');
+                $('#halfDayDate').removeAttr('required');
             }
         }
 

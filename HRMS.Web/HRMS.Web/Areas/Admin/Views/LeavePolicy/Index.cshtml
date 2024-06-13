@@ -219,16 +219,3 @@
         window.location.href = '@Url.Action("LeavePolicyListing", "LeavePolicy")';
     });
 </script>
-    // Leaves less than max leaves
-<script>
-    document.getElementById('leaveForm').addEventListener('submit', function (event) {
-        var maxleaves = parseInt(document.getElementById('MaximumLeaveAllocationAllowed').value) || 0;
-        var medicalleaves = parseInt(document.getElementById('MaximumMedicalLeaveAllocationAllowed').value) || 0;
-        var causalleaves = parseInt(document.getElementById('MaximumCasualLeaveAllocationAllowed').value) || 0;
-        var annualleaves = parseInt(document.getElementById('MaximumAnnualLeaveAllocationAllowed').value) || 0;
-        if (medicalleaves + causalleaves + annualleaves > maxleaves) { 
-            event.preventDefault();
-            alert("The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.");
-        }
-    })
-</script>
