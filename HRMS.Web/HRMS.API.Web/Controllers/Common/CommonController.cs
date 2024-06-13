@@ -23,6 +23,7 @@ namespace HRMS.API.Web.Controllers.Common
 
         [HttpGet]
         [OutputCache(Duration = 999999)]
+        [AllowAnonymous]
         public IActionResult GetAllResults(long CompanyID)
         {
             IActionResult response = Unauthorized();

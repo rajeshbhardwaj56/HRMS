@@ -24,6 +24,7 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult AddUpdateEmployee(EmployeeModel model)
         {
             IActionResult response = Unauthorized();
