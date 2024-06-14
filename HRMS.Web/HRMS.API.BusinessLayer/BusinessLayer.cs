@@ -1028,7 +1028,45 @@ namespace HRMS.API.BusinessLayer
 		#endregion
 
 		#region Leaves
-		public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel)
+
+		public LeaveResults GetLeaveForApprovals(MyInfoInputParams model)
+		{
+            
+            LeaveResults result = new LeaveResults();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();           
+            sqlParameter.Add(new SqlParameter("@ReportingToEmployeeID", model.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveForApprovals, sqlParameter);
+            result.leavesSummary = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new LeaveSummaryModel
+                              {
+                                  LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
+                                  LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
+                                  LeaveTypeID = dataRow.Field<long>("LeaveTypeID"),
+                                  LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
+                                  LeaveDurationTypeID = dataRow.Field<long>("LeaveDurationTypeID"),
+                                  LeaveStatusName = dataRow.Field<string>("LeaveStatusName"),
+								  Reason = dataRow.Field<string>("Reason"),
+                                  RequestDate = dataRow.Field<DateTime>("RequestDate"),
+                                  StartDate = dataRow.Field<DateTime>("StartDate"),
+								  EndDate = dataRow.Field<DateTime>("EndDate"),                                  
+                                  LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
+                                  NoOfDays = dataRow.Field<decimal>("NoOfDays"),
+                                  IsActive = dataRow.Field<bool>("IsActive"),
+                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),
+                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
+                              }).ToList();
+
+            result.leaveTypes = GetLeaveTypes(model).leaveTypes;
+            result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
+            if (model.LeaveSummaryID > 0)
+            {
+                result.leaveSummaryModel = result.leavesSummary.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
+            }
+
+            return result;
+        }
+
+        public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel)
 		{
 			Result model = new Result();
 			List<SqlParameter> sqlParameter = new List<SqlParameter>();
