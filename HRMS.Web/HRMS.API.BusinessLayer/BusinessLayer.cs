@@ -1100,7 +1100,8 @@ namespace HRMS.API.BusinessLayer
 			sqlParameter.Add(new SqlParameter("@IsActive", leaveSummaryModel.IsActive));
 			sqlParameter.Add(new SqlParameter("@IsDeleted", leaveSummaryModel.IsDeleted));
 			sqlParameter.Add(new SqlParameter("@UserID", leaveSummaryModel.UserID));
-			SqlParameterCollection pOutputParams = null;
+            sqlParameter.Add(new SqlParameter("@LeavePolicyID", leaveSummaryModel.LeavePolicyID));
+            SqlParameterCollection pOutputParams = null;
 			var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
 
 			if (dataSet.Tables[0].Columns.Contains("Result"))

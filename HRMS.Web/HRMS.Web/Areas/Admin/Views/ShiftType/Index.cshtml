@@ -5,13 +5,15 @@
     ViewData["Title"] = "Shift Type";
 }
 
-
+<div class="main-header anim" style="--delay: 0s">Shift Type Details </div>
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
-
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="row">
+@* 
         <div class="col-md-12 container-heading">
-            <label class="form-label" style="font-weight:500;"> Shift Type Details </label>
-        </div>
+            <label class="form-label" style="font-weight:500;">  </label>
+        </div> *@
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-6 my-2">
@@ -213,13 +215,21 @@
                 </div>
 
 
-                <div class="row">
+              @*   <div class="row">
                     <div class="col-md-12 my-2">
                         <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
                         <input id="cancelButton" style="float:right;margin-right: 10px;" type="button" value="Cancel" class="btn btn-success" />
                     </div>
-                </div>
+                </div> *@
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="submit" value="Submit" class="btn btn-success" />
+                                <button id="cancelButton" class="btn btn-danger" type="button" value="Cancel">Cancel</button>
+                            </div>
+                        </div>
 
+            </div>
+        </div>
             </div>
         </div>
     </div>

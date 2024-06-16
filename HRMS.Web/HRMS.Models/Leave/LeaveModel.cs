@@ -36,6 +36,7 @@ namespace HRMS.Models.Leave
         public long UserID { get; set; }
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
+        public long LeavePolicyID { get; set; }
 
     }
 

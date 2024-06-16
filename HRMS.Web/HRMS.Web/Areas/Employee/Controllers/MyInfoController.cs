@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 using HRMS.Models;
 using HRMS.Models.Common;
+using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.MyInfo;
 using HRMS.Web.BusinessLayer;
@@ -54,6 +55,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             if ( model.leaveResults.leaveSummaryModel.NoOfDays > 0)
             {
+
+                //var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(_businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = model.leaveResults.leaveSummaryModel.CompanyID, EmployeeID = model.leaveResults.leaveSummaryModel.EmployeeID }, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()).employeeModel;
+                //model.leaveResults.leaveSummaryModel.LeavePolicyID = employeeDetails.LeavePolicyID ?? 0;
+
+                model.leaveResults.leaveSummaryModel.LeavePolicyID = 1;
+
                 model.leaveResults.leaveSummaryModel.LeaveStatusID = (int)LeaveStatus.PendingApproval;
 
                 model.leaveResults.leaveSummaryModel.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID));
