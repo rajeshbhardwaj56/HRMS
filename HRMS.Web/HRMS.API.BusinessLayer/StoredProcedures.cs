@@ -40,14 +40,18 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_AttendanceList = "usp_Get_AttendanceList";
         public const string usp_AddUpdate_AttendenceList = "usp_AddUpdate_AttendenceList";
         public const string usp_Get_Employees = "usp_Get_Employees";
+        public const string usp_Get_HolidayList = "usp_Get_HolidayList";
 
-        
+
         public const string usp_AddUpdate_EmploymentDetails = "usp_AddUpdate_EmploymentDetails";
         public const string usp_Get_EmployeeDetailsFormDetails = "usp_Get_EmployeeDetailsFormDetails";
         public const string usp_GetDashBoardDetails = "usp_GetDashBoardDetails";
         public const string usp_ResetPassword = "usp_ResetPassword";
         public const string usp_Get_LeaveForApprovals = "usp_Get_LeaveForApprovals";
-        
+
+        public const string usp_Get_ShiftTypeDetails = "usp_Get_ShiftTypeDetails";
+        public const string usp_AddUpdate_ShiftType = "usp_AddUpdate_ShiftType";
+
 
     }
 }

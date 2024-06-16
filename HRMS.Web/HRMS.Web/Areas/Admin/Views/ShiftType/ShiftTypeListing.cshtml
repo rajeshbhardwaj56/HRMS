@@ -1,0 +1,90 @@
+﻿@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model Results
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Shift Type";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+<div class="main-header anim" style="--delay: 0s">Shift Type List  <a href="~/Admin/ShiftType"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Shift Type</button></a></div>
+
+
+<div class="table-responsive py-3">
+
+    <table id="tblShiftTypeListing" class="table table-striped body-text" style="width:100%">
+
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden"> /th>
+                <th>Shift Type Name</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Auto Attendance Enabled </th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#tblShiftTypeListing').DataTable({
+            "ajax": {
+                "url": "ShiftTypeListings/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "shiftTypeID", "autoWidth": true, },
+                { "data": "shiftTypeName", "autoWidth": true, },
+                { "data": "startTime", "autoWidth": true, },
+                { "data": "endTime", "autoWidth": true, },
+                { "data": "autoAttendance", "autoWidth": true, },
+                {
+                    mRender: function (data, type, row) {
+
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.shiftTypeID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        return linkEdit;
+                    }
+                },
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+
+                {
+
+                    "targets": [0], //first and last not sortable
+                    "orderable": false,
+                    "visible": false
+                },
+
+                {
+
+                    "targets": [1], //first and last not sortable
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+
+            ]
+            , "responsive": true
+
+        });
+
+
+    });
+</script>

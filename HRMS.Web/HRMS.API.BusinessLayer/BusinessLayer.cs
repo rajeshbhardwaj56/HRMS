@@ -28,6 +28,7 @@ using HRMS.Models.DashBoard;
 using Microsoft.AspNetCore.Mvc;
 using HRMS.Models.User;
 using Newtonsoft.Json;
+using HRMS.Models.ShiftType;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -1025,11 +1026,27 @@ namespace HRMS.API.BusinessLayer
 			return model;
 		}
 
-		#endregion
+        public List<SelectListItem> GetHolidayList(HolidayInputParams model)
+        {
+            List<SelectListItem> result = new List<SelectListItem>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayList, sqlParameter);
 
-		#region Leaves
+            result = dataSet.Tables[0].AsEnumerable()
+                          .Select(dataRow => new SelectListItem
+                          {
+                              Value = dataRow.Field<long>("HolidayID").ToString(),
+                              Text = dataRow.Field<string>("HolidayName"),
+                          }).ToList();
+            return result;
+        }
 
-		public LeaveResults GetLeaveForApprovals(MyInfoInputParams model)
+        #endregion
+
+        #region Leaves
+
+        public LeaveResults GetLeaveForApprovals(MyInfoInputParams model)
 		{
             
             LeaveResults result = new LeaveResults();
@@ -1373,10 +1390,89 @@ namespace HRMS.API.BusinessLayer
 		}
 		#endregion
 
+		#region Shift Types
+		public Results GetAllShiftTypes(ShiftTypeInputParans model)
+		{
+            Results result = new Results();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameters.Add(new SqlParameter("@ShiftTypeID", model.ShiftTypeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ShiftTypeDetails, sqlParameters);
+            result.ShiftType = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new ShiftTypeModel
+                              {
+                                  ShiftTypeID = dataRow.Field<long>("ShiftTypeID"),
+                                  ShiftTypeName = dataRow.Field<string>("ShiftTypeName"),
+                                  StartTime = dataRow.Field<TimeSpan>("StartTime"),
+                                  EndTime = dataRow.Field<TimeSpan>("EndTime"),
+                                  AutoAttendance = dataRow.Field<bool>("AutoAttendance"),
+                                  IsCheckInAndOut = dataRow.Field<bool>("IsCheckInAndOut"),
+                                  HalfDayWorkingHours = dataRow.Field<long>("HalfDayWorkingHours"),
+                                  HolidayID = dataRow.Field<long>("HolidayID"),
+                                  WorkingHoursCalculation = dataRow.Field<string>("WorkingHoursCalculation"),
+                                  AbsentDayWorkingHours = dataRow.Field<long>("AbsentDayWorkingHours"),
+                                  CheckInBeforeShift = dataRow.Field<bool>("CheckInBeforeShift"),
+                                  CheckOutAfterShift = dataRow.Field<bool>("CheckOutAfterShift"),
+                                  ProcessAttendanceAfter = dataRow.Field<long>("ProcessAttendanceAfter"),
+                                  LastSyncDateTime = dataRow.Field<DateTime>("LastSyncDateTime"),
+                                  AutoAttendanceOnHoliday = dataRow.Field<bool>("AutoAttendanceOnHoliday"),
+                                  LastEntryGracePeriod = dataRow.Field<long>("LastEntryGracePeriod"),
+                                  EarlyExitGracePeriod = dataRow.Field<long>("EarlyExitGracePeriod"),
+                                  Comments = dataRow.Field<string>("Comments"),
+                                  CompanyID = dataRow.Field<long>("CompanyID")
+                              }).ToList();
 
+            if (model.ShiftTypeID > 0)
+            {
+                result.shiftTypeModel = result.ShiftType.FirstOrDefault();
+            }
 
-		#region XML Serialization
-		public string ConvertObjectToXML(object obj)
+            return result;
+        }
+
+    public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel)
+		{
+            Result model = new Result();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+
+            sqlParameters.Add(new SqlParameter("@ShiftTypeID", shiftTypeModel.ShiftTypeID));
+            sqlParameters.Add(new SqlParameter("@CompanyID", shiftTypeModel.CompanyID));
+            sqlParameters.Add(new SqlParameter("@ShiftTypeName", shiftTypeModel.ShiftTypeName));
+            sqlParameters.Add(new SqlParameter("@StartTime", shiftTypeModel.StartTime));
+            sqlParameters.Add(new SqlParameter("@EndTime", shiftTypeModel.EndTime));
+            sqlParameters.Add(new SqlParameter("@AutoAttendance", shiftTypeModel.AutoAttendance));
+            sqlParameters.Add(new SqlParameter("@IsCheckInAndOut", shiftTypeModel.IsCheckInAndOut));
+            sqlParameters.Add(new SqlParameter("@HalfDayWorkingHours", shiftTypeModel.HalfDayWorkingHours));
+            sqlParameters.Add(new SqlParameter("@HolidayID", shiftTypeModel.HolidayID));
+            sqlParameters.Add(new SqlParameter("@WorkingHoursCalculation", shiftTypeModel.WorkingHoursCalculation));
+            sqlParameters.Add(new SqlParameter("@AbsentDayWorkingHours", shiftTypeModel.AbsentDayWorkingHours));
+            sqlParameters.Add(new SqlParameter("@CheckInBeforeShift", shiftTypeModel.CheckInBeforeShift));
+            sqlParameters.Add(new SqlParameter("@CheckOutAfterShift", shiftTypeModel.CheckOutAfterShift));
+            sqlParameters.Add(new SqlParameter("@ProcessAttendanceAfter", shiftTypeModel.ProcessAttendanceAfter));
+            sqlParameters.Add(new SqlParameter("@LastSyncDateTime", shiftTypeModel.LastSyncDateTime));
+            sqlParameters.Add(new SqlParameter("@AutoAttendanceOnHoliday", shiftTypeModel.AutoAttendanceOnHoliday));
+            sqlParameters.Add(new SqlParameter("@LastEntryGracePeriod", shiftTypeModel.LastEntryGracePeriod));
+            sqlParameters.Add(new SqlParameter("@EarlyExitGracePeriod", shiftTypeModel.EarlyExitGracePeriod));
+            sqlParameters.Add(new SqlParameter("@Comments", shiftTypeModel.Comments));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ShiftType, sqlParameters);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString()
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
+#endregion
+
+#region XML Serialization
+public string ConvertObjectToXML(object obj)
 		{
 			// Remove Declaration  
 			var settings = new XmlWriterSettings

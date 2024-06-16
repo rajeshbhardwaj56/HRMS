@@ -89,6 +89,7 @@ namespace HRMS.Models.Common
         public const string Holiday = "Holiday";
         public const string AttendenceList = "AttendenceList";
         public const string Common = "Common";
+        public const string ShiftType = "ShiftType";
 
     }
 
@@ -107,6 +108,8 @@ namespace HRMS.Models.Common
         public const string HolidayListing = "HolidayListing";
         public const string AttendenceListing = "AttendenceListing";
         public const string AttendenceList = "AttendenceList";
+        public const string ShiftTypeListing = "ShiftTypeListing";
+        public const string ShiftType = "ShiftType";
     }
 
     public class APIApiActionConstants
@@ -128,6 +131,7 @@ namespace HRMS.Models.Common
         public const string GetLeaveTypes = "GetLeaveTypes";
         public const string AddUpdateHoliday = "AddUpdateHoliday";
         public const string GetAllHolidays = "GetAllHolidays";
+        public const string GetHolidayList = "GetHolidayList";
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
         public const string GetDashBoardodel = "GetDashBoardodel";
@@ -135,6 +139,9 @@ namespace HRMS.Models.Common
         public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
         public const string ResetPassword = "ResetPassword";
         public const string GetFogotPasswordDetails = "GetFogotPasswordDetails";
+        public const string AddUpdateShiftType = "AddUpdateShiftType";
+        public const string GetAllShiftTypes = "GetAllShiftTypes";
+
     }
 
     public class MyInfoTabs
