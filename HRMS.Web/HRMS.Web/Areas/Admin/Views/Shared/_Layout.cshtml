@@ -2,6 +2,9 @@
 <html lang="en">
     @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
+    @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer
+    @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
 <head>
     <!-- Character encoding for UTF-8 -->
     <meta charset="UTF-8">
@@ -172,8 +175,8 @@
 
     <div class="custome-container">
         <div class="sidebar">
-            <a class="logo" asp-area="" asp-controller="Home" asp-action="Index"><img src="/assets/img/logo/logo-small.png" style="width:50px; height:50px;" /></a>
-            <a class="logo-expand" asp-area="" asp-controller="Home" asp-action="Index"><img src="/assets/img/logo/logo-large.png" style="width:150px;" /></a>
+            <a class="logo" asp-area="Admin" asp-controller="Home" asp-action="Index"><img src="/assets/img/logo/logo-small.png" style="width:50px; height:50px;" /></a>
+            <a class="logo-expand" asp-area="Admin" asp-controller="Home" asp-action="Index"><img src="/assets/img/logo/logo-large.png" style="width:150px;" /></a>
 
 
             <div class="side-wrapper">
@@ -309,8 +312,8 @@
                 </div>
                 <div class="user-settings dropdown">
                     <a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
-                        <img class="user-img" src="/assets/img/avatars/1.png" alt="">
-                        <div class="user-name">Thomas</div>
+                        <img class="user-img" src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" alt="" style="width:40px; height:40px;">
+                        <div class="user-name">@HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.FirstName) @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.Surname)</div>
                         <svg viewBox="0 0 492 492" fill="currentColor">
                             <path d="M484.13 124.99l-16.11-16.23a26.72 26.72 0 00-19.04-7.86c-7.2 0-13.96 2.79-19.03 7.86L246.1 292.6 62.06 108.55c-5.07-5.06-11.82-7.85-19.03-7.85s-13.97 2.79-19.04 7.85L7.87 124.68a26.94 26.94 0 000 38.06l219.14 219.93c5.06 5.06 11.81 8.63 19.08 8.63h.09c7.2 0 13.96-3.57 19.02-8.63l218.93-219.33A27.18 27.18 0 00492 144.1c0-7.2-2.8-14.06-7.87-19.12z"></path>
                         </svg>
@@ -320,11 +323,12 @@
                         <div class="dropdown-item">
                             <div class="d-flex py-2">
                                 <div class="avatar avatar-md avatar-indicators avatar-online">
-                                    <img alt="avatar" src="https://via.placeholder.com/40x40" class="rounded-circle">
+                                    <img alt="avatar" src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                         style="width:40px; height:40px;" class="rounded-circle">
                                 </div>
                                 <div class="ml-3 lh-1">
-                                    <h6 class="mb-0">Admin</h6>
-                                    <p class="mb-0">admin@company.com</p>
+                                    <h6 class="mb-0">@HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.FirstName) @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.Surname)</h6>
+                                    <p class="mb-0">@HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.OfficialEmailID)</p>
                                 </div>
                             </div>
                         </div>
@@ -333,7 +337,7 @@
                             <ul class="list-unstyled">
 
                                 <li>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item" href="~/employee/myinfo">
                                         <span class="mr-1">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
                                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -359,7 +363,7 @@
                         <div class="dropdown-divider"></div>
                         <ul class="list-unstyled">
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="~/">
                                     <span class="mr-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-power">
                                             <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
