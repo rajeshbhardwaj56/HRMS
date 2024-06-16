@@ -30,7 +30,7 @@
         display: none !important;
     }
 </style>
-<div class="main-header anim" style="--delay: 0s">My Info</div>
+@* <div class="main-header anim" style="--delay: 0s">My Info</div> *@
 
 
 <section class="upper-section d-flex">
@@ -60,6 +60,7 @@
                         }
                     }
                 </p>
+             
                 <div class="myinfo-menu">
                     <ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -93,10 +94,10 @@
     </div>
 </section>
 
-
+<section class="lower-section">
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-3 py-4">
+     @*    <div class="col-md-3 py-4">
 
             <ul class="list-group py-1 pb-4">
                 <li class="list-group-item"><img src="/assets/img/icons/id.png" width="20" height="20" title="Employee ID">&nbsp;&nbsp;ELS0349</li>
@@ -105,252 +106,189 @@
                 <li class="list-group-item"><img src="/assets/img/icons/department.png" width="20" height="20" title="Department">&nbsp;&nbsp;Operations</li>
                 <li class="list-group-item"><img src="/assets/img/icons/location.png" width="20" height="20" title="Location">&nbsp;&nbsp;Mohali, Punjab</li>
             </ul>
-        </div>
+        </div> *@
 
 
-        <div class="col-md-9 py-4">
+        <div class="col-md-12 py-4">
             <div class="tab-content" id="myTabContentSection">
                 <div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
                     <div class="row">
                         <div class="col-lg-12">
 
-                            <div class="card tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
+                            <div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
 
-                                <div class="card-body">
-                                    <ul class="nav nav-tabs" id="myTab-timeoff" role="tablist" style="background-color: #cfd8e3; border-radius:5px;">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link page-head-link active" id="apply-tab" data-bs-toggle="tab" data-bs-target="#apply" type="button" role="tab" aria-controls="apply" aria-selected="false" tabindex="-1">Personal Info</button>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content pt-2">
-                                        <div class="row">
-                                            <div class="col-lg-12">
-                                                <div class="card">
-                                                    <div class="card-body">
-                                                        <form class="body-text" method="post" enctype="multipart/form-data">
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Name
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Address of Currespondence
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.CorrespondenceAddress
-                                                                </div>
-                                                            </div>
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo">
+                                            <form class="body-text" method="post" enctype="multipart/form-data">
+                                                <h3>Personal Info</h3>
+                                                <div class="row">
 
 
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    City
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.CorrespondenceCity
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Pin
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.CorrespondencePinCode
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    State
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.CorrespondenceState
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Country
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @if (selectCountry != null)
-                                                                    {
-                                                                        selectCountry.Value.ToString();
-                                                                    }
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Landline
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.Landline
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Mobile
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.Mobile
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Personal Email Address
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.PersonalEmailAddress
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Permanent Address
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.PermanentAddress
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    City
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.PermanentCity
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Pin
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.PermanentPinCode
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    State
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.PermanentState
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Country
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @if (selectPermanentCountry != null)
-                                                                    {
-                                                                        selectPermanentCountry.Value.ToString();
-                                                                    }
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Date of Birth
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.DateOfBirth
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Place of Birth
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.PlaceOfBirth
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Contact Person
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.ContactPersonName
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Contact No
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.ContactPersonMobile
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div class="row">
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    Telephone No
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6">
-                                                                    @Model.employeeModel.ContactPersonTelephone
-                                                                </div>
-                                                            </div>
-
-                                                        </form>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Name</h6>
+                                                        @Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>ID</h6>
+                                                        ELS0349
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Status</h6>
+                                                        Active - Full Time
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Designation</h6>
+                                                        Business Analyst
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Department</h6>
+                                                        Operations
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Location</h6>
+                                                        Mohali, Punjab
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Date of Birth</h6>
+                                                        @Model.employeeModel.DateOfBirth
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Place of Birth</h6>
+                                                        @Model.employeeModel.PlaceOfBirth
                                                     </div>
                                                 </div>
-                                            </div>
+
+
+                                                <hr />
+
+
+
+
+                                                <div class="row">
+                                                    <div class="col-lg-12 col-md-12 mb-2">
+                                                        <h6>Address of Currespondence</h6>
+                                                        @Model.employeeModel.CorrespondenceAddress
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6> City</h6>
+                                                        @Model.employeeModel.CorrespondenceCity
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Pin</h6>
+                                                        @Model.employeeModel.CorrespondencePinCode
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>State</h6>
+                                                        @Model.employeeModel.CorrespondenceState
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Country</h6>
+                                                        @if (selectCountry != null)
+                                                        {
+                                                            selectCountry.Value.ToString();
+                                                        }
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Landline</h6>
+                                                        @Model.employeeModel.Landline
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Mobile</h6>
+                                                        @Model.employeeModel.Mobile
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 mb-2">
+                                                        <h6>Personal Email Address</h6>
+                                                        @Model.employeeModel.PersonalEmailAddress
+                                                    </div>
+                                                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+                                                <hr />
+
+                                                <div class="row">
+
+                                                   
+
+                                                    <div class="col-lg-12 col-md-12 mb-2">
+                                                        <h6>Permanent Address</h6>
+                                                        @Model.employeeModel.PermanentAddress
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>City</h6>
+                                                        @Model.employeeModel.PermanentCity
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Pin</h6>
+                                                        @Model.employeeModel.PermanentPinCode
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>State</h6>
+                                                        @Model.employeeModel.PermanentState
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 mb-2">
+                                                        <h6>Country</h6>
+                                                        @if (selectPermanentCountry != null)
+                                                        {
+                                                            selectPermanentCountry.Value.ToString();
+                                                        }
+                                                    </div>
+                                                </div>
+
+
+
+
+
+                                                <hr />
+
+                                                
+
+                                               
+
+
+
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Contact Person</h6>
+                                                        @Model.employeeModel.ContactPersonName
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Contact No</h6>
+                                                        @Model.employeeModel.ContactPersonMobile
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Telephone No</h6>
+                                                        @Model.employeeModel.ContactPersonTelephone
+                                                    </div>
+                                                </div>
+
+                                            </form>
                                         </div>
                                     </div>
-                                </div>
                             </div>
 
-                            <div class="card tab-pane fade" id="@(MyInfoTabs.TabProfessionalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabProfessionalInfo)-tab">
-                                <div class="card-body">
-                                    <ul class="nav nav-tabs" id="myTab-timeoff" role="tablist" style="background-color: #cfd8e3; border-radius:5px;">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link page-head-link active" id="apply-tab" data-bs-toggle="tab" data-bs-target="#apply" type="button" role="tab" aria-controls="apply" aria-selected="false" tabindex="-1">Professional Info</button>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content pt-2" id="myTabContent-timeoff">
+                            <div class="tab-pane fade" id="@(MyInfoTabs.TabProfessionalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabProfessionalInfo)-tab">
+
+
+                                  
+                                            <div class="group-box anim">
+
+                                        <div class="tabsInfo" id="myTabContent-timeoff">
 
                                         <div class="row">
                                             <div class="col-lg-12">
 
-                                                <div class="card">
-                                                    <div class="card-body">
+                                                <div class="">
+                                                    <div class="">
 
                                                         @{
                                                             int Index = 0;
@@ -364,45 +302,27 @@
                                                                         <div class="col-md-10">
                                                                             <b> Employer-@(index)</b>
                                                                         </div>
-
-                                                                        <div class="col-md-1">
-                                                                        </div>
-
-                                                                        <div class="col-md-1">
-                                                                        </div>
                                                                     </div>
                                                                     <div class="row">
                                                                         <div class="col-md-12">
+                                                                            
                                                                             <div class="row">
                                                                                 <div class="col-md-3">
-                                                                                    Company Name
-                                                                                </div>
-                                                                                <div class="col-md-3">
-                                                                                    Employee ID
-                                                                                </div>
-                                                                                <div class="col-md-3">
-                                                                                    From
-                                                                                </div>
-
-                                                                                <div class="col-md-3">
-                                                                                    To
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <div class="row">
-                                                                                <div class="col-md-3">
-
+                                                                                        <h6>Company Name</h6>
                                                                                     @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
                                                                                     @Model.employmentHistory[Index].CompanyName
                                                                                 </div>
                                                                                 <div class="col-md-3">
+                                                                                        <h6>Employee ID</h6>
                                                                                     @Model.employmentHistory[Index].EmploymentID
                                                                                 </div>
                                                                                 <div class="col-md-3">
+                                                                                        <h6>From</h6>
                                                                                     @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
                                                                                 </div>
 
                                                                                 <div class="col-md-3">
+                                                                                        <h6>To</h6>
                                                                                     @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
                                                                                 </div>
                                                                             </div>
@@ -590,7 +510,7 @@
                                             <button class="nav-link page-head-link active" id="apply-tab" data-bs-toggle="tab" data-bs-target="#apply" type="button" role="tab" aria-controls="apply" aria-selected="false" tabindex="-1">Leaves For Approval</button>
                                         </li>
                                     </ul>
-                                    <div class="tab-content pt-2" id="myTabContent-timeoff">
+                                    <div class="tab-content" id="myTabContent-timeoff">
                                         <div class="tab-pane fade" id="apply" role="tabpanel" aria-labelledby="apply-tab">
                                             <div class="row">
                                                 <div class="col-lg-8">
@@ -608,8 +528,8 @@
                                 </div>
                             </div>
 
-                            <div class="card tab-pane fade" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
-                                <div class="card-body">
+                            <div class="tab-pane fade" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
+                                <div class="">
                                     <ul class="nav nav-tabs" id="myTab-timeoff" role="tablist" style="background-color: #cfd8e3; border-radius:5px;">
                                         <li class="nav-item" role="presentation">
                                             <button class="nav-link page-head-link active" id="apply-tab" data-bs-toggle="tab" data-bs-target="#apply" type="button" role="tab" aria-controls="apply" aria-selected="false" tabindex="-1">Apply Leave</button>
@@ -618,7 +538,7 @@
                                             <button class="nav-link page-head-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Leave Summary</button>
                                         </li>
                                     </ul>
-                                    <div class="tab-content pt-2" id="myTabContent-timeoff">
+                                    <div class="tab-content" id="myTabContent-timeoff">
                                         <div class="tab-pane fade active show" id="apply" role="tabpanel" aria-labelledby="apply-tab">
                                             <div class="row">
                                                 <div class="col-lg-8">
@@ -833,4 +753,5 @@
         </div>
     </div>
 </div>
+</section>
 

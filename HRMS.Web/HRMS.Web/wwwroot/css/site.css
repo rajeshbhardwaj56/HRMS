@@ -210,16 +210,17 @@ textarea.form-control {
                 background-color: var(--search-bg);
                 position:relative;
             }
-        .toggleBtn {
-            position: absolute;
-            left: -20px;
-            top: calc(50% - 15px);
-            border: none;
-            height: 30px;
-            width: 30px;
-            background: var(--secondry-color);
-            border-radius: 50%;
-        }
+            .toggleBtn {
+                position: absolute;
+                left: -17px;
+                bottom: calc(10% - 15px);
+                border: none;
+                height: 30px;
+                width: 30px;
+                /* background: var(--secondry-color); */
+                border-radius: 50%;
+                padding: 0px;
+            }
     .sidebar .logo {
         display: none;
         width: 30px;
@@ -242,7 +243,7 @@ textarea.form-control {
 
         .sidebar.sidemenuShow {
             width: 60px;
-            border-right: 1px solid var(--border-color);
+            /*border-right: 1px solid var(--border-color);*/
             padding: 20px 15px;
         }
                     .sidebar.sidemenuShow .logo-expand, .sidebar.sidemenuShow .side-title {
@@ -433,6 +434,11 @@ textarea.form-control {
         width:20px;
     }
 
+.toggleBtn.togglemenuShow svg {
+    transform: rotate(180deg);
+}
+
+
 @media screen and (max-width: 575px) {
     .user-settings svg {
         display: none;
@@ -498,10 +504,10 @@ textarea.form-control {
     overflow: auto;
 }
 .main-header {
-    font-size: 22px;
+    font-size: 20px;
     color: var(--body-bg);
     font-weight: 700;
-    padding-bottom: 20px;
+    padding-bottom: 12px;
     position: sticky;
     top: 0;
     left: 0;
@@ -512,7 +518,7 @@ textarea.form-control {
     margin: 0px -30px;
     padding-left: 30px;
     padding-right: 30px;
-    padding-top: 20px;
+    padding-top: 12px;
     box-shadow: 5px 0px 15px #d0e0ff;
 }
 .anim {
@@ -1090,6 +1096,9 @@ section.upper-section {
 .notification {position: absolute;width: 15px; height: 15px; background:red; border-radius: 10px; font-size: 10px; display: flex; justify-content: center; align-items: center; right: 0px;
     top: -4px; color:var(--theme-bg);}
 .notify svg{fill:var(--secondry-color);}
+.lower-section{display:flex; margin: 0px -30px;}
+.tabsInfo h6{margin-bottom:0px; font-size:14px;}
+.tabsInfo h3{margin-bottom:20px; font-size:24px;}
 
 
 
