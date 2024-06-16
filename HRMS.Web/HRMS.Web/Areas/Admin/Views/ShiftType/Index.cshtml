@@ -1,0 +1,232 @@
+﻿@using HRMS.Models.ShiftType;
+@model ShiftTypeModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Shift Type";
+}
+
+
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+
+        <div class="col-md-12 container-heading">
+            <label class="form-label" style="font-weight:500;"> Shift Type Details </label>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6 my-2">
+                    <div class="col-md-12">
+                        <label class="form-label"> Shift Type Name <span class="Mandetory">*</span> </label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.HiddenFor(x => x.ShiftTypeID)
+                        @Html.TextBoxFor(a => a.ShiftTypeName, new { @class = "form-control", @required = "required" })
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-6 my-2">
+                    <div class="col-md-12">
+                        <label class="form-label"> Shift Start Time (HH:MM:SS) <span class="Mandetory">*</span> </label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(a => a.StartTime, new { type = "time", @class = "form-control", @required = "required", step = 1 })
+
+                    </div>
+                </div>
+                <div class="col-md-6 my-2">
+                    <div class="col-md-12">
+                        <label class="form-label"> Shift End Time (HH:MM:SS) <span class="Mandetory">*</span> </label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(a => a.EndTime, new { type = "time", @class = "form-control", @required = "required", step = 1 })
+
+                    </div>
+                </div>
+
+                <div class="col-md-6 my-2">
+                    <div class="col-md-12">
+                        <label class="form-label"> Holiday List <span class="Mandetory">*</span> </label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.DropDownListFor(model => model.HolidayID, Model.HolidayList, "-- Select Holiday --", new { @class = "form-control" })
+
+                    </div>
+                </div>
+                <div class="col-md-6 my-2">
+                    <div class="col-md-12">
+                        <label class="form-label"> Enable Auto Attendance <span class="Mandetory">*</span> </label>
+                    </div>
+                    <div class="col-md-12">
+
+                        @Html.CheckBoxFor(a => a.AutoAttendance)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 container-heading">
+            <label class="form-label" style="font-weight:500;"> Auto attendance settings</label>
+        </div>
+        <div class="col-md-12">
+
+
+            <div class="row">
+
+
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Determine check in and check out <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.CheckBoxFor(a => a.IsCheckInAndOut)
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Working hours calculation based on <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.DropDownListFor(model => model.WorkingHoursCalculation, Model.WorkingHoursCalculationTypeList, "-- Select --", new { @class = "form-control" })
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Working hour threashold half day (Minutes) <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+
+                                @Html.TextBoxFor(a => a.HalfDayWorkingHours, new { @type = "number", @class = "form-control", @min = "0", @step = "1" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Working hours threashold for absent (Minutes) <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+
+                                @Html.TextBoxFor(a => a.AbsentDayWorkingHours, new { @type = "number", @class = "form-control", @min = "0", @step = "1" })
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Begin Check in before shift time <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+
+                                @Html.CheckBoxFor(a => a.CheckInBeforeShift)
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Allow Check out after shift time <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+
+                                @Html.CheckBoxFor(a => a.CheckOutAfterShift)
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Process attendance after (Minutes) <span class="Mandetory">*</span></label>
+                            </div>
+                            <div class="col-md-12">
+
+                                @Html.TextBoxFor(a => a.ProcessAttendanceAfter, new { @type = "number", @class = "form-control", @min = "0", @step = "1" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Last sync date and time <span class="Mandetory">*</span></label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.TextBoxFor(a => a.LastSyncDateTime, "{0:yyyy-MM-ddTHH:mm}", new { type = "datetime-local", @class = "form-control", @min = "1900-01-01T00:00" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Mark auto attendance for holidays </label>
+                            </div>
+                            <div class="col-md-12">
+
+                                @Html.CheckBoxFor(a => a.AutoAttendanceOnHoliday)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 my-2">
+                        <div class="row">
+                            <div class="col-md-6 my-2">
+                                <div class="col-md-12">
+                                    <label class="form-label">  Last entry grace period (Minutes) <span class="Mandetory">*</span> </label>
+                                </div>
+                                <div class="col-md-12">
+
+                                    @Html.TextBoxFor(a => a.LastEntryGracePeriod, new { @type = "number", @class = "form-control", @min = "0", @step = "1" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 my-2">
+                                <div class="col-md-12">
+                                    <label class="form-label"> Early exit grace period (Minutes) <span class="Mandetory">*</span> </label>
+                                </div>
+                                <div class="col-md-12">
+
+                                    @Html.TextBoxFor(a => a.EarlyExitGracePeriod, new { @type = "number", @class = "form-control", @min = "0", @step = "1" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 my-2">
+                        <div class="row">
+                            <div class="col-md-12 my-2">
+                                <div class="col-md-12">
+                                    Comments
+                                    <label class="form-label"> Comments </label>
+                                </div>
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(a => a.Comments, new { @class = "form-control", placeholder = "Enter your comments", rows = "4" })
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    &nbsp;
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12 my-2">
+                        <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+                        <input id="cancelButton" style="float:right;margin-right: 10px;" type="button" value="Cancel" class="btn btn-success" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById('cancelButton').addEventListener('click', function () {
+        window.location.href = '@Url.Action("ShiftTypeListing", "ShiftType")';
+    });
+</script>

@@ -52,7 +52,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 model.leaveResults.leaveSummaryModel.NoOfDays = model.leaveResults.leaveSummaryModel.NoOfDays / 2;
             }
 
-            if (ModelState.IsValid && model.leaveResults.leaveSummaryModel.NoOfDays > 0)
+            if ( model.leaveResults.leaveSummaryModel.NoOfDays > 0)
             {
                 model.leaveResults.leaveSummaryModel.LeaveStatusID = (int)LeaveStatus.PendingApproval;
 

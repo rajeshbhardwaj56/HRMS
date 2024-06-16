@@ -4,6 +4,7 @@ using HRMS.Models.Company;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.AttendenceList;
+using HRMS.Models.ShiftType;
 
 namespace HRMS.Models.Common
 {
@@ -30,6 +31,8 @@ namespace HRMS.Models.Common
         public HolidayModel holidayModel { get; set; } = new HolidayModel();
         public List<AttendenceListModel> AttendenceList { get; set; } = new List<AttendenceListModel>();
         public AttendenceListModel AttendenceListModel { get; set; } = new AttendenceListModel();
+        public List<ShiftTypeModel> ShiftType { get; set; } = new List<ShiftTypeModel>();
+        public ShiftTypeModel shiftTypeModel { get; set; } = new ShiftTypeModel();
 
     }
 
