@@ -46,14 +46,13 @@ namespace HRMS.Web.Controllers
 		{
 			try
 			{
-
 				var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails), null, false).Result.ToString();
 				var result = JsonConvert.DeserializeObject<Result>(data);
 				UserModel userModel = JsonConvert.DeserializeObject<UserModel>((string)result.Data);
 
 				sendEmailProperties sendEmailProperties = new sendEmailProperties();
 				sendEmailProperties.emailSubject = "Reset Password Email";
-				sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((userModel.EmployeeID == null ? "" : userModel.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
+				sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((userModel.EmployeeID == null ? "" : userModel.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
 				sendEmailProperties.EmailToList.Add(userModel.UserName);
 				emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
 				if (response.responseCode == "200")

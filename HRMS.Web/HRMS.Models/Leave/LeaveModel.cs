@@ -26,6 +26,8 @@ namespace HRMS.Models.Leave
         public DateTime RequestDate { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public string StartDateFormatted { get; set; } = string.Empty;
+        public string EndDateFormatted { get; set; } = string.Empty;
         public long LeaveTypeID { get; set; }
         public string LeaveTypeName { get; set; } = string.Empty;
         public long LeaveDurationTypeID { get; set; }
@@ -35,8 +37,11 @@ namespace HRMS.Models.Leave
         public bool IsDeleted { get; set; } = false;
         public long UserID { get; set; }
         public long EmployeeID { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;        
         public long CompanyID { get; set; }
         public long LeavePolicyID { get; set; }
+        public string EmployeeNumber { get; set; } = string.Empty;
+        public bool IsApproved { get; set; } = false;
 
     }
 

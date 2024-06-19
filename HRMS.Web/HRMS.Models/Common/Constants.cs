@@ -114,6 +114,8 @@ namespace HRMS.Models.Common
 
     public class APIApiActionConstants
     {
+
+        public const string GetLeaveForApprovals = "GetLeaveForApprovals";
         public const string AddUpdateLeavePolicy = "AddUpdateLeavePolicy";
         public const string GetAllLeavePolicies = "GetAllLeavePolicies";
         public const string AddUpdateEmployee = "AddUpdateEmployee";

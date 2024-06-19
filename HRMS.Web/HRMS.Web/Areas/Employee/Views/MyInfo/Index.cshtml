@@ -4,6 +4,7 @@
 @using HRMS.Models.MyInfo;
 @using Microsoft.AspNetCore.Http
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
 @model MyInfoResults
 @{
     SelectListItem selectCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.CorrespondenceCountryID.ToString()).FirstOrDefault();
@@ -292,7 +293,7 @@
                                     <div class="group-box anim">
 
                                         <div class="tabsInfo" id="myTabContent-timeoff">
-                                            <h3>Professional Info</h3>  
+                                            <h3>Professional Info</h3>
                                             @{
                                                 int Index = 0;
                                                 int index = 1;
@@ -501,33 +502,45 @@
                                                 }
 
                                             }
-                                                       
-                                                    
-                                           
+
+
+
 
                                         </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
-                                  
-                                       
-                                        <div class="group-box anim"> 
-                                                <div class="tabsInfo" id="myTabContent-timeoff">
-                                            <h3>Leaves For Approval</h3>
-                                            <div class="tab-pane fade" id="apply" role="tabpanel" aria-labelledby="apply-tab">
-                                                <div class="row">
-                                                    <div class="col-lg-8">
 
+
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo" id="myTabContent-timeoff">
+                                            <h3>Leaves For Approval</h3>
+                                            
+                                        </div>
+                                        <div role="tabpanel" aria-labelledby="apply-tab">
+                                                <div class="row">
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
                                                         <div class="card">
                                                             <div class="card-body">
-                                                                <form class="body-text" method="post" enctype="multipart/form-data">
-                                                                </form>
+                                                                <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th class="first" style="visibility:hidden"> </th>
+                                                                            <th>Employee Number</th>
+                                                                            <th>Employee Name</th>
+                                                                            <th>From Date</th>
+                                                                            <th>To Date</th>
+                                                                            <th>Reason</th>
+                                                                            <th>Action</th>
+                                                                        </tr>
+                                                                    </thead>
+
+                                                                </table>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -567,7 +580,7 @@
                                                                             </div>
                                                                         </div>
 
-                                                                        
+
 
                                                                         <div class="row py-2">
                                                                             <div class="col-lg-6 col-md-12">
@@ -606,7 +619,7 @@
                                                                             <div class="col-lg-12">
                                                                                 <label for="Reason" class="">Reason:</label>
                                                                                 <div class="input-group">
-                                                                                   @*  <span class="input-group-text body-text">Reason</span> *@
+                                                                                    @*  <span class="input-group-text body-text">Reason</span> *@
                                                                                     @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required" })
                                                                                 </div>
                                                                             </div>
@@ -619,64 +632,64 @@
                                                             </div>
                                                         </div>
                                                         <div class="col-lg-4 px-4">
-                                                                <div class="card mb-3" style="height:60px;">
-                                                                    <div class="card-body">
-                                                                        <ul class="list-group" style="width:100%;">
+                                                            <div class="card mb-3" style="height:60px;">
+                                                                <div class="card-body">
+                                                                    <ul class="list-group" style="width:100%;">
                                                                         <li class="d-flex justify-content-between align-items-center ">
                                                                             <b>Leave Balance</b>
-                                                                                <span class="badge rounded-pill" style="background-color: #05397b">2 / 6</span>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
+                                                                            <span class="badge rounded-pill" style="background-color: #05397b">2 / 6</span>
+                                                                        </li>
+                                                                    </ul>
                                                                 </div>
-                                                            
-                                                          
-                                                                <div class="card p-3">
-                                                                    <div class="accordion accordion-flush" id="accordionFlushExample">
-                                                                        <div class="accordion-item">
-                                                                            <h2 class="accordion-header" id="flush-headingOne">
-                                                                                <button class="accordion-button collapsed   z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                                                                                    Holiday List
-                                                                                </button>
-                                                                            </h2>
-                                                                            <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                                                                <div class="mt-3">
-                                                                                    <ul class="list-group ">
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            01-Jan-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">New Year</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            26-Jan-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Republic Day</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            25-Mar-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Holi</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            17-Apr-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Ram Navmi</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            15-Aug-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Independence Day</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            31-Oct-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Diwali</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            15-Nov-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Gurpurab</span>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="card p-3">
+                                                                <div class="accordion accordion-flush" id="accordionFlushExample">
+                                                                    <div class="accordion-item">
+                                                                        <h2 class="accordion-header" id="flush-headingOne">
+                                                                            <button class="accordion-button collapsed   z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                                                                                Holiday List
+                                                                            </button>
+                                                                        </h2>
+                                                                        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                                                            <div class="mt-3">
+                                                                                <ul class="list-group ">
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        01-Jan-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">New Year</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        26-Jan-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Republic Day</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        25-Mar-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Holi</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        17-Apr-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Ram Navmi</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        15-Aug-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Independence Day</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        31-Oct-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Diwali</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        15-Nov-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Gurpurab</span>
+                                                                                    </li>
+                                                                                </ul>
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                           
+                                                            </div>
+
                                                         </div>
                                                     </div>
 
@@ -738,224 +751,10 @@
                                                 </div>
                                             </div>
 
-
-
-
-
-
-
-
-                                            @* <ul class="nav nav-tabs" id="myTab-timeoff" role="tablist" style="background-color: #cfd8e3; border-radius:5px;">
-                                                <li class="nav-item" role="presentation">
-                                                    <button class="nav-link page-head-link active" id="apply-tab" data-bs-toggle="tab" data-bs-target="#apply" type="button" role="tab" aria-controls="apply" aria-selected="false" tabindex="-1">Apply Leave</button>
-                                                </li>
-                                                <li class="nav-item" role="presentation">
-                                                    <button class="nav-link page-head-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Leave Summary</button>
-                                                </li>
-                                            </ul> *@
-                                           @*  <div class="tab-content" id="myTabContent-timeoff">
-                                                <div class="tab-pane fade active show" id="apply" role="tabpanel" aria-labelledby="apply-tab">
-                                                    <div class="row">
-                                                        <div class="col-lg-8">
-
-                                                            <div class="card">
-                                                                <div class="card-body">
-                                                                    <form class="body-text" method="post" enctype="multipart/form-data">
-
-                                                                        <div class="row py-2">
-                                                                            <div class="col-lg-6 col-md-12">
-                                                                                <label for="leavetype" class="form-label">Leave Duration:</label>
-                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
-
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row py-2">
-                                                                            <div class="col-lg-6 col-md-12">
-                                                                                <label for="leavetype" class="form-label">Leave Type:</label>
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
-                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required" })
-
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row py-2">
-                                                                            <div class="col-lg-5 col-md-12">
-                                                                                <label for="datepicker1" class="form-label">From:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv1">
-
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required" })
-
-                                                                                        
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="col-lg-5 col-md-12">
-                                                                                <label for="datepicker2" class="form-label">To:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv2">
-
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required" })
-
-                                                                                        
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row py-3 mb-1">
-                                                                            <div class="col-lg-12">
-                                                                                <div class="input-group">
-                                                                                    <span class="input-group-text body-text">Reason</span>
-                                                                                    @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required" })
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <button class="btn btn-success" type="submit">Submit</button>
-                                                                        <button class="btn btn-danger" type="reset">Cancel</button>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-4 px-4">
-                                                            <div class="row mb-3">
-                                                                <div class="card" style="height:60px;">
-                                                                    <div class="card-body">
-                                                                        <ul class="list-group" style="width:100%;">
-                                                                            <li class="list-group-item d-flex justify-content-between align-items-center body-text" style="border:none; margin-top:-7px;">
-                                                                                Leave Balance
-                                                                                <span class="badge rounded-pill body-text" style="background-color: #05397b">2 / 6</span>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="card">
-                                                                    <div class="accordion accordion-flush" id="accordionFlushExample">
-                                                                        <div class="accordion-item">
-                                                                            <h2 class="accordion-header" id="flush-headingOne">
-                                                                                <button class="accordion-button collapsed body-text  z-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                                                                                    Holiday List
-                                                                                </button>
-                                                                            </h2>
-                                                                            <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                                                                <div class="accordion-body">
-                                                                                    <ul class="list-group body-text">
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            01-Jan-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">New Year</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            26-Jan-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Republic Day</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            25-Mar-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Holi</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            17-Apr-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Ram Navmi</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            15-Aug-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Independence Day</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            31-Oct-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Diwali</span>
-                                                                                        </li>
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            15-Nov-2024
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Gurpurab</span>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-
-
-
-
-
-
-
-
-
-                                                <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-                                                    <div class="row">
-                                                        <div class="col-12 col-lg-12">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-striped body-text dataTable no-footer">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Request Date</th>
-                                                                            <th>Start Date</th>
-                                                                            <th>End Date</th>
-                                                                            <th>Type</th>
-                                                                            <th>Days</th>
-                                                                            <th>Status</th>
-                                                                            <th>Actions</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach (var item in Model.leaveResults.leavesSummary)
-                                                                        {
-                                                                            <tr>
-                                                                                <td>@item.RequestDate</td>
-                                                                                <td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
-                                                                                <td>@item.EndDate.ToString("dd/M/yyyy")</td>
-                                                                                <td>@item.LeaveTypeName</td>
-                                                                                <td><span class="fw-bold text-primary">@item.NoOfDays</span></td>
-                                                                                @switch (item.LeaveStatusID)
-                                                                                {
-                                                                                    case (int)LeaveStatus.Approved:
-                                                                                        <td><span class="fw-bold text-success">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.PendingApproval:
-                                                                                        <td><span class="fw-bold text-primary">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.NotApproved:
-                                                                                        <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.Cancelled:
-                                                                                        <td><span class="fw-bold text-secondary">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                }
-
-                                                                                <td>
-                                                                                    <a href="~/employee/myinfo/Index/@(item.EncryptedIdentity)"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
-                                                                                    <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a>
-                                                                                </td>
-                                                                            </tr>
-                                                                        }
-
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div> *@
-
                                         </div>
                                     </div>
 
-                                    
+
                                 </div>
 
 
@@ -968,11 +767,6 @@
                                     </div>
                                 </div>
 
-
-
-
-
-
                             </div>
                         </div>
                     </div>
@@ -982,3 +776,136 @@
     </div>
 </section>
 
+<script type="text/javascript">
+
+     function ApproveRejectLeave(rowData,IsApproved) {
+         if(IsApproved){
+        if (confirm("Do you!") == true) { 
+            text = "You pressed OK!";
+            } else {
+              text = "You canceled!";
+            }
+         }
+         else{
+         
+         }
+     }
+
+    function InitOverviewDataTable() {
+    oOverviewTable =  $('#tblLeavesForApproval').DataTable({
+            "ajax": {
+                "url": "@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "leaveSummaryID", "autoWidth": true, },
+                { "data": "employeeNumber", "autoWidth": true },
+                { "data": "employeeName", "autoWidth": true },
+                { "data": "startDateFormatted", "autoWidth": true },
+                { "data": "endDateFormatted", "autoWidth": true },
+                { "data": "reason", "autoWidth": true },               
+                {
+                    // this is Actions Column
+                    mRender: function (data, type, row) {                       
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Approve" title="Approve"><img title="Approve" src="/assets/img/Approve.png" width="23" height="23" /></a>';
+                        var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Reject" title="Reject"><img title="Reject" src="/assets/img/Reject.png" width="25" height="25" /></a></div>';
+
+                        return linkEdit + moveToActiveEmployee;
+                    }
+                },
+
+
+                // { "data": "title", "autoWidth": true },
+                // // { "data": "description", "autoWidth": true },
+
+                // {
+                //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         return row["description"];
+                //     }
+                // },
+                // { "data": "status", "autoWidth": true },
+                // { "data": "createdDate", "autoWidth": true },
+
+                // // {
+                // //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         // alert(JSON.stringify(row))
+                //         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="@Url.Action("index", "BriefingUpdate")?id=' + row.briefingUpdateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                //         return linkEdit;
+                //     }
+                // },
+
+                // {
+                //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         // alert(JSON.stringify(row))
+                //         var linkDelete = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#"  title=""  data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>';
+                //         return linkDelete;
+                //     }
+                // }
+
+                // for edit icon = < i class= "mdi mdi-border-color" ></i >
+                // for delete icon =  <i class="mdi mdi-delete"></i>
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+
+                {
+
+                    "targets": [0], //first and last not sortable
+                    "orderable": false,
+                    "visible": false
+                },
+
+                {
+
+                    "targets": [1], //first and last not sortable
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+
+            ]
+            , "responsive": true
+
+        });
+}
+
+function RefreshTable(tableId, urlData) {
+    $.post(urlData, null, function(json) {
+        table = $(tableId).dataTable();
+        oSettings = table.fnSettings();
+
+        table.fnClearTable(this);
+
+        for (var i = 0; i < json.data.length; i++) {
+            table.oApi._fnAddData(oSettings, json.data[i]);
+        }
+
+        oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+        table.fnDraw();
+    });
+}
+// Edited by Prasad
+function AutoReload() {
+        RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/');   
+}
+
+$(document).ready(function() {
+    InitOverviewDataTable();
+       AutoReload();
+});
+
+
+   
+
+</script>

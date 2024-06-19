@@ -45,6 +45,31 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
+        public JsonResult GetLeaveForApprovals(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            MyInfoInputParams employee = new MyInfoInputParams();
+            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
+            results.leavesSummary.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
+            return Json(new { data = results.leavesSummary });
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult ApproveRejectLeave(LeaveSummaryModel leaveSummaryModel)
+        {          
+            var data = _businessLayer.SendPostAPIRequest(leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
+            results.leavesSummary.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
+            return Json(new { data = results.leavesSummary });
+        }
+
+
+        [HttpPost]
         public IActionResult Index(MyInfoResults model)
         {
             model.leaveResults.leaveSummaryModel.NoOfDays = (model.leaveResults.leaveSummaryModel.EndDate - model.leaveResults.leaveSummaryModel.StartDate).Days + 1;
@@ -53,7 +78,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 model.leaveResults.leaveSummaryModel.NoOfDays = model.leaveResults.leaveSummaryModel.NoOfDays / 2;
             }
 
-            if ( model.leaveResults.leaveSummaryModel.NoOfDays > 0)
+            if (model.leaveResults.leaveSummaryModel.NoOfDays > 0)
             {
 
                 //var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(_businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = model.leaveResults.leaveSummaryModel.CompanyID, EmployeeID = model.leaveResults.leaveSummaryModel.EmployeeID }, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()).employeeModel;

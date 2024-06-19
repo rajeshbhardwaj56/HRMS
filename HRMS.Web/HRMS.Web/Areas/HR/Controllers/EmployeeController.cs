@@ -32,11 +32,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             EmailSender.configuration = _configuration;
         }
 
-        public IActionResult MyInfo(string id)
-        {
-
-            return View();
-        }
 
         public IActionResult EmployeeListing()
         {
@@ -198,7 +193,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 employee.EmploymentHistory.Add(new EmploymentHistory() { });
             }
-            HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);           
+            HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
             employee.Countries = results.Countries;
             return PartialView("_EmploymentHistory", employee);
         }
@@ -298,7 +293,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     sendEmailProperties sendEmailProperties = new sendEmailProperties();
                     sendEmailProperties.emailSubject = "Reset Password Email";
-                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
+                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
                     sendEmailProperties.EmailToList.Add(employmentDetail.OfficialEmailID);
                     emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
                     if (response.responseCode == "200")
@@ -339,6 +334,9 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             return View(employmentDetail);
         }
+
+
+
 
     }
 }
