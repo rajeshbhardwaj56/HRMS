@@ -792,12 +792,7 @@
          }
 
         function InitOverviewDataTable() {
-        oOverviewTable =  $('#tblLeavesForApproval').DataTable({
-                "ajax": {
-                    "url": "@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/",
-                    "type": "POST",
-                    "datatype": "json"
-                },
+        oOverviewTable =  $('#tblLeavesForApproval').DataTable({               
                 "ordering": true,
                 "paging": true,
                 "searching": true,
@@ -902,7 +897,8 @@
 
     $(document).ready(function() {
         InitOverviewDataTable();
-           AutoReload();
+      AutoReload();
+          
     });
 
 

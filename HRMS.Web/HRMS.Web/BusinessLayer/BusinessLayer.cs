@@ -53,7 +53,7 @@ namespace HRMS.Web.BusinessLayer
         public async Task<object> SendPostAPIRequest(object body, string ActionUrl, string BearerToken, bool isTokenRequired = true)
         {
             _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Clear();
+            //_httpClient.DefaultRequestHeaders.Clear();
             string apiUrl = GetFullAPIUrl(ActionUrl);
             var requestData = JsonConvert.SerializeObject(body);
             if (isTokenRequired && (_httpClient.DefaultRequestHeaders == null || _httpClient.DefaultRequestHeaders.Count() == 0))
@@ -78,7 +78,10 @@ namespace HRMS.Web.BusinessLayer
             _httpClient.DefaultRequestHeaders.Clear();
             if (isTokenRequired && (_httpClient.DefaultRequestHeaders == null || _httpClient.DefaultRequestHeaders.Count() == 0))
             {
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + BearerToken);
+                lock (Locker)
+                {
+                    _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + BearerToken);
+                }
             }
 
             string apiUrl = GetFullAPIUrl(ActionUrl);
