@@ -515,32 +515,32 @@
                                     <div class="group-box anim">
                                         <div class="tabsInfo" id="myTabContent-timeoff">
                                             <h3>Leaves For Approval</h3>
-                                            
+
                                         </div>
                                         <div role="tabpanel" aria-labelledby="apply-tab">
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 col-sm-12">
-                                                        <div class="card">
-                                                            <div class="card-body">
-                                                                <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th class="first" style="visibility:hidden"> </th>
-                                                                            <th>Employee Number</th>
-                                                                            <th>Employee Name</th>
-                                                                            <th>From Date</th>
-                                                                            <th>To Date</th>
-                                                                            <th>Reason</th>
-                                                                            <th>Action</th>
-                                                                        </tr>
-                                                                    </thead>
+                                            <div class="row">
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="first" style="visibility:hidden"> </th>
+                                                                        <th>Employee Number</th>
+                                                                        <th>Employee Name</th>
+                                                                        <th>From Date</th>
+                                                                        <th>To Date</th>
+                                                                        <th>Reason</th>
+                                                                        <th>Action</th>
+                                                                    </tr>
+                                                                </thead>
 
-                                                                </table>
-                                                            </div>
+                                                            </table>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -778,134 +778,134 @@
 
 <script type="text/javascript">
 
-     function ApproveRejectLeave(rowData,IsApproved) {
-         if(IsApproved){
-        if (confirm("Do you!") == true) { 
-            text = "You pressed OK!";
-            } else {
-              text = "You canceled!";
-            }
-         }
-         else{
-         
-         }
-     }
-
-    function InitOverviewDataTable() {
-    oOverviewTable =  $('#tblLeavesForApproval').DataTable({
-            "ajax": {
-                "url": "@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/",
-                "type": "POST",
-                "datatype": "json"
-            },
-            "ordering": true,
-            "paging": true,
-            "searching": true,
-            "info": true,
-            "columns": [
-                { "data": "leaveSummaryID", "autoWidth": true, },
-                { "data": "employeeNumber", "autoWidth": true },
-                { "data": "employeeName", "autoWidth": true },
-                { "data": "startDateFormatted", "autoWidth": true },
-                { "data": "endDateFormatted", "autoWidth": true },
-                { "data": "reason", "autoWidth": true },               
-                {
-                    // this is Actions Column
-                    mRender: function (data, type, row) {                       
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Approve" title="Approve"><img title="Approve" src="/assets/img/Approve.png" width="23" height="23" /></a>';
-                        var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Reject" title="Reject"><img title="Reject" src="/assets/img/Reject.png" width="25" height="25" /></a></div>';
-
-                        return linkEdit + moveToActiveEmployee;
-                    }
-                },
-
-
-                // { "data": "title", "autoWidth": true },
-                // // { "data": "description", "autoWidth": true },
-
-                // {
-                //     // this is Actions Column
-                //     mRender: function (data, type, row) {
-                //         return row["description"];
-                //     }
-                // },
-                // { "data": "status", "autoWidth": true },
-                // { "data": "createdDate", "autoWidth": true },
-
-                // // {
-                // //     // this is Actions Column
-                //     mRender: function (data, type, row) {
-                //         // alert(JSON.stringify(row))
-                //         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="@Url.Action("index", "BriefingUpdate")?id=' + row.briefingUpdateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                //         return linkEdit;
-                //     }
-                // },
-
-                // {
-                //     // this is Actions Column
-                //     mRender: function (data, type, row) {
-                //         // alert(JSON.stringify(row))
-                //         var linkDelete = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#"  title=""  data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>';
-                //         return linkDelete;
-                //     }
-                // }
-
-                // for edit icon = < i class= "mdi mdi-border-color" ></i >
-                // for delete icon =  <i class="mdi mdi-delete"></i>
-            ],
-            "columnDefs": [
-                {
-                    target: 2,
-                    visible: false,
-                    searchable: false
-                },
-
-                {
-
-                    "targets": [0], //first and last not sortable
-                    "orderable": false,
-                    "visible": false
-                },
-
-                {
-
-                    "targets": [1], //first and last not sortable
-                    "orderable": true,
-                    "defaultContent": " "
+         function ApproveRejectLeave(rowData,IsApproved) {
+             if(IsApproved){
+            if (confirm("Do you!") == true) {
+                text = "You pressed OK!";
+                } else {
+                  text = "You canceled!";
                 }
+             }
+             else{
 
-            ]
-            , "responsive": true
+             }
+         }
 
+        function InitOverviewDataTable() {
+        oOverviewTable =  $('#tblLeavesForApproval').DataTable({
+                "ajax": {
+                    "url": "@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "ordering": true,
+                "paging": true,
+                "searching": true,
+                "info": true,
+                "columns": [
+                    { "data": "leaveSummaryID", "autoWidth": true, },
+                    { "data": "employeeNumber", "autoWidth": true },
+                    { "data": "employeeName", "autoWidth": true },
+                    { "data": "startDateFormatted", "autoWidth": true },
+                    { "data": "endDateFormatted", "autoWidth": true },
+                    { "data": "reason", "autoWidth": true },
+                    {
+                        // this is Actions Column
+                        mRender: function (data, type, row) {
+                            var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Approve" title="Approve"><img title="Approve" src="/assets/img/Approve.png" width="23" height="23" /></a>';
+                            var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Reject" title="Reject"><img title="Reject" src="/assets/img/Reject.png" width="25" height="25" /></a></div>';
+
+                            return linkEdit + moveToActiveEmployee;
+                        }
+                    },
+
+
+                    // { "data": "title", "autoWidth": true },
+                    // // { "data": "description", "autoWidth": true },
+
+                    // {
+                    //     // this is Actions Column
+                    //     mRender: function (data, type, row) {
+                    //         return row["description"];
+                    //     }
+                    // },
+                    // { "data": "status", "autoWidth": true },
+                    // { "data": "createdDate", "autoWidth": true },
+
+                    // // {
+                    // //     // this is Actions Column
+                    //     mRender: function (data, type, row) {
+                    //         // alert(JSON.stringify(row))
+                    //         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="@Url.Action("index", "BriefingUpdate")?id=' + row.briefingUpdateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                    //         return linkEdit;
+                    //     }
+                    // },
+
+                    // {
+                    //     // this is Actions Column
+                    //     mRender: function (data, type, row) {
+                    //         // alert(JSON.stringify(row))
+                    //         var linkDelete = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#"  title=""  data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>';
+                    //         return linkDelete;
+                    //     }
+                    // }
+
+                    // for edit icon = < i class= "mdi mdi-border-color" ></i >
+                    // for delete icon =  <i class="mdi mdi-delete"></i>
+                ],
+                "columnDefs": [
+                    {
+                        target: 2,
+                        visible: false,
+                        searchable: false
+                    },
+
+                    {
+
+                        "targets": [0], //first and last not sortable
+                        "orderable": false,
+                        "visible": false
+                    },
+
+                    {
+
+                        "targets": [1], //first and last not sortable
+                        "orderable": true,
+                        "defaultContent": " "
+                    }
+
+                ]
+                , "responsive": true
+
+            });
+    }
+
+    function RefreshTable(tableId, urlData) {
+        $.post(urlData, null, function(json) {
+            table = $(tableId).dataTable();
+            oSettings = table.fnSettings();
+
+            table.fnClearTable(this);
+
+            for (var i = 0; i < json.data.length; i++) {
+                table.oApi._fnAddData(oSettings, json.data[i]);
+            }
+
+            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+            table.fnDraw();
         });
-}
+    }
+    // Edited by Prasad
+    function AutoReload() {
+            RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/');
+    }
 
-function RefreshTable(tableId, urlData) {
-    $.post(urlData, null, function(json) {
-        table = $(tableId).dataTable();
-        oSettings = table.fnSettings();
-
-        table.fnClearTable(this);
-
-        for (var i = 0; i < json.data.length; i++) {
-            table.oApi._fnAddData(oSettings, json.data[i]);
-        }
-
-        oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-        table.fnDraw();
+    $(document).ready(function() {
+        InitOverviewDataTable();
+           AutoReload();
     });
-}
-// Edited by Prasad
-function AutoReload() {
-        RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/');   
-}
-
-$(document).ready(function() {
-    InitOverviewDataTable();
-       AutoReload();
-});
 
 
-   
+
 
 </script>
