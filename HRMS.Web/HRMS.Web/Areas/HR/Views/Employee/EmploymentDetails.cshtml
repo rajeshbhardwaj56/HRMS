@@ -65,6 +65,11 @@
                     @Html.DropDownListFor(x => x.DepartmentID, Model.Departments, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
                 </div>
 
+                <div class="col-md-4 form-group">
+                    <label>Leave Policy <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.LeavePolicyID, Model.LeavePolicyList, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
+                </div>
+
 
 
             </div>

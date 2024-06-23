@@ -168,6 +168,7 @@ namespace HRMS.API.BusinessLayer
                                   ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
                                   ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
                                   ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
+                                  LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
 
 
 
@@ -791,6 +792,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@IsActive", employmentDetails.IsActive));
             sqlParameter.Add(new SqlParameter("@IsDeleted", employmentDetails.IsDeleted));
             sqlParameter.Add(new SqlParameter("@UserID", employmentDetails.UserID));
+            sqlParameter.Add(new SqlParameter("@LeavePolicyID", employmentDetails.LeavePolicyID));
 
             SqlParameterCollection pOutputParams = null;
 
@@ -880,6 +882,13 @@ namespace HRMS.API.BusinessLayer
                                  Value = dataRow.Field<long>("EmployeeID").ToString(),
                                  Text = dataRow.Field<string>("Name")
                              }).ToList();
+
+            employmentDetail.LeavePolicyList = dataSet.Tables[6].AsEnumerable()
+                            .Select(dataRow => new SelectListItem
+                            {
+                                Value = dataRow.Field<long>("LeavePolicyID").ToString(),
+                                Text = dataRow.Field<string>("LeavePolicyName")
+                            }).ToList();
 
             return employmentDetail;
         }

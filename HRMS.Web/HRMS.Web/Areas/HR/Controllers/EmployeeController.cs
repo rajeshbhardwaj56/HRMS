@@ -318,6 +318,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
                 employmentDetail.Designations = employmentDetailtemp.Designations;
                 employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
+                employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
             }
             else
             {
@@ -331,6 +332,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
                 employmentDetail.Designations = employmentDetailtemp.Designations;
                 employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
+                employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
             }
             return View(employmentDetail);
         }

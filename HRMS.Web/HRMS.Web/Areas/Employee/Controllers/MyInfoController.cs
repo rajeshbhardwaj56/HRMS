@@ -72,25 +72,66 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public IActionResult Index(MyInfoResults model)
         {
+            if (model.leaveResults.leaveSummaryModel.StartDate > model.leaveResults.leaveSummaryModel.EndDate)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "End date must be greater than start date.";
+
+                return RedirectToActionPermanent(
+                   Constants.Index,
+                    WebControllarsConstants.MyInfo);
+            }
+
             model.leaveResults.leaveSummaryModel.NoOfDays = (model.leaveResults.leaveSummaryModel.EndDate - model.leaveResults.leaveSummaryModel.StartDate).Days + 1;
             if ((int)LeaveDay.HalfDay == model.leaveResults.leaveSummaryModel.LeaveDurationTypeID)
             {
+                model.leaveResults.leaveSummaryModel.StartDate = model.leaveResults.leaveSummaryModel.EndDate = model.leaveResults.leaveSummaryModel.HalfDayDate;
                 model.leaveResults.leaveSummaryModel.NoOfDays = model.leaveResults.leaveSummaryModel.NoOfDays / 2;
             }
 
             if (model.leaveResults.leaveSummaryModel.NoOfDays > 0)
             {
-
-                //var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(_businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = model.leaveResults.leaveSummaryModel.CompanyID, EmployeeID = model.leaveResults.leaveSummaryModel.EmployeeID }, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()).employeeModel;
-                //model.leaveResults.leaveSummaryModel.LeavePolicyID = employeeDetails.LeavePolicyID ?? 0;
-
-                model.leaveResults.leaveSummaryModel.LeavePolicyID = 1;
-
-                model.leaveResults.leaveSummaryModel.LeaveStatusID = (int)LeaveStatus.PendingApproval;
-
                 model.leaveResults.leaveSummaryModel.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID));
                 model.leaveResults.leaveSummaryModel.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
                 model.leaveResults.leaveSummaryModel.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
+
+                var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(_businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = model.leaveResults.leaveSummaryModel.CompanyID, EmployeeID = model.leaveResults.leaveSummaryModel.EmployeeID }, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()).employeeModel;
+                model.leaveResults.leaveSummaryModel.LeavePolicyID = employeeDetails.LeavePolicyID ?? 0;
+                model.leaveResults.leaveSummaryModel.LeaveStatusID = (int)LeaveStatus.PendingApproval;
+
+                //get data
+                MyInfoInputParams myInfoInputParams = new MyInfoInputParams();
+                myInfoInputParams.EmployeeID = model.leaveResults.leaveSummaryModel.EmployeeID;
+                myInfoInputParams.UserID = model.leaveResults.leaveSummaryModel.UserID;
+                myInfoInputParams.CompanyID = model.leaveResults.leaveSummaryModel.CompanyID;
+                var leaveSummaryData = _businessLayer.SendPostAPIRequest(myInfoInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetlLeavesSummary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var leaveSummaryDataResult = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryData)?.leavesSummary;
+
+                //validation for Already taken leaves
+                var isAlreadyTakenLeave = false;
+                if ((int)LeaveDay.HalfDay == model.leaveResults.leaveSummaryModel.LeaveDurationTypeID)
+                {
+                    isAlreadyTakenLeave = leaveSummaryDataResult?.Any(x => x.StartDate.Date == model.leaveResults.leaveSummaryModel.HalfDayDate.Date) ?? false;
+                    if (isAlreadyTakenLeave)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        TempData[HRMS.Models.Common.Constants.toastMessage] = "You have already applied leave for same Date";
+                        return View();
+                    }
+                }
+                else
+                {
+                    //List<DateTime> dates = GetDatesBetween(model.leaveSummaryModel.StartDate, model.leaveSummaryModel.EndDate);
+                    //// Find common dates
+                    //var commonDates = dates.Intersect(leaveSummaryDataResult.Select(x => x.StartDate.Date)).ToList();
+
+                    //// Count the common dates
+                    //int totalNumberOfCommonDates = commonDates.Count; 
+                }
+
+
+
+
                 var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(data);
