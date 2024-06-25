@@ -277,6 +277,8 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="WebMarkupMin.AspNet4.Common" Version="2.16.0" />
+		<PackageReference Include="WebMarkupMin.AspNetCore8" Version="2.16.0" />
 	</ItemGroup>
 
 	<ItemGroup>

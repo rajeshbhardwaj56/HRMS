@@ -60,12 +60,30 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult ApproveRejectLeave(LeaveSummaryModel leaveSummaryModel)
-        {          
-            var data = _businessLayer.SendPostAPIRequest(leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+        public JsonResult ApproveRejectLeave(long leaveSummaryID, bool isApproved, string ApproveRejectComment)
+        {
+            MyInfoInputParams employee = new MyInfoInputParams();
+            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
-            results.leavesSummary.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
-            return Json(new { data = results.leavesSummary });
+            var rowData = results.leavesSummary.Where(x => x.LeaveSummaryID == leaveSummaryID).FirstOrDefault();
+            if (rowData != null)
+            {
+                rowData.ApproveRejectComment = ApproveRejectComment;
+                if (isApproved)
+                {
+                    rowData.LeaveStatusID = (int)LeaveStatus.Approved;
+                }
+                else
+                {
+                    rowData.LeaveStatusID = (int)LeaveStatus.NotApproved;
+                }
+            }
+            var LeaveResultsdata = _businessLayer.SendPostAPIRequest(rowData, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var resultsLeaveResultsdata = JsonConvert.DeserializeObject<LeaveResults>(LeaveResultsdata);
+            resultsLeaveResultsdata.leavesSummary.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
+            return Json(new { data = resultsLeaveResultsdata.leavesSummary });
         }
 
 

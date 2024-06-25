@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using WebMarkupMin.AspNetCore8;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,21 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = supportedCultures;
     options.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
 });
+
+builder.Services.AddWebMarkupMin(
+       options =>
+       {
+           options.AllowMinificationInDevelopmentEnvironment = true;
+           options.AllowCompressionInDevelopmentEnvironment = true;
+       })
+       .AddHtmlMinification(
+           options =>
+           {
+               options.MinificationSettings.RemoveRedundantAttributes = true;
+               options.MinificationSettings.RemoveHttpProtocolFromAttributes = true;
+               options.MinificationSettings.RemoveHttpsProtocolFromAttributes = true;
+           })
+       .AddHttpCompression();
 #endregion LanguageService
 
 //builder.Services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.BottomRight; });
@@ -92,6 +108,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
+
+//Required using WebMarkupMin.AspNetCore8;
+//app.UseWebMarkupMin();
 
 app.UseStaticFiles();
 app.UseSession();

@@ -42,6 +42,8 @@ namespace HRMS.Models.Leave
         public long LeavePolicyID { get; set; }
         public string EmployeeNumber { get; set; } = string.Empty;
         public bool IsApproved { get; set; } = false;
+        public string ApproveRejectComment { get; set; } = string.Empty;
+        
 
     }
 
