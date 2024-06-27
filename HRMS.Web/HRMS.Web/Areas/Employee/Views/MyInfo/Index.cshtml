@@ -807,7 +807,6 @@
         leaveSummaryID:leaveSummaryID,
         isApproved:isApproved,
         ApproveRejectComment:$("#ApproveRejectComment").val()
-
         };
        var urlData= '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/ApproveRejectLeave/';
              $.post(urlData, data, function(json) {
@@ -822,7 +821,7 @@
                 });
 
                  AutoReload();
-                 
+
 
         });
 

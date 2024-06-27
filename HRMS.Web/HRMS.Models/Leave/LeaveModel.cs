@@ -43,7 +43,10 @@ namespace HRMS.Models.Leave
         public string EmployeeNumber { get; set; } = string.Empty;
         public bool IsApproved { get; set; } = false;
         public string ApproveRejectComment { get; set; } = string.Empty;
-        
+        public string OfficialEmailID { get; set; } = string.Empty;
+        public string EmployeeFirstName { get; set; } = string.Empty;
+        public string ManagerOfficialEmailID { get; set; } = string.Empty;
+        public string ManagerFirstName { get; set; } = string.Empty;
 
     }
 

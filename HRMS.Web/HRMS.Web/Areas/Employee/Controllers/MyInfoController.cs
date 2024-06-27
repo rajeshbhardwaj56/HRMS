@@ -81,9 +81,27 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 }
             }
             var LeaveResultsdata = _businessLayer.SendPostAPIRequest(rowData, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var resultsLeaveResultsdata = JsonConvert.DeserializeObject<LeaveResults>(LeaveResultsdata);
-            resultsLeaveResultsdata.leavesSummary.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
-            return Json(new { data = resultsLeaveResultsdata.leavesSummary });
+            var resultsLeaveResultsdata = JsonConvert.DeserializeObject<Result>(LeaveResultsdata);
+            if (resultsLeaveResultsdata != null && resultsLeaveResultsdata.PKNo > 0)
+            {
+                sendEmailProperties sendEmailProperties = new sendEmailProperties();
+                sendEmailProperties.emailSubject = "Leave Approve Nofification";
+                sendEmailProperties.emailBody = ("Hi "+ rowData.EmployeeFirstName + ", <br/><br/> Your leave have been approved." + "<br/><br/>");
+                sendEmailProperties.EmailToList.Add(rowData.OfficialEmailID);
+                sendEmailProperties.EmailCCList.Add(rowData.ManagerOfficialEmailID);
+                emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
+                if (response.responseCode == "200")
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email have been sent, Please reset password for Login.";
+                }
+                else
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email sending failed, Please try again later.";
+                }
+            }
+            return Json(new { data = resultsLeaveResultsdata });
         }
 
 
