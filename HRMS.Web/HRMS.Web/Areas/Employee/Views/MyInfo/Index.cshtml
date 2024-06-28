@@ -781,23 +781,69 @@
     </div>
 </section>
 
+<div class="modal" tabindex="-1" role="dialog" id="ApproveRejectModel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Apply Leave</h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="CloseApproveRejectModel();" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Comment</p>
+                <p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-primary">Reject</button>
+                <button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-info">Approve</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
 
-         function ApproveRejectLeave(rowData,IsApproved) {
-             if(IsApproved){
-            if (confirm("Do you!") == true) {
-                text = "You pressed OK!";
-                } else {
-                  text = "You canceled!";
-                }
-             }
-             else{
+    var leaveSummaryID;
 
-             }
+    function ApproveRejectLeave(isApproved) {
+        let data={
+        leaveSummaryID:leaveSummaryID,
+        isApproved:isApproved,
+        ApproveRejectComment:$("#ApproveRejectComment").val()
+        };
+       var urlData= '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/ApproveRejectLeave/';
+             $.post(urlData, data, function(json) {
+                 $("#ApproveRejectComment").val("");
+                 CloseApproveRejectModel();
+                 $.toast({
+                    heading: 'Success',
+                    text: "Leave status updated successfully.",
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+
+                 AutoReload();
+
+
+        });
+
+
+         }
+
+         function OpenApproveRejectModel(rowData) {
+             leaveSummaryID=rowData;
+             $('#ApproveRejectModel').modal('show');
+         }
+
+          function CloseApproveRejectModel() {
+             $('#ApproveRejectModel').modal('hide');
          }
 
         function InitOverviewDataTable() {
-        oOverviewTable =  $('#tblLeavesForApproval').DataTable({               
+        oOverviewTable =  $('#tblLeavesForApproval').DataTable({
                 "ordering": true,
                 "paging": true,
                 "searching": true,
@@ -812,10 +858,9 @@
                     {
                         // this is Actions Column
                         mRender: function (data, type, row) {
-                            var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Approve" title="Approve"><img title="Approve" src="/assets/img/Approve.png" width="23" height="23" /></a>';
-                            var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Reject" title="Reject"><img title="Reject" src="/assets/img/Reject.png" width="25" height="25" /></a></div>';
+                            var linkEdit = "<a data-toggle='tooltip' data-placement='top'  class='item' onclick='OpenApproveRejectModel("+ row.leaveSummaryID + ")' href='#'  title=''  data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
 
-                            return linkEdit + moveToActiveEmployee;
+                            return linkEdit;
                         }
                     },
 
@@ -903,7 +948,7 @@
     $(document).ready(function() {
         InitOverviewDataTable();
       AutoReload();
-          
+
     });
 
 

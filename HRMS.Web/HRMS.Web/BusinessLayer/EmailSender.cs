@@ -31,6 +31,12 @@ namespace HRMS.Web.BusinessLayer
                         }
                     }
 
+                    foreach (var item in emailProperties.EmailCCList)
+                    {
+                        message.CC.Clear();
+                        message.CC.Add(new MailAddress(item));
+                    }
+
                     foreach (var item in emailProperties.EmailToList)
                     {
                         message.To.Clear();
@@ -105,6 +111,7 @@ namespace HRMS.Web.BusinessLayer
         public string emailSubject { get; set; }
         public string emailBody { get; set; }
         public List<string> EmailToList { get; set; } = new List<string>();
+        public List<string> EmailCCList { get; set; } = new List<string>();
         public List<Attachment> attachments { get; set; } = new List<Attachment>();
     }
 
