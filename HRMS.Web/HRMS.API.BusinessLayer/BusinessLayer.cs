@@ -923,9 +923,9 @@ namespace HRMS.API.BusinessLayer
                                   IsCompendatory = dataRow.Field<bool>("IsCompendatory"),
                                   IsAllowEncashment = dataRow.Field<bool>("IsAllowEncashment"),
                                   IsEarnedLeave = dataRow.Field<bool>("IsEarnedLeave"),
-                                  MaximumCasualLeaveAllocationAllowed = dataRow.Field<int>("MaximumCasualLeaveAllocationAllowed"),
+                                  MaximumEarnedLeaveAllowed = dataRow.Field<int>("MaximumEarnedLeaveAllowed"),
                                   MaximumMedicalLeaveAllocationAllowed = dataRow.Field<int>("MaximumMedicalLeaveAllocationAllowed"),
-                                  MaximumAnnualLeaveAllocationAllowed = dataRow.Field<int>("MaximumAnnualLeaveAllocationAllowed")
+                                  MaximumCompOffLeaveAllocationAllowed = dataRow.Field<int>("MaximumCompOffLeaveAllocationAllowed")
                               }).ToList();
 
             if (model.LeavePolicyID > 0)
@@ -957,9 +957,9 @@ namespace HRMS.API.BusinessLayer
             sqlParameters.Add(new SqlParameter("@IsCompendatory", leavePolicyModel.IsCompendatory));
             sqlParameters.Add(new SqlParameter("@IsAllowEncashment", leavePolicyModel.IsAllowEncashment));
             sqlParameters.Add(new SqlParameter("@IsEarnedLeave", leavePolicyModel.IsEarnedLeave));
-            sqlParameters.Add(new SqlParameter("@MaximumCasualLeaveAllocationAllowed", leavePolicyModel.MaximumCasualLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@MaximumEarnedLeaveAllowed", leavePolicyModel.MaximumEarnedLeaveAllowed));
             sqlParameters.Add(new SqlParameter("@MaximumMedicalLeaveAllocationAllowed", leavePolicyModel.MaximumMedicalLeaveAllocationAllowed));
-            sqlParameters.Add(new SqlParameter("@MaximumAnnualLeaveAllocationAllowed", leavePolicyModel.MaximumAnnualLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@MaximumCompOffLeaveAllocationAllowed", leavePolicyModel.MaximumCompOffLeaveAllocationAllowed));
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicy, sqlParameters);
 

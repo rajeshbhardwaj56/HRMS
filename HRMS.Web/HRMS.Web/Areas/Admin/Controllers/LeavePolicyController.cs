@@ -59,14 +59,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Index(LeavePolicyModel leavePolicyModel)
         {
-            // Leaves less than maximum leaves
-
-            if (leavePolicyModel.MaximumCasualLeaveAllocationAllowed + leavePolicyModel.MaximumMedicalLeaveAllocationAllowed + leavePolicyModel.MaximumAnnualLeaveAllocationAllowed > leavePolicyModel.MaximumLeaveAllocationAllowed)
-            {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.";
-                return View();
-            }
+            //// Leaves less than maximum leaves
+            //if (leavePolicyModel.MaximumEarnedLeaveAllowed + leavePolicyModel.MaximumMedicalLeaveAllocationAllowed + leavePolicyModel.MaximumCompOffLeaveAllocationAllowed > leavePolicyModel.MaximumLeaveAllocationAllowed)
+            //{
+            //    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+            //    TempData[HRMS.Models.Common.Constants.toastMessage] = "The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.";
+            //    return View();
+            //}
             if (ModelState.IsValid)
             {
                 leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
