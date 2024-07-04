@@ -75,8 +75,7 @@ namespace HRMS.Web.Controllers
 			{
 
 			}
-			return View(model);
-			return View(model);
+			return View(model);			
 		}
 
 		public ActionResult ResetPassword(string Id, string dt)
