@@ -118,9 +118,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = "End date must be greater than start date.";
 
-                return RedirectToActionPermanent(
-                   Constants.Index,
-                    WebControllarsConstants.MyInfo);
+                //return RedirectToActionPermanent(
+                //   Constants.Index,
+                //    WebControllarsConstants.MyInfo);
+                return View(model);
             }
 
             //validation for not include Weekend Days

@@ -585,10 +585,7 @@
 
                                                                             </div>
                                                                         </div>
-
-
-
-                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
+                                                                          <div class="row py-2 fullDayContainer" id="fullDayContainer">
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker1" class="">From:</label>
                                                                                 <div class="position-relative">
@@ -597,6 +594,7 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
+                                                                    
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker2" class="">To:</label>
                                                                                 <div class="position-relative">
@@ -606,6 +604,7 @@
                                                                                 </div>
                                                                             </div>
                                                                         </div>
+                                                                       
                                                                         <div class="row py-2 halfDayContainer" id="halfDayContainer">
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker1" class="">Date:</label>
@@ -965,7 +964,7 @@
 
         function toggleContainers() {
             if (leaveDurationDropdown.value === '@fullDayValue') { 
-                fullDayContainer.style.display = "block";
+                fullDayContainer.style.display = "flex";
                 halfDayContainer.style.display = "none";
             } else {
                 fullDayContainer.style.display = "none";
