@@ -585,7 +585,7 @@
 
                                                                             </div>
                                                                         </div>
-                                                                          <div class="row py-2 fullDayContainer" id="fullDayContainer">
+                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker1" class="">From:</label>
                                                                                 <div class="position-relative">
@@ -594,7 +594,7 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                    
+
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker2" class="">To:</label>
                                                                                 <div class="position-relative">
@@ -604,7 +604,7 @@
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                       
+
                                                                         <div class="row py-2 halfDayContainer" id="halfDayContainer">
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker1" class="">Date:</label>
@@ -615,7 +615,6 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="col-lg-6 col-md-12">
-                                                                             
                                                                             </div>
                                                                         </div>
 
@@ -812,6 +811,7 @@
         isApproved:isApproved,
         ApproveRejectComment:$("#ApproveRejectComment").val()
         };
+         CloseApproveRejectModel();
        var urlData= '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/ApproveRejectLeave/';
              $.post(urlData, data, function(json) {
                  $("#ApproveRejectComment").val("");
@@ -963,7 +963,7 @@
         var halfDayContainer = document.getElementById("halfDayContainer");
 
         function toggleContainers() {
-            if (leaveDurationDropdown.value === '@fullDayValue') { 
+            if (leaveDurationDropdown.value === '@fullDayValue') {
                 fullDayContainer.style.display = "flex";
                 halfDayContainer.style.display = "none";
             } else {

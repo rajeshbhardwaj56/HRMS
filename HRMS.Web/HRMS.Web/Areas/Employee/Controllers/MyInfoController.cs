@@ -61,7 +61,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult ApproveRejectLeave(long leaveSummaryID, bool isApproved, string ApproveRejectComment)
+        public JsonResult ApproveRejectLeave(long leaveSummaryID, bool isApproved, string ApproveRejectComment = "")
         {
             MyInfoInputParams employee = new MyInfoInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -88,7 +88,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 sendEmailProperties sendEmailProperties = new sendEmailProperties();
                 sendEmailProperties.emailSubject = "Leave Approve Nofification";
-                sendEmailProperties.emailBody = ("Hi " + rowData.EmployeeFirstName + ", <br/><br/> Your " + rowData.LeaveTypeName + " leave ( from " + rowData.StartDate.ToString("MMMM dd, yyyy") + " to " + rowData.EndDate.ToString("MMMM dd, yyyy") + ") have been approved." + "<br/><br/>");
+                if (isApproved)
+                {
+                    sendEmailProperties.emailBody = ("Hi " + rowData.EmployeeFirstName + ", <br/><br/> Your " + rowData.LeaveTypeName + " leave ( from " + rowData.StartDate.ToString("MMMM dd, yyyy") + " to " + rowData.EndDate.ToString("MMMM dd, yyyy") + ") have been approved." + "<br/><br/>");
+                }
+                else
+                {
+                    sendEmailProperties.emailBody = ("Hi " + rowData.EmployeeFirstName + ", <br/><br/> Your " + rowData.LeaveTypeName + " leave ( from " + rowData.StartDate.ToString("MMMM dd, yyyy") + " to " + rowData.EndDate.ToString("MMMM dd, yyyy") + ") have been Rejected." + "<br/><br/>");
+                }
                 sendEmailProperties.EmailToList.Add(rowData.OfficialEmailID);
                 sendEmailProperties.EmailCCList.Add(rowData.ManagerOfficialEmailID);
                 emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
