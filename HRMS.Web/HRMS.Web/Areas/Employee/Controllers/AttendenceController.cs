@@ -17,7 +17,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             //MyAuthHeader.AppID = Guid.Parse(MyAppID);
 
             var entries = myService.GetDeviceListAsync("", "", "").Result;
-            var entries1 = myService.("", "", "").Result;
+            //var entries1 = myService.("", "", "").Result;
             //WebServiceSoapClient webServiceSoapClient = new WebServiceSoapClient();
 
             //using (var client = new WebServiceSoapClient("PhoneNotifySoap"))
