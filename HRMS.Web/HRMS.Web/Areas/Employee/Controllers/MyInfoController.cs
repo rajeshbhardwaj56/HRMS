@@ -71,6 +71,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var rowData = results.leavesSummary.Where(x => x.LeaveSummaryID == leaveSummaryID).FirstOrDefault();
             if (rowData != null)
             {
+                rowData.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
                 rowData.ApproveRejectComment = ApproveRejectComment;
                 if (isApproved)
                 {

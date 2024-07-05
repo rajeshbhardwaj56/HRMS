@@ -168,9 +168,7 @@ namespace HRMS.API.BusinessLayer
                                   ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
                                   ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
                                   ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
-                                  LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
-
-
+                                  LeavePolicyID = dataRow.Field<long?>("LeavePolicyID")
 
                               }).ToList();
 
@@ -1118,6 +1116,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@IsDeleted", leaveSummaryModel.IsDeleted));
             sqlParameter.Add(new SqlParameter("@UserID", leaveSummaryModel.UserID));
             sqlParameter.Add(new SqlParameter("@LeavePolicyID", leaveSummaryModel.LeavePolicyID));
+            sqlParameter.Add(new SqlParameter("@ApproveRejectComment", leaveSummaryModel.ApproveRejectComment));
+
             SqlParameterCollection pOutputParams = null;
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
 
