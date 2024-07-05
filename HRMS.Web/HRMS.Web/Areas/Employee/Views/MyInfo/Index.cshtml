@@ -3,6 +3,7 @@
 @using System.Globalization;
 @using HRMS.Models.MyInfo;
 @using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject IConfiguration _configuration
 @model MyInfoResults
@@ -33,6 +34,11 @@
     {
         Model.leaveResults.leaveSummaryModel.EndDate = DateTime.Now;
     }
+    if (Model.leaveResults.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
+    }
+    var fullDayValue = (int)LeaveDay.FullDay;
 }
 <style>
     .fade:not(.show) {
@@ -567,7 +573,7 @@
                                                                         <div class="row py-2">
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="leavetype" class="">Leave Duration:</label>
-                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required" })
+                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required", @id = "leaveDurationDropdown" })
                                                                             </div>
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="leavetype" class="">Leave Type:</label>
@@ -579,39 +585,37 @@
 
                                                                             </div>
                                                                         </div>
-
-
-
-                                                                        <div class="row py-2">
+                                                                          <div class="row py-2 fullDayContainer" id="fullDayContainer">
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker1" class="">From:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv1">
-
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required" })
-
-                                                                                        @*  <span class="input-group-append">
-                                                                                        <span class="input-group-text bg-light d-block">
-                                                                                        <i class="fa fa-calendar"></i>
-                                                                                        </span>
-                                                                                        </span> *@
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
+                                                                    
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker2" class="">To:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv2">
-
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required" })
-
-                                                                                        @* <span class="input-group-append">
-                                                                                        <span class="input-group-text bg-light d-block">
-                                                                                        <i class="fa fa-calendar"></i>
-                                                                                        </span>
-                                                                                        </span> *@
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
                                                                                     </div>
                                                                                 </div>
+                                                                            </div>
+                                                                        </div>
+                                                                       
+                                                                        <div class="row py-2 halfDayContainer" id="halfDayContainer">
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label for="datepicker1" class="">Date:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv1">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd") })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                             
                                                                             </div>
                                                                         </div>
 
@@ -949,5 +953,27 @@
 
 
 
+
 </script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
+        var fullDayContainer = document.getElementById("fullDayContainer");
+        var halfDayContainer = document.getElementById("halfDayContainer");
+
+        function toggleContainers() {
+            if (leaveDurationDropdown.value === '@fullDayValue') { 
+                fullDayContainer.style.display = "flex";
+                halfDayContainer.style.display = "none";
+            } else {
+                fullDayContainer.style.display = "none";
+                halfDayContainer.style.display = "block";
+            }
+        }
+
+        leaveDurationDropdown.addEventListener("change", toggleContainers);
+
+        toggleContainers();
+    });
+</script>

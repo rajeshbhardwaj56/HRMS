@@ -32,4 +32,11 @@ namespace HRMS.Models.Common
         Day = 1,
         Night = 2
     }
+    public enum LeaveType
+    {
+        Casual = 1,
+        Medical = 2,
+        AnnualLeave = 3,
+        CompOff = 4
+    }
 }

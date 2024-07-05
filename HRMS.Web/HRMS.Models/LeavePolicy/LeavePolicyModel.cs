@@ -33,8 +33,8 @@ namespace HRMS.Models.LeavePolicy
         public bool IsCompendatory { get; set; }
         public bool IsAllowEncashment { get; set; }
         public bool IsEarnedLeave { get; set; }
-        public int MaximumCasualLeaveAllocationAllowed { get; set; }
+        public int MaximumEarnedLeaveAllowed { get; set; }
         public int MaximumMedicalLeaveAllocationAllowed { get; set; }
-        public int MaximumAnnualLeaveAllocationAllowed { get; set; }
+        public int MaximumCompOffLeaveAllocationAllowed { get; set; }
     }
 }

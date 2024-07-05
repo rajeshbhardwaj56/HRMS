@@ -88,6 +88,8 @@ namespace HRMS.Models.Employee
         public string? EmployeeNumber { get; set; } = string.Empty;
         public string OfficialEmailID { get; set; } = string.Empty;
 
+        public long? LeavePolicyID { get; set; }
+
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
         public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();

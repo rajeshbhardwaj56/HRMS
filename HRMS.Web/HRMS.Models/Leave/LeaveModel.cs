@@ -26,6 +26,7 @@ namespace HRMS.Models.Leave
         public DateTime RequestDate { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public DateTime HalfDayDate { get; set; }
         public string StartDateFormatted { get; set; } = string.Empty;
         public string EndDateFormatted { get; set; } = string.Empty;
         public long LeaveTypeID { get; set; }

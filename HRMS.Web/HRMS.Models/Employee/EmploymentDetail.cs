@@ -34,11 +34,15 @@ namespace HRMS.Models.Employee
         public DateTime? InsertedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
 
+        public long LeavePolicyID { get; set; }
+
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> JobLocations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Designations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> EmployeeList { get; set; } = new List<SelectListItem>();
+
+        public List<SelectListItem> LeavePolicyList { get; set; } = new List<SelectListItem>();
     }
 
     public class EmployeeListModel
