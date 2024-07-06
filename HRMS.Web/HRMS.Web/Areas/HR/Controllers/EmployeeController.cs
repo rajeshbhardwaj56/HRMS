@@ -24,12 +24,14 @@ namespace HRMS.Web.Areas.HR.Controllers
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
         private IHostingEnvironment Environment;
-        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
+        private ILogger<EmployeeController> _logger;
+        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, ILogger<EmployeeController> logger)
         {
             Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
             EmailSender.configuration = _configuration;
+            _logger = logger;
         }
 
 
@@ -158,6 +160,9 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogInformation("About page visited at {DT}",
+                           DateTime.UtcNow.ToLongTimeString());
+                
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occured, please try later.";
             }

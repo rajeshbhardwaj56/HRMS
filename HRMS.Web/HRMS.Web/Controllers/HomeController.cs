@@ -28,7 +28,10 @@ namespace HRMS.Web.Controllers
 			_configuration =
 			_configuration = configuration;
 			EmailSender.configuration = _configuration;
-		}
+
+            _logger.LogInformation("About page visited at {DT}",
+                           DateTime.UtcNow.ToLongTimeString());
+        }
 
 		public IActionResult Index()
 		{
