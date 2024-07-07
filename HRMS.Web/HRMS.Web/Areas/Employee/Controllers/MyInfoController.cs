@@ -87,13 +87,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
             if (resultsLeaveResultsdata != null && resultsLeaveResultsdata.PKNo > 0)
             {
                 sendEmailProperties sendEmailProperties = new sendEmailProperties();
-                sendEmailProperties.emailSubject = "Leave Approve Nofification";
+               
                 if (isApproved)
                 {
+                    sendEmailProperties.emailSubject = "Leave Approve Nofification";
                     sendEmailProperties.emailBody = ("Hi " + rowData.EmployeeFirstName + ", <br/><br/> Your " + rowData.LeaveTypeName + " leave ( from " + rowData.StartDate.ToString("MMMM dd, yyyy") + " to " + rowData.EndDate.ToString("MMMM dd, yyyy") + ") have been approved." + "<br/><br/>");
                 }
                 else
                 {
+                    sendEmailProperties.emailSubject = "Leave Reject Nofification";
                     sendEmailProperties.emailBody = ("Hi " + rowData.EmployeeFirstName + ", <br/><br/> Your " + rowData.LeaveTypeName + " leave ( from " + rowData.StartDate.ToString("MMMM dd, yyyy") + " to " + rowData.EndDate.ToString("MMMM dd, yyyy") + ") have been Rejected." + "<br/><br/>");
                 }
                 sendEmailProperties.EmailToList.Add(rowData.OfficialEmailID);

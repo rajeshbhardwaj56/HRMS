@@ -23,6 +23,9 @@ namespace HRMS.Web.BusinessLayer
 
                 if (emailProperties != null)
                 {
+                    message.To.Clear();
+                    message.CC.Clear();
+
                     if (emailProperties.attachments != null)
                     {
                         foreach (var attachment in emailProperties.attachments)
@@ -33,67 +36,70 @@ namespace HRMS.Web.BusinessLayer
 
                     foreach (var item in emailProperties.EmailCCList)
                     {
-                        message.CC.Clear();
                         message.CC.Add(new MailAddress(item));
                     }
 
                     foreach (var item in emailProperties.EmailToList)
                     {
-                        message.To.Clear();
                         message.To.Add(new MailAddress(item));
-                        using (var smtp = new SmtpClient())
+                        //using (var smtp = new SmtpClient
+                        var smtp = new SmtpClient();
+                        try
                         {
-                            try
+                            smtp.Port = Convert.ToInt32(configuration["AppSettings:port"]);
+                            smtp.Host = configuration["AppSettings:host"]; //for gmail host  
+                            smtp.UseDefaultCredentials = Convert.ToInt32(configuration["AppSettings:defaultcredential"]) == 1 ? true : false;
+                            smtp.Credentials = new NetworkCredential(configuration["AppSettings:username"], configuration["AppSettings:password"]);
+                            smtp.EnableSsl = Convert.ToInt32(configuration["AppSettings:enablessl"]) == 1 ? true : false;
+                            //smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                            smtp.SendCompleted += (s, e) =>
                             {
-                                smtp.Port = Convert.ToInt32(configuration["AppSettings:port"]);
-                                smtp.Host = configuration["AppSettings:host"]; //for gmail host  
-                                smtp.UseDefaultCredentials = Convert.ToInt32(configuration["AppSettings:defaultcredential"]) == 1 ? true : false;
-                                smtp.Credentials = new NetworkCredential(configuration["AppSettings:username"], configuration["AppSettings:password"]);
-                                smtp.EnableSsl = Convert.ToInt32(configuration["AppSettings:enablessl"]) == 1 ? true : false;
-                                //smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                                smtp.Send(message);
-                                response.responseCode = "200";
-                                response.responseMessages = "Email send successfully.";
-                            }
-                            catch (SmtpFailedRecipientsException ex)
+                                smtp.Dispose();
+                                message.Dispose();
+                            };
+                            smtp.SendAsync(message, null);
+                            response.responseCode = "200";
+                            response.responseMessages = "Email send successfully.";
+                        }
+                        catch (SmtpFailedRecipientsException ex)
+                        {
+                            for (int i = 0; i < ex.InnerExceptions.Length; i++)
                             {
-                                for (int i = 0; i < ex.InnerExceptions.Length; i++)
+                                SmtpStatusCode status = ex.InnerExceptions[i].StatusCode;
+                                if (status == SmtpStatusCode.MailboxBusy ||
+                                    status == SmtpStatusCode.MailboxUnavailable)
                                 {
-                                    SmtpStatusCode status = ex.InnerExceptions[i].StatusCode;
-                                    if (status == SmtpStatusCode.MailboxBusy ||
-                                        status == SmtpStatusCode.MailboxUnavailable)
-                                    {
-                                        Console.WriteLine("Delivery failed - retrying in 5 seconds.");
+                                    Console.WriteLine("Delivery failed - retrying in 5 seconds.");
 
-                                        response.responseFailed = string.Format("Delivery failed - retrying in 5 seconds.");
+                                    response.responseFailed = string.Format("Delivery failed - retrying in 5 seconds.");
 
-                                        System.Threading.Thread.Sleep(5000);
-                                        smtp.Send(message);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Failed to deliver message to {0}",
-                                            ex.InnerExceptions[i].FailedRecipient);
-
-                                        response.responseFailed = string.Format("Failed to deliver message to {0}",
-                                            ex.InnerExceptions[i].FailedRecipient);
-                                    }
-
-                                    response.responseCode = status.ToString();
+                                    System.Threading.Thread.Sleep(5000);
+                                    smtp.SendAsync(message, null);
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                response.responseFailed = string.Format("Exception caught in RetryIfBusy(): {0}",
-                                        ex.ToString());
-                                Console.WriteLine("Exception caught in RetryIfBusy(): {0}",
-                                        ex.ToString());
-                            }
-                            finally
-                            {
+                                else
+                                {
+                                    Console.WriteLine("Failed to deliver message to {0}",
+                                        ex.InnerExceptions[i].FailedRecipient);
 
+                                    response.responseFailed = string.Format("Failed to deliver message to {0}",
+                                        ex.InnerExceptions[i].FailedRecipient);
+                                }
+
+                                response.responseCode = status.ToString();
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            response.responseFailed = string.Format("Exception caught in RetryIfBusy(): {0}",
+                                    ex.ToString());
+                            Console.WriteLine("Exception caught in RetryIfBusy(): {0}",
+                                    ex.ToString());
+                        }
+                        finally
+                        {
+
+                        }
+
                     }
                 }
             }
