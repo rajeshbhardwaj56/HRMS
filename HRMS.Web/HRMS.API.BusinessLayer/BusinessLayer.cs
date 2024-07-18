@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Mvc;
 using HRMS.Models.User;
 using Newtonsoft.Json;
 using HRMS.Models.ShiftType;
+using HRMS.Models.WhatsHappening;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -1292,7 +1293,8 @@ namespace HRMS.API.BusinessLayer
 
             dashBoardModel.NoOfEmployees = OtherDetails.NoOfEmployees;
             dashBoardModel.NoOfCompanies = OtherDetails.NoOfCompanies;
-
+            WhatsHappening whatsHappening = new WhatsHappening() { CompanyID = 1 };
+            dashBoardModel.whatsHappenings = this.GetWhatsHappenings(whatsHappening)._WhatsHappenings;
             return dashBoardModel;
         }
         #endregion
@@ -1531,6 +1533,69 @@ namespace HRMS.API.BusinessLayer
 
 
 
+        #endregion
+
+        #region WhatsHappening
+        public WhatsHappeningModel GetWhatsHappenings(WhatsHappening model)
+        {
+            WhatsHappeningModel whatsHappeningModel = new WhatsHappeningModel();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@WhatsHappeningID", model.WhatsHappeningID));
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_WhatsHappenings, sqlParameter);
+            whatsHappeningModel._WhatsHappenings = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new WhatsHappening
+                              {
+                                  Description = dataRow.Field<string>("Description"),
+                                  Title = dataRow.Field<string>("Title"),
+                                  WhatsHappeningID = dataRow.Field<long>("WhatsHappeningID"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  FromDate = dataRow.Field<DateTime?>("FromDate"),
+                                  ToDate = dataRow.Field<DateTime?>("ToDate"),
+                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),
+                                  IconImage = dataRow.Field<string>("IconImage"),
+                              }).ToList();
+
+            if (whatsHappeningModel._WhatsHappening.WhatsHappeningID > 0)
+            {
+                whatsHappeningModel._WhatsHappening = whatsHappeningModel._WhatsHappenings.FirstOrDefault();
+            }
+            return whatsHappeningModel;
+        }
+
+
+        public Result AddUpdateWhatsHappening(WhatsHappening model)
+        {
+            Result result = new Result();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            sqlParameters.Add(new SqlParameter("@IconImage", string.IsNullOrEmpty(model.IconImage) ? "" : model.IconImage));
+            sqlParameters.Add(new SqlParameter("@WhatsHappeningID", model.WhatsHappeningID));
+            sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameters.Add(new SqlParameter("@UserID", model.UserID));
+            sqlParameters.Add(new SqlParameter("@FromDate", model.FromDate));
+            sqlParameters.Add(new SqlParameter("@ToDate", model.ToDate));
+            sqlParameters.Add(new SqlParameter("@Title", model.Title));
+            sqlParameters.Add(new SqlParameter("@Description", model.Description));
+            sqlParameters.Add(new SqlParameter("@IsDeleted", model.IsDeleted));
+            sqlParameters.Add(new SqlParameter("@RetWhatsHappeningID", model.WhatsHappeningID));
+            SqlParameterCollection pOutputParams = null;
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_WhatsHappening, sqlParameters, ref pOutputParams);
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                result = dataSet.Tables[0].AsEnumerable().Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            //PKNo = Convert.ToInt64(pOutputParams["@RetWhatsHappeningID"].Value)
+                            PKNo = dataRow.Field<long>("RetWhatsHappeningID")
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+
+
+            return result;
+        }
         #endregion
 
     }

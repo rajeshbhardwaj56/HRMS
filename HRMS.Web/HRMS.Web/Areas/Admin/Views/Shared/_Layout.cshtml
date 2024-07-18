@@ -41,147 +41,111 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/decoupled-document/ckeditor.js"></script>
     <script src="~/assets/js/jquery.toast.js"></script>
     @* <style>
-        li.top-bar:hover, li.top-bar:active {
-            background-color: white;
-            color: #05397b;
-            font-weight: bold;
-        }
+    li.top-bar:hover, li.top-bar:active {
+    background-color: white;
+    color: #05397b;
+    font-weight: bold;
+    }
 
 
-        li.top-bar:link, li.top-bar:visited {
-            background-color: white;
-            color: #05397b;
-            font-weight: bold;
-        }
+    li.top-bar:link, li.top-bar:visited {
+    background-color: white;
+    color: #05397b;
+    font-weight: bold;
+    }
 
-        body {
-            background-color: #cfd8e3;
-        }
+    body {
+    background-color: #cfd8e3;
+    }
 
-        header {
-            background-color: #cfd8e3;
-        }
-
-
-        .top-bar.active {
-            background-color: white !important;
-            color: #05397b !important;
-            font-weight: bold !important;
-        }
-
-            .top-bar.active a {
-                color: #05397b !important;
-            }
-
-        .body-text {
-            font-family: system-ui !important;
-            font-size: 14px !important;
-        }
-
-        i.fa.fa-calendar {
-            padding: 4px;
-        }
-
-        .datepicker td, th {
-            text-align: center;
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-
-        .datepicker {
-            border: 1px solid black;
-        }
-
-        .section-tabs {
-            background-color: #05397b;
-            color: white;
-            border: none;
-        }
-
-            .section-tabs .nav-link:not(.active) {
-                color: white !important;
-            }
-
-        .accordion-button:focus {
-            box-shadow: none;
-            border-color: rgba(0,0,0,.125);
-            font-size: 16px !important;
-        }
+    header {
+    background-color: #cfd8e3;
+    }
 
 
+    .top-bar.active {
+    background-color: white !important;
+    color: #05397b !important;
+    font-weight: bold !important;
+    }
 
-        .accordion-button:not(.collapsed) {
-            background-color: #cfd8e3;
-            color: #05397b;
-            margin-bottom: 0px !important;
-            font-size: 16px !important;
-        }
+    .top-bar.active a {
+    color: #05397b !important;
+    }
 
-        .accordion-button {
-            border: 2px solid #05397b !important;
-            border-radius: 5px !important;
-            font-size: 16px !important;
-            margin-bottom: 20px;
-            padding: 10px 20px 10px 20px;
-        }
+    .body-text {
+    font-family: system-ui !important;
+    font-size: 14px !important;
+    }
+
+    i.fa.fa-calendar {
+    padding: 4px;
+    }
+
+    .datepicker td, th {
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 14px;
+    }
+
+    .datepicker {
+    border: 1px solid black;
+    }
+
+    .section-tabs {
+    background-color: #05397b;
+    color: white;
+    border: none;
+    }
+
+    .section-tabs .nav-link:not(.active) {
+    color: white !important;
+    }
+
+    .accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,.125);
+    font-size: 16px !important;
+    }
 
 
-        /*        section.lower-section {
-                        display: none !important;
-                    }*/
 
-        /*        .show {
-                        display: block;
-                    }*/
+    .accordion-button:not(.collapsed) {
+    background-color: #cfd8e3;
+    color: #05397b;
+    margin-bottom: 0px !important;
+    font-size: 16px !important;
+    }
+
+    .accordion-button {
+    border: 2px solid #05397b !important;
+    border-radius: 5px !important;
+    font-size: 16px !important;
+    margin-bottom: 20px;
+    padding: 10px 20px 10px 20px;
+    }
+
+
+    /*        section.lower-section {
+    display: none !important;
+    }*/
+
+    /*        .show {
+    display: block;
+    }*/
     </style> *@
 </head>
 <body>
-    @* <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HRMS.Web</a>
-                <a class="navbar-brand" asp-area="admin" asp-controller="Template" asp-action="TemplateListing" >Templates</a>
-                <a class="navbar-brand" asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyListing">Leave Policy</a>
-                <a class="navbar-brand" asp-area="admin" asp-controller="Holiday" asp-action="HolidayListing">Holidays</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Index" asp-controller="Index" asp-action="Index">M</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - HRMS.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer> *@
-
 
 
     <div class="custome-container">
         <div class="sidebar">
-            <a class="logo" asp-area="Admin" asp-controller="Home" asp-action="Index"><img src="/assets/img/logo/logo-small.png" style="width:50px; height:50px;" /></a>
-            <a class="logo-expand" asp-area="Admin" asp-controller="Home" asp-action="Index"><img src="/assets/img/logo/logo-large.png" style="width:150px;" /></a>
+            <a class="logo" asp-area="Admin" asp-controller="DashBoard" asp-action="Index"><img src="/assets/img/logo/logo-small.png" style="width:50px; height:50px;" /></a>
+            <a class="logo-expand" asp-area="Admin" asp-controller="DashBoard" asp-action="Index"><img src="/assets/img/logo/logo-large.png" style="width:150px;" /></a>
 
 
             <div class="side-wrapper">
-                @* <div class="side-title">MENU</div> *@
+
                 <div class="side-menu">
                     <a class="sidebar-link is-active" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="employee" asp-action="Index">
                         <svg viewBox="0 0 512 512" fill="currentColor">
@@ -250,6 +214,14 @@
                         <span>Shift Type</span>
                     </a>
 
+
+                    <a class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageAdmin)" asp-controller="WhatsHappening" asp-action="index">
+                        <svg viewBox="0 0 17 17" fill="currentColor">
+                            <path d="M15 5h-9v-1h9v1zM6 6v1h11v-1h-11zM0 8h5v-5h-5v5zM15 11h-9v1h9v-1zM6 14h11v-1h-11v1zM0 15h5v-5h-5v5z" />
+                        </svg>
+                        <span>What's Happening</span>
+                    </a>
+
                 </div>
             </div>
             <div class="sidebar-footer">
@@ -270,7 +242,7 @@
                     </g>
                 </svg>
             </button>
-            <div class="header">  
+            <div class="header">
                 <div class="nav-toggle">
                     <a class="btn--toggle nav-link" href="#" data-target="#collapse">
                         <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -281,7 +253,7 @@
                 <div class="nav-collapse" id="collapse">
                     <nav role="navigation" class="main-menu">
                         <ul class="nav-list">
-                            <li class="nav-list__item"><a class='nav-link' asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+                            <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="DashBoard" asp-action="Index">Dashboard</a></li>
                             <li class="nav-list__item submenu--triggers">
                                 <a class='nav-link' asp-area="admin" asp-controller="Template" asp-action="TemplateListing">Templates<i class="caret-down-icon"></i></a>
                                 <ul class="submenu">
@@ -299,7 +271,7 @@
                             </li>
                             <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyListing">Leave Policy</a></li>
                             <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="Holiday" asp-action="HolidayListing">Holidays</a></li>
-                           
+
                         </ul>
                     </nav>
                 </div>
@@ -400,7 +372,7 @@
 
 
 
- 
+
 
     <script>
         $(window)
@@ -449,7 +421,7 @@
             })
         });
     </script>
-     @Html.Partial("_Toast")
+    @Html.Partial("_Toast")
     @*  <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script> *@

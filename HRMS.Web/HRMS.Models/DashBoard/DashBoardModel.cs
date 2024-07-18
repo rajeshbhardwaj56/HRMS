@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HRMS.Models.WhatsHappening;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace HRMS.Models.DashBoard
     }
     public class DashBoardModel
     {
+        public List<HRMS.Models.WhatsHappening.WhatsHappening> whatsHappenings { get; set; }
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
         public long CompanyID { get; set; }
@@ -22,7 +24,7 @@ namespace HRMS.Models.DashBoard
         public string? Surname { get; set; } = string.Empty;
 
         public string EncryptedIdentity { get; set; } = string.Empty;
-        public long EmploymentDetailID { get; set; }       
+        public long EmploymentDetailID { get; set; }
         public long DesignationID { get; set; }
         public long EmployeeTypeID { get; set; }
         public long DepartmentID { get; set; }
@@ -35,7 +37,7 @@ namespace HRMS.Models.DashBoard
         public long NoOfEmployees { get; set; }
         public long NoOfCompanies { get; set; }
         public long NoOfLeaves { get; set; }
-        public double Salary { get; set; }        
+        public double Salary { get; set; }
         public string? CorrespondenceAddress { get; set; } = string.Empty;
         public string? CorrespondenceCity { get; set; } = string.Empty;
         public string? CorrespondencePinCode { get; set; } = string.Empty;
@@ -77,5 +79,6 @@ namespace HRMS.Models.DashBoard
         public string? ContactPersonTelephone { get; set; } = string.Empty;
         public string? ContactPersonRelationship { get; set; } = string.Empty;
         public string? ITSkillsKnowledge { get; set; } = string.Empty;
+
     }
 }

@@ -52,6 +52,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_ShiftTypeDetails = "usp_Get_ShiftTypeDetails";
         public const string usp_AddUpdate_ShiftType = "usp_AddUpdate_ShiftType";
 
-
+        public const string usp_Get_WhatsHappenings = "usp_Get_WhatsHappenings";
+        public const string usp_AddUpdate_WhatsHappening = "usp_AddUpdate_WhatsHappening";
     }
 }

@@ -10,6 +10,7 @@ using HRMS.Models.Template;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.ShiftType;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using HRMS.Models.WhatsHappening;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -50,5 +51,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel);
         public Results GetAllShiftTypes(ShiftTypeInputParans model);
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
+        public Result AddUpdateWhatsHappening(WhatsHappening model);
+        public WhatsHappeningModel GetWhatsHappenings(WhatsHappening model);
     }
 }

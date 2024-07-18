@@ -1,0 +1,103 @@
+﻿@using HRMS.Models.ShiftType;
+@model HRMS.Models.WhatsHappening.WhatsHappening
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Shift Type";
+
+    var ProfilePhoto = "";
+    if (!string.IsNullOrEmpty(Model.IconImage))
+    {
+        ProfilePhoto = "/" + HRMS.Models.Common.Constants.WhatHapenningIconPath + Model.WhatsHappeningID + "/" + Model.IconImage;
+    }
+    else
+    {
+        ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+    }
+}
+
+<div class="main-header anim" style="--delay: 0s">Shift Type Details </div>
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Title <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.HiddenFor(x => x.WhatsHappeningID)
+                                @Html.TextBoxFor(a => a.Title, new { @class = "form-control", @required = "required" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 form-group">
+                            <label>Icon Image</label>
+                            <div class="row d-flex align-items-center">
+                                <div class="col-md-4">
+                                    <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="file" name="postedFiles" accept="image/*" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> From date <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.TextBoxFor(a => a.FromDate, new { @class = "form-control", @required = "required", type = "date" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> To date <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.TextBoxFor(a => a.ToDate, new { @class = "form-control", @required = "required", type = "date" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-12 my-2">
+                    <div class="row">
+                        <div class="col-md-12 my-2">
+                            <div class="col-md-12">
+
+                                <label class="form-label"> Description </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(a => a.Description, new { @class = "form-control", placeholder = "Enter your comments", rows = "4" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="button" value="Cancel">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>

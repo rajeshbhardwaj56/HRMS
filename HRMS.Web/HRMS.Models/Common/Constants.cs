@@ -52,6 +52,7 @@ namespace HRMS.Models.Common
         public const string Departments = "Departments";
         public const string ResultsData = "ResultsData";
         public const string EmployeePhotoPath = "Uploads/ProfilePhoto/";
+        public const string WhatHapenningIconPath = "Uploads/WhatHapenningIconPath/";
         public const string CompanyLogoPath = "Uploads/CompanyLogo/";
         public const string TemplatePath = "Uploads/Template/";
         public const string CKEditorImagesPath = "Uploads/ckeditor/";
@@ -143,6 +144,8 @@ namespace HRMS.Models.Common
         public const string GetFogotPasswordDetails = "GetFogotPasswordDetails";
         public const string AddUpdateShiftType = "AddUpdateShiftType";
         public const string GetAllShiftTypes = "GetAllShiftTypes";
+        public const string AddUpdateWhatsHappening = "AddUpdateWhatsHappening";
+        public const string GetWhatsHappenings = "GetWhatsHappenings";
 
     }
 
