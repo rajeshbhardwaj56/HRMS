@@ -21,36 +21,51 @@
                         <li class="list-group-item py-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                  @*   <img src="../assets/img/icons/fun.png" width="30" height="30"> *@
+                                    @*   <img src="../assets/img/icons/fun.png" width="30" height="30"> *@
                                     <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="height:30px" />
+                                    <input id="hdm@(whatHappening.WhatsHappeningID)" type="hidden" value="@(@whatHappening.Description)">
+
                                     <a href="" class="font-weight-bold text-decoration-none" style="color:#05397b;">
                                         &nbsp;&nbsp; @whatHappening.Title <b>
                                             &nbsp;&nbsp;|
                                             @if (whatHappening.FromDate.Value.ToString("dd/MM/yy") == whatHappening.ToDate.Value.ToString("dd/MM/yy"))
                                             {
-                                                <b>&nbsp;&nbsp;| @whatHappening.FromDate.Value.ToString("dd/MMM/yy")</b>
+                                                <b>&nbsp;&nbsp @whatHappening.FromDate.Value.ToString("dd/MMM/yy")</b>
                                             }
                                             else
                                             {
-                                                <b>&nbsp;&nbsp;| @whatHappening.FromDate.Value.ToString("dd/MMM/yy") - @whatHappening.ToDate.Value.ToString("dd/MMM/yy")</b>
+                                                <b>&nbsp;&nbsp; @whatHappening.FromDate.Value.ToString("dd/MMM/yy") - @whatHappening.ToDate.Value.ToString("dd/MMM/yy")</b>
                                             }
                                         </b>
 
                                     </a>
                                 </div>
                                 <div>
-                                    <a href="" class="btn btn-light btn-sm border border-secondary border-2">View Announcement</a>
-                                 @*    <a href="" class="px-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#05397b" class="bi bi-x" viewBox="0 0 16 16">
-                                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"></path>
-                                        </svg>
-                                    </a> *@
+
+                                    <a href="#" class="btn btn-light btn-sm border border-secondary border-2" onclick="ViewAnnouncement('@(whatHappening.Title)','hdm@(whatHappening.WhatsHappeningID)')" data-toggle="modal" data-target="#myModal">View Announcement</a>
+                                    @*    <a href="" class="px-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#05397b" class="bi bi-x" viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"></path>
+                                </svg>
+                                </a> *@
                                 </div>
                             </div>
                         </li>
                     </ul>
                 </div>
             }
+
+
+
         </div>
     </div>
 </div>
+
+
+<script>
+    function ViewAnnouncement(title, WhatsHappeningID) {
+        $("#modelBodyHeader").html(title);
+        $("#modelBody").html($("#" + WhatsHappeningID).val());
+        //alert(WhatsHappeningID)
+    }
+</script>

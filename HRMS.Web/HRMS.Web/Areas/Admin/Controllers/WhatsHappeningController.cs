@@ -45,43 +45,52 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Index(WhatsHappening whatsHappening, List<IFormFile> postedFiles)
         {
-            if (ModelState.IsValid)
+            try
             {
-                string fileName = null;
-                foreach (IFormFile postedFile in postedFiles)
+                if (ModelState.IsValid)
                 {
-                    fileName = postedFile.FileName.Replace(" ", "");
-                }
-                whatsHappening.IconImage = fileName;
-                whatsHappening.CompanyID = long.Parse(HttpContext.Session.GetString(Constants.CompanyID));
-                whatsHappening.UserID = long.Parse(HttpContext.Session.GetString(Constants.UserID));
-                var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                //whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappening;
-                var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
-
-                string path = Path.Combine(this.Environment.WebRootPath, Constants.WhatHapenningIconPath + result.PKNo.ToString());
-
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                foreach (IFormFile postedFile in postedFiles)
-                {
-                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                    string fileName = null;
+                    foreach (IFormFile postedFile in postedFiles)
                     {
-                        postedFile.CopyTo(stream);
+                        fileName = postedFile.FileName.Replace(" ", "");
                     }
+                    whatsHappening.IconImage = fileName;
+                    whatsHappening.CompanyID = long.Parse(HttpContext.Session.GetString(Constants.CompanyID));
+                    whatsHappening.UserID = long.Parse(HttpContext.Session.GetString(Constants.UserID));
+                    var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    //whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappening;
+                    var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
+
+                    string path = Path.Combine(this.Environment.WebRootPath, Constants.WhatHapenningIconPath + result.PKNo.ToString());
+
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    foreach (IFormFile postedFile in postedFiles)
+                    {
+                        using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                        {
+                            postedFile.CopyTo(stream);
+                        }
+                    }
+                    whatsHappening = new WhatsHappening();
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
+                }
+                else
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Please check all data and try again.";
                 }
 
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
             }
-            else
+            catch (Exception ex)
             {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "Please check all data and try again.";
+
             }
-            return View(whatsHappening);
+            return RedirectToActionPermanent("Index");
+           // return View(whatsHappening);
         }
     }
 }
