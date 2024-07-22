@@ -1295,8 +1295,28 @@ namespace HRMS.API.BusinessLayer
             dashBoardModel.NoOfCompanies = OtherDetails.NoOfCompanies;
             WhatsHappening whatsHappening = new WhatsHappening() { CompanyID = 1 };
             dashBoardModel.whatsHappenings = this.GetWhatsHappenings(whatsHappening)._WhatsHappenings;
+            dashBoardModel.celebrations = GetCelebrations();
+
             return dashBoardModel;
         }
+
+        public List<Celebration> GetCelebrations()
+        {
+            WhatsHappeningModel whatsHappeningModel = new WhatsHappeningModel();
+            List<SqlParameter> sqlParameter = null;
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Celebrations, sqlParameter);
+            return dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new Celebration
+                               {
+                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                   FirstName = dataRow.Field<string>("FirstName"),
+                                   MiddleName = dataRow.Field<string>("MiddleName"),
+                                   Surname = dataRow.Field<string>("Surname"),
+                                   ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
+                                   DateOfBirth = dataRow.Field<DateTime>("DateOfBirth")
+                               }).ToList();
+        }
+
         #endregion
 
         #region AttendenceList

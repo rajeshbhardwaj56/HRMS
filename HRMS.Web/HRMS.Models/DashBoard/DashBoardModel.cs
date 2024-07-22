@@ -12,9 +12,22 @@ namespace HRMS.Models.DashBoard
     {
         public long EmployeeID { get; set; }
     }
+
+    public class Celebration
+    {
+        public long EmployeeID { get; set; }
+        public string? ProfilePhoto { get; set; } = string.Empty;
+        public string? FirstName { get; set; } = string.Empty;
+        public string? MiddleName { get; set; } = string.Empty;
+        public string? Surname { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; }
+
+    }
+
     public class DashBoardModel
     {
-        public List<HRMS.Models.WhatsHappening.WhatsHappening> whatsHappenings { get; set; }
+        public List<Celebration> celebrations { get; set; } = new List<Celebration>();
+        public List<WhatsHappening.WhatsHappening> whatsHappenings { get; set; } = new List<WhatsHappening.WhatsHappening>();
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
         public long CompanyID { get; set; }
@@ -22,7 +35,6 @@ namespace HRMS.Models.DashBoard
         public string? FirstName { get; set; } = string.Empty;
         public string? MiddleName { get; set; } = string.Empty;
         public string? Surname { get; set; } = string.Empty;
-
         public string EncryptedIdentity { get; set; } = string.Empty;
         public long EmploymentDetailID { get; set; }
         public long DesignationID { get; set; }

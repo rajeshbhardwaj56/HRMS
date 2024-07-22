@@ -1,4 +1,6 @@
 ﻿@model HRMS.Models.DashBoard.DashBoardModel;
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <div class="row">
     <div class="col col-lg-12 order-0 mb-4 anim" style="--delay: .1s">
         <div class="card">
@@ -58,6 +60,42 @@
 
 
         </div>
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                @*   <h4 class="modal-title">Modal Header</h4> *@
+            </div>
+            <div class="modal-body">
+                <p>
+                    <div>
+                        Title:
+                        <div id="modelBodyHeader">
+                        </div>
+                    </div>
+                </p>
+                <p>
+                    <div>
+                        Description:
+                        <div id="modelBody">
+                        </div>
+                    </div>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
     </div>
 </div>
 
