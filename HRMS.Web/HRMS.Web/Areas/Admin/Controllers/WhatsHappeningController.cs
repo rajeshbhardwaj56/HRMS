@@ -42,6 +42,18 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return View(whatsHappening);
         }
 
+
+
+        public IActionResult Manage()
+        {
+            WhatsHappening whatsHappening = new WhatsHappening();
+            whatsHappening.WhatsHappeningID = 0;
+            var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappening;
+            return View(whatsHappening);
+        }
+
+
         [HttpPost]
         public IActionResult Index(WhatsHappening whatsHappening, List<IFormFile> postedFiles)
         {
@@ -90,7 +102,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             }
             return RedirectToActionPermanent("Index");
-           // return View(whatsHappening);
+            // return View(whatsHappening);
         }
     }
 }
