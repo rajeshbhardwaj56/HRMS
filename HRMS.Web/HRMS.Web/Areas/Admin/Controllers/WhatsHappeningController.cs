@@ -49,8 +49,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
             WhatsHappening whatsHappening = new WhatsHappening();
             whatsHappening.WhatsHappeningID = 0;
             var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappening;
-            return View(whatsHappening);
+            var result = JsonConvert.DeserializeObject<WhatsHappeningModel>(data);
+            return View(result);
         }
 
 
