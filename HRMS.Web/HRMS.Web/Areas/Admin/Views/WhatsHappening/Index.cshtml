@@ -54,7 +54,7 @@
                                 <label class="form-label"> From date <span class="Mandetory">*</span> </label>
                             </div>
                             <div class="col-md-12">
-                                @Html.TextBoxFor(a => a.FromDate, new { @class = "form-control", @required = "required", type = "date" })
+                                @Html.TextBoxFor(a => a.FromDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })                               
                             </div>
                         </div>
 
@@ -63,7 +63,8 @@
                                 <label class="form-label"> To date <span class="Mandetory">*</span> </label>
                             </div>
                             <div class="col-md-12">
-                                @Html.TextBoxFor(a => a.ToDate, new { @class = "form-control", @required = "required", type = "date" })
+                               
+                                @Html.TextBoxFor(a => a.ToDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
                             </div>
                         </div>
                     </div>

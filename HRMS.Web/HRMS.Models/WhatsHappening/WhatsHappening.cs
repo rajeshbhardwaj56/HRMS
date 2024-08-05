@@ -18,6 +18,8 @@ namespace HRMS.Models.WhatsHappening
 
     public class WhatsHappening
     {
+
+        public string EncryptedIdentity { get; set; } = string.Empty;
         public long WhatsHappeningID { get; set; }
         public long CompanyID { get; set; }
         public long UserID { get; set; }
@@ -25,6 +27,8 @@ namespace HRMS.Models.WhatsHappening
         public string Description { get; set; } = string.Empty;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public string StringFromDate { get; set; } = string.Empty;
+        public string StringToDate { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
         public string? IconImage { get; set; } = string.Empty;
     }

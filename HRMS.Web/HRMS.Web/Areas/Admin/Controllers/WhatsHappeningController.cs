@@ -35,9 +35,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
             WhatsHappening whatsHappening = new WhatsHappening();
             if (!string.IsNullOrEmpty(id))
             {
-                whatsHappening.WhatsHappeningID = Convert.ToInt64(id);
+                whatsHappening.WhatsHappeningID = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
                 var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappening;
+                whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappenings.Where(x => x.WhatsHappeningID == whatsHappening.WhatsHappeningID).FirstOrDefault();
             }
             return View(whatsHappening);
         }
@@ -51,6 +51,23 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<WhatsHappeningModel>(data);
             return View(result);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult WhatsHappeningListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            WhatsHappening whatsHappening = new WhatsHappening();
+            whatsHappening.WhatsHappeningID = 0;
+            var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<WhatsHappeningModel>(data);
+            results._WhatsHappenings.ForEach(x =>
+            {
+                x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.WhatsHappeningID.ToString());
+                x.StringFromDate = Convert.ToDateTime(x.FromDate).ToString("dd/MM/yyyy");
+                x.StringToDate = Convert.ToDateTime(x.ToDate).ToString("dd/MM/yyyy");
+            });
+            return Json(new { data = results._WhatsHappenings });
         }
 
 
