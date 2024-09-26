@@ -1,0 +1,234 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+:root {
+    --theme-bg: #fff;
+    --body-color: #05397b;
+    --body-bg: #05397b;
+    --button-bg: #353340;
+    --border-color: rgb(128 129 145 / 24%);
+    --search-bg: #edf3ff;
+    --delay: 0s;
+    --white-text-color: #ffffff;
+    --secondry-color: #08c;
+    --font-family: 'Montserrat', sans-serif !important;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-family: var(--font-family);
+    height: 100vh;
+}
+    body.login-bg {
+        background-image: url(../assets/img/bg.jpg);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+h1 {
+    font-weight: bold;
+    margin: 0;
+    font-family: var(--font-family);
+}
+
+h2 {
+    text-align: center;
+    font-weight: bold;
+    font-family: var(--font-family);
+}
+
+p {
+    font-size: 14px;
+    font-weight: 100;
+    line-height: 20px;
+    letter-spacing: 0.5px;
+    margin: 20px 0 30px;
+    font-family: var(--font-family);
+}
+
+a {
+    color: #333;
+    font-size: 14px;
+    text-decoration: none;
+    margin: 15px 0;
+    font-family: var(--font-family);
+}
+
+.submitBtn {
+    border: var(--body-bg) solid 1px;
+    background-color: #05397b;
+    color: var(--white-text-color);
+    font-size: 12px;
+    font-weight: bold;
+    padding: 12px 45px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: transform 80ms ease-in;
+    font-family: var(--font-family);
+}
+
+    .submitBtn:active {
+        transform: scale(0.95);
+    }
+
+    .submitBtn:focus {
+        outline: none;
+    }
+
+    .submitBtn:hover {
+        background-color: #08c;
+        color: var(--white-text-color);
+    }
+
+form {
+    background-color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 50px;
+    height: 100%;
+    text-align: center;
+}
+
+input, .form-control {
+    background-color: #edf3ff;
+    border: none;
+    padding: 12px 15px;
+    margin: 8px 0;
+    width: 100%;
+}
+
+
+
+    input:focus, .form-control:focus {
+        box-shadow: none;
+        background-color: #edf3ff;
+    }
+
+.container {
+    border-radius: 10px;
+    box-shadow: 0 14px 28px rgb(0, 0, 0, 0.25), 0 10px 10px rgb(0, 0, 0, 0.22);
+    position: relative;
+    overflow: hidden;
+    width: 768px;
+    max-width: 100%;
+    min-height: 480px;
+}
+
+.form-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+}
+
+.sign-in-container {
+    left: 50%;
+    width: 50%;
+    z-index: 2;
+}
+
+.overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform 0.6s ease-in-out;
+    z-index: 100;
+}
+
+.overlay {
+    background: #05397b;
+    background: linear-gradient(to right, var(--secondry-color), var(--body-bg));
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 0 0;
+    color: #FFFFFF;
+    position: relative;
+    height: 100%;
+}
+
+.overlay-panel {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    text-align: center;
+    top: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.form-check-input[type="checkbox"] {
+    border-radius: 0.25em;
+    width: 20px;
+    padding: 0;
+    height: 20px;
+    margin-right: 5px;
+}
+
+.app-brand-logo img {
+    border-radius: 5px;
+}
+
+@media (max-width: 992px) {
+    .login-bg {
+        padding: 15px;
+        min-height: 100vh;
+    }
+}
+
+@media (max-width: 767px) {
+    body {
+        height: auto;
+    }
+
+    .login-bg .container {
+        min-height: auto;
+        width: 450px;
+        padding: 0;
+        max-width: 100%;
+    }
+
+    .overlay-container {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        position: relative;
+    }
+
+    .overlay {
+        position: relative;
+        height: auto;
+    }
+
+    .overlay-panel {
+        position: relative;
+        padding: 15px;
+    }
+
+    .form-container {
+        position: relative;
+        left: 0;
+        width: 100%;
+    }
+
+    .overlay-panel h1 br {
+        display: none;
+    }
+
+    .form-container form {
+        padding: 30px;
+        margin: 0 !important;
+    }
+}

@@ -1,0 +1,110 @@
+﻿@using Microsoft.AspNetCore.Http;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model HRMS.Models.Common.Results
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
+    ViewData["Title"] = "Employee";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+
+<div class="main-header anim" style="--delay: 0s">Active Employee List  <a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a></div>
+
+<table id="tblActiveEmployeeListing" class="table table-striped body-text" style="width:100%">
+    <thead>
+        <tr>
+            <th class="first" style="visibility:hidden">
+            </th>
+            <th>Employee Number</th>
+            <th>First Name</th>
+            <th>Middle Name</th>
+            <th>Surname</th>
+            <th>Email Address</th>
+            <th>Mobile</th>
+            <th>Designation</th>
+            <th>Employee Type</th>
+            <th>Department</th>
+            <th>Job Location</th>
+            <th>Reporting Manager</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+</table>
+
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#tblActiveEmployeeListing').DataTable({
+            "ajax": {
+                "url": "ActiveEmployeeListings/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "employeeID", "autoWidth": true, },
+                { "data": "employeeNumber", "autoWidth": true, },
+                { "data": "firstName", "autoWidth": true },
+                { "data": "middleName", "autoWidth": true },
+                { "data": "surname", "autoWidth": true },
+                { "data": "officialEmailID", "autoWidth": true },
+                { "data": "mobile", "autoWidth": true },
+                { "data": "designationName", "autoWidth": true, },
+                { "data": "employeeTypeName", "autoWidth": true, },
+                { "data": "departmentName", "autoWidth": true, },
+                { "data": "jobLocationName", "autoWidth": true, },
+                { "data": "reportingToName", "autoWidth": true, },
+                {
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+                        // alert(JSON.stringify(row))
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        return linkEdit;
+                    }
+                },
+
+
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+
+                {
+
+                    "targets": [0], //first and last not sortable
+                    "orderable": false,
+                    "visible": false
+                },
+
+                {
+
+                    "targets": [1], //first and last not sortable
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+
+            ]
+            , "responsive": true
+
+        });
+
+
+    });
+
+</script>

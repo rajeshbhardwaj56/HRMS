@@ -1,0 +1,49 @@
+using HRMS.Models.Employee;
+using HRMS.Models.Template;
+using HRMS.Models.Company;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using HRMS.Models.LeavePolicy;
+using HRMS.Models.AttendenceList;
+using HRMS.Models.ShiftType;
+
+namespace HRMS.Models.Common
+{
+    public class Results
+    {
+        public Result Result { get; set; } = new Result();
+        public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Countries { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Currencies { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Languages { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
+        public List<EmployeeModel> Employees { get; set; } = new List<EmployeeModel>();
+        public EmployeeModel employeeModel { get; set; } = new EmployeeModel();
+        public List<TemplateModel> Template { get; set; } = new List<TemplateModel>();
+        public TemplateModel templateModel { get; set; } = new TemplateModel();
+        public CompanyModel companyModel { get; set; } = new CompanyModel();
+        public List<CompanyModel> Companies { get; set; } = new List<CompanyModel>();
+
+        public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();
+        public LeavePolicyModel leavePolicyModel { get; set; } = new LeavePolicyModel();
+
+        public List<HolidayModel> Holiday { get; set; } = new List<HolidayModel>();
+        public HolidayModel holidayModel { get; set; } = new HolidayModel();
+        public List<AttendenceListModel> AttendenceList { get; set; } = new List<AttendenceListModel>();
+        public AttendenceListModel AttendenceListModel { get; set; } = new AttendenceListModel();
+        public List<ShiftTypeModel> ShiftType { get; set; } = new List<ShiftTypeModel>();
+        public ShiftTypeModel shiftTypeModel { get; set; } = new ShiftTypeModel();
+
+    }
+
+
+
+    public class Result
+    {
+        public long? PKNo { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public string ErrorCode { get; set; } = string.Empty;
+        public bool IsResetPasswordRequired { get; set; }
+        public object Data { get; set; }
+    }
+}

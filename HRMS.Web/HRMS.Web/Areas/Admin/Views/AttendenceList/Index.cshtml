@@ -1,0 +1,91 @@
+﻿@using HRMS.Models.AttendenceList;
+@model AttendenceListModel
+@{
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Attendence List";
+
+}
+
+<div class="main-header anim" style="--delay: 0s">Attendence List </div>
+<form method="post" enctype="multipart/form-data">
+	<div class="Container">
+		<div class="group-box anim" style="--delay: .3s">
+
+		@* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+			<label class="form-label">Attendence List</label>
+		</div> *@
+		<div class="row">
+				<div class="col-md-4 form-group">
+					<label>Series <span class="Mandetory">*</span></label>
+					@Html.HiddenFor(x => x.ID)
+					@Html.TextBoxFor(a => a.Series, new { @class = "form-control", @required = "required" })
+				</div>			
+		</div>
+
+			<div class="row">
+				<div class="col-md-4 form-group">
+					<label>Attendence Date <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.AttendenceDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-4 form-group">
+					<label>Employee <span class="Mandetory">*</span></label>
+					@Html.DropDownListFor(x => x.EmployeeID, Model.Employeelist, HRMS.Models.Common.Constants.SelectEmployee, new { @class = "form-control", @required = "required" })
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-4 form-group">
+					<label>Status <span class="Mandetory">*</span></label>
+					@Html.DropDownListFor(model => model.SelectedStatus, Model.StatusList, "-- Select Status --", new { @class = "form-control" })
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-4 form-group">
+					<label>Shift Selection </label>
+					@Html.DropDownListFor(model => model.SelectedShift, Model.ShiftList, " -- Select Shift --", new { @class = "form-control" })
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-2 form-group">
+					<label>Late Entry <span class="Mandetory">*</span></label><br />
+					@Html.CheckBoxFor(a => a.LateEntry)
+				</div>
+
+				<div class="col-md-2 form-group">
+					<label>Early Exit <span class="Mandetory">*</span></label><br />
+					@Html.CheckBoxFor(a => a.EarlyExit)
+				</div>
+			</div>
+
+
+
+	
+
+
+
+
+
+				
+				
+				@* <div class="row">
+					<div class="col-md-12">
+						<input style="float:right" type="submit" value="Submit" class="btn btn-success" />
+						<input id="cancelButton" style="float:right; margin:0 16px;" type="button" value="Cancel" class="btn btn-success" />
+					</div>
+				</div> *@
+			<div class="row">
+				<div class="col-md-12">
+					<input type="submit" value="Submit" class="btn btn-success" />
+					<button id="cancelButton" class="btn btn-danger" type="button" value="Cancel">Cancel</button>
+				</div>
+			</div>
+		
+
+		</div>
+	</div>
+</form>

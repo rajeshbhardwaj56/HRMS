@@ -1,0 +1,151 @@
+﻿@using HRMS.Models.LeavePolicy;
+@model LeavePolicyModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Leave Policy";
+}
+
+<div class="main-header anim" style="--delay: 0s">Leave Policy Details </div>
+<form id="leaveForm" method="post" enctype="multipart/form-data">
+
+    <div class="Container">
+
+        @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+            <label class="form-label">Leave Policy Details </label>
+        </div> *@
+        <div class="group-box anim" style="--delay: .3s">
+        <div class="row">
+
+             <div class="col-md-4 form-group">
+                    <label>Leave Policy Name <span class="Mandetory">*</span></label>
+                    @Html.HiddenFor(x => x.LeavePolicyID)
+                    @Html.TextBoxFor(a => a.LeavePolicyName, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Maximum Leaves Allocation Allowed <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.MaximumLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Applicable After Working Days <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.ApplicableAfterWorkingDays, new { @class = "form-control", @required = "required" })
+                </div>
+
+
+                <div class="col-md-4 form-group">
+                    <label>Maximum Consecutive Leaves Allowed<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.MaximumConsecutiveLeavesAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Maximum Earned Leaves Allocation Allowed <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.MaximumEarnedLeaveAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Maximum Medical Leaves Allocation Allowed <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.MaximumMedicalLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+                
+                <div class="col-md-4 form-group">
+                    <label> Maximum Comp Off Allocation Allowed <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.MaximumCompOffLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+            
+
+        </div>
+      
+
+        <div class="row">
+
+                <div class="col-md-4 form-group">
+                    <label>Is Carry Forward <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.IsCarryForward)
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Is Leave Without Pay <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.IsLeaveWithoutPay)
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Is Partially Paid Leave <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.IsPartiallyPaidLeave)
+                </div>
+
+
+                <div class="col-md-4 form-group">
+                    <label>Is Optional Leave <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.IsOptionalLeave)
+                </div>
+
+
+                <div class="col-md-4 form-group">
+                    <label>Is Allow Negative Balance <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.IsAllowNegativeBalance)
+                </div>
+
+
+                <div class="col-md-4 form-group">
+                    <label>Is Allow Over Allocation</label><br />
+                    @Html.CheckBoxFor(a => a.IsAllowOverAllocation)
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Is Include Holidays Within Leaves As Leavese <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.IsIncludeHolidaysWithinLeavesAsLeaves)
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Is Compendatory</label><br />
+                    @Html.CheckBoxFor(a => a.IsCompendatory)
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Is Allow Encashment <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.IsAllowEncashment)
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Is Earned Leave <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.IsEarnedLeave)
+                </div>
+
+        </div>
+
+       
+
+
+        
+
+
+        
+
+        @* <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-2">
+                <input type="submit" value="Submit" class="btn btn-success" />
+            </div>
+            <div class="col-md-2">
+                <input id="cancelButton" type="button" value="Cancel" class="btn btn-success" />
+            </div>
+        </div> *@
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="button" value="Cancel">Cancel</button>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById('cancelButton').addEventListener('click', function () {
+        window.location.href = '@Url.Action("LeavePolicyListing", "LeavePolicy")';
+    });
+</script>
