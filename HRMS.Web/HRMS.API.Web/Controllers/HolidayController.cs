@@ -45,5 +45,12 @@ namespace HRMS.API.Web.Controllers.Holiday
             response = Ok(_businessLayer.GetHolidayList(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult GetAllHolidayList(HolidayInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllHolidayList(model));
+            return response;
+        }
     }
 }

@@ -15,6 +15,7 @@
     var CountryData = @Model.employeeModel.Countries;
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 
+
     ViewData["Title"] = "Employee";
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
@@ -25,7 +26,15 @@
     {
         ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
     }
-
+    var UploadCertificate = "";
+    if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
+    {
+        UploadCertificate = "/" + HRMS.Models.Common.Constants.UploadCertificate + Model.employeeModel.EmployeeID + "/" + Model.leaveResults.leaveSummaryModel.UploadCertificate;
+    }
+    else
+    {
+        UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
+    }
     if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
     {
         Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
@@ -38,7 +47,16 @@
     {
         Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
     }
+    if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.ChildDOB == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.ChildDOB = DateTime.Now;
+    }
     var fullDayValue = (int)LeaveDay.FullDay;
+    var halfDayValue = (int)LeaveDay.HalfDay;
 }
 <style>
     .fade:not(.show) {
@@ -217,24 +235,9 @@
                                                         @Model.employeeModel.PersonalEmailAddress
                                                     </div>
                                                 </div>
-
-
-
-
-
-
-
-
-
-
-
-
                                                 <hr />
 
                                                 <div class="row">
-
-
-
                                                     <div class="col-lg-12 col-md-12 mb-2">
                                                         <h6>Permanent Address</h6>
                                                         @Model.employeeModel.PermanentAddress
@@ -259,19 +262,7 @@
                                                         }
                                                     </div>
                                                 </div>
-
-
-
-
-
                                                 <hr />
-
-
-
-
-
-
-
                                                 <div class="row">
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Contact Person</h6>
@@ -293,9 +284,6 @@
                                 </div>
 
                                 <div class="tab-pane fade" id="@(MyInfoTabs.TabProfessionalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabProfessionalInfo)-tab">
-
-
-
                                     <div class="group-box anim">
 
                                         <div class="tabsInfo" id="myTabContent-timeoff">
@@ -558,7 +546,7 @@
                                             <nav>
                                                 <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
                                                     <button class="nav-link active" id="apply-leave-tab1" data-bs-toggle="tab" data-bs-target="#apply-leave-tab" type="button" role="tab" aria-controls="apply-leave-tab" aria-selected="true">Apply Leave</button>
-                                                    <button class="nav-link" id="leave-summary-tab1" data-bs-toggle="tab" data-bs-target="#leave-summary-tab" type="button" role="tab" aria-controls="leave-summary-tab" aria-selected="false">Leave Summary</button>
+                                                    <button class="nav-link  " id="leave-summary-tab1" data-bs-toggle="tab" data-bs-target="#leave-summary-tab" type="button" role="tab" aria-controls="leave-summary-tab" aria-selected="false">Leave Summary</button>
                                                 </div>
                                             </nav>
                                             <div class="tab-content" id="nav-tabContent">
@@ -572,50 +560,81 @@
 
                                                                         <div class="row py-2">
                                                                             <div class="col-lg-6 col-md-12">
-                                                                                <label for="leavetype" class="">Leave Duration:</label>
-                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required", @id = "leaveDurationDropdown" })
-                                                                            </div>
-                                                                            <div class="col-lg-6 col-md-12">
                                                                                 <label for="leavetype" class="">Leave Type:</label>
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
-                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required" })
+                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" })
 
                                                                             </div>
+                                                                            <div class="col-lg-6 col-md-12" id="leaveDurationContainer">
+                                                                                <label for="leavetype" class="">Leave Duration:</label>
+                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "leaveDurationDropdown" })
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12" id="ChildDOBDateContainer">
+                                                                                <!-- New ID for toggling -->
+                                                                                <label for="datepicker2" class="">Child DOB:</label>
+                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv3">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
-                                                                          <div class="row py-2 fullDayContainer" id="fullDayContainer">
-                                                                            <div class="col-lg-6 col-md-12">
+                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
+                                                                            <div class="col-lg-6 col-md-12" id="fromdatetime">
                                                                                 <label for="datepicker1" class="">From:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv1">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                    
-                                                                            <div class="col-lg-6 col-md-12">
+
+                                                                            <div class="col-lg-6 col-md-12" id="todatetime">
                                                                                 <label for="datepicker2" class="">To:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv2">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                       
+
                                                                         <div class="row py-2 halfDayContainer" id="halfDayContainer">
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="datepicker1" class="">Date:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv1">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd") })
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd") })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div class="row py-2 MaternityAdoptionMiscarrageContainer " id="MaternityAdoptionMiscarrageContainer">
+                                                                            <div class="col-lg-6 col-md-12" id="expectedDeliveryDateContainer">
+                                                                                <!-- New ID for toggling -->
+                                                                                <label for="datepicker2" class="">Expected Delivery Date:</label>
+                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
+
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv3">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="col-lg-6 col-md-12">
-                                                                             
+                                                                                <label>Upload Certificate:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group ">
+                                                                                        @* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
+
+                                                                                        <input type="file" name="postedFiles" class="form-control body-text" />
+                                                                                    </div>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
 
@@ -629,8 +648,8 @@
                                                                             </div>
                                                                         </div>
 
-                                                                        <button class="btn btn-success" type="submit">Submit</button>
-                                                                        <button class="btn btn-danger" type="reset">Cancel</button>
+                                                                        <button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
+                                                                        <a href="~/employee/MyInfo/Index/" class="btn btn-danger" type="reset">Cancel</a>
                                                                     </form>
                                                                 </div>
                                                             </div>
@@ -640,8 +659,8 @@
                                                                 <div class="card-body">
                                                                     <ul class="list-group" style="width:100%;">
                                                                         <li class="d-flex justify-content-between align-items-center ">
-                                                                            <b>Leave Balance</b>
-                                                                            <span class="badge rounded-pill" style="background-color: #05397b">2 / 6</span>
+                                                                            <b>Annual Leave Balance</b>
+                                                                            <span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.TotalLeave/@ViewBag.TotalAnnualLeave</span>
                                                                         </li>
                                                                     </ul>
                                                                 </div>
@@ -659,34 +678,13 @@
                                                                         <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                                                             <div class="mt-3">
                                                                                 <ul class="list-group ">
-                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                        01-Jan-2024
-                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">New Year</span>
-                                                                                    </li>
-                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                        26-Jan-2024
-                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Republic Day</span>
-                                                                                    </li>
-                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                        25-Mar-2024
-                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Holi</span>
-                                                                                    </li>
-                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                        17-Apr-2024
-                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Ram Navmi</span>
-                                                                                    </li>
-                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                        15-Aug-2024
-                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Independence Day</span>
-                                                                                    </li>
-                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                        31-Oct-2024
-                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Diwali</span>
-                                                                                    </li>
-                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                        15-Nov-2024
-                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Gurpurab</span>
-                                                                                    </li>
+                                                                                    @foreach (var item in Model.HolidayModel)
+                                                                                    {
+                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                            @item.FromDate.ToString("dd-MM-yyyy") -  @item.ToDate.ToString("dd-MM-yyyy")
+                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
+                                                                                        </li>
+                                                                                    }
                                                                                 </ul>
                                                                             </div>
                                                                         </div>
@@ -723,7 +721,12 @@
                                                                                 <td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
                                                                                 <td>@item.EndDate.ToString("dd/M/yyyy")</td>
                                                                                 <td>@item.LeaveTypeName</td>
-                                                                                <td><span class="fw-bold text-primary">@item.NoOfDays</span></td>
+                                                                                <td>
+                                                                                    <span class="fw-bold text-primary " data-bs-toggle="tooltip" title="You are only apply 3 Consecutive leaves." style="cursor: pointer; margin-left: 5px; background: red; color: white !important;">
+                                                                                        
+                                                                                        @item.NoOfDays
+                                                                                    </span>
+                                                                            </td>
                                                                                 @switch (item.LeaveStatusID)
                                                                                 {
                                                                                     case (int)LeaveStatus.Approved:
@@ -740,10 +743,25 @@
                                                                                         break;
                                                                                 }
 
-                                                                                <td>
-                                                                                    <a href="~/employee/myinfo/Index/@(item.EncryptedIdentity)"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
-                                                                                    <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a>
-                                                                                </td>
+                                                                                @if (item.LeaveStatusID != (int)LeaveStatus.Approved)
+                                                                                {
+                                                                                    <td>
+                                                                                        <a href="~/employee/MyInfo/Index/?id=@(item.EncryptedIdentity)" id="editButton"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+                                                                                       @*  <a href="/employee/MyInfo/DeleteLeavesSummary/?id=@(item.EncryptedIdentity)" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
+                                                                                            <i class="fa fa-close" style="font-size:22px;color:red"></i>
+                                                                                        </a> *@
+
+                                                                                        <form action="/employee/MyInfo/DeleteLeavesSummary" method="post" style="display:inline;">
+                                                                                            <input type="hidden" name="id" value="@item.EncryptedIdentity" />
+                                                                                            <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
+                                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
+                                                                                            </button>
+                                                                                        </form>
+
+
+                                                                                    </td>
+                                                                                }
+
                                                                             </tr>
                                                                         }
 
@@ -807,125 +825,125 @@
     var leaveSummaryID;
 
     function ApproveRejectLeave(isApproved) {
-        let data={
-        leaveSummaryID:leaveSummaryID,
-        isApproved:isApproved,
-        ApproveRejectComment:$("#ApproveRejectComment").val()
+        let data = {
+            leaveSummaryID: leaveSummaryID,
+            isApproved: isApproved,
+            ApproveRejectComment: $("#ApproveRejectComment").val()
         };
-       var urlData= '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/ApproveRejectLeave/';
-             $.post(urlData, data, function(json) {
-                 $("#ApproveRejectComment").val("");
-                 CloseApproveRejectModel();
-                 $.toast({
-                    heading: 'Success',
-                    text: "Leave status updated successfully.",
-                    showHideTransition: 'slide',
-                    icon: 'success',
-                    position: 'top-right',
-                });
+        var urlData = '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/ApproveRejectLeave/';
+        $.post(urlData, data, function (json) {
+            $("#ApproveRejectComment").val("");
+            CloseApproveRejectModel();
+            $.toast({
+                heading: 'Success',
+                text: "Leave status updated successfully.",
+                showHideTransition: 'slide',
+                icon: 'success',
+                position: 'top-right',
+            });
 
-                 AutoReload();
+            AutoReload();
 
 
         });
 
 
-         }
+    }
 
-         function OpenApproveRejectModel(rowData) {
-             leaveSummaryID=rowData;
-             $('#ApproveRejectModel').modal('show');
-         }
+    function OpenApproveRejectModel(rowData) {
+        leaveSummaryID = rowData;
+        $('#ApproveRejectModel').modal('show');
+    }
 
-          function CloseApproveRejectModel() {
-             $('#ApproveRejectModel').modal('hide');
-         }
+    function CloseApproveRejectModel() {
+        $('#ApproveRejectModel').modal('hide');
+    }
 
-        function InitOverviewDataTable() {
-        oOverviewTable =  $('#tblLeavesForApproval').DataTable({
-                "ordering": true,
-                "paging": true,
-                "searching": true,
-                "info": true,
-                "columns": [
-                    { "data": "leaveSummaryID", "autoWidth": true, },
-                    { "data": "employeeNumber", "autoWidth": true },
-                    { "data": "employeeName", "autoWidth": true },
-                    { "data": "startDateFormatted", "autoWidth": true },
-                    { "data": "endDateFormatted", "autoWidth": true },
-                    { "data": "reason", "autoWidth": true },
-                    {
-                        // this is Actions Column
-                        mRender: function (data, type, row) {
-                            var linkEdit = "<a data-toggle='tooltip' data-placement='top'  class='item' onclick='OpenApproveRejectModel("+ row.leaveSummaryID + ")' href='#'  title=''  data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
+    function InitOverviewDataTable() {
+        oOverviewTable = $('#tblLeavesForApproval').DataTable({
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "leaveSummaryID", "autoWidth": true, },
+                { "data": "employeeNumber", "autoWidth": true },
+                { "data": "employeeName", "autoWidth": true },
+                { "data": "startDateFormatted", "autoWidth": true },
+                { "data": "endDateFormatted", "autoWidth": true },
+                { "data": "reason", "autoWidth": true },
+                {
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+                        var linkEdit = "<a data-toggle='tooltip' data-placement='top'  class='item' onclick='OpenApproveRejectModel(" + row.leaveSummaryID + ")' href='#'  title=''  data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
 
-                            return linkEdit;
-                        }
-                    },
-
-
-                    // { "data": "title", "autoWidth": true },
-                    // // { "data": "description", "autoWidth": true },
-
-                    // {
-                    //     // this is Actions Column
-                    //     mRender: function (data, type, row) {
-                    //         return row["description"];
-                    //     }
-                    // },
-                    // { "data": "status", "autoWidth": true },
-                    // { "data": "createdDate", "autoWidth": true },
-
-                    // // {
-                    // //     // this is Actions Column
-                    //     mRender: function (data, type, row) {
-                    //         // alert(JSON.stringify(row))
-                    //         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="@Url.Action("index", "BriefingUpdate")?id=' + row.briefingUpdateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                    //         return linkEdit;
-                    //     }
-                    // },
-
-                    // {
-                    //     // this is Actions Column
-                    //     mRender: function (data, type, row) {
-                    //         // alert(JSON.stringify(row))
-                    //         var linkDelete = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#"  title=""  data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>';
-                    //         return linkDelete;
-                    //     }
-                    // }
-
-                    // for edit icon = < i class= "mdi mdi-border-color" ></i >
-                    // for delete icon =  <i class="mdi mdi-delete"></i>
-                ],
-                "columnDefs": [
-                    {
-                        target: 2,
-                        visible: false,
-                        searchable: false
-                    },
-
-                    {
-
-                        "targets": [0], //first and last not sortable
-                        "orderable": false,
-                        "visible": false
-                    },
-
-                    {
-
-                        "targets": [1], //first and last not sortable
-                        "orderable": true,
-                        "defaultContent": " "
+                        return linkEdit;
                     }
+                },
 
-                ]
-                , "responsive": true
 
-            });
+                // { "data": "title", "autoWidth": true },
+                // // { "data": "description", "autoWidth": true },
+
+                // {
+                //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         return row["description"];
+                //     }
+                // },
+                // { "data": "status", "autoWidth": true },
+                // { "data": "createdDate", "autoWidth": true },
+
+                // // {
+                // //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         // alert(JSON.stringify(row))
+                //         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="@Url.Action("index", "BriefingUpdate")?id=' + row.briefingUpdateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                //         return linkEdit;
+                //     }
+                // },
+
+                // {
+                //     // this is Actions Column
+                //     mRender: function (data, type, row) {
+                //         // alert(JSON.stringify(row))
+                //         var linkDelete = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#"  title=""  data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>';
+                //         return linkDelete;
+                //     }
+                // }
+
+                // for edit icon = < i class= "mdi mdi-border-color" ></i >
+                // for delete icon =  <i class="mdi mdi-delete"></i>
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+
+                {
+
+                    "targets": [0], //first and last not sortable
+                    "orderable": false,
+                    "visible": false
+                },
+
+                {
+
+                    "targets": [1], //first and last not sortable
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+
+            ]
+            , "responsive": true
+
+        });
     }
 
     function RefreshTable(tableId, urlData) {
-        $.post(urlData, null, function(json) {
+        $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
             oSettings = table.fnSettings();
 
@@ -941,39 +959,199 @@
     }
     // Edited by Prasad
     function AutoReload() {
-            RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/');
+        RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/');
     }
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         InitOverviewDataTable();
-      AutoReload();
+        AutoReload();
 
     });
 
 
 
+    // Initialize Bootstrap tooltip
+    $(document).ready(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip();
 
+
+      
+
+
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Save selected main tab to localStorage
+        var mainTabs = document.querySelectorAll('.nav-link.section-link');
+        mainTabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
+            });
+        });
+
+        // Check if a main tab was previously selected and open it
+        var activeMainTab = localStorage.getItem('selectedMainTab');
+        if (activeMainTab) {
+            var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
+            if (targetMainTab) {
+                var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
+                bootstrapMainTab.show();
+            }
+        }
+
+        // Save selected sub-tab (inside Leave Info) to localStorage
+        var subTabs = document.querySelectorAll('.nav-link');
+        subTabs.forEach(function (subTab) {
+            subTab.addEventListener('click', function () {
+                localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));
+            });
+        });
+
+        // Check if a sub-tab was previously selected and open it
+        var activeSubTab = localStorage.getItem('selectedSubTab');
+        if (activeSubTab) {
+            var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
+            if (targetSubTab) {
+                var bootstrapSubTab = new bootstrap.Tab(targetSubTab);
+                bootstrapSubTab.show();
+            }
+        }
+
+        // Edit button event to activate Apply Leave tab
+        document.getElementById('editButton').addEventListener('click', function (event) {
+            // Prevent the default behavior of the link 
+
+            // Clear the selectedSubTab from localStorage
+            localStorage.removeItem('selectedSubTab');
+
+            // Set the new selectedSubTab for Apply Leave
+            localStorage.setItem('selectedSubTab', '#apply-leave-tab');
+
+            // Open the Leave Info main tab
+            var leaveInfoTab = new bootstrap.Tab(document.querySelector('#leaveInfo-tab1'));
+            leaveInfoTab.show();
+
+            // Now, switch to the Apply Leave sub-tab
+            var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
+            applyLeaveTab.show();
+        });
+    });
 
 </script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+
+
+
+
+
         var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
         var fullDayContainer = document.getElementById("fullDayContainer");
         var halfDayContainer = document.getElementById("halfDayContainer");
+        var leaveTypeDropdown = document.getElementById("leaveTypeDropdown");
+        var maternityAdoptionMiscarrageContainer = document.getElementById("MaternityAdoptionMiscarrageContainer");
+        var leaveDurationContainer = document.getElementById("leaveDurationContainer");
+        var todatetime = document.getElementById("todatetime");
+        var fromdatetime = document.getElementById("fromdatetime");
 
         function toggleContainers() {
-            if (leaveDurationDropdown.value === '@fullDayValue') { 
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+
+            // Check if the leave type is one of the specified types or if it's a full day leave
+            if (selectedLeaveType === 'Maternity Leave' ||
+                selectedLeaveType === 'Adoption' ||
+                selectedLeaveType === 'Miscarriage'  ) {
                 fullDayContainer.style.display = "flex";
                 halfDayContainer.style.display = "none";
-            } else {
+                ChildDOBDateContainer.style.display = "none";
+                todatetime.style.display = "block";
+            }
+           else if (leaveDurationDropdown.value === '@fullDayValue') {
+                fullDayContainer.style.display = "flex";
+                if (@fullDayValue== 1) {
+                    todatetime.style.display = "block";
+                }
+                else{
+                    todatetime.style.display = "none";
+                    fromdatetime.style.display = "block";
+                }
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+            }
+            
+            else if (leaveDurationDropdown.value === '@halfDayValue') {
+                fullDayContainer.style.display = "flex";
+                if (@halfDayValue== 2) {
+                    todatetime.style.display = "none";
+                    fromdatetime.style.display = "block";
+                }
+                 
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+            }
+            else if (
+                selectedLeaveType === 'Paternity Leave') {
+              fullDayContainer.style.display = "flex";
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "block";
+            }
+
+            else {
+                ChildDOBDateContainer.style.display = "none";
                 fullDayContainer.style.display = "none";
-                halfDayContainer.style.display = "block";
+               // halfDayContainer.style.display = "block";
+            }
+        }
+        function toggleMaternityAdoptionMiscarrageContainer() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            if (selectedLeaveType === 'Maternity Leave' || selectedLeaveType === 'Adoption' || selectedLeaveType === 'Miscarriage' || selectedLeaveType === 'Medical Leave' || selectedLeaveType === 'Paternity Leave') {
+                maternityAdoptionMiscarrageContainer.style.display = "flex";
+            } else {
+                maternityAdoptionMiscarrageContainer.style.display = "none";
             }
         }
 
-        leaveDurationDropdown.addEventListener("change", toggleContainers);
 
+        function toggleExpectedDeliveryDate() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            if (selectedLeaveType === 'Maternity Leave') {
+                expectedDeliveryDateContainer.style.display = "block";
+            } else {
+                expectedDeliveryDateContainer.style.display = "none";
+            }
+        }
+        function toggleLeaveDurationVisibility() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            if (selectedLeaveType === 'Annual Leave' || selectedLeaveType === 'Comp Off' || selectedLeaveType === 'Medical Leave') {
+                leaveDurationContainer.style.display = "block";
+                $('#leaveDurationDropdown').attr('required', true);
+            } else {
+                leaveDurationContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
+                $('#leaveDurationDropdown').attr('required', false);
+            }
+        }
+
+
+        leaveDurationDropdown.addEventListener("change", toggleContainers);
+        leaveTypeDropdown.addEventListener("change", function () {
+            toggleMaternityAdoptionMiscarrageContainer();
+            toggleExpectedDeliveryDate();
+            toggleLeaveDurationVisibility();
+            toggleContainers();
+        });
         toggleContainers();
+        toggleMaternityAdoptionMiscarrageContainer();
+        toggleLeaveDurationVisibility();
+        toggleExpectedDeliveryDate();
+
+
+
+
+
+
+
     });
 </script>
+
+

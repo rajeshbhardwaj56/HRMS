@@ -34,9 +34,13 @@ namespace HRMS.Models.Common
     }
     public enum LeaveType
     {
-        Casual = 1,
-        Medical = 2,
-        AnnualLeave = 3,
-        CompOff = 4
+        MaternityLeave = 1,
+        Adoption = 2,
+        AnnualLeavel = 3,
+        CompOff = 4,
+        Miscarriage = 5,
+        MedicalLeave =6,
+        Paternity = 7
+
     }
 }

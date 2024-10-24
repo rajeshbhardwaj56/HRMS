@@ -50,5 +50,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel);
         public Results GetAllShiftTypes(ShiftTypeInputParans model);
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
+        public Results GetAllHolidayList(HolidayInputParams model);
+        public string DeleteLeavesSummary(MyInfoInputParams model);
     }
 }

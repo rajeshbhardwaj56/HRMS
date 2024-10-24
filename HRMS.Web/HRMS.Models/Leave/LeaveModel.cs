@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using HRMS.Models.LeavePolicy;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,9 @@ namespace HRMS.Models.Leave
         public string EmployeeFirstName { get; set; } = string.Empty;
         public string ManagerOfficialEmailID { get; set; } = string.Empty;
         public string ManagerFirstName { get; set; } = string.Empty;
-
+        public string? UploadCertificate { get; set; } = string.Empty;
+        public DateTime ExpectedDeliveryDate { get; set; }
+        public DateTime ChildDOB { get; set; }
     }
 
     public class LeaveResults

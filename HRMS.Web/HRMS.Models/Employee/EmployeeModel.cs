@@ -89,12 +89,14 @@ namespace HRMS.Models.Employee
         public string OfficialEmailID { get; set; } = string.Empty;
 
         public long? LeavePolicyID { get; set; }
+        public long? CarryForword { get; set; }
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
         public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();
         public List<LanguageDetail> LanguageDetails { get; set; } = new List<LanguageDetail>();
         public List<EmploymentHistory> EmploymentHistory { get; set; } = new List<EmploymentHistory>();
+        public List<EmploymentDetail> EmploymentDetail { get; set; } = new List<EmploymentDetail>();
         public List<Reference> References { get; set; } = new List<Reference>();
 
         // Master Details

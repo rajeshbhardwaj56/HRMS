@@ -30,6 +30,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_Companies = "usp_Get_Companies";
         public const string usp_AddUpdate_Company = "usp_AddUpdate_Company";
         public const string usp_Get_LeavesSummary = "usp_Get_LeavesSummary";
+        public const string usp_Delete_LeaveSummary = "usp_Delete_LeaveSummary";
 
         public const string usp_AddUpdate_LeaveSummary = "usp_AddUpdate_LeaveSummary";
         public const string usp_Get_LeaveDurationTypes = "usp_Get_LeaveDurationTypes";

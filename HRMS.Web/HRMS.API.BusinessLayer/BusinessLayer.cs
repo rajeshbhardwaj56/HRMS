@@ -169,9 +169,8 @@ namespace HRMS.API.BusinessLayer
                                   ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
                                   ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
                                   LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
-
-
-
+                                  InsertedDate = dataRow.Field<DateTime>("InsertedDate"),
+                                  CarryForword = dataRow.Field<long>("CarryForword"), 
                               }).ToList();
 
             if (model.EmployeeID > 0)
@@ -272,6 +271,19 @@ namespace HRMS.API.BusinessLayer
                 {
                     result.employeeModel.References = new List<Reference>();
                 }
+
+                //////////////////////// References
+                result.employeeModel.EmploymentDetail = dataSet.Tables[6].AsEnumerable()
+                           .Select(dataRow => new EmploymentDetail
+                           {
+                               EmployeeID = dataRow.Field<long>("EmployeeID"),
+                               JoiningDate = dataRow.Field<DateTime>("JoiningDate"),
+                           }).ToList();
+                if (result.employeeModel.EmploymentDetail == null)
+                {
+                    result.employeeModel.EmploymentDetail = new List<EmploymentDetail>();
+                }
+
             }
 
             return result;
@@ -899,7 +911,7 @@ namespace HRMS.API.BusinessLayer
         #region Leave Policies
         public Results GetAllLeavePolicies(LeavePolicyInputParans model)
         {
-            Results result = new Results();
+            Results result = new Results();            
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameters.Add(new SqlParameter("@LeavePolicyID", model.LeavePolicyID));
@@ -910,56 +922,75 @@ namespace HRMS.API.BusinessLayer
                                   LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
                                   CompanyID = dataRow.Field<long>("CompanyID"),
                                   LeavePolicyName = dataRow.Field<string>("LeavePolicyName"),
-                                  MaximumLeaveAllocationAllowed = dataRow.Field<int>("MaximumLeaveAllocationAllowed"),
-                                  ApplicableAfterWorkingDays = dataRow.Field<int>("ApplicableAfterWorkingDays"),
-                                  MaximumConsecutiveLeavesAllowed = dataRow.Field<int>("MaximumConsecutiveLeavesAllowed"),
-                                  IsCarryForward = dataRow.Field<bool>("IsCarryForward"),
-                                  IsLeaveWithoutPay = dataRow.Field<bool>("IsLeaveWithoutPay"),
-                                  IsPartiallyPaidLeave = dataRow.Field<bool>("IsPartiallyPaidLeave"),
-                                  IsOptionalLeave = dataRow.Field<bool>("IsOptionalLeave"),
-                                  IsAllowNegativeBalance = dataRow.Field<bool>("IsAllowNegativeBalance"),
-                                  IsAllowOverAllocation = dataRow.Field<bool>("IsAllowOverAllocation"),
-                                  IsIncludeHolidaysWithinLeavesAsLeaves = dataRow.Field<bool>("IsIncludeHolidaysWithinLeavesAsLeaves"),
-                                  IsCompendatory = dataRow.Field<bool>("IsCompendatory"),
-                                  IsAllowEncashment = dataRow.Field<bool>("IsAllowEncashment"),
-                                  IsEarnedLeave = dataRow.Field<bool>("IsEarnedLeave"),
-                                  MaximumEarnedLeaveAllowed = dataRow.Field<int>("MaximumEarnedLeaveAllowed"),
-                                  MaximumMedicalLeaveAllocationAllowed = dataRow.Field<int>("MaximumMedicalLeaveAllocationAllowed"),
-                                  MaximumCompOffLeaveAllocationAllowed = dataRow.Field<int>("MaximumCompOffLeaveAllocationAllowed")
+                                  Annual_MaximumLeaveAllocationAllowed = dataRow.Field<int>("Annual_MaximumLeaveAllocationAllowed"),
+                                  Annual_ApplicableAfterWorkingDays = dataRow.Field<int>("Annual_ApplicableAfterWorkingDays"),
+                                  Annual_MaximumConsecutiveLeavesAllowed = dataRow.Field<int>("Annual_MaximumConsecutiveLeavesAllowed"),
+                                  Annual_IsCarryForward = dataRow.Field<bool>("Annual_IsCarryForward"),
+                                  Annual_MedicalDocument = dataRow.Field<bool>("Annual_MedicalDocument"),
+                                  Annual_MaximumEarnedLeaveAllowed = dataRow.Field<int>("Annual_MaximumEarnedLeaveAllowed"),
+                                  Annual_MaximumMedicalLeaveAllocationAllowed = dataRow.Field<int>("Annual_MaximumMedicalLeaveAllocationAllowed"), 
+                                  Maternity_MaximumLeaveAllocationAllowed = dataRow.Field<int>("Maternity_MaximumLeaveAllocationAllowed"),
+                                  Maternity_ApplicableAfterWorkingDays = dataRow.Field<int>("Maternity_ApplicableAfterWorkingDays"),
+
+                                  Maternity_ApplyBeforeHowManyDays = dataRow.Field<int>("Maternity_ApplyBeforeHowManyDays"),
+                                  Maternity_MedicalDocument = dataRow.Field<bool>("Maternity_MedicalDocument"),
+                                  Adoption_MaximumLeaveAllocationAllowed = dataRow.Field<int>("Adoption_MaximumLeaveAllocationAllowed"),
+                                  Adoption_ApplicableAfterWorkingDays = dataRow.Field<int>("Adoption_ApplicableAfterWorkingDays"),
+                                  Adoption_MedicalDocument = dataRow.Field<bool>("Adoption_MedicalDocument"),
+                                  Miscarriage_MaximumLeaveAllocationAllowed = dataRow.Field<int>("Miscarriage_MaximumLeaveAllocationAllowed"),   
+                                  Miscarriage_MedicalDocument = dataRow.Field<bool>("Miscarriage_MedicalDocument"),
+                                  CampOff_HoursOfWork = dataRow.Field<int>("CampOff_HoursOfWork"),
+                                  CampOff_ExpiryDate = dataRow.Field<int>("CampOff_ExpiryDate"),
+                                  CampOff_MedicalDocument = dataRow.Field<bool>("CampOff_MedicalDocument"),
+                                  Paternity_maximumLeaveAllocationAllowed = dataRow.Field<int>("Paternity_maximumLeaveAllocationAllowed"),
+                                  Paternity_applicableAfterWorkingMonth = dataRow.Field<int>("Paternity_applicableAfterWorkingMonth"),
+                                  Paternity_active = dataRow.Field<bool>("Paternity_active"),
                               }).ToList();
+         
 
             if (model.LeavePolicyID > 0)
             {
                 result.leavePolicyModel = result.LeavePolicy.FirstOrDefault();
+                
             }
+            
 
             return result;
         }
 
         public Result AddUpdateLeavePolicy(LeavePolicyModel leavePolicyModel)
         {
-            Result model = new Result();
+            Result model = new Result();            
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
 
             sqlParameters.Add(new SqlParameter("@LeavePolicyID", leavePolicyModel.LeavePolicyID));
             sqlParameters.Add(new SqlParameter("@CompanyID", leavePolicyModel.CompanyID));
             sqlParameters.Add(new SqlParameter("@LeavePolicyName", leavePolicyModel.LeavePolicyName));
-            sqlParameters.Add(new SqlParameter("@MaximumLeaveAllocationAllowed", leavePolicyModel.MaximumLeaveAllocationAllowed));
-            sqlParameters.Add(new SqlParameter("@ApplicableAfterWorkingDays", leavePolicyModel.ApplicableAfterWorkingDays));
-            sqlParameters.Add(new SqlParameter("@MaximumConsecutiveLeavesAllowed", leavePolicyModel.MaximumConsecutiveLeavesAllowed));
-            sqlParameters.Add(new SqlParameter("@IsCarryForward", leavePolicyModel.IsCarryForward));
-            sqlParameters.Add(new SqlParameter("@IsLeaveWithoutPay", leavePolicyModel.IsLeaveWithoutPay));
-            sqlParameters.Add(new SqlParameter("@IsPartiallyPaidLeave", leavePolicyModel.IsPartiallyPaidLeave));
-            sqlParameters.Add(new SqlParameter("@IsOptionalLeave", leavePolicyModel.IsOptionalLeave));
-            sqlParameters.Add(new SqlParameter("@IsAllowNegativeBalance", leavePolicyModel.IsAllowNegativeBalance));
-            sqlParameters.Add(new SqlParameter("@IsAllowOverAllocation", leavePolicyModel.IsAllowOverAllocation));
-            sqlParameters.Add(new SqlParameter("@IsIncludeHolidaysWithinLeavesAsLeaves", leavePolicyModel.IsIncludeHolidaysWithinLeavesAsLeaves));
-            sqlParameters.Add(new SqlParameter("@IsCompendatory", leavePolicyModel.IsCompendatory));
-            sqlParameters.Add(new SqlParameter("@IsAllowEncashment", leavePolicyModel.IsAllowEncashment));
-            sqlParameters.Add(new SqlParameter("@IsEarnedLeave", leavePolicyModel.IsEarnedLeave));
-            sqlParameters.Add(new SqlParameter("@MaximumEarnedLeaveAllowed", leavePolicyModel.MaximumEarnedLeaveAllowed));
-            sqlParameters.Add(new SqlParameter("@MaximumMedicalLeaveAllocationAllowed", leavePolicyModel.MaximumMedicalLeaveAllocationAllowed));
-            sqlParameters.Add(new SqlParameter("@MaximumCompOffLeaveAllocationAllowed", leavePolicyModel.MaximumCompOffLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@Annual_MaximumLeaveAllocationAllowed", leavePolicyModel.Annual_MaximumLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@Annual_ApplicableAfterWorkingDays", leavePolicyModel.Annual_ApplicableAfterWorkingDays));
+            sqlParameters.Add(new SqlParameter("@Annual_MaximumConsecutiveLeavesAllowed", leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed));
+            sqlParameters.Add(new SqlParameter("@Annual_MaximumEarnedLeaveAllowed", leavePolicyModel.Annual_MaximumEarnedLeaveAllowed));
+            sqlParameters.Add(new SqlParameter("@Annual_MaximumMedicalLeaveAllocationAllowed", leavePolicyModel.Annual_MaximumMedicalLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@Annual_IsCarryForward", leavePolicyModel.Annual_IsCarryForward));
+            sqlParameters.Add(new SqlParameter("@Annual_MedicalDocument", leavePolicyModel.Annual_MedicalDocument));
+            sqlParameters.Add(new SqlParameter("@Maternity_MaximumLeaveAllocationAllowed", leavePolicyModel.Maternity_MaximumLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@Maternity_ApplicableAfterWorkingDays", leavePolicyModel.Maternity_ApplicableAfterWorkingDays));
+            sqlParameters.Add(new SqlParameter("@Maternity_ApplyBeforeHowManyDays", leavePolicyModel.Maternity_ApplyBeforeHowManyDays));
+            sqlParameters.Add(new SqlParameter("@Maternity_MedicalDocument", leavePolicyModel.Maternity_MedicalDocument));
+            sqlParameters.Add(new SqlParameter("@Adoption_MaximumLeaveAllocationAllowed", leavePolicyModel.Adoption_MaximumLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@Adoption_ApplicableAfterWorkingDays", leavePolicyModel.Adoption_ApplicableAfterWorkingDays));
+            sqlParameters.Add(new SqlParameter("@Adoption_MedicalDocument", leavePolicyModel.Adoption_MedicalDocument));
+            sqlParameters.Add(new SqlParameter("@Miscarriage_MaximumLeaveAllocationAllowed", leavePolicyModel.Miscarriage_MaximumLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@Miscarriage_MedicalDocument", leavePolicyModel.Miscarriage_MedicalDocument));
+            sqlParameters.Add(new SqlParameter("@CampOff_HoursOfWork", leavePolicyModel.CampOff_HoursOfWork));
+            sqlParameters.Add(new SqlParameter("@CampOff_ExpiryDate", leavePolicyModel.CampOff_ExpiryDate));
+            sqlParameters.Add(new SqlParameter("@CampOff_MedicalDocument", leavePolicyModel.CampOff_MedicalDocument));
+            sqlParameters.Add(new SqlParameter("@Adoption_ApplyBeforeHowManyDays", leavePolicyModel.Adoption_ApplicableAfterWorkingDays));
+            sqlParameters.Add(new SqlParameter("@Paternity_maximumLeaveAllocationAllowed", leavePolicyModel.Paternity_maximumLeaveAllocationAllowed));
+            sqlParameters.Add(new SqlParameter("@Paternity_applicableAfterWorkingMonth", leavePolicyModel.Paternity_applicableAfterWorkingMonth));
+            sqlParameters.Add(new SqlParameter("@Paternity_active", leavePolicyModel.Paternity_active));
+
+
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicy, sqlParameters);
 
@@ -995,7 +1026,8 @@ namespace HRMS.API.BusinessLayer
                                   HolidayID = dataRow.Field<long>("HolidayID"),
                                   CompanyID = dataRow.Field<long>("CompanyID"),
                                   HolidayName = dataRow.Field<string>("HolidayName"),
-                                  Date = dataRow.Field<DateTime>("Date"),
+                                  FromDate = dataRow.Field<DateTime>("FromDate"),
+                                  ToDate = dataRow.Field<DateTime>("ToDate"),
                                   Description = dataRow.Field<string>("Description"),
                                   Status = dataRow.Field<bool>("Status"),
                               }).ToList();
@@ -1015,7 +1047,8 @@ namespace HRMS.API.BusinessLayer
 
             sqlParameter.Add(new SqlParameter("@HolidayID", HolidayModel.HolidayID));
             sqlParameter.Add(new SqlParameter("@HolidayName", HolidayModel.HolidayName));
-            sqlParameter.Add(new SqlParameter("@Date", HolidayModel.Date));
+            sqlParameter.Add(new SqlParameter("@FromDate", HolidayModel.FromDate));
+            sqlParameter.Add(new SqlParameter("@ToDate", HolidayModel.ToDate));
             sqlParameter.Add(new SqlParameter("@CompanyID", HolidayModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@Status", HolidayModel.Status));
             sqlParameter.Add(new SqlParameter("@Description", HolidayModel.Description));
@@ -1050,7 +1083,32 @@ namespace HRMS.API.BusinessLayer
                           }).ToList();
             return result;
         }
+        public Results GetAllHolidayList(HolidayInputParams model)
+        {
+            Results result = new Results();          
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayList, sqlParameter);
 
+            result.Holiday = dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new HolidayModel
+                               {
+                                   HolidayID = dataRow.Field<long>("HolidayID"),
+                                   CompanyID = dataRow.Field<long>("CompanyID"),
+                                   HolidayName = dataRow.Field<string>("HolidayName"),
+                                   FromDate = dataRow.Field<DateTime>("FromDate"),
+                                   ToDate = dataRow.Field<DateTime>("ToDate"),
+                                   Description = dataRow.Field<string>("Description"),
+                                   Status = dataRow.Field<bool>("Status"),
+                               }).ToList();
+
+            if (model.CompanyID > 0)
+            {
+                result.holidayModel = result.Holiday.FirstOrDefault();
+            }
+
+            return result;
+        }
         #endregion
 
         #region Leaves
@@ -1088,6 +1146,7 @@ namespace HRMS.API.BusinessLayer
                                   ManagerOfficialEmailID = dataRow.Field<string>("ManagerOfficialEmailID"),
                                   EmployeeFirstName = dataRow.Field<string>("EmployeeFirstName"),
                                   ManagerFirstName = dataRow.Field<string>("ManagerFirstName"),
+                                  ChildDOB = dataRow.Field<DateTime>("ChildDOB"),
                               }).ToList();
 
             result.leaveTypes = GetLeaveTypes(model).leaveTypes;
@@ -1118,6 +1177,10 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@IsDeleted", leaveSummaryModel.IsDeleted));
             sqlParameter.Add(new SqlParameter("@UserID", leaveSummaryModel.UserID));
             sqlParameter.Add(new SqlParameter("@LeavePolicyID", leaveSummaryModel.LeavePolicyID));
+            sqlParameter.Add(new SqlParameter("@ApproveRejectComment", leaveSummaryModel.ApproveRejectComment));
+            sqlParameter.Add(new SqlParameter("@UploadCertificate", leaveSummaryModel.UploadCertificate));
+            sqlParameter.Add(new SqlParameter("@ExpectedDeliveryDate", leaveSummaryModel.ExpectedDeliveryDate));
+            sqlParameter.Add(new SqlParameter("@ChildDOB", leaveSummaryModel.ChildDOB));
             SqlParameterCollection pOutputParams = null;
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
 
@@ -1156,10 +1219,13 @@ namespace HRMS.API.BusinessLayer
                                   EndDate = dataRow.Field<DateTime>("EndDate"),
                                   LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
                                   LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
+                                  //UploadCertificate = dataRow.Field<string>("UploadCertificate"),
+                                  //ExpectedDeliveryDate = dataRow.Field<DateTime>("ExpectedDeliveryDate"),
                                   NoOfDays = dataRow.Field<decimal>("NoOfDays"),
                                   IsActive = dataRow.Field<bool>("IsActive"),
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                  ChildDOB = dataRow.Field<DateTime>("ChildDOB"),
                               }).ToList();
 
             result.leaveTypes = GetLeaveTypes(model).leaveTypes;
@@ -1206,6 +1272,20 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+        public string DeleteLeavesSummary(MyInfoInputParams model)
+        {
+            LeaveResults result = new LeaveResults();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
+            SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
+            {
+                Direction = ParameterDirection.Output
+            };
+            sqlParameter.Add(outputMessage);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_LeaveSummary, sqlParameter);
+            string message = outputMessage.Value.ToString();
+            return message;
+        }
 
 
         #endregion
@@ -1514,13 +1594,19 @@ namespace HRMS.API.BusinessLayer
         public MyInfoResults GetMyInfo(MyInfoInputParams model)
         {
             MyInfoResults myInfoResults = new MyInfoResults();
+            HolidayInputParams holidayobj = new HolidayInputParams();
             myInfoResults.leaveResults = GetlLeavesSummary(model);
             EmployeeInputParams employeeInputParams = new EmployeeInputParams();
             employeeInputParams.EmployeeID = model.EmployeeID;
             employeeInputParams.CompanyID = model.CompanyID;
+            holidayobj.CompanyID = model.CompanyID;
 
             var data = GetAllEmployees(employeeInputParams);
             myInfoResults.employeeModel = data.employeeModel;
+
+            var holiday = GetAllHolidayList(holidayobj);
+            myInfoResults.HolidayModel = holiday.Holiday;
+
             myInfoResults.employmentHistory = data.employeeModel.EmploymentHistory;
 
             myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });

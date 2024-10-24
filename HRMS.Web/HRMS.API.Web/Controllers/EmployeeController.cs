@@ -114,6 +114,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetEmploymentDetailsByEmployee(model));
             return response;
         }
-        
+        [HttpPost]
+        public IActionResult DeleteLeavesSummary(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteLeavesSummary(model));
+            return response;
+        }
+
     }
 }

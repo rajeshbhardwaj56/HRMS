@@ -52,6 +52,7 @@ namespace HRMS.Models.Common
         public const string Departments = "Departments";
         public const string ResultsData = "ResultsData";
         public const string EmployeePhotoPath = "Uploads/ProfilePhoto/";
+        public const string UploadCertificate = "Uploads/UploadCertificate/";
         public const string CompanyLogoPath = "Uploads/CompanyLogo/";
         public const string TemplatePath = "Uploads/Template/";
         public const string CKEditorImagesPath = "Uploads/ckeditor/";
@@ -134,6 +135,7 @@ namespace HRMS.Models.Common
         public const string AddUpdateHoliday = "AddUpdateHoliday";
         public const string GetAllHolidays = "GetAllHolidays";
         public const string GetHolidayList = "GetHolidayList";
+        public const string GetAllHolidayList = "GetAllHolidayList";
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
         public const string GetDashBoardodel = "GetDashBoardodel";
@@ -143,6 +145,7 @@ namespace HRMS.Models.Common
         public const string GetFogotPasswordDetails = "GetFogotPasswordDetails";
         public const string AddUpdateShiftType = "AddUpdateShiftType";
         public const string GetAllShiftTypes = "GetAllShiftTypes";
+        public const string DeleteLeavesSummary = "DeleteLeavesSummary";
 
     }
 
