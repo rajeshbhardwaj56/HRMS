@@ -78,6 +78,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             ViewBag.TotalLeave = Totaleavewithcarryforword;
             ViewBag.TotalAnnualLeave = accruedLeave1 - TotalApprove;
+
+            ViewBag.ConsecutiveAllowedDays =Convert.ToDecimal( leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
             return View(results);
 
         }
