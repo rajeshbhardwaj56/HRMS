@@ -39,6 +39,10 @@
                     <label>Maximum Medical Leaves Allocation Allowed <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.Annual_MaximumMedicalLeaveAllocationAllowed, new { @class = "form-control", @id = "medicalLeaveInput" })
                 </div>
+                 <div class="col-md-4 form-group" id="documentRequiredField" style="display:none;">
+                    <label> Medical Document Required <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.Annual_MedicalDocument)
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-4 form-group">
@@ -49,10 +53,7 @@
                         <label>Maximum Carry Forward Leaves Allowed <span class="Mandetory">*</span></label>
                         @Html.TextBoxFor(a => a.Annual_MaximumEarnedLeaveAllowed, new { @class = "form-control" })
                     </div>
-                <div class="col-md-4 form-group" id="documentRequiredField" style="display:none;">
-                    <label>Document Required <span class="Mandetory">*</span></label><br />
-                    @Html.CheckBoxFor(a => a.Annual_MedicalDocument)
-                </div>
+               
             </div>
 
 
@@ -139,7 +140,10 @@
                     <label>Applicable After Working Months </label>
                     @Html.TextBoxFor(a => a.Paternity_applicableAfterWorkingMonth, new { @class = "form-control" })
                 </div>
-
+                <div class="col-md-4 form-group">
+                    <label>Document Required <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.Paternity_medicalDocument)
+                </div>
                 @* <div class="col-md-4 form-group">
                 <label>IsActive</label><br />
                 @Html.CheckBoxFor(a => a.Paternity_active)

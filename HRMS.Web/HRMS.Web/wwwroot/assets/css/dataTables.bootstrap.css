@@ -96,21 +96,27 @@ table.dataTable thead .sorting_desc_disabled:after {
   font-family: "Glyphicons Halflings";
   opacity: 0.5;
 }
-table.dataTable thead .sorting:after {
-  opacity: 0.2;
-  content: "";
-  /* sort */
-}
-table.dataTable thead .sorting_asc:after {
-  opacity: 0.5;
-  content: "";
-  /* sort-by-attributes */
-}
-table.dataTable thead .sorting_desc:after {
-  opacity: 0.5;
-  content: "";
-  /* sort-by-attributes-alt */
-}
+    table.dataTable thead .sorting:after {
+        opacity: 0.2;
+        font-family: FontAwesome;
+        content: "\f0dc"; /* Font Awesome sort icon */
+        /* content: "";*/
+        /* sort */
+    }
+    table.dataTable thead .sorting_asc:after {
+        opacity: 0.5;
+        font-family: FontAwesome;
+        content: "\f160"; /* Font Awesome sort-asc icon */
+        /* content: "";*/
+        /* sort-by-attributes */
+    }
+    table.dataTable thead .sorting_desc:after {
+        opacity: 0.5;
+        font-family: FontAwesome;
+        content: "\f161"; /* Font Awesome sort-desc icon */
+        /* content: "";*/
+        /* sort-by-attributes-alt */
+    }
 table.dataTable thead .sorting_asc_disabled:after,
 table.dataTable thead .sorting_desc_disabled:after {
   color: #eee;

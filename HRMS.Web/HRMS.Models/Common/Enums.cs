@@ -14,9 +14,9 @@ namespace HRMS.Models.Common
     public enum LeaveStatus
     {
         Approved = 1,
-        PendingApproval,
-        NotApproved,
-        Cancelled
+        PendingApproval = 2,
+        NotApproved = 3,
+        Cancelled = 4
     }
     public enum Status
     {
@@ -39,7 +39,7 @@ namespace HRMS.Models.Common
         AnnualLeavel = 3,
         CompOff = 4,
         Miscarriage = 5,
-        MedicalLeave =6,
+        MedicalLeave = 6,
         Paternity = 7
 
     }

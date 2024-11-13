@@ -64,6 +64,7 @@ namespace HRMS.API.BusinessLayer
                                    UserID = dataRow.Field<long>("UserID"),
                                    CompanyID = dataRow.Field<long>("CompanyID"),
                                    EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                   GenderId = dataRow.Field<int>("Gender"),
                                    Role = dataRow.Field<string>("Role"),
                                    RoleId = dataRow.Field<int>("RoleId"),
                                    IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
@@ -123,7 +124,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetails, sqlParameter);
             result.Employees = dataSet.Tables[0].AsEnumerable()
-                              .Select(dataRow => new EmployeeModel
+                              .Select(dataRow => 
+                              new EmployeeModel
                               {
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                                   guid = dataRow.Field<Guid>("guid"),
@@ -170,7 +172,8 @@ namespace HRMS.API.BusinessLayer
                                   ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
                                   LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
                                   InsertedDate = dataRow.Field<DateTime>("InsertedDate"),
-                                  CarryForword = dataRow.Field<long>("CarryForword"), 
+                                  CarryForword = dataRow.Field<long>("CarryForword"),
+                                  Gender = dataRow.Field<int>("Gender"),
                               }).ToList();
 
             if (model.EmployeeID > 0)
@@ -278,6 +281,7 @@ namespace HRMS.API.BusinessLayer
                            {
                                EmployeeID = dataRow.Field<long>("EmployeeID"),
                                JoiningDate = dataRow.Field<DateTime>("JoiningDate"),
+
                            }).ToList();
                 if (result.employeeModel.EmploymentDetail == null)
                 {
@@ -837,6 +841,7 @@ namespace HRMS.API.BusinessLayer
                             .Select(dataRow => new EmploymentDetail()
                             {
                                 EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                EmployeNumber = dataRow.Field<string>("EmployeNumber"),
                                 EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
                                 EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
                                 DesignationID = dataRow.Field<long>("DesignationID"),
@@ -845,6 +850,8 @@ namespace HRMS.API.BusinessLayer
                                 ReportingToID = dataRow.Field<long>("ReportingToID"),
                                 OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
                                 OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
+                                DesignationName = dataRow.Field<string>("Name"),
+                                DepartmentName = dataRow.Field<string>("DepartmentName"),
                                 JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
                                 JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
                             }).ToList().FirstOrDefault();
@@ -945,6 +952,7 @@ namespace HRMS.API.BusinessLayer
                                   Paternity_maximumLeaveAllocationAllowed = dataRow.Field<int>("Paternity_maximumLeaveAllocationAllowed"),
                                   Paternity_applicableAfterWorkingMonth = dataRow.Field<int>("Paternity_applicableAfterWorkingMonth"),
                                   Paternity_active = dataRow.Field<bool>("Paternity_active"),
+                                  Paternity_medicalDocument = dataRow.Field<bool>("Paternity_medicalDocument"),
                               }).ToList();
          
 
@@ -989,6 +997,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameters.Add(new SqlParameter("@Paternity_maximumLeaveAllocationAllowed", leavePolicyModel.Paternity_maximumLeaveAllocationAllowed));
             sqlParameters.Add(new SqlParameter("@Paternity_applicableAfterWorkingMonth", leavePolicyModel.Paternity_applicableAfterWorkingMonth));
             sqlParameters.Add(new SqlParameter("@Paternity_active", leavePolicyModel.Paternity_active));
+            sqlParameters.Add(new SqlParameter("@Paternity_medicalDocument", leavePolicyModel.Paternity_medicalDocument));
 
 
 
@@ -1147,6 +1156,10 @@ namespace HRMS.API.BusinessLayer
                                   EmployeeFirstName = dataRow.Field<string>("EmployeeFirstName"),
                                   ManagerFirstName = dataRow.Field<string>("ManagerFirstName"),
                                   ChildDOB = dataRow.Field<DateTime>("ChildDOB"),
+                                  LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
+                                  JoiningDate = dataRow.Field<DateTime>("JoiningDate"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+
                               }).ToList();
 
             result.leaveTypes = GetLeaveTypes(model).leaveTypes;
@@ -1219,8 +1232,8 @@ namespace HRMS.API.BusinessLayer
                                   EndDate = dataRow.Field<DateTime>("EndDate"),
                                   LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
                                   LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
-                                  //UploadCertificate = dataRow.Field<string>("UploadCertificate"),
-                                  //ExpectedDeliveryDate = dataRow.Field<DateTime>("ExpectedDeliveryDate"),
+                                  UploadCertificate = dataRow.Field<string>("UploadCertificate"),
+                                  ExpectedDeliveryDate = dataRow.Field<DateTime>("ExpectedDeliveryDate"),
                                   NoOfDays = dataRow.Field<decimal>("NoOfDays"),
                                   IsActive = dataRow.Field<bool>("IsActive"),
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
@@ -1261,6 +1274,7 @@ namespace HRMS.API.BusinessLayer
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@GenderId", model.GenderId));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveTypes, sqlParameter);
             result.leaveTypes = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new SelectListItem

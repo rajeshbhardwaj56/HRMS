@@ -33,6 +33,7 @@ namespace HRMS.Models.Common
         public AttendenceListModel AttendenceListModel { get; set; } = new AttendenceListModel();
         public List<ShiftTypeModel> ShiftType { get; set; } = new List<ShiftTypeModel>();
         public ShiftTypeModel shiftTypeModel { get; set; } = new ShiftTypeModel();
+        public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
 
     }
 

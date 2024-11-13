@@ -16,6 +16,7 @@ namespace HRMS.Models.Leave
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
         public long UserID { get; set; }
+        public int GenderId { get; set; }
     }
     public class LeaveSummaryModel
     {
@@ -50,8 +51,9 @@ namespace HRMS.Models.Leave
         public string ManagerOfficialEmailID { get; set; } = string.Empty;
         public string ManagerFirstName { get; set; } = string.Empty;
         public string? UploadCertificate { get; set; } = string.Empty;
-        public DateTime ExpectedDeliveryDate { get; set; }
+        public DateTime ExpectedDeliveryDate { get; set; } = DateTime.Now;
         public DateTime ChildDOB { get; set; }
+        public DateTime? JoiningDate { get; set; }
     }
 
     public class LeaveResults
@@ -61,5 +63,11 @@ namespace HRMS.Models.Leave
         public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveDurationTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveStatuses { get; set; } = new List<SelectListItem>();
-    }   
+    }
+
+    public class ErrorLeaveResults
+    {
+        public int status { get;set; }
+        public string message { get; set; }
+    }
 }

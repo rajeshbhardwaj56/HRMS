@@ -26,6 +26,8 @@ namespace HRMS.Models.Employee
         public long ReportingToID { get; set; }
         public string OfficialEmailID { get; set; } = string.Empty;
         public string OfficialContactNo { get; set; } = string.Empty;
+        public string DesignationName { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
         public DateTime? JoiningDate { get; set; }
         public DateTime? JobSeprationDate { get; set; }
         public bool IsActive { get; set; } = true;
@@ -35,6 +37,8 @@ namespace HRMS.Models.Employee
         public DateTime? UpdatedDate { get; set; }
 
         public long LeavePolicyID { get; set; }
+        public string EmployeNumber { get; set; }
+
 
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();

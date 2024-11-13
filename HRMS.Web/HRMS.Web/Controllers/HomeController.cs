@@ -76,7 +76,7 @@ namespace HRMS.Web.Controllers
 
 			}
 			return View(model);
-			return View(model);
+			
 		}
 
 		public ActionResult ResetPassword(string Id, string dt)
@@ -165,6 +165,8 @@ namespace HRMS.Web.Controllers
 				_context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
 				_context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());
 				_context.HttpContext.Session.SetString(Constants.EmployeeID, result.EmployeeID.ToString());
+				_context.HttpContext.Session.SetString(Constants.Gender, result.GenderId.ToString());
+				_context.HttpContext.Session.SetString(Constants.RoleID, result.RoleId.ToString());
 				_context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
 				var identity = new ClaimsIdentity(new[] {
 					new Claim(ClaimTypes.Name, result.UserID.ToString()),

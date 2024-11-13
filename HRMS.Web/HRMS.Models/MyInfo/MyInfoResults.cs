@@ -14,6 +14,6 @@ namespace HRMS.Models.MyInfo
         public EmployeeModel employeeModel { get; set; } = new EmployeeModel();
         public EmploymentDetail employmentDetail { get; set; } = new EmploymentDetail();
         public List<HolidayModel> HolidayModel { get; set; } = new List<HolidayModel>();
-        public List<EmploymentHistory> employmentHistory { get; set; }
+        public List<EmploymentHistory> employmentHistory { get; set; } 
     }
 }

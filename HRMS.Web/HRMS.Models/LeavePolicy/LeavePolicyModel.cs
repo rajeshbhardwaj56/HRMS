@@ -54,6 +54,7 @@ namespace HRMS.Models.LeavePolicy
         public int Paternity_maximumLeaveAllocationAllowed { get; set; }
         public int Paternity_applicableAfterWorkingMonth { get; set; }
         public bool Paternity_active { get; set; }
+        public bool Paternity_medicalDocument { get; set; }
 
 
     }

@@ -90,6 +90,7 @@ namespace HRMS.Models.Employee
 
         public long? LeavePolicyID { get; set; }
         public long? CarryForword { get; set; }
+        public int Gender { get; set; }
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();

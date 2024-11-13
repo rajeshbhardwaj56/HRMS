@@ -60,6 +60,8 @@ namespace HRMS.Models.Common
         public const string EmptySelection = "-- Please select a value --";
         public const string SelectEmployee = " --Select Employee --";
         public const string ID = "ID";
+        public const string Gender = "Gender";
+        public const string RoleName = "RoleName";
 
     }
 
