@@ -1,0 +1,78 @@
+﻿@using HRMS.Models
+@using HRMS.Models.Common
+@using HRMS.Models.LeavePolicy;
+@model LeavePolicyDetailsModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Leave Policy";
+}
+
+<div class="main-header anim" style="--delay: 0s">Leave Policy Details </div>
+<form id="leaveForm" method="post" enctype="multipart/form-data">
+
+    <div class="Container">
+
+        <div class="group-box anim" style="--delay: .3s">
+            @Html.HiddenFor(x => x.Companies)
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Company <span class="Mandetory">*</span></label>
+                    @Html.DropDownList("CompanyID", new SelectList(Model.Companies, "CompanyID", "Name"), " -- Select Company -- ", new { @class = "form-control", placeholder = "" })
+
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Title <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Title, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+            <div class="col-md-12 form-group">
+                <label>Description <span class="Mandetory">*</span></label>
+                @Html.TextAreaFor(a => a.Description, new { @class = "form-control",  id = "editor" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-2">
+                <input type="submit" value="Submit" class="btn btn-success" />
+            </div>
+            <div class="col-md-2">
+                <input id="cancelButton" type="button" value="Cancel" class="btn btn-danger" />
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script>
+    document.getElementById('cancelButton').addEventListener('click', function () {
+        window.location.href = '@Url.Action("LeavePolicyDetailsListing", "LeavePolicy")';
+    });  
+
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: [
+                    'heading', '|', 'bold', 'italic', 'link', 'bulletedList',
+                    'numberedList', 'blockQuote', '|', 'alignment', '|', 'undo', 'redo'
+                ],
+                alignment: {
+                    options: ['left', 'center', 'right', 'justify']
+                },
+                heading: {
+                    options: [
+                        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                    ]
+                }
+            })
+            .then(editor => {
+                console.log('Editor was initialized', editor);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+
+     

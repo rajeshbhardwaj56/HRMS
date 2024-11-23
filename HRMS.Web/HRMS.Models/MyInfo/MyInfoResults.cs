@@ -1,5 +1,6 @@
 ﻿using HRMS.Models.Employee;
 using HRMS.Models.Leave;
+using HRMS.Models.LeavePolicy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace HRMS.Models.MyInfo
         public EmployeeModel employeeModel { get; set; } = new EmployeeModel();
         public EmploymentDetail employmentDetail { get; set; } = new EmploymentDetail();
         public List<HolidayModel> HolidayModel { get; set; } = new List<HolidayModel>();
-        public List<EmploymentHistory> employmentHistory { get; set; } 
+        public LeavePolicyModel LeavePolicyDetails { get; set; } = new LeavePolicyModel();
+        public List<EmploymentHistory> employmentHistory { get; set; }
+    
     }
 }

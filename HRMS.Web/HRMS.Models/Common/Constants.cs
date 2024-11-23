@@ -99,6 +99,7 @@ namespace HRMS.Models.Common
     public class WebControllarsConstants
     {
 
+        public const string LeavePolicyDetailsListing = "LeavePolicyDetailsListing";
         public const string LeavePolicyListing = "LeavePolicyListing";
         public const string LeavePolicy = "LeavePolicy";
         public const string Employee = "Employee";
@@ -117,6 +118,11 @@ namespace HRMS.Models.Common
 
     public class APIApiActionConstants
     {
+        public const string AddUpdateLeavePolicyDetails = "AddUpdateLeavePolicyDetails";
+        public const string DeleteLeavePolicyDetails = "DeleteLeavePolicyDetails";
+        public const string GetLeavePolicyList = "GetLeavePolicyList";
+        public const string GetAllLeavePolicyDetails = "GetAllLeavePolicyDetails";
+        public const string GetAllLeavePolicyDetailsByCompanyId = "GetAllLeavePolicyDetailsByCompanyId";
 
         public const string GetLeaveForApprovals = "GetLeaveForApprovals";
         public const string AddUpdateLeavePolicy = "AddUpdateLeavePolicy";
@@ -128,6 +134,7 @@ namespace HRMS.Models.Common
         public const string GetAllTemplates = "GetAllTemplates";
         public const string AddUpdateCompany = "AddUpdateCompany";
         public const string GetAllCompanies = "GetAllCompanies";
+        public const string GetAllCompaniesList = "GetAllCompaniesList";
         public const string GetAllLeavePolicys = "GetAllLeavePolicys";
         public const string GetlLeavesSummary = "GetlLeavesSummary";
         public const string GetMyInfo = "GetMyInfo";

@@ -90,7 +90,7 @@
                             int years = (zeroTime + span).Year - 1;
                             var Month = (TodayDate - JoiningDate.AddYears(years));
                             var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
-                            <span>@(years)y - @(Days)d</span>
+                                    <span>@(years)y - @(Days)d</span>
                         }
                     }
                 </p>
@@ -100,7 +100,7 @@
                         <li class="nav-item" role="presentation">
                             <a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabPersonalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabPersonalInfo)" aria-selected="true" tabindex="-1">Personal Info</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Professional Info</a>
                         </li>
                         @if (RoleName == Convert.ToInt64(Roles.Admin))
@@ -112,16 +112,16 @@
                         <li class="nav-item" role="presentation">
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
                         </li>
                         <li class="nav-item" role="presentation">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Separation</a>
                         </li>
                     </ul>
@@ -167,31 +167,40 @@
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>ID</h6>
-                                                        ELS0349
+                                                        @Model.employmentDetail.EmployeNumber
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Status</h6>
-                                                        Active - Full Time
+                                                        @Model.employmentDetail.EmployeeType
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Designation</h6>
-                                                        Business Analyst
+                                                        @Model.employmentDetail.DesignationName
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Department</h6>
-                                                        Operations
+                                                        @Model.employmentDetail.DepartmentName
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Location</h6>
-                                                        Mohali, Punjab
+                                                        @Model.employmentDetail.OfficeLocation
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Date of Birth</h6>
-                                                        @Model.employeeModel.DateOfBirth
+                                                        @Model.employeeModel.DateOfBirth.Value.ToString("dd-MM-yyyy")
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Place of Birth</h6>
                                                         @Model.employeeModel.PlaceOfBirth
+                                                    </div>
+
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Manager Name</h6>
+                                                        @Model.employmentDetail.ManagerName
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Manager Email</h6>
+                                                        @Model.employmentDetail.ManagerEmail
                                                     </div>
                                                 </div>
 
@@ -270,6 +279,7 @@
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Contact Person</h6>
                                                         @Model.employeeModel.ContactPersonName
+
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Contact No</h6>
@@ -298,200 +308,200 @@
                                                 {
                                                     foreach (var familyDetail in Model.employmentHistory)
                                                     {
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <div class="row">
-                                                                    <div class="col-md-10">
-                                                                        <b> Employer-@(index)</b>
-                                                                    </div>
-                                                                </div>
                                                                 <div class="row">
                                                                     <div class="col-md-12">
-
                                                                         <div class="row">
-                                                                            <div class="col-md-3">
-                                                                                <h6>Company Name</h6>
-                                                                                @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
-                                                                                @Model.employmentHistory[Index].CompanyName
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                <h6>Employee ID</h6>
-                                                                                @Model.employmentHistory[Index].EmploymentID
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                <h6>From</h6>
-                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
-                                                                            </div>
-
-                                                                            <div class="col-md-3">
-                                                                                <h6>To</h6>
-                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
+                                                                            <div class="col-md-10">
+                                                                                <b> Employer-@(index)</b>
                                                                             </div>
                                                                         </div>
-
                                                                         <div class="row">
-                                                                            <div class="col-md-6">
-                                                                                Address/Branch
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                Phone
-                                                                            </div>
+                                                                            <div class="col-md-12">
 
-                                                                        </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-3">
+                                                                                        <h6>Company Name</h6>
+                                                                                        @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
+                                                                                        @Model.employmentHistory[Index].CompanyName
+                                                                                    </div>
+                                                                                    <div class="col-md-3">
+                                                                                        <h6>Employee ID</h6>
+                                                                                        @Model.employmentHistory[Index].EmploymentID
+                                                                                    </div>
+                                                                                    <div class="col-md-3">
+                                                                                        <h6>From</h6>
+                                                                                        @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
+                                                                                    </div>
 
-                                                                        <div class="row">
-                                                                            <div class="col-md-6">
+                                                                                    <div class="col-md-3">
+                                                                                        <h6>To</h6>
+                                                                                        @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-6">
+                                                                                        Address/Branch
+                                                                                    </div>
+                                                                                    <div class="col-md-6">
+                                                                                        Phone
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-6">
 
 
-                                                                                @Model.employmentHistory[Index].Address
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                @Model.employmentHistory[Index].Phone
-                                                                            </div>
+                                                                                        @Model.employmentHistory[Index].Address
+                                                                                    </div>
+                                                                                    <div class="col-md-6">
+                                                                                        @Model.employmentHistory[Index].Phone
+                                                                                    </div>
 
-                                                                        </div>
+                                                                                </div>
 
 
-                                                                        <div class="row">
-                                                                            <div class="col-md-3">
-                                                                                City
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                State
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                Country
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                Postal Code
-                                                                            </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-3">
+                                                                                        City
+                                                                                    </div>
+                                                                                    <div class="col-md-3">
+                                                                                        State
+                                                                                    </div>
+                                                                                    <div class="col-md-3">
+                                                                                        Country
+                                                                                    </div>
+                                                                                    <div class="col-md-3">
+                                                                                        Postal Code
+                                                                                    </div>
 
-                                                                        </div>
+                                                                                </div>
 
-                                                                        <div class="row">
-                                                                            <div class="col-md-3">
-                                                                                @Model.employmentHistory[Index].City
+                                                                                <div class="row">
+                                                                                    <div class="col-md-3">
+                                                                                        @Model.employmentHistory[Index].City
 
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                @Model.employmentHistory[Index].State
-                                                                            </div>
+                                                                                    </div>
+                                                                                    <div class="col-md-3">
+                                                                                        @Model.employmentHistory[Index].State
+                                                                                    </div>
 
-                                                                            <div class="col-md-3">
-                                                                                @{
+                                                                                    <div class="col-md-3">
+                                                                                        @{
                                                                                     employmentHistoryCountry = @CountryData.Where(x => x.Value == Model.employmentHistory[Index].CountryID.ToString()).FirstOrDefault();
                                                                                     if (employmentHistoryCountry != null)
                                                                                     {
                                                                                         employmentHistoryCountry.Value.ToString();
                                                                                     }
-                                                                                }
-                                                                            </div>
+                                                                                        }
+                                                                                    </div>
 
-                                                                            <div class="col-md-3">
+                                                                                    <div class="col-md-3">
 
-                                                                                @Model.employmentHistory[Index].PostalCode
+                                                                                        @Model.employmentHistory[Index].PostalCode
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-12">
+                                                                                        Reasion for Leaving
+                                                                                    </div>
+                                                                                    <div class="col-md-12">
+                                                                                        @Model.employmentHistory[Index].ReasionFoLeaving
+
+                                                                                    </div>
+
+                                                                                </div>
+
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-6">
+                                                                                        Designition (As per document)
+                                                                                    </div>
+                                                                                    <div class="col-md-6">
+                                                                                        Final Gross Salary(as per Company Letter)
+                                                                                    </div>
+
+                                                                                </div>
+
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-6">
+                                                                                        @Model.employmentHistory[Index].Designition
+
+                                                                                    </div>
+                                                                                    <div class="col-md-6">
+                                                                                        @Model.employmentHistory[Index].GrossSalary
+
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-4">
+                                                                                        Supervisor Name
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        Supervisor's Designition
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        Supervisor's ContactNo
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-4">
+                                                                                        @Model.employmentHistory[Index].SupervisorName
+
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        @Model.employmentHistory[Index].SupervisorDesignition
+
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        @Model.employmentHistory[Index].SupervisorContactNo
+
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-4">
+                                                                                        HR Manager Name
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        HR Manager's ContactNo
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        HR Manager's Email
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                                <div class="row">
+                                                                                    <div class="col-md-4">
+                                                                                        @Model.employmentHistory[Index].HRName
+
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        @Model.employmentHistory[Index].HRContactNo
+
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        @Model.employmentHistory[Index].HRContactNo
+
+                                                                                    </div>
+                                                                                </div>
+
                                                                             </div>
                                                                         </div>
 
                                                                         <div class="row">
-                                                                            <div class="col-md-12">
-                                                                                Reasion for Leaving
-                                                                            </div>
-                                                                            <div class="col-md-12">
-                                                                                @Model.employmentHistory[Index].ReasionFoLeaving
-
-                                                                            </div>
-
+                                                                            &nbsp;
+                                                                            <hr style="width:100%" />
                                                                         </div>
-
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-6">
-                                                                                Designition (As per document)
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                Final Gross Salary(as per Company Letter)
-                                                                            </div>
-
-                                                                        </div>
-
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-6">
-                                                                                @Model.employmentHistory[Index].Designition
-
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                @Model.employmentHistory[Index].GrossSalary
-
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-4">
-                                                                                Supervisor Name
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                Supervisor's Designition
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                Supervisor's ContactNo
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].SupervisorName
-
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].SupervisorDesignition
-
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].SupervisorContactNo
-
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-4">
-                                                                                HR Manager Name
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                HR Manager's ContactNo
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                HR Manager's Email
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].HRName
-
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].HRContactNo
-
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].HRContactNo
-
-                                                                            </div>
-                                                                        </div>
-
                                                                     </div>
                                                                 </div>
-
-                                                                <div class="row">
-                                                                    &nbsp;
-                                                                    <hr style="width:100%" />
-                                                                </div>
-                                                            </div>
-                                                        </div>
 
                                                         Index++;
                                                         index++;
@@ -675,6 +685,7 @@
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
+                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
                                                                                 @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" })
 
                                                                             </div>
@@ -688,7 +699,7 @@
                                                                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv3">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), })
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -743,6 +754,11 @@
                                                                                         @* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
 
                                                                                         <input type="file" name="postedFiles" class="form-control body-text" />
+                                                                                        @if (Model.leaveResults.leaveSummaryModel.UploadCertificate != null  && Model.leaveResults.leaveSummaryModel.UploadCertificate != "")
+                                                                                        {
+                                                                                            <p> <i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></p>
+                                                                                        }
+
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -843,6 +859,12 @@
                                                                                             @item.NoOfDays
                                                                                         </span>
                                                                                     }
+                                                                                    else if (@item.LeaveTypeID == (int)LeaveType.MedicalLeave && @item.NoOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))
+                                                                                    {
+                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Document required for more than @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) days medical leave" style="cursor: pointer; background: red; color: white !important;">
+                                                                                            @item.NoOfDays
+                                                                                        </span>
+                                                                                    }
                                                                                     else
                                                                                     {
                                                                                         <span class="fw-bold text-primary">
@@ -869,10 +891,7 @@
                                                                                 @if (item.LeaveStatusID != (int)LeaveStatus.Approved)
                                                                                 {
                                                                                     <td>
-                                                                                        <a href="~/employee/MyInfo/Index/?id=@(item.EncryptedIdentity)" id="editButton"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
-                                                                                        @*  <a href="/employee/MyInfo/DeleteLeavesSummary/?id=@(item.EncryptedIdentity)" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
-                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
-                                                                                </a> *@
+                                                                                        <a href="~/employee/MyInfo/Index/?id=@(item.EncryptedIdentity)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
 
                                                                                         <form action="/employee/MyInfo/DeleteLeavesSummary" method="post" style="display:inline;">
                                                                                             <input type="hidden" name="id" value="@item.EncryptedIdentity" />
@@ -942,7 +961,6 @@
                                             <div class="col-lg-12">
 
                                                 <div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
-
                                                     <div class="group-box anim">
                                                         <div class="tabsInfo">
                                                             <form class="body-text" method="post" enctype="multipart/form-data">
@@ -970,6 +988,10 @@
                                                                         <h6>Department</h6>
                                                                         <p id="EmplyoeeDepartment"></p>
                                                                     </div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Email</h6>
+                                                                        <p id="Employeeemail"></p>
+                                                                    </div>
 
                                                                 </div>
                                                             </form>
@@ -993,6 +1015,8 @@
                         <div class="tab-content" id="nav-tabContent">
                             <div class="tab-pane fade active show" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
                                 <div class="row">
+                                    <p class="showalert" style="color: red;font-size: 16px;" id="showalert"></p>
+                                    <p class="showDocumentalert" style="color: red;font-size: 16px;" id="showDocumentalert"></p>
 
                                     <div class="col-lg-8">
 
@@ -1007,12 +1031,12 @@
                                                         <div class="col-lg-6 col-md-12">
                                                             <label for="leavetype" class="">Leave Type:</label>
                                                             @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "adminleaveTypeDropdown", @disabled = "disabled" })
-                                                      
-                                                         <p id="adminleaveTypeDropdown1"  class="form-control"></p>
+
+                                                            <p id="adminleaveTypeDropdown1" class="form-control"></p>
 
 
 
-</div>
+                                                        </div>
                                                         <div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
                                                             <label for="leavetype" class="">Leave Duration:</label>
                                                             @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "adminleaveDurationDropdown", @disabled = "disabled" })
@@ -1023,7 +1047,7 @@
                                                             <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
                                                             <div class="position-relative">
                                                                 <div class="input-group date" id="datepickerdiv3">
-                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), @disabled = "disabled" })
+                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), @disabled = "disabled" })
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1087,7 +1111,7 @@
                                                         <div class="col-lg-12">
                                                             <label for="Reason" class="">Reason:</label>
                                                             <div class="input-group">
-                                                                @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required", id = "adminReason" , @disabled = "disabled"  })
+                                                                @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required", id = "adminReason", @disabled = "disabled" })
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1181,29 +1205,28 @@
                 leaveSummaryID: leaveSummaryID,
                 isApproved: isApproved,
                 ApproveRejectComment: ApproveRejectComment
-            }; 
+            };
             var urlData = '/employee/myinfo/ApproveRejectLeave/';
             $.post(urlData, data, function (json) {
                 console.log(json.data);
                 if (json.data && json.data.message) {
 
-                    if(json.data.status==1)
-                    {
-                    $("#approverejectrequire").text('');
-                    $("#approverejectrequire").text(json.data.message);
+                    if (json.data.status == 1) {
+                        $("#approverejectrequire").text('');
+                        $("#approverejectrequire").text(json.data.message);
 
                     }
-                    else{
+                    else {
                         $.toast({
-                        heading: 'Success',
-                        text: "Leave status updated successfully.",
-                        showHideTransition: 'slide',
-                        icon: 'success',
-                        position: 'top-right',
-                    });
-                     CloseApproveRejectModel();
-                     AutoReload();
-                    $("#ApproveRejectComment").val("");
+                            heading: 'Success',
+                            text: "Leave status updated successfully.",
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            position: 'top-right',
+                        });
+                        CloseApproveRejectModel();
+                        AutoReload();
+                        $("#ApproveRejectComment").val("");
                     }
                     // $.toast({
                     //     heading: 'Information',
@@ -1223,7 +1246,7 @@
                     $("#ApproveRejectComment").val("");
 
                 }
-             
+
             });
         }
     }
@@ -1231,16 +1254,18 @@
     function OpenApproveRejectModel(employeeID, leaveSummaryID) {
         $("#leaveSummaryID").val(leaveSummaryID);
         $.ajax({
-            url: '/employee/myinfo/GetEmployeeDetails',
+            url: '/employee/myinfo/GetEmployeeLeaveDetails',
             type: 'GET',
             data: { employeeID: employeeID },
             success: function (response) {
                 console.log(response);
+                const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
                 if (response.employeeModel && response.employmentDetail) {
                     $("#EmplyoeeName").text(response.employeeModel.firstName + ' ' + response.employeeModel.middleName + ' ' + response.employeeModel.surname);
                     $("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
                     $("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
                     $("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
+                    $("#Employeeemail").text(response.employeeModel.emailAddress);
                     let joiningDate = new Date(response.employmentDetail.joiningDate);
                     let day = ("0" + joiningDate.getDate()).slice(-2);
                     let month = ("0" + (joiningDate.getMonth() + 1)).slice(-2);
@@ -1253,16 +1278,44 @@
                 }
 
                 let leavesSummary = response.leaveResults?.leavesSummary || [];
-                            $("#adminleaveTypeDropdown").css("display", "none");
-                            $("#adminChildDOBDateContainer").css("display", "none");
-                            $("#adminexpectedDeliveryDateContainer").css("display", "none");
+                $("#adminleaveTypeDropdown").css("display", "none");
+                $("#adminChildDOBDateContainer").css("display", "none");
+                $("#adminexpectedDeliveryDateContainer").css("display", "none");
 
                 if (Array.isArray(leavesSummary)) {
                     let leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
                     console.log(leaveSummary);
                     if (leaveSummary) {
+                        $("#showalert").text('');
+                        $("#showDocumentalert").text('');
+
+
                         $('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
-                        if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)) {
+                        if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)|| leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
+
+                            if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage)) {
+                                if (response.leavePolicyDetails.miscarriage_MedicalDocument == true) {
+                                    if (leaveSummary.uploadCertificate == "") {
+                                        $("#showDocumentalert").text(`Document required for miscarriage leave`);
+                                    }
+                                }
+                            }
+
+                            if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)) {
+                                if (response.leavePolicyDetails.adoption_MedicalDocument == true) {
+                                    if (leaveSummary.uploadCertificate == "") {
+                                        $("#showDocumentalert").text(`Document required for adoption leave`);
+                                    }
+                                }
+                            }
+                            if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
+                                
+
+                                if (leaveSummary.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && leaveSummary.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)) {
+                                    $("#showalert").text(`Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`);
+                                }
+                            }
+
                             $("#adminfullDayContainer").css("display", "flex");
                             $("#admintodatetime").css("display", "block");
                             let endDate = new Date(leaveSummary.endDate);
@@ -1272,6 +1325,7 @@
                             let formattedstartDate = startDate.toISOString().split('T')[0];
                             $('#adminfromdates').val(formattedstartDate);
                             $('#adminReason').val(leaveSummary.reason);
+                            $('#downloaddocument').html('');
                             if (leaveSummary.uploadCertificate != "") {
                                 $("#downloaddocument").css("display", "block");
                                 var filedata = "/uploads/uploadCertificate/0/" + leaveSummary.uploadCertificate;
@@ -1279,6 +1333,33 @@
                             }
                         }
                         if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MaternityLeave)) {
+
+                            if (response.leavePolicyDetails.maternity_MedicalDocument == true) {
+                                if (leaveSummary.uploadCertificate == "") {
+                                    $("#showDocumentalert").text(`Document required for maternity leave`);
+                                }
+                            }
+                            // Assuming `response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays` is in weeks
+                            var weeksBefore = response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays;
+                            var daysBefore = weeksBefore * 7;
+
+                            // Function to remove the time part and keep only the date
+                            function normalizeDate(date) {
+                                var normalizedDate = new Date(date);
+                                normalizedDate.setHours(0, 0, 0, 0); // Set time to midnight (00:00:00)
+                                return normalizedDate;
+                            }
+
+                            // Normalize both dates to remove time part
+                            var startDateNormalized = normalizeDate(leaveSummary.startDate);
+                            var expectedDeliveryDateNormalized = normalizeDate(leaveSummary.expectedDeliveryDate);
+
+                            // Calculate the difference in days
+                            var totalDeliveryDays = (expectedDeliveryDateNormalized - startDateNormalized) / (1000 * 60 * 60 * 24) + 1; // Convert milliseconds to days and add 1 to include both dates
+                            if (totalDeliveryDays > daysBefore) {
+                                $("#showalert").text(`Maternity leave cannot start more than ${daysBefore} days before the expected delivery date`);
+                            }
+
                             $("#adminfullDayContainer").css("display", "flex");
                             $("#adminMaternityAdoptionMiscarrageContainer").css("display", "block");
                             $("#adminexpectedDeliveryDateContainer").css("display", "block");
@@ -1307,6 +1388,17 @@
                             }
                         }
                         if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.AnnualLeavel)) {
+
+                            if (leaveSummary.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && leaveSummary.noOfDays > maxConsecutiveDaysAllowed) {
+                                $("#showalert").text(`Employee exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`);
+                            }
+
+
+                            if (response.leavePolicyDetails.annual_MaximumConsecutiveLeavesAllowed == true) {
+                                if (leaveSummary.uploadCertificate == "") {
+                                    $("#showalert").text(`You can't approve leave(s) more than  ${response.leavePolicyDetails.annual_MaximumConsecutiveLeavesAllowed} consecutive leave`);
+                                }
+                            }
                             $("#adminfullDayContainer").css("display", "flex");
                             //$("#AnnualLeaveBalance").css("display", "block");
                             $("#admintodatetime").css("display", "block");
@@ -1321,6 +1413,15 @@
                             $('#adminReason').val(leaveSummary.reason);
                         }
                         if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Paternity)) {
+
+                            if (response.leavePolicyDetails.paternity_medicalDocument == true) {
+                                if (leaveSummary.uploadCertificate == "") {
+                                    //  $("#showalert").text(`Document required for more than ${response.leavePolicyDetails.paternity_maximumLeaveAllocationAllowed} days paternity leave`);
+                                    $("#showDocumentalert").text(`Document required for paternity leave`);
+                                }
+                            }
+
+
                             $("#adminfullDayContainer").css("display", "flex");
                             $("#admintodatetime").css("display", "block");
                             $("#adminChildDOBDateContainer").css("display", "block");
@@ -1364,7 +1465,7 @@
         $('#ApproveRejectModel').modal('hide');
     }
 
-  
+
 
     function RefreshTable(tableId, urlData) {
         $.post(urlData, null, function (json) {
@@ -1381,7 +1482,7 @@
             table.fnDraw();
         });
     }
-    
+
     function RefreshTable1(tableId, urlData) {
         $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
@@ -1397,7 +1498,7 @@
             table.fnDraw();
         });
     }
-    
+
     function RefreshTable2(tableId, urlData) {
         $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
@@ -1416,41 +1517,42 @@
     // Edited by Prasad
     function AutoReload() {
         RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
-    if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
-        InitOverviewDataTable();}
+        if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
+            InitOverviewDataTable();
+        }
 
-    
+
     }
     function LeavesForApproved() {
-          $('#leave-approved-tab').css("display","block");
+        $('#leave-approved-tab').css("display", "block");
         RefreshTable1('#tblLeavesForApproved', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApproved`); //Approved
-        
-         if (!$.fn.DataTable.isDataTable('#tblLeavesForApproved')) {
-    InittblLeavesForApproved(); 
-    }
+
+        if (!$.fn.DataTable.isDataTable('#tblLeavesForApproved')) {
+            InittblLeavesForApproved();
+        }
     }
     function LeavesForReject() {
-           $('#leave-Reject-tab').css("display","block");
+        $('#leave-Reject-tab').css("display", "block");
         RefreshTable2('#tblLeavesForReject', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForReject`);//Rejected
         if (!$.fn.DataTable.isDataTable('#tblLeavesForReject')) {
-        InittblLeavesForReject();
-    }
-    }
-     
-     
-    $(document).ready(function () {
-    if (@RoleName == @Convert.ToInt64(Roles.Admin))
-    {
-     $('#applied-leave-tab1').click();
-     $('#leave-approved-tab').css("display","none");
-     $('#leave-Reject-tab').css("display","none");
-       
-       
-        AutoReload();
+            InittblLeavesForReject();
+        }
     }
 
+
+    $(document).ready(function () {
+        if (@RoleName == @Convert.ToInt64(Roles.Admin)) {
+            $('#applied-leave-tab1').click();
+            $('#leave-approved-tab').css("display", "none");
+            $('#leave-Reject-tab').css("display", "none");
+
+
+            AutoReload();
+        }
+
     });
-      function InitOverviewDataTable() {
+    function InitOverviewDataTable() {
+        const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
         oOverviewTable = $('#tblLeavesForApproval').DataTable({
             "ordering": true,
             "paging": true,
@@ -1497,12 +1599,34 @@
                 }
 
             ]
-            , "responsive": true
+            , "responsive": true,
+
+            "createdRow": function (row, data, dataIndex) {
+                if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
+                    (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
+
+                    const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
+                                        ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
+                        : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+
+                    const styledSpan = `
+            <span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
+                ${data.noOfDays}
+            </span>`;
+
+                    $('td:eq(5)', row)
+                        .html(styledSpan) // Replace the cell content with the styled span
+                        .attr('title', tooltipMessage)
+                        .tooltip(); // Initialize tooltip
+                }
+            }
 
         });
     }
 
     function InittblLeavesForApproved() {
+        const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+
         oOverviewTable = $('#tblLeavesForApproved').DataTable({
             "ordering": true,
             "paging": true,
@@ -1541,12 +1665,33 @@
                 }
 
             ]
-            , "responsive": true
+            , "responsive": true,
 
+            "createdRow": function (row, data, dataIndex) {
+                if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
+                    (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
+
+                    const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
+                                            ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
+                        : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+
+                    const styledSpan = `
+            <span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
+                ${data.noOfDays}
+            </span>`;
+
+                    $('td:eq(5)', row)
+                        .html(styledSpan) // Replace the cell content with the styled span
+                        .attr('title', tooltipMessage)
+                        .tooltip(); // Initialize tooltip
+                }
+            }
         });
     }
 
     function InittblLeavesForReject() {
+        const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+
         oOverviewTable = $('#tblLeavesForReject').DataTable({
             "ordering": true,
             "paging": true,
@@ -1585,8 +1730,27 @@
                 }
 
             ]
-            , "responsive": true
+            , "responsive": true,
 
+            "createdRow": function (row, data, dataIndex) {
+                if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
+                    (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
+
+                    const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
+                                        ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
+                        : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+
+                    const styledSpan = `
+            <span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
+                ${data.noOfDays}
+            </span>`;
+
+                    $('td:eq(5)', row)
+                        .html(styledSpan) // Replace the cell content with the styled span
+                        .attr('title', tooltipMessage)
+                        .tooltip(); // Initialize tooltip
+                }
+            }
         });
     }
 
@@ -1634,23 +1798,38 @@
         }
 
         // Edit button event to activate Apply Leave tab
-        document.getElementById('editButton').addEventListener('click', function (event) {
-            // Prevent the default behavior of the link
+        // document.getElementById('editButton').addEventListener('click', function (event) {
+        //     localStorage.removeItem('selectedSubTab');
+        //     localStorage.setItem('selectedSubTab', '#apply-leave-tab');
+        //     var leaveInfoTab = new bootstrap.Tab(document.querySelector('#leaveInfo-tab1'));
+        //     leaveInfoTab.show();
+        //     var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
+        //     applyLeaveTab.show();
+        // });
+        // Select all buttons with the class "edit-button"
+        document.querySelectorAll('.edit-button').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent immediate navigation to allow custom actions
 
-            // Clear the selectedSubTab from localStorage
-            localStorage.removeItem('selectedSubTab');
+                // Update local storage
+                localStorage.removeItem('selectedSubTab');
+                localStorage.setItem('selectedSubTab', '#apply-leave-tab');
 
-            // Set the new selectedSubTab for Apply Leave
-            localStorage.setItem('selectedSubTab', '#apply-leave-tab');
+                // Show the "Apply Leave" tab
+                var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
+                applyLeaveTab.show();
 
-            // Open the Leave Info main tab
-            var leaveInfoTab = new bootstrap.Tab(document.querySelector('#leaveInfo-tab1'));
-            leaveInfoTab.show();
-
-            // Now, switch to the Apply Leave sub-tab
-            var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
-            applyLeaveTab.show();
+                // Navigate to the href link
+                const href = button.getAttribute('href');
+                if (href) {
+                    window.location.href = href; // Perform navigation
+                }
+            });
         });
+
+
+
+
     });
 
 
@@ -1734,7 +1913,7 @@
         function admintoggleContainers() {
             var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
 
-            if (['Maternity Leave', 'Adoption', 'Miscarriage'].includes(adminselectedLeaveType)) {
+            if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave'].includes(adminselectedLeaveType)) {
                 adminfullDayContainer.style.display = "flex";
                 adminhalfDayContainer.style.display = "none";
                 adminChildDOBDateContainer.style.display = "none";
@@ -1833,29 +2012,54 @@
 
         function toggleContainers() {
             var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-
             if (['Maternity Leave', 'Adoption', 'Miscarriage'].includes(selectedLeaveType)) {
                 fullDayContainer.style.display = "flex";
                 halfDayContainer.style.display = "none";
+                leaveDurationContainer.style.display = "none";
+                leaveDurationDropdown.style.display = "none";
                 ChildDOBDateContainer.style.display = "none";
                 todatetime.style.display = "block";
-            } else if (leaveDurationDropdown.value === fullDayValue) {
-                fullDayContainer.style.display = "flex";
-                todatetime.style.display = fullDayValue === "1" ? "block" : "none";
-                fromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
-                halfDayContainer.style.display = "none";
-                ChildDOBDateContainer.style.display = "none";
-            } else if (leaveDurationDropdown.value === halfDayValue) {
-                fullDayContainer.style.display = "flex";
-                halfDayContainer.style.display = "none";
-                ChildDOBDateContainer.style.display = "none";
-                todatetime.style.display = "none";
-                fromdatetime.style.display = "block";
-            } else if (selectedLeaveType === 'Paternity Leave') {
+                $('#leaveDurationDropdown').attr('required', false);
+            }
+
+            else if (selectedLeaveType === 'Paternity Leave') {
                 fullDayContainer.style.display = "flex";
                 halfDayContainer.style.display = "none";
                 ChildDOBDateContainer.style.display = "block";
-            } else {
+            }
+            else if (selectedLeaveType === 'Medical Leave') {
+                leaveDurationContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+                halfDayContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
+                fullDayContainer.style.display = "flex";
+                $('#leaveDurationDropdown').attr('required', false);
+            }
+            else if (selectedLeaveType === 'Annual Leave') {
+                if (leaveDurationDropdown.value === fullDayValue) {
+                    fullDayContainer.style.display = "flex";
+                    todatetime.style.display = fullDayValue === "1" ? "block" : "none";
+                    fromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
+                    halfDayContainer.style.display = "none";
+                    ChildDOBDateContainer.style.display = "none";
+                    return;
+                }
+                else if (leaveDurationDropdown.value === halfDayValue) {
+                    fullDayContainer.style.display = "flex";
+                    halfDayContainer.style.display = "none";
+                    ChildDOBDateContainer.style.display = "none";
+                    todatetime.style.display = "none";
+                    fromdatetime.style.display = "block";
+                    return;
+                }
+                fullDayContainer.style.display = "none";
+                leaveDurationContainer.style.display = "block";
+                leaveDurationDropdown.style.display = "flex";
+                ChildDOBDateContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
+                $('#leaveDurationDropdown').attr('required', true);
+            }
+            else {
                 fullDayContainer.style.display = "none";
                 halfDayContainer.style.display = "none";
                 ChildDOBDateContainer.style.display = "none";
@@ -1875,12 +2079,16 @@
 
         function toggleLeaveDurationVisibility() {
             var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-            if (['Annual Leave', 'Comp Off', 'Medical Leave'].includes(selectedLeaveType)) {
+            if (['Comp Off'].includes(selectedLeaveType)) {
                 leaveDurationContainer.style.display = "block";
+                fullDayContainer.style.display = "none";
                 $('#leaveDurationDropdown').attr('required', true);
-            } else {
+            }
+
+            else {
                 leaveDurationContainer.style.display = "none";
                 leaveDurationDropdown.selectedIndex = 0;
+
                 $('#leaveDurationDropdown').attr('required', false);
             }
         }

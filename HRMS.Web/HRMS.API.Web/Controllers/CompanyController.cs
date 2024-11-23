@@ -36,5 +36,12 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetAllCompanies(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult GetAllCompaniesList(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllCompaniesList(model));
+            return response;
+        }
     }
 }

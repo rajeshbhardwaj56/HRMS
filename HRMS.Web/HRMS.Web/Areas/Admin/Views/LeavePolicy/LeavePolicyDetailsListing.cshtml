@@ -1,0 +1,92 @@
+﻿@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model Results
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Leave Ploicy";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+<div class="main-header anim" style="--delay: 0s">Policy List   <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Policy</button> </div>
+ 
+
+@* <div class="addcomp px-4">
+    <h4>Leave Policy List</h4>
+    <a href="~/Admin/LeavePolicy"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Leave Policy</button></a>
+</div> *@
+
+<div class="table-responsive py-3">
+
+    <table id="tblLeavePolicyDetailsListing" class="table table-striped body-text" style="width:100%">
+
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden"> /th>
+                <th>Title</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#tblLeavePolicyDetailsListing').DataTable({
+            "ajax": {
+                "url": "LeavePolicyDetailsListings/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "id", "autoWidth": true },  // Ensure property name matches JSON response
+                { "data": "title", "autoWidth": true },
+                {
+                    // Actions Column
+                    mRender: function (data, type, row) {
+                        var linkActions = `
+        <div class="table-data-feature">
+                <a data-toggle="tooltip" data-placement="top" class="item" href="LeavePolicyDetails?id=${row.id}" title="Edit" data-original-title="Edit">
+                <img src="/assets/img/edit.png" width="20" height="20" />
+            </a>
+                <a data-toggle="tooltip" data-placement="top" class="item delete-btn" href="DeleteLeavesDetails?id=${row.id}" title="Delete" data-original-title="Delete">
+                <img src="/assets/img/delete.png" width="20" height="20" />
+            </a>
+        </div>`;
+                        return linkActions;
+                    }
+                },
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+                {
+                    "targets": [0],
+                    "orderable": false,
+                    "visible": false
+                },
+                {
+                    "targets": [1],
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+            ],
+            "responsive": true
+        });
+    });
+
+    document.getElementById('openFormBtn').addEventListener('click', function () {
+        window.location.href = '@Url.Action("LeavePolicyDetails", "LeavePolicy")';
+        });
+</script>

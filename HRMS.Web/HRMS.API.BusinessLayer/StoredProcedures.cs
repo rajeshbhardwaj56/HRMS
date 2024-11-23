@@ -54,5 +54,12 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_ShiftType = "usp_AddUpdate_ShiftType";
 
 
+
+
+        public const string usp_AddUpdate_LeavePolicyDetails = "usp_AddUpdate_LeavePolicyDetails";
+        public const string usp_Get_LeavePrivacyPolicyDetails = "usp_Get_LeavePrivacyPolicyDetails ";
+        public const string usp_Get_LeavePolicyDetailsList = "usp_Get_LeavePolicyDetailsList";
+        public const string usp_Delete_LeavePolicyDetails = "usp_Delete_LeavePolicyDetails";
+
     }
 }

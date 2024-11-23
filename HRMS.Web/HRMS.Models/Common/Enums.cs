@@ -43,4 +43,9 @@ namespace HRMS.Models.Common
         Paternity = 7
 
     }
+
+    public enum MaxMedicalLeaveDoc
+    {
+        MaxMedicalDoc= 3
+    }
 }

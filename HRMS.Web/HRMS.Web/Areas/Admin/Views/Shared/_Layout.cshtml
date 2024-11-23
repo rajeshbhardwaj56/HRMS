@@ -38,7 +38,11 @@
 
     @* CK Editor file *@
     @* <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js"></script> *@
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/decoupled-document/ckeditor.js"></script>
+@*     <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/decoupled-document/ckeditor.js"></script> *@
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+
+
     <script src="~/assets/js/jquery.toast.js"></script>
     @* <style>
         li.top-bar:hover, li.top-bar:active {
@@ -176,8 +180,8 @@
 
     <div class="custome-container">
         <div class="sidebar">
-            <a class="logo" asp-area="Admin" asp-controller="Home" asp-action="Index"><img src="/assets/img/logo/logo-small.png" style="width:50px; height:50px;" /></a>
-            <a class="logo-expand" asp-area="Admin" asp-controller="Home" asp-action="Index"><img src="/assets/img/logo/logo-large.png" style="width:150px;" /></a>
+            <a class="logo" asp-area="employee" asp-controller="myinfo" asp-action="Index"><img src="/assets/img/logo/logo-small.png" style="width:50px; height:50px;" /></a>
+            <a class="logo-expand" asp-area="employee" asp-controller="myinfo" asp-action="Index"><img src="/assets/img/logo/logo-large.png" style="width:150px;" /></a>
 
 
             <div class="side-wrapper">
@@ -281,7 +285,7 @@
                 <div class="nav-collapse" id="collapse">
                     <nav role="navigation" class="main-menu">
                         <ul class="nav-list">
-                            <li class="nav-list__item"><a class='nav-link' asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+                            <li class="nav-list__item"><a class='nav-link' asp-area="employee" asp-controller="myinfo" asp-action="Index">Dashboard</a></li>
                             <li class="nav-list__item submenu--triggers">
                                 <a class='nav-link' asp-area="admin" asp-controller="Template" asp-action="TemplateListing">Templates<i class="caret-down-icon"></i></a>
                                 <ul class="submenu">
@@ -299,6 +303,7 @@
                             </li>
                             <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyListing">Leave Policy</a></li>
                             <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="Holiday" asp-action="HolidayListing">Holidays</a></li>
+                            <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyDetailsListing">Policies </a></li>
                            
                         </ul>
                     </nav>

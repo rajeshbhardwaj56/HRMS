@@ -52,5 +52,13 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
         public Results GetAllHolidayList(HolidayInputParams model);
         public string DeleteLeavesSummary(MyInfoInputParams model);
+
+        public Result AddUpdateLeavePolicyDetails(LeavePolicyDetailsModel LeavePolicyModel);
+        public Results GetLeavePolicyList(LeavePolicyDetailsInputParams model);
+        public Results GetAllLeavePolicyDetails(LeavePolicyDetailsInputParams model);
+        public string DeleteLeavePolicyDetails(LeavePolicyDetailsInputParams model);
+        public Results GetAllCompaniesList(EmployeeInputParams model);
+        public Results GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model);
+
     }
 }

@@ -1,4 +1,6 @@
-﻿using HRMS.Models.Common;
+﻿using HRMS.Models;
+using HRMS.Models.Common;
+using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Web.BusinessLayer;
@@ -79,5 +81,94 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
              
         }
+
+
+
+
+
+
+
+        #region Leave Policy Details
+
+        public IActionResult LeavePolicyDetailsListing()
+        {
+            Results results = new Results();
+            return View(results);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult LeavePolicyDetailsListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            LeavePolicyInputParans leavePolicyParams = new LeavePolicyInputParans();
+            leavePolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetLeavePolicyList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<Results>(data);
+
+            return Json(new { data = results.LeavePolicyDetailsList });
+
+        }
+
+        public IActionResult LeavePolicyDetails(string id)
+        {
+            LeavePolicyDetailsModel leavePolicyModel = new LeavePolicyDetailsModel();
+            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                leavePolicyModel.Id = Convert.ToInt64(id);
+                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).LeavePolicyDetailsModel;
+            }
+            EmployeeInputParams employee = new EmployeeInputParams();
+            var compay = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(compay);
+            leavePolicyModel.Companies = results.Companies;
+            return View(leavePolicyModel);
+        }
+
+        [HttpPost]
+        public IActionResult LeavePolicyDetails(LeavePolicyDetailsModel leavePolicyModel)
+        {
+
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);
+
+            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+            TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
+            return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyDetailsListing, WebControllarsConstants.LeavePolicy);
+
+        }
+
+
+        [HttpGet]
+        public IActionResult DeleteLeavesDetails(int id)
+        {
+            LeavePolicyDetailsInputParams model = new LeavePolicyDetailsInputParams()
+            {
+                Id = id,
+            };
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.DeleteLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            if (data != null)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = data;
+            }
+            return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyDetailsListing, WebControllarsConstants.LeavePolicy);
+        }
+
+        #endregion Leave Policy Details
+
+
+
+
+
+
+
+
+
+
     }
 }

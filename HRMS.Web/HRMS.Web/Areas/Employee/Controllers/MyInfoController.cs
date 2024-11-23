@@ -53,7 +53,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
 
-            var TotalApproveList = results.leaveResults.leavesSummary.Where(x => x.StartDate >= fiscalYearStart && x.LeaveStatusID == (int)LeaveStatus.Approved && x.LeaveTypeID == (int)LeaveType.AnnualLeavel).OrderBy(x => x.LeaveSummaryID).ToList();
+            var TotalApproveList = results.leaveResults.leavesSummary.Where(x => x.StartDate >= fiscalYearStart && x.LeaveStatusID == (int)LeaveStatus.Approved && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave)).OrderBy(x => x.LeaveSummaryID).ToList();
 
             var employeeDetails = GetEmployeeDetails(model.CompanyID, model.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
@@ -87,7 +87,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetEmployeeDetails(string employeeID)
+        public IActionResult GetEmployeeLeaveDetails(string employeeID)
         {
             MyInfoInputParams model = new MyInfoInputParams();
 
@@ -104,33 +104,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
             DateTime today = DateTime.Today;
             DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
 
-            var TotalApproveList = results.leaveResults.leavesSummary.Where(x => x.StartDate >= fiscalYearStart && x.LeaveStatusID == (int)LeaveStatus.Approved && x.LeaveTypeID == (int)LeaveType.AnnualLeavel).OrderBy(x => x.LeaveSummaryID).ToList();
+            //var TotalApproveList = results.leaveResults.leavesSummary.Where(x => x.StartDate >= fiscalYearStart && x.LeaveStatusID == (int)LeaveStatus.Approved && x.LeaveTypeID == (int)LeaveType.AnnualLeavel).OrderBy(x => x.LeaveSummaryID).ToList();
 
             var leavePolicyModel = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
-            var joindate = results.employmentDetail.JoiningDate;
-            DateTime joinDate1 = joindate.Value;
+            //var joindate = results.employmentDetail.JoiningDate;
+            //DateTime joinDate1 = joindate.Value;
 
-            double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
-            var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
+            //double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+            //var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
 
-            double TotalApprove = Convert.ToDouble(TotalApproveLists);
-            double Totacarryforword = 0.0;
-            var Totaleavewithcarryforword = 0.0;
-            var accruedLeaves = accruedLeave1 - TotalApprove;
+            //double TotalApprove = Convert.ToDouble(TotalApproveLists);
+            //double Totacarryforword = 0.0;
+            //var Totaleavewithcarryforword = 0.0;
+            //var accruedLeaves = accruedLeave1 - TotalApprove;
 
-            if (leavePolicyModel.Annual_IsCarryForward == true)
-            {
-                Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
-                Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
-            }
-            else
-            {
-                Totaleavewithcarryforword = accruedLeaves;
-            }
+            //if (leavePolicyModel.Annual_IsCarryForward == true)
+            //{
+            //    Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
+            //    Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
+            //}
+            //else
+            //{
+            //    Totaleavewithcarryforword = accruedLeaves;
+            //}
 
-            ViewBag.UserTotalLeave = Totaleavewithcarryforword;
-            ViewBag.UserTotalAnnualLeave = accruedLeave1 - TotalApprove;
-
+            //ViewBag.UserTotalLeave = Totaleavewithcarryforword;
+            //ViewBag.UserTotalAnnualLeave = accruedLeave1 - TotalApprove;
+            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
 
 
             return Json(results);
@@ -141,14 +141,21 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [AllowAnonymous]
         public JsonResult GetLeaveForApprovals(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
+
             MyInfoInputParams employee = new MyInfoInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
+            var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
+            var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
 
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID != (int)LeaveStatus.Approved && x.LeaveStatusID != (int)LeaveStatus.NotApproved).ToList();
-
+            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
+            if (leavePolicyModel.Paternity_medicalDocument == true)
+            {
+                ViewBag.Paternity_medicalDocument = true;
+            }
 
             return Json(new { data = Approvals });
         }
@@ -168,6 +175,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved).ToList();
 
+            var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
+            var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
+
+            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
 
             return Json(new { data = Approvals });
         }
@@ -184,6 +195,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.NotApproved).ToList();
 
+            var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
+            var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
+
+            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
 
             return Json(new { data = Approvals });
         }
@@ -235,50 +250,50 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 var Holidaylist = new List<HolidayModel>();
                 var leavePolicyModel = GetLeavePolicyData(rowData.CompanyID, rowData.LeavePolicyID);
                 //Paternity Leave
-                if (rowData.LeaveTypeID == (int)LeaveType.Paternity)
-                {
-                    if (leavePolicyModel.Paternity_medicalDocument == true)
-                    {
-                        if (rowData.UploadCertificate == "")
-                        {
-                            var Message = "Please Provide Paternity Medical Document ";
-                            obj.status = 1;
-                            obj.message = Message;
-                            return Json(new { data = obj });
-                        }
-                    }
+                //if (rowData.LeaveTypeID == (int)LeaveType.Paternity)
+                //{
+                //    if (leavePolicyModel.Paternity_medicalDocument == true)
+                //    {
+                //        if (rowData.UploadCertificate == "")
+                //        {
+                //            var Message = "Please Provide Paternity Medical Document ";
+                //            obj.status = 1;
+                //            obj.message = Message;
+                //            return Json(new { data = obj });
+                //        }
+                //    }
 
-                }
+                //}
                 //Adoption Leave
-                if (rowData.LeaveTypeID == (int)LeaveType.Adoption)
-                {
-                    if (leavePolicyModel.Adoption_MedicalDocument == true)
-                    {
-                        if (rowData.UploadCertificate == "")
-                        {
-                            var Message = "Please Provide Adoption Medical Document ";
-                            obj.status = 1;
-                            obj.message = Message;
-                            return Json(new { data = obj });
-                        }
-                    }
+                //if (rowData.LeaveTypeID == (int)LeaveType.Adoption)
+                //{
+                //    if (leavePolicyModel.Adoption_MedicalDocument == true)
+                //    {
+                //        if (rowData.UploadCertificate == "")
+                //        {
+                //            var Message = "Please Provide Adoption Medical Document ";
+                //            obj.status = 1;
+                //            obj.message = Message;
+                //            return Json(new { data = obj });
+                //        }
+                //    }
 
-                }
+                //}
                 //Adoption Leave
-                if (rowData.LeaveTypeID == (int)LeaveType.Miscarriage)
-                {
-                    if (leavePolicyModel.Miscarriage_MedicalDocument == true)
-                    {
-                        if (rowData.UploadCertificate == "")
-                        {
-                            var Message = "Please Provide Miscarriage Medical Document ";
-                            obj.status = 1;
-                            obj.message = Message;
-                            return Json(new { data = obj });
-                        }
-                    }
+                //if (rowData.LeaveTypeID == (int)LeaveType.Miscarriage)
+                //{
+                //    if (leavePolicyModel.Miscarriage_MedicalDocument == true)
+                //    {
+                //        if (rowData.UploadCertificate == "")
+                //        {
+                //            var Message = "Please Provide Miscarriage Medical Document ";
+                //            obj.status = 1;
+                //            obj.message = Message;
+                //            return Json(new { data = obj });
+                //        }
+                //    }
 
-                }
+                //}
 
 
                 //    Annual Leavel
@@ -288,7 +303,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
                     var leaveSummaryData = GetLeaveSummaryData(rowData.EmployeeID, rowData.UserID, rowData.CompanyID);
                     var leaveSummaryDataResult = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryData)?.leavesSummary;
-                    var TotalApproveList = leaveSummaryDataResult.Where(x => x.StartDate >= fiscalYearStart && x.LeaveStatusID == (int)LeaveStatus.Approved && x.LeaveTypeID == (int)LeaveType.AnnualLeavel).OrderBy(x => x.LeaveSummaryID).ToList();
+                    var TotalApproveList = leaveSummaryDataResult.Where(x => x.StartDate >= fiscalYearStart && x.LeaveStatusID == (int)LeaveStatus.Approved && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave)).OrderBy(x => x.LeaveSummaryID).ToList();
                     double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(rowData.JoiningDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
                     var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
                     double TotalApprove = Convert.ToDouble(TotalApproveLists);
@@ -298,19 +313,19 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     //validation for applicable after working days
                     if (Convert.ToDouble(rowData.NoOfDays) > accruedLeaves)
                     {
-                        var Message = "Leave duration exceeds the annual leave balance of " + rowData.NoOfDays + " days";
+                        var Message = "Leave duration exceeds the annual leave balance of " + accruedLeaves + " days";
                         obj.status = 1;
                         obj.message = Message;
                         return Json(new { data = obj });
                     }
                     // validation for maximum consecutive leave
-                    if (rowData.NoOfDays > leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed)
-                    {
-                        var Message = "You can't approve leave(s) more than " + leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed + " consecutive leaves";
-                        obj.status = 1;
-                        obj.message = Message;
-                        return Json(new { data = obj });
-                    }
+                    //if (rowData.NoOfDays > leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed)
+                    //{
+                    //    var Message = "You can't approve leave(s) more than " + leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed + " consecutive leaves";
+                    //    obj.status = 1;
+                    //    obj.message = Message;
+                    //    return Json(new { data = obj });
+                    //}
 
 
 
@@ -323,31 +338,21 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 {
 
                     // Expected Delivery Date must be within a valid range(weeks before expected delivery)
-                    var weeksBefore = leavePolicyModel.Maternity_ApplyBeforeHowManyDays;
-                    var daysBefore = weeksBefore * 7; // Convert weeks to days
-                    var expectedDeliveryDate = rowData.ExpectedDeliveryDate;
-                    int totalDeliveryDays = (expectedDeliveryDate - rowData.StartDate).Days + 1;
-                    // Check if the start date is too early
-                    if (totalDeliveryDays > daysBefore)
-                    {
-                        var Message =
-                            "Maternity leave cannot start more than " + daysBefore + " days before the expected delivery date.";
-                        obj.status = 1;
-                        obj.message = Message;
-                        return Json(new { data = obj });
-                    }
+                    //var weeksBefore = leavePolicyModel.Maternity_ApplyBeforeHowManyDays;
+                    //var daysBefore = weeksBefore * 7; // Convert weeks to days
+                    //var expectedDeliveryDate = rowData.ExpectedDeliveryDate;
+                    //int totalDeliveryDays = (expectedDeliveryDate - rowData.StartDate).Days + 1;
+                    //// Check if the start date is too early
+                    //if (totalDeliveryDays > daysBefore)
+                    //{
+                    //    var Message =
+                    //        "Maternity leave cannot start more than " + daysBefore + " days before the expected delivery date.";
+                    //    obj.status = 1;
+                    //    obj.message = Message;
+                    //    return Json(new { data = obj });
+                    //}
 
 
-                    if (leavePolicyModel.Maternity_MedicalDocument == true)
-                    {
-                        if (rowData.UploadCertificate == "")
-                        {
-                            var Message = "Please Provide Maternity Medical Document ";
-                            obj.status = 1;
-                            obj.message = Message;
-                            return Json(new { data = obj });
-                        }
-                    }
 
 
 
@@ -492,10 +497,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     if (model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate > endDate)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        var message = "End date must be greater than Expected Delivery Date.";
-                        //     return RedirectToActionPermanent(
-                        //Constants.Index,
-                        // WebControllarsConstants.MyInfo);
+                        var message = "End date must be greater than or equal to Expected Delivery Date.";
+                      
                         return Json(new { isValid = false, message = message });
 
                     }
@@ -505,15 +508,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         var message = "You can't apply leave(s) before " + leavePolicyModel.Maternity_ApplicableAfterWorkingDays + " days of joining";
-                        //return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.MyInfo);
                         return Json(new { isValid = false, message = message });
                     }
 
 
-                    // Calculate the leave duration
-                    // Get the maximum allowed leave in days
+                  
                     var maxLeave = leavePolicyModel.Maternity_MaximumLeaveAllocationAllowed;
-                    var maxLeaveDays = maxLeave * 7; // Convert weeks to days
+                    var maxLeaveDays = maxLeave * 7; 
 
                     // Check if the leave duration exceeds the maximum allowed leave
                     if (totalDays > maxLeaveDays)
@@ -529,7 +530,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
 
-     
+
                 }
 
                 // Miscarriage Leave
@@ -565,8 +566,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     // Calculate the leave duration
                     // Get the maximum allowed leave in days
                     var maxLeave = leavePolicyModel.Adoption_MaximumLeaveAllocationAllowed;
-                    var maxLeaveDays = maxLeave * 7; // Convert weeks to days
-                                                     // Check if the leave duration exceeds the maximum allowed leave
+                    var maxLeaveDays = maxLeave * 7; 
+                                                    
                     if (totalDays > maxLeaveDays)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
@@ -589,7 +590,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 // Get Holiday list for Annual & Paternity
                 var Holidaylist = new List<HolidayModel>();
-                if (model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.AnnualLeavel || model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.Paternity)
+                if (model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.AnnualLeavel || model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.Paternity || model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.MedicalLeave)
                 {
                     //Get Holiday list
                     var holidaydata = GetHolidayData(model.leaveResults.leaveSummaryModel.CompanyID);
@@ -671,9 +672,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 }
 
                 //    Annual Leave
-                if (model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.AnnualLeavel)
+                if (model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.AnnualLeavel || model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.MedicalLeave)
                 {
-                    
+
                     // Validation to prevent applying for leave on April 1, 2, and 3 of any year
                     if ((startDate.Month == 4 && (startDate.Day == 1 || startDate.Day == 2 || startDate.Day == 3)) ||
                         (endDate.Month == 4 && (endDate.Day == 1 || endDate.Day == 2 || endDate.Day == 3)))
@@ -708,30 +709,37 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         return Json(new { isValid = false, message = message });
                     }
 
-                    
+
                     //validation for applicable after working days
                     if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         var message = "You can't apply leave(s) before " + leavePolicyModel.Annual_ApplicableAfterWorkingDays + " days of joining";
-                        
+
                         return Json(new { isValid = false, message = message });
                     }
                     double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joindate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+                    DateTime today = DateTime.Today;
+                    DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
+
+                    var TotalApproveList = leaveSummaryDataResult.Where(x => x.StartDate >= fiscalYearStart && x.LeaveStatusID == (int)LeaveStatus.Approved && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave)).OrderBy(x => x.LeaveSummaryID).ToList();
+                    var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
+                    double TotalApprove = Convert.ToDouble(TotalApproveLists);
+                    var accruedLeaves = accruedLeave1 - TotalApprove;
                     //validation for annual leave balance
-                    if (Convert.ToDouble(model.leaveResults.leaveSummaryModel.NoOfDays) > accruedLeave1)
+                    if (Convert.ToDouble(model.leaveResults.leaveSummaryModel.NoOfDays) > accruedLeaves)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        var message = "Leave duration exceeds the annual leave balance of " + accruedLeave1 + " days";
-                       
+                        var message = "Leave duration exceeds the annual leave balance of " + accruedLeaves + " days";
+
 
                         return Json(new { isValid = false, message = message });
                     }
 
-                    
 
-            
- 
+
+
+
 
                 }
                 //   Medical Leave
@@ -785,38 +793,49 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 //        return View();
                 //    }
                 //}
-
-                string wwwPath = Environment.WebRootPath;
-                string contentPath = this.Environment.ContentRootPath;
-
                 string fileName = null;
-                foreach (IFormFile postedFile in postedFiles)
+
+                if (postedFiles.Count > 0)
                 {
-                    fileName = postedFile.FileName.Replace(" ", "");
+                    string wwwPath = Environment.WebRootPath;
+                    string contentPath = this.Environment.ContentRootPath;
+
+                    foreach (IFormFile postedFile in postedFiles)
+                    {
+                        fileName = postedFile.FileName.Replace(" ", "");
+                    }
+                    if (fileName != null)
+                    {
+                        model.leaveResults.leaveSummaryModel.UploadCertificate = fileName;
+                    }
+                    else
+                    {
+                        model.leaveResults.leaveSummaryModel.UploadCertificate = "";
+
+                    }
                 }
-                if (fileName != null)
-                {
-                    model.leaveResults.leaveSummaryModel.UploadCertificate = fileName;
-                }
-                else
+                if(model.leaveResults.leaveSummaryModel.UploadCertificate == null)
                 {
                     model.leaveResults.leaveSummaryModel.UploadCertificate = "";
-
                 }
                 var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(data);
-                string path = Path.Combine(this.Environment.WebRootPath, Constants.UploadCertificate + result.PKNo.ToString());
 
-                if (!Directory.Exists(path))
+                if (postedFiles.Count > 0)
                 {
-                    Directory.CreateDirectory(path);
-                }
-                foreach (IFormFile postedFile in postedFiles)
-                {
-                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                    string path = Path.Combine(this.Environment.WebRootPath, Constants.UploadCertificate + result.PKNo.ToString());
+
+                    if (!Directory.Exists(path))
                     {
-                        postedFile.CopyTo(stream);
+                        Directory.CreateDirectory(path);
+                    }
+                    foreach (IFormFile postedFile in postedFiles)
+                    {
+                        using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                        {
+                            postedFile.CopyTo(stream);
+                        }
                     }
                 }
 
@@ -995,6 +1014,19 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return RedirectToActionPermanent(
                       Constants.Index,
                        WebControllarsConstants.MyInfo);
+        }
+
+        [HttpGet]
+        public IActionResult PolicyDetails()
+        {
+            LeavePolicyDetailsModel leavePolicyModel = new LeavePolicyDetailsModel();
+            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetailsByCompanyId), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            leavePolicyModel = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).LeavePolicyDetailsModel;
+
+            return View(leavePolicyModel);
         }
 
 

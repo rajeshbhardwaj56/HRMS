@@ -28,6 +28,10 @@ namespace HRMS.Models.Employee
         public string OfficialContactNo { get; set; } = string.Empty;
         public string DesignationName { get; set; } = string.Empty;
         public string DepartmentName { get; set; } = string.Empty;
+        public string ManagerName { get; set; } = string.Empty;
+        public string ManagerEmail { get; set; } = string.Empty;
+        public string OfficeLocation { get; set; } = string.Empty;
+        public string EmployeeType { get; set; } = string.Empty; 
         public DateTime? JoiningDate { get; set; }
         public DateTime? JobSeprationDate { get; set; }
         public bool IsActive { get; set; } = true;
