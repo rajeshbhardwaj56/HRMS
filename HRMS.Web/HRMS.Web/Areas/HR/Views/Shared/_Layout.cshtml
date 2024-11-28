@@ -32,7 +32,7 @@
 
     @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer 
     @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-
+    @using Microsoft.AspNetCore.Http
 </head>
 
 
@@ -133,7 +133,7 @@
                     <nav role="navigation" class="main-menu">
                         <ul class="nav-list">
                             <li class="nav-list__item"><a class='nav-link' href="#">Dashboard</a></li>
-                            <li class="nav-list__item submenu--trigger">
+                          @*   <li class="nav-list__item submenu--trigger">
                                 <a class='nav-link' href="#">My Info<i class="caret-down-icon"></i></a>
                                 <ul class="submenu">
                                     <li class="nav-list__item"><a class='nav-link' href="#">First Sub Item</a></li>
@@ -150,7 +150,7 @@
                             </li>
                             <li class="nav-list__item"><a class='nav-link' href="#">Employees</a></li>
                             <li class="nav-list__item"><a class='nav-link' href="#">Recruitment</a></li>
-                            <li class="nav-list__item"><a class='nav-link' href="#">Support</a></li>
+                            <li class="nav-list__item"><a class='nav-link' href="#">Support</a></li> *@
                             <li class="nav-list__item"><a class='nav-link' href="#">Policies</a></li>
                         </ul>
                     </nav>

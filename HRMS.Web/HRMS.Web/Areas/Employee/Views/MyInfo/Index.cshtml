@@ -103,15 +103,17 @@
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Professional Info</a>
                         </li>
-                        @if (RoleName == Convert.ToInt64(Roles.Admin))
+                        @if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.HR))
                         {
                             <li class="nav-item" role="presentation">
                                 <a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
                             </li>
                         }
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
-                        </li>
+                        
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+                            </li>
+                       
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
                         </li>
@@ -1541,7 +1543,7 @@
 
 
     $(document).ready(function () {
-        if (@RoleName == @Convert.ToInt64(Roles.Admin)) {
+        if (@RoleName == @Convert.ToInt64(Roles.Admin)||@RoleName == @Convert.ToInt64(Roles.HR)) {
             $('#applied-leave-tab1').click();
             $('#leave-approved-tab').css("display", "none");
             $('#leave-Reject-tab').css("display", "none");
@@ -2063,6 +2065,8 @@
                 fullDayContainer.style.display = "none";
                 halfDayContainer.style.display = "none";
                 ChildDOBDateContainer.style.display = "none";
+                leaveDurationContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
             }
         }
 
@@ -2086,8 +2090,8 @@
             }
 
             else {
-                leaveDurationContainer.style.display = "none";
-                leaveDurationDropdown.selectedIndex = 0;
+               // leaveDurationContainer.style.display = "none";
+              //  leaveDurationDropdown.selectedIndex = 0;
 
                 $('#leaveDurationDropdown').attr('required', false);
             }
