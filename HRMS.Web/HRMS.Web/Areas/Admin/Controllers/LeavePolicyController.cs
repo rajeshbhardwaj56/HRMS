@@ -1,4 +1,5 @@
-﻿using HRMS.Models;
+﻿using DocumentFormat.OpenXml.EMMA;
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Models.Leave;
@@ -12,16 +13,17 @@ using Results = HRMS.Models.Common.Results;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin)]
     public class LeavePolicyController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
-
-        public LeavePolicyController(IConfiguration configuration, IBusinessLayer businessLayer)
+        private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
+        public LeavePolicyController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
+            Environment = environment;
         }
 
         public IActionResult LeavePolicyListing()
@@ -126,15 +128,68 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var compay = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(compay);
             leavePolicyModel.Companies = results.Companies;
+
+
+            LeavePolicyInputParans PolicyParams = new LeavePolicyInputParans();
+            PolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            var Policy = _businessLayer.SendPostAPIRequest(PolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetPolicyCategoryList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var Policyresults = JsonConvert.DeserializeObject<Results>(Policy);
+            leavePolicyModel.PolicyList = Policyresults.PolicyCategoryList;
+
+
             return View(leavePolicyModel);
         }
 
         [HttpPost]
-        public IActionResult LeavePolicyDetails(LeavePolicyDetailsModel leavePolicyModel)
+        public IActionResult LeavePolicyDetails(LeavePolicyDetailsModel leavePolicyModel, List<IFormFile> postedFiles)
         {
+            string fileName = null;
 
+            if(leavePolicyModel.Description==null)
+            {
+                leavePolicyModel.Description = string.Empty;
+            }
+            if (postedFiles.Count > 0)
+            {
+                string wwwPath = Environment.WebRootPath;
+                string contentPath = this.Environment.ContentRootPath;
+
+                foreach (IFormFile postedFile in postedFiles)
+                {
+                    fileName = postedFile.FileName.Replace(" ", "");
+                }
+                if (fileName != null)
+                {
+                    leavePolicyModel.PolicyDocument = fileName;
+                }
+                else
+                {
+                    leavePolicyModel.PolicyDocument = "";
+
+                }
+            }
+        
             var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
+
+            if (postedFiles.Count > 0)
+            {
+                string path = Path.Combine(this.Environment.WebRootPath, Constants.UploadCertificate + result.PKNo.ToString());
+
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                foreach (IFormFile postedFile in postedFiles)
+                {
+                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                    {
+                        postedFile.CopyTo(stream);
+                    }
+                }
+            }
+
 
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
             TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
@@ -163,6 +218,76 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
 
+        #region Policy Category
+
+        public IActionResult PolicyCategoryListing()
+        {
+            Results results = new Results();
+            return View(results);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult PolicyCategoryListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            LeavePolicyInputParans PolicyParams = new LeavePolicyInputParans();
+            PolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            var data = _businessLayer.SendPostAPIRequest(PolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetPolicyCategoryList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<Results>(data);
+            return Json(new { data = results.PolicyCategoryList });
+
+        }
+
+        public IActionResult PolicyCategoryDetails(string id)
+        {
+            PolicyCategoryModel  PolicyModel = new PolicyCategoryModel();
+            PolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                PolicyModel.Id = Convert.ToInt64(id);
+                var data = _businessLayer.SendPostAPIRequest(PolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllPolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                PolicyModel = JsonConvert.DeserializeObject<Results>(data).PolicyCategoryModel;
+            }
+            EmployeeInputParams employee = new EmployeeInputParams();
+            var compay = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(compay);
+            PolicyModel.Companies = results.Companies;
+            return View(PolicyModel);
+        }
+
+        [HttpPost]
+        public IActionResult PolicyCategoryDetails(PolicyCategoryModel PolicyModel)
+        {
+
+            var data = _businessLayer.SendPostAPIRequest(PolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdatePolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);
+
+            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+            TempData[HRMS.Models.Common.Constants.toastMessage] = "  Policy category created successfully.";
+            return RedirectToActionPermanent(WebControllarsConstants.PolicyCategoryListing, WebControllarsConstants.LeavePolicy);
+
+        }
+
+
+        [HttpGet]
+        public IActionResult DeletePolicyCategory(int id)
+        {
+            LeavePolicyDetailsInputParams model = new LeavePolicyDetailsInputParams()
+            {
+                Id = id,
+            };
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeletePolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            if (data != null)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = data;
+            }
+            return RedirectToActionPermanent(WebControllarsConstants.PolicyCategoryListing, WebControllarsConstants.LeavePolicy);
+        }
+
+        #endregion   Policy Category
 
 
 

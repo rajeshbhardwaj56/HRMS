@@ -9,17 +9,11 @@
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
-<div class="main-header anim" style="--delay: 0s">Policy List   <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Policy</button> </div>
- 
-
-@* <div class="addcomp px-4">
-    <h4>Leave Policy List</h4>
-    <a href="~/Admin/LeavePolicy"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Leave Policy</button></a>
-</div> *@
+<div class="main-header anim" style="--delay: 0s">Policy Category List   <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Policy Category</button> </div>
 
 <div class="table-responsive py-3">
 
-    <table id="tblLeavePolicyDetailsListing" class="table table-striped body-text" style="width:100%">
+    <table id="tblPolicyCategoryDetailsListing" class="table table-striped body-text" style="width:100%">
 
         <thead>
             <tr>
@@ -36,9 +30,9 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#tblLeavePolicyDetailsListing').DataTable({
+        $('#tblPolicyCategoryDetailsListing').DataTable({
             "ajax": {
-                "url": "LeavePolicyDetailsListings/",
+                "url": "PolicyCategoryListings/",
                 "type": "POST",
                 "datatype": "json"
             },
@@ -48,16 +42,16 @@
             "info": true,
             "columns": [
                 { "data": "id", "autoWidth": true },  // Ensure property name matches JSON response
-                { "data": "title", "autoWidth": true },
+                { "data": "name", "autoWidth": true },
                 {
                     // Actions Column
                     mRender: function (data, type, row) {
                         var linkActions = `
                         <div class="table-data-feature">
-                            <a data-toggle="tooltip" data-placement="top" class="item" href="LeavePolicyDetails?id=${row.id}" title="Edit" data-original-title="Edit">
+                            <a data-toggle="tooltip" data-placement="top" class="item" href="PolicyCategoryDetails?id=${row.id}" title="Edit" data-original-title="Edit">
                                 <img src="/assets/img/edit.png" width="20" height="20" />
                             </a>
-                            <a data-toggle="tooltip" data-placement="top" class="item delete-btn" href="DeleteLeavesDetails?id=${row.id}" title="Delete" data-original-title="Delete" data-id="${row.id}">
+                            <a data-toggle="tooltip" data-placement="top" class="item delete-btn" href="DeletePolicyCategory?id=${row.id}" title="Delete" data-original-title="Delete" data-id="${row.id}">
                                 <img src="/assets/img/delete.png" width="20" height="20" />
                             </a>
                         </div>`;
@@ -87,13 +81,11 @@
 
         // Add confirmation alert for delete action
         $(document).on('click', '.delete-btn', function (e) {
-            e.preventDefault(); // Prevent default behavior of the link
-            var deleteUrl = $(this).attr('href'); // Get the href value for the delete URL
-            var rowId = $(this).data('id'); // Get the ID from the data attribute
+            e.preventDefault();
+            var deleteUrl = $(this).attr('href');
+            var rowId = $(this).data('id');
 
-            // Display confirmation alert
-            if (confirm(`Are you sure you want to delete the leave policy  ?`)) {
-                // If confirmed, redirect to the delete URL
+            if (confirm(`Are you sure you want to delete the item`)) {
                 window.location.href = deleteUrl;
             }
         });
@@ -101,6 +93,6 @@
 
 
     document.getElementById('openFormBtn').addEventListener('click', function () {
-        window.location.href = '@Url.Action("LeavePolicyDetails", "LeavePolicy")';
-        });
+        window.location.href = '@Url.Action("PolicyCategoryDetails", "LeavePolicy")';
+    });
 </script>

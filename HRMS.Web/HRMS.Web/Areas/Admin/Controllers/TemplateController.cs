@@ -11,7 +11,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = (RoleConstants.Admin + "," + RoleConstants.HR))]
+    [Authorize(Roles = (RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin))]
     public class TemplateController : Controller
     {
         IConfiguration _configuration;

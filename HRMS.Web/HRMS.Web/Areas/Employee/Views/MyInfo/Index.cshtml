@@ -103,7 +103,7 @@
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Professional Info</a>
                         </li>
-                        @if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.HR))
+                        @if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.Manager) || RoleName == Convert.ToInt64(Roles.SuperAdmin))
                         {
                             <li class="nav-item" role="presentation">
                                 <a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
@@ -118,13 +118,13 @@
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
+                            <a class="nav-link section-link" id="Attendance-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
                         </li>
                         <li class="nav-item" role="presentation" style="display: none;">
-                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</a>
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance1" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</a>
                         </li>
                         <li class="nav-item" role="presentation" style="display: none;">
-                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Separation</a>
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance2" role="tab" aria-controls="attendance" aria-selected="false">Separation</a>
                         </li>
                     </ul>
                 </div>
@@ -519,15 +519,7 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
-
-
-
-
-
-
-
-
-                                    <div class="group-box anim">
+                                      <div class="group-box anim">
                                         <div class="tabsInfo" id="">
                                             <h3>Leave Info</h3>
                                             <nav>
@@ -924,11 +916,11 @@
                                 </div>
 
 
-                                <div class="tab-pane fade" id="@(MyInfoTabs.TabTimeOff)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabTimeOff)-tab">
+                                <div class="tab-pane fade" id="@(MyInfoTabs.attendance)" role="tabpanel" aria-labelledby="@(MyInfoTabs.attendance)-tab">
 
                                     <div class="group-box anim">
                                         <div class="tabsInfo" id="">
-                                            <h3>Time Off</h3>
+                                            <h3>Attendance</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -1543,7 +1535,7 @@
 
 
     $(document).ready(function () {
-        if (@RoleName == @Convert.ToInt64(Roles.Admin)||@RoleName == @Convert.ToInt64(Roles.HR)) {
+        if (@RoleName == @Convert.ToInt64(Roles.Admin) || @RoleName == @Convert.ToInt64(Roles.Manager)|| @RoleName == @Convert.ToInt64(Roles.SuperAdmin)) {
             $('#applied-leave-tab1').click();
             $('#leave-approved-tab').css("display", "none");
             $('#leave-Reject-tab').css("display", "none");

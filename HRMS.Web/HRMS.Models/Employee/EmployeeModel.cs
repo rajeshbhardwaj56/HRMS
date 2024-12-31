@@ -15,12 +15,15 @@ namespace HRMS.Models.Employee
         public long LeaveSummaryID { get; set; }
         public long CompanyID { get; set; }
         public long EmployeeID { get; set; }
+        public long RoleID { get; set; }
     }
 
 
     public class EmployeeModel
-    {
+    { 
         public string EncryptedIdentity { get; set; } = string.Empty;
+        public string EncodedDesignationID { get; set; } = string.Empty;
+        public string EncodedDepartmentIDID { get; set; } = string.Empty;
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
         public long CompanyID { get; set; } = 1;
@@ -73,6 +76,7 @@ namespace HRMS.Models.Employee
         public long UpdatedByUserID { get; set; }
         public DateTime InsertedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public DateTime? JoiningDate { get; set; }
 
         // Employment Details
         public long DesignationID { get; set; }

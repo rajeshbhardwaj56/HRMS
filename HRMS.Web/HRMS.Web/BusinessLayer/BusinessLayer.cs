@@ -111,6 +111,12 @@ namespace HRMS.Web.BusinessLayer
                 case (int)Roles.Employee:
                     RootName = HRMS.Models.Common.Constants.ManageEmployee;
                     break;
+                case (int)Roles.Manager:
+                    RootName = HRMS.Models.Common.Constants.ManageEmployee;
+                    break;
+                case (int)Roles.SuperAdmin:
+                    RootName = HRMS.Models.Common.Constants.ManageAdmin;
+                    break;
                 default:
                     break;
             }

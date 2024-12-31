@@ -519,7 +519,13 @@ textarea.form-control {
     margin: 0 6px 0 12px;
 }
 
-
+.callClass {
+    margin-top: 50px;
+}
+.contactsupports {
+    margin-top: 44px;
+    text-align:center;
+}
 
 .main-container {
     display: flex;
@@ -527,6 +533,8 @@ textarea.form-control {
     padding: 0 30px 30px;
     flex-grow: 1;
     overflow: auto;
+    text-align: left;
+    padding-block: 8px;
 }
 
 .main-header {
@@ -888,10 +896,10 @@ table thead th, table tfoot th {
     border-bottom: none;
 }
 
-    .card-header h6 {
+   /* .card-header h3 {
         font-size: 24px;
         font-weight: 600;
-    }
+    }*/
 
 .dashboard-page .card .progress {
     height: 2rem;
@@ -914,7 +922,10 @@ table thead th, table tfoot th {
 
 .dashboard-page .carousel-inner {
     border-radius: 15px;
-    padding: 15px;
+    padding: 15px; 
+   /* text-align: center;
+    justify-content: center;
+    display: flex;*/
 }
 
 .dashboard-page .carousel-item {
@@ -949,6 +960,7 @@ table thead th, table tfoot th {
     color: var(--secondry-color);
     float: right;
     font-size: 12px;
+    font-weight:600;
 }
 
 
@@ -1448,4 +1460,25 @@ span.badge.holiday-list-text.bg-primary.rounded-pill {
         font-size: 16px;
         font-weight: 600;
     }
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #05397b;
+    border-color: #05397b;
+    float: inline-end !important;
+}
+.card-body {
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+.carousel-inner p {
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+.sidebar-link.active {
+    background-color: #026eb1;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
 }

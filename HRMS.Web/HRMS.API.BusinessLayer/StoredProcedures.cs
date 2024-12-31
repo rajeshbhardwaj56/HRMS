@@ -44,8 +44,10 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_HolidayList = "usp_Get_HolidayList";
 
 
+        public const string usp_InsertUserRole = "usp_InsertUserRole";
         public const string usp_AddUpdate_EmploymentDetails = "usp_AddUpdate_EmploymentDetails";
         public const string usp_Get_EmployeeDetailsFormDetails = "usp_Get_EmployeeDetailsFormDetails";
+        public const string usp_Get_FilterEmployeeDetailsFormDetails = "usp_Get_FilterEmployeeDetailsFormDetails";
         public const string usp_GetDashBoardDetails = "usp_GetDashBoardDetails";
         public const string usp_ResetPassword = "usp_ResetPassword";
         public const string usp_Get_LeaveForApprovals = "usp_Get_LeaveForApprovals";
@@ -60,6 +62,19 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_LeavePrivacyPolicyDetails = "usp_Get_LeavePrivacyPolicyDetails ";
         public const string usp_Get_LeavePolicyDetailsList = "usp_Get_LeavePolicyDetailsList";
         public const string usp_Delete_LeavePolicyDetails = "usp_Delete_LeavePolicyDetails";
+
+        public const string usp_GetEmployeeListByManagerID = "usp_GetEmployeeListByManagerID";
+
+
+        public const string usp_AddUpdate_PolicyCategory = "usp_AddUpdate_PolicyCategory";
+        public const string usp_Get_PolicyCategory = "usp_Get_PolicyCategory ";
+        public const string usp_Get_PolicyCategoryList = "usp_Get_PolicyCategoryList";
+        public const string usp_Delete_PolicyCategory = "usp_Delete_PolicyCategory";
+      
+        public const string usp_Get_DistinctPolicyCategoryDetails = "usp_Get_DistinctPolicyCategoryDetails";
+
+
+
 
     }
 }

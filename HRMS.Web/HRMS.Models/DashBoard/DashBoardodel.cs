@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HRMS.Models.Leave;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace HRMS.Models.DashBoard
     public class DashBoardModelInputParams
     {
         public long EmployeeID { get; set; }
+        public long RoleID { get; set; }
     }
     public class DashBoardModel
     {
@@ -22,7 +24,7 @@ namespace HRMS.Models.DashBoard
         public string? Surname { get; set; } = string.Empty;
 
         public string EncryptedIdentity { get; set; } = string.Empty;
-        public long EmploymentDetailID { get; set; }       
+        public long EmploymentDetailID { get; set; }
         public long DesignationID { get; set; }
         public long EmployeeTypeID { get; set; }
         public long DepartmentID { get; set; }
@@ -34,8 +36,9 @@ namespace HRMS.Models.DashBoard
         public DateTime? JobSeprationDate { get; set; }
         public long NoOfEmployees { get; set; }
         public long NoOfCompanies { get; set; }
+        public int CountsOfCompanies { get; set; }
         public long NoOfLeaves { get; set; }
-        public double Salary { get; set; }        
+        public double Salary { get; set; }
         public string? CorrespondenceAddress { get; set; } = string.Empty;
         public string? CorrespondenceCity { get; set; } = string.Empty;
         public string? CorrespondencePinCode { get; set; } = string.Empty;
@@ -77,5 +80,23 @@ namespace HRMS.Models.DashBoard
         public string? ContactPersonTelephone { get; set; } = string.Empty;
         public string? ContactPersonRelationship { get; set; } = string.Empty;
         public string? ITSkillsKnowledge { get; set; } = string.Empty;
+        public int HolidayCount { get; set; }
+        public decimal TotalLeave { get; set; } 
+        public long? LeavePolicyId { get; set; } 
+        public long? CarryForword { get; set; } 
+        public List<EmployeeDetails> EmployeeDetails { get; set; }
+        public List<HolidayModel> HolidayList { get; set; }
+        public List<LeaveSummaryModel> leavesSummary { get; set; } = new List<LeaveSummaryModel>();
+
+    }
+    public class EmployeeDetails
+    {
+        public long? EmployeeId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public DateTime DOB { get; set; }
+        public string EmplpoyeePhoto { get; set; }
+        public string? DesignationName { get; set; }
+        public string? DepartmentName { get; set; }
     }
 }

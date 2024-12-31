@@ -65,7 +65,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetLeaveForApprovals(model));
             return response;
         }
-        
+
         [HttpPost]
         public IActionResult AddUpdateLeave(LeaveSummaryModel model)
         {
@@ -115,12 +115,63 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpPost]
+        public IActionResult GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetFilterEmploymentDetailsByEmployee(model));
+            return response;
+        }
+        [HttpPost]
         public IActionResult DeleteLeavesSummary(MyInfoInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.DeleteLeavesSummary(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult GetEmployeeListByManagerID(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeeListByManagerID(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult AddUpdatePolicyCategory(PolicyCategoryModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdatePolicyCategory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetAllPolicyCategory(PolicyCategoryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllPolicyCategory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetPolicyCategoryList(PolicyCategoryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetPolicyCategoryList(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeletePolicyCategory(PolicyCategoryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeletePolicyCategory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult PolicyCategoryDetails(PolicyCategoryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.PolicyCategoryDetails(model));
+            return response;
+        }
+
 
     }
 }

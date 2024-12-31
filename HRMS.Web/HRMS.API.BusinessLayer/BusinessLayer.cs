@@ -79,6 +79,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@Password", model.Password));
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ResetPassword, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
@@ -119,176 +120,191 @@ namespace HRMS.API.BusinessLayer
         public Results GetAllEmployees(EmployeeInputParams model)
         {
             Results result = new Results();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetails, sqlParameter);
-            result.Employees = dataSet.Tables[0].AsEnumerable()
-                              .Select(dataRow =>
-                              new EmployeeModel
-                              {
-                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                  guid = dataRow.Field<Guid>("guid"),
-                                  CompanyID = dataRow.Field<long>("CompanyID"),
-                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
-                                  FirstName = dataRow.Field<string>("FirstName"),
-                                  MiddleName = dataRow.Field<string>("MiddleName"),
-                                  Surname = dataRow.Field<string>("Surname"),
-                                  CorrespondenceAddress = dataRow.Field<string>("CorrespondenceAddress"),
-                                  CorrespondenceCity = dataRow.Field<string>("CorrespondenceCity"),
-                                  CorrespondencePinCode = dataRow.Field<string>("CorrespondencePinCode"),
-                                  CorrespondenceState = dataRow.Field<string>("CorrespondenceState"),
-                                  CorrespondenceCountryID = dataRow.Field<long>("CorrespondenceCountryID"),
-                                  EmailAddress = dataRow.Field<string>("EmailAddress"),
-                                  Landline = dataRow.Field<string>("Landline"),
-                                  Mobile = dataRow.Field<string>("Mobile"),
-                                  Telephone = dataRow.Field<string>("Telephone"),
-                                  PersonalEmailAddress = dataRow.Field<string>("PersonalEmailAddress"),
-                                  PermanentAddress = dataRow.Field<string>("PermanentAddress"),
-                                  PermanentCity = dataRow.Field<string>("PermanentCity"),
-                                  PermanentPinCode = dataRow.Field<string>("PermanentPinCode"),
-                                  PermanentState = dataRow.Field<string>("PermanentPinCode"),
-                                  PermanentCountryID = dataRow.Field<long>("PermanentCountryID"),
-                                  VerificationContactPersonName = dataRow.Field<string>("VerificationContactPersonName"),
-                                  VerificationContactPersonContactNo = dataRow.Field<string>("VerificationContactPersonContactNo"),
-                                  DateOfBirth = dataRow.Field<DateTime?>("DateOfBirth"),
-                                  PlaceOfBirth = dataRow.Field<string>("PlaceOfBirth"),
-                                  IsReferredByExistingEmployee = dataRow.Field<bool>("IsReferredByExistingEmployee"),
-                                  ReferredByEmployeeID = dataRow.Field<string>("ReferredByEmployeeID"),
-                                  BloodGroup = dataRow.Field<string>("BloodGroup"),
-                                  PANNo = dataRow.Field<string>("PANNo"),
-                                  AadharCardNo = dataRow.Field<string>("AadharCardNo"),
-                                  Allergies = dataRow.Field<string>("Allergies"),
-                                  RelativesDetails = dataRow.Field<string>("RelativesDetails"),
-                                  MajorIllnessOrDisability = dataRow.Field<string>("MajorIllnessOrDisability"),
-                                  AwardsAchievements = dataRow.Field<string>("AwardsAchievements"),
-                                  EducationGap = dataRow.Field<string>("EducationGap"),
-                                  ExtraCuricuarActivities = dataRow.Field<string>("ExtraCuricuarActivities"),
-                                  ForiegnCountryVisits = dataRow.Field<string>("ForiegnCountryVisits"),
-                                  ContactPersonName = dataRow.Field<string>("ContactPersonName"),
-                                  ContactPersonMobile = dataRow.Field<string>("ContactPersonMobile"),
-                                  ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
-                                  ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
-                                  ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
-                                  LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
-                                  InsertedDate = dataRow.Field<DateTime>("InsertedDate"),
-                                  CarryForword = dataRow.Field<long>("CarryForword"),
-                                  Gender = dataRow.Field<int>("Gender"),
-                              }).ToList();
-
-            if (model.EmployeeID > 0)
+            try
             {
-                result.employeeModel = result.Employees.FirstOrDefault();
+                List<SqlParameter> sqlParameter = new List<SqlParameter>();
+                sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+                sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+                sqlParameter.Add(new SqlParameter("@RoleID", model.RoleID));
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetails, sqlParameter);
+                result.Employees = dataSet.Tables[0].AsEnumerable()
+                                  .Select(dataRow =>
+                                  new EmployeeModel
+                                  {
+                                      EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                      guid = dataRow.Field<Guid>("guid"),
+                                      CompanyID = dataRow.Field<long>("CompanyID"),
+                                      ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
+                                      FirstName = dataRow.Field<string>("FirstName"),
+                                      MiddleName = dataRow.Field<string>("MiddleName"),
+                                      Surname = dataRow.Field<string>("Surname"),
+                                      CorrespondenceAddress = dataRow.Field<string>("CorrespondenceAddress"),
+                                      CorrespondenceCity = dataRow.Field<string>("CorrespondenceCity"),
+                                      CorrespondencePinCode = dataRow.Field<string>("CorrespondencePinCode"),
+                                      CorrespondenceState = dataRow.Field<string>("CorrespondenceState"),
+                                      CorrespondenceCountryID = dataRow.Field<long>("CorrespondenceCountryID"),
+                                      EmailAddress = dataRow.Field<string>("EmailAddress"),
+                                      Landline = dataRow.Field<string>("Landline"),
+                                      Mobile = dataRow.Field<string>("Mobile"),
+                                      Telephone = dataRow.Field<string>("Telephone"),
+                                      PersonalEmailAddress = dataRow.Field<string>("PersonalEmailAddress"),
+                                      PermanentAddress = dataRow.Field<string>("PermanentAddress"),
+                                      PermanentCity = dataRow.Field<string>("PermanentCity"),
+                                      PermanentPinCode = dataRow.Field<string>("PermanentPinCode"),
+                                      PermanentState = dataRow.Field<string>("PermanentPinCode"),
+                                      PermanentCountryID = dataRow.Field<long>("PermanentCountryID"),
+                                      VerificationContactPersonName = dataRow.Field<string>("VerificationContactPersonName"),
+                                      VerificationContactPersonContactNo = dataRow.Field<string>("VerificationContactPersonContactNo"),
+                                      DateOfBirth = dataRow.Field<DateTime?>("DateOfBirth"),
+                                      PlaceOfBirth = dataRow.Field<string>("PlaceOfBirth"),
+                                      IsReferredByExistingEmployee = dataRow.Field<bool>("IsReferredByExistingEmployee"),
+                                      ReferredByEmployeeID = dataRow.Field<string>("ReferredByEmployeeID"),
+                                      BloodGroup = dataRow.Field<string>("BloodGroup"),
+                                      PANNo = dataRow.Field<string>("PANNo"),
+                                      AadharCardNo = dataRow.Field<string>("AadharCardNo"),
+                                      Allergies = dataRow.Field<string>("Allergies"),
+                                      RelativesDetails = dataRow.Field<string>("RelativesDetails"),
+                                      MajorIllnessOrDisability = dataRow.Field<string>("MajorIllnessOrDisability"),
+                                      AwardsAchievements = dataRow.Field<string>("AwardsAchievements"),
+                                      EducationGap = dataRow.Field<string>("EducationGap"),
+                                      ExtraCuricuarActivities = dataRow.Field<string>("ExtraCuricuarActivities"),
+                                      ForiegnCountryVisits = dataRow.Field<string>("ForiegnCountryVisits"),
+                                      ContactPersonName = dataRow.Field<string>("ContactPersonName"),
+                                      ContactPersonMobile = dataRow.Field<string>("ContactPersonMobile"),
+                                      ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
+                                      ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
+                                      ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
+                                      InsertedDate = dataRow.Field<DateTime>("InsertedDate"),
+                                      Gender = dataRow.Field<int>("Gender"),
+                                      CarryForword = dataRow.Field<long?>("CarryForword"),
+                                      DepartmentID = dataRow["DepartmentID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DepartmentID"]),
+                                      DesignationID = dataRow["DesignationID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DesignationID"]),
+                                      LeavePolicyID = dataRow.Field<long?>("LeavePolicyID")  ,
+                                      JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
 
-                //////////////////////// FamilyDetails
-                result.employeeModel.FamilyDetails = dataSet.Tables[1].AsEnumerable()
-                             .Select(dataRow => new FamilyDetail
-                             {
-                                 EmployeesFamilyDetailID = dataRow.Field<long>("EmployeesFamilyDetailID"),
-                                 Age = dataRow.Field<string>("Age"),
-                                 FamilyName = dataRow.Field<string>("FamilyName"),
-                                 Relationship = dataRow.Field<string>("Relationship"),
-                                 Details = dataRow.Field<string>("Details"),
-                             }).ToList();
-                if (result.employeeModel.FamilyDetails == null)
+
+
+                                  }).ToList();
+
+                if (model.EmployeeID > 0)
                 {
-                    result.employeeModel.FamilyDetails = new List<FamilyDetail>();
+                    result.employeeModel = result.Employees.FirstOrDefault();
+
+                    //////////////////////// FamilyDetails
+                    result.employeeModel.FamilyDetails = dataSet.Tables[1].AsEnumerable()
+                                 .Select(dataRow => new FamilyDetail
+                                 {
+                                     EmployeesFamilyDetailID = dataRow.Field<long>("EmployeesFamilyDetailID"),
+                                     Age = dataRow.Field<string>("Age"),
+                                     FamilyName = dataRow.Field<string>("FamilyName"),
+                                     Relationship = dataRow.Field<string>("Relationship"),
+                                     Details = dataRow.Field<string>("Details"),
+                                 }).ToList();
+                    if (result.employeeModel.FamilyDetails == null)
+                    {
+                        result.employeeModel.FamilyDetails = new List<FamilyDetail>();
+                    }
+
+                    //////////////////////// EducationalDetails
+                    result.employeeModel.EducationalDetails = dataSet.Tables[2].AsEnumerable()
+                               .Select(dataRow => new EducationalDetail
+                               {
+                                   EducationDetailID = dataRow.Field<long>("EducationDetailID"),
+                                   Major_OptionalSubjects = dataRow.Field<string>("Major_OptionalSubjects"),
+                                   Percentage = dataRow.Field<string>("Percentage"),
+                                   Qualification = dataRow.Field<string>("Qualification"),
+                                   School_University = dataRow.Field<string>("School_University"),
+                                   YearOfPassing = dataRow.Field<string>("YearOfPassing"),
+                               }).ToList();
+                    if (result.employeeModel.EducationalDetails == null)
+                    {
+                        result.employeeModel.EducationalDetails = new List<EducationalDetail>();
+                    }
+
+                    //////////////////////// LanguageDetails
+                    result.employeeModel.LanguageDetails = dataSet.Tables[3].AsEnumerable()
+                               .Select(dataRow => new LanguageDetail
+                               {
+                                   LanguageDetailID = dataRow.Field<long>("LanguageDetailID"),
+                                   IsRead = dataRow.Field<bool>("IsRead"),
+                                   IsSpeak = dataRow.Field<bool>("IsSpeak"),
+                                   IsWrite = dataRow.Field<bool>("IsWrite"),
+                                   LanguageID = dataRow.Field<long>("LanguageID")
+                               }).ToList();
+                    if (result.employeeModel.LanguageDetails == null)
+                    {
+                        result.employeeModel.LanguageDetails = new List<LanguageDetail>();
+                    }
+
+
+                    //////////////////////// EmploymentHistory
+                    result.employeeModel.EmploymentHistory = dataSet.Tables[4].AsEnumerable()
+                               .Select(dataRow => new EmploymentHistory
+                               {
+                                   EmploymentHistoryID = dataRow.Field<long>("EmploymentHistoryID"),
+                                   Address = dataRow.Field<string>("Address"),
+                                   City = dataRow.Field<string>("City"),
+                                   CompanyName = dataRow.Field<string>("CompanyName"),
+                                   CountryID = dataRow.Field<long>("CountryID"),
+                                   Designition = dataRow.Field<string>("Designition"),
+                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                   EmploymentID = dataRow.Field<string>("EmploymentID"),
+                                   From = dataRow.Field<DateTime>("From"),
+                                   GrossSalary = dataRow.Field<string>("GrossSalary"),
+                                   HRContactNo = dataRow.Field<string>("HRContactNo"),
+                                   HREmail = dataRow.Field<string>("HREmail"),
+                                   HRName = dataRow.Field<string>("HRName"),
+                                   Phone = dataRow.Field<string>("Phone"),
+                                   PostalCode = dataRow.Field<string>("PostalCode"),
+                                   ReasionFoLeaving = dataRow.Field<string>("ReasionFoLeaving"),
+                                   State = dataRow.Field<string>("State"),
+                                   SupervisorContactNo = dataRow.Field<string>("SupervisorContactNo"),
+                                   SupervisorDesignition = dataRow.Field<string>("SupervisorDesignition"),
+                                   SupervisorName = dataRow.Field<string>("SupervisorName"),
+                                   To = dataRow.Field<DateTime>("To"),
+
+                               }).ToList();
+                    if (result.employeeModel.EmploymentHistory == null)
+                    {
+                        result.employeeModel.EmploymentHistory = new List<EmploymentHistory>();
+                    }
+
+
+                    //////////////////////// References
+                    result.employeeModel.References = dataSet.Tables[5].AsEnumerable()
+                               .Select(dataRow => new Reference
+                               {
+                                   ReferenceDetailID = dataRow.Field<long>("ReferenceDetailID"),
+                                   Contact = dataRow.Field<string>("Contact"),
+                                   Name = dataRow.Field<string>("Name"),
+                                   OrgnizationName = dataRow.Field<string>("OrgnizationName"),
+                                   RelationWithCandidate = dataRow.Field<string>("RelationWithCandidate")
+                               }).ToList();
+                    if (result.employeeModel.References == null)
+                    {
+                        result.employeeModel.References = new List<Reference>();
+                    }
+
+                    //////////////////////// References
+                    result.employeeModel.EmploymentDetail = dataSet.Tables[6].AsEnumerable()
+                               .Select(dataRow => new EmploymentDetail
+                               {
+                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                   JoiningDate = dataRow.Field<DateTime>("JoiningDate"),
+
+                               }).ToList();
+                    if (result.employeeModel.EmploymentDetail == null)
+                    {
+                        result.employeeModel.EmploymentDetail = new List<EmploymentDetail>();
+                    }
+
                 }
-
-                //////////////////////// EducationalDetails
-                result.employeeModel.EducationalDetails = dataSet.Tables[2].AsEnumerable()
-                           .Select(dataRow => new EducationalDetail
-                           {
-                               EducationDetailID = dataRow.Field<long>("EducationDetailID"),
-                               Major_OptionalSubjects = dataRow.Field<string>("Major_OptionalSubjects"),
-                               Percentage = dataRow.Field<string>("Percentage"),
-                               Qualification = dataRow.Field<string>("Qualification"),
-                               School_University = dataRow.Field<string>("School_University"),
-                               YearOfPassing = dataRow.Field<string>("YearOfPassing"),
-                           }).ToList();
-                if (result.employeeModel.EducationalDetails == null)
-                {
-                    result.employeeModel.EducationalDetails = new List<EducationalDetail>();
-                }
-
-                //////////////////////// LanguageDetails
-                result.employeeModel.LanguageDetails = dataSet.Tables[3].AsEnumerable()
-                           .Select(dataRow => new LanguageDetail
-                           {
-                               LanguageDetailID = dataRow.Field<long>("LanguageDetailID"),
-                               IsRead = dataRow.Field<bool>("IsRead"),
-                               IsSpeak = dataRow.Field<bool>("IsSpeak"),
-                               IsWrite = dataRow.Field<bool>("IsWrite"),
-                               LanguageID = dataRow.Field<long>("LanguageID")
-                           }).ToList();
-                if (result.employeeModel.LanguageDetails == null)
-                {
-                    result.employeeModel.LanguageDetails = new List<LanguageDetail>();
-                }
-
-
-                //////////////////////// EmploymentHistory
-                result.employeeModel.EmploymentHistory = dataSet.Tables[4].AsEnumerable()
-                           .Select(dataRow => new EmploymentHistory
-                           {
-                               EmploymentHistoryID = dataRow.Field<long>("EmploymentHistoryID"),
-                               Address = dataRow.Field<string>("Address"),
-                               City = dataRow.Field<string>("City"),
-                               CompanyName = dataRow.Field<string>("CompanyName"),
-                               CountryID = dataRow.Field<long>("CountryID"),
-                               Designition = dataRow.Field<string>("Designition"),
-                               EmployeeID = dataRow.Field<long>("EmployeeID"),
-                               EmploymentID = dataRow.Field<string>("EmploymentID"),
-                               From = dataRow.Field<DateTime>("From"),
-                               GrossSalary = dataRow.Field<string>("GrossSalary"),
-                               HRContactNo = dataRow.Field<string>("HRContactNo"),
-                               HREmail = dataRow.Field<string>("HREmail"),
-                               HRName = dataRow.Field<string>("HRName"),
-                               Phone = dataRow.Field<string>("Phone"),
-                               PostalCode = dataRow.Field<string>("PostalCode"),
-                               ReasionFoLeaving = dataRow.Field<string>("ReasionFoLeaving"),
-                               State = dataRow.Field<string>("State"),
-                               SupervisorContactNo = dataRow.Field<string>("SupervisorContactNo"),
-                               SupervisorDesignition = dataRow.Field<string>("SupervisorDesignition"),
-                               SupervisorName = dataRow.Field<string>("SupervisorName"),
-                               To = dataRow.Field<DateTime>("To"),
-
-                           }).ToList();
-                if (result.employeeModel.EmploymentHistory == null)
-                {
-                    result.employeeModel.EmploymentHistory = new List<EmploymentHistory>();
-                }
-
-
-                //////////////////////// References
-                result.employeeModel.References = dataSet.Tables[5].AsEnumerable()
-                           .Select(dataRow => new Reference
-                           {
-                               ReferenceDetailID = dataRow.Field<long>("ReferenceDetailID"),
-                               Contact = dataRow.Field<string>("Contact"),
-                               Name = dataRow.Field<string>("Name"),
-                               OrgnizationName = dataRow.Field<string>("OrgnizationName"),
-                               RelationWithCandidate = dataRow.Field<string>("RelationWithCandidate")
-                           }).ToList();
-                if (result.employeeModel.References == null)
-                {
-                    result.employeeModel.References = new List<Reference>();
-                }
-
-                //////////////////////// References
-                result.employeeModel.EmploymentDetail = dataSet.Tables[6].AsEnumerable()
-                           .Select(dataRow => new EmploymentDetail
-                           {
-                               EmployeeID = dataRow.Field<long>("EmployeeID"),
-                               JoiningDate = dataRow.Field<DateTime>("JoiningDate"),
-
-                           }).ToList();
-                if (result.employeeModel.EmploymentDetail == null)
-                {
-                    result.employeeModel.EmploymentDetail = new List<EmploymentDetail>();
-                }
+            }
+            catch (Exception ex)
+            {
 
             }
+
 
             return result;
         }
@@ -637,7 +653,8 @@ namespace HRMS.API.BusinessLayer
                         new Result()
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo = Convert.ToInt64(pOutputParams["@RetEmployeeID"].Value)
+                            UserID = dataRow.Field<long>("UserID"),
+                            PKNo = dataRow.Field<long>("UserID")
                         }
                    ).ToList().FirstOrDefault();
             }
@@ -850,6 +867,28 @@ namespace HRMS.API.BusinessLayer
                         new Result()
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
+                            UserID = dataRow.Field<long>("UserID"),
+                            PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
+                            IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired")
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+
+            sqlParameters.Add(new SqlParameter("@RoleID", employmentDetails.RoleId));
+            sqlParameters.Add(new SqlParameter("@UserID", model.UserID));
+
+            SqlParameterCollection OutputParams = null;
+
+            var datasSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertUserRole, sqlParameters, ref OutputParams);
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString(),
                             PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
                             IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired")
                         }
@@ -943,9 +982,116 @@ namespace HRMS.API.BusinessLayer
                                 Value = dataRow.Field<long>("LeavePolicyID").ToString(),
                                 Text = dataRow.Field<string>("LeavePolicyName")
                             }).ToList();
+            employmentDetail.RoleList = dataSet.Tables[7].AsEnumerable()
+                .Select(dataRow => new SelectListItem
+                {
+                    Value = dataRow.Field<int>("RoleID").ToString(),
+                    Text = dataRow.Field<string>("UniqueName")
+                }).ToList();
+            return employmentDetail;
+        }
+
+        public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
+        {
+
+
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@DepartmentID", model.DepartmentID));
+            sqlParameter.Add(new SqlParameter("@DesignationID", model.DesignationID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
+            EmploymentDetail employmentDetail = dataSet.Tables[5].AsEnumerable()
+                            .Select(dataRow => new EmploymentDetail()
+                            {
+                                EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                EmployeNumber = dataRow.Field<string>("EmployeNumber"),
+                                EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
+                                EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
+                                DesignationID = dataRow.Field<long>("DesignationID"),
+                                DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                ReportingToID = dataRow.Field<long>("ReportingToID"),
+                                OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
+                                OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
+                                DesignationName = dataRow.Field<string>("DesignationName"),
+                                DepartmentName = dataRow.Field<string>("DepartmentName"),
+                                JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
+                                JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
+                                ManagerEmail = dataRow.Field<string>("ManagerEmail"),
+                                ManagerName = dataRow.Field<string>("ManagerName"),
+                                OfficeLocation = dataRow.Field<string>("OfficeLocation"),
+                                EmployeeType = dataRow.Field<string>("EmployeeType"),
+                                LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
+                                RoleId = dataRow.Field<int>("EmployeeRole"),
+
+                            }).ToList().FirstOrDefault();
+
+            if (employmentDetail == null)
+            {
+                employmentDetail = new EmploymentDetail();
+            }
+            if (employmentDetail.EmployeeID <= 0)
+            {
+                employmentDetail.EmployeeID = model.EmployeeID;
+            }
+            employmentDetail.UserID = model.UserID;
+            employmentDetail.JobLocations = dataSet.Tables[0].AsEnumerable()
+                               .Select(dataRow => new SelectListItem
+                               {
+                                   Text = dataRow.Field<string>("Name"),
+                                   Value = dataRow.Field<long>("ID").ToString()
+                               }).ToList();
+
+            employmentDetail.EmploymentTypes = dataSet.Tables[1].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Text = dataRow.Field<string>("Name"),
+                                 Value = dataRow.Field<long>("ID").ToString()
+                             }).ToList();
+
+            employmentDetail.Departments = dataSet.Tables[2].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Text = dataRow.Field<string>("Name"),
+                                 Value = dataRow.Field<long>("ID").ToString()
+                             }).ToList();
+
+
+            employmentDetail.Designations = dataSet.Tables[3].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Text = dataRow.Field<string>("Name"),
+                                 Value = dataRow.Field<long>("ID").ToString()
+                             }).ToList();
+
+
+            employmentDetail.EmployeeList = dataSet.Tables[4].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Value = dataRow.Field<long>("EmployeeID").ToString(),
+                                 Text = dataRow.Field<string>("Name")
+                             }).ToList();
+
+            employmentDetail.LeavePolicyList = dataSet.Tables[6].AsEnumerable()
+                            .Select(dataRow => new SelectListItem
+                            {
+                                Value = dataRow.Field<long>("LeavePolicyID").ToString(),
+                                Text = dataRow.Field<string>("LeavePolicyName")
+                            }).ToList();
+            employmentDetail.RoleList = dataSet.Tables[7].AsEnumerable()
+                            .Select(dataRow => new SelectListItem
+                            {
+                                Value = dataRow.Field<int>("RoleID").ToString(),
+                                Text = dataRow.Field<string>("UniqueName")
+                            }).ToList();
 
             return employmentDetail;
         }
+
+
+
+
 
         #endregion
 
@@ -1389,85 +1535,133 @@ namespace HRMS.API.BusinessLayer
         public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model)
         {
             DashBoardModel dashBoardModel = new DashBoardModel();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDashBoardDetails, sqlParameter);
-            dashBoardModel = dataSet.Tables[0].AsEnumerable()
-                              .Select(dataRow => new DashBoardModel
-                              {
-                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                  guid = dataRow.Field<Guid>("guid"),
-                                  CompanyID = dataRow.Field<long>("CompanyID"),
-                                  ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
-                                  FirstName = dataRow.Field<string>("FirstName"),
-                                  MiddleName = dataRow.Field<string>("MiddleName"),
-                                  Surname = dataRow.Field<string>("Surname"),
-                                  CorrespondenceAddress = dataRow.Field<string>("CorrespondenceAddress"),
-                                  CorrespondenceCity = dataRow.Field<string>("CorrespondenceCity"),
-                                  CorrespondencePinCode = dataRow.Field<string>("CorrespondencePinCode"),
-                                  CorrespondenceState = dataRow.Field<string>("CorrespondenceState"),
-                                  CorrespondenceCountryID = dataRow.Field<long>("CorrespondenceCountryID"),
-                                  EmailAddress = dataRow.Field<string>("EmailAddress"),
-                                  Landline = dataRow.Field<string>("Landline"),
-                                  Mobile = dataRow.Field<string>("Mobile"),
-                                  Telephone = dataRow.Field<string>("Telephone"),
-                                  PersonalEmailAddress = dataRow.Field<string>("PersonalEmailAddress"),
-                                  PermanentAddress = dataRow.Field<string>("PermanentAddress"),
-                                  PermanentCity = dataRow.Field<string>("PermanentCity"),
-                                  PermanentPinCode = dataRow.Field<string>("PermanentPinCode"),
-                                  PermanentState = dataRow.Field<string>("PermanentPinCode"),
-                                  PermanentCountryID = dataRow.Field<long>("PermanentCountryID"),
-                                  VerificationContactPersonName = dataRow.Field<string>("VerificationContactPersonName"),
-                                  VerificationContactPersonContactNo = dataRow.Field<string>("VerificationContactPersonContactNo"),
-                                  DateOfBirth = dataRow.Field<DateTime?>("DateOfBirth"),
-                                  PlaceOfBirth = dataRow.Field<string>("PlaceOfBirth"),
-                                  IsReferredByExistingEmployee = dataRow.Field<bool>("IsReferredByExistingEmployee"),
-                                  ReferredByEmployeeID = dataRow.Field<string>("ReferredByEmployeeID"),
-                                  BloodGroup = dataRow.Field<string>("BloodGroup"),
-                                  PANNo = dataRow.Field<string>("PANNo"),
-                                  AadharCardNo = dataRow.Field<string>("AadharCardNo"),
-                                  Allergies = dataRow.Field<string>("Allergies"),
-                                  RelativesDetails = dataRow.Field<string>("RelativesDetails"),
-                                  MajorIllnessOrDisability = dataRow.Field<string>("MajorIllnessOrDisability"),
-                                  AwardsAchievements = dataRow.Field<string>("AwardsAchievements"),
-                                  EducationGap = dataRow.Field<string>("EducationGap"),
-                                  ExtraCuricuarActivities = dataRow.Field<string>("ExtraCuricuarActivities"),
-                                  ForiegnCountryVisits = dataRow.Field<string>("ForiegnCountryVisits"),
-                                  ContactPersonName = dataRow.Field<string>("ContactPersonName"),
-                                  ContactPersonMobile = dataRow.Field<string>("ContactPersonMobile"),
-                                  ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
-                                  ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
-                                  ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
-
-                                  //EmploymentDetails
-                                  EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
-                                  EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
-                                  DesignationID = dataRow.Field<long>("DesignationID"),
-                                  DepartmentID = dataRow.Field<long>("DepartmentID"),
-                                  JobLocationID = dataRow.Field<long>("JobLocationID"),
-                                  ReportingToID = dataRow.Field<long>("ReportingToID"),
-                                  OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
-                                  OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
-                                  JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
-                                  JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate")
-
-                              }).ToList().FirstOrDefault();
-
-            var OtherDetails = dataSet.Tables[1].AsEnumerable()
-                              .Select(dataRow => new DashBoardModel
-                              {
-                                  NoOfEmployees = dataRow.Field<int>("NoOfEmployees"),
-                                  NoOfCompanies = dataRow.Field<int>("NoOfCompanies")
-                              }).ToList().FirstOrDefault();
-
-            if (dashBoardModel == null)
+            try
             {
-                dashBoardModel = new DashBoardModel();
+                List<SqlParameter> sqlParameter = new List<SqlParameter>();
+                sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+                sqlParameter.Add(new SqlParameter("@RoleId", model.RoleID));
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDashBoardDetails, sqlParameter);
+                dashBoardModel = dataSet.Tables[0].AsEnumerable()
+                                  .Select(dataRow => new DashBoardModel
+                                  {
+                                      EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                      guid = dataRow.Field<Guid>("guid"),
+                                      CompanyID = dataRow.Field<long>("CompanyID"),
+                                      ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
+                                      FirstName = dataRow.Field<string>("FirstName"),
+                                      MiddleName = dataRow.Field<string>("MiddleName"),
+                                      Surname = dataRow.Field<string>("Surname"),
+                                      CorrespondenceAddress = dataRow.Field<string>("CorrespondenceAddress"),
+                                      CorrespondenceCity = dataRow.Field<string>("CorrespondenceCity"),
+                                      CorrespondencePinCode = dataRow.Field<string>("CorrespondencePinCode"),
+                                      CorrespondenceState = dataRow.Field<string>("CorrespondenceState"),
+                                      CorrespondenceCountryID = dataRow.Field<long>("CorrespondenceCountryID"),
+                                      EmailAddress = dataRow.Field<string>("EmailAddress"),
+                                      Landline = dataRow.Field<string>("Landline"),
+                                      Mobile = dataRow.Field<string>("Mobile"),
+                                      Telephone = dataRow.Field<string>("Telephone"),
+                                      PersonalEmailAddress = dataRow.Field<string>("PersonalEmailAddress"),
+                                      PermanentAddress = dataRow.Field<string>("PermanentAddress"),
+                                      PermanentCity = dataRow.Field<string>("PermanentCity"),
+                                      PermanentPinCode = dataRow.Field<string>("PermanentPinCode"),
+                                      PermanentState = dataRow.Field<string>("PermanentPinCode"),
+                                      PermanentCountryID = dataRow.Field<long>("PermanentCountryID"),
+                                      VerificationContactPersonName = dataRow.Field<string>("VerificationContactPersonName"),
+                                      VerificationContactPersonContactNo = dataRow.Field<string>("VerificationContactPersonContactNo"),
+                                      DateOfBirth = dataRow.Field<DateTime?>("DateOfBirth"),
+                                      PlaceOfBirth = dataRow.Field<string>("PlaceOfBirth"),
+                                      IsReferredByExistingEmployee = dataRow.Field<bool>("IsReferredByExistingEmployee"),
+                                      ReferredByEmployeeID = dataRow.Field<string>("ReferredByEmployeeID"),
+                                      BloodGroup = dataRow.Field<string>("BloodGroup"),
+                                      PANNo = dataRow.Field<string>("PANNo"),
+                                      AadharCardNo = dataRow.Field<string>("AadharCardNo"),
+                                      Allergies = dataRow.Field<string>("Allergies"),
+                                      RelativesDetails = dataRow.Field<string>("RelativesDetails"),
+                                      MajorIllnessOrDisability = dataRow.Field<string>("MajorIllnessOrDisability"),
+                                      AwardsAchievements = dataRow.Field<string>("AwardsAchievements"),
+                                      EducationGap = dataRow.Field<string>("EducationGap"),
+                                      ExtraCuricuarActivities = dataRow.Field<string>("ExtraCuricuarActivities"),
+                                      ForiegnCountryVisits = dataRow.Field<string>("ForiegnCountryVisits"),
+                                      ContactPersonName = dataRow.Field<string>("ContactPersonName"),
+                                      ContactPersonMobile = dataRow.Field<string>("ContactPersonMobile"),
+                                      ContactPersonTelephone = dataRow.Field<string>("ContactPersonTelephone"),
+                                      ContactPersonRelationship = dataRow.Field<string>("ContactPersonRelationship"),
+                                      ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
+
+                                      //EmploymentDetails
+                                      EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
+                                      EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
+                                      DesignationID = dataRow.Field<long>("DesignationID"),
+                                      DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                      JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                      ReportingToID = dataRow.Field<long>("ReportingToID"),
+                                      OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
+                                      OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
+                                      JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
+                                      JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
+                                      CarryForword = dataRow.Field<long>("CarryForword"),
+                                      LeavePolicyId = dataRow.Field<long>("LeavePolicyId")
+
+                                  }).ToList().FirstOrDefault();
+
+                var OtherDetails = dataSet.Tables[1].AsEnumerable()
+                                  .Select(dataRow => new DashBoardModel
+                                  {
+                                      NoOfEmployees = dataRow.Field<int>("NoOfEmployees"),
+                                  }).ToList().FirstOrDefault();
+     
+
+
+
+                dashBoardModel.EmployeeDetails = dataSet.Tables[2].AsEnumerable()
+                                  .Select(dataRow => new EmployeeDetails
+                                  {
+                                      EmployeeId = dataRow.Field<long>("EmployeeId"),
+                                      FirstName = dataRow.Field<string>("EmployeeFirstName"),
+                                      LastName = dataRow.Field<string>("EmployeeLastName"),
+                                      DOB = dataRow.Field<DateTime>("EmployeeDOB"),
+                                      EmplpoyeePhoto = dataRow.Field<string>("EmployeePhoto"),
+                                  }).ToList();
+
+                var LeaveDetails = dataSet.Tables[3].AsEnumerable()
+                              .Select(dataRow => new DashBoardModel
+                              {
+                                  TotalLeave = dataRow.Field<decimal>("TotalLeave"),
+                              }).ToList().FirstOrDefault();
+
+                var HolidayList = dataSet.Tables[4].AsEnumerable()
+                              .Select(dataRow => new HolidayModel
+                              {
+                                  FromDate = dataRow.Field<DateTime>("FromDate"),
+                                  HolidayName = dataRow.Field<string>("HolidayName"),
+                              }).ToList();
+                //dashBoardModel.leavesSummary = dataSet.Tables[5].AsEnumerable()
+                //               .Select(dataRow => new LeaveSummaryModel
+                //               {
+                //                   LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
+                //                   NoOfDays = dataRow.Field<decimal>("NoOfDays"),
+
+                //               }).ToList();
+                var CompanyDetails = dataSet.Tables[5].AsEnumerable()
+                       .Select(dataRow => new DashBoardModel
+                       {
+                           CountsOfCompanies = dataRow.Field<int>("CountsOfCompanies"),
+                       }).ToList().FirstOrDefault();
+                if (dashBoardModel == null)
+                {
+                    dashBoardModel = new DashBoardModel();
+                }
+
+                dashBoardModel.NoOfEmployees = OtherDetails.NoOfEmployees;
+                dashBoardModel.TotalLeave = LeaveDetails.TotalLeave;
+                dashBoardModel.HolidayList = HolidayList;
+                dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
+                // dashBoardModel.NoOfCompanies = OtherDetails.NoOfCompanies;
             }
+            catch (Exception ex)
+            {
 
-            dashBoardModel.NoOfEmployees = OtherDetails.NoOfEmployees;
-            dashBoardModel.NoOfCompanies = OtherDetails.NoOfCompanies;
-
+            }
             return dashBoardModel;
         }
         #endregion
@@ -1705,7 +1899,7 @@ namespace HRMS.API.BusinessLayer
             myInfoResults.employmentHistory = data.employeeModel.EmploymentHistory;
             LeavePolicyModel models = new LeavePolicyModel();
             models.CompanyID = model.CompanyID;
-            models.LeavePolicyID = data.employeeModel.LeavePolicyID ?? 0 ;
+            models.LeavePolicyID = data.employeeModel.LeavePolicyID ?? 0;
             myInfoResults.LeavePolicyDetails = GetSelectLeavePolicies(models);
             myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
             return myInfoResults;
@@ -1718,9 +1912,9 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        #region Holidays
+        #region LeavePolicyDetails
 
-    
+
 
         public Result AddUpdateLeavePolicyDetails(LeavePolicyDetailsModel LeavePolicyModel)
         {
@@ -1730,6 +1924,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@Id", LeavePolicyModel.Id));
             sqlParameter.Add(new SqlParameter("@Title", LeavePolicyModel.Title));
             sqlParameter.Add(new SqlParameter("@Description", LeavePolicyModel.Description));
+            sqlParameter.Add(new SqlParameter("@PolicyCategoryId", LeavePolicyModel.PolicyCategoryId));
+            sqlParameter.Add(new SqlParameter("@PolicyDocument", LeavePolicyModel.PolicyDocument));
             sqlParameter.Add(new SqlParameter("@CompanyID", LeavePolicyModel.CompanyID));
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicyDetails, sqlParameter);
@@ -1764,6 +1960,8 @@ namespace HRMS.API.BusinessLayer
                                   CompanyID = dataRow.Field<long>("CompanyID"),
                                   Title = dataRow.Field<string>("Title"),
                                   Description = dataRow.Field<string>("Description"),
+                                  PolicyCategoryId = dataRow.Field<long>("PolicyCategoryId"),
+                                  PolicyDocument = dataRow.Field<string>("PolicyDocument"),
                               }).ToList();
 
             if (model.Id > 0)
@@ -1827,13 +2025,155 @@ namespace HRMS.API.BusinessLayer
                                   Description = dataRow.Field<string>("Description"),
                               }).ToList().FirstOrDefault();
 
-            
+
 
             return result;
         }
+
+
+
+
+
+
+        public List<EmployeeDetails> GetEmployeeListByManagerID(EmployeeInputParams model)
+        {
+            List<EmployeeDetails> dashBoardModel = new List<EmployeeDetails>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@ReportingUserID", model.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@RoleID", model.RoleID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerID, sqlParameter);
+
+
+            dashBoardModel = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new EmployeeDetails
+                              {
+                                  EmployeeId = dataRow.Field<long>("EmployeeId"),
+                                  FirstName = dataRow.Field<string>("EmployeeFirstName"),
+                                  LastName = dataRow.Field<string>("EmployeeLastName"),
+                                  DOB = dataRow.Field<DateTime>("EmployeeDOB"),
+                                  EmplpoyeePhoto = dataRow.Field<string>("EmployeePhoto"),
+                                  DepartmentName = dataRow.Field<string>("DepartmentName"),
+                                  DesignationName = dataRow.Field<string>("DesignationName"),
+                              }).ToList();
+
+
+            return dashBoardModel;
+        }
+
+
+
         #endregion
 
+        #region Policy Category
 
+
+
+        public Result AddUpdatePolicyCategory(PolicyCategoryModel LeavePolicyModel)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@Id", LeavePolicyModel.Id));
+            sqlParameter.Add(new SqlParameter("@Name", LeavePolicyModel.Name));
+            sqlParameter.Add(new SqlParameter("@CompanyID", LeavePolicyModel.CompanyID));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_PolicyCategory, sqlParameter);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString()
+                        }
+                   ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
+
+        public Results GetAllPolicyCategory(PolicyCategoryInputParams model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter =
+            [
+                new SqlParameter("@CompanyID", model.CompanyID),
+                new SqlParameter("@Id", model.Id),
+            ];
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_PolicyCategory, sqlParameter);
+            result.PolicyCategoryList = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new PolicyCategoryModel
+                              {
+                                  Id = dataRow.Field<long>("Id"),
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  Name = dataRow.Field<string>("Name"),
+                              }).ToList();
+
+            if (model.Id > 0)
+            {
+                result.PolicyCategoryModel = result.PolicyCategoryList.FirstOrDefault();
+            }
+
+            return result;
+        }
+
+        public Results GetPolicyCategoryList(PolicyCategoryInputParams model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_PolicyCategoryList, sqlParameter);
+
+            result.PolicyCategoryList = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new PolicyCategoryModel
+                           {
+                               Id = dataRow.Field<long>("Id"),
+                               CompanyID = dataRow.Field<long>("CompanyID"),
+                               Name = dataRow.Field<string>("Name"),
+                           }).ToList();
+            return result;
+        }
+
+
+        public string DeletePolicyCategory(PolicyCategoryInputParams model)
+        {
+            LeaveResults result = new LeaveResults();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@Id", model.Id));
+            SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
+            {
+                Direction = ParameterDirection.Output
+            };
+            sqlParameter.Add(outputMessage);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_PolicyCategory, sqlParameter);
+            string message = outputMessage.Value.ToString();
+            return message;
+        }
+
+
+        public List<LeavePolicyDetailsModel> PolicyCategoryDetails(PolicyCategoryInputParams model)
+        {
+            List<LeavePolicyDetailsModel> result = new List<LeavePolicyDetailsModel>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_DistinctPolicyCategoryDetails, sqlParameter);
+
+            result = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new LeavePolicyDetailsModel
+                           {
+                               Id = dataRow.Field<long>("Id"),
+                               CompanyID = dataRow.Field<long>("CompanyID"),
+                               Title = dataRow.Field<string>("Title"),
+                               PolicyCategoryName = dataRow.Field<string>("PolicyCategoryName"),
+                               PolicyDocument = dataRow.Field<string>("PolicyDocument"),
+                               PolicyCategoryId = dataRow.Field<long>("PolicyCategoryId"),
+                           }).ToList();
+            return result;
+        }
+
+
+        #endregion
 
     }
 }

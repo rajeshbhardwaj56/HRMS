@@ -17,6 +17,8 @@ namespace HRMS.Models.MyInfo
         public List<HolidayModel> HolidayModel { get; set; } = new List<HolidayModel>();
         public LeavePolicyModel LeavePolicyDetails { get; set; } = new LeavePolicyModel();
         public List<EmploymentHistory> employmentHistory { get; set; }
-    
+        public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
+
+
     }
 }

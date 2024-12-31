@@ -7,22 +7,26 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 using HRMS.Models.Company;
 using Microsoft.AspNetCore.Authorization;
 using HRMS.Models.Employee;
+using DocumentFormat.OpenXml.InkML;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
 	[Area(Constants.ManageHR)]
-	[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin))]
+	 [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
 	public class CompanyController : Controller
 	{
 		IConfiguration _configuration;
 		IBusinessLayer _businessLayer;
 		private IHostingEnvironment Environment;
-		public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
+        private readonly IHttpContextAccessor _context;
+        public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context)
 		{
 			Environment = _environment;
 			_configuration = configuration;
 			_businessLayer = businessLayer;
-		}
+			_context = context;
+
+        }
 
 		public IActionResult CompanyListing()
 		{
@@ -48,8 +52,18 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 			//if (!string.IsNullOrEmpty(id))
 			{
-				model.CompanyID = Convert.ToInt64(id);
-				var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+				if(id == null)
+				{
+                    model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+                }
+                else
+				{
+                    model.CompanyID = Convert.ToInt64(id);
+
+                }
+
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 				model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyModel;
 			}
 
@@ -64,8 +78,8 @@ namespace HRMS.Web.Areas.HR.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-
-				HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
+                model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+                HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
 				model.Countries = results.Countries;
 				model.Currencies = results.Currencies;
 
@@ -92,11 +106,16 @@ namespace HRMS.Web.Areas.HR.Controllers
 				{
 					using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
 					{
-						postedFile.CopyTo(stream);
+                        postedFile.CopyTo(stream);
 					}
-				}
+                    var updatedCompanyLogoPath = "/Uploads/CompanyLogo/" + result.PKNo + "/" + fileName + "?t=" + DateTime.Now.Ticks;
 
-				TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    _context.HttpContext.Session.SetString(Constants.CompanyLogo, "");
+                    _context.HttpContext.Session.SetString(Constants.CompanyLogo, updatedCompanyLogoPath);
+
+                }
+
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
 				TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
 				return RedirectToActionPermanent(
 				   Constants.Index,

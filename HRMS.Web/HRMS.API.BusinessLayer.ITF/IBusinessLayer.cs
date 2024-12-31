@@ -32,7 +32,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCompanies(EmployeeInputParams model);
         public LeaveResults GetlLeavesSummary(MyInfoInputParams model);
         public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel);
-        public LeaveResults GetLeaveForApprovals(MyInfoInputParams model);        
+        public LeaveResults GetLeaveForApprovals(MyInfoInputParams model);
         public LeaveResults GetLeaveDurationTypes(MyInfoInputParams leaveInputParams);
         public LeaveResults GetLeaveTypes(MyInfoInputParams leaveInputParams);
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
@@ -59,6 +59,14 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeleteLeavePolicyDetails(LeavePolicyDetailsInputParams model);
         public Results GetAllCompaniesList(EmployeeInputParams model);
         public Results GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model);
+        public List<EmployeeDetails> GetEmployeeListByManagerID(EmployeeInputParams model);
+
+        public Result AddUpdatePolicyCategory(PolicyCategoryModel LeavePolicyModel);
+        public Results GetAllPolicyCategory(PolicyCategoryInputParams model);
+        public Results GetPolicyCategoryList(PolicyCategoryInputParams model);
+        public string DeletePolicyCategory(PolicyCategoryInputParams model);
+        public List<LeavePolicyDetailsModel> PolicyCategoryDetails(PolicyCategoryInputParams model);
+        public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
 
     }
 }

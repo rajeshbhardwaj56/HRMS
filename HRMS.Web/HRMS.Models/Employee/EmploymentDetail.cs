@@ -12,6 +12,8 @@ namespace HRMS.Models.Employee
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
         public long UserID { get; set; }
+        public long DesignationID { get; set; }
+        public long DepartmentID { get; set; }
     }
 
     public class EmploymentDetail
@@ -31,17 +33,18 @@ namespace HRMS.Models.Employee
         public string ManagerName { get; set; } = string.Empty;
         public string ManagerEmail { get; set; } = string.Empty;
         public string OfficeLocation { get; set; } = string.Empty;
-        public string EmployeeType { get; set; } = string.Empty; 
-        public DateTime? JoiningDate { get; set; }
-        public DateTime? JobSeprationDate { get; set; }
+        public string EmployeeType { get; set; } = string.Empty;
+        public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
+        public DateTime? JobSeprationDate { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; }
         public long UserID { get; set; }
-        public DateTime? InsertedDate { get; set; }
-        public DateTime? UpdatedDate { get; set; }
+        public DateTime? InsertedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedDate { get; set; } = DateTime.UtcNow;
 
         public long LeavePolicyID { get; set; }
-        public string EmployeNumber { get; set; }
+        public int RoleId { get; set; }
+        public string EmployeNumber { get; set; } = string.Empty;
 
 
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
@@ -51,6 +54,7 @@ namespace HRMS.Models.Employee
         public List<SelectListItem> EmployeeList { get; set; } = new List<SelectListItem>();
 
         public List<SelectListItem> LeavePolicyList { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> RoleList { get; set; } = new List<SelectListItem>();
     }
 
     public class EmployeeListModel

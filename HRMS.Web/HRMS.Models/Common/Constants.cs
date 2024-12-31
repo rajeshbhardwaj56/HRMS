@@ -13,7 +13,7 @@ namespace HRMS.Models.Common
         public const string toastTypeInformation = "Information";
         public const string toastTypetWarning = "Warning";
         public const string toastTypeError = "Error";
-
+        public const string CompanyLogo = "CompanyLogo";
         public const string toastMessage = "toastMessage";
         public const string toastType = "toastType";
         public const string SessionBearerToken = "SessionBearerToken";
@@ -37,8 +37,10 @@ namespace HRMS.Models.Common
         public const string ManageAdmin = "admin";
         public const string ManageHR = "hr";
         public const string ManageEmployee = "employee";
+        public const string SuperAdmin = "SuperAdmin";
         public const string SelectLanguage = "-- Select Language --";
         public const string SelectJobLocation = "-- Select Job Location --";
+        public const string SelectRole = "-- Select Role --";
         public const string SelectReportingManager = "-- Select Reporting Manager --";
         public const string SelectCountry = "-- Select Country --";
         public const string SelectCurrency = "-- Select Currency --";
@@ -71,13 +73,17 @@ namespace HRMS.Models.Common
         public const string Admin = "Admin";
         public const string HR = "HR";
         public const string Employee = "Employee";
+        public const string Manager = "Manager";
+        public const string SuperAdmin = "SuperAdmin";
     }
 
     public enum Roles
     {
         HR = 1,
         Admin,
-        Employee
+        Employee,
+        Manager,
+        SuperAdmin
     }
 
 
@@ -99,6 +105,7 @@ namespace HRMS.Models.Common
     public class WebControllarsConstants
     {
 
+        public const string PolicyCategoryListing = "PolicyCategoryListing";
         public const string LeavePolicyDetailsListing = "LeavePolicyDetailsListing";
         public const string LeavePolicyListing = "LeavePolicyListing";
         public const string LeavePolicy = "LeavePolicy";
@@ -118,6 +125,15 @@ namespace HRMS.Models.Common
 
     public class APIApiActionConstants
     {
+        public const string AddUpdatePolicyCategory = "AddUpdatePolicyCategory";
+        public const string GetAllPolicyCategory = "GetAllPolicyCategory";
+        public const string GetPolicyCategoryList = "GetPolicyCategoryList";
+        public const string DeletePolicyCategory = "DeletePolicyCategory";
+        public const string PolicyCategoryDetails = "PolicyCategoryDetails";
+
+
+
+
         public const string AddUpdateLeavePolicyDetails = "AddUpdateLeavePolicyDetails";
         public const string DeleteLeavePolicyDetails = "DeleteLeavePolicyDetails";
         public const string GetLeavePolicyList = "GetLeavePolicyList";
@@ -128,6 +144,7 @@ namespace HRMS.Models.Common
         public const string AddUpdateLeavePolicy = "AddUpdateLeavePolicy";
         public const string GetAllLeavePolicies = "GetAllLeavePolicies";
         public const string AddUpdateEmployee = "AddUpdateEmployee";
+        public const string GetEmployeeListByManagerID = "GetEmployeeListByManagerID";
         public const string GetAllEmployees = "GetAllEmployees";
         public const string GetAllActiveEmployees = "GetAllActiveEmployees";
         public const string AddUpdateTemplate = "AddUpdateTemplate";
@@ -146,6 +163,7 @@ namespace HRMS.Models.Common
         public const string GetHolidayList = "GetHolidayList";
         public const string GetAllHolidayList = "GetAllHolidayList";
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
+        public const string GetFilterEmploymentDetailsByEmployee = "GetFilterEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
         public const string GetDashBoardodel = "GetDashBoardodel";
         public const string GetAllAttendenceList = "GetAllAttendenceList";
@@ -155,6 +173,7 @@ namespace HRMS.Models.Common
         public const string AddUpdateShiftType = "AddUpdateShiftType";
         public const string GetAllShiftTypes = "GetAllShiftTypes";
         public const string DeleteLeavesSummary = "DeleteLeavesSummary";
+       
 
     }
 
@@ -165,5 +184,6 @@ namespace HRMS.Models.Common
         public const string TabLeavesForApproval = "TabLeavesForApproval";
         public const string TabTimeOff = "TabTimeOff";
         public const string TabLeaveInfo = "TabLeaveInfo";
+        public const string attendance = "attendance";
     }
 }

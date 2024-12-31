@@ -5,6 +5,7 @@ using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HRMS.Models;
 using HRMS.Models.Common;
+using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
@@ -19,7 +20,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.Employee.Controllers
 {
     [Area(Constants.ManageEmployee)]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee))]
+    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class MyInfoController : Controller
     {
         IHttpContextAccessor _context;
@@ -60,6 +61,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             //var joindate = employeeDetails.EmploymentDetail.Select(x => x.JoiningDate).FirstOrDefault();
             var joindate = results.employmentDetail.JoiningDate;
             DateTime joinDate1 = joindate.Value;
+            //results.JoiningDate = joinDate1;
             double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
             var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
 
@@ -453,7 +455,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 model.leaveResults.leaveSummaryModel.LeavePolicyID = employeeDetails.LeavePolicyID ?? 0;
                 model.leaveResults.leaveSummaryModel.LeaveStatusID = (int)LeaveStatus.PendingApproval;
                 model.leaveResults.leaveSummaryModel.EmployeeID = employeeDetails.EmployeeID;
-                var joindate = employeeDetails.EmploymentDetail.Select(x => x.JoiningDate).FirstOrDefault();
+                var joindate = employeeDetails.JoiningDate;
 
 
 
@@ -498,7 +500,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         var message = "End date must be greater than or equal to Expected Delivery Date.";
-                      
+
                         return Json(new { isValid = false, message = message });
 
                     }
@@ -512,9 +514,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     }
 
 
-                  
+
                     var maxLeave = leavePolicyModel.Maternity_MaximumLeaveAllocationAllowed;
-                    var maxLeaveDays = maxLeave * 7; 
+                    var maxLeaveDays = maxLeave * 7;
 
                     // Check if the leave duration exceeds the maximum allowed leave
                     if (totalDays > maxLeaveDays)
@@ -566,8 +568,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     // Calculate the leave duration
                     // Get the maximum allowed leave in days
                     var maxLeave = leavePolicyModel.Adoption_MaximumLeaveAllocationAllowed;
-                    var maxLeaveDays = maxLeave * 7; 
-                                                    
+                    var maxLeaveDays = maxLeave * 7;
+
                     if (totalDays > maxLeaveDays)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
@@ -814,7 +816,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                     }
                 }
-                if(model.leaveResults.leaveSummaryModel.UploadCertificate == null)
+                if (model.leaveResults.leaveSummaryModel.UploadCertificate == null)
                 {
                     model.leaveResults.leaveSummaryModel.UploadCertificate = "";
                 }
@@ -1029,6 +1031,36 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View(leavePolicyModel);
         }
 
+        [HttpGet]
+        public IActionResult GetTeamEmployeeList()
+        {
+            List<EmployeeDetails> employeeDetails = new List<EmployeeDetails>();
+            EmployeeInputParams model = new EmployeeInputParams();
+            model.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
 
+            return View(employeeDetails);
+        }
+        [HttpGet]
+        public IActionResult Support()
+        {
+          
+
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult PolicyCategoryDetails()
+        {
+            List<LeavePolicyDetailsModel>  Details = new List<LeavePolicyDetailsModel>();
+            PolicyCategoryInputParams model = new PolicyCategoryInputParams();
+            model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.PolicyCategoryDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            Details = JsonConvert.DeserializeObject<List<LeavePolicyDetailsModel>>(data);
+
+            return View(Details);
+        }
     }
 }

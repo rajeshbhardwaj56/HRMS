@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="col-md-4 form-group">
-                    <label>Middle Name <span class="Mandetory">*</span></label>
+                    <label>Middle Name <span class="Mandetory"> </span></label>
                     @Html.TextBoxFor(a => a.MiddleName, new { @class = "form-control" })
                 </div>
 
@@ -59,13 +59,13 @@
                     <label>Photo</label>
                     <div class="row d-flex align-items-center">
                         <div class="col-md-4">
-                            <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
+                            <img id="previewImage" src="@ProfilePhoto"
+                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                 style="width:100px; height:100px" />
                         </div>
                         <div class="col-md-8">
-                            <input type="file" name="postedFiles" accept="image/*" />
+                            <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
                         </div>
-
-
                     </div>
                 </div>
 
@@ -572,6 +572,16 @@
         });
 
     });
-
+      function showPreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
 
 </script>

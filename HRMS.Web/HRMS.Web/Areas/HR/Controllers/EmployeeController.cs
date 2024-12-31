@@ -17,7 +17,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.HR.Controllers
 {
     [Area(Constants.ManageHR)]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin))]
+    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
     public class EmployeeController : Controller
     {
 
@@ -46,9 +46,13 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
+            results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString())); 
+            results.Employees.ForEach(x => x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString()));
+            
+            results.Employees.ForEach(x => x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString()));
             return Json(new { data = results.Employees });
         }
 
@@ -252,7 +256,29 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpGet]
-        public ActionResult EmploymentDetails(string id)
+        public ActionResult EmploymentDetails(string id, string DegtId, string DeptId)
+        {
+            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
+            {
+                UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
+            };
+            if (!string.IsNullOrEmpty(id))
+            {
+                id = _businessLayer.DecodeStringBase64(id);
+                employmentDetailInputParams.DesignationID = long.Parse(_businessLayer.DecodeStringBase64(DegtId));
+                employmentDetailInputParams.DepartmentID = long.Parse(_businessLayer.DecodeStringBase64(DeptId));
+                employmentDetailInputParams.EmployeeID = long.Parse(id);
+            }
+            employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            EmploymentDetail employmentDetail = new EmploymentDetail();
+            var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(data);
+            employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
+            return View(employmentDetail);
+        }
+        
+        [HttpGet]
+        public ActionResult FilterEmploymentDetails(string id, long departmentID, long designationID)
         {
             EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
             {
@@ -264,11 +290,13 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetailInputParams.EmployeeID = long.Parse(id);
             }
             employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            employmentDetailInputParams.DepartmentID = departmentID;
+            employmentDetailInputParams.DesignationID = designationID;
             EmploymentDetail employmentDetail = new EmploymentDetail();
-            var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(data);
             employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
-            return View(employmentDetail);
+            return Json(employmentDetail);
         }
 
         [HttpPost]
@@ -276,24 +304,21 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             if (ModelState.IsValid)
             {
+                var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
                 var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Result result = JsonConvert.DeserializeObject<Result>(data);
                 if (result.PKNo > 0 && !result.Message.ToLower().Contains("exist"))
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                     TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
                 }
                 else
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess ;
                     TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
-                }
-
-                if (result.IsResetPasswordRequired)
-                {
                     sendEmailProperties sendEmailProperties = new sendEmailProperties();
                     sendEmailProperties.emailSubject = "Reset Password Email";
-                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
+                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString()), _businessLayer.EncodeStringBase64(CompanyID.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
                     sendEmailProperties.EmailToList.Add(employmentDetail.OfficialEmailID);
                     emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
                     if (response.responseCode == "200")
@@ -308,6 +333,11 @@ namespace HRMS.Web.Areas.HR.Controllers
                     }
                 }
 
+                if (result.IsResetPasswordRequired)
+                {
+                  
+                }
+
                 EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
                 employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
@@ -319,6 +349,9 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.Designations = employmentDetailtemp.Designations;
                 employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
                 employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
+                employmentDetail.RoleList = employmentDetailtemp.RoleList;
+
+
             }
             else
             {
@@ -333,6 +366,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.Designations = employmentDetailtemp.Designations;
                 employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
                 employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
+                employmentDetail.RoleList = employmentDetailtemp.RoleList;
             }
             return View(employmentDetail);
         }

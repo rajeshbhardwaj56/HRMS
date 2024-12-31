@@ -26,8 +26,9 @@ namespace HRMS.Models.Common
 		public bool IsResetPasswordRequired { get; set; }
 		public bool IsResetPasswordExpired { get; set; }
 		public DateTime dt { get; set; }
+        public string CompanyID { get; set; }
 
-	}
+    }
 
 
 	public class ChangePasswordModel

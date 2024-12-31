@@ -36,6 +36,8 @@ namespace HRMS.Models.Common
         public List<ShiftTypeModel> ShiftType { get; set; } = new List<ShiftTypeModel>();
         public ShiftTypeModel shiftTypeModel { get; set; } = new ShiftTypeModel();
         public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
+        public List<PolicyCategoryModel> PolicyCategoryList { get; set; } = new List<PolicyCategoryModel>();
+        public PolicyCategoryModel PolicyCategoryModel { get; set; } = new PolicyCategoryModel();
 
     }
 
@@ -44,6 +46,7 @@ namespace HRMS.Models.Common
     public class Result
     {
         public long? PKNo { get; set; }
+        public long? UserID { get; set; }
         public string Message { get; set; } = string.Empty;
         public string ErrorCode { get; set; } = string.Empty;
         public bool IsResetPasswordRequired { get; set; }
