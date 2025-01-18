@@ -1,22 +1,15 @@
-﻿using HRMS.Models.Common;
+﻿using HRMS.Models.AttendenceList;
+using HRMS.Models.Common;
 using HRMS.Web.BusinessLayer;
-using HRMS.Models.AttendenceList;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Results = HRMS.Models.Common.Results;
-using Newtonsoft.Json;
-using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using HRMS.Models.Company;
-using HRMS.Models.LeavePolicy;
-using DocumentFormat.OpenXml.Wordprocessing;
-using HRMS.Models.DashBoard;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
+using Newtonsoft.Json;
 
-namespace HRMS.Web.Areas.Admin.Controllers
+namespace HRMS.Web.Areas.Employee.Controllers
 {
-    [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin)]
+    [Area(Constants.ManageEmployee)]
+    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class AttendenceListController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -30,7 +23,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         public IActionResult AttendenceListing()
         {
-            Results results = new Results();
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
         [HttpPost]
@@ -41,7 +34,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             attendenceListParams.ID = Convert.ToInt64(HttpContext.Session.GetString(Constants.ID));
 
             var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<Results>(data);
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
 
             return Json(new { data = results.AttendenceList });
 
@@ -124,17 +117,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
         [HttpGet]
-        [AllowAnonymous] 
         public IActionResult AttendenceList()
         {
             
-            return View( );
+            return View();
         }
 
-       
+
 
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult AttendenceCalendarList(int year, int month)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -153,15 +144,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
             };
 
             var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
+            var model = JsonConvert.DeserializeObject<List<Attandance>>(data);
 
             return Json(new { data = model, employeeFullName = employeeFullName });
         }
-    
+
 
     }
 
-
-
 }
-

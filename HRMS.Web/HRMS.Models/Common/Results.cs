@@ -38,6 +38,7 @@ namespace HRMS.Models.Common
         public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
         public List<PolicyCategoryModel> PolicyCategoryList { get; set; } = new List<PolicyCategoryModel>();
         public PolicyCategoryModel PolicyCategoryModel { get; set; } = new PolicyCategoryModel();
+        public List<Attandance> AttandanceList { get; set; } = new List<Attandance>();
 
     }
 

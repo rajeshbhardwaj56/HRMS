@@ -1062,5 +1062,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return View(Details);
         }
+        [HttpGet]
+        public IActionResult TeamAttendenceList()
+        {
+            var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+            var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); // Assuming this exists
+            var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
+            ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
+            return View();
+        }
+        [HttpGet]
+        public IActionResult TeamAttendenceCalendarList(int year, int month)
+        {
+            var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+           
+            AttandanceInputParams models = new AttandanceInputParams
+            {
+                Year = year,
+                Month = month,
+                UserId = employeeId,
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
+
+            return Json(new { data = model });
+        }
+
+
     }
 }

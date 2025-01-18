@@ -24,6 +24,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
+            AttandanceInputParams models = new AttandanceInputParams();  
+            //var datas = _businessLayer.SendPostAPIRequest(models,_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetAttandance), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            
+           
+
+
+
+
             var CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
 
             DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
@@ -31,7 +39,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardodel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
-            _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+            
+            
+            
+        
+
+            
             return View(model);
         }
      

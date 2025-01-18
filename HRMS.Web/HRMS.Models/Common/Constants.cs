@@ -173,7 +173,9 @@ namespace HRMS.Models.Common
         public const string AddUpdateShiftType = "AddUpdateShiftType";
         public const string GetAllShiftTypes = "GetAllShiftTypes";
         public const string DeleteLeavesSummary = "DeleteLeavesSummary";
-       
+        public const string GetAttandance = "GetAttandance";
+        public const string GetAttendanceForCalendar = "GetAttendanceForCalendar";
+        public const string GetTeamAttendanceForCalendar = "GetTeamAttendanceForCalendar";
 
     }
 

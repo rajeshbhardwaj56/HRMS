@@ -35,9 +35,11 @@ namespace HRMS.API.BusinessLayer
     public class BusinessLayer : IBusinessLayer
     {
         IDataLayer DataLayer { get; set; }
-        public BusinessLayer(IConfiguration configuration, IDataLayer dataLayer)
+        IAttandanceDataLayer AttandanceDataLayer { get; set; }
+        public BusinessLayer(IConfiguration configuration, IDataLayer dataLayer, IAttandanceDataLayer attandanceDataLayer)
         {
             DataLayer = dataLayer;
+            AttandanceDataLayer = attandanceDataLayer;
             DataLayer._configuration = configuration;
         }
         public LoginUser LoginUser(LoginUser loginUser)
@@ -179,7 +181,7 @@ namespace HRMS.API.BusinessLayer
                                       CarryForword = dataRow.Field<long?>("CarryForword"),
                                       DepartmentID = dataRow["DepartmentID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DepartmentID"]),
                                       DesignationID = dataRow["DesignationID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DesignationID"]),
-                                      LeavePolicyID = dataRow.Field<long?>("LeavePolicyID")  ,
+                                      LeavePolicyID = dataRow.Field<long?>("LeavePolicyID"),
                                       JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
 
 
@@ -1609,7 +1611,7 @@ namespace HRMS.API.BusinessLayer
                                   {
                                       NoOfEmployees = dataRow.Field<int>("NoOfEmployees"),
                                   }).ToList().FirstOrDefault();
-     
+
 
 
 
@@ -1642,11 +1644,16 @@ namespace HRMS.API.BusinessLayer
                 //                   NoOfDays = dataRow.Field<decimal>("NoOfDays"),
 
                 //               }).ToList();
-                var CompanyDetails = dataSet.Tables[5].AsEnumerable()
-                       .Select(dataRow => new DashBoardModel
-                       {
-                           CountsOfCompanies = dataRow.Field<int>("CountsOfCompanies"),
-                       }).ToList().FirstOrDefault();
+                if (model.RoleID == (int)Roles.SuperAdmin)
+                {
+                    var CompanyDetails = dataSet.Tables[5].AsEnumerable()
+                           .Select(dataRow => new DashBoardModel
+                           {
+                               CountsOfCompanies = dataRow.Field<int>("CountsOfCompanies"),
+                           }).ToList().FirstOrDefault();
+                    dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
+
+                }
                 if (dashBoardModel == null)
                 {
                     dashBoardModel = new DashBoardModel();
@@ -1655,7 +1662,6 @@ namespace HRMS.API.BusinessLayer
                 dashBoardModel.NoOfEmployees = OtherDetails.NoOfEmployees;
                 dashBoardModel.TotalLeave = LeaveDetails.TotalLeave;
                 dashBoardModel.HolidayList = HolidayList;
-                dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
                 // dashBoardModel.NoOfCompanies = OtherDetails.NoOfCompanies;
             }
             catch (Exception ex)
@@ -2174,6 +2180,194 @@ namespace HRMS.API.BusinessLayer
 
 
         #endregion
+
+
+        #region Attandance Module
+        public Results GetAttendance(AttandanceInputParams model)
+        {
+            Results result = new Results();
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@Year", model.Year),
+        new SqlParameter("@Month", model.Month),
+        new SqlParameter("@UserId", model.UserId)
+    };
+
+            var dataSet = AttandanceDataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDeviceLogsByMonth, sqlParameters);
+            result.AttandanceList = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new Attandance
+                {
+                    UserId = dataRow.Field<string>("UserId"),
+                    EmployeeName = dataRow.Field<string>("EmployeeName"),
+                    WorkDate = dataRow.Field<DateTime>("WorkDate"),
+                    FirstLogDate = dataRow.Field<DateTime>("FirstLogDate"),
+                    LastLogDate = dataRow.Field<DateTime>("LastLogDate"),
+                    HoursWorked = dataRow.Field<int>("HoursWorked"),
+
+                }).ToList();
+
+            return result;
+        }
+
+        public AttendanceWithHolidays GetAttendanceForCalendar(AttandanceInputParams model)
+        {
+            List<Attandance> attendanceList = new List<Attandance>();
+            List<HolidayModel> holidayList = new List<HolidayModel>();
+            List<LeaveSummaryModel> leaveList = new List<LeaveSummaryModel>();
+            // Define SQL parameters for the stored procedure
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter("@Year", model.Year),
+                new SqlParameter("@Month", model.Month),
+                new SqlParameter("@UserId", model.UserId)
+            };
+            // Call the stored procedure and get the result as a DataSet
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetAttendanceDeviceLog, sqlParameters);
+            // Parse the attendance data from the first table
+            if (dataSet.Tables.Count > 0)
+            {
+                attendanceList = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new Attandance
+                    {
+                        UserId = dataRow.Field<string>("UserId"),
+                        EmployeeName = dataRow.Field<string>("EmployeeName"),
+                        WorkDate = dataRow.Field<DateTime>("WorkDate").Date,
+                        FirstLogDate = dataRow.Field<DateTime>("FirstLogDate"),
+                        LastLogDate = dataRow.Field<DateTime>("LastLogDate"),
+                        HoursWorked = dataRow.Field<int>("HoursWorked")
+                    }).ToList();
+            }
+            // Parse the holiday data from the second table
+            if (dataSet.Tables.Count > 1)
+            {
+                holidayList = dataSet.Tables[1].AsEnumerable()
+                    .Select(dataRow => new HolidayModel
+                    {
+                        HolidayID = dataRow.Field<long>("HolidayID"),
+                        CompanyID = dataRow.Field<long>("CompanyID"),
+                        HolidayName = dataRow.Field<string>("HolidayName"),
+                        FromDate = dataRow.Field<DateTime>("FromDate"),
+                        ToDate = dataRow.Field<DateTime>("ToDate"),
+                        Description = dataRow.Field<string>("Description"),
+                        Status = dataRow.Field<bool>("Status"),
+                        IsDeleted = dataRow.Field<bool>("IsDeleted"),
+                        CreatedDate = dataRow.Field<DateTime>("CreatedDate"),
+                        UpdatedDate = dataRow.Field<DateTime>("UpdatedDate"),
+                        CreatedBy = dataRow.Field<long>("CreatedBy"),
+                        UpdatedBy = dataRow.Field<long>("UpdatedBy")
+                    }).ToList();
+            }
+            if (dataSet.Tables.Count > 2)
+            {
+                leaveList = dataSet.Tables[2].AsEnumerable()
+                    .Select(dataRow => new LeaveSummaryModel
+                    {
+                        LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
+                        EmployeeID = dataRow.Field<long>("EmployeeID"), 
+                        LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
+                        Reason = dataRow.Field<string>("Reason"),
+                        RequestDate = dataRow.Field<DateTime>("RequestDate"),
+                        StartDate = dataRow.Field<DateTime>("StartDate"),
+                        EndDate = dataRow.Field<DateTime>("EndDate"),
+                        LeaveTypeID = dataRow.Field<long>("LeaveTypeID"),
+                        LeaveDurationTypeID = dataRow.Field<long>("LeaveDurationTypeID"),
+                        NoOfDays = dataRow.Field<decimal>("NoOfDays"),
+                        LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
+                        ApproveRejectComment = dataRow.Field<string>("ApproveRejectComment"),
+                        ExpectedDeliveryDate = dataRow.Field<DateTime>("ExpectedDeliveryDate"),
+                    }).ToList();
+            }
+            var result = new AttendanceWithHolidays
+            {
+                Attendances = attendanceList,
+                Holidays = holidayList,
+                Leaves = leaveList
+            };
+            return result;
+        }
+
+        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttandanceInputParams model)
+        {
+            List<Attandance> attendanceList = new List<Attandance>();
+            List<HolidayModel> holidayList = new List<HolidayModel>();
+            List<LeaveSummaryModel> leaveList = new List<LeaveSummaryModel>();
+            // Define the SQL parameters
+            List<SqlParameter> sqlParameters = new List<SqlParameter>  {
+            new SqlParameter("@Year", model.Year),
+            new SqlParameter("@Month", model.Month),
+            new SqlParameter("@UserId", model.UserId)
+            };
+            // Get the dataset from the stored procedure
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetTeamAttendanceDeviceLog, sqlParameters);
+
+            if (dataSet.Tables.Count > 0)
+            {
+                attendanceList = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new Attandance
+                {
+                    UserId = dataRow.Field<string>("UserId"),
+                    EmployeeName = dataRow.Field<string>("EmployeeName"),
+                    WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date, // Handle WorkDate as nullable
+                    FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"), // Handle FirstLogDate as nullable
+                    LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"), // Handle LastLogDate as nullable
+                    HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked") // Handle null HoursWorked (if needed)
+                })
+                .ToList();
+            }
+            // Parse the holiday data from the second table
+            if (dataSet.Tables.Count > 1)
+            {
+                holidayList = dataSet.Tables[1].AsEnumerable()
+                    .Select(dataRow => new HolidayModel
+                    {
+                        HolidayID = dataRow.Field<long>("HolidayID"),
+                        CompanyID = dataRow.Field<long>("CompanyID"),
+                        HolidayName = dataRow.Field<string>("HolidayName"),
+                        FromDate = dataRow.Field<DateTime>("FromDate"),
+                        ToDate = dataRow.Field<DateTime>("ToDate"),
+                        Description = dataRow.Field<string>("Description"),
+                        Status = dataRow.Field<bool>("Status"),
+                        IsDeleted = dataRow.Field<bool>("IsDeleted"),
+                        CreatedDate = dataRow.Field<DateTime>("CreatedDate"),
+                        UpdatedDate = dataRow.Field<DateTime>("UpdatedDate"),
+                        CreatedBy = dataRow.Field<long>("CreatedBy"),
+                        UpdatedBy = dataRow.Field<long>("UpdatedBy")
+                    }).ToList();
+            }
+            if (dataSet.Tables.Count > 2)
+            {
+                leaveList = dataSet.Tables[2].AsEnumerable()
+                    .Select(dataRow => new LeaveSummaryModel
+                    {
+                        LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
+                        EmployeeID = dataRow.Field<long>("EmployeeID"), 
+                        LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
+                        Reason = dataRow.Field<string>("Reason"),
+                        RequestDate = dataRow.Field<DateTime>("RequestDate"),
+                        StartDate = dataRow.Field<DateTime>("StartDate"),
+                        EndDate = dataRow.Field<DateTime>("EndDate"),
+                        LeaveTypeID = dataRow.Field<long>("LeaveTypeID"),
+                        LeaveDurationTypeID = dataRow.Field<long>("LeaveDurationTypeID"),
+                        NoOfDays = dataRow.Field<decimal>("NoOfDays"),
+                        LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
+                        ApproveRejectComment = dataRow.Field<string>("ApproveRejectComment"),
+                        ExpectedDeliveryDate = dataRow.Field<DateTime>("ExpectedDeliveryDate"),
+                    }).ToList();
+            }
+            var result = new AttendanceWithHolidays
+            {
+                Attendances = attendanceList,
+                Holidays = holidayList,
+                Leaves = leaveList
+            };
+            return result;
+        }
+
+
+        #endregion Attandance Module
+
+
 
     }
 }

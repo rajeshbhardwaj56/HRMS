@@ -67,6 +67,9 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeletePolicyCategory(PolicyCategoryInputParams model);
         public List<LeavePolicyDetailsModel> PolicyCategoryDetails(PolicyCategoryInputParams model);
         public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
+        public Results GetAttendance(AttandanceInputParams model);
+        public AttendanceWithHolidays GetAttendanceForCalendar(AttandanceInputParams model);
+        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttandanceInputParams model);
 
     }
 }

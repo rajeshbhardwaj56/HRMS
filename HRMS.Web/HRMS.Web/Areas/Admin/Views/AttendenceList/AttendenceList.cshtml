@@ -1,0 +1,567 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _configuration
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "Attendence List";
+}
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.3.1/fullcalendar.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.3.1/fullcalendar.min.js"></script>
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .status-label {
+            font-weight: bold;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .present {
+            background-color: #0f9984;
+        }
+
+        .absent {
+            background-color: #138fab;
+        }
+
+        /* Popup styles */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            z-index: 9999;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 380px;
+            Height: 265px;
+        }
+
+            #popup h3 {
+                margin-top: 0;
+                text-align: center;
+            }
+
+            #popup button {
+                margin-top: 3px;
+                padding: 5px 10px;
+                cursor: pointer;
+                transform: translate(270%, 90%);
+            }
+
+        .status-label.absent {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            margin-top: 24px;
+            margin-left: 42px;
+        }
+
+        .status-label.present {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            margin-top: 24px;
+            margin-left: 42px;
+        }
+
+        .fc-slats {
+            display: none;
+        }
+
+        .fc-event-container {
+            display: none;
+        }
+
+        .attendance-calenderlist {
+            display: flex;
+            justify-content: space-evenly;
+            background: #edf3ff;
+        }
+
+        /*    .group-box.anim h1 {
+                                  background: #053572;
+                                    color:white;
+                                    margin: 0px;
+                                    padding-inline-start: 7px;
+                                }  */
+
+        .atendance-calender-section {
+            background: #053572;
+        }
+
+        label.years {
+            font-weight: bold;
+            padding-top: 7px;
+            padding-right: 12px;
+        }
+
+        .atendance-calender-section h1 {
+            color: #fff;
+        }
+
+        select#yearDropdown {
+            margin-inline: 15px;
+        }
+
+        .card {
+            margin: 10px !important;
+            padding-block: 14px !important;
+            padding-inline: 12px !important;
+            border: 0px !important;
+        }
+
+        .year-months {
+            display: flex;
+            flex-direction: row;
+            padding-block: 20px;
+        }
+
+        h6#employeeFullName {
+            margin: 0px;
+        }
+
+        #card-footer-card #attendance-footer {
+            background: #b6eae0;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+        #card-footer-card #sick-footer {
+            background: #7cdbef;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+        #card-footer-card #Unpaid-footer {
+            background: #f7c188;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+        #card-footer-card #public-footer {
+            background: #818584;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+        #card-footer-card #leave-footer {
+            background: #ef7c7cad;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+
+        .footer-text-content {
+            display: flex;
+            /*   justify-content: space-evenly; */
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+            .footer-text-content p {
+                text-align: center;
+                margin-block: auto;
+                margin-right: 20px;
+            }
+
+        div#card-footer-card {
+            display: flex;
+            flex-direction: row;
+            text-align: center;
+            justify-content: center;
+            /* padding-inline: 12px; */
+            /*             gap: 5px; */
+
+            margin-right: 20px;
+        }
+
+        h6.sick-footer-right {
+            background: #138fab;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        h6.Unpaid-footer-right {
+            background: #f68e20;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        h6.public-footer-right {
+            background: #010101;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        h6.attendance-footer-right {
+            background: #0f9984;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        h6.leave-footer-right {
+            background: #e86262;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .fc-toolbar.fc-header-toolbar {
+            margin-block: 1em !important;
+        }
+
+        #workDetails {
+            box-shadow: rgb(236, 241, 248) 0px 2px 8px 0px;
+            padding: 25px 20px;
+            margin: 15px 20px;
+        }
+
+        /* .cardfooter-card
+                                {
+                                    padding:0px !important;
+                                } */
+        .hours-worked {
+            font-weight: bold;
+            color: #053572;
+            background: #edf3ff5e;
+            text-align: center;
+        }
+
+        .form-control {
+            width: 120px !important;
+        }
+
+        .first-log {
+            color: #053572;
+        }
+
+        .last-log {
+            color: #053572;
+        }
+
+        .no-data {
+            color: gray;
+            font-style: italic;
+        }
+        /* #poup-workdetail {
+                          display: flex;
+                          justify-content: center;
+                          align-content: center;
+                                } */
+        #poup-workdetail {
+            position: relative; /* Ensures the child absolute positioning is relative to this container */
+        }
+
+        .cross {
+            position: absolute;
+            top: -21px;
+            right: -2px;
+            font-size: 22px;
+            cursor: pointer;
+            color: red;
+        }
+
+        #popup h3 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .status-label.sunday {
+            background-color: #010101;
+            color: white;
+            border-radius: 5px;
+            padding: 2px 5px;
+            font-weight: bold;
+            font-size: 18px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            margin-top: 24px;
+            margin-left: 42px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="group-box anim">
+        <section class="atendance-calender-section">
+            <h1>Attendance Calendar</h1>
+        </section>
+
+
+        @* <h1 id="employeeFullName"></h1> *@
+        <!-- Year and Month Dropdowns -->
+        <div class="attendance-calenderlist">
+            <div class="card">
+                <h6 id="employeeFullName"></h6>
+            </div>
+            <div class="year-months">
+                <label class="years">Year</label>
+                <select id="yearDropdown" class="form-control"></select>
+                <label class="years">Month</label>
+                <select id="monthDropdown" class="form-control"></select>
+            </div>
+
+
+        </div>
+
+        <div id="calendar"></div>
+        <div class="footer-text-content">
+            <p class="footer-text">In this box each corresponding <br />a to indicate attendance status.</p>
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="attendance-footer">Attended </h6>
+                <h6 class="attendance-footer-right">P</h6>
+            </div>
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="leave-footer">Leave</h6>
+                <h6 class="leave-footer-right">L</h6>
+            </div>
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="sick-footer">Absent</h6>
+                <h6 class="sick-footer-right">A</h6>
+            </div>
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="Unpaid-footer">Unpaid</h6>
+                <h6 class="Unpaid-footer-right">U</h6>
+            </div>
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="public-footer">Public holiday</h6>
+                <h6 class="public-footer-right">H</h6>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Popup Modal -->
+    <div id="popup">
+        <div class="row" id="poup-workdetail">
+            <div class="col-md-12">
+                <h3 class="detail-poup">Work Details</h3>
+            </div>
+            <div class="col-md-2">
+                <h1 class="cross" id="closePopup"> X </h1>
+            </div>
+
+        </div>
+
+        <p id="workDetails">No work session found for this date.</p>
+        <!-- <button id="closePopup">Close</button> -->
+    </div>
+    <script>
+        $(document).ready(function () {
+            // Initialize current date values based on the current date
+            var currentYear = new Date().getFullYear();
+            var currentMonth = new Date().getMonth();
+
+            // Populate year dropdown starting from 2020 to current year
+            for (var year = 2020; year <= currentYear; year++) {
+                $('#yearDropdown').append(new Option(year, year));
+            }
+
+            // Populate month dropdown
+            for (var month = 1; month <= 12; month++) {
+                $('#monthDropdown').append(new Option(moment(month, "M").format("MMMM"), month));
+            }
+
+            // Set default selected values
+            $('#yearDropdown').val(currentYear);
+            $('#monthDropdown').val(currentMonth + 1);
+
+            // Function to load the calendar
+            function loadCalendar(year, month) {
+                // Make AJAX request to get data based on selected year and month
+                $.ajax({
+                    url: '/admin/AttendenceList/AttendenceCalendarList',
+                    method: 'GET',
+                    data: {
+                        Year: year,
+                        Month: month // Convert to 1-based month for the server
+                    },
+                    success: function (data) {
+                        var employeeFullName = data.employeeFullName;
+                        $('#employeeFullName').text(employeeFullName);
+                        // Create events array for FullCalendar
+                        var events = [];
+                        $.each(data.data, function (index, item) {
+                            events.push({
+                                title: 'Work Session - ' + item.hoursWorked + ' hrs',
+                                start: item.firstLogDate,
+                                end: item.lastLogDate,
+                                name: item.employeeName,
+                                description: 'Worked ' + item.hoursWorked + ' hours'
+                            });
+                        });
+
+                        // Initialize or update FullCalendar
+                        $('#calendar').fullCalendar('destroy'); // First destroy previous instance
+                        $('#calendar').fullCalendar({
+                            header: {
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: 'month,agendaWeek'
+                            },
+                            defaultView: 'month', // Ensure the calendar starts in month view
+                            events: events,
+                            defaultDate: moment({ year: year, month: month - 1 }).format('YYYY-MM-DD'), // Set the date based on selected year and month
+
+                            // Ensure buttons visibility when switching views
+                            viewRender: function (view, element) {
+                                if (view.name === 'agendaWeek') {
+                                    // Show the left buttons (prev,next,today) in agendaWeek
+                                    $('.fc-left').show();
+                                } else if (view.name === 'month') {
+                                    // Hide the left buttons in month view
+                                    $('.fc-left').hide();
+                                }
+                            },
+
+                            dayRender: function (date, cell) {
+                                var formattedDate = date.format("YYYY-MM-DD");
+                                var statusLabel = '';
+                                var currentDate = moment().format("YYYY-MM-DD");
+                                var workStatus = 'A'; // Default to 'Absent'
+
+                                // Skip adding any label for the current date
+                                if (formattedDate === currentDate) {
+                                    return; // Do nothing for the current date
+                                }
+
+                                // Only check past dates or today
+                                if (formattedDate <= currentDate) {
+                                    // Check if it's a Sunday (day === 0) and apply a specific label for Sunday
+                                    if (date.day() === 0) {  // Sunday (0 is Sunday)
+                                        statusLabel = '<div class="status-label sunday">H</div>'; // 'H' for Sunday (Holiday)
+                                    } else {
+                                        // Check for attendance data (Present or Absent)
+                                        $.each(data.data, function (index, item) {
+                                            var itemDate = moment(item.workDate).format("YYYY-MM-DD");
+
+                                            if (itemDate == formattedDate) {
+                                                workStatus = 'P';
+                                                return false;
+                                            }
+                                        });
+
+                                        // Set label based on work status
+                                        if (workStatus === 'P') {
+                                            statusLabel = '<div class="status-label present">P</div>';
+                                        } else if (workStatus === 'A') {
+                                            statusLabel = '<div class="status-label absent">A</div>';
+                                        }
+                                    }
+
+                                    // Append the status label to the day cell
+                                    if (statusLabel !== '') {
+                                        cell.append(statusLabel);
+                                    }
+                                }
+                            },
+
+                            dayClick: function (date, jsEvent, view) {
+                                var formattedDate = date.format("YYYY-MM-DD");
+                                var workDetails = 'No work session found for this date.';
+
+                                // Check if data exists for the clicked date
+                                $.each(data.data, function (index, item) {
+                                    var itemDate = moment(item.workDate).format("YYYY-MM-DD");
+                                    if (itemDate === formattedDate) {
+                                        workDetails = 'Hours Worked: ' + item.hoursWorked + '<br>' + 'Name: ' + item.employeeFullName + '<br>' +
+                                            'First Log: ' + item.firstLogDate + '<br>' +
+                                            'Last Log: ' + item.lastLogDate;
+                                        return false; // Exit loop once the data is found
+                                    }
+                                });
+
+                                // Show the popup with work details
+                                $('#workDetails').html(workDetails);
+                                $('#popup').fadeIn();
+                            }
+                        });
+
+                        $(document).ready(function () {
+                            // Ensure the left buttons are hidden initially in the month view
+                            $('.fc-left').hide();
+                        });
+                    },
+                    error: function (error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+            }
+
+            // Load calendar on page load
+            loadCalendar(currentYear, currentMonth + 1);
+
+            // Reload calendar when month or year is changed
+            $('#monthDropdown, #yearDropdown').change(function () {
+                var selectedYear = $('#yearDropdown').val();
+                var selectedMonth = $('#monthDropdown').val();
+                loadCalendar(selectedYear, selectedMonth);
+            });
+
+            // Close popup
+            $('#closePopup').click(function () {
+                $('#popup').fadeOut();
+            });
+        });
+    </script>
+</body>
