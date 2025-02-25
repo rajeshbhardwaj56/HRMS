@@ -71,7 +71,7 @@
 
 
                 <div class="col-md-12 form-group">
-                    <label>Address of Currespondence <span class="Mandetory">*</span></label>
+                    <label>Address of Correspondence <span class="Mandetory">*</span></label>
                     @Html.TextAreaFor(a => a.CorrespondenceAddress, new { @class = "form-control", @required = "required" })
                     @*  @Html.ValidationMessageFor(m => m.CorrespondenceAddress) *@
                 </div>
@@ -110,8 +110,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Mobile <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.Mobile) *@
+                    @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control mobile-mask", @required = "required" })
                 </div>
 
 
@@ -119,6 +118,16 @@
                     <label>Personal Email Address <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control", @required = "required" })
                     @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Gender <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(a => a.Gender, new List<SelectListItem>
+                    {
+                    new SelectListItem { Text = "Select Gender", Value = "" },
+                    new SelectListItem { Text = "Male", Value = "1" },
+                    new SelectListItem { Text = "Female", Value = "2" },
+                    new SelectListItem { Text = "Other", Value = "3" }
+                    }, new { @class = "form-control", @required = "required" })
                 </div>
 
 
@@ -154,7 +163,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Telephone </label>
-                    @Html.TextBoxFor(a => a.Telephone, new { @class = "form-control" })
+                    @Html.TextBoxFor(a => a.Telephone, new { @class = "form-control mobile-mask" })
                     @*  @Html.ValidationMessageFor(m => m.Telephone) *@
                 </div>
 
@@ -172,14 +181,14 @@
 
 
                 <div class="col-md-4 form-group">
-                    <label>Contact Persion Name for Verification <span class="Mandetory">*</span></label>
+                    <label>Contact Person Name for Verification <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.VerificationContactPersonName, new { @class = "form-control", @required = "required" })
                     @*  @Html.ValidationMessageFor(m => m.VerificationContactPersonName) *@
                 </div>
 
                 <div class="col-md-4 form-group">
                     <label>Contact No <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control", @required = "required" })
+                    @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control mobile-mask", @required = "required" })
                     @* @Html.ValidationMessageFor(m => m.VerificationContactPersonContactNo) *@
                 </div>
             </div>
@@ -204,7 +213,7 @@
 
             <div class="row mt-4">
                 <div class="col-md-6 form-group">
-                    <label>Do you have any relatives working with Eternity Logistics? </label>
+                    <label>Do you have any relatives working with Protalk Logistics? </label>
                 </div>
                 <div class="col-md-6 form-group">
                     @Html.CheckBoxFor(x => x.IsRelativesWorkingWithCompany)
@@ -222,7 +231,7 @@
 
             <div class="row">
                 <div class="col-md-6 form-group">
-                    <label>Have you been refered by an Eternity Logistics employee?</label>
+                    <label>Have you been refered by an Protalk Logistics employee?</label>
                 </div>
                 <div class="col-md-6 form-group">
                     @Html.CheckBoxFor(x => x.IsReferredByExistingEmployee)
@@ -274,7 +283,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label> Adhar card No <span class="Mandetory">*</span></label>
+                        <label> Aadhar Card No <span class="Mandetory">*</span></label>
                         @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @required = "required" })
                     </div>
                 </div>
@@ -289,12 +298,6 @@
 
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Educational/Professional Trainnings <input type="button" style="float:right;" class="btn btn-info" id="AddNewEducation" value="Add New Education" /></div>
-            @* <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Educational/Professional Trainnings </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEducation" value="Add New Education" />
-            </div>
-            </div> *@
-
             <div class="row">
                 <div class="col-md-12" id="EducationalDetails">
                     @Html.Partial("_EducationalDetails", Model)
@@ -322,11 +325,6 @@
 
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Language Proficiency <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" /></div>
-            @* <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Language Proficiency </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" />
-            </div>
-            </div> *@
             <div class="row">
                 <div class="col-md-12" id="LanguageDetails">
                     @Html.Partial("_LanguageDetails", Model)
@@ -337,17 +335,9 @@
                 @Html.TextAreaFor(x => x.ITSkillsKnowledge, new { @class = "form-control" })
             </div>
         </div>
-
-
-
-
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Employment Record <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" /></div>
-            @*  <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
-            </div>
-            </div> *@
+         
             <div class="row">
                 <div class="col-md-12" id="EmploymentDetails">
                     @Html.Partial("_EmploymentHistory", Model)
@@ -359,11 +349,6 @@
 
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">References</div>
-            @*  <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
-            </div>
-            </div> *@
             <div class="row">
                 <div class="col-md-12" id="ReferenceDetails">
                     @Html.Partial("_ReferenceDetails", Model)
@@ -376,7 +361,7 @@
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">General Information</div>
             <div class="form-group mt-3">
-                <label>Information of extra-curricular/liesure activities, Hobbies</label>
+                <label>Information of extra-curricular/leisure activities, Hobbies</label>
                 @Html.TextAreaFor(a => a.ExtraCuricuarActivities, new { @class = "form-control" })
             </div>
             <div class="form-group mt-3">
@@ -400,23 +385,20 @@
 
                 <div class="col-md-3">
                     <label>Mobile</label>
-                    @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control" })
+                    @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control mobile-mask" })
 
                 </div>
 
                 <div class="col-md-3">
                     <label>Tel</label>
-                    @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control" })
+                    @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control mobile-mask" })
                 </div>
             </div>
         </div>
-
-
-
-
-
-
-
+        <div class="col-md-4 form-group">
+            <label>Is Active</label>
+            @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <input type="submit" value="Submit" class="btn btn-success" />
@@ -428,6 +410,8 @@
 
 </form>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
 <script type="text/javascript">
 
@@ -583,5 +567,8 @@
             reader.readAsDataURL(file);
         }
     }
-
+    $(document).ready(function () {
+        // Apply the phone number mask
+        $('.mobile-mask').mask('(000) 000-0000');
+    });
 </script>

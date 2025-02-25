@@ -1,4 +1,5 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
+using HRMS.Models;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -32,6 +33,31 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAllAttendenceList(model));
+            return response;
+
+        }
+        [HttpPost]
+        public IActionResult AddUpdateAttendace(Attandance model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateAttendace(model));
+            return response;
+
+        }
+        [HttpPost]
+        public IActionResult GetAttendenceListID(Attandance model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAttendenceListID(model));
+            return response;
+
+        }
+
+        [HttpPost]
+        public IActionResult DeleteAttendanceDetails(Attandance model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteAttendanceDetails(model));
             return response;
 
         }

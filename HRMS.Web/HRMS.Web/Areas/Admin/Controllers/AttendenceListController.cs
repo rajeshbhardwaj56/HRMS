@@ -12,11 +12,12 @@ using HRMS.Models.LeavePolicy;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HRMS.Models.DashBoard;
 using DocumentFormat.OpenXml.Vml.Spreadsheet;
+using HRMS.Models;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin)]
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin+ "," + RoleConstants.Manager)]
     public class AttendenceListController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -37,49 +38,42 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [AllowAnonymous]
         public JsonResult GetAllAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            AttendenceListInputParans attendenceListParams = new AttendenceListInputParans();
-            attendenceListParams.ID = Convert.ToInt64(HttpContext.Session.GetString(Constants.ID));
+            AttandanceInputParams attendenceListParams = new AttandanceInputParams();
+             attendenceListParams.Month = DateTime.Now.Month;
+            //attendenceListParams.Month =1;
+            attendenceListParams.Year = DateTime.Now.Year;
+            attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+   
+            var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
 
-            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<Results>(data);
-
-            return Json(new { data = results.AttendenceList });
+            return Json(new { data = model });
 
         }
         public IActionResult Index(string id)
         {
-            AttendenceListModel model = new AttendenceListModel();
+            Attandance model = new Attandance();
 
             if (!string.IsNullOrEmpty(id))
             {
                 model.ID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendenceListModel;
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttandanceModel;
 
             }
 
             HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
             model.Employeelist = results.Employee;
-            model.StatusList = new SelectList(Enum.GetValues(typeof(Status)));
-            model.ShiftList = Enum.GetValues(typeof(ShiftSelection)).Cast<ShiftSelection>()
-           .Select(e => new SelectListItem
-           {
-               Value = ((int)e).ToString(),
-               Text = e.ToString(),
-           })
-          .ToList();
             return View(model);
         }
 
 
 
         [HttpPost]
-        public IActionResult Index(AttendenceListModel AttendenceListModel)
+        public IActionResult Index(Attandance AttendenceListModel)
         {
-            if (ModelState.IsValid)
-            {
-
-                var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
+                var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
                 if (AttendenceListModel.ID > 0)
@@ -94,11 +88,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 }
 
-            }
-            else
-            {
-                return View(AttendenceListModel);
-            }
+           
 
 
 
@@ -120,7 +110,21 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return result;
         }
 
-
+        [HttpGet]
+        public IActionResult DeleteAttendanceDetails(int id)
+        {
+            Attandance model = new Attandance()
+            {
+                ID = id,
+            };
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.DeleteAttendanceDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            if (data != null)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = data;
+            }
+            return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.AttendenceList);
+        }
 
 
         [HttpGet]
@@ -130,9 +134,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             
             return View( );
         }
-
-       
-
         [HttpGet]
         [AllowAnonymous]
         public IActionResult AttendenceCalendarList(int year, int month)

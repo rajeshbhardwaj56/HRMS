@@ -25,7 +25,7 @@ namespace HRMS.Models.Employee
         public long EmployeeTypeID { get; set; }
         public long DepartmentID { get; set; }
         public long JobLocationID { get; set; }
-        public long ReportingToID { get; set; }
+        public long ReportingToIDL1 { get; set; }
         public string OfficialEmailID { get; set; } = string.Empty;
         public string OfficialContactNo { get; set; } = string.Empty;
         public string DesignationName { get; set; } = string.Empty;
@@ -36,18 +36,22 @@ namespace HRMS.Models.Employee
         public string EmployeeType { get; set; } = string.Empty;
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
         public DateTime? JobSeprationDate { get; set; } = DateTime.UtcNow;
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public long UserID { get; set; }
         public DateTime? InsertedDate { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedDate { get; set; } = DateTime.UtcNow;
-
+        public long PayrollTypeID { get; set; }
         public long LeavePolicyID { get; set; }
+        public long ReportingToIDL2 { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+
         public int RoleId { get; set; }
         public string EmployeNumber { get; set; } = string.Empty;
 
 
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> PayrollTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> JobLocations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Designations { get; set; } = new List<SelectListItem>();

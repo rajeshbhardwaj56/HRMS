@@ -1,0 +1,38 @@
+﻿@using HRMS.Models.Common
+@model Attandance
+@{
+    Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Attendence List";
+
+}
+<div class="main-header anim" style="--delay: 0s">Attendence List </div>
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
+
+            @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+            <label class="form-label">Attendence List</label>
+            </div> *@
+            @Html.HiddenFor(x => x.ID)
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Start Date <span class="Mandetory">*</span></label>
+
+                    @Html.TextBoxFor(a => a.FirstLogDate, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", @type = "datetime-local", @required = "required" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>END Date <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.LastLogDate, "{0:yyyy-MM-ddTHH:mm}", new { @class = "form-control", @type = "datetime-local", @required = "required" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="button" value="Cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -70,6 +70,9 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAttendance(AttandanceInputParams model);
         public AttendanceWithHolidays GetAttendanceForCalendar(AttandanceInputParams model);
         public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttandanceInputParams model);
+        public Result AddUpdateAttendace(Attandance att);
+        public Results GetAttendenceListID(Attandance model);
 
+        public string DeleteAttendanceDetails(Attandance model);
     }
 }

@@ -27,9 +27,12 @@ namespace HRMS.Models.DashBoard
         public long EmploymentDetailID { get; set; }
         public long DesignationID { get; set; }
         public long EmployeeTypeID { get; set; }
+        public long PayrollTypeID { get; set; }
         public long DepartmentID { get; set; }
         public long JobLocationID { get; set; }
-        public long ReportingToID { get; set; }
+        public long ReportingToIDL1 { get; set; }
+        public long ReportingToIDL2 { get; set; }
+        public string ClientName { get; set; } = string.Empty;
         public string OfficialEmailID { get; set; } = string.Empty;
         public string OfficialContactNo { get; set; } = string.Empty;
         public DateTime? JoiningDate { get; set; }

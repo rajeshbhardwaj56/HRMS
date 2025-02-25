@@ -162,6 +162,20 @@ namespace HRMS.Web.Areas.Admin.Controllers
             // Check the file content type to determine if it's an image
             return file.ContentType.StartsWith("image/");
         }
+        public IActionResult PreviewAndPrint(string id)
+        {
+            TemplateModel Template = new TemplateModel();
+            Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
+            if (!string.IsNullOrEmpty(id))
+            {
+                Template.TemplateID = Convert.ToInt64(id);
+                var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
+            }
+
+
+            return View(Template);
+        }
     }
 }

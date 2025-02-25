@@ -141,11 +141,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                     TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
 
-                    return RedirectToActionPermanent(
-                       Constants.Index,
-                        WebControllarsConstants.Employee,
-                      new { id = _businessLayer.EncodeStringBase64(result.PKNo.ToString()) }
-                   );
+                    return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee);
                 }
                 else
                 {
@@ -335,21 +331,37 @@ namespace HRMS.Web.Areas.HR.Controllers
 
                 if (result.IsResetPasswordRequired)
                 {
-                  
+                    sendEmailProperties sendEmailProperties = new sendEmailProperties();
+                    sendEmailProperties.emailSubject = "Reset Password Email";
+                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString()), _businessLayer.EncodeStringBase64(CompanyID.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
+                    sendEmailProperties.EmailToList.Add(employmentDetail.OfficialEmailID);
+                    emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
+                    if (response.responseCode == "200")
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email have been sent, Please reset password for Login.";
+                    }
+                    else
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email sending failed, Please try again later.";
+                    }
                 }
 
                 EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
                 employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-                var dataBody = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var dataBody = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(dataBody);
                 employmentDetail.EmployeeList = employmentDetailtemp.EmployeeList;
                 employmentDetail.Departments = employmentDetailtemp.Departments;
                 employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
                 employmentDetail.Designations = employmentDetailtemp.Designations;
                 employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
+                employmentDetail.PayrollTypes = employmentDetailtemp.PayrollTypes;
                 employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
                 employmentDetail.RoleList = employmentDetailtemp.RoleList;
+                employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
 
 
             }
@@ -358,15 +370,17 @@ namespace HRMS.Web.Areas.HR.Controllers
                 EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
                 employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-                var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(data);
                 employmentDetail.EmployeeList = employmentDetailtemp.EmployeeList;
                 employmentDetail.Departments = employmentDetailtemp.Departments;
                 employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
                 employmentDetail.Designations = employmentDetailtemp.Designations;
                 employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
+                employmentDetail.PayrollTypes = employmentDetailtemp.PayrollTypes;
                 employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
                 employmentDetail.RoleList = employmentDetailtemp.RoleList;
+                employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
             }
             return View(employmentDetail);
         }

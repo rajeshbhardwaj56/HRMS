@@ -3,7 +3,7 @@
 
 @model Results
 @{
-    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Attendence List";
 
     var success = TempData["Success"];
@@ -11,7 +11,7 @@
 }
 
 
-<div class="main-header anim" style="--delay: 0s">Attendence List  <a href="~/Admin/AttendenceList"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
+<div class="main-header anim" style="--delay: 0s">My Attendence List  <a href="~/Employee/AttendenceList/MyAttendance"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
 
 @* <div class="addcomp px-4">
     <h4>Attendence List</h4>
@@ -24,7 +24,7 @@
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden" /th>
-                <th>Employee Name</th>
+                <th>My Name</th>
                 <th>AttendenceDate</th>
                 <th>First Login </th>
                 <th>Last Login</th>
@@ -34,15 +34,12 @@
 
     </table>
 </div>
-
-
-
 <script type="text/javascript">
 
     $(document).ready(function () {
         $('#tblAttendenceListing').DataTable({
             "ajax": {
-                "url": "GetAllAttendenceList/",
+                "url": "GetMyAttendenceList/",
                 "type": "POST",
                 "datatype": "json",
                 "dataSrc": function (json) {
@@ -95,7 +92,7 @@
 
                 {
                     mRender: function (data, type, row) {
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top" class="item" href="Index?id=' + row.id + '" title="" data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top" class="item" href="MyAttendance?id=' + row.id + '" title="" data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
                         var linkDelete = '<a data-toggle="tooltip" data-placement="top" class="item delete-btn" href="DeleteAttendanceDetails?id=' + row.id + '" title="Delete" data-original-title="Delete">' +
                             '<img src="/assets/img/delete.png" width="20" height="20" /></a>';
 

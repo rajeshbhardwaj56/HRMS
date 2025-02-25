@@ -24,6 +24,7 @@ namespace HRMS.Models.Employee
         public string EncryptedIdentity { get; set; } = string.Empty;
         public string EncodedDesignationID { get; set; } = string.Empty;
         public string EncodedDepartmentIDID { get; set; } = string.Empty;
+        public string EncodedCompanyID { get; set; } = string.Empty;
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
         public long CompanyID { get; set; } = 1;
@@ -81,20 +82,27 @@ namespace HRMS.Models.Employee
         // Employment Details
         public long DesignationID { get; set; }
         public long EmployeeTypeID { get; set; }
+        public long PayrollTypeID { get; set; }
         public long DepartmentID { get; set; }
         public long JobLocationID { get; set; }
-        public long ReportingToID { get; set; }
+        public long ReportingToIDL1 { get; set; }
+        public long ReportingToIDL2 { get; set; }
         public string? DesignationName { get; set; } = string.Empty;
         public string? EmployeeTypeName { get; set; } = string.Empty;
         public string? DepartmentName { get; set; } = string.Empty;
         public string? JobLocationName { get; set; } = string.Empty;
-        public string? ReportingToName { get; set; } = string.Empty;
+        public string? ReportingToNameL1 { get; set; } = string.Empty;
+        public string? ReportingToNameL2 { get; set; } = string.Empty;
+        public string? PayrollTypeName { get; set; } = string.Empty;
         public string? EmployeeNumber { get; set; } = string.Empty;
         public string OfficialEmailID { get; set; } = string.Empty;
+
+        public string? ClientName { get; set; } = string.Empty;
 
         public long? LeavePolicyID { get; set; }
         public long? CarryForword { get; set; }
         public int Gender { get; set; }
+        public bool IsActive { get; set; }
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();

@@ -1046,8 +1046,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpGet]
         public IActionResult Support()
         {
-          
-
             return View();
         }
 
@@ -1088,7 +1086,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return Json(new { data = model });
         }
-
 
     }
 }

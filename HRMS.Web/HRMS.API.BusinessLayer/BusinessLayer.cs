@@ -183,7 +183,7 @@ namespace HRMS.API.BusinessLayer
                                       DesignationID = dataRow["DesignationID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DesignationID"]),
                                       LeavePolicyID = dataRow.Field<long?>("LeavePolicyID"),
                                       JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
-
+                                      IsActive = dataRow.Field<bool>("IsActive"),
 
 
                                   }).ToList();
@@ -373,13 +373,17 @@ namespace HRMS.API.BusinessLayer
                                   EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
                                   DepartmentID = dataRow.Field<long>("DepartmentID"),
                                   JobLocationID = dataRow.Field<long>("JobLocationID"),
-                                  ReportingToID = dataRow.Field<long>("ReportingToID"),
+                                  ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
+                                  ReportingToIDL2 = dataRow.Field<long>("ReportingToIDL2"),
                                   DesignationName = dataRow.Field<string>("DesignationName"),
                                   EmployeeTypeName = dataRow.Field<string>("EmployeeTypeName"),
                                   DepartmentName = dataRow.Field<string>("DepartmentName"),
                                   JobLocationName = dataRow.Field<string>("JobLocationName"),
-                                  ReportingToName = dataRow.Field<string>("ReportingToName")
-
+                                  PayrollTypeID = dataRow.Field<long>("PayrollTypeID"),
+                                  PayrollTypeName = dataRow.Field<string>("PayrollTypeName"),
+                                  ReportingToNameL1 = dataRow.Field<string>("ReportingToNameL1"),
+                                  ReportingToNameL2 = dataRow.Field<string>("ReportingToNameL2"),
+                                  ClientName = dataRow.Field<string>("ClientName"),
                               }).ToList();
 
 
@@ -644,6 +648,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@LanguageDetails", this.ConvertObjectToXML(employeeModel.LanguageDetails)));
             sqlParameter.Add(new SqlParameter("@EmploymentHistory", this.ConvertObjectToXML(employeeModel.EmploymentHistory)));
             sqlParameter.Add(new SqlParameter("@References", this.ConvertObjectToXML(employeeModel.References)));
+            sqlParameter.Add(new SqlParameter("@IsActive", employeeModel.IsActive));
+            sqlParameter.Add(new SqlParameter("@Gender", employeeModel.Gender));
 
             SqlParameterCollection pOutputParams = null;
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
@@ -847,17 +853,21 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@EmployeeID", employmentDetails.EmployeeID));
             sqlParameter.Add(new SqlParameter("@DesignationID", employmentDetails.DesignationID));
             sqlParameter.Add(new SqlParameter("@EmployeeTypeID", employmentDetails.EmployeeTypeID));
+            sqlParameter.Add(new SqlParameter("@PayrollTypeID", employmentDetails.PayrollTypeID));
             sqlParameter.Add(new SqlParameter("@DepartmentID", employmentDetails.DepartmentID));
             sqlParameter.Add(new SqlParameter("@JobLocationID", employmentDetails.JobLocationID));
             sqlParameter.Add(new SqlParameter("@OfficialEmailID", employmentDetails.OfficialEmailID));
             sqlParameter.Add(new SqlParameter("@OfficialContactNo", employmentDetails.OfficialContactNo));
             sqlParameter.Add(new SqlParameter("@JoiningDate", employmentDetails.JoiningDate));
             sqlParameter.Add(new SqlParameter("@JobSeprationDate", employmentDetails.JobSeprationDate));
-            sqlParameter.Add(new SqlParameter("@ReportingToID", employmentDetails.ReportingToID));
+            sqlParameter.Add(new SqlParameter("@ReportingToIDL1", employmentDetails.ReportingToIDL1));
             sqlParameter.Add(new SqlParameter("@IsActive", employmentDetails.IsActive));
             sqlParameter.Add(new SqlParameter("@IsDeleted", employmentDetails.IsDeleted));
             sqlParameter.Add(new SqlParameter("@UserID", employmentDetails.UserID));
             sqlParameter.Add(new SqlParameter("@LeavePolicyID", employmentDetails.LeavePolicyID));
+            sqlParameter.Add(new SqlParameter("@ReportingToIDL2", employmentDetails.ReportingToIDL2));
+            sqlParameter.Add(new SqlParameter("@ClientName", employmentDetails.ClientName));
+
 
             SqlParameterCollection pOutputParams = null;
 
@@ -908,7 +918,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetailsFormDetails, sqlParameter);
-            EmploymentDetail employmentDetail = dataSet.Tables[5].AsEnumerable()
+            EmploymentDetail employmentDetail = dataSet.Tables[6].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
                                 EmployeeID = dataRow.Field<long>("EmployeeID"),
@@ -918,7 +928,8 @@ namespace HRMS.API.BusinessLayer
                                 DesignationID = dataRow.Field<long>("DesignationID"),
                                 DepartmentID = dataRow.Field<long>("DepartmentID"),
                                 JobLocationID = dataRow.Field<long>("JobLocationID"),
-                                ReportingToID = dataRow.Field<long>("ReportingToID"),
+                                ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
+                                
                                 OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
                                 OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
                                 DesignationName = dataRow.Field<string>("DesignationName"),
@@ -928,7 +939,11 @@ namespace HRMS.API.BusinessLayer
                                 ManagerEmail = dataRow.Field<string>("ManagerEmail"),
                                 ManagerName = dataRow.Field<string>("ManagerName"),
                                 OfficeLocation = dataRow.Field<string>("OfficeLocation"),
+                                PayrollTypeID = dataRow.Field<long>("PayrollTypeID"),
                                 EmployeeType = dataRow.Field<string>("EmployeeType"),
+                                ReportingToIDL2 = dataRow.Field<long>("ReportingToIDL2"),
+                                ClientName = dataRow.Field<string>("ClientName"),
+                                
 
                             }).ToList().FirstOrDefault();
 
@@ -954,8 +969,13 @@ namespace HRMS.API.BusinessLayer
                                  Text = dataRow.Field<string>("Name"),
                                  Value = dataRow.Field<long>("ID").ToString()
                              }).ToList();
-
-            employmentDetail.Departments = dataSet.Tables[2].AsEnumerable()
+            employmentDetail.PayrollTypes = dataSet.Tables[2].AsEnumerable()
+                         .Select(dataRow => new SelectListItem
+                         {
+                             Text = dataRow.Field<string>("Name"),
+                             Value = dataRow.Field<long>("ID").ToString()
+                         }).ToList();
+            employmentDetail.Departments = dataSet.Tables[3].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Text = dataRow.Field<string>("Name"),
@@ -963,7 +983,7 @@ namespace HRMS.API.BusinessLayer
                              }).ToList();
 
 
-            employmentDetail.Designations = dataSet.Tables[3].AsEnumerable()
+            employmentDetail.Designations = dataSet.Tables[4].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Text = dataRow.Field<string>("Name"),
@@ -971,20 +991,20 @@ namespace HRMS.API.BusinessLayer
                              }).ToList();
 
 
-            employmentDetail.EmployeeList = dataSet.Tables[4].AsEnumerable()
+            employmentDetail.EmployeeList = dataSet.Tables[5].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Value = dataRow.Field<long>("EmployeeID").ToString(),
                                  Text = dataRow.Field<string>("Name")
                              }).ToList();
 
-            employmentDetail.LeavePolicyList = dataSet.Tables[6].AsEnumerable()
+            employmentDetail.LeavePolicyList = dataSet.Tables[7].AsEnumerable()
                             .Select(dataRow => new SelectListItem
                             {
                                 Value = dataRow.Field<long>("LeavePolicyID").ToString(),
                                 Text = dataRow.Field<string>("LeavePolicyName")
                             }).ToList();
-            employmentDetail.RoleList = dataSet.Tables[7].AsEnumerable()
+            employmentDetail.RoleList = dataSet.Tables[8].AsEnumerable()
                 .Select(dataRow => new SelectListItem
                 {
                     Value = dataRow.Field<int>("RoleID").ToString(),
@@ -1003,32 +1023,38 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@DepartmentID", model.DepartmentID));
             sqlParameter.Add(new SqlParameter("@DesignationID", model.DesignationID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
-            EmploymentDetail employmentDetail = dataSet.Tables[5].AsEnumerable()
+
+            
+
+
+            EmploymentDetail employmentDetail = dataSet.Tables[6].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
                                 EmployeeID = dataRow.Field<long>("EmployeeID"),
                                 EmployeNumber = dataRow.Field<string>("EmployeNumber"),
                                 EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
-                                EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
-                                DesignationID = dataRow.Field<long>("DesignationID"),
-                                DepartmentID = dataRow.Field<long>("DepartmentID"),
-                                JobLocationID = dataRow.Field<long>("JobLocationID"),
-                                ReportingToID = dataRow.Field<long>("ReportingToID"),
-                                OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
-                                OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
-                                DesignationName = dataRow.Field<string>("DesignationName"),
-                                DepartmentName = dataRow.Field<string>("DepartmentName"),
-                                JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
-                                JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
-                                ManagerEmail = dataRow.Field<string>("ManagerEmail"),
-                                ManagerName = dataRow.Field<string>("ManagerName"),
-                                OfficeLocation = dataRow.Field<string>("OfficeLocation"),
-                                EmployeeType = dataRow.Field<string>("EmployeeType"),
-                                LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
-                                RoleId = dataRow.Field<int>("EmployeeRole"),
+                              EmploymentDetailID = dataRow.Field<long>("EmploymentDetailID"),
+                               DesignationID = dataRow.Field<long>("DesignationID"),
+                               DepartmentID = dataRow.Field<long>("DepartmentID"),
+                               JobLocationID = dataRow.Field<long>("JobLocationID"),
+                               ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
+                               OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
+                               OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
+                               DesignationName = dataRow.Field<string>("DesignationName"),
+                               DepartmentName = dataRow.Field<string>("DepartmentName"),
+                               JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
+                               JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
+                               ManagerEmail = dataRow.Field<string>("ManagerEmail"),
+                               ManagerName = dataRow.Field<string>("ManagerName"),
+                               OfficeLocation = dataRow.Field<string>("OfficeLocation"),
+                               EmployeeType = dataRow.Field<string>("EmployeeType"),
+                               PayrollTypeID = dataRow.Field<long>("PayrollTypeID"),
+                               LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
+                               ReportingToIDL2 = dataRow.Field<long>("ReportingToIDL2"),
+                               ClientName = dataRow.Field<string>("ClientName"),
+                               RoleId = dataRow.Field<int>("EmployeeRole"),
 
                             }).ToList().FirstOrDefault();
-
             if (employmentDetail == null)
             {
                 employmentDetail = new EmploymentDetail();
@@ -1051,8 +1077,14 @@ namespace HRMS.API.BusinessLayer
                                  Text = dataRow.Field<string>("Name"),
                                  Value = dataRow.Field<long>("ID").ToString()
                              }).ToList();
+            employmentDetail.PayrollTypes = dataSet.Tables[2].AsEnumerable()
+                           .Select(dataRow => new SelectListItem
+                           {
+                               Text = dataRow.Field<string>("Name"),
+                               Value = dataRow.Field<long>("ID").ToString()
+                           }).ToList();
 
-            employmentDetail.Departments = dataSet.Tables[2].AsEnumerable()
+            employmentDetail.Departments = dataSet.Tables[3].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Text = dataRow.Field<string>("Name"),
@@ -1060,7 +1092,7 @@ namespace HRMS.API.BusinessLayer
                              }).ToList();
 
 
-            employmentDetail.Designations = dataSet.Tables[3].AsEnumerable()
+            employmentDetail.Designations = dataSet.Tables[4].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Text = dataRow.Field<string>("Name"),
@@ -1068,20 +1100,20 @@ namespace HRMS.API.BusinessLayer
                              }).ToList();
 
 
-            employmentDetail.EmployeeList = dataSet.Tables[4].AsEnumerable()
+            employmentDetail.EmployeeList = dataSet.Tables[5].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Value = dataRow.Field<long>("EmployeeID").ToString(),
                                  Text = dataRow.Field<string>("Name")
                              }).ToList();
 
-            employmentDetail.LeavePolicyList = dataSet.Tables[6].AsEnumerable()
+            employmentDetail.LeavePolicyList = dataSet.Tables[7].AsEnumerable()
                             .Select(dataRow => new SelectListItem
                             {
                                 Value = dataRow.Field<long>("LeavePolicyID").ToString(),
                                 Text = dataRow.Field<string>("LeavePolicyName")
                             }).ToList();
-            employmentDetail.RoleList = dataSet.Tables[7].AsEnumerable()
+            employmentDetail.RoleList = dataSet.Tables[8].AsEnumerable()
                             .Select(dataRow => new SelectListItem
                             {
                                 Value = dataRow.Field<int>("RoleID").ToString(),
@@ -1596,13 +1628,16 @@ namespace HRMS.API.BusinessLayer
                                       DesignationID = dataRow.Field<long>("DesignationID"),
                                       DepartmentID = dataRow.Field<long>("DepartmentID"),
                                       JobLocationID = dataRow.Field<long>("JobLocationID"),
-                                      ReportingToID = dataRow.Field<long>("ReportingToID"),
+                                      ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
                                       OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
                                       OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
                                       JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
                                       JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
                                       CarryForword = dataRow.Field<long>("CarryForword"),
-                                      LeavePolicyId = dataRow.Field<long>("LeavePolicyId")
+                                      LeavePolicyId = dataRow.Field<long>("LeavePolicyId"),
+                                      PayrollTypeID =dataRow.Field<long>("PayrollTypeID"),
+                                      ReportingToIDL2 = dataRow.Field<long>("ReportingToIDL2"),
+                                      ClientName = dataRow.Field<string>("ClientName"),
 
                                   }).ToList().FirstOrDefault();
 
@@ -2264,7 +2299,7 @@ namespace HRMS.API.BusinessLayer
                     .Select(dataRow => new LeaveSummaryModel
                     {
                         LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
-                        EmployeeID = dataRow.Field<long>("EmployeeID"), 
+                        EmployeeID = dataRow.Field<long>("EmployeeID"),
                         LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
                         Reason = dataRow.Field<string>("Reason"),
                         RequestDate = dataRow.Field<DateTime>("RequestDate"),
@@ -2306,6 +2341,7 @@ namespace HRMS.API.BusinessLayer
                 attendanceList = dataSet.Tables[0].AsEnumerable()
                 .Select(dataRow => new Attandance
                 {
+                    ID = dataRow.Field<long?>("ID") ?? 0,
                     UserId = dataRow.Field<string>("UserId"),
                     EmployeeName = dataRow.Field<string>("EmployeeName"),
                     WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date, // Handle WorkDate as nullable
@@ -2341,7 +2377,7 @@ namespace HRMS.API.BusinessLayer
                     .Select(dataRow => new LeaveSummaryModel
                     {
                         LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
-                        EmployeeID = dataRow.Field<long>("EmployeeID"), 
+                        EmployeeID = dataRow.Field<long>("EmployeeID"),
                         LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
                         Reason = dataRow.Field<string>("Reason"),
                         RequestDate = dataRow.Field<DateTime>("RequestDate"),
@@ -2364,6 +2400,64 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+
+
+        public Result AddUpdateAttendace(Attandance att)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@Id", att.ID));
+            sqlParameter.Add(new SqlParameter("@UserId", att.UserId));
+            sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss"))); // Format as 'yyyy-MM-dd HH:mm:ss'
+            sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss"))); // Format as 'yyyy-MM-dd HH:mm:ss'
+            sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss"))); // Format as 'yyyy-MM-dd HH:mm:ss'
+
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_SaveAttendanceDeviceLog, sqlParameter);
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString()
+                        }
+                    ).ToList().FirstOrDefault();
+            }
+            return model;
+        }
+
+        public Results GetAttendenceListID(Attandance model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            sqlParameters.Add(new SqlParameter("@ID", model.ID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.GetAttendanceDeviceLogById, sqlParameters);
+            var attendence = dataSet.Tables[0].AsEnumerable()
+                                 .Select(dataRow => new Attandance
+                                 {
+                                     ID = dataRow.Field<long>("ID"),
+                                     UserId = dataRow.Field<string>("UserId"),
+                                     WorkDate = dataRow.Field<DateTime>("WorkDate"),
+                                     FirstLogDate = dataRow.Field<DateTime>("FirstLogDate"),
+                                     LastLogDate = dataRow.Field<DateTime>("LastLogDate"),
+                                     HoursWorked = dataRow.Field<int>("HoursWorked"),
+                                 }).FirstOrDefault();
+            result.AttandanceModel = attendence;
+
+            return result;
+        }
+
+        public string DeleteAttendanceDetails(Attandance model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@ID", model.ID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_DeleteAttendanceDeviceLog, sqlParameter);
+            return "Deleted successfully";
+           
+        }
 
         #endregion Attandance Module
 

@@ -33,6 +33,7 @@ namespace HRMS.Models.Common
         public const string Role = "Role";
         public const string Alias = "Alias";
         public const string Index = "index";
+        public const string EmployeeListing = "EmployeeListing";
         public const string RootUrlFormat = "{0}/{1}";
         public const string ManageAdmin = "admin";
         public const string ManageHR = "hr";
@@ -45,7 +46,10 @@ namespace HRMS.Models.Common
         public const string SelectCountry = "-- Select Country --";
         public const string SelectCurrency = "-- Select Currency --";
         public const string SelectEmployeeType = "-- Select Employee Type --";
-        public const string SelectDeportment = "-- Select Deportment --";
+        public const string SelectPayrollType = "-- Select Payroll Type --";
+        public const string SelectDepartment = "-- Select Department --";
+        public const string SelectDesignation = "-- Select Designation --";
+        public const string SelectLeavePolicy = "-- Select Leave Policy --";
         public const string SelectLeaveType = "-- Select Leave Type --";
         public const string SelectLeaveDurationType = "-- Select --";
         public const string Languages = "Languages";
@@ -104,12 +108,13 @@ namespace HRMS.Models.Common
 
     public class WebControllarsConstants
     {
-
+       
         public const string PolicyCategoryListing = "PolicyCategoryListing";
         public const string LeavePolicyDetailsListing = "LeavePolicyDetailsListing";
         public const string LeavePolicyListing = "LeavePolicyListing";
         public const string LeavePolicy = "LeavePolicy";
         public const string Employee = "Employee";
+        public const string EmployeeListing = "EmployeeListing";
         public const string Candidate = "Candidate";
         public const string MyInfo = "MyInfo";
         public const string Company = "Company";
@@ -121,6 +126,8 @@ namespace HRMS.Models.Common
         public const string AttendenceList = "AttendenceList";
         public const string ShiftTypeListing = "ShiftTypeListing";
         public const string ShiftType = "ShiftType";
+        public const string MyAttendanceList = "MyAttendanceList";
+        public const string MyAttendance = "MyAttendance";
     }
 
     public class APIApiActionConstants
@@ -176,6 +183,9 @@ namespace HRMS.Models.Common
         public const string GetAttandance = "GetAttandance";
         public const string GetAttendanceForCalendar = "GetAttendanceForCalendar";
         public const string GetTeamAttendanceForCalendar = "GetTeamAttendanceForCalendar";
+        public const string AddUpdateAttendace = "AddUpdateAttendace";
+        public const string GetAttendenceListID = "GetAttendenceListID";
+        public const string DeleteAttendanceDetails = "DeleteAttendanceDetails";
 
     }
 
