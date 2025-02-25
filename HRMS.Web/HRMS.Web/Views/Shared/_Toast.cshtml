@@ -1,0 +1,63 @@
+﻿<link href="~/css/jquery.toast.css" rel="stylesheet" />
+<script src="~/assets/js/jquery.toast.js"></script>
+
+@{
+    if (TempData[HRMS.Models.Common.Constants.toastType] == null)
+    {
+        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeInformation;
+    }
+}
+
+<script>
+
+    //
+    console.log("ready!");
+    var Message = '@(TempData[HRMS.Models.Common.Constants.toastMessage])';
+    var toastType = '@(TempData[HRMS.Models.Common.Constants.toastType])';
+    var toastTypeInformation = '@(HRMS.Models.Common.Constants.toastTypeInformation)';
+    var toastTypeSuccess = '@(HRMS.Models.Common.Constants.toastTypeSuccess)';
+    var toastTypetWarning = '@(HRMS.Models.Common.Constants.toastTypetWarning)';
+    var toastTypeError = '@(HRMS.Models.Common.Constants.toastTypeError)';
+
+    $(document).ready(function () {
+      
+        if (Message) {
+            if (toastType == toastTypeInformation) {
+                $.toast({
+                    heading: 'Information',
+                    text: Message,
+                    showHideTransition: 'slide',
+                    icon: 'info',
+                    position: 'top-right',
+                });
+            }
+            else if (toastType == toastTypeSuccess) {
+                $.toast({
+                    heading: 'Success',
+                    text: Message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
+            else if (toastType == toastTypetWarning) {
+                $.toast({
+                    heading: 'Warning',
+                    text: Message,
+                    showHideTransition: 'slide',
+                    icon: 'warning',
+                    position: 'top-right',
+                });
+            }
+            else if (toastType == toastTypeError) {
+                $.toast({
+                    heading: 'Error',
+                    text: Message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+            }
+        }
+    });
+</script>

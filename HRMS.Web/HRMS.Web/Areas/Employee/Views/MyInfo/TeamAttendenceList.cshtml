@@ -1,0 +1,801 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
+}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Attendance Calendar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        span.absent.sunday {
+            background: black;
+        }
+        .calendar-container {
+            display: flex;
+            /* flex-direction: column; */
+            padding: 20px;
+            border: 1px solid #aea6a6;
+            margin: 20px;
+            border-radius: 13px;
+        }
+
+        .attendance-header {
+            display: flex;
+            justify-content: space-evenly;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+            background-color: #edf3ff;
+        }
+
+        div.calendar {
+            padding-left: 146px;
+            border-bottom: 1px solid #ccc;
+        }
+        .calendar {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            justify-content: flex-end;
+        }
+
+        .day {
+            width: 40px;
+            height: 60px;
+            margin: 0 5px;
+            text-align: center;
+            position: relative;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+            .day span {
+                display: block;
+                margin-top: 5px;
+                font-weight: bold;
+            }
+
+        .present {
+            background-color: green;
+            color: white;
+            padding: 3px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .absent {
+            background-color: #138fab;
+            color: white;
+            padding: 3px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .leave {
+            background-color: red;
+            color: white;
+            padding: 3px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .attendance-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .employee-name {
+            width: 150px;
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .day-cell {
+            width: 40px;
+            height: 60px;
+            margin: 0 5px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+            .day-cell span {
+                display: block;
+                margin-top: 5px;
+            }
+
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            z-index: 9999;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 380px;
+            Height: 265px;
+        }
+
+            #popup h3 {
+                margin-top: 0;
+                text-align: center;
+            }
+
+            #popup button {
+                margin-top: 3px;
+                padding: 5px 10px;
+                cursor: pointer;
+                transform: translate(270%, 90%);
+            }
+
+
+        select {
+            padding: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .Emp-attendance h1 {
+            background: #053572;
+            color: White;
+            padding: 5px;
+        }
+
+        .card #employeeTeamName {
+            font-size: 14px;
+            font-weight: 600;
+            background: white;
+            padding-block: 7px;
+            padding-inline: 51px;
+            border: none;
+            border: 2px solid #ffffff;
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 1px solid rgba(0, 0, 0, .125);
+            border-radius: .25rem;
+            margin-block: 5px !important;
+        }
+
+        .attendance.year-months {
+            text-align: center;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        .attendance-years {
+            padding-inline: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .attendance-months {
+            padding-inline: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        #attendanceRows {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        #workDetails {
+            box-shadow: rgb(236, 241, 248) 0px 2px 8px 0px;
+            padding: 25px 20px;
+            margin: 15px 20px;
+        }
+
+        .cross {
+            position: absolute;
+            top: 0px;
+            right: 5px;
+            font-size: 22px;
+            cursor: pointer;
+            color: red;
+        }
+
+        #popup h3 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .holiday {
+            background-color: black;
+            color: white;
+            padding: 3px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="Emp-attendance">
+        <h1>Team Attendance for the Month</h1>
+
+        <!-- Month and Year Filter -->
+        <div class="attendance-header">
+            <div class="card">
+                <h6 id="employeeTeamName">@ViewBag.EmployeeName</h6>
+            </div>
+            <div class="attendance year-months">
+                <label class="attendance-months">Months:</label>
+                <select id="monthSelect"></select>
+                <label class="attendance-years">Year:</label>
+                <select id="yearSelect"></select>
+            </div>
+        </div>
+
+        <div class="calendar-container">
+
+            <div class="col-12">
+                <div id="calendar" class="calendar">    </div>
+                <div id="attendanceRows"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Popup for detailed attendance -->
+
+    <div id="popup" class="popup">
+        <div class="row" id="poup-workdetail">
+            <div class="col-md-12">
+                <h3 class="detail-poup">Attendance Details</h3>
+            </div>
+            <div class="col-md-2">
+                <h1 class="cross" id="closePopup"> X </h1>
+            </div>
+
+        </div>
+
+        <p id="workDetails">No work session found for this date.</p>
+        <!-- <button id="closePopup">Close</button> -->
+    </div>
+
+    <script>
+        const calendarContainer = document.getElementById('calendar');
+        const attendanceRows = document.getElementById('attendanceRows');
+        let employeeData = [];
+
+        // Generate the month options
+        function generateMonthOptions() {
+            const monthSelect = document.getElementById('monthSelect');
+            const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+
+            months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+        }
+
+        // Generate the year options starting from 2020
+        function generateYearOptions() {
+            const yearSelect = document.getElementById('yearSelect');
+            const startYear = 2020;
+            const currentYear = new Date().getFullYear();
+
+            for (let year = startYear; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        async function fetchEmployeeData(year, month) {
+            try {
+                const response = await fetch(`/employee/myinfo/TeamAttendenceCalendarList?Year=${year}&Month=${month + 1}`);
+                if (response.ok) {
+                    const responseData = await response.json();
+                    if (responseData.data) {
+
+                        employeeData = responseData.data;
+                        renderCalendar(month, year);
+                    } else {
+                        console.error("Fetched data is not an array:", responseData);
+                    }
+                } else {
+                    console.error(`Failed to fetch data: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error fetching employee data:', error);
+            }
+        }
+
+        // Function to render the calendar based on selected month and year
+        function renderCalendar(month, year) {
+            const calendarDays = [];
+            const daysInMonth = new Date(year, month + 1, 0).getDate(); // Get number of days in selected month
+            const currentDate = new Date(); // Get the current date
+            currentDate.setHours(0, 0, 0, 0); // Set to midnight to ignore time part
+
+            calendarContainer.innerHTML = ''; // Clear existing calendar
+
+            // Create the employee label column with slight left shift
+            const employeeLabelColumn = document.createElement('div');
+            employeeLabelColumn.classList.add('employee-label'); // Optional: Add a class for styling
+            employeeLabelColumn.textContent = 'Employee Name';
+
+            // Apply a slight left shift using CSS (negative margin or padding)
+            employeeLabelColumn.style.marginRight = '7px';  // Adjusted margin-right as per your requirement
+            employeeLabelColumn.style.padding = '10px';     // Set padding
+            employeeLabelColumn.style.fontWeight = 'bold';  // Make font bold
+            calendarContainer.appendChild(employeeLabelColumn);
+
+            // Loop to create day elements
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateObj = new Date(year, month, day); // Create a Date object for the current day
+                const weekDayName = dateObj.toLocaleString('default', { weekday: 'short' }); // Get short weekday name (e.g., Sun, Mon)
+
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+                dayElement.setAttribute('data-day', day);
+
+                // Apply slight right shift using margin-left to the day class
+                dayElement.style.marginLeft = '9px';  // Adjust this value as needed for the shift
+
+                // Create and append the week name
+                const weekDayLabel = document.createElement('span');
+                weekDayLabel.classList.add('week-day'); // Optional: Add a class for styling
+                weekDayLabel.textContent = weekDayName;
+
+                // Create and append the day number
+                const dayLabel = document.createElement('span');
+                dayLabel.classList.add('day-number'); // Optional: Add a class for styling
+                dayLabel.textContent = day;
+
+                dayElement.appendChild(weekDayLabel);
+                dayElement.appendChild(dayLabel);
+                calendarDays.push(dayElement);
+            }
+
+            calendarDays.forEach(dayElement => calendarContainer.appendChild(dayElement));
+
+            // Add header row with labels
+            const headerRow = document.createElement('div');
+            headerRow.classList.add('header-row', 'd-flex', 'align-items-center');
+            headerRow.style.fontWeight = 'bold'; // Optional styling
+
+            // Add day headers for the calendar
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayHeader = document.createElement('div');
+                dayHeader.classList.add('day-header', 'text-center'); // Add classes for styling
+                const dateObj = new Date(year, month, day);
+                const weekDayName = dateObj.toLocaleString('default', { weekday: 'short' }); // Short day name
+            }
+
+            // Append the header row to attendanceRows
+            attendanceRows.innerHTML = ''; // Clear existing rows
+            attendanceRows.appendChild(headerRow);
+
+            // Group attendance by employee and display in rows
+            // Group attendance by employee and display in rows
+            // Function to determine attendance status (present or absent)
+
+            // Function to get the attendance for a specific employee on a specific day
+            function getAttendanceForEmployeeOnDay(employeeId, dayFormatted) {
+                return employeeData.attendances
+                    .filter(item => item.userId === employeeId && item.workDate?.split('T')[0] === dayFormatted)
+                    .reduce((prev, current) => {
+                        // Prioritize entries with higher `hoursWorked`, if applicable
+                        return (prev.hoursWorked || 0) > (current.hoursWorked || 0) ? prev : current;
+                    }, {});
+            }
+
+            // Function to check if the employee is on leave for the given day
+            function getLeaveForEmployeeOnDay(employeeId, dayFormatted) {
+                const leaveDataForEmployee = employeeData.leaves.filter(item => String(item.employeeID) === String(employeeId));
+
+                if (leaveDataForEmployee.length === 0) {
+                    return false; // No leave data found
+                }
+
+                // Normalize the dayFormatted to a date object with time set to midnight (00:00:00)
+                // Step 1: Extract year, month, and day from the dayFormatted string
+                const [year, month, day] = dayFormatted.split('-').map(Number);
+
+                // Step 2: Create a Date object with local time based on year, month, and day
+                const dayDate = new Date(year, month - 1, day); // month is 0-indexed in Date objects
+
+                // Step 3: Normalize the time to midnight (00:00:00)
+                dayDate.setHours(0, 0, 0, 0);
+
+
+                return leaveDataForEmployee.some(current => {
+                    const leaveStartDate = new Date(current.startDate);
+                    const leaveEndDate = new Date(current.endDate);
+
+                    // Normalize leave start and end dates
+                    leaveStartDate.setHours(0, 0, 0, 0);
+                    leaveEndDate.setHours(0, 0, 0, 0);
+
+                    // Ensure the leave date range is inclusive of start and end dates
+                    return dayDate >= leaveStartDate && dayDate <= leaveEndDate;
+                });
+            }
+
+
+            function getHolidayForEmployeeOnDay(dayFormatted) {
+                // Step 1: Extract year, month, and day from the dayFormatted string
+                const [year, month, day] = dayFormatted.split('-').map(Number);
+
+                // Step 2: Create a Date object with local time based on year, month, and day
+                const dayDate = new Date(year, month - 1, day); // month is 0-indexed in Date objects
+
+                // Step 3: Normalize the time to midnight (00:00:00)
+                dayDate.setHours(0, 0, 0, 0);
+
+
+                const holiday = employeeData.holidays.find(holiday => {
+                    const holidayStart = new Date(holiday.fromDate);
+                    const holidayEnd = new Date(holiday.toDate);
+
+                    // Normalize the holiday start and end dates
+                    holidayStart.setHours(0, 0, 0, 0);
+                    holidayEnd.setHours(0, 0, 0, 0);
+
+                    // Ensure the range is inclusive of the start and end dates
+                    return dayDate >= holidayStart && dayDate <= holidayEnd;
+                });
+                return holiday ? { fromDate: holiday.fromDate, toDate: holiday.toDate } : null;
+               
+            }
+        
+
+
+
+
+            // Updated getAttendanceStatus to include holiday logic
+            function getAttendanceStatus(attendance, dateObj, currentDate, employeeId) {
+                let status = ''; // Default to an empty string, meaning no status shown
+
+                // Normalize the date to remove the time part
+                const dayFormatted = dateObj.toISOString().split('T')[0]; // Get only the date in YYYY-MM-DD format
+
+                // Check if the date is a holiday
+                const isHoliday = getHolidayForEmployeeOnDay(dayFormatted);
+                if (isHoliday) {
+                    return 'holiday'; // Return "holiday" for holidays
+                }
+
+                // If it's Sunday, we always return "holiday" regardless of the date being in the future
+                const dayOfWeek = dateObj.getDay(); // Get the day of the week (0 = Sunday, 6 = Saturday)
+                if (dayOfWeek === 0) {
+                    return 'holiday'; // Sunday is always a holiday (H)
+                }
+
+                // If the date is in the future, only allow leave status to be shown
+                if (dateObj > currentDate) {
+                    const isOnLeave = getLeaveForEmployeeOnDay(employeeId, dayFormatted);
+                    if (isOnLeave) {
+                        status = 'leave'; // Only show leave status for future dates
+                    }
+                } else {
+                    // For past or current dates, check attendance
+                    if (Object.keys(attendance).length > 0) {
+                        status = 'present'; // Show "P" for present if attendance exists
+                    } else {
+                        const isOnLeave = getLeaveForEmployeeOnDay(employeeId, dayFormatted);
+                        if (isOnLeave) {
+                            status = 'leave'; // Show "L" for leave if the employee is on leave
+                        } else {
+                            status = 'absent'; // Otherwise show "A" for absent
+                        }
+                    }
+                }
+
+                return status;
+            }
+
+
+            // Updated createStatusLabel to handle holiday status
+            function createStatusLabel(status, dayOfWeek, leaveStatus) {
+                const statusLabel = document.createElement('span');
+
+                // If the status is leave, display it above the current date
+                if (leaveStatus) {
+                    statusLabel.classList.add('leave-above');  // Add a special class for leave display
+                    statusLabel.textContent = 'Leave'; // You can show the actual leave date here if needed
+                } else {
+                    // Handle the status for present, absent, and holiday
+                    if (status === 'present') {
+                        statusLabel.classList.add('present');
+                        statusLabel.textContent = 'P'; // Show 'P' for present
+                    } else if (status === 'absent') {
+                        statusLabel.classList.add('absent');
+                        statusLabel.textContent = 'A'; // Show 'A' for absent
+                    } else if (status === 'leave') {
+                        statusLabel.classList.add('leave');
+                        statusLabel.textContent = 'L'; // Show 'L' for leave
+                    } else if (status === 'holiday') {
+                        statusLabel.classList.add('holiday');
+                        statusLabel.textContent = 'H'; // Show 'H' for holiday
+                    }
+
+                    // Check if it's a Sunday and not already marked as holiday
+                    if (dayOfWeek === 0 && status !== 'holiday') {
+                        statusLabel.textContent = 'H'; // Set "H" for Sunday
+                        statusLabel.classList.add('sunday'); // Optional: Add specific styling for Sundays
+                    }
+                }
+
+                return statusLabel;
+            }
+
+            // Create a list of unique employeeIds
+            const employeeIds = [...new Set(employeeData.attendances.map(item => item.userId))]; // Get unique employeeIds
+
+            // For each employeeId, create their attendance row
+            employeeIds.forEach(employeeId => {
+                // Find the first attendance record for the employee by employeeId
+                const employee = employeeData.attendances.find(item => item.userId === employeeId);
+                const employeeName = employee.employeeName; // Get the employee name from the found record
+
+                const row = document.createElement('div');
+                row.classList.add('attendance-row');
+                row.setAttribute('data-employee-id', employeeId);
+                // Create employee name cell
+                const employeeNameCell = document.createElement('div');
+                employeeNameCell.classList.add('employee-name', 'col-md-4');
+                employeeNameCell.textContent = employeeName;
+                row.appendChild(employeeNameCell);
+
+                // Iterate over each day of the month
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.classList.add('day-cell');
+                    dayCell.setAttribute('data-day', day);
+
+                    const dateObj = new Date(year, month, day); // Create Date object for each day
+                    const dayOfWeek = dateObj.getDay(); // Get the day of the week (0 = Sunday, 6 = Saturday)
+
+                    const dayFormatted = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+
+                    // Find the matching attendance for the employee on the current day
+                    const attendance = getAttendanceForEmployeeOnDay(employeeId, dayFormatted); // Adjusted to use employeeId
+
+                    // Determine the attendance status (present, absent, or leave)
+                    let status = getAttendanceStatus(attendance, dateObj, currentDate, employeeId);
+
+                    // Skip displaying status for future dates
+                    if (status !== '') {
+                        const statusLabel = createStatusLabel(status, dayOfWeek);
+                        dayCell.appendChild(statusLabel);
+                    }
+
+                    // Append the day cell to the row
+                    row.appendChild(dayCell);
+                }
+
+                // Append the row to the attendance container
+                attendanceRows.appendChild(row);
+            });
+        }
+
+        // Initialize the month and year selects
+        generateMonthOptions();
+        generateYearOptions();
+
+        // Set default values for month and year
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        document.getElementById('monthSelect').value = currentMonth;
+        document.getElementById('yearSelect').value = currentYear;
+
+        // Render the initial calendar
+        fetchEmployeeData(currentYear, currentMonth);
+
+        // Add event listeners for month and year change
+        document.getElementById('monthSelect').addEventListener('change', function () {
+            const month = parseInt(this.value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            fetchEmployeeData(year, month);
+        });
+
+        document.getElementById('yearSelect').addEventListener('change', function () {
+            const year = parseInt(this.value);
+            const month = parseInt(document.getElementById('monthSelect').value);
+            fetchEmployeeData(year, month);
+        });
+
+
+        // Display work details in the popup1
+        document.getElementById('attendanceRows').addEventListener('click', function (event) {
+            if (event.target.classList.contains('day-cell')) {
+                 const dayNumber = event.target.getAttribute('data-day');
+        const employeeName = event.target.parentElement.querySelector('.employee-name')
+            ? event.target.parentElement.querySelector('.employee-name').textContent
+            : '';
+
+        // Ensure the month is adjusted correctly
+        const monthNumber = parseInt(document.getElementById('monthSelect').value) + 1;
+        const year = document.getElementById('yearSelect').value;
+        const dayFormatted = `${year}-${monthNumber.toString().padStart(2, '0')}-${dayNumber.toString().padStart(2, '0')}`;
+
+        // Retrieve employee ID from the day cell's parent
+        const employeeID = event.target.parentElement.getAttribute('data-employee-id'); // Assuming it is set correctly
+                // Filter matching records for work, leave, and holiday sessions
+                const workSessions = employeeData.attendances.filter(function (item) {
+                    const firstLogDateFormatted = item.firstLogDate ? item.firstLogDate.split('T')[0] : null;
+                    return (
+                        firstLogDateFormatted === dayFormatted &&
+                        item.employeeName === employeeName
+                    );
+                });
+
+                const leaveSessions = Array.isArray(employeeData.leaves) ? employeeData.leaves.filter(function (item) {
+                    // Extract leave start and end dates from the item
+                    const leaveStartDate = item.startDate ? new Date(item.startDate) : null; // Ensure valid date
+                    const leaveEndDate = item.endDate ? new Date(item.endDate) : null;    // Ensure valid date
+                    const [year, month, day] = dayFormatted.split('-').map(Number);
+                    const currentDate = new Date(year, month - 1, day); // Local datess// Parse dayFormatted as a Date object
+
+                    // Check if the current date is within the leave period and matches employeeID
+                    return (
+                        leaveStartDate && leaveEndDate &&  // Ensure both dates are valid
+                        currentDate >= leaveStartDate &&
+                        currentDate <= leaveEndDate &&
+                        item.employeeID === parseInt(employeeID) // Ensure employeeID is an integer
+                    );
+                }) : []; // If `employeeData.leaves` is not an array, default to an empty array
+
+               
+                // Filter holidays based on the selected day
+               
+                // Check if employeeData.holidays is an array and filter based on dayFormatted
+                const holidaySession = Array.isArray(employeeData.holidays) ? employeeData.holidays.find(function (item) {
+                    // Convert holiday fromDate and toDate to Date objects
+                    const holidayStartDate = new Date(item.fromDate);
+                    const holidayEndDate = new Date(item.toDate);
+
+                    // Create local currentDate from dayFormatted
+                    const [year, month, day] = dayFormatted.split('-').map(Number);
+                    const currentDate = new Date(year, month - 1, day); // Local date
+
+                    // Normalize the holiday dates and the current date
+                    holidayStartDate.setHours(0, 0, 0, 0);
+                    holidayEndDate.setHours(0, 0, 0, 0);
+                    currentDate.setHours(0, 0, 0, 0);
+
+                    // Check if the current date is within the holiday period
+                    return (
+                        currentDate >= holidayStartDate &&
+                        currentDate <= holidayEndDate
+                    );
+                }) : null; // If no match is found, holidaySession will be null      // Initialize the details message
+                let workDetails = '';
+
+                // Process work sessions
+                if (workSessions.length > 0) {
+                    workDetails += `<strong>Work Sessions:</strong><br>`;
+                    workSessions.forEach(function (session, index) {
+                        const firstLogDateObj = session.firstLogDate ? new Date(session.firstLogDate) : null;
+                        const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                        const weekdayName = firstLogDateObj ? weekDays[firstLogDateObj.getDay()] : 'Unknown';
+
+                        workDetails += `
+                            <strong>Session ${index + 1}:</strong><br>
+                            <strong>Employee:</strong> ${session.employeeName || 'N/A'}<br>
+                            <strong>Hours Worked:</strong> ${session.hoursWorked || 'N/A'}<br>
+                            <strong>First Log:</strong> ${firstLogDateObj ? firstLogDateObj.toLocaleDateString() : 'N/A'}<br>
+                            <strong>Day:</strong> ${weekdayName}<br><br>
+                        `;
+                    });
+                }
+
+                // Process leave sessions
+                if (leaveSessions.length > 0) {
+                    workDetails += `<strong>Leave Sessions:</strong><br>`;
+                    leaveSessions.forEach(function (session, index) {
+                        const startDateObj = session.startDate ? new Date(session.startDate) : null;
+                        const endDateObj = session.endDate ? new Date(session.endDate) : null;
+
+                        // Check if startDateObj and endDateObj are valid before processing
+                        if (startDateObj && endDateObj) {
+                            const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                            const startDayName = startDateObj ? weekDays[startDateObj.getDay()] : 'Unknown';
+                            const endDayName = endDateObj ? weekDays[endDateObj.getDay()] : 'Unknown';
+
+                            // Extract other details such as reason and approval status
+                            const reason = session.reason || 'No reason provided';
+                         
+                            const noOfDays = session.noOfDays || 'N/A';
+
+                            workDetails += `
+                        <strong>Reason:</strong> ${reason}<br>
+                        <strong>Start Date:</strong> ${startDateObj.toLocaleDateString()} (${startDayName})<br>
+                        <strong>End Date:</strong> ${endDateObj.toLocaleDateString()} (${endDayName})<br>
+                        <strong>Number of Days:</strong> ${noOfDays}<br>
+                    `;
+                        }
+                    });
+                }
+
+
+                // Process holiday sessions
+                if (holidaySession) {
+                    workDetails += `<strong>Holiday Session:</strong><br>`;
+
+                    // Extract holiday start and end dates
+                    const holidayStartDate = holidaySession.fromDate ? new Date(holidaySession.fromDate) : null;
+                    const holidayEndDate = holidaySession.toDate ? new Date(holidaySession.toDate) : null;
+
+                    // Weekdays array for mapping the day number to the weekday name
+                    const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+                    // Get the weekday name for the start and end dates
+                    const startDayName = holidayStartDate ? weekDays[holidayStartDate.getDay()] : 'Unknown';
+                    const endDayName = holidayEndDate ? weekDays[holidayEndDate.getDay()] : 'Unknown';
+
+                    // Add holiday details to workDetails
+                    workDetails += `
+                <strong>Holiday Name:</strong> ${holidaySession.holidayName || 'N/A'}<br>
+                <strong>Description:</strong> ${holidaySession.description || 'N/A'}<br>
+                <strong>Holiday Start Date:</strong> ${holidayStartDate ? holidayStartDate.toLocaleDateString() : 'N/A'} (${startDayName})<br>
+                <strong>Holiday End Date:</strong> ${holidayEndDate ? holidayEndDate.toLocaleDateString() : 'N/A'} (${endDayName})<br>
+                <strong>Day:</strong> ${startDayName}<br><br>
+            `;
+                } 
+
+
+
+
+
+                // Default message if no records found
+                if (!workSessions.length && !leaveSessions.length && !holidaySession) {
+                    workDetails = `<strong>No work session, leave, or holiday found for this date.</strong>`;
+                }
+
+                // Display the details in the popup
+                document.getElementById('workDetails').innerHTML = workDetails;
+                document.getElementById('popup').style.display = 'block';
+            }
+        });
+
+
+
+
+
+
+
+        // Close popup1
+        document.getElementById('closePopup').addEventListener('click', function () {
+            document.getElementById('popup').style.display = 'none';
+        });
+
+    </script>
+
+</body>
+

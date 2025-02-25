@@ -1,0 +1,107 @@
+﻿@using HRMS.Models.Common;
+
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Holiday";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+
+<div class="main-header anim" style="--delay: 0s">Holiday List  <a href="~/Admin/Holiday"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Holiday</button></a></div>
+@* <div class="addcomp px-4">
+    <h4>Holiday List</h4>
+    <a href="~/Admin/Holiday"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Holiday</button></a>
+</div> *@
+
+
+<div class="table-responsive py-3">
+    <table id="tblHolidayListing" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden"> /th>
+                <th>Holiday Name</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+    debugger
+    $(document).ready(function () {
+        $('#tblHolidayListing').DataTable({
+            "ajax": {
+                "url": "HolidayListings/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "holidayID", "autoWidth": true, },
+                { "data": "holidayName", "autoWidth": true, },
+                {
+                    "data": "fromDate", "autoWidth": true, "render": function (data, type, row) {
+                        var dateObj = new Date(data);
+                        var formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); // Change the format as per your requirement
+                        return formattedDate;
+                    }
+                },
+                {
+                    "data": "toDate", "autoWidth": true, "render": function (data, type, row) {
+                        var dateObj = new Date(data);
+                        var formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); // Change the format as per your requirement
+                        return formattedDate;
+                    }
+                },
+                { "data": "description", "autoWidth": true },
+                { "data": "status", "autoWidth": true },
+
+                {
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.holidayID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        return linkEdit;
+                    }
+                },
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+
+                {
+
+                    "targets": [0], //first and last not sortable
+                    "orderable": false,
+                    "visible": false
+                },
+
+                {
+
+                    "targets": [1], //first and last not sortable
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+
+            ]
+            , "responsive": true
+
+        });
+
+    });
+</script>

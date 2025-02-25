@@ -8,12 +8,17 @@ namespace HRMS.Models.Common
         public string Password { get; set; } = "";
         public string Result { get; set; } = "";
         public long UserID { get; set; }
+        public long CompanyID { get; set; }
+        public long EmployeeID { get; set; }
+        public int GenderId { get; set; }
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string Alias { get; set; } = "";
         public string Role { get; set; } = "";
         public int RoleId { get; set; }
         public string token { get; set; } = "";
+
+        public bool IsResetPasswordRequired { get; set; }
 
     }
 

@@ -1,0 +1,183 @@
+﻿﻿@using HRMS.Models.Employee;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmploymentDetail
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "Official Details";
+}
+
+<div class="main-header anim" style="--delay: 0s">Official Details <a href="~/HR/employee/index/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Edit</button></a></div>
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+
+
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">
+                @Html.HiddenFor(m => m.EmployeeID)
+                @Html.HiddenFor(m => m.EmploymentDetailID)
+                @Html.HiddenFor(m => m.UserID)
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-4 form-group">
+                    <label>Date of Joining <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.JoiningDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                    @* @Html.ValidationMessageFor(m => m.JoiningDate) *@
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Official Email <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "email", @required = "required" })
+                   
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Official Contact No <span class="Mandetory">*</span> (123-456-7890)</label>
+                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control", @type = "tel", @pattern = "[0-9]{3}-[0-9]{3}-[0-9]{4}", @required = "required" })
+
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Client Name <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.ClientName, new { @class = "form-control", @type = "text", @required = "required" })
+
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Department <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.DepartmentID, Model.Departments, HRMS.Models.Common.Constants.SelectDepartment, new
+                        {
+                            @class = "form-control",
+                            @required = "required"
+                            // @onchange = "fetchDesignations(this.value)"
+                        })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Designation <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.DesignationID, Model.Designations, HRMS.Models.Common.Constants.SelectDesignation, new
+                        {
+                            @class = "form-control",
+                            @required = "required",
+                            @id = "DesignationDropdown",
+                            @onchange = "fetchReportingManagers(this.value)"
+                        })
+                </div>
+
+                <div class="col-md-4 form-group" id="ReportingManagerDropdownId">
+                    <label>Reporting Manager(L1) <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.ReportingToIDL1, Model.EmployeeList, HRMS.Models.Common.Constants.SelectReportingManager, new
+                        {
+                            @class = "form-control",
+                            @required = "required",
+                            @id = "ReportingManagerDropdown"
+                        })
+                </div>
+                <div class="col-md-4 form-group" id="ReportingManagerDropdownId">
+                    <label>Reporting Manager(L2) <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.ReportingToIDL2, Model.EmployeeList, HRMS.Models.Common.Constants.SelectReportingManager, new
+                        {
+                            @class = "form-control",
+                            @required = "required",
+                            @id = "ReportingManagerDropdown"
+                        })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Job Location <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.JobLocationID, Model.JobLocations, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Employment Type <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.EmployeeTypeID, Model.EmploymentTypes, HRMS.Models.Common.Constants.SelectEmployeeType, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Role Type <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.RoleId, Model.RoleList, HRMS.Models.Common.Constants.SelectRole, new { @class = "form-control", @required = "required" })
+                </div>
+
+
+                <div class="col-md-4 form-group">
+                    <label>Payroll Type <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.PayrollTypeID, Model.PayrollTypes, HRMS.Models.Common.Constants.SelectPayrollType, new { @class = "form-control", @required = "required" })
+                </div>
+               
+
+                <div class="col-md-4 form-group">
+                    <label>Leave Policy <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(x => x.LeavePolicyID, Model.LeavePolicyList, HRMS.Models.Common.Constants.SelectLeavePolicy, new { @class = "form-control", @required = "required" })
+                </div>
+
+
+
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById('cancelButton').addEventListener('click', function () {
+        window.location.href = '@Url.Action("EmployeeListing", "employee")';
+    });
+    function fetchDesignations(departmentID) {
+        $("#ReportingManagerDropdownId").hide();
+        if (departmentID) {
+            $.ajax({
+                url: '/Hr/Employee/FilterEmploymentDetails', // Adjust URL to your controller action
+                type: 'GET',
+                data: { departmentID: departmentID },
+                success: function (response) {
+                    console.log(response);
+                    // Clear the Designation dropdown
+                    $('#DesignationDropdown').empty();
+
+                    // Add default option
+                    $('#DesignationDropdown').append('<option value="">Select Designation</option>');
+
+                    // Populate Designations from the response
+                    $.each(response.designations, function (index, item) {
+                        $('#DesignationDropdown').append('<option value="' + item.value + '">' + item.text + '</option>');
+                    });
+                },
+                error: function () {
+                    alert('Failed to retrieve designations. Please try again.');
+                }
+            });
+        }
+    }
+    function fetchReportingManagers(designationID) {
+        $("#ReportingManagerDropdownId").show();
+        if (designationID) {
+            $.ajax({
+                url: '/Hr/Employee/FilterEmploymentDetails', // Adjust URL to your controller action
+                type: 'GET',
+                data: { designationID: designationID },
+                success: function (response) {
+                    // Clear the Reporting Manager dropdown
+                    $('#ReportingManagerDropdown').empty();
+
+                    // Add default option
+                    $('#ReportingManagerDropdown').append('<option value="">Select Reporting Manager</option>');
+
+                    // Populate Reporting Managers from the response
+                    $.each(response.employeeList, function (index, item) {
+                        $('#ReportingManagerDropdown').append('<option value="' + item.value + '">' + item.text + '</option>');
+                    });
+                },
+                error: function () {
+                    alert('Failed to retrieve reporting managers. Please try again.');
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,62 @@
+﻿@using HRMS.Models;
+@using HRMS.Models.Common;
+@using System.Globalization;
+@using HRMS.Models.MyInfo;
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@model List<LeavePolicyDetailsModel>
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+    ViewData["Title"] = "Policy ";
+}
+<div class="card p-3">
+    <div class="accordion accordion-flush" id="accordionFlushExample">
+        @foreach (var groupWithIndex in Model.GroupBy(item => item.PolicyCategoryId).Select((group, index) => new { Group = group, Index = index }))
+        {
+            var group = groupWithIndex.Group;
+            var index = groupWithIndex.Index;
+
+            <div class="accordion-item">
+                <h2 class="accordion-header mt-2" id="flush-heading-@group.Key">
+                    <button class="accordion-button @(index == 0 ? "" : "collapsed") z-0 mb-0"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#flush-collapse-@group.Key"
+                            aria-expanded="@(index == 0 ? "true" : "false")"
+                            aria-controls="flush-collapse-@group.Key">
+                        @group.First().PolicyCategoryName
+                    </button>
+                </h2>
+                <div id="flush-collapse-@group.Key"
+                     class="accordion-collapse collapse @(index == 0 ? "show" : "")"
+                     aria-labelledby="flush-heading-@group.Key"
+                     data-bs-parent="#accordionFlushExample">
+                    <div class="my-3">
+                        <div class="row">
+                        @foreach (var item in group)
+                        {
+                            var filedata = "/uploads/uploadCertificate/0/" + @item.PolicyDocument;
+
+                            <div class="col-2">
+                                <div class="card" style="text-align:center;">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-3">@item.Title</h6>
+                                        <a href="@filedata" target="_blank" class="text-decoration-none">
+                                        <i class="bi bi-file-earmark-pdf-fill text-secondary fs-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
