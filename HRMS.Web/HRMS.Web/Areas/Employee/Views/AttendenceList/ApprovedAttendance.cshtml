@@ -1,0 +1,447 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
+} 
+<style>
+    .fade:not(.show) {
+        opacity: 1;
+    }
+</style>
+
+<section class="lower-section">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="tab-pane fade" id="attendance1" role="tabpanel" aria-labelledby="attendance1-tab">
+                <div class="group-box anim">
+                    <div class="tabsInfo" id="">
+                        <h3>Attendance Info</h3>
+                        <nav>
+                            <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
+                                <button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
+                                    Attendance For Approval
+                                </button>
+                                <button class="nav-link  " id="leave-approved-tab1" data-bs-toggle="tab" data-bs-target="#leave-approved-tab" type="button" role="tab" aria-controls="leave-approved-tab" aria-selected="false" onclick="LeavesForApproved()">Approved Attendance</button>
+                                <button class="nav-link  " id="leave-Reject-tab1" data-bs-toggle="tab" data-bs-target="#leave-Reject-tab" type="button" role="tab" aria-controls="leave-Reject-tab" aria-selected="false" onclick="LeavesForReject()">Rejected Attendance</button>
+                            </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent1">
+                            <div class="tab-pane fade show active" id="applied-leave-tab" role="tabpanel" aria-labelledby="applied-leave-tab1">
+                                <div class="group-box anim">
+                                    <div class="tabsInfo" id="myTabContent-timeoff">
+                                        <h3>Attendance For Approval</h3>
+                                    </div>
+                                    <div role="tabpanel" aria-labelledby="apply-tab">
+                                        <div class="row">
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <table id="tblAttendanceForApproval" class="table table-striped body-text" style="width:100%">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Employee Name</th>
+                                                                    <th>From Date</th>
+                                                                    <th>To Date</th>
+                                                                    <th>Total Hours</th>
+                                                                    <th>Status</th>
+                                                                    <th>Action</th>
+                                                                </tr>
+                                                            </thead>
+
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="tab-pane fade" id="leave-approved-tab" role="tabpanel" aria-labelledby="leave-approved-tab1">
+
+                                <div class="group-box anim">
+                                    <div class="tabsInfo" id="myTabContent-timeoff">
+                                        <h3>Approved Attendance</h3>
+
+                                    </div>
+                                    <div role="tabpanel" aria-labelledby="apply-tab">
+                                        <div class="row">
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <table id="tblLeavesForApproved" class="table table-striped body-text" style="width:100%">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th class="first" style="visibility:hidden"> </th>
+                                                                    <th>Employee Number</th>
+                                                                    <th>Employee Name</th>
+                                                                    <th>From Date</th>
+                                                                    <th>To Date</th>
+                                                                    <th>Type</th>
+                                                                    <th>Days</th>
+                                                                    <th>Status</th>
+                                                                    <th>Reason</th>
+                                                                </tr>
+                                                            </thead>
+
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="leave-Reject-tab" role="tabpanel" aria-labelledby="leave-Reject-tab1">
+
+                                <div class="group-box anim">
+                                    <div class="tabsInfo" id="myTabContent-timeoff">
+                                        <h3>Rejected Attendance</h3>
+
+                                    </div>
+                                    <div role="tabpanel" aria-labelledby="apply-tab">
+                                        <div class="row">
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th class="first" style="visibility:hidden"> </th>
+                                                                    <th>Employee Number</th>
+                                                                    <th>Employee Name</th>
+                                                                    <th>From Date</th>
+                                                                    <th>To Date</th>
+                                                                    <th>Type</th>
+                                                                    <th>Days</th>
+                                                                    <th>Status</th>
+                                                                    <th>Reason</th>
+                                                                </tr>
+                                                            </thead>
+
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+
+            </div>
+        </div>
+    </div>
+</section>
+<div class="modal" tabindex="-1" role="dialog" id="ApproveRejectModel">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Attendance Request Details</h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="CloseApproveRejectModel();" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="body-text" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="employeeID" name="employeeID">
+                <section>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-12 py-4">
+                                <div class="tab-content" id="myTabContentSection">
+                                    <div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+
+                                                <div class="tab-pane fade active show"  >
+                                                    <div class="group-box anim">
+                                                        <div class="tabsInfo">
+                                                           
+                                                                <h3>Employee Info</h3>
+                                                                <div class="row">
+
+
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Name</h6>
+                                                                        <p id="FullName"></p>
+                                                                    </div>
+                                                                  @*   <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>ID</h6>
+                                                                        <p id="EmployeeNumber"></p>
+                                                                    </div> *@
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Joinind Date</h6>
+                                                                        <p id="EmployeeJoiningdate"></p>
+                                                                    </div>
+                                                               @*      <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Designation</h6>
+                                                                        <p id="EmployeeDesignation"></p>
+                                                                    </div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Department</h6>
+                                                                        <p id="EmployeeDepartment"></p>
+                                                                    </div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Email</h6>
+                                                                        <p id="Employeeemail"></p>
+                                                                    </div>
+ *@
+                                                                </div>
+                                                         
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="group-box anim">
+                    <div class="tabsInfo" id="">
+                        <h3>Attendance Info</h3>
+
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade active show" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
+                                <div class="row">
+                                    <p class="showalert" style="color: red;font-size: 16px;" id="showalert"></p>
+                                    <p class="showDocumentalert" style="color: red;font-size: 16px;" id="responseMessage"></p>
+                                      
+                                    <div class="col-lg-4 px-4">
+
+                                            <h6>Start Date</h6>
+                                        <p id="StartDate"> </p>
+                                            <h6>End Date</h6>
+                                        <p id="EndDate"> </p>
+                                        
+                                    </div>
+                                    <p>Admin Comment</p>
+                                    <p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
+                                    <p id="approverejectrequire" style="color: red;"></p>
+                                    <div class="modal-footer">
+                                            <button type="button"  onclick="ApproveRejectAttendance(false)" class="btn btn-primary">Reject</button>
+                                            <button type="button" id="approveButton" onclick="ApproveRejectAttendance(true)" class="btn btn-info">Approve</button>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        ApprovalAttendanceAutoReload();
+    });
+
+    function ApprovalAttendanceAutoReload() {
+        let tableId = '#tblAttendanceForApproval';
+        let url = '@(_configuration["AppSettings:RootUrl"])Employee/AttendenceList/GetApprovedAttendance/';
+
+        RefreshTable(tableId, url);
+
+        if (!$.fn.DataTable.isDataTable(tableId)) {
+            InitOverviewDataTable();
+        }
+    }
+
+    function InitOverviewDataTable() {
+        $('#tblAttendanceForApproval').DataTable({
+            ordering: true,
+            paging: true,
+            searching: true,
+            info: true,
+            responsive: true,
+            columns: [
+                { data: "employeeName", autoWidth: true },
+                {
+                    data: "firstLogDate",
+                    autoWidth: true,
+                    render: function (data, type, row) {
+                        // Format firstLogDate to display AM/PM
+                        return formatDate(data);
+                    }
+                },
+                {
+                    data: "lastLogDate",
+                    autoWidth: true,
+                    render: function (data, type, row) {
+                        // Format lastLogDate to display AM/PM
+                        return formatDate(data);
+                    }
+                },
+                { data: "hoursWorked", autoWidth: true },
+                { data: "attendanceStatus", autoWidth: true },
+                {
+                    render: function (data, type, row) {
+                        return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.comments}')" href="#" title="Approve">
+                                        <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
+                                    </a>`;
+                    }
+                }
+            ]
+        });
+    }
+
+    // Helper function to format date with AM/PM
+    function formatDate(dateString) {
+        var date = new Date(dateString);
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        var strTime = hours + ':' + minutes + ' ' + ampm;
+
+        var day = date.getDate();
+        var month = date.getMonth() + 1; // Months are zero-based
+        var year = date.getFullYear();
+
+        // Return formatted date in desired format (e.g., DD/MM/YYYY hh:mm AM/PM)
+        return day + '/' + month + '/' + year + ' ' + strTime;
+    }
+
+
+    function RefreshTable(tableId, url) {
+        $.post(url, function (json) {
+            if (json.data && json.data.attendances) {
+                let table = $(tableId).DataTable();
+                table.clear();
+                console.log(json.data.attendances);
+                table.rows.add(json.data.attendances).draw();
+            }
+        });
+    }
+
+
+    function ApproveRejectAttendance(isApproved) {
+        let actionText = isApproved ? "approve" : "reject";
+        if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
+            let employeeID = $("#employeeID").val();
+            var ApproveRejectComment = $("#ApproveRejectComment").val();
+            if (ApproveRejectComment == "") {
+                $("#approverejectrequire").text('');
+                $("#approverejectrequire").text('Comment required');
+                return;
+            }
+            let data = {
+                employeeID: employeeID,
+                isApproved: isApproved,
+                ApproveRejectComment: ApproveRejectComment
+                
+            };
+            var urlData = '/employee/attendancelist/ApproveRejectAttendance/';
+            $.post(urlData, data, function (json) {
+                console.log(json.data);
+                if (json.data && json.data.message) {
+
+                    if (json.data.status == 1) {
+                        $("#approverejectrequire").text('');
+                        $("#approverejectrequire").text(json.data.message);
+
+                    }
+                    else {
+                        $.toast({
+                            heading: 'Success',
+                            text: "Attendance status updated successfully.",
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            position: 'top-right',
+                        });
+                        CloseApproveRejectModel();
+                        AutoReload();
+                        $("#ApproveRejectComment").val("");
+                    }               
+                } else {
+                    $.toast({
+                        heading: 'Success',
+                        text: "Attendance status updated successfully.",
+                        showHideTransition: 'slide',
+                        icon: 'success',
+                        position: 'top-right',
+                    });
+                    $("#ApproveRejectComment").val("");
+
+                }
+
+            });
+        }
+    }
+
+
+    function OpenApproveRejectModel(employeeID, Id, firstLogDate, lastLogDate, comments) {
+        $("#employeeID").val(employeeID);
+        $.ajax({
+            url: '/employee/AttendenceList/GetEmployeeAttendanceShiftDetails',
+            type: 'GET',
+            data: { employeeID: employeeID, Id: Id },
+            success: function (response) {
+                $("#FullName").text(response.fullName);
+                $("#EmployeeJoiningdate").text(response.employeeJoiningdate);
+                $("#StartDate").text(firstLogDate);
+                $("#EndDate").text(lastLogDate);
+                debugger;
+                var logFirstTime = new Date(firstLogDate);
+                var logLastTime = new Date(lastLogDate);
+
+                var shiftStartTime = new Date(logFirstTime.toDateString() + ' ' + response.shiftStartDate);
+                var shiftEndTime = new Date(logLastTime.toDateString() + ' ' + response.shiftEndDate);
+
+             
+                 
+                if (shiftStartTime.getTime() !== logFirstTime.getTime() || shiftEndTime.getTime() !== logLastTime.getTime()) {
+                    $('#responseMessage').text(' The provided times do not match the shift times.');
+                    $('#responseMessage').css('color', 'red'); // Optionally, style the error message
+                    
+                    $('#approveButton').prop('disabled', true);
+                } else {
+                    // If times match, enable the "Approve" button
+                    $('#responseMessage').text('The times match.');
+                    $('#responseMessage').css('color', 'green'); // Success message style
+                    $('#approveButton').prop('disabled', false);
+                }
+
+            },
+            error: function (xhr, status, error) {
+                $('#responseMessage').text('Error: ' + xhr.responseText);
+            }
+        });
+        $('#ApproveRejectModel').modal('show');
+    }
+
+    function CloseApproveRejectModel() {
+        $('#ApproveRejectModel').modal('hide');
+    }
+</script>
+

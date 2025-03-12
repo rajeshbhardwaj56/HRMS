@@ -4,30 +4,27 @@
 @model Results
 @{
     Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Attendence List";
+    ViewData["Title"] = "Attendance List";
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
 
 
-<div class="main-header anim" style="--delay: 0s">My Attendence List  <a href="~/Employee/AttendenceList/MyAttendance"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
-
-@* <div class="addcomp px-4">
-    <h4>Attendence List</h4>
-    <a href="~/Admin/AttendenceList"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Attendence</button></a>
-</div>
- *@
+<div class="main-header anim" style="--delay: 0s">My Attendance List  <a href="~/Employee/AttendenceList/MyAttendance"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
 
 <div class="table-responsive py-3">
     <table id="tblAttendenceListing" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden" /th>
-                <th>My Name</th>
+                <th>Name</th>
                 <th>AttendenceDate</th>
                 <th>First Login </th>
                 <th>Last Login</th>
+                <th>Manager L1 Name</th>
+                <th>Manager L2 Name</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -35,7 +32,9 @@
     </table>
 </div>
 <script type="text/javascript">
-
+ 
+    var managerNameL1 = '@Html.Raw(ViewBag.ManagerL1)';
+    var managerNameL2 = '@Html.Raw(ViewBag.ManagerL2)';
     $(document).ready(function () {
         $('#tblAttendenceListing').DataTable({
             "ajax": {
@@ -43,8 +42,13 @@
                 "type": "POST",
                 "datatype": "json",
                 "dataSrc": function (json) {
-                    console.log('Data from server:', json); // Log the full response
-                    return json.data.attendances;  // Access the attendances array inside the data object
+                    var attendances = json.data.attendances;
+                    for (var i = 0; i < attendances.length; i++) {
+                        attendances[i].managerNameL1 = managerNameL1;  
+                        attendances[i].managerNameL2 = managerNameL2;   
+                    }
+
+                    return attendances;   
                 }
             },
             "ordering": true,
@@ -66,30 +70,67 @@
                     }
                 },
                 {
-                    "data": "firstLogDate", "autoWidth": true,  // First Log Date
+                    "data": "firstLogDate",
+                    "autoWidth": true,  // First Log Date
                     "render": function (data, type, row) {
                         if (data) {
                             var date = new Date(data);
-                            var formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
-                            var formattedTime = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0') + ':' + date.getSeconds().toString().padStart(2, '0');
-                            return formattedDate + ' ' + formattedTime;  // Return date and time
+
+                            // Format the date (YYYY-MM-DD)
+                            var formattedDate = date.getFullYear() + '-' +
+                                (date.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                                date.getDate().toString().padStart(2, '0');
+
+                            // Get hours, minutes, and seconds in 12-hour format
+                            var hours = date.getHours();
+                            var minutes = date.getMinutes().toString().padStart(2, '0');
+                            var seconds = date.getSeconds().toString().padStart(2, '0');
+
+                            // Convert to 12-hour format
+                            var ampm = hours >= 12 ? 'PM' : 'AM';
+                            hours = hours % 12 || 12;  // Convert 0 to 12 for 12-hour format
+
+                            // Format time with AM/PM
+                            var formattedTime = hours.toString().padStart(2, '0') + ':' + minutes + ':' + seconds + ' ' + ampm;
+
+                            return formattedDate + ' ' + formattedTime;  // Return formatted date and time
                         }
                         return '';  // If no date is provided
                     }
-                },
+                }
+                ,
                 {
                     "data": "lastLogDate", "autoWidth": true,  // Last Log Date
                     "render": function (data, type, row) {
                         if (data) {
                             var date = new Date(data);
-                            var formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
-                            var formattedTime = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0') + ':' + date.getSeconds().toString().padStart(2, '0');
-                            return formattedDate + ' ' + formattedTime;  // Return date and time
+
+                            // Format the date (YYYY-MM-DD)
+                            var formattedDate = date.getFullYear() + '-' +
+                                (date.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                                date.getDate().toString().padStart(2, '0');
+
+                            // Get hours, minutes, seconds in 12-hour format
+                            var hours = date.getHours();
+                            var minutes = date.getMinutes().toString().padStart(2, '0');
+                            var seconds = date.getSeconds().toString().padStart(2, '0');
+
+                            // Convert to 12-hour format
+                            var ampm = hours >= 12 ? 'PM' : 'AM';
+                            hours = hours % 12 || 12;  // Convert 0 to 12 for 12-hour format
+
+                            // Format time with AM/PM
+                            var formattedTime = hours.toString().padStart(2, '0') + ':' + minutes + ':' + seconds + ' ' + ampm;
+
+                            return formattedDate + ' ' + formattedTime;  // Return formatted date and time
                         }
                         return '';  // If no date is provided
                     }
-                },
-
+                }
+                ,
+                { "data": "managerNameL1", "autoWidth": true },
+                { "data": "managerNameL2", "autoWidth": true },
+                { "data": "attendanceStatus", "autoWidth": true },
                 {
                     mRender: function (data, type, row) {
                         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top" class="item" href="MyAttendance?id=' + row.id + '" title="" data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';

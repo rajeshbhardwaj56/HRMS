@@ -96,9 +96,11 @@ namespace HRMS.Models.DashBoard
     {
         public long? EmployeeId { get; set; }
         public string FirstName { get; set; }
+
+        public string MiddelName { get; set; }
         public string LastName { get; set; }
         public DateTime DOB { get; set; }
-        public string EmplpoyeePhoto { get; set; }
+        public string EmployeePhoto { get; set; }
         public string? DesignationName { get; set; }
         public string? DepartmentName { get; set; }
     }

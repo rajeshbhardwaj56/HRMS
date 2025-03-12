@@ -77,9 +77,13 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_DistinctPolicyCategoryDetails = "usp_Get_DistinctPolicyCategoryDetails";
         public const string sp_GetAttendanceDeviceLog = "sp_GetAttendanceDeviceLog";
         public const string sp_GetTeamAttendanceDeviceLog = "sp_GetTeamAttendanceDeviceLog";
+        public const string sp_GetMyAttendanceLog = "sp_GetMyAttendanceLog";
+        public const string usp_Get_AttendanceForApprovals = "usp_Get_AttendanceForApprovals";
+        public const string usp_Get_ApprovedAttendance = "usp_Get_ApprovedAttendance";
 
 
         public const string sp_SaveAttendanceDeviceLog = "sp_SaveAttendanceDeviceLog";
+        public const string sp_SaveAttendanceManualLog = "sp_SaveAttendanceManualLog";
         public const string GetAttendanceDeviceLogById = "GetAttendanceDeviceLogById";
         public const string sp_DeleteAttendanceDeviceLog = "sp_DeleteAttendanceDeviceLog";
     }

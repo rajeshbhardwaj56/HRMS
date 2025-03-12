@@ -38,12 +38,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [AllowAnonymous]
         public JsonResult GetAllAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            AttandanceInputParams attendenceListParams = new AttandanceInputParams();
+            AttendanceInputParams attendenceListParams = new AttendanceInputParams();
              attendenceListParams.Month = DateTime.Now.Month;
             //attendenceListParams.Month =1;
             attendenceListParams.Year = DateTime.Now.Year;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
    
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
 
@@ -52,13 +52,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         public IActionResult Index(string id)
         {
-            Attandance model = new Attandance();
+            Attendance model = new Attendance();
 
             if (!string.IsNullOrEmpty(id))
             {
                 model.ID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttandanceModel;
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendanceModel;
 
             }
 
@@ -70,7 +70,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
         [HttpPost]
-        public IActionResult Index(Attandance AttendenceListModel)
+        public IActionResult Index(Attendance AttendenceListModel)
         {
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
                 var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -113,7 +113,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult DeleteAttendanceDetails(int id)
         {
-            Attandance model = new Attandance()
+            Attendance model = new Attendance()
             {
                 ID = id,
             };
@@ -146,14 +146,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             // Concatenate full name
             var employeeFullName = string.Join(" ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
 
-            AttandanceInputParams models = new AttandanceInputParams
+            AttendanceInputParams models = new AttendanceInputParams
             {
                 Year = year,
                 Month = month,
                 UserId = employeeId,
             };
 
-            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
 
             return Json(new { data = model, employeeFullName = employeeFullName });

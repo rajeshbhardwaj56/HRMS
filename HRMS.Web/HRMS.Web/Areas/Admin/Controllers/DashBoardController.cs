@@ -24,14 +24,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            AttandanceInputParams models = new AttandanceInputParams();  
-            //var datas = _businessLayer.SendPostAPIRequest(models,_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetAttandance), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            
-           
-
-
-
-
+            AttendanceInputParams models = new AttendanceInputParams();  
+            //var datas = _businessLayer.SendPostAPIRequest(models,_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetAttandance), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();       
             var CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
 
             DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };

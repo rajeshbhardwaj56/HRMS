@@ -3,15 +3,15 @@
 
 @model Results
 @{
-    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Attendance List";
+    Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Attendance Logs";
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
 
 
-<div class="main-header anim" style="--delay: 0s">Attendance List  <a href="~/Admin/AttendenceList"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
+<div class="main-header anim" style="--delay: 0s">Attendance List  <a href="~/Employee/AttendenceList"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
 
 @* <div class="addcomp px-4">
     <h4>Attendence List</h4>
@@ -20,15 +20,15 @@
  *@
 
 <div class="table-responsive py-3">
-    <table id="tblAttendenceListing" class="table table-striped body-text" style="width:100%">
+    <table id="tblAttendenceLogs" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden" /th>
-                <th>Employee Name</th>
-                <th>AttendenceDate</th>
-                <th>First Login </th>
-                <th>Last Login</th>
-                <th>Action</th>
+                <th>Description</th>
+                <th>Created Date</th>
+                <th>Created By </th>
+                <th>EmployeeId</th>
+                <th>AttendanceStatus</th>
             </tr>
         </thead>
 
@@ -40,9 +40,9 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        $('#tblAttendenceListing').DataTable({
+        $('#tblAttendenceLogs').DataTable({
             "ajax": {
-                "url": "GetAllAttendenceList/",
+                "url": "GetTeamAttendanceLogs/",
                 "type": "POST",
                 "datatype": "json",
                 "dataSrc": function (json) {

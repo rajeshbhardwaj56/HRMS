@@ -7,71 +7,93 @@
 @inject IConfiguration _configuration
 @using HRMS.Models.DashBoard
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-@model List<EmployeeDetails>
+@model HRMS.Models.Common.Results
 @{
-    var sno = 0;
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
+    ViewData["Title"] = "Employee";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
 }
-
-<div class="group-box anim">
-    <div class="tabsInfo" id="myTabContent-timeoff">
-        <h3>Employee List</h3>
-
-    </div>
-    <div role="tabpanel" aria-labelledby="apply-tab">
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12">
-                <div class="card">
-                    <div class="card-body">
-                        <table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>SNo</th>
-                                    <th>Image</th>
-                                    <th>First Name</th>
-                                    <th>Last Name</th>
-                                    <th>DOB</th>
-                                    <th>Designation</th>
-                                    <th>Department</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model != null && Model.Any())
-                                {
-                                    foreach (var item in Model)
-                                    {
-                                        var UserPhoto = "/Uploads/ProfilePhoto/" + item.EmployeeId +"/" + @item.EmplpoyeePhoto;
-                                        sno = sno + 1;
-                                        <tr style="text-align: center; ">
-                                            <td>@sno</td>
-                                            <td>
-                                                @if (UserPhoto != null)
-                                                {
-                                                    <img src="@UserPhoto" alt="@item.FirstName" class="img-thumbnail" style="width: 50px; height: 50px;" />
-                                                }
-                                                else
-                                                {
-                                                    <img src="/assets/img/No_image.png" alt="@item.FirstName" class="img-thumbnail" style="width: 50px; height: 50px;" />
-                                                }
-                                            </td>
-                                            <td>@item.FirstName</td>
-                                            <td>@item.LastName</td>
-                                            <td>@item.DOB.ToString("dd/MM/yyyy")</td>
-                                            <td>@item.DesignationName</td>
-                                            <td>@item.DepartmentName</td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr><td colspan="5">No records found</td></tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="main-header anim">Employee List</div>
+<div class="table-responsive py-3">
+    <table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden" > </th>
+                <th>Image</th>
+                <th>First Name</th>
+                <th>Middel Name</th>
+                <th>Surname</th>
+                <th>DOB</th>
+                <th>Designation</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+    </table>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#tblLeavesForReject').DataTable({
+            "ajax": {
+                "url": "GetTeamEmployeeList/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "employeeId", "autoWidth": true, },
+                {
+
+                    "data": "employeePhoto",
+                    "render": function (data, type, row) {
+                        var imagePath = data ? "/Uploads/ProfilePhoto/" + row.employeeId + "/" + data : "/assets/img/No_image.png";
+                        return '<img src="' + imagePath + '" class="img-thumbnail" style="width: 50px; height: 50px;" />';
+
+                    }
+                },
+                { "data": "firstName", "autoWidth": true },
+                { "data": "middelName", "autoWidth": true },
+                { "data": "lastName", "autoWidth": true },
+                {
+                    "data": "dob",
+                    "render": function (data, type, row) {
+
+                        var date = new Date(data);
+                        var formattedDate = date.toISOString().split('T')[0];
+                        return formattedDate;
+                    },
+                    "autoWidth": true
+                },
+                { "data": "designationName", "autoWidth": true },
+                { "data": "departmentName", "autoWidth": true }
+            ],
+             "columnDefs": [
+                 {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+                {
+
+                    "targets": [0],
+                    "orderable": false,
+                     "visible": false
+                },
+                 {
+
+                    "targets": [1],
+                     "orderable": true,
+                     "defaultContent": " "
+                }
+
+             ]
+             , "responsive": true
+        });
+    });
+</script>

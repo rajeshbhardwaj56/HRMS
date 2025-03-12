@@ -26,26 +26,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetDashBoardodel(model));
             return response;
         }
-        [HttpPost]
-        public IActionResult GetAttandance(AttandanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendance(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetAttendanceForCalendar(AttandanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendanceForCalendar(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetTeamAttendanceForCalendar(AttandanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetTeamAttendanceForCalendar(model));
-            return response;
-        }
+      
+      
     }
 }

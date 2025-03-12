@@ -67,12 +67,20 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeletePolicyCategory(PolicyCategoryInputParams model);
         public List<LeavePolicyDetailsModel> PolicyCategoryDetails(PolicyCategoryInputParams model);
         public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
-        public Results GetAttendance(AttandanceInputParams model);
-        public AttendanceWithHolidays GetAttendanceForCalendar(AttandanceInputParams model);
-        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttandanceInputParams model);
-        public Result AddUpdateAttendace(Attandance att);
-        public Results GetAttendenceListID(Attandance model);
+        public AttendanceInputParams GetAttendance(AttendanceInputParams model);
+        public AttendanceWithHolidays GetAttendanceForCalendar(AttendanceInputParams model);
+        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttendanceInputParams model);
+        public Result AddUpdateAttendace(Attendance att);
+        public Results GetAttendenceListID(Attendance model);
 
-        public string DeleteAttendanceDetails(Attandance model);
+        public AttendanceLogResponse GetAttendanceDeviceLogs(AttendanceDeviceLog model);
+
+        public string DeleteAttendanceDetails(Attendance model);
+        public MyAttendanceList GetMyAttendanceList(AttendanceInputParams model);
+
+        public MyAttendanceList GetAttendanceForApproval(AttendanceInputParams model);
+        public MyAttendanceList GetApprovedAttendance(AttendanceInputParams model);
+
+
     }
 }

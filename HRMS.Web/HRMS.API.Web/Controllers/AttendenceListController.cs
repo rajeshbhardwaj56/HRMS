@@ -37,7 +37,7 @@ namespace HRMS.API.Web.Controllers
 
         }
         [HttpPost]
-        public IActionResult AddUpdateAttendace(Attandance model)
+        public IActionResult AddUpdateAttendace(Attendance model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.AddUpdateAttendace(model));
@@ -45,7 +45,7 @@ namespace HRMS.API.Web.Controllers
 
         }
         [HttpPost]
-        public IActionResult GetAttendenceListID(Attandance model)
+        public IActionResult GetAttendenceListID(Attendance model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAttendenceListID(model));
@@ -54,13 +54,64 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteAttendanceDetails(Attandance model)
+        public IActionResult DeleteAttendanceDetails(Attendance model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.DeleteAttendanceDetails(model));
             return response;
 
         }
+        [HttpPost]
+        public IActionResult GetMyAttendanceList(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetMyAttendanceList(model));
+            return response;
 
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult GetAttendance(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAttendance(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetAttendanceForCalendar(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAttendanceForCalendar(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetTeamAttendanceForCalendar(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetTeamAttendanceForCalendar(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetApprovedAttendance(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetApprovedAttendance(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetAttendanceForApproval(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAttendanceForApproval(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetAttendanceDeviceLogs(AttendanceDeviceLog model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAttendanceDeviceLogs(model));
+            return response;
+        }
     }
 }

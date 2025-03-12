@@ -4,7 +4,7 @@
 @inject IConfiguration _configuration
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-    ViewData["Title"] = "Attendence List";
+    ViewData["Title"] = "Attendance List";
 }
 <head>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.3.1/fullcalendar.min.css" rel="stylesheet">
@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.3.1/fullcalendar.min.js"></script>
     <style>
         #calendar {
-            max-width: 900px;
+    /*         max-width: 900px; */
             margin: 0 auto;
         }
 
@@ -43,11 +43,11 @@
             background-color: #fff;
             padding: 20px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 9px;
             z-index: 9999;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 380px;
-            Height: 265px;
+            box-shadow: 0 4px 8px rgb(50 48 48 / 20%);
+            width: 900px;
+            min-height: 210px;
         }
 
             #popup h3 {
@@ -63,29 +63,36 @@
             }
 
         .status-label.absent {
-            font-size: 18px;
-            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             color: white;
             border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
             width: 30px;
             height: 30px;
             text-align: center;
             line-height: 30px;
-            margin-top: 24px;
-            margin-left: 42px;
+            cursor: pointer;
+
         }
 
         .status-label.present {
-            font-size: 18px;
-            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             color: white;
             border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
             width: 30px;
             height: 30px;
             text-align: center;
             line-height: 30px;
-            margin-top: 24px;
-            margin-left: 42px;
+            cursor: pointer;
         }
 
         .fc-slats {
@@ -98,8 +105,9 @@
 
         .attendance-calenderlist {
             display: flex;
-            justify-content: space-evenly;
+            justify-content: space-between;
             background: #edf3ff;
+            padding-inline: 5px;
         }
 
         /*    .group-box.anim h1 {
@@ -116,17 +124,13 @@
         label.years {
             font-weight: bold;
             padding-top: 7px;
-            padding-right: 12px;
         }
 
         .atendance-calender-section h1 {
             color: #fff;
         }
 
-        select#yearDropdown {
-            margin-inline: 15px;
-        }
-
+        
         .card {
             margin: 10px !important;
             padding-block: 14px !important;
@@ -138,6 +142,7 @@
             display: flex;
             flex-direction: row;
             padding-block: 20px;
+            column-gap: 10px;
         }
 
         h6#employeeFullName {
@@ -259,9 +264,7 @@
         }
 
         #workDetails {
-            box-shadow: rgb(236, 241, 248) 0px 2px 8px 0px;
-            padding: 25px 20px;
-            margin: 15px 20px;
+            margin: 5px 10px 21px;
         }
 
         /* .cardfooter-card
@@ -306,64 +309,136 @@
             right: -2px;
             font-size: 22px;
             cursor: pointer;
-            color: red;
+            color: #05397b;
+            font-weight: 800;
         }
 
         #popup h3 {
             margin-top: 0;
+            font-size: 20px;
             text-align: center;
-            font-size: 18px;
-            text-align: center;
+            font-weight: 800;
+            border-bottom: 1px solid #053777;
         }
 
         .status-label.sunday {
             background-color: #010101;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             color: white;
-            border-radius: 5px;
-            padding: 2px 5px;
+            border-radius: 50%;
             font-weight: bold;
             font-size: 18px;
-            border-radius: 50%;
             width: 30px;
             height: 30px;
             text-align: center;
             line-height: 30px;
-            margin-top: 24px;
-            margin-left: 42px;
+            cursor: pointer;
         }
 
         .status-label.leave {
+         
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background-color: #e86262;
             color: white;
-            padding: 2px 5px;
-            border-radius: 3px;
+            border-radius: 50%;
             font-weight: bold;
             font-size: 18px;
-            border-radius: 50%;
             width: 30px;
             height: 30px;
             text-align: center;
             line-height: 30px;
-            margin-top: 24px;
-            margin-left: 42px;
+            cursor: pointer;
         }
 
         .status-label.holiday {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background-color: #010101;
             color: white;
-            border-radius: 5px;
-            padding: 2px 5px;
+            border-radius: 50%;
             font-weight: bold;
             font-size: 18px;
-            border-radius: 50%;
             width: 30px;
             height: 30px;
             text-align: center;
             line-height: 30px;
-            margin-top: 24px;
-            margin-left: 42px;
+            cursor:pointer;
+        }
+        td{
+            position: relative;
+        }
+        span.fc-day-number {
+            font-size: 16px;
+            font-weight: 600;
         }
 
+        select#monthDropdown {
+            border-radius: 6px;
+        }
+
+        select#yearDropdown {
+            border-radius: 6px;
+        }
+
+        .detailed-attendance{
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid #b6bfd3;
+            /* width: 100%; */
+            display: flex;
+            margin-bottom: -15px;
+        }
+
+        span.label-details {
+            font-size: 15px;
+            font-weight: 600;
+            color: #053777;
+        }
+
+        span.employee-details {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        span.no-detailsfound {
+            text-align: center;
+            display: flex;
+            justify-content: center;                                                                                                             
+            font-size: 16px;
+            font-weight: 500;
+            transform: translate(0px, 25px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fc-state-active {
+            background-color: #053776;
+            background-image: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, .15), 0 1px 2px rgba(0, 0, 0, .05);
+            color: white;
+        }
+
+        @@media screen and (max-width:1320px)
+        {
+        div#card-footer-card {
+            display: flex;
+            flex-direction: row;
+            text-align: center;
+            justify-content: center;
+            /* padding-inline: 12px; */
+            /* gap: 5px; */
+            margin-right: 20px;
+            height: 65px;
+        }
+        }
     </style>
 </head>
 
@@ -382,15 +457,16 @@
             </div>
             <div class="year-months">
                 <label class="years">Year</label>
-                <select id="yearDropdown" class="form-control"></select>
+                <select id="yearDropdown" class="select-control"></select>
                 <label class="years">Month</label>
-                <select id="monthDropdown" class="form-control"></select>
+                <select id="monthDropdown" class="select-control"></select>
             </div>
 
 
         </div>
 
         <div id="calendar"></div>
+
         <div class="footer-text-content">
             <p class="footer-text">In this box each corresponding <br />a to indicate attendance status.</p>
             <div class="cardfooter-card" id="card-footer-card">
@@ -428,10 +504,10 @@
     <div id="popup">
         <div class="row" id="poup-workdetail">
             <div class="col-md-12">
-                <h3 class="detail-poup">Work Details</h3>
+                <h3 class="detail-poup">Attendance Details</h3>
             </div>
             <div class="col-md-2">
-                <h1 class="cross" id="closePopup"> X </h1>
+                <h1 class="cross" id="closePopup"> x </h1>
             </div>
 
         </div>
@@ -441,12 +517,9 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-            // Initialize current date values based on the current date
+        $(document).ready(function () {          
             var currentYear = new Date().getFullYear();
-            var currentMonth = new Date().getMonth();
-
-            // Populate year dropdown starting from 2020 to current year
+            var currentMonth = new Date().getMonth();          
             for (var year = 2020; year <= currentYear; year++) {
                 $('#yearDropdown').append(new Option(year, year));
             }
@@ -464,7 +537,7 @@
             function loadCalendar(year, month) {
                 // Make AJAX request to get data based on selected year and month
                 $.ajax({
-                    url: '/admin/AttendenceList/AttendenceCalendarList',
+                    url: '/employee/AttendenceList/AttendenceCalendarList',
                     method: 'GET',
                     data: {
                         Year: year,
@@ -588,19 +661,20 @@
                             },
                             dayClick: function (date, jsEvent, view) {
                                 var formattedDate = date.format("YYYY-MM-DD");
-                                var popupContent = 'No details found for this date.'; // Default message
+                                var popupContent = '<span class="no-detailsfound"><i class="bi bi-exclamation-lg fs-4"></i>No details found for this date.</span>'; // Default message
 
                                 // Check if the clicked date matches any attendance records
                                 $.each(data.data.attendances, function (index, item) {
                                     var itemDate = moment(item.workDate).format("YYYY-MM-DD");
                                     if (itemDate === formattedDate) {
-                                        popupContent = '<strong>Attendance Details</strong><br>' +
-                                            'Name: ' + item.employeeName + '<br>' +
-                                            'Hours Worked: ' + item.hoursWorked + '<br>' +
-                                            'First Log: ' + moment(item.firstLogDate).format("DD-MM-YYYY") + '<br>' +
-                                            'Last Log: ' + moment(item.lastLogDate).format("DD-MM-YYYY");
-                                        return false; 
+                                        popupContent = 
+                                            '<span class="label-details"> <i class="bi bi-person-circle fs-6 me-1"></i> Name: </span><span class="employee-details">' + item.employeeName + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-alarm-fill fs-6 me-2"></i>Hours Worked: </span><span class="employee-details">' + item.hoursWorked + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-box-arrow-in-right fs-6 me-2"></i>First Log: </span><span class="employee-details">' + moment(item.firstLogDate).format("DD-MM-YYYY hh:mm A") + '</span><br>' +
+                                            '<span class="label-details"> <i class="bi bi-box-arrow-in-left fs-6 me-2"></i>Last Log: </span><span class="employee-details">' + moment(item.lastLogDate).format("DD-MM-YYYY hh:mm A") + '</span>';
+                                        return false;
                                     }
+
                                 });
 
                                 // Check if the clicked date matches any leave records
@@ -610,9 +684,9 @@
 
                                     if (formattedDate >= leaveStart && formattedDate <= leaveEnd) {
                                         popupContent = '<strong>Leave Details</strong><br>' +
-                                            'Reason: ' + leave.reason + '<br>' +
-                                            'Start Date: ' + moment(leave.startDate).format("DD-MM-YYYY") + '<br>' +
-                                            'End Date: ' + moment(leave.endDate).format("DD-MM-YYYY");
+                                            '<span class="label-details"><i class="bi bi-card-list fs-6 me-1"></i> Reason:</span> <span class="employee-details">' + leave.reason + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-align-start fs-6 me-1"></i></i>Start Date:</span> <span class="employee-details">' + moment(leave.startDate).format("DD-MM-YYYY") + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-align-end fs-6 me-1"></i>End Date:</span> <span class="employee-details">' + moment(leave.endDate).format("DD-MM-YYYY") + '</span>';
                                         return false; 
                                     }
                                 });
@@ -624,9 +698,9 @@
 
                                     if (formattedDate >= holidayStart && formattedDate <= holidayEnd) {
                                         popupContent = '<strong>Holiday Details</strong><br>' +
-                                            'Holiday Name: ' + holiday.holidayName + '<br>' +
-                                            'From: ' + moment(holiday.fromDate).format("DD-MM-YYYY") + '<br>' +
-                                            'To: ' + moment(holiday.toDate).format("DD-MM-YYYY");
+                                            '<span class="label-details"><i class="bi bi-calendar-minus fs-6 me-1"></i>Holiday Name:</span><span class="employee-details">' + holiday.holidayName + '</span> <br>' +
+                                            '<span class="label-details"><i class="bi bi-calendar-week fs-6 me-1"></i>From:</span><span class="label-details"> ' + moment(holiday.fromDate).format("DD-MM-YYYY") + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-calendar-week fs-6 me-1"></i> To: </span> <span class="label-details">' + moment(holiday.toDate).format("DD-MM-YYYY") + '</span>';
                                         return false; 
                                     }
                                 });

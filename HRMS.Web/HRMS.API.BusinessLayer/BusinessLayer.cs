@@ -69,6 +69,10 @@ namespace HRMS.API.BusinessLayer
                                    GenderId = dataRow.Field<int>("Gender"),
                                    Role = dataRow.Field<string>("Role"),
                                    RoleId = dataRow.Field<int>("RoleId"),
+                                   Manager1Name = dataRow.Field<string>("Manager1Name"),
+                                   Manager1Email = dataRow.Field<string>("Manager1Email"),
+                                   Manager2Email = dataRow.Field<string>("Manager2Email"),
+                                   Manager2Name = dataRow.Field<string>("Manager2Name"),
                                    IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                }).ToList().FirstOrDefault();
             }
@@ -153,7 +157,7 @@ namespace HRMS.API.BusinessLayer
                                       PermanentAddress = dataRow.Field<string>("PermanentAddress"),
                                       PermanentCity = dataRow.Field<string>("PermanentCity"),
                                       PermanentPinCode = dataRow.Field<string>("PermanentPinCode"),
-                                      PermanentState = dataRow.Field<string>("PermanentPinCode"),
+                                      PermanentState = dataRow.Field<string>("PermanentState"),
                                       PermanentCountryID = dataRow.Field<long>("PermanentCountryID"),
                                       VerificationContactPersonName = dataRow.Field<string>("VerificationContactPersonName"),
                                       VerificationContactPersonContactNo = dataRow.Field<string>("VerificationContactPersonContactNo"),
@@ -184,6 +188,7 @@ namespace HRMS.API.BusinessLayer
                                       LeavePolicyID = dataRow.Field<long?>("LeavePolicyID"),
                                       JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
                                       IsActive = dataRow.Field<bool>("IsActive"),
+                                      ShiftTypeID = dataRow.Field<long>("ShiftTypeID"),
 
 
                                   }).ToList();
@@ -867,6 +872,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@LeavePolicyID", employmentDetails.LeavePolicyID));
             sqlParameter.Add(new SqlParameter("@ReportingToIDL2", employmentDetails.ReportingToIDL2));
             sqlParameter.Add(new SqlParameter("@ClientName", employmentDetails.ClientName));
+            sqlParameter.Add(new SqlParameter("@SubDepartmentID", employmentDetails.SubDepartmentID));
+            sqlParameter.Add(new SqlParameter("@ShiftTypeID", employmentDetails.ShiftTypeID));
 
 
             SqlParameterCollection pOutputParams = null;
@@ -918,7 +925,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetailsFormDetails, sqlParameter);
-            EmploymentDetail employmentDetail = dataSet.Tables[6].AsEnumerable()
+            EmploymentDetail employmentDetail = dataSet.Tables[8].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
                                 EmployeeID = dataRow.Field<long>("EmployeeID"),
@@ -928,8 +935,7 @@ namespace HRMS.API.BusinessLayer
                                 DesignationID = dataRow.Field<long>("DesignationID"),
                                 DepartmentID = dataRow.Field<long>("DepartmentID"),
                                 JobLocationID = dataRow.Field<long>("JobLocationID"),
-                                ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
-                                
+                                ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),                               
                                 OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
                                 OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
                                 DesignationName = dataRow.Field<string>("DesignationName"),
@@ -943,7 +949,8 @@ namespace HRMS.API.BusinessLayer
                                 EmployeeType = dataRow.Field<string>("EmployeeType"),
                                 ReportingToIDL2 = dataRow.Field<long>("ReportingToIDL2"),
                                 ClientName = dataRow.Field<string>("ClientName"),
-                                
+                                SubDepartmentID = dataRow.Field<long>("SubDepartmentID"),
+                                ShiftTypeID = dataRow.Field<long>("ShiftTypeID"),
 
                             }).ToList().FirstOrDefault();
 
@@ -982,29 +989,39 @@ namespace HRMS.API.BusinessLayer
                                  Value = dataRow.Field<long>("ID").ToString()
                              }).ToList();
 
-
-            employmentDetail.Designations = dataSet.Tables[4].AsEnumerable()
+            employmentDetail.SubDepartments = dataSet.Tables[4].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Text = dataRow.Field<string>("Name"),
+                                 Value = dataRow.Field<long>("ID").ToString()
+                             }).ToList();
+            employmentDetail.Designations = dataSet.Tables[5].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Text = dataRow.Field<string>("Name"),
                                  Value = dataRow.Field<long>("ID").ToString()
                              }).ToList();
 
-
-            employmentDetail.EmployeeList = dataSet.Tables[5].AsEnumerable()
+            employmentDetail.ShiftTypes = dataSet.Tables[6].AsEnumerable()
+                             .Select(dataRow => new SelectListItem
+                             {
+                                 Text = dataRow.Field<string>("Name"),
+                                 Value = dataRow.Field<long>("ID").ToString()
+                             }).ToList();
+            employmentDetail.EmployeeList = dataSet.Tables[7].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Value = dataRow.Field<long>("EmployeeID").ToString(),
                                  Text = dataRow.Field<string>("Name")
                              }).ToList();
 
-            employmentDetail.LeavePolicyList = dataSet.Tables[7].AsEnumerable()
+            employmentDetail.LeavePolicyList = dataSet.Tables[9].AsEnumerable()
                             .Select(dataRow => new SelectListItem
                             {
                                 Value = dataRow.Field<long>("LeavePolicyID").ToString(),
                                 Text = dataRow.Field<string>("LeavePolicyName")
                             }).ToList();
-            employmentDetail.RoleList = dataSet.Tables[8].AsEnumerable()
+            employmentDetail.RoleList = dataSet.Tables[10].AsEnumerable()
                 .Select(dataRow => new SelectListItem
                 {
                     Value = dataRow.Field<int>("RoleID").ToString(),
@@ -1027,7 +1044,7 @@ namespace HRMS.API.BusinessLayer
             
 
 
-            EmploymentDetail employmentDetail = dataSet.Tables[6].AsEnumerable()
+            EmploymentDetail employmentDetail = dataSet.Tables[8].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
                                 EmployeeID = dataRow.Field<long>("EmployeeID"),
@@ -1053,7 +1070,8 @@ namespace HRMS.API.BusinessLayer
                                ReportingToIDL2 = dataRow.Field<long>("ReportingToIDL2"),
                                ClientName = dataRow.Field<string>("ClientName"),
                                RoleId = dataRow.Field<int>("EmployeeRole"),
-
+                               SubDepartmentID = dataRow.Field<long>("SubDepartmentID"),
+                               ShiftTypeID = dataRow.Field<long>("ShiftTypeID"),
                             }).ToList().FirstOrDefault();
             if (employmentDetail == null)
             {
@@ -1091,29 +1109,40 @@ namespace HRMS.API.BusinessLayer
                                  Value = dataRow.Field<long>("ID").ToString()
                              }).ToList();
 
+            employmentDetail.SubDepartments = dataSet.Tables[4].AsEnumerable()
+                            .Select(dataRow => new SelectListItem
+                            {
+                                Text = dataRow.Field<string>("Name"),
+                                Value = dataRow.Field<long>("ID").ToString()
+                            }).ToList();
 
-            employmentDetail.Designations = dataSet.Tables[4].AsEnumerable()
+            employmentDetail.Designations = dataSet.Tables[5].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Text = dataRow.Field<string>("Name"),
                                  Value = dataRow.Field<long>("ID").ToString()
                              }).ToList();
 
-
-            employmentDetail.EmployeeList = dataSet.Tables[5].AsEnumerable()
+            employmentDetail.ShiftTypes = dataSet.Tables[6].AsEnumerable()
+                           .Select(dataRow => new SelectListItem
+                           {
+                               Text = dataRow.Field<string>("Name"),
+                               Value = dataRow.Field<long>("ID").ToString()
+                           }).ToList();
+            employmentDetail.EmployeeList = dataSet.Tables[7].AsEnumerable()
                              .Select(dataRow => new SelectListItem
                              {
                                  Value = dataRow.Field<long>("EmployeeID").ToString(),
                                  Text = dataRow.Field<string>("Name")
                              }).ToList();
 
-            employmentDetail.LeavePolicyList = dataSet.Tables[7].AsEnumerable()
+            employmentDetail.LeavePolicyList = dataSet.Tables[9].AsEnumerable()
                             .Select(dataRow => new SelectListItem
                             {
                                 Value = dataRow.Field<long>("LeavePolicyID").ToString(),
                                 Text = dataRow.Field<string>("LeavePolicyName")
                             }).ToList();
-            employmentDetail.RoleList = dataSet.Tables[8].AsEnumerable()
+            employmentDetail.RoleList = dataSet.Tables[10].AsEnumerable()
                             .Select(dataRow => new SelectListItem
                             {
                                 Value = dataRow.Field<int>("RoleID").ToString(),
@@ -1657,7 +1686,7 @@ namespace HRMS.API.BusinessLayer
                                       FirstName = dataRow.Field<string>("EmployeeFirstName"),
                                       LastName = dataRow.Field<string>("EmployeeLastName"),
                                       DOB = dataRow.Field<DateTime>("EmployeeDOB"),
-                                      EmplpoyeePhoto = dataRow.Field<string>("EmployeePhoto"),
+                                      EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
                                   }).ToList();
 
                 var LeaveDetails = dataSet.Tables[3].AsEnumerable()
@@ -2072,33 +2101,30 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-
-
-
-
         public List<EmployeeDetails> GetEmployeeListByManagerID(EmployeeInputParams model)
         {
-            List<EmployeeDetails> dashBoardModel = new List<EmployeeDetails>();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@ReportingUserID", model.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@RoleID", model.RoleID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerID, sqlParameter);
+           List<EmployeeDetails> dashBoardModel = new List<EmployeeDetails>();
+           List<SqlParameter> sqlParameter = new List<SqlParameter>();
+           sqlParameter.Add(new SqlParameter("@ReportingUserID", model.EmployeeID));
+           sqlParameter.Add(new SqlParameter("@RoleID", model.RoleID));
+           var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerID, sqlParameter);
 
 
-            dashBoardModel = dataSet.Tables[0].AsEnumerable()
-                              .Select(dataRow => new EmployeeDetails
+           dashBoardModel = dataSet.Tables[0].AsEnumerable()
+                             .Select(dataRow => new EmployeeDetails
                               {
                                   EmployeeId = dataRow.Field<long>("EmployeeId"),
                                   FirstName = dataRow.Field<string>("EmployeeFirstName"),
+                                  MiddelName = dataRow.Field<string>("EmployeeMiddelName"),
                                   LastName = dataRow.Field<string>("EmployeeLastName"),
                                   DOB = dataRow.Field<DateTime>("EmployeeDOB"),
-                                  EmplpoyeePhoto = dataRow.Field<string>("EmployeePhoto"),
+                                  EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
                                   DepartmentName = dataRow.Field<string>("DepartmentName"),
                                   DesignationName = dataRow.Field<string>("DesignationName"),
                               }).ToList();
 
 
-            return dashBoardModel;
+           return dashBoardModel;
         }
 
 
@@ -2218,36 +2244,82 @@ namespace HRMS.API.BusinessLayer
 
 
         #region Attandance Module
-        public Results GetAttendance(AttandanceInputParams model)
-        {
-            Results result = new Results();
 
+        public AttendanceLogResponse GetAttendanceDeviceLogs(AttendanceDeviceLog model)
+        {
+            var attendanceLogs = new List<AttendanceDeviceLog>();
+
+            // Define SQL parameters
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
-        new SqlParameter("@Year", model.Year),
-        new SqlParameter("@Month", model.Month),
-        new SqlParameter("@UserId", model.UserId)
+        new SqlParameter("@EmployeeId", (object)model.EmployeeId ?? DBNull.Value),
+        new SqlParameter("@CreatedBy", (object)model.CreatedBy ?? DBNull.Value)
     };
 
-            var dataSet = AttandanceDataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDeviceLogsByMonth, sqlParameters);
-            result.AttandanceList = dataSet.Tables[0].AsEnumerable()
-                .Select(dataRow => new Attandance
-                {
-                    UserId = dataRow.Field<string>("UserId"),
-                    EmployeeName = dataRow.Field<string>("EmployeeName"),
-                    WorkDate = dataRow.Field<DateTime>("WorkDate"),
-                    FirstLogDate = dataRow.Field<DateTime>("FirstLogDate"),
-                    LastLogDate = dataRow.Field<DateTime>("LastLogDate"),
-                    HoursWorked = dataRow.Field<int>("HoursWorked"),
+            // Get dataset from stored procedure
+            var dataSet = DataLayer.GetDataSetByStoredProcedure("sp_GetAttendanceAuditLog", sqlParameters);
 
-                }).ToList();
+            if (dataSet.Tables.Count > 0)
+            {
+                attendanceLogs = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new AttendanceDeviceLog
+                    {
+                        ID = dataRow.Field<long>("ID"),
+                        EmployeeId = dataRow.Field<string>("EmployeeId"),
+                        Description = dataRow.Field<string>("Description"),                    
+                        CreatedBy = dataRow.Field<string>("CreatedBy"),
+                        AttendanceStatus = dataRow.Field<string>("AttendanceStatus")
+                    }).ToList();
+            }
 
-            return result;
+            return new AttendanceLogResponse { AttendanceLogs = attendanceLogs };
         }
 
-        public AttendanceWithHolidays GetAttendanceForCalendar(AttandanceInputParams model)
+
+        public AttendanceInputParams GetAttendance(AttendanceInputParams model)
         {
-            List<Attandance> attendanceList = new List<Attandance>();
+            try
+            {
+                List<SqlParameter> sqlParameters = new List<SqlParameter>
+        {
+            new SqlParameter("@Year", model.Year),
+            new SqlParameter("@Month", model.Month),
+            new SqlParameter("@Day", model.Day),   
+            new SqlParameter("@UserId", model.UserId),
+            new SqlParameter("@IsManual", false),
+            new SqlParameter("@AttendanceStatus", AttendanceStatus.Approved.ToString())
+        };
+
+                var dataSet = AttandanceDataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDeviceLogsByMonth, sqlParameters);
+
+                if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+                {
+                    var row = dataSet.Tables[0].Rows[0];
+                    string status = row["Status"].ToString();
+                    string message = row["Message"].ToString();
+
+                    model.Status = status;
+                    model.Message = message;
+                    model.IsSuccess = status.Equals("Success", StringComparison.OrdinalIgnoreCase);
+                }
+                else
+                {
+                    model.Message = "No response from the stored procedure.";
+                    model.IsSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.Message = "Error: " + ex.Message;
+                model.IsSuccess = false;
+            }
+
+            return model;
+        }
+
+        public AttendanceWithHolidays GetAttendanceForCalendar(AttendanceInputParams model)
+        {
+            List<Attendance> attendanceList = new List<Attendance>();
             List<HolidayModel> holidayList = new List<HolidayModel>();
             List<LeaveSummaryModel> leaveList = new List<LeaveSummaryModel>();
             // Define SQL parameters for the stored procedure
@@ -2263,7 +2335,7 @@ namespace HRMS.API.BusinessLayer
             if (dataSet.Tables.Count > 0)
             {
                 attendanceList = dataSet.Tables[0].AsEnumerable()
-                    .Select(dataRow => new Attandance
+                    .Select(dataRow => new Attendance
                     {
                         UserId = dataRow.Field<string>("UserId"),
                         EmployeeName = dataRow.Field<string>("EmployeeName"),
@@ -2322,9 +2394,9 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttandanceInputParams model)
+        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttendanceInputParams model)
         {
-            List<Attandance> attendanceList = new List<Attandance>();
+            List<Attendance> attendanceList = new List<Attendance>();
             List<HolidayModel> holidayList = new List<HolidayModel>();
             List<LeaveSummaryModel> leaveList = new List<LeaveSummaryModel>();
             // Define the SQL parameters
@@ -2339,7 +2411,7 @@ namespace HRMS.API.BusinessLayer
             if (dataSet.Tables.Count > 0)
             {
                 attendanceList = dataSet.Tables[0].AsEnumerable()
-                .Select(dataRow => new Attandance
+                .Select(dataRow => new Attendance
                 {
                     ID = dataRow.Field<long?>("ID") ?? 0,
                     UserId = dataRow.Field<string>("UserId"),
@@ -2400,21 +2472,55 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+        public MyAttendanceList GetMyAttendanceList(AttendanceInputParams model)
+        {
+            List<Attendance> attendanceList = new List<Attendance>();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>  {
+            new SqlParameter("@Year", model.Year),
+            new SqlParameter("@Month", model.Month),
+            new SqlParameter("@UserId", model.UserId)
+            };
+            // Get the dataset from the stored procedure
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetMyAttendanceLog, sqlParameters);
 
+            if (dataSet.Tables.Count > 0)
+            {
+                attendanceList = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new Attendance
+                {
+                    ID = dataRow.Field<long?>("ID") ?? 0,
+                    UserId = dataRow.Field<string>("EmployeeId"),
+                    AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
+                    EmployeeName = dataRow.Field<string>("EmployeeName"),
+                    WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date, 
+                    FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),   
+                    LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),  
+                    HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked")  
+                })
+                .ToList();
+            }
+            var result = new MyAttendanceList
+            {
+                Attendances = attendanceList,
+            };
+            return result;
+        }
 
-        public Result AddUpdateAttendace(Attandance att)
+        public Result AddUpdateAttendace(Attendance att)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
             sqlParameter.Add(new SqlParameter("@Id", att.ID));
-            sqlParameter.Add(new SqlParameter("@UserId", att.UserId));
-            sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss"))); // Format as 'yyyy-MM-dd HH:mm:ss'
-            sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss"))); // Format as 'yyyy-MM-dd HH:mm:ss'
-            sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss"))); // Format as 'yyyy-MM-dd HH:mm:ss'
-
-
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_SaveAttendanceDeviceLog, sqlParameter);
+            sqlParameter.Add(new SqlParameter("@EmployeeId", att.UserId));
+            sqlParameter.Add(new SqlParameter("@AttendanceStatus", att.AttendanceStatus));
+            sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));  
+            sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));  
+            sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
+            sqlParameter.Add(new SqlParameter("@Comments", att.Comments));
+            sqlParameter.Add(new SqlParameter("@ModifiedBy", att.UserId));
+            sqlParameter.Add(new SqlParameter("@ModifiedDate", att.ModifiedDate));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_SaveAttendanceManualLog, sqlParameter);
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -2428,28 +2534,30 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAttendenceListID(Attandance model)
+        public Results GetAttendenceListID(Attendance model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@ID", model.ID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.GetAttendanceDeviceLogById, sqlParameters);
             var attendence = dataSet.Tables[0].AsEnumerable()
-                                 .Select(dataRow => new Attandance
+                                 .Select(dataRow => new Attendance
                                  {
                                      ID = dataRow.Field<long>("ID"),
                                      UserId = dataRow.Field<string>("UserId"),
+                                     IsManual = dataRow.Field<bool>("IsManual"),
+                                     AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
                                      WorkDate = dataRow.Field<DateTime>("WorkDate"),
                                      FirstLogDate = dataRow.Field<DateTime>("FirstLogDate"),
                                      LastLogDate = dataRow.Field<DateTime>("LastLogDate"),
                                      HoursWorked = dataRow.Field<int>("HoursWorked"),
                                  }).FirstOrDefault();
-            result.AttandanceModel = attendence;
+            result.AttendanceModel = attendence;
 
             return result;
         }
 
-        public string DeleteAttendanceDetails(Attandance model)
+        public string DeleteAttendanceDetails(Attendance model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -2457,6 +2565,73 @@ namespace HRMS.API.BusinessLayer
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_DeleteAttendanceDeviceLog, sqlParameter);
             return "Deleted successfully";
            
+        }
+
+
+        public MyAttendanceList GetAttendanceForApproval(AttendanceInputParams model)
+        {
+            List<Attendance> attendanceList = new List<Attendance>();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>  { 
+            new SqlParameter("@ReportingID", model.UserId)
+            };
+            // Get the dataset from the stored procedure
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetMyAttendanceLog, sqlParameters);
+
+            if (dataSet.Tables.Count > 0)
+            {
+                attendanceList = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new Attendance
+                {
+                    ID = dataRow.Field<long?>("ID") ?? 0,
+                    UserId = dataRow.Field<string>("UserId"),
+                    AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
+                    EmployeeName = dataRow.Field<string>("EmployeeName"),
+                    WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
+                    FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
+                    LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
+                    HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked")
+                })
+                .ToList();
+            }
+            var result = new MyAttendanceList
+            {
+                Attendances = attendanceList,
+            };
+            return result;
+        }
+
+
+        public MyAttendanceList GetApprovedAttendance(AttendanceInputParams model)
+        {
+            List<Attendance> attendanceList = new List<Attendance>();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>  {
+            new SqlParameter("@ReportingID", model.UserId),
+            new SqlParameter("@AttendanceStaus", model.Status)
+            };
+            // Get the dataset from the stored procedure
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ApprovedAttendance, sqlParameters);
+
+            if (dataSet.Tables.Count > 0)
+            {
+                attendanceList = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new Attendance
+                {
+                    ID = dataRow.Field<long?>("ID") ?? 0,
+                    UserId = dataRow.Field<string>("employeeId"),
+                    AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
+                    EmployeeName = dataRow.Field<string>("EmployeeName"),
+                    WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
+                    FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
+                    LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
+                    HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked")
+                })
+                .ToList();
+            }
+            var result = new MyAttendanceList
+            {
+                Attendances = attendanceList,
+            };
+            return result;
         }
 
         #endregion Attandance Module

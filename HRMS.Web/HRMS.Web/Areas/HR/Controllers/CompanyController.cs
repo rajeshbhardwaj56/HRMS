@@ -49,8 +49,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 		public IActionResult Index(string id)
 		{
 			CompanyModel model = new CompanyModel();
-
-			//if (!string.IsNullOrEmpty(id))
 			{
 				if(id == null)
 				{

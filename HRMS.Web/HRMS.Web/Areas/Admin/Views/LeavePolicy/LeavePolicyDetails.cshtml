@@ -5,7 +5,7 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Leave Policy";
-}
+} 
 
 <div class="main-header anim" style="--delay: 0s">Leave Policy Details </div>
 <form id="leaveForm" method="post" enctype="multipart/form-data">
@@ -40,7 +40,7 @@
             </div>
             <div class="col-md-12 form-group">
                 <label>Description <span class="Mandetory">*</span></label>
-                @Html.TextAreaFor(a => a.Description, new { @class = "form-control",  id = "editor" })
+                @Html.TextAreaFor(a => a.Description, new { @class = "form-control", id = "editor", rows = "10", cols = "50" })
             </div>
         </div>
         <div class="row">

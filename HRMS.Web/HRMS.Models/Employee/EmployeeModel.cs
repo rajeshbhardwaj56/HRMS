@@ -103,6 +103,7 @@ namespace HRMS.Models.Employee
         public long? CarryForword { get; set; }
         public int Gender { get; set; }
         public bool IsActive { get; set; }
+        public long ShiftTypeID { get; set; }
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();

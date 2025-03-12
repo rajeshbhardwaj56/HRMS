@@ -3,7 +3,7 @@
 
 @model Results
 @{
-    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Attendance List";
 
     var success = TempData["Success"];
@@ -11,7 +11,7 @@
 }
 
 
-<div class="main-header anim" style="--delay: 0s">Attendance List  <a href="~/Admin/AttendenceList"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
+<div class="main-header anim" style="--delay: 0s">Attendance List  <a href="~/Employee/AttendenceList"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
 
 @* <div class="addcomp px-4">
     <h4>Attendence List</h4>
@@ -42,7 +42,7 @@
     $(document).ready(function () {
         $('#tblAttendenceListing').DataTable({
             "ajax": {
-                "url": "GetAllAttendenceList/",
+                "url": "GetTeamAttendenceList/",
                 "type": "POST",
                 "datatype": "json",
                 "dataSrc": function (json) {

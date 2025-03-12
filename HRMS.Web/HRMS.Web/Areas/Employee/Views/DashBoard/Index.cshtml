@@ -212,21 +212,20 @@
                             }
                         </div>
 
-                        <!-- Carousel items -->
                         <div class="carousel-inner border-radius-lg h-100">
                             @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
                             {
                                 int index = 0;
                                 foreach (var item in Model.EmployeeDetails)
                                 {
-                                    var UserPhoto = "/Uploads/ProfilePhoto/" + item.EmployeeId + "/" + @item.EmplpoyeePhoto;
+                                    var UserPhoto = "/Uploads/ProfilePhoto/" + item.EmployeeId + "/" + @item.EmployeePhoto;
                                     var isActive = index == 0 ? "active" : "";
 
                                     <div class="carousel-item h-100 @isActive">
                                         <div class="carousel-caption d-none d-md-block top-10 text-center">
                                             <div class="person-img">
                                                 <div class="ratio ratio-1x1 rounded-circle overflow-hidden">
-                                                    @if (item.EmplpoyeePhoto == null)
+                                                    @if (item.EmployeePhoto == null)
                                                     {
                                                         <img src="/assets/img/No_image.png" class="card-img-top img-cover" alt="@item.FirstName">
                                                     }
@@ -269,7 +268,7 @@
         <div class="col col-lg-12 order-0 mb-4 anim" style="--delay: .1s">
             <div class="card">
                 <div class="card-header pb-0 p-3">
-                    <h6 class="mb-0">What's happening at Eternity</h6>
+                    <h6 class="mb-0">What's happening at Protalk</h6>
                 </div>
                 <div class="p-3">
                     <ul class="list-group body-text">

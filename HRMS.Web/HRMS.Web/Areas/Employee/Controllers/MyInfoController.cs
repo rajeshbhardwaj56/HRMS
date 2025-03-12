@@ -105,36 +105,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var results = JsonConvert.DeserializeObject<MyInfoResults>(data);
             DateTime today = DateTime.Today;
             DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
-
-            //var TotalApproveList = results.leaveResults.leavesSummary.Where(x => x.StartDate >= fiscalYearStart && x.LeaveStatusID == (int)LeaveStatus.Approved && x.LeaveTypeID == (int)LeaveType.AnnualLeavel).OrderBy(x => x.LeaveSummaryID).ToList();
-
             var leavePolicyModel = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
-            //var joindate = results.employmentDetail.JoiningDate;
-            //DateTime joinDate1 = joindate.Value;
-
-            //double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
-            //var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
-
-            //double TotalApprove = Convert.ToDouble(TotalApproveLists);
-            //double Totacarryforword = 0.0;
-            //var Totaleavewithcarryforword = 0.0;
-            //var accruedLeaves = accruedLeave1 - TotalApprove;
-
-            //if (leavePolicyModel.Annual_IsCarryForward == true)
-            //{
-            //    Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
-            //    Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
-            //}
-            //else
-            //{
-            //    Totaleavewithcarryforword = accruedLeaves;
-            //}
-
-            //ViewBag.UserTotalLeave = Totaleavewithcarryforword;
-            //ViewBag.UserTotalAnnualLeave = accruedLeave1 - TotalApprove;
             ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
-
-
             return Json(results);
         }
 
@@ -204,10 +176,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return Json(new { data = Approvals });
         }
-
-
-
-
 
         [HttpPost]
         [AllowAnonymous]
@@ -1031,18 +999,43 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View(leavePolicyModel);
         }
 
-        [HttpGet]
+
         public IActionResult GetTeamEmployeeList()
         {
-            List<EmployeeDetails> employeeDetails = new List<EmployeeDetails>();
-            EmployeeInputParams model = new EmployeeInputParams();
-            model.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
-
-            return View(employeeDetails);
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            return View(results);
         }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult GetTeamEmployeeList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            try
+            {
+                List<EmployeeDetails> employeeDetails = new List<EmployeeDetails>();
+                EmployeeInputParams model = new EmployeeInputParams();
+                model.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
+               
+              
+                if (employeeDetails == null || employeeDetails.Count == 0)
+                {
+                    return Json(new { data = new List<object>(), message = "No employees found" });
+                };
+                return Json(new { data = employeeDetails });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "An error occurred", details = ex.Message });
+            }
+        }
+
+
+
+
         [HttpGet]
         public IActionResult Support()
         {
@@ -1074,14 +1067,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
            
-            AttandanceInputParams models = new AttandanceInputParams
+            AttendanceInputParams models = new AttendanceInputParams
             {
                 Year = year,
                 Month = month,
                 UserId = employeeId,
             };
 
-            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
 
             return Json(new { data = model });
