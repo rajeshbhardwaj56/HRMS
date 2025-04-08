@@ -61,6 +61,8 @@ namespace HRMS.Models.Common
         public const string Departments = "Departments";
         public const string ResultsData = "ResultsData";
         public const string EmployeePhotoPath = "Uploads/ProfilePhoto/";
+        public const string EmployeeAadharCardPath = "Uploads/AadharCard/";
+        public const string EmployeePanCardPath = "Uploads/PanCard/";
         public const string UploadCertificate = "Uploads/UploadCertificate/";
         public const string CompanyLogoPath = "Uploads/CompanyLogo/";
         public const string TemplatePath = "Uploads/Template/";
@@ -75,7 +77,8 @@ namespace HRMS.Models.Common
         public const string Manager1Email = "Manager1Email";
         public const string Manager2Name = "Manager2Name";
         public const string Manager2Email = "Manager2Email";
-
+        public const string Whatshappening = "Uploads/Whatshappening/";
+        public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
     }
 
     public class RoleConstants
@@ -136,6 +139,7 @@ namespace HRMS.Models.Common
         public const string ShiftType = "ShiftType";
         public const string MyAttendanceList = "MyAttendanceList";
         public const string MyAttendance = "MyAttendance";
+        public const string WhatshappeningListing = "WhatshappeningListing";
     }
 
     public class APIApiActionConstants
@@ -180,7 +184,11 @@ namespace HRMS.Models.Common
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string GetFilterEmploymentDetailsByEmployee = "GetFilterEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
-        public const string GetDashBoardodel = "GetDashBoardodel";
+        public const string GetEmploymentBankDetails = "GetEmploymentBankDetails";
+        public const string AddUpdateEmploymentBankDetails = "AddUpdateEmploymentBankDetails";
+        public const string GetEmploymentSeparationDetails = "GetEmploymentSeparationDetails";
+        public const string AddUpdateEmploymentSeparationDetails = "AddUpdateEmploymentSeparationDetails";
+        public const string GetDashBoardModel = "GetDashBoardModel";
         public const string GetAllAttendenceList = "GetAllAttendenceList";
         public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
         public const string ResetPassword = "ResetPassword";
@@ -198,6 +206,19 @@ namespace HRMS.Models.Common
         public const string GetAttendanceForApproval = "GetAttendanceForApproval";
         public const string GetApprovedAttendance = "GetApprovedAttendance";
         public const string GetAttendanceDeviceLogs = "GetAttendanceDeviceLogs";
+        public const string GetCountryDictionary = "GetCountryDictionary";
+        public const string GetCompaniesDictionary = "GetCompaniesDictionary";
+        public const string GetEmploymentDetailsDictionaries = "GetEmploymentDetailsDictionaries";
+        public const string AddUpdateEmployeeFromExecel = "AddUpdateEmployeeFromExecel";
+        public const string GetSubDepartmentDictionary = "GetSubDepartmentDictionary";
+        
+        
+        public const string GetAllWhatsHappeningDetails = "GetAllWhatsHappeningDetails";
+        public const string AddUpdateWhatsHappeningDetails = "AddUpdateWhatsHappeningDetails";
+        public const string DeleteWhatsHappening = "DeleteWhatsHappening";
+
+
+
     }
 
     public class MyInfoTabs

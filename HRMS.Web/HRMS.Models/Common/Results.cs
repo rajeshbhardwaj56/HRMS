@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.ShiftType;
+using HRMS.Models.WhatsHappeningModel;
 
 namespace HRMS.Models.Common
 {
@@ -26,10 +27,14 @@ namespace HRMS.Models.Common
 
         public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();
         public LeavePolicyModel leavePolicyModel { get; set; } = new LeavePolicyModel();
+        // public WhatsHappeningModel leavePolicyModel { get; set; } = new WhatsHappeningModel();
         public LeavePolicyDetailsModel LeavePolicyDetailsModel { get; set; } = new LeavePolicyDetailsModel();
 
         public List<HolidayModel> Holiday { get; set; } = new List<HolidayModel>();
         public List<LeavePolicyDetailsModel> LeavePolicyDetailsList { get; set; } = new List<LeavePolicyDetailsModel>();
+        public List<WhatsHappeningModels> WhatsHappeningList { get; set; } = new List<WhatsHappeningModels>();
+        public WhatsHappeningModels WhatsHappeningModel { get; set; } = new WhatsHappeningModels();
+
         public HolidayModel holidayModel { get; set; } = new HolidayModel();
         public List<AttendenceListModel> AttendenceList { get; set; } = new List<AttendenceListModel>();
         public AttendenceListModel AttendenceListModel { get; set; } = new AttendenceListModel();
@@ -40,6 +45,7 @@ namespace HRMS.Models.Common
         public PolicyCategoryModel PolicyCategoryModel { get; set; } = new PolicyCategoryModel();
         public List<Attendance> AttandanceList { get; set; } = new List<Attendance>();
         public Attendance AttendanceModel { get; set; } = new Attendance();
+      
 
     }
 

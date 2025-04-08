@@ -52,6 +52,8 @@ namespace HRMS.Models.Common
     {
         public long? ID { get; set; }
         public string? EmployeeId { get; set; }
+
+        public string? EmployeeName { get; set; }
         public string? Description { get; set; }
         public DateTime? CreatedDate { get; set; }
         public string? CreatedBy { get; set; }

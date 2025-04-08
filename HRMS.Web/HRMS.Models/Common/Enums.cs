@@ -51,7 +51,7 @@ namespace HRMS.Models.Common
     public enum AttendanceStatus
     {
         Submitted = 1,
-        L1Approve = 2,
+        L1Approved = 2,
         L2Approve = 3,
         Approved = 4,
         Cancelled = 5

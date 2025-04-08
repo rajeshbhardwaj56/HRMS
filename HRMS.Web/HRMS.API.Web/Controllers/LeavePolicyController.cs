@@ -2,6 +2,7 @@
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.LeavePolicy;
+using HRMS.Models.WhatsHappeningModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -75,5 +76,32 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetAllLeavePolicyDetailsByCompanyId(model));
             return response;
         }
+
+        [HttpPost]
+        public IActionResult AddUpdateWhatsHappeningDetails(WhatsHappeningModels model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateWhatsHappeningDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetAllWhatsHappeningDetails(WhatsHappeningModelParans model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllWhatsHappeningDetails(model));
+            return response;
+        }
+        
+        [HttpPost]
+        public IActionResult DeleteWhatsHappening(WhatsHappeningModelParans model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteWhatsHappening(model));
+            return response;
+        }
+
+
+
+
     }
 }

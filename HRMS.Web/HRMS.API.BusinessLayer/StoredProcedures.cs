@@ -30,6 +30,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_LeavePolicyDetails = "usp_Get_LeavePolicyDetails";
         public const string usp_AddUpdate_LeavePolicy = "usp_AddUpdate_LeavePolicy";
 
+        public const string usp_Get_CompanySubDepartments = "usp_Get_CompanySubDepartments";
         public const string usp_Get_Companies = "usp_Get_Companies";
         public const string usp_AddUpdate_Company = "usp_AddUpdate_Company";
         public const string usp_Get_LeavesSummary = "usp_Get_LeavesSummary";
@@ -51,6 +52,11 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_EmploymentDetails = "usp_AddUpdate_EmploymentDetails";
         public const string usp_Get_EmployeeDetailsFormDetails = "usp_Get_EmployeeDetailsFormDetails";
         public const string usp_Get_FilterEmployeeDetailsFormDetails = "usp_Get_FilterEmployeeDetailsFormDetails";
+        public const string usp_AddUpdate_EmployeeBankDetails = "usp_AddUpdate_EmployeeBankDetails";
+        public const string usp_Get_EmployeeBankDetails = "usp_Get_EmployeeBankDetails";
+        public const string usp_AddUpdate_EmployeeSeparation = "usp_AddUpdate_EmployeeSeparation";
+        public const string usp_Get_EmployeeSeparationDetail = "usp_Get_EmployeeSeparationDetail";
+
         public const string usp_GetDashBoardDetails = "usp_GetDashBoardDetails";
         public const string usp_ResetPassword = "usp_ResetPassword";
         public const string usp_Get_LeaveForApprovals = "usp_Get_LeaveForApprovals";
@@ -86,5 +92,8 @@ namespace HRMS.API.BusinessLayer
         public const string sp_SaveAttendanceManualLog = "sp_SaveAttendanceManualLog";
         public const string GetAttendanceDeviceLogById = "GetAttendanceDeviceLogById";
         public const string sp_DeleteAttendanceDeviceLog = "sp_DeleteAttendanceDeviceLog";
+        public const string usp_Get_WhatsHappeningS = "usp_Get_WhatsHappeningS";
+        public const string usp_AddUpdate_WhatsHappening = "usp_AddUpdate_WhatsHappening";
+        public const string usp_Delete_WhatsHappening = "usp_Delete_WhatsHappening";
     }
 }

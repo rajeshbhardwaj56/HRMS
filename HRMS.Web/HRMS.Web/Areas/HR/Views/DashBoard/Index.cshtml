@@ -11,7 +11,7 @@
 <div class="main-header anim" style="--delay: 0s">Dashboard</div>
 <div class="page-wrapper dashboard-page">
     <div class="page-name 	mb-4">
-        <h4 class="m-0"><img src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="mr-1" alt="profile" /> Hi @Model.FirstName, @_businessLayer.GetSatutation() !</h4>
+        <h4 class="m-0"><img src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="mr-1" alt="profile" /> Hi @Model.FirstName (@Model.EmployeNumber), @_businessLayer.GetSatutation() !</h4>
         <label>@DateTime.Now.ToString("ddd, dd MMM yyy")</label>
     </div>
 

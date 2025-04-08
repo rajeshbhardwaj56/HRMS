@@ -5,18 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HRMS.Models.Employee
+namespace HRMS.Models.ImportFromExcel
 {
-    public class EmploymentDetailInputParams
-    {
-        public long EmployeeID { get; set; }
-        public long CompanyID { get; set; }
-        public long UserID { get; set; }
-        public long DesignationID { get; set; }
-        public long DepartmentID { get; set; }
-    }
-
-    public class EmploymentDetail
+     public class ImportOfficialEmployeeDetail
     {
         public string EncryptedIdentity { get; set; } = string.Empty;
         public long EmploymentDetailID { get; set; }
@@ -37,7 +28,7 @@ namespace HRMS.Models.Employee
         public string OfficeLocation { get; set; } = string.Empty;
         public string EmployeeType { get; set; } = string.Empty;
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
-        public DateTime? JobSeprationDate { get; set; } 
+        public DateTime? JobSeprationDate { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public long UserID { get; set; }
@@ -47,30 +38,18 @@ namespace HRMS.Models.Employee
         public long LeavePolicyID { get; set; }
         public long ReportingToIDL2 { get; set; }
         public string ClientName { get; set; } = string.Empty;
-        public string ESINumber { get; set; } = string.Empty;
-        public DateTime? ESIRegistrationDate { get; set; } = DateTime.UtcNow;
         public int RoleId { get; set; }
         public string EmployeNumber { get; set; } = string.Empty;
-        public long CompanyID { get; set; } =0;
-
-       
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> PayrollTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> JobLocations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Designations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> EmployeeList { get; set; } = new List<SelectListItem>();
-
         public List<SelectListItem> LeavePolicyList { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> RoleList { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> ShiftTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> SubDepartments { get; set; } = new List<SelectListItem>();
 
-    }
-
-    public class EmployeeListModel
-    {
-        public long EmployeeID { get; set; }
-        public string Name { get; set; }
     }
 }

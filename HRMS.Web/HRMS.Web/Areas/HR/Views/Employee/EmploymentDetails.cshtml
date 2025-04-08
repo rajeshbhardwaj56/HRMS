@@ -7,12 +7,22 @@
     ViewData["Title"] = "Official Details";
 }
 
-<div class="main-header anim" style="--delay: 0s">Official Details <a href="~/HR/employee/index/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Edit</button></a></div>
+<div class="main-header anim" style="--delay: 0s">Official Details 
+    <section class="right-button-employee" />
+    <a href="~/HR/employee/index/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Edit</button></a>
+    <a href="~/HR/employee/employmentSeparation/@(Model.EncryptedIdentity)">   <button type="button" class="btn btn-addBtn me-2" id="openFormBtn">Add Separation Detail</button></a>
+    <a href="~/HR/employee/employmentBankDetails/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Bank Detail</button></a>
+</section>
+</div>
+ 
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
-
+      
 
         <div class="group-box anim" style="--delay: .3s">
+          
+
+
             <div class="small-header">
                 @Html.HiddenFor(m => m.EmployeeID)
                 @Html.HiddenFor(m => m.EmploymentDetailID)
@@ -20,7 +30,11 @@
             </div>
 
             <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Employee Number </label>
+                    @Html.TextBoxFor(a => a.EmployeNumber, new { @class = "form-control", @readonly = "readonly" })
 
+                </div>
                 <div class="col-md-4 form-group">
                     <label>Date of Joining <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.JoiningDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
@@ -29,15 +43,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Official Email <span class="Mandetory">*</span></label>
-                                        @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "text", @required = "required" })
-@* 
-                    @Html.TextBoxFor(a => a.OfficialEmailID, new
-                        {
-                            @class = "form-control",
-                            @type = "email",
-                            @required = "required",
-                            @disabled = (Model.OfficialEmailID != null && Model.OfficialEmailID != "") ? "disabled" : null
-                        }) *@
+                                        @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "text", @required = "required" })                 
                 </div>
 
 
@@ -178,10 +184,18 @@
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
                     </div>
 
-            </div>
+               </div>
 
 
-
+                <div class="col-md-4 form-group">
+                    <label>ESI Number <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.ESINumber, new { @class = "form-control", @type = "text", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Registration Date in ESIC <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.ESIRegistrationDate,"{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                </div>
+               
 
             <div class="row">
                 <div class="col-md-12">

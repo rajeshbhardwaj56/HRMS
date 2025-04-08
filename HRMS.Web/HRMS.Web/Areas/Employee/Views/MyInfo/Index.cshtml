@@ -14,7 +14,6 @@
     SelectListItem employmentHistoryCountry;
     var CountryData = @Model.employeeModel.Countries;
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-
     var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
     ViewData["Title"] = "Employee";
     var ProfilePhoto = "";
@@ -1027,9 +1026,6 @@
                                                             @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "adminleaveTypeDropdown", @disabled = "disabled" })
 
                                                             <p id="adminleaveTypeDropdown1" class="form-control"></p>
-
-
-
                                                         </div>
                                                         <div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
                                                             <label for="leavetype" class="">Leave Duration:</label>
@@ -1122,10 +1118,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-
-
-
                                     <div class="col-lg-4 px-4">
                                         <div class="card mb-3" style="height:60px; display:none" id="AnnualLeaveBalance">
                                             <div class="card-body">

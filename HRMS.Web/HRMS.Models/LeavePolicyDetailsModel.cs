@@ -16,6 +16,7 @@ namespace HRMS.Models
     }
     public class LeavePolicyDetailsModel
     {
+        public string? EncodedId { get; set; }
         public long Id { get; set; }
         public long CompanyID { get; set; }
         public string Title { get; set; }

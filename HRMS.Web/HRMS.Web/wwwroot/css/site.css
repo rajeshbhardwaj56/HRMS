@@ -21,8 +21,16 @@ body {
     margin-bottom: 60px;
 }
 
-
-
+img#modalImage {
+    width: 100%;
+    height: 50%;
+}
+button.btn.btn-secondaryannouncement {
+    background: #053776;
+    cursor: pointer;
+    color: #fff;
+    font-weight: 500;
+}
 li.top-bar:hover, li.top-bar:active {
     background-color: white;
     color: #05397b;
@@ -66,14 +74,16 @@ i.fa.fa-calendar {
 .datepicker td, th {
     text-align: center;
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .datepicker {
     border: 1px solid black;
 }
-
-.section-tabs {
+table.dataTable > tbody > tr {
+    font-size: 13px;
+}
+    .section-tabs {
     background-color: #05397b;
     color: white;
     border: none;
@@ -250,6 +260,8 @@ textarea.form-control {
     line-height: 34px;
     position: sticky;
     top: 0;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .sidebar.sidemenuShow {
@@ -538,7 +550,7 @@ textarea.form-control {
 }
 
 .main-header {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--body-bg);
     font-weight: 700;
     padding-bottom: 12px;
@@ -562,26 +574,64 @@ textarea.form-control {
 }
 
 .small-header {
-    font-size: 24px;
-    font-weight: 500;
+    font-size: 17px;
+    font-weight: 600;
     color: var(--body-bg);
     margin: 0px 0 30px;
-    display: inline-block;
-    width: 100%;
+/*    display: inline-block;*/
+/*    width: 100%;*/
 }
 
 .page-wrapper {
     margin-top: 25px;
 }
-
-.group-box {
+.group-box.anim label {
+    font-size: 13px;
+}
+input.btn.btn-success {
+    font-size: 16px;
+}
+button#cancelButton {
+    font-size: 16px;
+}
+.form-control {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 12px !important;
+}
+button.btn.btn-light.btn-sm.border.border-2.view-announcement-btn {
+    background: #053777;
+    color: white;
+    border-radius: 8px;
+    /* border: 0px solid #fffcfc; */
+    /* border: transparent; */
+    border: 2px solid white !important;
+}
+    .group-box {
     background: var(--theme-bg);
     padding: 20px;
     margin: 15px 0px;
     border-radius: 10px;
     border: 1px solid #d5e3ff;
 }
-
+a.UploadExcel {
+    font-size: 14px;
+    color: #053776;
+    font-weight: 500;
+}
+.side-menu span {
+    font-size: 14px;
+    font-weight: 500;
+}
+.importemployee-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.list-unstyled li {
+    font-size: 12px;
+}
 .dataTables_filter input {
     height: 34px;
     border: none;
@@ -602,6 +652,7 @@ textarea.form-control {
 .btn-addBtn {
     background-color: var(--body-bg);
     color: var(--white-text-color);
+    font-size: 13px;
 }
 
     .btn-addBtn:hover {
@@ -612,8 +663,17 @@ textarea.form-control {
 .dataTables_length {
     float: left;
     margin-bottom: 15px;
+    font-size: 14px;
 }
-
+tr.odd {
+    font-size: 12px;
+}
+tr.even {
+    font-size: 12px;
+}
+th.sorting {
+    font-size: 12px;
+}
 .dataTables_filter {
     float: right;
     margin-bottom: 15px;
@@ -633,6 +693,7 @@ table.dataTable {
     float: left;
     margin-top: 15px;
     padding-top: 0px !important;
+    font-size: 12px;
 }
 
 div.dataTables_wrapper div.dataTables_paginate {
@@ -644,6 +705,7 @@ div.dataTables_wrapper div.dataTables_paginate {
     background-color: var(--body-bg);
     text-decoration: none;
     cursor: pointer;
+    font-size: 10px;
 }
 
     .dataTables_wrapper .paging_simple_numbers a.current, .dataTables_wrapper .paging_simple_numbers a:hover {
@@ -700,11 +762,11 @@ table thead th, table tfoot th {
 
     .page-name h4 {
         font-weight: 600;
-        font-size: 20px;
+        font-size: 16px;
     }
 
     .page-name label {
-        font-size: 20px;
+        font-size: 13px;
         margin: 0;
         color: #000000;
     }
@@ -778,10 +840,11 @@ table thead th, table tfoot th {
 
 .dashboard-page .card_widget_header label {
     font-weight: 700;
+    font-size: 15px;
 }
 
 .dashboard-page .card_widget_header h4 {
-    font-size: 30px;
+    font-size: 14px;
     color: #344767;
     font-weight: 700;
 }
@@ -796,10 +859,15 @@ table thead th, table tfoot th {
     justify-content: center;
     align-items: center;
 }
-
-    .dashboard-page .card_widget_img svg, .dashboard-page .card_widget_img svg * {
-        fill: var(--theme-bg);
+    .card.main-box h6{
+        font-size:16px;
     }
+.card-header.pb-0.p-3 h6 {
+    font-size: 16px;
+}
+.dashboard-page .card_widget_img svg, .dashboard-page .card_widget_img svg * {
+    fill: var(--theme-bg);
+}
 
 .dashboard-page .card.board1.fill1 .card_widget_img {
     background-image: linear-gradient(310deg, var(--secondry-color), #6cceff);
@@ -862,13 +930,13 @@ table thead th, table tfoot th {
             }
 
                 .timeOff ul li .timeOffCard h5 {
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: 600;
                     margin-bottom: 25px;
                 }
 
                 .timeOff ul li .timeOffCard h2 {
-                    font-size: 56px;
+                    font-size: 20px;
                     font-weight: 600;
                     line-height: 46px;
                     margin-bottom: 0px;
@@ -936,11 +1004,17 @@ table thead th, table tfoot th {
     .dashboard-page .carousel-item h5 {
         margin-top: 15px;
         margin-bottom: 0px;
+        font-size: 16px;
     }
-
+p.card-text {
+    font-size: 13px;
+}
 .person-img {
     position: relative;
     display: inline-block;
+}
+a.font-weight-bold.text-decoration-none {
+    font-size: 13px;
 }
 
 .celebration-type-icon {
@@ -984,8 +1058,11 @@ section.upper-section {
     .profile-header-small-info h2 {
         color: var(--white-text-color);
         margin-bottom: 0px;
+        font-size: 20px;
     }
-
+.myinfo-menu {
+    font-size: 14px;
+}
 .joiningDate {
     font-size: 14px;
     color: #fff;
@@ -1027,7 +1104,7 @@ section.upper-section {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-size: 18px;
+   /* font-size: 16px;*/
  /*   min-width: 170px;*/
     margin-top: 20px;
 /*    padding: 12px;*/
@@ -1035,7 +1112,9 @@ section.upper-section {
 
 
 /***navigation Menu*****/
-
+#leaveForm h3 {
+    font-size: 16px;
+}
 .main-menu {
     display: flex;
     max-width: 100%;
@@ -1045,6 +1124,8 @@ section.upper-section {
         display: flex;
         margin: 0px;
         padding: 0px;
+        font-size: 14px;
+        font-weight: 500;
     }
 
         .main-menu > ul li {
@@ -1245,7 +1326,7 @@ section.upper-section {
 
 .tabsInfo h3 {
     margin-bottom: 20px;
-    font-size: 24px;
+    font-size: 18px;
 }
 
 .tabsInfo .nav-link {

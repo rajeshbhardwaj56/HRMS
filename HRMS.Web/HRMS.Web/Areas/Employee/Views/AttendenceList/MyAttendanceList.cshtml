@@ -36,6 +36,7 @@
     var managerNameL1 = '@Html.Raw(ViewBag.ManagerL1)';
     var managerNameL2 = '@Html.Raw(ViewBag.ManagerL2)';
     $(document).ready(function () {
+       
         $('#tblAttendenceListing').DataTable({
             "ajax": {
                 "url": "GetMyAttendenceList/",
