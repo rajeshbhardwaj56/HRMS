@@ -23,7 +23,6 @@ namespace HRMS.Models.Common
         public string Manager2Email { get; set; } = "";
         public bool IsResetPasswordRequired { get; set; }
 
-        public bool IsResetPasswordRequired { get; set; }
 
     }
 

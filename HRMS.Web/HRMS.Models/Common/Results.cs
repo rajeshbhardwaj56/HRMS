@@ -5,10 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.ShiftType;
-<<<<<<< HEAD
 using HRMS.Models.WhatsHappeningModel;
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 namespace HRMS.Models.Common
 {
@@ -43,15 +40,13 @@ namespace HRMS.Models.Common
         public AttendenceListModel AttendenceListModel { get; set; } = new AttendenceListModel();
         public List<ShiftTypeModel> ShiftType { get; set; } = new List<ShiftTypeModel>();
         public ShiftTypeModel shiftTypeModel { get; set; } = new ShiftTypeModel();
-<<<<<<< HEAD
         public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
         public List<PolicyCategoryModel> PolicyCategoryList { get; set; } = new List<PolicyCategoryModel>();
         public PolicyCategoryModel PolicyCategoryModel { get; set; } = new PolicyCategoryModel();
         public List<Attendance> AttandanceList { get; set; } = new List<Attendance>();
         public Attendance AttendanceModel { get; set; } = new Attendance();
       
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
 
     }
 
@@ -60,10 +55,7 @@ namespace HRMS.Models.Common
     public class Result
     {
         public long? PKNo { get; set; }
-<<<<<<< HEAD
         public long? UserID { get; set; }
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
         public string Message { get; set; } = string.Empty;
         public string ErrorCode { get; set; } = string.Empty;
         public bool IsResetPasswordRequired { get; set; }

@@ -7,11 +7,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
-<<<<<<< HEAD
     [Area(Constants.ManageHR + "," + RoleConstants.SuperAdmin)]
-=======
-    [Area(Constants.ManageHR)]
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     public class CandidateController : Controller
     {
 

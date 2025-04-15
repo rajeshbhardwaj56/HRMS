@@ -23,16 +23,15 @@ namespace HRMS.Models.Employee
 
 
     public class EmployeeModel
-<<<<<<< HEAD
+
     { 
         public string EncryptedIdentity { get; set; } = string.Empty;
         public string EncodedDesignationID { get; set; } = string.Empty;
         public string EncodedDepartmentIDID { get; set; } = string.Empty;
         public string EncodedCompanyID { get; set; } = string.Empty;
-=======
-    {
-        public string EncryptedIdentity { get; set; } = string.Empty;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
+    
+
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
         public long CompanyID { get; set; } = 1;
@@ -99,7 +98,7 @@ namespace HRMS.Models.Employee
         public string? EmployeeTypeName { get; set; } = string.Empty;
         public string? DepartmentName { get; set; } = string.Empty;
         public string? JobLocationName { get; set; } = string.Empty;
-<<<<<<< HEAD
+
         public string? ReportingToNameL1 { get; set; } = string.Empty;
         public string? ReportingToNameL2 { get; set; } = string.Empty;
         public string? PayrollTypeName { get; set; } = string.Empty;
@@ -119,13 +118,8 @@ namespace HRMS.Models.Employee
         public string? AadhaarCardImage { get; set; } = string.Empty;
         public string? ManagerName { get; set; } = string.Empty;
         public string? Shift { get; set; } = string.Empty;
-=======
-        public string? ReportingToName { get; set; } = string.Empty;
-        public string? EmployeeNumber { get; set; } = string.Empty;
-        public string OfficialEmailID { get; set; } = string.Empty;
 
-        public long? LeavePolicyID { get; set; }
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+        public string? ReportingToName { get; set; } = string.Empty;
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();

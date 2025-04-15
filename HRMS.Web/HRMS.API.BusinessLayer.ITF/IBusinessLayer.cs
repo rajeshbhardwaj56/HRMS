@@ -10,12 +10,8 @@ using HRMS.Models.Template;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.ShiftType;
 using Microsoft.AspNetCore.Mvc.Rendering;
-<<<<<<< HEAD
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.WhatsHappeningModel;
-=======
-using HRMS.Models.WhatsHappening;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -40,11 +36,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCompanies(EmployeeInputParams model);
         public LeaveResults GetlLeavesSummary(MyInfoInputParams model);
         public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel);
-<<<<<<< HEAD
         public LeaveResults GetLeaveForApprovals(MyInfoInputParams model);
-=======
-        public LeaveResults GetLeaveForApprovals(MyInfoInputParams model);        
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
         public LeaveResults GetLeaveDurationTypes(MyInfoInputParams leaveInputParams);
         public LeaveResults GetLeaveTypes(MyInfoInputParams leaveInputParams);
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
@@ -52,7 +44,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public MyInfoResults GetMyInfo(MyInfoInputParams model);
         public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails);
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
-<<<<<<< HEAD
         public Result AddUpdateEmploymentBankDetails(EmploymentBankDetail employmentBankDetails);
         public EmploymentBankDetail GetEmploymentBankDetails(EmploymentBankDetailInputParams model);
         public Result AddUpdateEmploymentSeparationDetails(EmploymentSeparationDetail employmentSeparationDetails);
@@ -61,19 +52,12 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
         public DashBoardModel GetDashBoardModel(DashBoardModelInputParams model);
-=======
-        public Result GetFogotPasswordDetails(ChangePasswordModel model);
-        public Result AddUpdateHoliday(HolidayModel model);
-        public Results GetAllHolidays(HolidayInputParams model);
-        public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model);
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
         public Results GetAllAttendenceList(AttendenceListInputParans model);
         public Result AddUpdateAttendenceList(AttendenceListModel model);
         public Results GetAllEmployees();
         public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel);
         public Results GetAllShiftTypes(ShiftTypeInputParans model);
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
-<<<<<<< HEAD
         public Results GetAllHolidayList(HolidayInputParams model);
         public string DeleteLeavesSummary(MyInfoInputParams model);
 
@@ -112,9 +96,5 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model);
         public Results GetAllWhatsHappeningDetails(WhatsHappeningModelParans model);
         public string DeleteWhatsHappening(WhatsHappeningModelParans model);
-=======
-        public Result AddUpdateWhatsHappening(WhatsHappening model);
-        public WhatsHappeningModel GetWhatsHappenings(WhatsHappening model);
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     }
 }

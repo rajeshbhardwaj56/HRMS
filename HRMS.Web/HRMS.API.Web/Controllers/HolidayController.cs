@@ -45,7 +45,6 @@ namespace HRMS.API.Web.Controllers.Holiday
             response = Ok(_businessLayer.GetHolidayList(model));
             return response;
         }
-<<<<<<< HEAD
         [HttpPost]
         public IActionResult GetAllHolidayList(HolidayInputParams model)
         {
@@ -53,7 +52,5 @@ namespace HRMS.API.Web.Controllers.Holiday
             response = Ok(_businessLayer.GetAllHolidayList(model));
             return response;
         }
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     }
 }

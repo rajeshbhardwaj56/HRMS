@@ -12,33 +12,21 @@ using DocumentFormat.OpenXml.InkML;
 namespace HRMS.Web.Areas.HR.Controllers
 {
 	[Area(Constants.ManageHR)]
-<<<<<<< HEAD
 	 [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
-=======
-	[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin))]
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 	public class CompanyController : Controller
 	{
 		IConfiguration _configuration;
 		IBusinessLayer _businessLayer;
 		private IHostingEnvironment Environment;
-<<<<<<< HEAD
         private readonly IHttpContextAccessor _context;
         public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context)
-=======
-		public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 		{
 			Environment = _environment;
 			_configuration = configuration;
 			_businessLayer = businessLayer;
-<<<<<<< HEAD
 			_context = context;
 
         }
-=======
-		}
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 		public IActionResult CompanyListing()
 		{
@@ -61,7 +49,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 		public IActionResult Index(string id)
 		{
 			CompanyModel model = new CompanyModel();
-<<<<<<< HEAD
 			{
 				if(id == null)
 				{
@@ -75,13 +62,6 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
 
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-=======
-
-			//if (!string.IsNullOrEmpty(id))
-			{
-				model.CompanyID = Convert.ToInt64(id);
-				var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 				model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyModel;
 			}
 
@@ -90,7 +70,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 			model.Currencies = results.Currencies;
 			return View(model);
 		}
-<<<<<<< HEAD
 
 		[HttpPost]
 		public IActionResult Index(CompanyModel model, List<IFormFile> postedFiles)
@@ -99,16 +78,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 			{
                 model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
                 HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
-=======
-
-		[HttpPost]
-		public IActionResult Index(CompanyModel model, List<IFormFile> postedFiles)
-		{
-			if (ModelState.IsValid)
-			{
-
-				HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 				model.Countries = results.Countries;
 				model.Currencies = results.Currencies;
 
@@ -135,7 +104,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 				{
 					using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
 					{
-<<<<<<< HEAD
                         postedFile.CopyTo(stream);
 					}
                     var updatedCompanyLogoPath = "/Uploads/CompanyLogo/" + result.PKNo + "/" + fileName + "?t=" + DateTime.Now.Ticks;
@@ -146,13 +114,6 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
 
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-=======
-						postedFile.CopyTo(stream);
-					}
-				}
-
-				TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 				TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
 				return RedirectToActionPermanent(
 				   Constants.Index,

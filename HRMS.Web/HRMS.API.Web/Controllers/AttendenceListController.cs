@@ -1,8 +1,5 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
-<<<<<<< HEAD
 using HRMS.Models;
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -39,7 +36,6 @@ namespace HRMS.API.Web.Controllers
             return response;
 
         }
-<<<<<<< HEAD
         [HttpPost]
         public IActionResult AddUpdateAttendace(Attendance model)
         {
@@ -117,8 +113,5 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetAttendanceDeviceLogs(model));
             return response;
         }
-=======
-
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     }
 }

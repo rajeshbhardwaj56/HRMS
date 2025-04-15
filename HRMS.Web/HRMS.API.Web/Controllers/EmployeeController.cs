@@ -65,11 +65,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetLeaveForApprovals(model));
             return response;
         }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
         [HttpPost]
         public IActionResult AddUpdateLeave(LeaveSummaryModel model)
         {

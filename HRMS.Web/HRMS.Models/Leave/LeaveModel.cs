@@ -50,14 +50,12 @@ namespace HRMS.Models.Leave
         public string EmployeeFirstName { get; set; } = string.Empty;
         public string ManagerOfficialEmailID { get; set; } = string.Empty;
         public string ManagerFirstName { get; set; } = string.Empty;
-<<<<<<< HEAD
+
         public string? UploadCertificate { get; set; } = string.Empty;
         public DateTime ExpectedDeliveryDate { get; set; } = DateTime.Now;
         public DateTime ChildDOB { get; set; }
         public DateTime? JoiningDate { get; set; }
-=======
 
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     }
 
     public class LeaveResults

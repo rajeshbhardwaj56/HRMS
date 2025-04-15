@@ -7,6 +7,12 @@
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Content Remove="Views\Shared\_Celebrations.cshtml" />
+	  <Content Remove="Views\Shared\_ValidationScriptsPartial.cshtml" />
+	  <Content Remove="Views\Shared\_WhatsHappening.cshtml" />
+	</ItemGroup>
+
   <ItemGroup>
     <None Include="wwwroot\assets\css\fonts\fontawesome-webfont.svg" />
     <None Include="wwwroot\assets\css\fonts\fontawesome-webfont.woff2" />

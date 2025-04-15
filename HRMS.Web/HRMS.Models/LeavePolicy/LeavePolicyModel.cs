@@ -23,7 +23,6 @@ namespace HRMS.Models.LeavePolicy
         public long LeavePolicyID { get; set; }
         public long CompanyID { get; set; }
         public string LeavePolicyName { get; set; } = string.Empty;
-<<<<<<< HEAD
         //Annual
         public int Annual_MaximumLeaveAllocationAllowed { get; set; }
         public int Annual_ApplicableAfterWorkingDays { get; set; }
@@ -58,7 +57,7 @@ namespace HRMS.Models.LeavePolicy
         public bool Paternity_medicalDocument { get; set; }
 
 
-=======
+
         public int MaximumLeaveAllocationAllowed { get; set; }
         public int ApplicableAfterWorkingDays { get; set; }
         public int MaximumConsecutiveLeavesAllowed { get; set; }
@@ -75,6 +74,6 @@ namespace HRMS.Models.LeavePolicy
         public int MaximumEarnedLeaveAllowed { get; set; }
         public int MaximumMedicalLeaveAllocationAllowed { get; set; }
         public int MaximumCompOffLeaveAllocationAllowed { get; set; }
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
     }
 }

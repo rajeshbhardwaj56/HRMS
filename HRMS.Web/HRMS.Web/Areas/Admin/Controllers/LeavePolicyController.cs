@@ -73,12 +73,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             //    TempData[HRMS.Models.Common.Constants.toastMessage] = "The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.";
             //    return View();
             //}
-<<<<<<< HEAD
              
-=======
-            if (ModelState.IsValid)
-            {
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                 leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicy), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -87,7 +82,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
                 return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
-<<<<<<< HEAD
              
         }
 
@@ -176,8 +170,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     leavePolicyModel.PolicyDocument = "";
 
                 }
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
             }
         
             var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();

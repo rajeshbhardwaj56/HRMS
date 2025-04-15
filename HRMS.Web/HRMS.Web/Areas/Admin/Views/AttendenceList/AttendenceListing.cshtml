@@ -4,22 +4,14 @@
 @model Results
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-<<<<<<< HEAD
     ViewData["Title"] = "Attendance List";
-=======
-    ViewData["Title"] = "Attendence List";
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
 
 
-<<<<<<< HEAD
 <div class="main-header anim" style="--delay: 0s">Attendance List  <a href="~/Admin/AttendenceList"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
-=======
-<div class="main-header anim" style="--delay: 0s">Attendence List  <a href="~/Admin/AttendenceList"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 @* <div class="addcomp px-4">
     <h4>Attendence List</h4>
@@ -33,16 +25,9 @@
             <tr>
                 <th class="first" style="visibility:hidden" /th>
                 <th>Employee Name</th>
-<<<<<<< HEAD
                 <th>Attendance Date</th>
                 <th>First Login </th>
                 <th>Last Login</th>
-=======
-                <th>Series</th>
-                <th>AttendenceDate</th>
-                <th>Status</th>
-                <th>IsActive</th>
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                 <th>Action</th>
             </tr>
         </thead>
@@ -58,24 +43,18 @@
         $('#tblAttendenceListing').DataTable({
             "ajax": {
                 "url": "GetAllAttendenceList/",
-<<<<<<< HEAD
                 "type": "POST",
                 "datatype": "json",
                 "dataSrc": function (json) {
                     console.log('Data from server:', json); // Log the full response
                     return json.data.attendances;  // Access the attendances array inside the data object
                 }
-=======
-                "type": "Post",
-                "datatype": "json"
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
             },
             "ordering": true,
             "paging": true,
             "searching": true,
             "info": true,
             "columns": [
-<<<<<<< HEAD
                 { "data": "id", "autoWidth": true },  // ID
                 { "data": "employeeName", "autoWidth": true },  // Employee Name
                 {
@@ -121,40 +100,6 @@
                             '<img src="/assets/img/delete.png" width="20" height="20" /></a>';
 
                         return linkEdit + linkDelete + '</div>';
-=======
-                { "data": "id", "autoWidth": true, },
-                { "data": "employeeName", "autoWidth": true, },
-                { "data": "series", "autoWidth": true, },
-                {
-                    "data": "attendenceDate", "autoWidth": true,
-                    "render": function (data, type, row) {
-
-                        var date = new Date(data);
-                        var formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
-                        return formattedDate;
-                    }
-
-                },
-                { "data": "status", "autoWidth": true, },
-                { "data": "isActive", "autoWidth": true, },
-                //{ "data": "isCompendatory", "autoWidth": true },
-                //{ "data": "isAllowOverAllocation", "autoWidth": true }
-                //                 {
-                //     "data": "isAllowEncashment", "autoWidth": true
-                // },
-                // {
-                //     "data": "isEarnedLeave", "autoWidth": true
-                // },
-
-
-                {
-                    // this is Actions Column
-                    mRender: function (data, type, row) {
-
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.id + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-
-                        return linkEdit;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                     }
                 },
             ],
@@ -163,40 +108,10 @@
                     "targets": [0], // ID column
                     "visible": false // Hide this column
                 }
-<<<<<<< HEAD
             ],
             "responsive": true
         });
     });
 
 
-=======
-                // {
-                //     target: 2,
-                //     visible: false,
-                //     searchable: false
-                // },
-
-                // {
-
-                //     "targets": [0], //first and last not sortable
-                //     "orderable": false,
-                //     "visible": false
-                // },
-
-                // {
-
-                //     "targets": [1], //first and last not sortable
-                //     "orderable": true,
-                //     "defaultContent": " "
-                // }
-
-            ]
-            , "responsive": true
-
-        });
-
-
-    });
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 </script> 

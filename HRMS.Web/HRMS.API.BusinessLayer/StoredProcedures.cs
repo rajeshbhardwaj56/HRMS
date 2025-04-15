@@ -17,13 +17,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_Languages = "usp_Get_Languages";
         public const string usp_AddUpdate_Employee = "usp_AddUpdate_Employee";
         public const string usp_Get_FogotPasswordDetails = "usp_Get_FogotPasswordDetails";
-<<<<<<< HEAD
-        
-
-=======
         public const string usp_Get_Celebrations = "usp_Get_Celebrations";
-        
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
         public const string usp_Get_CompanyDepartments = "usp_Get_CompanyDepartments";
         public const string usp_Get_CompanyEmployeeTypes = "usp_Get_CompanyEmployeeTypes";
         public const string usp_Get_CompanyLanguages = "usp_Get_CompanyLanguages";
@@ -51,7 +45,6 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_AttendenceList = "usp_AddUpdate_AttendenceList";
         public const string usp_Get_Employees = "usp_Get_Employees";
         public const string usp_Get_HolidayList = "usp_Get_HolidayList";
-<<<<<<< HEAD
 
 
         public const string usp_InsertUserRole = "usp_InsertUserRole";
@@ -101,20 +94,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_WhatsHappeningS = "usp_Get_WhatsHappeningS";
         public const string usp_AddUpdate_WhatsHappening = "usp_AddUpdate_WhatsHappening";
         public const string usp_Delete_WhatsHappening = "usp_Delete_WhatsHappening";
-=======
 
 
-        public const string usp_AddUpdate_EmploymentDetails = "usp_AddUpdate_EmploymentDetails";
-        public const string usp_Get_EmployeeDetailsFormDetails = "usp_Get_EmployeeDetailsFormDetails";
-        public const string usp_GetDashBoardDetails = "usp_GetDashBoardDetails";
-        public const string usp_ResetPassword = "usp_ResetPassword";
-        public const string usp_Get_LeaveForApprovals = "usp_Get_LeaveForApprovals";
-
-        public const string usp_Get_ShiftTypeDetails = "usp_Get_ShiftTypeDetails";
-        public const string usp_AddUpdate_ShiftType = "usp_AddUpdate_ShiftType";
-
-        public const string usp_Get_WhatsHappenings = "usp_Get_WhatsHappenings";
-        public const string usp_AddUpdate_WhatsHappening = "usp_AddUpdate_WhatsHappening";
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     }
 }

@@ -66,11 +66,11 @@
                 console.log(data);
                 alert('File uploaded successfully');
                 $("#file").val(''); // Clear the file input after upload
-                $("#btnfileupload").val("Import your Contacts").prop('disabled', false); // Reset button text and enable
+                $("#btnfileupload").val("Import  ").prop('disabled', false); // Reset button text and enable
             },
             error: function (xhr, error, status) {
-                alert('There was an error with the file upload. Please try again.');
-                $("#btnfileupload").val("Import your Contacts").prop('disabled', false); // Reset button text and enable
+                alert(error);
+                $("#btnfileupload").val("Import ").prop('disabled', false); // Reset button text and enable
             }
         });
     });
