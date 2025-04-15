@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using HRMS.Models.LeavePolicy;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,11 @@ namespace HRMS.Models.Leave
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
         public long UserID { get; set; }
+        public int GenderId { get; set; }
     }
     public class LeaveSummaryModel
     {
+        public string EncryptedIdentity { get; set; } = string.Empty;
         public long LeaveSummaryID { get; set; }
         public long LeaveStatusID { get; set; }
         public string LeaveStatusName { get; set; } = string.Empty;
@@ -25,6 +28,9 @@ namespace HRMS.Models.Leave
         public DateTime RequestDate { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public DateTime HalfDayDate { get; set; }
+        public string StartDateFormatted { get; set; } = string.Empty;
+        public string EndDateFormatted { get; set; } = string.Empty;
         public long LeaveTypeID { get; set; }
         public string LeaveTypeName { get; set; } = string.Empty;
         public long LeaveDurationTypeID { get; set; }
@@ -34,8 +40,20 @@ namespace HRMS.Models.Leave
         public bool IsDeleted { get; set; } = false;
         public long UserID { get; set; }
         public long EmployeeID { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;        
         public long CompanyID { get; set; }
-
+        public long LeavePolicyID { get; set; }
+        public string EmployeeNumber { get; set; } = string.Empty;
+        public bool IsApproved { get; set; } = false;
+        public string ApproveRejectComment { get; set; } = string.Empty;
+        public string OfficialEmailID { get; set; } = string.Empty;
+        public string EmployeeFirstName { get; set; } = string.Empty;
+        public string ManagerOfficialEmailID { get; set; } = string.Empty;
+        public string ManagerFirstName { get; set; } = string.Empty;
+        public string? UploadCertificate { get; set; } = string.Empty;
+        public DateTime ExpectedDeliveryDate { get; set; } = DateTime.Now;
+        public DateTime ChildDOB { get; set; }
+        public DateTime? JoiningDate { get; set; }
     }
 
     public class LeaveResults
@@ -45,5 +63,11 @@ namespace HRMS.Models.Leave
         public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveDurationTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveStatuses { get; set; } = new List<SelectListItem>();
-    }   
+    }
+
+    public class ErrorLeaveResults
+    {
+        public int status { get;set; }
+        public string message { get; set; }
+    }
 }

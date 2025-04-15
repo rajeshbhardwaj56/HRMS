@@ -9,20 +9,21 @@
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
-
-<div class="addcomp px-4">
+<div class="main-header anim" style="--delay: 0s">Leave Policy List  <a href="~/Admin/LeavePolicy"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Leave Policy</button></a></div>
+@* <div class="addcomp px-4">
     <h4>Leave Policy List</h4>
     <a href="~/Admin/LeavePolicy"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Leave Policy</button></a>
-</div>
+</div> *@
 
+<div class="table-responsive py-3">
 
-<div class="container-fluid">
     <table id="tblLeavePolicyListing" class="table table-striped body-text" style="width:100%">
+
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden"> /th>
                 <th>Leave Policy Name</th>
-                <th>Maximum Leaves Allocation Allowed</th>
+                <th>Maximum Annual Leave Allocation Allowed</th>
                 <th>Applicable After Working Days</th>
                 <th>Maximum Consecutive Leaves Allowed</th>
                     @* <th>Is Compendatory</th>
@@ -39,7 +40,7 @@
 
 
 <script type="text/javascript">
-
+    debugger
     $(document).ready(function () {
         $('#tblLeavePolicyListing').DataTable({
             "ajax": {
@@ -54,9 +55,9 @@
             "columns": [
                 { "data": "leavePolicyID", "autoWidth": true, },
                 { "data": "leavePolicyName", "autoWidth": true, },
-                { "data": "maximumLeaveAllocationAllowed", "autoWidth": true, },
-                { "data": "applicableAfterWorkingDays", "autoWidth": true, },
-                { "data": "maximumConsecutiveLeavesAllowed", "autoWidth": true, },
+                { "data": "annual_MaximumLeaveAllocationAllowed", "autoWidth": true, },
+                { "data": "annual_ApplicableAfterWorkingDays", "autoWidth": true, },
+                { "data": "annual_MaximumConsecutiveLeavesAllowed", "autoWidth": true, },
                 //{ "data": "isCompendatory", "autoWidth": true },
                 //{ "data": "isAllowOverAllocation", "autoWidth": true }
                     //                 {

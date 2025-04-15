@@ -1,6 +1,10 @@
-﻿using HRMS.Models.Common;
+﻿using DocumentFormat.OpenXml.EMMA;
+using HRMS.Models.Common;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using System.Buffers.Text;
 using System.Data;
 using System.Text;
 
@@ -19,6 +23,10 @@ namespace HRMS.Web.BusinessLayer
         public string GetFormattedAPIUrl(string ApiControllarName, string APIActionName);
 
         public string ConvertIFormFileToBase64(IFormFile file);
+        public string EncodeStringBase64(string plainText);
+        public string DecodeStringBase64(string base64EncodedData);
+        public string GetSatutation();
+        public string GetProfilePhoto();
     }
 
 
@@ -27,10 +35,12 @@ namespace HRMS.Web.BusinessLayer
         public string bearerToken { get; set; }
         private static readonly object Locker = new object();
         private HttpClient _httpClient;
+        Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor;
         public string BaseAPIUrl { get; set; }
         public IConfiguration _configuration { get; set; }
-        public BusinessLayer(IConfiguration configuration)
+        public BusinessLayer(IConfiguration configuration, Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor)
         {
+            httpContextAccessor = HttpContextAccessor;
             _configuration = configuration;
             _httpClient = new HttpClient();
             BaseAPIUrl = _configuration.GetSection("AppSettings").GetSection("BaseAPIUrl").Value;
@@ -43,7 +53,7 @@ namespace HRMS.Web.BusinessLayer
         public async Task<object> SendPostAPIRequest(object body, string ActionUrl, string BearerToken, bool isTokenRequired = true)
         {
             _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Clear();
+            //_httpClient.DefaultRequestHeaders.Clear();
             string apiUrl = GetFullAPIUrl(ActionUrl);
             var requestData = JsonConvert.SerializeObject(body);
             if (isTokenRequired && (_httpClient.DefaultRequestHeaders == null || _httpClient.DefaultRequestHeaders.Count() == 0))
@@ -68,7 +78,10 @@ namespace HRMS.Web.BusinessLayer
             _httpClient.DefaultRequestHeaders.Clear();
             if (isTokenRequired && (_httpClient.DefaultRequestHeaders == null || _httpClient.DefaultRequestHeaders.Count() == 0))
             {
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + BearerToken);
+                lock (Locker)
+                {
+                    _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + BearerToken);
+                }
             }
 
             string apiUrl = GetFullAPIUrl(ActionUrl);
@@ -97,6 +110,12 @@ namespace HRMS.Web.BusinessLayer
                     break;
                 case (int)Roles.Employee:
                     RootName = HRMS.Models.Common.Constants.ManageEmployee;
+                    break;
+                case (int)Roles.Manager:
+                    RootName = HRMS.Models.Common.Constants.ManageEmployee;
+                    break;
+                case (int)Roles.SuperAdmin:
+                    RootName = HRMS.Models.Common.Constants.ManageAdmin;
                     break;
                 default:
                     break;
@@ -133,8 +152,57 @@ namespace HRMS.Web.BusinessLayer
                 }
             }
 
-            return null; // Or throw an exception, depending on your requirements
+            return null; 
         }
 
+
+        public string EncodeStringBase64(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
+
+        public string DecodeStringBase64(string base64EncodedData)
+        {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        public string GetSatutation()
+        {
+            String Satutation = string.Empty;
+            if (DateTime.Now.Hour <= 12)
+            {
+                Satutation = "Good Morning";
+            }
+            else if (DateTime.Now.Hour <= 16)
+            {
+                Satutation = "Good Afternoon";
+            }
+            else if (DateTime.Now.Hour <= 20)
+            {
+
+                Satutation = "Good Evening";
+            }
+            else
+            {
+                Satutation = "Good Evening";
+            }
+            return Satutation;
+        }
+
+        public string GetProfilePhoto()
+        {
+            var ProfilePhoto = "";
+            if (!string.IsNullOrEmpty(httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto)))
+            {
+                ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeID) + "/" + httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto);
+            }
+            else
+            {
+                ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+            }
+            return ProfilePhoto;
+        }
     }
 }

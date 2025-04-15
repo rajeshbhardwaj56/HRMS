@@ -24,6 +24,7 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult AddUpdateEmployee(EmployeeModel model)
         {
             IActionResult response = Unauthorized();
@@ -53,6 +54,15 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetlLeavesSummary(model));
+            return response;
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult GetLeaveForApprovals(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLeaveForApprovals(model));
             return response;
         }
 
@@ -104,6 +114,95 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetEmploymentDetailsByEmployee(model));
             return response;
         }
-        
+        [HttpPost]
+        public IActionResult GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetFilterEmploymentDetailsByEmployee(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteLeavesSummary(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteLeavesSummary(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetEmployeeListByManagerID(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeeListByManagerID(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult AddUpdatePolicyCategory(PolicyCategoryModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdatePolicyCategory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetAllPolicyCategory(PolicyCategoryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllPolicyCategory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetPolicyCategoryList(PolicyCategoryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetPolicyCategoryList(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeletePolicyCategory(PolicyCategoryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeletePolicyCategory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult PolicyCategoryDetails(PolicyCategoryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.PolicyCategoryDetails(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetEmploymentBankDetails(EmploymentBankDetailInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmploymentBankDetails(model));
+            return response;
+        }
+
+
+        [HttpPost]
+        public IActionResult AddUpdateEmploymentBankDetails(EmploymentBankDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmploymentBankDetails(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetEmploymentSeparationDetails(EmploymentSeparationInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmploymentSeparationDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateEmploymentSeparationDetails(EmploymentSeparationDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmploymentSeparationDetails(model));
+            return response;
+        }
+
     }
 }

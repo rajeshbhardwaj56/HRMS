@@ -26,67 +26,65 @@
         FooterImage = HRMS.Models.Common.Constants.NoImagePath;
     }
 }
+
+
+<div class="main-header anim" style="--delay: 0s">Template Details</div>
+
+
 <form method="post" id="submitForm" enctype="multipart/form-data">
     <div class="Container">
 
-        <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label class="form-label">Template Details </label>
-        </div>
-        <div class="row">
-            &nbsp;
-        </div>
-        <div class="row">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="col-md-12">
-                        Template Name <label class="Mandetory">*</label>
-                    </div>
-                    <div class="col-md-12">
-                        @Html.HiddenFor(x => x.TemplateID)
-                        @Html.TextBoxFor(a => a.TemplateName, new { @class = "form-control", @required = "required" })
+        @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+            <label class="form-label"> </label>
+        </div> *@
 
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="col-md-12">
-                        Letter Head Name<label class="Mandetory">*</label>
-                    </div>
-                    <div class="col-md-12">
-                        @Html.TextBoxFor(a => a.LetterHeadName, new { @class = "form-control", @required = "required" })
-                    </div>
-                </div>
-            </div>
+        <div class="group-box anim" style="--delay: .3s">
             <div class="row">
-                &nbsp;
-            </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="col-md-12">
-                        Header Image <label class="Mandetory">*</label>
-                    </div>
-                    <div class="col-md-12">
+
+
+                <div class="col-md-6 form-group">
+                    <label>Template Name <span class="Mandetory">*</span></label>
+                    @Html.HiddenFor(x => x.TemplateID)
+                    @Html.TextBoxFor(a => a.TemplateName, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label>Letter Head Name <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.LetterHeadName, new { @class = "form-control", @required = "required" })
+                </div>
+
+
+                <div class="col-md-6 form-group">
+                    <label>Header Image <span class="Mandetory">*</span></label>
+                    <div class="row d-flex align-items-center">
                         <div class="col-md-4">
                             <img src="@HeaderImage" style="width:100px; height:100px" />
+                        </div>
+                        <div class="col-md-8">
                             <input type="file" name="HeaderImageFile" accept="image/*" />
                             @Html.HiddenFor(x => x.HeaderImage)
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="col-md-12">
-                        Footer Image <label class="Mandetory">*</label>
-                    </div>
-                    <div class="col-md-12">
+
+                <div class="col-md-6 form-group">
+                    <label>Footer Image <span class="Mandetory">*</span></label>
+                    <div class="row d-flex align-items-center">
                         <div class="col-md-4">
                             <img src="@FooterImage" style="width:100px; height:100px" />
+                        </div>
+                        <div class="col-md-8">
                             <input type="file" name="FooterImageFile" accept="image/*" />
                             @Html.HiddenFor(x => x.FooterImage)
                         </div>
-
                     </div>
                 </div>
+                
+                
             </div>
+            
+           
             <div class="row">
                 &nbsp;
             </div>
@@ -102,10 +100,7 @@
                         <div id="toolbar-container"></div>
 
                         <!-- This container will become the editable. -->
-
-                        <div id="editor">
-                        </div>
-                        <input type="hidden" id="description" name="description" />
+                        @Html.TextAreaFor(a => a.Description, new { @class = "form-control", id = "editor" })
                     </div>
                 </div>
             </div>
@@ -116,12 +111,19 @@
             </div>
 
 
-            <div class="row">
+           @*  <div class="row">
                 <div class="col-md-12">
                     <input style="float:right" id="submitBtn" type="submit" value="Submit" class="btn btn-success" />
                     <input id="cancelButton" style="float:right; margin:0 16px;" type="button" value="Cancel" class="btn btn-success" />
                 </div>
 
+            </div> *@
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input id="submitBtn" type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger"  type="button" value="Cancel">Cancel</button>
+                </div>
             </div>
 
         </div>
@@ -129,64 +131,26 @@
 </form>
 
 <script>
-    const editor = document.querySelector('#editor');
-    const editorDataInput = document.querySelector('#description');
-    DecoupledEditor
-        .create(editor, {
-            toolbar: {
-                items: [
-                    'heading',
-                    '|',
-                    'bold',
-                    'italic',
-                    'underline',
-                    'strikethrough',
-                    '|',
-                    'alignment',
-                    '|',
-                    'link',
-                    'blockquote',
-                    'insertTable',
-                    '|',
-                    'bulletedList',
-                    'numberedList',
-                    '|',
-                    'indent',
-                    'outdent',
-                    '|',
-                    'fontFamily',
-                    'fontSize',
-                    'fontColor',
-                    'fontBackgroundColor',
-                    '|',
-                    'removeFormat',
-                    'sourceEditing',
-                    '|',
-                    'undo',
-                    'redo'
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+            toolbar: [
+                'heading', '|', 'bold', 'italic', 'link', 'bulletedList',
+                'numberedList', 'blockQuote', '|', 'alignment', '|', 'undo', 'redo'
+            ],
+            alignment: {
+                options: ['left', 'center', 'right', 'justify']
+            },
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
                 ]
             }
         })
         .then(editor => {
-            const toolbarContainer = document.querySelector('#toolbar-container');
-            toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-
-            // Set initial data to the editor
-            editor.setData('@Html.Raw(Model.Description)');
-
-            // Get the editor's data and update the input field
-            const editorDataInput = document.querySelector('#description');
-            editorDataInput.value = editor.getData();
-
-            // Listen for changes in the editor's content
-            editor.model.document.on('change:data', () => {
-                // Get the current content of the editor
-                const editorContent = editor.getData();
-                // Update the input field with the editor content
-                editorDataInput.value = editorContent;
-                console.log("eidtor data", editorContent)
-            });
-
+            console.log('Editor was initialized', editor);
         })
         .catch(error => {
             console.error(error);
@@ -207,9 +171,9 @@
         console.log("footerImg", footerImg);
         console.log("headerImg", headerImg);
 
-        if ('@Model.TemplateID' == '0' && (footerImg == null || footerImg == undefined || headerImg == null || headerImg == undefined)) {
-            console.log("header and footer images required")
-            return false;
-        }
+        // if ('@Model.TemplateID' == '0' && (footerImg == null || footerImg == undefined || headerImg == null || headerImg == undefined)) {
+        //     console.log("header and footer images required")
+        //     return false;
+        // }
     })
 </script>

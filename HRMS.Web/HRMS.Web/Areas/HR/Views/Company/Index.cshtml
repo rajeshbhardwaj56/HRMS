@@ -6,7 +6,7 @@
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 
-    ViewData["Title"] = "Employee";
+    ViewData["Title"] = "Manage Employee";
     var CompanyLogo = "";
     if (!string.IsNullOrEmpty(Model.CompanyLogo))
     {
@@ -18,14 +18,14 @@
     }
 }
 
-<div class="main-header anim" style="--delay: 0s">New Company</div>
+<div class="main-header anim" style="--delay: 0s">Manage Company</div>
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
 
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Company Details</div>
             @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-                <label class="form-label"> </label>
+            <label class="form-label"> </label>
             </div> *@
 
             <div class="row">
@@ -50,10 +50,10 @@
                     <label>Company Logo</label>
                     <div class="row d-flex align-items-center">
                         <div class="col-md-4">
-                            <img src="@CompanyLogo" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
+                            <img  id="previewImage"  src="@CompanyLogo" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
                         </div>
                         <div class="col-md-8">
-                            <input type="file" name="postedFiles" accept="image/*" />
+                            <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
                         </div>
                     </div>
                 </div>
@@ -62,8 +62,16 @@
 
             <div class="row">
                 <div class="col-md-4 form-group">
-                    <label>TaxID<span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.TaxID, new { @class = "form-control", @required = "required" })
+                    <label>GSTIN<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.GSTIN, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>
+                        CIN
+                        <span class="Mandetory">*</span>
+                    </label>
+                    @Html.TextBoxFor(a => a.CIN, new { @class = "form-control", @required = "required" })
                 </div>
 
                 <div class="col-md-4 form-group">
@@ -77,10 +85,7 @@
                 </div>
 
 
-                <div class="col-md-4 form-group">
-                    <label>Country<span class="Mandetory">*</span></label>
-                    @Html.DropDownListFor(x => x.CountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
-                </div>
+
 
                 <div class="col-md-4 form-group">
                     <label>Currency<span class="Mandetory">*</span></label>
@@ -98,13 +103,41 @@
                     @Html.TextBoxFor(a => a.ParentCompany, new { @class = "form-control", @required = "required" })
                 </div>
 
+                <div class="col-md-4 form-group">
+                    <label>Address<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Address, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>City<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.City, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>State<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.State, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group position-relative" >
+                    <label>Country<span class="Mandetory">*</span></label>
+                    <div class="position-relative">
+                    @Html.DropDownListFor(x => x.CountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                        <i class="fa fa-chevron-down position-absolute"
+                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                </div>
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Phone<span class="Mandetory">*</span>(123-456-7890)</label>
+                    @Html.TextBoxFor(a => a.Phone, new { @class = "form-control", @type = "tel", @pattern = "[0-9]{3}-[0-9]{3}-[0-9]{4}", @required = "required" })
+                </div>
 
 
             </div>
 
-            </div>
-        
-        <div class="row">   
+        </div>
+
+        <div class="row">
             <div class="row">
                 <div class="col-md-12">
                     <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
@@ -114,3 +147,17 @@
         </div>
     </div>
 </form>
+<script>
+    function showPreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+</script>

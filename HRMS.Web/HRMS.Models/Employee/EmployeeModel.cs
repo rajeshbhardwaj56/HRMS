@@ -15,11 +15,19 @@ namespace HRMS.Models.Employee
         public long LeaveSummaryID { get; set; }
         public long CompanyID { get; set; }
         public long EmployeeID { get; set; }
+        public long RoleID { get; set; }
+        public int? DisplayStart { get; set; } = 0;
+        public int? DisplayLength { get; set; } = 0;
+        public string? Searching { get; set; }
     }
 
 
     public class EmployeeModel
-    {
+    { 
+        public string EncryptedIdentity { get; set; } = string.Empty;
+        public string EncodedDesignationID { get; set; } = string.Empty;
+        public string EncodedDepartmentIDID { get; set; } = string.Empty;
+        public string EncodedCompanyID { get; set; } = string.Empty;
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
         public long CompanyID { get; set; } = 1;
@@ -72,25 +80,46 @@ namespace HRMS.Models.Employee
         public long UpdatedByUserID { get; set; }
         public DateTime InsertedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public DateTime? JoiningDate { get; set; }
 
         // Employment Details
         public long DesignationID { get; set; }
         public long EmployeeTypeID { get; set; }
+        public long PayrollTypeID { get; set; }
         public long DepartmentID { get; set; }
         public long JobLocationID { get; set; }
-        public long ReportingToID { get; set; }
+        public long ReportingToIDL1 { get; set; }
+        public long ReportingToIDL2 { get; set; }
         public string? DesignationName { get; set; } = string.Empty;
         public string? EmployeeTypeName { get; set; } = string.Empty;
         public string? DepartmentName { get; set; } = string.Empty;
         public string? JobLocationName { get; set; } = string.Empty;
-        public string? ReportingToName { get; set; } = string.Empty;
-        public string? EmployeNumber { get; set; } = string.Empty;
-        
+        public string? ReportingToNameL1 { get; set; } = string.Empty;
+        public string? ReportingToNameL2 { get; set; } = string.Empty;
+        public string? PayrollTypeName { get; set; } = string.Empty;
+        public string? EmployeeNumber { get; set; } = string.Empty;
+        public string OfficialEmailID { get; set; } = string.Empty;
+
+        public string? ClientName { get; set; } = string.Empty;
+
+        public long? LeavePolicyID { get; set; }
+        public long? CarryForword { get; set; }
+        public int Gender { get; set; }
+        public bool IsActive { get; set; }
+        public long ShiftTypeID { get; set; }
+        public int? TotalRecords { get; set; } = 0;
+        public int? FilteredRecords { get; set; } = 0;
+        public string? PanCardImage { get; set; } = string.Empty;
+        public string? AadhaarCardImage { get; set; } = string.Empty;
+        public string? ManagerName { get; set; } = string.Empty;
+        public string? Shift { get; set; } = string.Empty;
+
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
         public List<EducationalDetail> EducationalDetails { get; set; } = new List<EducationalDetail>();
         public List<LanguageDetail> LanguageDetails { get; set; } = new List<LanguageDetail>();
         public List<EmploymentHistory> EmploymentHistory { get; set; } = new List<EmploymentHistory>();
+        public List<EmploymentDetail> EmploymentDetail { get; set; } = new List<EmploymentDetail>();
         public List<Reference> References { get; set; } = new List<Reference>();
 
         // Master Details

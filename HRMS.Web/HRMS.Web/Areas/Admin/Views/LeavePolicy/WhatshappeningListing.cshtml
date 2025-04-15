@@ -1,0 +1,116 @@
+﻿@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model Results
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Whats Happening";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+<div class="main-header anim" style="--delay: 0s">
+    Whats Happening
+    <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Whats Happening</button>
+</div>
+
+<div class="table-responsive py-3">
+    <table id="tblWhatshappeningDetailsListing" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden"></th>
+                <th>Title</th>
+                <th>Image</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#tblWhatshappeningDetailsListing').DataTable({
+            "ajax": {
+                "url": "WhatshappeningListings/",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": function (json) {
+                    console.log(json);  // Check the response data
+                    return json.data;
+                }
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                {
+                    "data": "whatsHappeningID",
+                    "autoWidth": true
+                },
+                {
+                    "data": "title",
+                    "autoWidth": true
+                },
+                {
+                    "data": "iconImage",
+                    "autoWidth": true,
+                    "render": function (data, type, row) {
+                        // Check if the image URL exists and render the image tag
+                        return data ? `<img src="/Uploads/Whatshappening/${data}" alt="${row.title}" style="width: 50px; height: 50px;"/>` : 'No Image'; // If no image, show 'No Image'
+                    }
+                },
+                {
+                    "mRender": function (data, type, row) {
+                        var linkActions = `
+                        <div class="table-data-feature">
+                                        <a data-toggle="tooltip" data-placement="top" class="item" href="AddWhatshappening?id=${row.encodedWhatsHappeningID}" title="Edit" data-original-title="Edit">
+                                <img src="/assets/img/edit.png" width="20" height="20" />
+                            </a>
+                                                        <a data-toggle="tooltip" data-placement="top" class="item delete-btn" href="/admin/LeavePolicy/DeleteWhatshappening?id=${row.encodedWhatsHappeningID}" title="Delete" data-original-title="Delete"  >
+                                <img src="/assets/img/delete.png" width="20" height="20" />
+                            </a>
+                        </div>`;
+                        return linkActions;
+                    }
+                },
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+                {
+                    "targets": [0],
+                    "orderable": false,
+                    "visible": false
+                },
+                {
+                    "targets": [1],
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+            ],
+            "responsive": true
+        });
+
+     
+        // Add confirmation alert for delete action
+        $(document).on('click', '.delete-btn', function (e) {          
+            e.preventDefault(); // Prevent default behavior of the link
+            var deleteUrl = $(this).attr('href'); // Get the href value for the delete URL
+            var rowId = $(this).data('id'); // Get the ID from the data attribute
+
+            // Display confirmation alert
+            if (confirm(`Are you sure you want to delete this?`)) {
+                // If confirmed, redirect to the delete URL
+                window.location.href = deleteUrl;
+            }
+        });
+    });
+
+    document.getElementById('openFormBtn').addEventListener('click', function () {
+        window.location.href = '@Url.Action("AddWhatshappening", "LeavePolicy")';
+    });
+</script>

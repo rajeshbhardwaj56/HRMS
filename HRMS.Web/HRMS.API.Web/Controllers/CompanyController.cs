@@ -9,7 +9,7 @@ namespace HRMS.API.Web.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class CompanyController : ControllerBase
     {
         IConfiguration _configuration;
@@ -34,6 +34,13 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAllCompanies(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetAllCompaniesList(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllCompaniesList(model));
             return response;
         }
     }

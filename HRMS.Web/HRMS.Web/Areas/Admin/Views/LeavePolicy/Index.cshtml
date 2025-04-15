@@ -1,171 +1,237 @@
-﻿@using HRMS.Models.LeavePolicy;
+﻿@using HRMS.Models.Common
+@using HRMS.Models.LeavePolicy;
 @model LeavePolicyModel
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Leave Policy";
 }
-<form method="post" enctype="multipart/form-data">
+
+<div class="main-header anim" style="--delay: 0s">Leave Policy Details </div>
+<form id="leaveForm" method="post" enctype="multipart/form-data">
+
     <div class="Container">
 
-        <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label class="form-label">Leave Policy Details </label>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="col-md-12">
-                    Leave Policy Name <label class="Mandetory">*</label>
-                </div>
-                <div class="col-md-12">
+        @*   Annual Leave *@
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Leave Policy Name <span class="Mandetory">*</span></label>
                     @Html.HiddenFor(x => x.LeavePolicyID)
                     @Html.TextBoxFor(a => a.LeavePolicyName, new { @class = "form-control", @required = "required" })
-
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="col-md-12">
-                    Maximum Leaves Allocation Allowed <label class="Mandetory">*</label>
-                </div>
-                <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.MaximumLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
-
-                </div>
-            </div>
-
-
-            <div class="col-md-4">
-                <div class="col-md-12">
-                    ApplicableAfterWorkingDays <label class="Mandetory">*</label>
-                </div>
-                <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.ApplicableAfterWorkingDays, new { @class = "form-control", @required = "required" })
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="col-md-12">
-                    MaximumConsecutiveLeavesAllowed <label class="Mandetory">*</label>
-                </div>
-                <div class="col-md-12">
-                    @Html.TextBoxFor(a => a.MaximumConsecutiveLeavesAllowed, new { @class = "form-control", @required = "required" })
-                </div>
-            </div>
-
-
-
-            <div class="col-md-8">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Carry Forward <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsCarryForward)
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Leave Without Pay <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsLeaveWithoutPay)
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Partially Paid Leave <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsPartiallyPaidLeave)
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Optional Leave <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsOptionalLeave)
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Allow Negative Balance <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.CheckBoxFor(a => a.IsAllowNegativeBalance)
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Allow Over Allocation
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsAllowOverAllocation)
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Include Holidays Within Leaves As Leaves<label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsIncludeHolidaysWithinLeavesAsLeaves)
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Compendatory
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsCompendatory)
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Allow Encashment <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsAllowEncashment)
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="col-md-12">
-                            Is Earned Leave <label class="Mandetory">*</label>
-                        </div>
-                        <div class="col-md-12">
-                            @Html.CheckBoxFor(a => a.IsEarnedLeave)
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <hr />
+            <h3>Annual Leave</h3>
 
             <div class="row">
-                &nbsp;
-            </div>
-
-
-            <div class="row">
-                <div class="col-md-12">
-                    <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
-                    <input id="cancelButton" style="float:right; margin:0 16px;" type="button" value="Cancel" class="btn btn-success" />
+                <div class="col-md-4 form-group">
+                    <label>Maximum Annual Leave Allocation Allowed <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Annual_MaximumLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Applicable After Working Days <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Annual_ApplicableAfterWorkingDays, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Maximum Consecutive Leaves Allowed</label>
+                    @Html.TextBoxFor(a => a.Annual_MaximumConsecutiveLeavesAllowed, new { @class = "form-control" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Maximum Medical Leaves Allocation Allowed <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Annual_MaximumMedicalLeaveAllocationAllowed, new { @class = "form-control", @id = "medicalLeaveInput" })
+                </div>
+                 <div class="col-md-4 form-group" id="documentRequiredField" style="display:none;">
+                    <label> Medical Document Required <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.Annual_MedicalDocument)
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Is Carry Forward <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.Annual_IsCarryForward, new { id = "carryForwardCheckbox" })
+                </div>
+                    <div class="col-md-4 form-group" id="earnedLeaveAllocationRow" style="display:none;">
+                        <label>Maximum Carry Forward Leaves Allowed <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.Annual_MaximumEarnedLeaveAllowed, new { @class = "form-control" })
+                    </div>
+               
+            </div>
 
+
+           
         </div>
-    </div>
-</form>
 
+        @* Maternity Leave *@
+        <div class="group-box anim" style="--delay: .3s">
+            <h3>Maternity Leave</h3>
+            <div class="row">
+              
+                <div class="col-md-4 form-group">
+                    <label>Maximum Leaves Allocation Allowed (Weeks)<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Maternity_MaximumLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Applicable After Working Days <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Maternity_ApplicableAfterWorkingDays, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label> Apply Before How Many Weeks?  <span class="Mandetory">*</span></label><br />
+                    @Html.TextBoxFor(a => a.Maternity_ApplyBeforeHowManyDays, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Document Required <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.Maternity_MedicalDocument)
+                </div>
+            </div>
+            <hr />
+            @*  Adoption Leave *@
+            <h3>Adoption</h3>
+            <div class="row">
+              
+                <div class="col-md-4 form-group">
+                    <label>Maximum Leaves Allocation Allowed (Weeks)<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Adoption_MaximumLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+                @* <div class="col-md-4 form-group">
+                    <label>Applicable After Working Days <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Adoption_ApplicableAfterWorkingDays, new { @class = "form-control", @required = "required" })
+                </div> *@
+            </div>
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Document Required <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.Adoption_MedicalDocument)
+                </div>
+            
+            </div>
+            <hr />
+
+            @* Miscarriage Leave *@
+            <h3>Miscarriage</h3>
+            <div class="row">
+                
+                <div class="col-md-4 form-group">
+                    <label>Maximum Leaves Allocation Allowed (Weeks)<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.Miscarriage_MaximumLeaveAllocationAllowed, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>  
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Document Required</label><br />
+                    @Html.CheckBoxFor(a => a.Miscarriage_MedicalDocument)
+                </div>
+              
+            </div>
+        </div>
+
+        <div class="group-box anim" style="--delay: .3s">
+            <h3>Paternity</h3>
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Maximum Leaves Allocation Allowed  </label>
+                    @Html.TextBoxFor(a => a.Paternity_maximumLeaveAllocationAllowed, new { @class = "form-control" })
+                </div>
+
+
+                <div class="col-md-4 form-group">
+                    <label>Applicable After Working Months </label>
+                    @Html.TextBoxFor(a => a.Paternity_applicableAfterWorkingMonth, new { @class = "form-control" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Document Required <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.Paternity_medicalDocument)
+                </div>
+                @* <div class="col-md-4 form-group">
+                <label>IsActive</label><br />
+                @Html.CheckBoxFor(a => a.Paternity_active)
+                </div> *@
+            </div>
+
+            </div>
+
+        @*   Camp Off *@
+        <div class="group-box anim" style="--delay: .3s">
+            <h3>Compensatory Leave</h3>
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Minimum Hours Of Work <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.CampOff_HoursOfWork, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label> Expired In Days  <span class="Mandetory">*</span></label><br />
+                    @Html.TextBoxFor(a => a.CampOff_ExpiryDate, new { @class = "form-control", @required = "required" })
+                </div>
+            </div>
+           @*  <div class="row">
+                
+                <div class="col-md-4 form-group">
+                    <label>Document Required <span class="Mandetory">*</span></label><br />
+                    @Html.CheckBoxFor(a => a.CampOff_MedicalDocument)
+                </div>
+               
+            </div> *@
+        </div>
+
+       
+        <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-2">
+                <input type="submit" value="Submit" class="btn btn-success" />
+            </div>
+            <div class="col-md-2">
+                <input id="cancelButton" type="button" value="Cancel" class="btn btn-danger" />
+            </div>
+        </div>
+
+    </div>
+
+    </div>
+
+</form>
 <script>
     document.getElementById('cancelButton').addEventListener('click', function () {
         window.location.href = '@Url.Action("LeavePolicyListing", "LeavePolicy")';
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        // Show or hide the "Maximum Earned Leaves Allocation Allowed" field based on checkbox state
+        $('#carryForwardCheckbox').change(function () {
+            if ($(this).is(':checked')) {
+                $('#earnedLeaveAllocationRow').show();
+            } else {
+                $('#earnedLeaveAllocationRow').hide();
+            }
+        });
+
+        // Trigger the change event on page load to handle pre-checked state
+        $('#carryForwardCheckbox').trigger('change');
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Function to show or hide the "Document Required" checkbox based on medical leaves input
+        function toggleDocumentRequired() {
+            var medicalLeaves = parseInt($("#medicalLeaveInput").val(), 10);
+
+            if (medicalLeaves > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)) {
+                $("#documentRequiredField").show();
+            } else {
+                $("#documentRequiredField").hide();
+            }
+        }
+
+        // Call the function when the page loads
+        toggleDocumentRequired();
+
+        // Bind the function to the input change event
+        $("#medicalLeaveInput").on("input", function () {
+            toggleDocumentRequired();
+        });
     });
 </script>

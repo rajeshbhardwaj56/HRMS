@@ -1,0 +1,112 @@
+﻿@using HRMS.Models.Employee;
+@model EmployeeModel
+@{
+    int Index = 0;
+}
+
+<div class="table-responsive">
+    <table class="table table-striped body-text dataTable no-footer">
+        <thead>
+            <tr>
+                <th>SNo</th>
+                <th>School/University</th>
+                <th>Qualification (Degree/Deploma)</th>
+                <th>Year of Passing</th>
+                <th>Class/ Percentage</th>
+                <th>Major/Optional Subjects</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.EducationalDetails.Count; i++)
+            {
+                var deleteId = $"EducationalDetailsDelete_{i}";
+                var filePreviewId = $"filePreview_{i}";
+
+                <tr id="@deleteId">
+                    <td>@(i + 1).</td>
+                    <td>
+                        @Html.HiddenFor(m => m.EducationalDetails[i].EducationDetailID)
+                        @Html.TextBoxFor(a => a.EducationalDetails[i].School_University, new { @class = "form-control EducationalDetails", @required = "required" })
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(a => a.EducationalDetails[i].Qualification, new { @class = "form-control", @required = "required" })
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(a => a.EducationalDetails[i].YearOfPassing, new { @class = "form-control", @required = "required" })
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(a => a.EducationalDetails[i].Percentage, new { @class = "form-control" })
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(a => a.EducationalDetails[i].Major_OptionalSubjects, new { @class = "form-control" })
+                    </td>
+                   @*  <td>
+                        <input type="file" id="fileUpload_@i" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="uploadAndPreviewFile(event, @i)" />
+                        <br />
+                        <div id="@filePreviewId"></div>
+                        <input type="hidden" id="CertificateImage_@i" name="EducationalDetails[@i].CertificateImage" />
+                    </td> *@
+                    <td>
+                        <a onclick="deleteEducationalDetails('@deleteId')"><img style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</div>
+<script>
+    function deleteEducationalDetails(id) {
+        $('#' + id).remove();
+    }
+    function uploadAndPreviewFile(event, rowIndex) {
+        var file = event.target.files[0];
+        var previewContainer = document.getElementById("filePreview_" + rowIndex); // Unique preview container for each row
+        previewContainer.innerHTML = ""; // Clear previous preview
+
+        if (file) {
+            var fileType = file.type;
+            var reader = new FileReader();
+
+            // Show preview before uploading
+            reader.onload = function (e) {
+                if (fileType.startsWith("image")) {
+                    previewContainer.innerHTML = "<img src='" + e.target.result + "' style='max-width: 100px; max-height: 100px;' />";
+                } else if (fileType === "application/pdf") {
+                    previewContainer.innerHTML = "<embed src='" + e.target.result + "' width='300' height='200' />";
+                } else {
+                    previewContainer.innerHTML = "<p>File selected: " + file.name + "</p>";
+                }
+            };
+            reader.readAsDataURL(file);
+
+            // Upload file after previewing
+            var formData = new FormData();
+            formData.append("file", file);
+
+            fetch("/HR/employee/UploadFile", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.filePath) {
+                        // Store the file path in the hidden input for this specific row
+                        document.getElementById("CertificateImage_" + rowIndex).value = data.filePath;
+
+                        previewContainer.innerHTML += `<p><a href="${data.filePath}" target="_blank">View Uploaded Document</a></p>`;
+                    } else {
+                        previewContainer.innerHTML += `<p style="color: red;">Upload failed</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Upload error:", error);
+                    previewContainer.innerHTML += `<p style="color: red;">Upload error</p>`;
+                });
+        }
+    }
+
+
+</script>
+ 

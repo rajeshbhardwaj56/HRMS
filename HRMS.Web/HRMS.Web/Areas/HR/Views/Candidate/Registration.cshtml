@@ -1,0 +1,593 @@
+﻿﻿@using HRMS.Models.Employee;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmployeeModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Employment Details";
+    var ProfilePhoto = "";
+    if (!string.IsNullOrEmpty(Model.ProfilePhoto))
+    {
+        ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.EmployeeID + "/" + Model.ProfilePhoto;
+    }
+    else
+    {
+        ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+    }
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<head>
+    <!-- Character encoding for UTF-8 -->
+    <meta charset="UTF-8">
+    <!-- Viewport settings for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title of the webpage -->
+    <!-- Bootstrap CSS file -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css" />
+    <!-- Favicon for the webpage -->
+    <link type="image/x-icon" href="../assets/img/favicon/Protalkfavicon.ico" rel="shortcut icon">
+
+    <title>@ViewData["Title"] - HRMS.Web</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/HRMS.Web.styles.css" asp-append-version="true" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="@Url.Content("~/assets/js/datatables.js")"></script>
+    <script src="~/assets/js/jquery.toast.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.css" />
+    <link href="~/assets/css/custom.css" rel="stylesheet" />
+    <link href="~/assets/css/datatables.bootstrap.css" rel="stylesheet" />
+    <link href="~/css/jquery.toast.css" rel="stylesheet" />
+
+    @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer
+    @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+</head>
+
+
+<body>
+        
+    
+    <form method="post" enctype="multipart/form-data"  >
+            <div class="main-container custome-container" style="overflow-y: scroll;">
+
+                <div class="group-box anim" style="--delay: .3s">
+                
+                @Html.HiddenFor(m => m.EmployeeID)
+                @Html.HiddenFor(m => m.CompanyID)
+                              
+                <div class="row">
+
+
+                    <div class="col-md-4 form-group">
+                        <label><strong>Instructions:</strong></label>
+                        <ul>
+                            <li>Please fill following details</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="group-box anim" style="--delay: .3s">
+                <div class="small-header">Personal Details</div>
+                @Html.HiddenFor(m => m.EmployeeID)
+                @Html.HiddenFor(m => m.CompanyID)
+                              
+                <div class="row">
+
+
+                    <div class="col-md-4 form-group">
+                        <label>First Name <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
+                        @*  @Html.ValidationMessageFor(m => m.FirstName) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Middle Name <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.MiddleName, new { @class = "form-control" })
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Surname <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })
+                        @*   @Html.ValidationMessageFor(m => m.Surname) *@
+                    </div>
+
+
+                    <div class="col-md-4 form-group">
+                        <label>Photo</label>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-md-4">
+                                <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
+                            </div>
+                            <div class="col-md-8">
+                                <input type="file" name="postedFiles" accept="image/*" />
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-12 form-group">
+                        <label>Address of Currespondence <span class="Mandetory">*</span></label>
+                        @Html.TextAreaFor(a => a.CorrespondenceAddress, new { @class = "form-control", @required = "required" })
+                        @*  @Html.ValidationMessageFor(m => m.CorrespondenceAddress) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>City <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.CorrespondenceCity, new { @class = "form-control", @required = "required" })
+                        @*   @Html.ValidationMessageFor(m => m.CorrespondenceCity) *@
+                    </div>
+
+
+
+                    <div class="col-md-4 form-group">
+                        <label>Pin <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.CorrespondencePinCode, new { @class = "form-control", @required = "required" })
+                        @*  @Html.ValidationMessageFor(m => m.CorrespondencePinCode) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>State <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.CorrespondenceState, new { @class = "form-control", @required = "required" })
+                        @* @Html.ValidationMessageFor(m => m.CorrespondenceState) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Country <span class="Mandetory">*</span></label>
+                        @Html.DropDownListFor(x => x.CorrespondenceCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Landline <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.Landline, new { @class = "form-control" })
+                        @*  @Html.ValidationMessageFor(m => m.Landline) *@
+                    </div>
+
+
+                    <div class="col-md-4 form-group">
+                        <label>Mobile <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control", @required = "required" })
+                        @*  @Html.ValidationMessageFor(m => m.Mobile) *@
+                    </div>
+
+
+                    <div class="col-md-4 form-group">
+                        <label>Personal Email Address <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control", @required = "required" })
+                        @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
+                    </div>
+
+
+                    <div class="col-md-12 form-group">
+                        <label>Permanent Address <span class="Mandetory">*</span></label>
+                        @Html.TextAreaFor(a => a.PermanentAddress, new { @class = "form-control", @required = "required" })
+                        @*     @Html.ValidationMessageFor(m => m.PermanentAddress) *@
+                    </div>
+
+
+                    <div class="col-md-4 form-group">
+                        <label>City <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.PermanentCity, new { @class = "form-control", @required = "required" })
+                        @*  @Html.ValidationMessageFor(m => m.PermanentCity) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Pin <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.PermanentPinCode, new { @class = "form-control", @required = "required" })
+                        @*   @Html.ValidationMessageFor(m => m.PermanentPinCode) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>State <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.PermanentState, new { @class = "form-control", @required = "required" })
+                        @*  @Html.ValidationMessageFor(m => m.PermanentState) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Country <span class="Mandetory">*</span></label>
+                        @Html.DropDownListFor(x => x.PermanentCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Telephone </label>
+                        @Html.TextBoxFor(a => a.Telephone, new { @class = "form-control" })
+                        @*  @Html.ValidationMessageFor(m => m.Telephone) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Date of Birth <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                        @* @Html.ValidationMessageFor(m => m.DateOfBirth) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Place of Birth <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
+                        @*   @Html.ValidationMessageFor(m => m.PlaceOfBirth) *@
+                    </div>
+
+
+                    <div class="col-md-4 form-group">
+                        <label>Contact Persion Name for Verification <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.VerificationContactPersonName, new { @class = "form-control", @required = "required" })
+                        @*  @Html.ValidationMessageFor(m => m.VerificationContactPersonName) *@
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Contact No <span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control", @required = "required" })
+                        @* @Html.ValidationMessageFor(m => m.VerificationContactPersonContactNo) *@
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-box anim" style="--delay: .3s">
+                <div class="small-header">Family Details <input type="button" style="float:right;" class="btn btn-info" id="AddNewFamily" value="Add New Family" /></div>
+                <div class="row">
+                    <div class="col-md-12" id="FamilyDetails">
+                        @Html.Partial("_FamilyDetails", Model)
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6 form-group">
+                        <label>Do you have any relatives working with Protalk Logistics? </label>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        @Html.CheckBoxFor(x => x.IsRelativesWorkingWithCompany)
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>if Yes Elaborate</label>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        @Html.TextAreaFor(a => a.RelativesDetails, new { @class = "form-control" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>Have you been refered by an Protalk Logistics employee?</label>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        @Html.CheckBoxFor(x => x.IsReferredByExistingEmployee)
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>if Yes Please mention Name and Designition</label>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        @Html.TextBoxFor(a => a.ReferredByEmployeeID, new { @class = "form-control" })
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Blood Group</label>
+                            @Html.TextBoxFor(a => a.BloodGroup, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Allergies</label>
+                            @Html.TextBoxFor(a => a.Allergies, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>Please mention, if you any mazor illness/Handicap/Permanent disabilities or any gamily history on same.</label>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        @Html.TextAreaFor(a => a.MajorIllnessOrDisability, new { @class = "form-control" })
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Pan No <span class="Mandetory">*</span></label>
+                            @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label> Adhar card No <span class="Mandetory">*</span></label>
+                            @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="group-box anim" style="--delay: .3s">
+                <div class="small-header">Educational/Professional Trainnings <input type="button" style="float:right;" class="btn btn-info" id="AddNewEducation" value="Add New Education" /></div>
+               
+                <div class="row">
+                    <div class="col-md-12" id="EducationalDetails">
+                        @Html.Partial("_EducationalDetails", Model)
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Pan No <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="form-group">
+                    <label>Mention any Awards/Achievements/Scholarship recieved in you educational career <span class="Mandetory">*</span></label>
+                    @Html.TextAreaFor(x => x.AwardsAchievements, new { @class = "form-control", @required = "required" })
+                </div>
+
+                <div class="form-group">
+                    <label>State gaps in education, if any <span class="Mandetory">*</span></label>
+                    @Html.TextAreaFor(x => x.EducationGap, new { @class = "form-control", @required = "required" })
+                </div>
+
+
+            </div>
+
+            <div class="group-box anim" style="--delay: .3s">
+                <div class="small-header">Language Proficiency <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" /></div>
+              
+                <div class="row">
+                    <div class="col-md-12" id="LanguageDetails">
+                        @Html.Partial("_LanguageDetails", Model)
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <label>IT Skills/Knowledge (Indicate your level of Proficiency)</label>
+                    @Html.TextAreaFor(x => x.ITSkillsKnowledge, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="group-box anim" style="--delay: .3s">
+                <div class="small-header">Employment Record <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" /></div>
+                @*  <div class="row">
+                <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+                <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
+                </div>
+                </div> *@
+                <div class="row">
+                    <div class="col-md-12" id="EmploymentDetails">
+                        @Html.Partial("_EmploymentHistory", Model)
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-box anim" style="--delay: .3s">
+                <div class="small-header">References</div>
+                @*  <div class="row">
+                <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
+                <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
+                </div>
+                </div> *@
+                <div class="row">
+                    <div class="col-md-12" id="ReferenceDetails">
+                        @Html.Partial("_ReferenceDetails", Model)
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-box anim" style="--delay: .3s">
+                <div class="small-header">General Information</div>
+                <div class="form-group mt-3">
+                    <label>Information of extra-curricular/liesure activities, Hobbies</label>
+                    @Html.TextAreaFor(a => a.ExtraCuricuarActivities, new { @class = "form-control" })
+                </div>
+                <div class="form-group mt-3">
+                    <label>Foriegn Countries visited in last 5 years</label>
+                    @Html.TextAreaFor(a => a.ForiegnCountryVisits, new { @class = "form-control" })
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <b> Person to be contacted, in case of emergency</b>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Contact Person Name</label>
+                        @Html.TextBoxFor(a => a.ContactPersonName, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-3">
+                        <label>Relationship</label>
+                        @Html.TextBoxFor(a => a.ContactPersonRelationship, new { @class = "form-control" })
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Mobile</label>
+                        @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control" })
+
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Tel</label>
+                        @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button class="btn btn-danger" type="reset">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+
+        <script type="text/javascript">
+
+            var url = "@Url.Action("AddNewFamilyMember", "Employee")";
+            var urlEducationalDetails = "@Url.Action("AddNewEducationalDetail", "Employee")";
+            var urlAddNewLanguageDetails = "@Url.Action("AddNewLanguageDetail", "Employee")";
+            var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentHistory", "Employee")";
+
+            function AddNewFamily(isDeleted) {
+                var familyMembers = [];
+                if ($('.FamilyName').length > 0) {
+                    var elementID = '';
+
+                    $('.FamilyName').each(function (index, element) {
+                        elementID = element.id;
+                        var familyMember = {
+                            FamilyName: $("#" + elementID).val(),
+                            EmployeesFamilyDetailID: $("#" + elementID.replace("FamilyName", "EmployeesFamilyDetailID")).val(),
+                            Relationship: $("#" + elementID.replace("FamilyName", "Relationship")).val(),
+                            Age: $("#" + elementID.replace("FamilyName", "Age")).val(),
+                            Details: $("#" + elementID.replace("FamilyName", "Details")).val()
+                        };
+                        familyMembers.push(familyMember);
+                    });
+                }
+                var model = { FamilyDetails: familyMembers, isDeleted: isDeleted };
+
+                $.post(url, model, function (res) {
+                    //res contains the markup returned by the partial view
+                    //You probably want to set that to some Div.
+                    $("#FamilyDetails").html(res);
+                });
+            }
+
+
+            function AddNewEducation(isDeleted) {
+                var EducationalDetails = [];
+                if ($('.EducationalDetails').length > 0) {
+                    var elementID = '';
+                    $('.EducationalDetails').each(function (index, element) {
+                        elementID = element.id;
+                        var EducationalDetail = {
+                            School_University: $("#" + elementID).val(),
+                            EducationDetailID: $("#" + elementID.replace("School_University", "EducationDetailID")).val(),
+                            Qualification: $("#" + elementID.replace("School_University", "Qualification")).val(),
+                            YearOfPassing: $("#" + elementID.replace("School_University", "YearOfPassing")).val(),
+                            Percentage: $("#" + elementID.replace("School_University", "Percentage")).val(),
+                            Major_OptionalSubjects: $("#" + elementID.replace("School_University", "Major_OptionalSubjects")).val()
+                        };
+                        EducationalDetails.push(EducationalDetail);
+                    });
+                }
+                var model = { EducationalDetails: EducationalDetails, isDeleted: isDeleted };
+
+                $.post(urlEducationalDetails, model, function (res) {
+                    //res contains the markup returned by the partial view
+                    //You probably want to set that to some Div.
+                    $("#EducationalDetails").html(res);
+                });
+            }
+
+
+            function AddNewLanguage(isDeleted) {
+                var LanguageDetails = [];
+                if ($('.LanguageID').length > 0) {
+                    var elementID = '';
+                    $('.LanguageID').each(function (index, element) {
+                        elementID = element.id;
+                        var LanguageDetail = {
+                            LanguageID: $("#" + elementID).val(),
+                            LanguageDetailID: $("#" + elementID.replace("LanguageID", "EducationDetailID")).val(),
+                            IsSpeak: $("#" + elementID.replace("LanguageID", "IsSpeak")).is(":checked"),
+                            IsRead: $("#" + elementID.replace("LanguageID", "IsRead")).is(":checked"),
+                            IsWrite: $("#" + elementID.replace("LanguageID", "IsWrite")).is(":checked")
+                        };
+                        LanguageDetails.push(LanguageDetail);
+                    });
+                }
+                var model = { LanguageDetails: LanguageDetails, isDeleted: isDeleted };
+
+                $.post(urlAddNewLanguageDetails, model, function (res) {
+                    //res contains the markup returned by the partial view
+                    //You probably want to set that to some Div.
+                    $("#LanguageDetails").html(res);
+                });
+            }
+
+            function AddNewEmployment(isDeleted) {
+                var EmploymentHistory = [];
+                if ($('.EmploymentHistory').length > 0) {
+                    var elementID = '';
+                    $('.EmploymentHistory').each(function (index, element) {
+                        elementID = element.id;
+                        var EmploymentDetail = {
+                            CompanyName: $("#" + elementID).val(),
+                            EmployementID: $("#" + elementID.replace("CompanyName", "EmployementID")).val(),
+                            From: $("#" + elementID.replace("CompanyName", "From")).val(),
+                            To: $("#" + elementID.replace("CompanyName", "To")).val(),
+                            Address: $("#" + elementID.replace("CompanyName", "Address")).val(),
+                            Phone: $("#" + elementID.replace("CompanyName", "Phone")).val(),
+                            City: $("#" + elementID.replace("CompanyName", "City")).val(),
+                            State: $("#" + elementID.replace("CompanyName", "State")).val(),
+                            CountryID: $("#" + elementID.replace("CompanyName", "CountryID")).val(),
+                            PostalCode: $("#" + elementID.replace("CompanyName", "PostalCode")).val(),
+                            ReasionFoLeaving: $("#" + elementID.replace("CompanyName", "ReasionFoLeaving")).val(),
+                            Designition: $("#" + elementID.replace("CompanyName", "Designition")).val(),
+                            GrossSalary: $("#" + elementID.replace("CompanyName", "GrossSalary")).val(),
+                            SupervisorName: $("#" + elementID.replace("CompanyName", "SupervisorName")).val(),
+                            SupervisorDesignition: $("#" + elementID.replace("CompanyName", "SupervisorDesignition")).val(),
+                            SupervisorContactNo: $("#" + elementID.replace("CompanyName", "SupervisorContactNo")).val(),
+                            HRName: $("#" + elementID.replace("CompanyName", "HRName")).val(),
+                            HREmail: $("#" + elementID.replace("CompanyName", "HREmail")).val(),
+                            HRContactNo: $("#" + elementID.replace("CompanyName", "HRContactNo")).val(),
+                        };
+
+                        EmploymentHistory.push(EmploymentDetail);
+                    });
+                }
+                var model = { EmploymentHistory: EmploymentHistory, isDeleted: isDeleted };
+
+                $.post(urlAddNewEmploymentDetails, model, function (res) {
+                    //res contains the markup returned by the partial view
+                    //You probably want to set that to some Div.
+                    $("#EmploymentDetails").html(res);
+                });
+            }
+
+            $(document).ready(function () {
+                var familyMembers = [];
+                $('#AddNewFamily').click(function () {
+                    AddNewFamily(false);
+                });
+
+                $('#AddNewEducation').click(function () {
+                    AddNewEducation(false);
+                });
+                $('#AddNewLanguage').click(function () {
+                    AddNewLanguage(false);
+                });
+                $('#AddNewEmployment').click(function () {
+                    AddNewEmployment(false);
+                });
+
+            });
+
+        </script>
+        @Html.Partial("_Toast")
+    </form>   
+   
+</body>
+</html>

@@ -1,0 +1,742 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _configuration
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "Attendance List";
+}
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.3.1/fullcalendar.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.3.1/fullcalendar.min.js"></script>
+    <style>
+        #calendar {
+    /*         max-width: 900px; */
+            margin: 0 auto;
+        }
+
+        .status-label {
+            font-weight: bold;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .present {
+            /* background-color: #0f9984; */
+            background-color: green;
+        }
+
+        .absent {
+            background-color: #138fab;
+        }
+
+        /* Popup styles */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 9px;
+            z-index: 9999;
+            box-shadow: 0 4px 8px rgb(50 48 48 / 20%);
+            width: 900px;
+            min-height: 210px;
+        }
+
+            #popup h3 {
+                margin-top: 0;
+                text-align: center;
+            }
+
+            #popup button {
+                margin-top: 3px;
+                padding: 5px 10px;
+                cursor: pointer;
+                transform: translate(270%, 90%);
+            }
+
+        .status-label.absent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+
+        }
+
+        .status-label.present {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+        }
+
+        .fc-slats {
+            display: none;
+        }
+
+        .fc-event-container {
+            display: none;
+        }
+
+        .attendance-calenderlist {
+            display: flex;
+            justify-content: space-between;
+            background: #edf3ff;
+            padding-inline: 5px;
+        }
+
+        /*    .group-box.anim h1 {
+                          background: #053572;
+                            color:white;
+                            margin: 0px;
+                            padding-inline-start: 7px;
+                        }  */
+
+        .atendance-calender-section {
+            background: #053572;
+        }
+
+        label.years {
+            font-weight: bold;
+            padding-top: 7px;
+        }
+
+        .atendance-calender-section h1 {
+            color: #fff;
+        }
+
+        
+        .card {
+            margin: 10px !important;
+            padding-block: 14px !important;
+            padding-inline: 12px !important;
+            border: 0px !important;
+        }
+
+        .year-months {
+            display: flex;
+            flex-direction: row;
+            padding-block: 20px;
+            column-gap: 10px;
+        }
+
+        h6#employeeFullName {
+            margin: 0px;
+        }
+
+        #card-footer-card #attendance-footer {
+            background: #b6eae0;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+        #card-footer-card #sick-footer {
+            background: #7cdbef;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+        #card-footer-card #Unpaid-footer {
+            background: #f7c188;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+        #card-footer-card #public-footer {
+            background: #818584;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+        #card-footer-card #leave-footer {
+            background: #ef7c7cad;
+            color: black;
+            padding: 12px 7px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: .1rem;
+        }
+
+
+        .footer-text-content {
+            display: flex;
+            /*   justify-content: space-evenly; */
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+            .footer-text-content p {
+                text-align: center;
+                margin-block: auto;
+                margin-right: 20px;
+            }
+
+        div#card-footer-card {
+            display: flex;
+            flex-direction: row;
+            text-align: center;
+            justify-content: center;
+            /* padding-inline: 12px; */
+            /*             gap: 5px; */
+
+            margin-right: 20px;
+        }
+
+        h6.sick-footer-right {
+            background: #138fab;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        h6.Unpaid-footer-right {
+            background: #f68e20;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        h6.public-footer-right {
+            background: #010101;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        h6.attendance-footer-right {
+            background: #0f9984;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        h6.leave-footer-right {
+            background: #e86262;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .fc-toolbar.fc-header-toolbar {
+            margin-block: 1em !important;
+        }
+
+        #workDetails {
+            margin: 5px 10px 21px;
+        }
+
+        /* .cardfooter-card
+                        {
+                            padding:0px !important;
+                        } */
+        .hours-worked {
+            font-weight: bold;
+            color: #053572;
+            background: #edf3ff5e;
+            text-align: center;
+        }
+
+        .form-control {
+            width: 120px !important;
+        }
+
+        .first-log {
+            color: #053572;
+        }
+
+        .last-log {
+            color: #053572;
+        }
+
+        .no-data {
+            color: gray;
+            font-style: italic;
+        }
+        /* #poup-workdetail {
+                  display: flex;
+                  justify-content: center;
+                  align-content: center;
+                        } */
+        #poup-workdetail {
+            position: relative; /* Ensures the child absolute positioning is relative to this container */
+        }
+
+        .cross {
+            position: absolute;
+            top: -21px;
+            right: -2px;
+            font-size: 22px;
+            cursor: pointer;
+            color: #05397b;
+            font-weight: 800;
+        }
+
+        #popup h3 {
+            margin-top: 0;
+            font-size: 20px;
+            text-align: center;
+            font-weight: 800;
+            border-bottom: 1px solid #053777;
+        }
+
+        .status-label.sunday {
+            background-color: #010101;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+        }
+
+        .status-label.leave {
+         
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #e86262;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+        }
+
+        .status-label.holiday {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #010101;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            cursor:pointer;
+        }
+        td{
+            position: relative;
+        }
+        span.fc-day-number {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        select#monthDropdown {
+            border-radius: 6px;
+        }
+
+        select#yearDropdown {
+            border-radius: 6px;
+        }
+
+        .detailed-attendance{
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid #b6bfd3;
+            /* width: 100%; */
+            display: flex;
+            margin-bottom: -15px;
+        }
+
+        span.label-details {
+            font-size: 15px;
+            font-weight: 600;
+            color: #053777;
+        }
+
+        span.employee-details {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        span.no-detailsfound {
+            text-align: center;
+            display: flex;
+            justify-content: center;                                                                                                             
+            font-size: 16px;
+            font-weight: 500;
+            transform: translate(0px, 25px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fc-state-active {
+            background-color: #053776;
+            background-image: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, .15), 0 1px 2px rgba(0, 0, 0, .05);
+            color: white;
+        }
+
+        @@media screen and (max-width:1320px)
+        {
+        div#card-footer-card {
+            display: flex;
+            flex-direction: row;
+            text-align: center;
+            justify-content: center;
+            /* padding-inline: 12px; */
+            /* gap: 5px; */
+            margin-right: 20px;
+            height: 65px;
+        }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="group-box anim">
+        <section class="atendance-calender-section">
+            <h1>Attendance Calendar</h1>
+        </section>
+
+
+        @* <h1 id="employeeFullName"></h1> *@
+        <!-- Year and Month Dropdowns -->
+        <div class="attendance-calenderlist">
+            <div class="card">
+                <h6 id="employeeFullName"></h6>
+            </div>
+            <div class="year-months">
+                <label class="years">Year</label>
+                <select id="yearDropdown" class="select-control"></select>
+                <label class="years">Month</label>
+                <select id="monthDropdown" class="select-control"></select>
+            </div>
+
+
+        </div>
+
+        <div id="calendar"></div>
+
+        <div class="footer-text-content">
+            <p class="footer-text">In this box each corresponding <br />a to indicate attendance status.</p>
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="attendance-footer">Attended </h6>
+                <h6 class="attendance-footer-right">P</h6>
+            </div>
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="leave-footer">Leave</h6>
+                <h6 class="leave-footer-right">L</h6>
+            </div>
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="sick-footer">Absent</h6>
+                <h6 class="sick-footer-right">A</h6>
+            </div>
+           @*  <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="Unpaid-footer">Unpaid</h6>
+                <h6 class="Unpaid-footer-right">U</h6>
+            </div> *@
+            <div class="cardfooter-card" id="card-footer-card">
+
+                <h6 id="public-footer">Public holiday</h6>
+                <h6 class="public-footer-right">H</h6>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Popup Modal -->
+    <div id="popup">
+        <div class="row" id="poup-workdetail">
+            <div class="col-md-12">
+                <h3 class="detail-poup">Attendance Details</h3>
+            </div>
+            <div class="col-md-2">
+                <h1 class="cross" id="closePopup"> x </h1>
+            </div>
+
+        </div>
+
+        <p id="workDetails">No work session found for this date.</p>
+        <!-- <button id="closePopup">Close</button> -->
+    </div>
+
+    <script>
+        $(document).ready(function () {          
+            var currentYear = new Date().getFullYear();
+            var currentMonth = new Date().getMonth();          
+            for (var year = 2020; year <= currentYear; year++) {
+                $('#yearDropdown').append(new Option(year, year));
+            }
+
+            // Populate month dropdown
+            for (var month = 1; month <= 12; month++) {
+                $('#monthDropdown').append(new Option(moment(month, "M").format("MMMM"), month));
+            }
+
+            // Set default selected values
+            $('#yearDropdown').val(currentYear);
+            $('#monthDropdown').val(currentMonth + 1);
+
+            // Function to load the calendar
+            function loadCalendar(year, month) {
+                // Make AJAX request to get data based on selected year and month
+                $.ajax({
+                    url: '/employee/AttendenceList/AttendenceCalendarList',
+                    method: 'GET',
+                    data: {
+                        Year: year,
+                        Month: month // Convert to 1-based month for the server
+                    },
+                    success: function (data) {
+                       
+                        var employeeFullName = data.employeeFullName;
+                        $('#employeeFullName').text(employeeFullName);
+                        // Create events array for FullCalendar
+                        var events = [];
+                        $.each(data.data.attendances, function (index, item) {
+                            events.push({
+                                title: 'Work Session - ' + item.hoursWorked + ' hrs',
+                                start: item.firstLogDate,
+                                end: item.lastLogDate,
+                                name: item.employeeName,
+                                description: 'Worked ' + item.hoursWorked + ' hours'
+                            });
+                        });
+
+                        // Initialize or update FullCalendar
+                        $('#calendar').fullCalendar('destroy'); // First destroy previous instance
+                        $('#calendar').fullCalendar({
+                            header: {
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: 'month,agendaWeek'
+                            },
+                            defaultView: 'month', // Ensure the calendar starts in month view
+                            events: events,
+                            defaultDate: moment({ year: year, month: month - 1 }).format('YYYY-MM-DD'), // Set the date based on selected year and month
+
+                            // Ensure buttons visibility when switching views
+                            viewRender: function (view, element) {
+                                if (view.name === 'agendaWeek') {
+                                    // Show the left buttons (prev,next,today) in agendaWeek
+                                    $('.fc-left').show();
+                                } else if (view.name === 'month') {
+                                    // Hide the left buttons in month view
+                                    $('.fc-left').hide();
+                                }
+                            },
+
+                            dayRender: function (date, cell) {
+                                var formattedDate = date.format("YYYY-MM-DD");
+                                var statusLabel = '';
+                                var currentDate = moment().format("YYYY-MM-DD");
+                                var workStatus = ''; // Default: No status for future dates
+
+                                // Check for holidays (display "H" even for future dates)
+                                $.each(data.data.holidays, function (index, holiday) {
+                                    var holidayStart = moment(holiday.fromDate).format("YYYY-MM-DD");
+                                    var holidayEnd = moment(holiday.toDate).format("YYYY-MM-DD");
+
+                                    if (formattedDate >= holidayStart && formattedDate <= holidayEnd) {
+                                        workStatus = 'H'; // Mark as Holiday
+                                        return false; // Exit the loop once a holiday is identified
+                                    }
+                                });
+                                if (date.day() === 0 && workStatus === '') {  // Sunday (0 is Sunday)
+                                    workStatus = 'H'; // 'H' for Sunday (Holiday)
+                                }
+
+                                // Check for leave data (display "L")
+                             
+                                    $.each(data.data.leaves, function (index, leave) {
+                                        var leaveStart = moment(leave.startDate).format("YYYY-MM-DD");
+                                        var leaveEnd = moment(leave.endDate).format("YYYY-MM-DD");
+
+                                        if (formattedDate >= leaveStart && formattedDate <= leaveEnd) {
+                                            workStatus = 'L'; // Mark as Leave
+                                            return false; // Exit the loop once a leave is identified
+                                        }
+                                    });
+                               
+
+                                // Skip further checks for future dates unless they are holidays
+                                if (formattedDate > currentDate && workStatus === '') {
+                                    return; // Do not display any labels for future dates unless already marked as "H"
+                                }
+
+                                // For past or current dates, continue checking other statuses
+                                if (formattedDate <= currentDate) {
+                                    // Check if it's a Sunday (special case: mark as "H" for Sundays)
+                                   
+
+                                    // Check for attendance data (display "P" for present)
+                                    if (workStatus === '') {
+                                        $.each(data.data.attendances, function (index, item) {
+                                            var itemDate = moment(item.workDate).format("YYYY-MM-DD");
+
+                                            if (itemDate === formattedDate) {
+                                                workStatus = 'P'; // Mark as Present
+                                                return false;
+                                            }
+                                        });
+                                    }
+
+                                    // If no status found for past or current dates, mark as "A" (Absent)
+                                    if (workStatus === '') {
+                                        workStatus = 'A'; // Absent for past or current dates
+                                    }
+                                }
+
+                                // Set label based on the final work status
+                                if (workStatus === 'P') {
+                                    statusLabel = '<div class="status-label present">P</div>';
+                                } else if (workStatus === 'L') {
+                                    statusLabel = '<div class="status-label leave">L</div>';
+                                } else if (workStatus === 'H') {
+                                    statusLabel = '<div class="status-label holiday">H</div>';
+                                } else if (workStatus === 'A') {
+                                    statusLabel = '<div class="status-label absent">A</div>';
+                                }
+
+                                // Append the status label to the day cell
+                                if (statusLabel !== '') {
+                                    cell.append(statusLabel);
+                                }
+                            },
+                            dayClick: function (date, jsEvent, view) {
+                                var formattedDate = date.format("YYYY-MM-DD");
+                                var popupContent = '<span class="no-detailsfound"><i class="bi bi-exclamation-lg fs-4"></i>No details found for this date.</span>'; // Default message
+
+                                // Check if the clicked date matches any attendance records
+                                $.each(data.data.attendances, function (index, item) {
+                                    var itemDate = moment(item.workDate).format("YYYY-MM-DD");
+                                    if (itemDate === formattedDate) {
+                                        popupContent = 
+                                            '<span class="label-details"> <i class="bi bi-person-circle fs-6 me-1"></i> Name: </span><span class="employee-details">' + item.employeeName + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-alarm-fill fs-6 me-2"></i>Hours Worked: </span><span class="employee-details">' + item.hoursWorked + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-box-arrow-in-right fs-6 me-2"></i>First Log: </span><span class="employee-details">' + moment(item.firstLogDate).format("DD-MM-YYYY hh:mm A") + '</span><br>' +
+                                            '<span class="label-details"> <i class="bi bi-box-arrow-in-left fs-6 me-2"></i>Last Log: </span><span class="employee-details">' + moment(item.lastLogDate).format("DD-MM-YYYY hh:mm A") + '</span>';
+                                        return false;
+                                    }
+
+                                });
+
+                                // Check if the clicked date matches any leave records
+                                $.each(data.data.leaves, function (index, leave) {
+                                    var leaveStart = moment(leave.startDate).format("YYYY-MM-DD");
+                                    var leaveEnd = moment(leave.endDate).format("YYYY-MM-DD");
+
+                                    if (formattedDate >= leaveStart && formattedDate <= leaveEnd) {
+                                        popupContent = '<strong>Leave Details</strong><br>' +
+                                            '<span class="label-details"><i class="bi bi-card-list fs-6 me-1"></i> Reason:</span> <span class="employee-details">' + leave.reason + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-align-start fs-6 me-1"></i></i>Start Date:</span> <span class="employee-details">' + moment(leave.startDate).format("DD-MM-YYYY") + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-align-end fs-6 me-1"></i>End Date:</span> <span class="employee-details">' + moment(leave.endDate).format("DD-MM-YYYY") + '</span>';
+                                        return false; 
+                                    }
+                                });
+
+                                // Check if the clicked date matches any holiday records
+                                $.each(data.data.holidays, function (index, holiday) {
+                                    var holidayStart = moment(holiday.fromDate).format("YYYY-MM-DD");
+                                    var holidayEnd = moment(holiday.toDate).format("YYYY-MM-DD");
+
+                                    if (formattedDate >= holidayStart && formattedDate <= holidayEnd) {
+                                        popupContent = '<strong>Holiday Details</strong><br>' +
+                                            '<span class="label-details"><i class="bi bi-calendar-minus fs-6 me-1"></i>Holiday Name:</span><span class="employee-details">' + holiday.holidayName + '</span> <br>' +
+                                            '<span class="label-details"><i class="bi bi-calendar-week fs-6 me-1"></i>From:</span><span class="label-details"> ' + moment(holiday.fromDate).format("DD-MM-YYYY") + '</span><br>' +
+                                            '<span class="label-details"><i class="bi bi-calendar-week fs-6 me-1"></i> To: </span> <span class="label-details">' + moment(holiday.toDate).format("DD-MM-YYYY") + '</span>';
+                                        return false; 
+                                    }
+                                });
+                                // Show the popup with the collected content
+                                $('#workDetails').html(popupContent);
+                                $('#popup').fadeIn();
+                            }
+
+                        });
+
+                        $(document).ready(function () {
+                            // Ensure the left buttons are hidden initially in the month view
+                            $('.fc-left').hide();
+                        });
+                    },
+                    error: function (error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+            }
+
+            // Load calendar on page load
+            loadCalendar(currentYear, currentMonth + 1);
+
+            // Reload calendar when month or year is changed
+            $('#monthDropdown, #yearDropdown').change(function () {
+                var selectedYear = $('#yearDropdown').val();
+                var selectedMonth = $('#monthDropdown').val();
+                loadCalendar(selectedYear, selectedMonth);
+            });
+
+            // Close popup
+            $('#closePopup').click(function () {
+                $('#popup').fadeOut();
+            });
+        });
+    </script>
+
+</body>

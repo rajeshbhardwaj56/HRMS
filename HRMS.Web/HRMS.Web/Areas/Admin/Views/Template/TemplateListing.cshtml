@@ -11,13 +11,14 @@
     var rootPath = "/" + HRMS.Models.Common.Constants.TemplatePath;
 }
 
-<div class="addcomp px-4">
+<div class="main-header anim" style="--delay: 0s">Template List  <a href="~/Admin/Template"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Template</button></a></div>
+@* <div class="addcomp px-4">
     <h4>Template List</h4>
     <a href="~/Admin/Template"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Template</button></a>
-</div>
+</div> *@
 
 
-<div class="container-fluid">
+<div class="table-responsive py-3">
     <table id="tblTemplateListing" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
@@ -50,9 +51,9 @@
             "searching": true,
             "info": true,
             "columns": [
-                { "data": "templateID", "autoWidth": true, },
-                { "data": "templateName", "autoWidth": true, },
-                { "data": "companyID", "autoWidth": true, },
+                { "data": "templateID", "autoWidth": true },
+                { "data": "templateName", "autoWidth": true },
+                { "data": "companyID", "autoWidth": true },
                 { "data": "letterHeadName", "autoWidth": true },
                 {
                     "data": "headerImage",
@@ -66,41 +67,42 @@
                         return '<img src="@rootPath' + data + '" alt="Footer Image" style="width:30px;">';
                     }
                 },
-
-
                 {
-                    // this is Actions Column
-                    mRender: function (data, type, row) {
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.templateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                        return linkEdit;
+                    // Actions Column
+                    "data": null,
+                    "render": function (data, type, row) {
+                        var linkEdit = '<a data-toggle="tooltip" data-placement="top" class="item" href="Index?id=' + row.templateID + '" title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var linkPreview = '<a href="#" class="preview-btn" data-id="' + row.templateID + '" title="Preview"><img src="/assets/img/preview.png" width="20" height="20" /></a>';
+                        return '<div class="table-data-feature">' + linkEdit + linkPreview + '</div>';
                     }
-                },
+                }
             ],
             "columnDefs": [
                 {
-                    target: 2,
-                    visible: false,
-                    searchable: false
+                    "targets": 2,
+                    "visible": false,
+                    "searchable": false
                 },
-
                 {
-
-                    "targets": [0], //first and last not sortable
+                    "targets": [0],
                     "orderable": false,
                     "visible": false
                 },
-
                 {
-
-                    "targets": [1], //first and last not sortable
+                    "targets": [1],
                     "orderable": true,
                     "defaultContent": " "
                 }
-
-            ]
-            , "responsive": true
-
+            ],
+            "responsive": true
         });
 
+        // Event listener for the preview button
+        $('#tblTemplateListing').on('click', '.preview-btn', function (e) {
+            e.preventDefault();
+            var templateID = $(this).data('id');
+            window.location.href = "/Admin/Template/PreviewAndPrint?id=" + templateID;
+        });
     });
+
 </script>

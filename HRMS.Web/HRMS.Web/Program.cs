@@ -1,10 +1,16 @@
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using HRMS.Web.AttendanceScheduler;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Quartz.Impl;
+using Quartz.Spi;
+using Quartz;
 using System.Globalization;
+using WebMarkupMin.AspNetCore8;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +41,21 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = supportedCultures;
     options.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
 });
+
+builder.Services.AddWebMarkupMin(
+       options =>
+       {
+           options.AllowMinificationInDevelopmentEnvironment = true;
+           options.AllowCompressionInDevelopmentEnvironment = true;
+       })
+       .AddHtmlMinification(
+           options =>
+           {
+               options.MinificationSettings.RemoveRedundantAttributes = true;
+               options.MinificationSettings.RemoveHttpProtocolFromAttributes = true;
+               options.MinificationSettings.RemoveHttpsProtocolFromAttributes = true;
+           })
+       .AddHttpCompression();
 #endregion LanguageService
 
 //builder.Services.AddNotyf(config => { config.DurationInSeconds = 10; config.IsDismissable = true; config.Position = NotyfPosition.BottomRight; });
@@ -75,6 +96,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 
+
+//Scheduker
+IServiceCollection service = builder.Services.AddHostedService<QuartzHostedService>();
+builder.Services.AddSingleton<QuartzJobRunner>();
+ builder.Services.AddSingleton<IJobFactory, JobFactory>();
+builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+builder.Services.TryAddTransient<AttendanceReminderJob>();
+builder.Services.AddSingleton(new JobSchedule(
+    jobType: typeof(AttendanceReminderJob),
+cronExpression: "0 00 06 * * ?"));
+
 var app = builder.Build();
 
 var loggerFactory = app.Services.GetService<ILoggerFactory>();
@@ -92,6 +124,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
+
+//Required using WebMarkupMin.AspNetCore8;
+//app.UseWebMarkupMin();
 
 app.UseStaticFiles();
 app.UseSession();

@@ -1,5 +1,8 @@
 ﻿using DocumentFormat.OpenXml.EMMA;
+using HRMS.Models;
 using HRMS.Models.Common;
+using HRMS.Models.Employee;
+using HRMS.Models.LeavePolicy;
 using HRMS.Models.Template;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
@@ -7,11 +10,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using Results = HRMS.Models.Common.Results;
+
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = (RoleConstants.Admin + "," + RoleConstants.HR))]
+    [Authorize(Roles = (RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin))]
     public class TemplateController : Controller
     {
         IConfiguration _configuration;
@@ -162,6 +167,21 @@ namespace HRMS.Web.Areas.Admin.Controllers
             // Check the file content type to determine if it's an image
             return file.ContentType.StartsWith("image/");
         }
+        public IActionResult PreviewAndPrint(string id)
+        {
+            TemplateModel Template = new TemplateModel();
+            Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
+            if (!string.IsNullOrEmpty(id))
+            {
+                Template.TemplateID = Convert.ToInt64(id);
+                var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
+            }
+
+
+            return View(Template);
+        }
+      
     }
 }

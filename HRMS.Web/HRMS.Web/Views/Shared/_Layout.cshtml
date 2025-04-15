@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/HRMS.Web.styles.css" asp-append-version="true" />
+    <script src="~/assets/js/jquery.toast.js"></script>
+    <link type="image/x-icon" href="../assets/img/favicon/Protalkfavicon.ico" rel="shortcut icon">
+
 </head>
 <body>
     <header>
@@ -44,6 +47,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @Html.Partial("_Toast")
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

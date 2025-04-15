@@ -3,6 +3,7 @@ using HRMS.API.BusinessLayer.ITF;
 using HRMS.API.DataLayer;
 using HRMS.API.DataLayer.ITF;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -13,11 +14,11 @@ var Confbuilder = new ConfigurationBuilder()
            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 IConfigurationRoot Configuration = Confbuilder.Build();
-
 // Add services to the container.
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IDataLayer, DataLayer>();
+builder.Services.AddSingleton<IAttandanceDataLayer, AttandanceDataLayer>();
 builder.Services.AddSingleton<IJWTAuthentication, JWTAuthentication>();
 builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
 builder.Services.AddSingleton<IJWTAuthentication, JWTAuthentication>();

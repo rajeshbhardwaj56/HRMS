@@ -1,4 +1,6 @@
-﻿using HRMS.API.BusinessLayer.ITF;
+﻿using HRMS.API.BusinessLayer;
+using HRMS.API.BusinessLayer.ITF;
+using HRMS.Models.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +23,7 @@ namespace HRMS.API.Web.Controllers.Common
 
         [HttpGet]
         [OutputCache(Duration = 999999)]
+        [AllowAnonymous]
         public IActionResult GetAllResults(long CompanyID)
         {
             IActionResult response = Unauthorized();
@@ -51,6 +54,33 @@ namespace HRMS.API.Web.Controllers.Common
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAllLanguages());
+            return response;
+        }
+
+        [HttpGet]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetAllEmployees()
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllEmployees());
+            return response;
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult ResetPassword(ResetPasswordModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.ResetPassword(model));
+            return response;
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult GetFogotPasswordDetails(ChangePasswordModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetFogotPasswordDetails(model));
             return response;
         }
 

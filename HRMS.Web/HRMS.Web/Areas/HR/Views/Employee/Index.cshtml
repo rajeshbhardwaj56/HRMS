@@ -13,6 +13,25 @@
     else
     {
         ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+    } 
+    var PancardPhoto = "";
+    if (!string.IsNullOrEmpty(Model.PanCardImage))
+    {
+        PancardPhoto = "/" + HRMS.Models.Common.Constants.EmployeePanCardPath + Model.EmployeeID + "/" + Model.PanCardImage;
+    }
+    else
+    {
+        PancardPhoto = HRMS.Models.Common.Constants.NoImagePath;
+    }
+    
+    var AddharCardPhoto = "";
+    if (!string.IsNullOrEmpty(Model.AadhaarCardImage))
+    {
+        AddharCardPhoto = "/" + HRMS.Models.Common.Constants.EmployeeAadharCardPath + Model.EmployeeID + "/" + Model.AadhaarCardImage;
+    }
+    else
+    {
+        AddharCardPhoto = HRMS.Models.Common.Constants.NoImagePath;
     }
 }
 
@@ -44,7 +63,7 @@
                 </div>
 
                 <div class="col-md-4 form-group">
-                    <label>Middle Name <span class="Mandetory">*</span></label>
+                    <label>Middle Name <span class="Mandetory"> </span></label>
                     @Html.TextBoxFor(a => a.MiddleName, new { @class = "form-control" })
                 </div>
 
@@ -59,19 +78,19 @@
                     <label>Photo</label>
                     <div class="row d-flex align-items-center">
                         <div class="col-md-4">
-                            <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
+                            <img id="previewImage" src="@ProfilePhoto"
+                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                 style="width:100px; height:100px" />
                         </div>
                         <div class="col-md-8">
-                            <input type="file" name="postedFiles" accept="image/*" />
+                            <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
                         </div>
-
-
                     </div>
                 </div>
 
 
                 <div class="col-md-12 form-group">
-                    <label>Address of Currespondence <span class="Mandetory">*</span></label>
+                    <label>Address of Correspondence <span class="Mandetory">*</span></label>
                     @Html.TextAreaFor(a => a.CorrespondenceAddress, new { @class = "form-control", @required = "required" })
                     @*  @Html.ValidationMessageFor(m => m.CorrespondenceAddress) *@
                 </div>
@@ -81,8 +100,7 @@
                     @Html.TextBoxFor(a => a.CorrespondenceCity, new { @class = "form-control", @required = "required" })
                     @*   @Html.ValidationMessageFor(m => m.CorrespondenceCity) *@
                 </div>
-
-
+                 
 
                 <div class="col-md-4 form-group">
                     <label>Pin <span class="Mandetory">*</span></label>
@@ -110,8 +128,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Mobile <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.Mobile) *@
+                    @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control mobile-mask", @required = "required" })
                 </div>
 
 
@@ -119,6 +136,16 @@
                     <label>Personal Email Address <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control", @required = "required" })
                     @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Gender <span class="Mandetory">*</span></label>
+                    @Html.DropDownListFor(a => a.Gender, new List<SelectListItem>
+                    {
+                    new SelectListItem { Text = "Select Gender", Value = "" },
+                    new SelectListItem { Text = "Male", Value = "1" },
+                    new SelectListItem { Text = "Female", Value = "2" },
+                    new SelectListItem { Text = "Other", Value = "3" }
+                    }, new { @class = "form-control", @required = "required" })
                 </div>
 
 
@@ -154,7 +181,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Telephone </label>
-                    @Html.TextBoxFor(a => a.Telephone, new { @class = "form-control" })
+                    @Html.TextBoxFor(a => a.Telephone, new { @class = "form-control mobile-mask" })
                     @*  @Html.ValidationMessageFor(m => m.Telephone) *@
                 </div>
 
@@ -172,14 +199,14 @@
 
 
                 <div class="col-md-4 form-group">
-                    <label>Contact Persion Name for Verification <span class="Mandetory">*</span></label>
+                    <label>Contact Person Name for Verification <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.VerificationContactPersonName, new { @class = "form-control", @required = "required" })
                     @*  @Html.ValidationMessageFor(m => m.VerificationContactPersonName) *@
                 </div>
 
                 <div class="col-md-4 form-group">
                     <label>Contact No <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control", @required = "required" })
+                    @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control mobile-mask", @required = "required" })
                     @* @Html.ValidationMessageFor(m => m.VerificationContactPersonContactNo) *@
                 </div>
             </div>
@@ -204,7 +231,7 @@
 
             <div class="row mt-4">
                 <div class="col-md-6 form-group">
-                    <label>Do you have any relatives working with Eternity Logistics? </label>
+                    <label>Do you have any relatives working with Protalk Logistics? </label>
                 </div>
                 <div class="col-md-6 form-group">
                     @Html.CheckBoxFor(x => x.IsRelativesWorkingWithCompany)
@@ -222,7 +249,7 @@
 
             <div class="row">
                 <div class="col-md-6 form-group">
-                    <label>Have you been refered by an Eternity Logistics employee?</label>
+                    <label>Have you been refered by an Protalk Logistics employee?</label>
                 </div>
                 <div class="col-md-6 form-group">
                     @Html.CheckBoxFor(x => x.IsReferredByExistingEmployee)
@@ -274,8 +301,35 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label> Adhar card No <span class="Mandetory">*</span></label>
+                        <label> Pan Card No <span class="Mandetory">*</span></label>
+                        <div class="col-md-4">
+                            <img id="PanpreviewImage" src="@PancardPhoto"
+                                 style="width:100px; height:100px" />
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" name="PanPostedFile" accept="image/*" onchange="PanPostedFilePreview(event)" />
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Aadhar Card No <span class="Mandetory">*</span></label>
                         @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Aadhaar Card No <span class="Mandetory">*</span></label>
+                        <div class="col-md-4">
+                            <img id="AadhaarpreviewImage" src="@AddharCardPhoto"
+                                 style="width:100px; height:100px" />
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" name="AadhaarPostedFile" accept="image/*" onchange="AadhaarPreview(event)" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -289,16 +343,12 @@
 
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Educational/Professional Trainnings <input type="button" style="float:right;" class="btn btn-info" id="AddNewEducation" value="Add New Education" /></div>
-            @* <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Educational/Professional Trainnings </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEducation" value="Add New Education" />
-            </div>
-            </div> *@
-
             <div class="row">
-                <div class="col-md-12" id="EducationalDetails">
+                 <div class="col-md-12" id="EducationalDetails">
                     @Html.Partial("_EducationalDetails", Model)
-                </div>
+                </div> 
+               
+
             </div>
 
 
@@ -322,11 +372,6 @@
 
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Language Proficiency <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" /></div>
-            @* <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Language Proficiency </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" />
-            </div>
-            </div> *@
             <div class="row">
                 <div class="col-md-12" id="LanguageDetails">
                     @Html.Partial("_LanguageDetails", Model)
@@ -337,17 +382,9 @@
                 @Html.TextAreaFor(x => x.ITSkillsKnowledge, new { @class = "form-control" })
             </div>
         </div>
-
-
-
-
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Employment Record <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" /></div>
-            @*  <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
-            </div>
-            </div> *@
+         
             <div class="row">
                 <div class="col-md-12" id="EmploymentDetails">
                     @Html.Partial("_EmploymentHistory", Model)
@@ -359,11 +396,6 @@
 
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">References</div>
-            @*  <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Employment Record </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" />
-            </div>
-            </div> *@
             <div class="row">
                 <div class="col-md-12" id="ReferenceDetails">
                     @Html.Partial("_ReferenceDetails", Model)
@@ -376,7 +408,7 @@
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">General Information</div>
             <div class="form-group mt-3">
-                <label>Information of extra-curricular/liesure activities, Hobbies</label>
+                <label>Information of extra-curricular/leisure activities, Hobbies</label>
                 @Html.TextAreaFor(a => a.ExtraCuricuarActivities, new { @class = "form-control" })
             </div>
             <div class="form-group mt-3">
@@ -400,23 +432,20 @@
 
                 <div class="col-md-3">
                     <label>Mobile</label>
-                    @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control" })
+                    @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control mobile-mask" })
 
                 </div>
 
                 <div class="col-md-3">
                     <label>Tel</label>
-                    @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control" })
+                    @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control mobile-mask" })
                 </div>
             </div>
         </div>
-
-
-
-
-
-
-
+        <div class="col-md-4 form-group">
+            <label>Is Active</label>
+            @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <input type="submit" value="Submit" class="btn btn-success" />
@@ -428,13 +457,15 @@
 
 </form>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
 <script type="text/javascript">
 
     var url = "@Url.Action("AddNewFamilyMember", "Employee")";
     var urlEducationalDetails = "@Url.Action("AddNewEducationalDetail", "Employee")";
     var urlAddNewLanguageDetails = "@Url.Action("AddNewLanguageDetail", "Employee")";
-    var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentDetail", "Employee")";
+    var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentHistory", "Employee")";
 
     function AddNewFamily(isDeleted) {
         var familyMembers = [];
@@ -475,7 +506,8 @@
                     Qualification: $("#" + elementID.replace("School_University", "Qualification")).val(),
                     YearOfPassing: $("#" + elementID.replace("School_University", "YearOfPassing")).val(),
                     Percentage: $("#" + elementID.replace("School_University", "Percentage")).val(),
-                    Major_OptionalSubjects: $("#" + elementID.replace("School_University", "Major_OptionalSubjects")).val()
+                    Major_OptionalSubjects: $("#" + elementID.replace("School_University", "Major_OptionalSubjects")).val(),
+                    CertificateImage: $("#" + elementID.replace("School_University", "CertificateImage_" + (index + 1))).val()
                 };
                 EducationalDetails.push(EducationalDetail);
             });
@@ -515,12 +547,11 @@
         });
     }
 
-    function AddNewEmployment(isDeleted) {
-        debugger
-        var EmploymentDetails = [];
-        if ($('.EmploymentDetail').length > 0) {
+    function AddNewEmployment(isDeleted) {       
+        var EmploymentHistory = [];
+        if ($('.EmploymentHistory').length > 0) {
             var elementID = '';
-            $('.EmploymentDetail').each(function (index, element) {
+            $('.EmploymentHistory').each(function (index, element) {
                 elementID = element.id;
                 var EmploymentDetail = {
                     CompanyName: $("#" + elementID).val(),
@@ -544,10 +575,10 @@
                     HRContactNo: $("#" + elementID.replace("CompanyName", "HRContactNo")).val(),
                 };
 
-                EmploymentDetails.push(EmploymentDetail);
+                EmploymentHistory.push(EmploymentDetail);
             });
         }
-        var model = { EmploymentDetails: EmploymentDetails, isDeleted: isDeleted };
+        var model = { EmploymentHistory: EmploymentHistory, isDeleted: isDeleted };
 
         $.post(urlAddNewEmploymentDetails, model, function (res) {
             //res contains the markup returned by the partial view
@@ -573,6 +604,41 @@
         });
 
     });
-
-
+      function showPreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    $(document).ready(function () {
+        // Apply the phone number mask
+        $('.mobile-mask').mask('(000) 000-0000');
+    });
+    function PanPostedFilePreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const previewImage = document.getElementById('PanpreviewImage');
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    function AadhaarPreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const previewImage = document.getElementById('AadhaarpreviewImage');
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
 </script>
