@@ -261,7 +261,6 @@
     <None Include="wwwroot\assets\vendor\tinymce\tinymce.js" />
     <None Include="wwwroot\assets\vendor\tinymce\tinymce.min.js" />
     <None Include="wwwroot\css\login.css" />
-<<<<<<< HEAD
     <None Include="wwwroot\Uploads\ProfilePhoto\83\blue-circle-with-white-user_78370-4707.avif" />
     <None Include="wwwroot\Uploads\UploadCertificate\0\dummy-pdf_2.pdf" />
     <None Include="wwwroot\Uploads\UploadCertificate\0\dummy-pdf_32.pdf" />
@@ -274,18 +273,13 @@
     <None Include="wwwroot\Uploads\UploadCertificate\5\dummy-pdf_32.pdf" />
     <None Include="wwwroot\Uploads\UploadCertificate\6\dummy-pdf_32.pdf" />
     <None Include="wwwroot\Uploads\UploadCertificate\dummy-pdf_32.pdf" />
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
   </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
 		<PackageReference Include="CKEditor" Version="3.6.4" />
 		<PackageReference Include="ClosedXML" Version="0.102.2" />
-<<<<<<< HEAD
 		<PackageReference Include="EPPlus-UDI-Fork" Version="4.5.29" />
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.1.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.4" />
@@ -296,16 +290,13 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-<<<<<<< HEAD
 		<PackageReference Include="Quartz" Version="3.13.1" />
-=======
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
 		<PackageReference Include="System.ServiceModel.Duplex" Version="4.10.*" />
 		<PackageReference Include="System.ServiceModel.Federation" Version="4.10.*" />
 		<PackageReference Include="System.ServiceModel.Http" Version="4.10.*" />
 		<PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.*" />
 		<PackageReference Include="System.ServiceModel.Security" Version="4.10.*" />
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 		<PackageReference Include="WebMarkupMin.AspNet4.Common" Version="2.16.0" />
 		<PackageReference Include="WebMarkupMin.AspNetCore8" Version="2.16.0" />
 	</ItemGroup>
@@ -413,7 +404,6 @@
 		<Folder Include="wwwroot\assets\images\" />
 		<Folder Include="wwwroot\assets\LoadFiles\" />
 		<Folder Include="wwwroot\assets\MCChckDocs\" />
-<<<<<<< HEAD
 		<Folder Include="wwwroot\assets\DownloadExcel\" />
 		<Folder Include="wwwroot\assets\PDF\Invoice\Original\" />
 		<Folder Include="wwwroot\assets\PDF\RateCon\Original\" />
@@ -440,11 +430,7 @@
 		<Folder Include="wwwroot\Uploads\UploadCertificate\71\" />
 		<Folder Include="wwwroot\Uploads\UploadCertificate\73\" />
 		<Folder Include="wwwroot\Uploads\UploadCertificate\7\" />
-=======
-		<Folder Include="wwwroot\assets\PDF\Invoice\Original\" />
-		<Folder Include="wwwroot\assets\PDF\RateCon\Original\" />
-		<Folder Include="wwwroot\assets\RawReport\" />
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
 	</ItemGroup>
 
 </Project>
