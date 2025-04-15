@@ -1,0 +1,109 @@
+﻿﻿@using HRMS.Models.Employee;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmploymentSeparationDetail
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "Employee Separation Details";
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    Employee Separation Details
+</div>
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">
+                @Html.HiddenFor(m => m.EmployeeID)
+                @Html.HiddenFor(m => m.UserID)
+                @Html.HiddenFor(m => m.EmployeeSeparationID)
+            </div>
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Age on Network</label>
+                    @Html.TextBoxFor(a => a.AgeOnNetwork, new { @class = "form-control", @type = "number" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Previous Experience</label>
+                    @Html.TextBoxFor(a => a.PreviousExperience, new { @class = "form-control", @type = "number" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Date of Joining Training</label>
+                    @Html.TextBoxFor(a => a.DateOfJoiningTraining, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div>
+            </div>
+
+            <div class="row">
+              @*   <div class="col-md-4 form-group">
+                    <label>Date of Joining Floor</label>
+                    @Html.TextBoxFor(a => a.DateOfJoiningFloor, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div> *@
+                <div class="col-md-4 form-group">
+                    <label>Date of Joining OJT</label>
+                    @Html.TextBoxFor(a => a.DateOfJoiningOJT, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Date of Resignation</label>
+                    @Html.TextBoxFor(a => a.DateOfResignation, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Date of Leaving</label>
+                    @Html.TextBoxFor(a => a.DateOfLeaving, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Back on Floor Date</label>
+                    @Html.TextBoxFor(a => a.BackOnFloorDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Email Sent to IT Date</label>
+                    @Html.TextBoxFor(a => a.EmailSentToITDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div>
+            </div>
+
+           
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Leaving Type</label>
+                    @Html.TextBoxFor(a => a.LeavingType, new { @class = "form-control", @type = "text" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Notice Served</label>
+                    @Html.DropDownListFor(a => a.NoticeServed, new List<SelectListItem>
+                    {
+                    new SelectListItem { Text = "Yes", Value = "1" },
+                    new SelectListItem { Text = "No", Value = "2" },
+                    new SelectListItem { Text = "NR", Value = "3" }
+                    }, new { @class = "form-control" })
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label>Mail Received From and Date</label>
+                    @Html.TextBoxFor(a => a.MailReceivedFromAndDate, new { @class = "form-control", @type = "text" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Leaving Remarks</label>
+                    @Html.TextAreaFor(a => a.LeavingRemarks, new { @class = "form-control", rows = "3" })
+                </div>
+               
+            </div>
+            <div class="row">
+                    <div class="col-md-12">
+                        <input type="submit" value="Submit" class="btn btn-success" />
+                        <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                    </div>
+             </div>
+           
+        </div>
+</form>
+<script>
+  document.getElementById('cancelButton').addEventListener('click', function () {
+
+        window.location.href = '@Url.Action("EmployeeListing", "employee")';
+    });
+    </script>

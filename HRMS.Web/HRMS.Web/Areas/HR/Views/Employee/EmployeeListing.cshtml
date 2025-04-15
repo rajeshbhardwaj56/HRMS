@@ -1,0 +1,141 @@
+﻿@using Microsoft.AspNetCore.Http;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model HRMS.Models.Common.Results
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
+    ViewData["Title"] = "Employee";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    Employee List
+    <section class="right-button-employee" />
+    <a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a>
+    <a href="~/Admin/Dashboard/ImportExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees</button></a>
+    </section>
+</div>
+<div class="table-responsive py-3">
+
+    <table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden"> </th>
+
+                <th>Image</th>
+                <th>Employee Number</th>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Surname</th>
+                <th>Email Address</th>
+                <th>Designation  </th>
+                <th>Department  </th>
+                <th>Manager Name</th>
+                <th>Shift</th>
+                <th>Payroll</th>
+                <th>Mobile</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#tblEmployeeListing').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "EmployeeListings/",
+                "type": "POST",
+                "datatype": "json",
+                "data": function (d) {
+                    return {
+                        sEcho: d.draw,
+                        iDisplayStart: d.start,
+                        iDisplayLength: d.length,
+                        sSearch: d.search.value // 🔹 Sending search term
+                    };
+                }
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "employeeID", "autoWidth": true, "visible": false }, // Hidden column
+                {
+                    "data": "profilePhoto",
+                    "render": function (data, type, row) {
+                        if (data == "/assets/img/avatars/m.png") {
+                            return '<img src="' + data + '" class="profile-photo" width="40" height="40" style="border-radius: 50%;" />';
+                        }
+                        else {
+                            var filedata = "/uploads/ProfilePhoto/" + row.employeeID + "/" + data;
+                            return '<img src="' + filedata + '" class="profile-photo" width="40" height="40" style="border-radius: 50%;" />';
+
+                        }
+                    },
+                    "orderable": false
+                },
+                { "data": "employeeNumber", "autoWidth": true },
+                { "data": "firstName", "autoWidth": true },
+                { "data": "middleName", "autoWidth": true },
+                { "data": "surname", "autoWidth": true },
+                { "data": "personalEmailAddress", "autoWidth": true },
+                { "data": "designationName", "autoWidth": true }, // Removed duplicate
+                { "data": "departmentName", "autoWidth": true }, // Removed duplicate
+                { "data": "managerName", "autoWidth": true },
+                { "data": "shift", "autoWidth": true },
+                { "data": "payrollTypeName", "autoWidth": true },
+                { "data": "mobile", "autoWidth": true },
+                {
+<<<<<<< HEAD
+                    // 🔹 Actions Column
+                    "data": null,
+                    "render": function (data, type, row) {
+                        var linkEdit = '<div class="table-data-feature">' +
+                            '<a data-toggle="tooltip" data-placement="top" class="item" href="Index?id=' + row.encryptedIdentity + '&CId=' + row.encodedCompanyID + '" title="Edit">' +
+                            '<img src="/assets/img/edit.png" width="20" height="20" />' +
+                            '</a>' +
+                            '</div>';
+=======
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+                        // alert(JSON.stringify(row))
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/ReadyStatus.svg" width="20" height="20" /></a></div>';
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
+                        var moveToActiveEmployee = '<div class="table-data-feature">' +
+                            '<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Edit">' +
+                            '<img src="/assets/img/ReadyStatus.svg" width="20" height="20" />' +
+                            '</a>' +
+                            '</div>';
+
+                        return linkEdit + moveToActiveEmployee;
+                    },
+                    "orderable": false
+                }
+            ],
+            "columnDefs": [
+                { "targets": [0], "orderable": false, "visible": false }, // EmployeeID is hidden
+                { "targets": [1], "orderable": false } // ProfilePhoto column is not sortable
+            ],
+            "responsive": true
+        });
+    });
+
+
+
+
+</script>

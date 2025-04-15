@@ -1,0 +1,98 @@
+﻿@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model Results
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Leave Ploicy";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+<div class="main-header anim" style="--delay: 0s">Policy Category List   <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Policy Category</button> </div>
+
+<div class="table-responsive py-3">
+
+    <table id="tblPolicyCategoryDetailsListing" class="table table-striped body-text" style="width:100%">
+
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden"> /th>
+                <th>Title</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#tblPolicyCategoryDetailsListing').DataTable({
+            "ajax": {
+                "url": "PolicyCategoryListings/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "id", "autoWidth": true },  // Ensure property name matches JSON response
+                { "data": "name", "autoWidth": true },
+                {
+                    // Actions Column
+                    mRender: function (data, type, row) {
+                        var linkActions = `
+                        <div class="table-data-feature">
+                            <a data-toggle="tooltip" data-placement="top" class="item" href="PolicyCategoryDetails?id=${row.id}" title="Edit" data-original-title="Edit">
+                                <img src="/assets/img/edit.png" width="20" height="20" />
+                            </a>
+                            <a data-toggle="tooltip" data-placement="top" class="item delete-btn" href="DeletePolicyCategory?id=${row.id}" title="Delete" data-original-title="Delete" data-id="${row.id}">
+                                <img src="/assets/img/delete.png" width="20" height="20" />
+                            </a>
+                        </div>`;
+                        return linkActions;
+                    }
+                },
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+                {
+                    "targets": [0],
+                    "orderable": false,
+                    "visible": false
+                },
+                {
+                    "targets": [1],
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+            ],
+            "responsive": true
+        });
+
+        // Add confirmation alert for delete action
+        $(document).on('click', '.delete-btn', function (e) {
+            e.preventDefault();
+            var deleteUrl = $(this).attr('href');
+            var rowId = $(this).data('id');
+
+            if (confirm(`Are you sure you want to delete the item`)) {
+                window.location.href = deleteUrl;
+            }
+        });
+    });
+
+
+    document.getElementById('openFormBtn').addEventListener('click', function () {
+        window.location.href = '@Url.Action("PolicyCategoryDetails", "LeavePolicy")';
+    });
+</script>

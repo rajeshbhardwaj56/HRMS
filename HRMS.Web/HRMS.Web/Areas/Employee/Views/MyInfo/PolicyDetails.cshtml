@@ -1,0 +1,37 @@
+﻿@using HRMS.Models;
+@using HRMS.Models.Common;
+@using System.Globalization;
+@using HRMS.Models.MyInfo;
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@model LeavePolicyDetailsModel
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
+}
+<style>
+    .policy-title
+{
+    padding-block:20px;
+}
+
+    .policy-description {
+        line-height: 2;
+    }
+
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        padding: 0 30px 30px;
+        flex-grow: 1;
+        overflow: auto;
+        border: 1px solid gray;
+        border-radius: 17px;
+        margin: 30px;
+    }
+</style>
+
+<h1 class="policy-title">@Model.Title</h1>
+<p class="policy-description">@Html.Raw(Model.Description)</p>

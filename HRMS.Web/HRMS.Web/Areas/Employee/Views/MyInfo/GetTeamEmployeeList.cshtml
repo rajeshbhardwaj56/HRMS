@@ -1,0 +1,99 @@
+﻿@using HRMS.Models;
+@using HRMS.Models.Common;
+@using System.Globalization;
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@using HRMS.Models.DashBoard
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model HRMS.Models.Common.Results
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
+    ViewData["Title"] = "Employee";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+<div class="main-header anim">Employee List</div>
+<div class="table-responsive py-3">
+    <table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden" > </th>
+                <th>Image</th>
+                <th>First Name</th>
+                <th>Middel Name</th>
+                <th>Surname</th>
+                <th>DOB</th>
+                <th>Designation</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {       
+        $('#tblLeavesForReject').DataTable({
+            "ajax": {
+                "url": "GetTeamEmployeeList/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "employeeId", "autoWidth": true, },
+                {
+
+                    "data": "employeePhoto",
+                    "render": function (data, type, row) {
+                        var imagePath = data ? "/Uploads/ProfilePhoto/" + row.employeeId + "/" + data : "/assets/img/No_image.png";
+                        return '<img src="' + imagePath + '" class="img-thumbnail" style="width: 50px; height: 50px;" />';
+
+                    }
+                },
+                { "data": "firstName", "autoWidth": true },
+                { "data": "middelName", "autoWidth": true },
+                { "data": "lastName", "autoWidth": true },
+                {
+                    "data": "dob",
+                    "render": function (data, type, row) {
+
+                        var date = new Date(data);
+                        var formattedDate = date.toISOString().split('T')[0];
+                        return formattedDate;
+                    },
+                    "autoWidth": true
+                },
+                { "data": "designationName", "autoWidth": true },
+                { "data": "departmentName", "autoWidth": true }
+            ],
+             "columnDefs": [
+                 {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+                {
+
+                    "targets": [0],
+                    "orderable": false,
+                     "visible": false
+                },
+                 {
+
+                    "targets": [1],
+                     "orderable": true,
+                     "defaultContent": " "
+                }
+
+             ]
+             , "responsive": true
+        });
+    });
+</script>

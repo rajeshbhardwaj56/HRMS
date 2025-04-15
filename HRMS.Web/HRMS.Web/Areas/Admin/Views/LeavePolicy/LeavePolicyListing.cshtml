@@ -1,0 +1,108 @@
+﻿@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model Results
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Leave Ploicy";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+<div class="main-header anim" style="--delay: 0s">Leave Policy List  <a href="~/Admin/LeavePolicy"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Leave Policy</button></a></div>
+@* <div class="addcomp px-4">
+    <h4>Leave Policy List</h4>
+    <a href="~/Admin/LeavePolicy"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Leave Policy</button></a>
+</div> *@
+
+<div class="table-responsive py-3">
+
+    <table id="tblLeavePolicyListing" class="table table-striped body-text" style="width:100%">
+
+        <thead>
+            <tr>
+                <th class="first" style="visibility:hidden"> /th>
+                <th>Leave Policy Name</th>
+                <th>Maximum Annual Leave Allocation Allowed</th>
+                <th>Applicable After Working Days</th>
+                <th>Maximum Consecutive Leaves Allowed</th>
+                    @* <th>Is Compendatory</th>
+                <th>Is Allow Over Allocation</th>
+                    <th>Is Allow Encashment</th>
+                <th>Is Earned Leave</th> *@
+                <th>Action</th>
+            </tr>
+        </thead>
+
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+    debugger
+    $(document).ready(function () {
+        $('#tblLeavePolicyListing').DataTable({
+            "ajax": {
+                "url": "LeavePolicyListings/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "ordering": true,
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "columns": [
+                { "data": "leavePolicyID", "autoWidth": true, },
+                { "data": "leavePolicyName", "autoWidth": true, },
+                { "data": "annual_MaximumLeaveAllocationAllowed", "autoWidth": true, },
+                { "data": "annual_ApplicableAfterWorkingDays", "autoWidth": true, },
+                { "data": "annual_MaximumConsecutiveLeavesAllowed", "autoWidth": true, },
+                //{ "data": "isCompendatory", "autoWidth": true },
+                //{ "data": "isAllowOverAllocation", "autoWidth": true }
+                    //                 {
+                    //     "data": "isAllowEncashment", "autoWidth": true
+                    // },
+                    // {
+                    //     "data": "isEarnedLeave", "autoWidth": true
+                    // },
+
+
+                    {
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+                        
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.leavePolicyID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        return linkEdit;
+                    }
+                },
+            ],
+            "columnDefs": [
+                {
+                    target: 2,
+                    visible: false,
+                    searchable: false
+                },
+
+                {
+
+                    "targets": [0], //first and last not sortable
+                    "orderable": false,
+                    "visible": false
+                },
+
+                {
+
+                    "targets": [1], //first and last not sortable
+                    "orderable": true,
+                    "defaultContent": " "
+                }
+
+            ]
+            , "responsive": true
+
+        });
+
+
+    });
+</script>

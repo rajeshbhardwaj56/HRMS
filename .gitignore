@@ -23,3 +23,13 @@
 /HRMS.Web/HRMS.API.DataLayer/obj
 /HRMS.Web/HRMS.API.DataLayer.ITF/bin/Debug/net8.0
 /HRMS.Web/HRMS.API.DataLayer.ITF/obj
+/HRMS.Web/HRMS.API.Web/bin/Release/net8.0
+/HRMS.Web/HRMS.Models/bin/Release/net8.0
+/HRMS.Web/HRMS.API.DataLayer.ITF/bin/Release/net8.0
+/HRMS.Web/HRMS.Web/bin/Release/net8.0
+/HRMS.Web/HRMS.Web/Properties/PublishProfiles
+/HRMS.Web/HRMS.Web/.config/dotnet-tools.json
+/HRMS.Web/HRMS.Web/HRMS.Web.csproj.user
+/HRMS.Web/HRMS.API.DataLayer/bin/Release/net8.0
+/HRMS.Web/HRMS.API.BusinessLayer.ITF/bin/Release/net8.0
+/HRMS.Web/HRMS.API.BusinessLayer/bin/Release/net8.0
