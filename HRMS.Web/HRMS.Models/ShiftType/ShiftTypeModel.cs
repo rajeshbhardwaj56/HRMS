@@ -41,6 +41,7 @@ namespace HRMS.Models.ShiftType
         public List<SelectListItem> HolidayList = new List<SelectListItem>();
         public List<SelectListItem> WorkingHoursCalculationTypeList = new List<SelectListItem>();
     }
+<<<<<<< HEAD
     public class EmployeeAttendance
     {
         public string? FullName { get; set; }
@@ -54,4 +55,6 @@ namespace HRMS.Models.ShiftType
     }
 
 
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 }

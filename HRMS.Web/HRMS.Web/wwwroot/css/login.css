@@ -146,6 +146,7 @@ input, .form-control {
 }
 
 .overlay {
+<<<<<<< HEAD
     background: #e8f0fe;
     background-repeat: no-repeat;
     background-size: cover;
@@ -157,6 +158,18 @@ input, .form-control {
 .overlay-panel.overlay-right h1 {
     font-size: 24px;
 }
+=======
+    background: #05397b;
+    background: linear-gradient(to right, var(--secondry-color), var(--body-bg));
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 0 0;
+    color: #FFFFFF;
+    position: relative;
+    height: 100%;
+}
+
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 .overlay-panel {
     position: absolute;
     display: flex;
@@ -169,12 +182,16 @@ input, .form-control {
     height: 100%;
     width: 100%;
 }
+<<<<<<< HEAD
 .form-group small {
     font-size: 11px;
 }
 #formAuthentication h2 {
     font-size: 20px;
 }
+=======
+
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 .form-check-input[type="checkbox"] {
     border-radius: 0.25em;
     width: 20px;
@@ -238,8 +255,11 @@ input, .form-control {
         margin: 0 !important;
     }
 }
+<<<<<<< HEAD
 
 
 span.app-brand-logo.demo img {
     width: 50%;
 }
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39

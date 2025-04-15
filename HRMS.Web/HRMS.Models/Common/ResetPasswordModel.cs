@@ -26,19 +26,31 @@ namespace HRMS.Models.Common
 		public bool IsResetPasswordRequired { get; set; }
 		public bool IsResetPasswordExpired { get; set; }
 		public DateTime dt { get; set; }
+<<<<<<< HEAD
         public string CompanyID { get; set; }
 
     }
+=======
+
+	}
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 
 	public class ChangePasswordModel
 	{
 
 		//[Required(ErrorMessage = "Username is required")]
+<<<<<<< HEAD
 		//[Required(ErrorMessage = "Email is required")]
 		//[StringLength(200)]
 		//[EmailAddress(ErrorMessage = "Invalid Email Address")]
 		//[Display(Name = "Email ID: ")]
+=======
+		[Required(ErrorMessage = "Email is required")]
+		[StringLength(200)]
+		[EmailAddress(ErrorMessage = "Invalid Email Address")]
+		[Display(Name = "Email ID: ")]
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 		public string EmailId { get; set; } = string.Empty;
 
 		//[Required(ErrorMessage = "Old Password is required")]

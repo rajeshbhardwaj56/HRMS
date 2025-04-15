@@ -99,6 +99,7 @@
                 { "data": "payrollTypeName", "autoWidth": true },
                 { "data": "mobile", "autoWidth": true },
                 {
+<<<<<<< HEAD
                     // 🔹 Actions Column
                     "data": null,
                     "render": function (data, type, row) {
@@ -107,6 +108,13 @@
                             '<img src="/assets/img/edit.png" width="20" height="20" />' +
                             '</a>' +
                             '</div>';
+=======
+                    // this is Actions Column
+                    mRender: function (data, type, row) {
+                        // alert(JSON.stringify(row))
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var moveToActiveEmployee = '  <a data-toggle="tooltip" data-placement="top"  class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '"  title=""  data-original-title="Edit"><img src="/assets/img/ReadyStatus.svg" width="20" height="20" /></a></div>';
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
                         var moveToActiveEmployee = '<div class="table-data-feature">' +
                             '<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Edit">' +

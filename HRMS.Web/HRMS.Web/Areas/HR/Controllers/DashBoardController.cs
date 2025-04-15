@@ -11,7 +11,11 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.HR.Controllers
 {
     [Area(Constants.ManageHR)]
+<<<<<<< HEAD
     [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+=======
+    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin))]
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     public class DashBoardController : Controller
     {
         IConfiguration _configuration;
@@ -28,7 +32,11 @@ namespace HRMS.Web.Areas.HR.Controllers
         public IActionResult Index()
         {
             DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
+<<<<<<< HEAD
             var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+=======
+            var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardodel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
             var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
             _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
             return View(model);

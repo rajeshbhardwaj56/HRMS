@@ -10,14 +10,21 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.Company;
 using HRMS.Models.LeavePolicy;
 using DocumentFormat.OpenXml.Wordprocessing;
+<<<<<<< HEAD
 using HRMS.Models.DashBoard;
 using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using HRMS.Models;
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
+<<<<<<< HEAD
     [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin+ "," + RoleConstants.Manager)]
+=======
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     public class AttendenceListController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -38,6 +45,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [AllowAnonymous]
         public JsonResult GetAllAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
+<<<<<<< HEAD
             AttendanceInputParams attendenceListParams = new AttendanceInputParams();
              attendenceListParams.Month = DateTime.Now.Month;
             //attendenceListParams.Month =1;
@@ -48,32 +56,70 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
 
             return Json(new { data = model });
+=======
+            AttendenceListInputParans attendenceListParams = new AttendenceListInputParans();
+            attendenceListParams.ID = Convert.ToInt64(HttpContext.Session.GetString(Constants.ID));
+
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<Results>(data);
+
+            return Json(new { data = results.AttendenceList });
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
         }
         public IActionResult Index(string id)
         {
+<<<<<<< HEAD
             Attendance model = new Attendance();
+=======
+            AttendenceListModel model = new AttendenceListModel();
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
             if (!string.IsNullOrEmpty(id))
             {
                 model.ID = Convert.ToInt64(id);
+<<<<<<< HEAD
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendanceModel;
+=======
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendenceListModel;
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
             }
 
             HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
             model.Employeelist = results.Employee;
+<<<<<<< HEAD
+=======
+            model.StatusList = new SelectList(Enum.GetValues(typeof(Status)));
+            model.ShiftList = Enum.GetValues(typeof(ShiftSelection)).Cast<ShiftSelection>()
+           .Select(e => new SelectListItem
+           {
+               Value = ((int)e).ToString(),
+               Text = e.ToString(),
+           })
+          .ToList();
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
             return View(model);
         }
 
 
 
         [HttpPost]
+<<<<<<< HEAD
         public IActionResult Index(Attendance AttendenceListModel)
         {
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
                 var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+=======
+        public IActionResult Index(AttendenceListModel AttendenceListModel)
+        {
+            if (ModelState.IsValid)
+            {
+
+                var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
                 if (AttendenceListModel.ID > 0)
@@ -88,7 +134,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 }
 
+<<<<<<< HEAD
            
+=======
+            }
+            else
+            {
+                return View(AttendenceListModel);
+            }
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 
 
@@ -109,6 +163,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             return result;
         }
+<<<<<<< HEAD
 
         [HttpGet]
         public IActionResult DeleteAttendanceDetails(int id)
@@ -160,6 +215,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
     
 
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     }
 
 

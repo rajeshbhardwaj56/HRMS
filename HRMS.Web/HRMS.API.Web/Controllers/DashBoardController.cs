@@ -2,9 +2,13 @@
 using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.DashBoard;
+<<<<<<< HEAD
 using HRMS.Models.Employee;
 using HRMS.Models.ImportFromExcel;
 using Microsoft.AspNetCore.Authorization;
+=======
+using HRMS.Models.WhatsHappening;
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.API.Web.Controllers
@@ -23,6 +27,7 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
+<<<<<<< HEAD
         public IActionResult GetDashBoardModel(DashBoardModelInputParams model)
         {
             IActionResult response = Unauthorized();
@@ -67,6 +72,30 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
+=======
+        public IActionResult GetDashBoardodel(DashBoardModelInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetDashBoardodel(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult AddUpdateWhatsHappening(WhatsHappening model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateWhatsHappening(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetWhatsHappenings(WhatsHappening model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetWhatsHappenings(model));
+            return response;
+        }
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
     }
 }

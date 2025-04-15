@@ -12,8 +12,11 @@ namespace HRMS.Models.Employee
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
         public long UserID { get; set; }
+<<<<<<< HEAD
         public long DesignationID { get; set; }
         public long DepartmentID { get; set; }
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     }
 
     public class EmploymentDetail
@@ -30,6 +33,7 @@ namespace HRMS.Models.Employee
         public long ReportingToIDL1 { get; set; }
         public string OfficialEmailID { get; set; } = string.Empty;
         public string OfficialContactNo { get; set; } = string.Empty;
+<<<<<<< HEAD
         public string DesignationName { get; set; } = string.Empty;
         public string DepartmentName { get; set; } = string.Empty;
         public string ManagerName { get; set; } = string.Empty;
@@ -39,6 +43,11 @@ namespace HRMS.Models.Employee
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
         public DateTime? JobSeprationDate { get; set; } 
         public bool IsActive { get; set; }
+=======
+        public DateTime? JoiningDate { get; set; }
+        public DateTime? JobSeprationDate { get; set; }
+        public bool IsActive { get; set; } = true;
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
         public bool IsDeleted { get; set; }
         public long UserID { get; set; }
         public DateTime? InsertedDate { get; set; } = DateTime.UtcNow;
@@ -53,7 +62,12 @@ namespace HRMS.Models.Employee
         public string EmployeNumber { get; set; } = string.Empty;
         public long CompanyID { get; set; } =0;
 
+<<<<<<< HEAD
        
+=======
+        public long LeavePolicyID { get; set; }
+
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> PayrollTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
@@ -62,10 +76,13 @@ namespace HRMS.Models.Employee
         public List<SelectListItem> EmployeeList { get; set; } = new List<SelectListItem>();
 
         public List<SelectListItem> LeavePolicyList { get; set; } = new List<SelectListItem>();
+<<<<<<< HEAD
         public List<SelectListItem> RoleList { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> ShiftTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> SubDepartments { get; set; } = new List<SelectListItem>();
 
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     }
 
     public class EmployeeListModel

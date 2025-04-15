@@ -9,6 +9,14 @@
 @model MyInfoResults
 @{
     SelectListItem selectCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.CorrespondenceCountryID.ToString()).FirstOrDefault();
+<<<<<<< HEAD
+=======
+
+    SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
+    SelectListItem employmentHistoryCountry;
+    var CountryData = @Model.employeeModel.Countries;
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
     SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
     SelectListItem employmentHistoryCountry;
@@ -25,6 +33,7 @@
     {
         ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
     }
+<<<<<<< HEAD
     var UploadCertificate = "";
     if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
     {
@@ -34,6 +43,9 @@
     {
         UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
     }
+=======
+
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
     {
         Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
@@ -46,6 +58,7 @@
     {
         Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
     }
+<<<<<<< HEAD
     if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
     {
         Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
@@ -56,6 +69,9 @@
     }
     var fullDayValue = (int)LeaveDay.FullDay;
     var halfDayValue = (int)LeaveDay.HalfDay;
+=======
+    var fullDayValue = (int)LeaveDay.FullDay;
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 }
 <style>
     .fade:not(.show) {
@@ -89,7 +105,11 @@
                             int years = (zeroTime + span).Year - 1;
                             var Month = (TodayDate - JoiningDate.AddYears(years));
                             var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
+<<<<<<< HEAD
                                     <span>@(years)y - @(Days)d</span>
+=======
+                            <span>@(years)y - @(Days)d</span>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                         }
                     }
                 </p>
@@ -99,6 +119,7 @@
                         <li class="nav-item" role="presentation">
                             <a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabPersonalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabPersonalInfo)" aria-selected="true" tabindex="-1">Personal Info</a>
                         </li>
+<<<<<<< HEAD
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Professional Info</a>
                         </li>
@@ -124,6 +145,28 @@
                         </li>
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance2" role="tab" aria-controls="attendance" aria-selected="false">Separation</a>
+=======
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Professional Info</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Separation</a>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                         </li>
                     </ul>
                 </div>
@@ -168,6 +211,7 @@
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>ID</h6>
+<<<<<<< HEAD
                                                         @Model.employmentDetail.EmployeNumber
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
@@ -189,11 +233,35 @@
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Date of Birth</h6>
                                                         @Model.employeeModel.DateOfBirth.Value.ToString("dd-MM-yyyy")
+=======
+                                                        ELS0349
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Status</h6>
+                                                        Active - Full Time
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Designation</h6>
+                                                        Business Analyst
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Department</h6>
+                                                        Operations
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Location</h6>
+                                                        Mohali, Punjab
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Date of Birth</h6>
+                                                        @Model.employeeModel.DateOfBirth
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Place of Birth</h6>
                                                         @Model.employeeModel.PlaceOfBirth
                                                     </div>
+<<<<<<< HEAD
 
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Manager Name</h6>
@@ -203,6 +271,8 @@
                                                         <h6>Manager Email</h6>
                                                         @Model.employmentDetail.ManagerEmail
                                                     </div>
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                 </div>
 
 
@@ -213,7 +283,11 @@
 
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 mb-2">
+<<<<<<< HEAD
                                                         <h6>Address of Correspondence</h6>
+=======
+                                                        <h6>Address of Currespondence</h6>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                         @Model.employeeModel.CorrespondenceAddress
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
@@ -248,9 +322,30 @@
                                                         @Model.employeeModel.PersonalEmailAddress
                                                     </div>
                                                 </div>
+<<<<<<< HEAD
                                                 <hr />
 
                                                 <div class="row">
+=======
+
+
+
+
+
+
+
+
+
+
+
+
+                                                <hr />
+
+                                                <div class="row">
+
+
+
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                     <div class="col-lg-12 col-md-12 mb-2">
                                                         <h6>Permanent Address</h6>
                                                         @Model.employeeModel.PermanentAddress
@@ -273,6 +368,295 @@
                                                         {
                                                             selectPermanentCountry.Value.ToString();
                                                         }
+<<<<<<< HEAD
+=======
+                                                    </div>
+                                                </div>
+
+
+
+
+
+                                                <hr />
+
+
+
+
+
+
+
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Contact Person</h6>
+                                                        @Model.employeeModel.ContactPersonName
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Contact No</h6>
+                                                        @Model.employeeModel.ContactPersonMobile
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Telephone No</h6>
+                                                        @Model.employeeModel.ContactPersonTelephone
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="@(MyInfoTabs.TabProfessionalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabProfessionalInfo)-tab">
+
+
+
+                                    <div class="group-box anim">
+
+                                        <div class="tabsInfo" id="myTabContent-timeoff">
+                                            <h3>Professional Info</h3>
+                                            @{
+                                                int Index = 0;
+                                                int index = 1;
+                                                if (Model.employmentHistory != null)
+                                                {
+                                                    foreach (var familyDetail in Model.employmentHistory)
+                                                    {
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="row">
+                                                                    <div class="col-md-10">
+                                                                        <b> Employer-@(index)</b>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-3">
+                                                                                <h6>Company Name</h6>
+                                                                                @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
+                                                                                @Model.employmentHistory[Index].CompanyName
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <h6>Employee ID</h6>
+                                                                                @Model.employmentHistory[Index].EmploymentID
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <h6>From</h6>
+                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <h6>To</h6>
+                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                Address/Branch
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                Phone
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+
+
+                                                                                @Model.employmentHistory[Index].Address
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].Phone
+                                                                            </div>
+
+                                                                        </div>
+
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-3">
+                                                                                City
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                State
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                Country
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                Postal Code
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-3">
+                                                                                @Model.employmentHistory[Index].City
+
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                @Model.employmentHistory[Index].State
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                @{
+                                                                                    employmentHistoryCountry = @CountryData.Where(x => x.Value == Model.employmentHistory[Index].CountryID.ToString()).FirstOrDefault();
+                                                                                    if (employmentHistoryCountry != null)
+                                                                                    {
+                                                                                        employmentHistoryCountry.Value.ToString();
+                                                                                    }
+                                                                                }
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+
+                                                                                @Model.employmentHistory[Index].PostalCode
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                Reasion for Leaving
+                                                                            </div>
+                                                                            <div class="col-md-12">
+                                                                                @Model.employmentHistory[Index].ReasionFoLeaving
+
+                                                                            </div>
+
+                                                                        </div>
+
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                Designition (As per document)
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                Final Gross Salary(as per Company Letter)
+                                                                            </div>
+
+                                                                        </div>
+
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].Designition
+
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].GrossSalary
+
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                Supervisor Name
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                Supervisor's Designition
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                Supervisor's ContactNo
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorName
+
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorDesignition
+
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorContactNo
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                HR Manager Name
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                HR Manager's ContactNo
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                HR Manager's Email
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRName
+
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRContactNo
+
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRContactNo
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row">
+                                                                    &nbsp;
+                                                                    <hr style="width:100%" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        Index++;
+                                                        index++;
+                                                    }
+                                                }
+
+                                            }
+
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
+
+
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo" id="myTabContent-timeoff">
+                                            <h3>Leaves For Approval</h3>
+
+                                        </div>
+                                        <div role="tabpanel" aria-labelledby="apply-tab">
+                                            <div class="row">
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="first" style="visibility:hidden"> </th>
+                                                                        <th>Employee Number</th>
+                                                                        <th>Employee Name</th>
+                                                                        <th>From Date</th>
+                                                                        <th>To Date</th>
+                                                                        <th>Reason</th>
+                                                                        <th>Action</th>
+                                                                    </tr>
+                                                                </thead>
+
+                                                            </table>
+                                                        </div>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                     </div>
                                                 </div>
                                                 <hr />
@@ -297,6 +681,7 @@
                                     </div>
                                 </div>
 
+<<<<<<< HEAD
                                 <div class="tab-pane fade" id="@(MyInfoTabs.TabProfessionalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabProfessionalInfo)-tab">
                                     <div class="group-box anim">
 
@@ -651,6 +1036,8 @@
 
                                 </div>
 
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                 <div class="tab-pane fade" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
 
                                     <div class="group-box anim">
@@ -659,7 +1046,11 @@
                                             <nav>
                                                 <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
                                                     <button class="nav-link active" id="apply-leave-tab1" data-bs-toggle="tab" data-bs-target="#apply-leave-tab" type="button" role="tab" aria-controls="apply-leave-tab" aria-selected="true">Apply Leave</button>
+<<<<<<< HEAD
                                                     <button class="nav-link  " id="leave-summary-tab1" data-bs-toggle="tab" data-bs-target="#leave-summary-tab" type="button" role="tab" aria-controls="leave-summary-tab" aria-selected="false">Leave Summary</button>
+=======
+                                                    <button class="nav-link" id="leave-summary-tab1" data-bs-toggle="tab" data-bs-target="#leave-summary-tab" type="button" role="tab" aria-controls="leave-summary-tab" aria-selected="false">Leave Summary</button>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                 </div>
                                             </nav>
                                             <div class="tab-content" id="nav-tabContent">
@@ -669,15 +1060,26 @@
 
                                                             <div class="">
                                                                 <div class="">
+<<<<<<< HEAD
                                                                     @*  <form class="body-text" method="post" enctype="multipart/form-data"> *@
                                                                     <form id="myForm" method="post" enctype="multipart/form-data" action="/employee/myinfo/Index/">
                                                                         <div id="responseMessage" class="error-message" style=" color: red;font-size: 15px;font-weight: 700;">                                                                        </div>                                                                        <div class="row py-2">
+=======
+                                                                    <form class="body-text" method="post" enctype="multipart/form-data">
+
+                                                                        <div class="row py-2">
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label for="leavetype" class="">Leave Duration:</label>
+                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @required = "required", @id = "leaveDurationDropdown" })
+                                                                            </div>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label for="leavetype" class="">Leave Type:</label>
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
+<<<<<<< HEAD
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
                                                                                 @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" })
                                                                                 
@@ -703,15 +1105,35 @@
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv1">
                                                                                         @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+=======
+                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required" })
+
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label for="datepicker1" class="">From:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv1">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
 
+<<<<<<< HEAD
                                                                             <div class="col-lg-6 col-md-12" id="todatetime">
                                                                                 <label for="datepicker2" class="">To:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv2">
                                                                                         @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+=======
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label for="datepicker2" class="">To:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv2">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -722,6 +1144,7 @@
                                                                                 <label for="datepicker1" class="">Date:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv1">
+<<<<<<< HEAD
                                                                                         @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd") })
                                                                                     </div>
                                                                                 </div>
@@ -737,10 +1160,14 @@
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group date" id="datepickerdiv3">
                                                                                         @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+=======
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @required = "required", @min = DateTime.Now.ToString("yyyy-MM-dd") })
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="col-lg-6 col-md-12">
+<<<<<<< HEAD
                                                                                 <label>Upload Certificate:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group ">
@@ -754,6 +1181,8 @@
 
                                                                                     </div>
                                                                                 </div>
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                             </div>
                                                                         </div>
 
@@ -767,8 +1196,13 @@
                                                                             </div>
                                                                         </div>
 
+<<<<<<< HEAD
                                                                         <button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
                                                                         <a href="~/employee/MyInfo/Index/" class="btn btn-danger" type="reset">Cancel</a>
+=======
+                                                                        <button class="btn btn-success" type="submit">Submit</button>
+                                                                        <button class="btn btn-danger" type="reset">Cancel</button>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                     </form>
                                                                 </div>
                                                             </div>
@@ -778,8 +1212,13 @@
                                                                 <div class="card-body">
                                                                     <ul class="list-group" style="width:100%;">
                                                                         <li class="d-flex justify-content-between align-items-center ">
+<<<<<<< HEAD
                                                                             <b>Annual Leave Balance</b>
                                                                             <span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.TotalLeave/@ViewBag.TotalAnnualLeave</span>
+=======
+                                                                            <b>Leave Balance</b>
+                                                                            <span class="badge rounded-pill" style="background-color: #05397b">2 / 6</span>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                         </li>
                                                                     </ul>
                                                                 </div>
@@ -797,6 +1236,7 @@
                                                                         <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                                                             <div class="mt-3">
                                                                                 <ul class="list-group ">
+<<<<<<< HEAD
                                                                                     @foreach (var item in Model.HolidayModel)
                                                                                     {
                                                                                         <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
@@ -804,6 +1244,36 @@
                                                                                             <span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
                                                                                         </li>
                                                                                     }
+=======
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        01-Jan-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">New Year</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        26-Jan-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Republic Day</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        25-Mar-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Holi</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        17-Apr-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Ram Navmi</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        15-Aug-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Independence Day</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        31-Oct-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Diwali</span>
+                                                                                    </li>
+                                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                        15-Nov-2024
+                                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">Gurpurab</span>
+                                                                                    </li>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                                 </ul>
                                                                             </div>
                                                                         </div>
@@ -840,6 +1310,7 @@
                                                                                 <td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
                                                                                 <td>@item.EndDate.ToString("dd/M/yyyy")</td>
                                                                                 <td>@item.LeaveTypeName</td>
+<<<<<<< HEAD
                                                                                 <td>
                                                                                     @*                                            <span class="fw-bold text-primary " data-bs-toggle="tooltip" title="You are only apply 3 Consecutive leaves." style="cursor: pointer; margin-left: 5px; background: red; color: white !important;">
 
@@ -865,6 +1336,9 @@
                                                                                         </span>
                                                                                     }
                                                                                 </td>
+=======
+                                                                                <td><span class="fw-bold text-primary">@item.NoOfDays</span></td>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                                 @switch (item.LeaveStatusID)
                                                                                 {
                                                                                     case (int)LeaveStatus.Approved:
@@ -881,6 +1355,7 @@
                                                                                         break;
                                                                                 }
 
+<<<<<<< HEAD
                                                                                 @if (item.LeaveStatusID != (int)LeaveStatus.Approved)
                                                                                 {
                                                                                     <td>
@@ -897,6 +1372,12 @@
                                                                                     </td>
                                                                                 }
 
+=======
+                                                                                <td>
+                                                                                    <a href="~/employee/myinfo/Index/@(item.EncryptedIdentity)"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+                                                                                    <a href="#"><i class="fa fa-close" style="font-size:22px;color:red"></i></a>
+                                                                                </td>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                                                             </tr>
                                                                         }
 
@@ -915,11 +1396,19 @@
                                 </div>
 
 
+<<<<<<< HEAD
                                 <div class="tab-pane fade" id="@(MyInfoTabs.attendance)" role="tabpanel" aria-labelledby="@(MyInfoTabs.attendance)-tab">
 
                                     <div class="group-box anim">
                                         <div class="tabsInfo" id="">
                                             <h3>Attendance</h3>
+=======
+                                <div class="tab-pane fade" id="@(MyInfoTabs.TabTimeOff)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabTimeOff)-tab">
+
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo" id="">
+                                            <h3>Time Off</h3>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                                         </div>
                                     </div>
                                 </div>
@@ -934,15 +1423,23 @@
 </section>
 
 <div class="modal" tabindex="-1" role="dialog" id="ApproveRejectModel">
+<<<<<<< HEAD
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Leave Request Details</h5>
+=======
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Apply Leave</h5>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                 <button type="button" class="close" data-dismiss="modal" onclick="CloseApproveRejectModel();" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
+<<<<<<< HEAD
 
                 <section>
                     <div class="container-fluid">
@@ -1166,6 +1663,14 @@
                     </div>
                 </div>
 
+=======
+                <p>Comment</p>
+                <p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-primary">Reject</button>
+                <button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-info">Approve</button>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
             </div>
 
@@ -2100,3 +2605,179 @@
 
 
 
+<script type="text/javascript">
+
+    var leaveSummaryID;
+
+    function ApproveRejectLeave(isApproved) {
+        let data={
+        leaveSummaryID:leaveSummaryID,
+        isApproved:isApproved,
+        ApproveRejectComment:$("#ApproveRejectComment").val()
+        };
+         CloseApproveRejectModel();
+       var urlData= '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/ApproveRejectLeave/';
+             $.post(urlData, data, function(json) {
+                 $("#ApproveRejectComment").val("");
+                 CloseApproveRejectModel();
+                 $.toast({
+                    heading: 'Success',
+                    text: "Leave status updated successfully.",
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+
+                 AutoReload();
+
+
+        });
+
+
+         }
+
+         function OpenApproveRejectModel(rowData) {
+             leaveSummaryID=rowData;
+             $('#ApproveRejectModel').modal('show');
+         }
+
+          function CloseApproveRejectModel() {
+             $('#ApproveRejectModel').modal('hide');
+         }
+
+        function InitOverviewDataTable() {
+        oOverviewTable =  $('#tblLeavesForApproval').DataTable({
+                "ordering": true,
+                "paging": true,
+                "searching": true,
+                "info": true,
+                "columns": [
+                    { "data": "leaveSummaryID", "autoWidth": true, },
+                    { "data": "employeeNumber", "autoWidth": true },
+                    { "data": "employeeName", "autoWidth": true },
+                    { "data": "startDateFormatted", "autoWidth": true },
+                    { "data": "endDateFormatted", "autoWidth": true },
+                    { "data": "reason", "autoWidth": true },
+                    {
+                        // this is Actions Column
+                        mRender: function (data, type, row) {
+                            var linkEdit = "<a data-toggle='tooltip' data-placement='top'  class='item' onclick='OpenApproveRejectModel("+ row.leaveSummaryID + ")' href='#'  title=''  data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
+
+                            return linkEdit;
+                        }
+                    },
+
+
+                    // { "data": "title", "autoWidth": true },
+                    // // { "data": "description", "autoWidth": true },
+
+                    // {
+                    //     // this is Actions Column
+                    //     mRender: function (data, type, row) {
+                    //         return row["description"];
+                    //     }
+                    // },
+                    // { "data": "status", "autoWidth": true },
+                    // { "data": "createdDate", "autoWidth": true },
+
+                    // // {
+                    // //     // this is Actions Column
+                    //     mRender: function (data, type, row) {
+                    //         // alert(JSON.stringify(row))
+                    //         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="@Url.Action("index", "BriefingUpdate")?id=' + row.briefingUpdateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                    //         return linkEdit;
+                    //     }
+                    // },
+
+                    // {
+                    //     // this is Actions Column
+                    //     mRender: function (data, type, row) {
+                    //         // alert(JSON.stringify(row))
+                    //         var linkDelete = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#"  title=""  data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>';
+                    //         return linkDelete;
+                    //     }
+                    // }
+
+                    // for edit icon = < i class= "mdi mdi-border-color" ></i >
+                    // for delete icon =  <i class="mdi mdi-delete"></i>
+                ],
+                "columnDefs": [
+                    {
+                        target: 2,
+                        visible: false,
+                        searchable: false
+                    },
+
+                    {
+
+                        "targets": [0], //first and last not sortable
+                        "orderable": false,
+                        "visible": false
+                    },
+
+                    {
+
+                        "targets": [1], //first and last not sortable
+                        "orderable": true,
+                        "defaultContent": " "
+                    }
+
+                ]
+                , "responsive": true
+
+            });
+    }
+
+    function RefreshTable(tableId, urlData) {
+        $.post(urlData, null, function(json) {
+            table = $(tableId).dataTable();
+            oSettings = table.fnSettings();
+
+            table.fnClearTable(this);
+
+            for (var i = 0; i < json.data.length; i++) {
+                table.oApi._fnAddData(oSettings, json.data[i]);
+            }
+
+            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+            table.fnDraw();
+        });
+    }
+    // Edited by Prasad
+    function AutoReload() {
+            RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/');
+    }
+
+    $(document).ready(function() {
+        InitOverviewDataTable();
+      AutoReload();
+
+    });
+
+
+
+
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
+        var fullDayContainer = document.getElementById("fullDayContainer");
+        var halfDayContainer = document.getElementById("halfDayContainer");
+
+        function toggleContainers() {
+            if (leaveDurationDropdown.value === '@fullDayValue') {
+                fullDayContainer.style.display = "flex";
+                halfDayContainer.style.display = "none";
+            } else {
+                fullDayContainer.style.display = "none";
+                halfDayContainer.style.display = "block";
+            }
+        }
+
+        leaveDurationDropdown.addEventListener("change", toggleContainers);
+
+        toggleContainers();
+    });
+</script>

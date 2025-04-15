@@ -10,7 +10,11 @@ using Results = HRMS.Models.Common.Results;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
+<<<<<<< HEAD
     [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin)]
+=======
+    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR)]
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     public class ShiftTypeController : Controller
     {
         private readonly IConfiguration _configuration;

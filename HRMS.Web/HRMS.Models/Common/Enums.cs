@@ -56,4 +56,25 @@ namespace HRMS.Models.Common
         Approved = 4,
         Cancelled = 5
     }
+    public enum Status
+    {
+        Present,
+        Absent,
+        OnLeave,
+        HalfDay,
+        Holiday,
+        WorkFromHome
+    }
+    public enum ShiftSelection
+    {
+        Day = 1,
+        Night = 2
+    }
+    public enum LeaveType
+    {
+        Casual = 1,
+        Medical = 2,
+        AnnualLeave = 3,
+        CompOff = 4
+    }
 }

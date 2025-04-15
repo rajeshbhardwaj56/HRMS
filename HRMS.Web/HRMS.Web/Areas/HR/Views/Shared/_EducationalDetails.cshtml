@@ -13,11 +13,16 @@
                 <th>Qualification (Degree/Deploma)</th>
                 <th>Year of Passing</th>
                 <th>Class/ Percentage</th>
+<<<<<<< HEAD
                 <th>Major/Optional Subjects</th>
+=======
+                <th>Mazor/Optional Subjects</th>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                 <th>Delete</th>
             </tr>
         </thead>
         <tbody>
+<<<<<<< HEAD
             @for (int i = 0; i < Model.EducationalDetails.Count; i++)
             {
                 var deleteId = $"EducationalDetailsDelete_{i}";
@@ -110,3 +115,55 @@
 
 </script>
  
+=======
+
+            @{
+                int index = 1;
+            }
+            @foreach (var familyDetail in Model.EducationalDetails)
+            {
+
+                var delete = (index.ToString()) + "EducationalDetailsDelete";
+
+
+                <tr id="@(delete)">
+                    <td >
+                        @(index).
+                    </td>
+                    <td>
+                        @Html.HiddenFor(m => m.EducationalDetails[Index].EducationDetailID)
+                        @Html.TextBoxFor(a => a.EducationalDetails[Index].School_University, new { @class = "form-control EducationalDetails", @required = "required" })
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(a => a.EducationalDetails[Index].Qualification, new { @class = "form-control", @required = "required" })
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(a => a.EducationalDetails[Index].YearOfPassing, new { @class = "form-control", @required = "required" })
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(a => a.EducationalDetails[Index].Percentage, new { @class = "form-control" })
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(a => a.EducationalDetails[Index].Major_OptionalSubjects, new { @class = "form-control" })
+                    </td>
+                    <td>
+                        <a onclick="deleteEducationalDetails('@(delete)')"><img style="width:20px; height:auto;" src="~/assets/img/delete.png" /></a>
+                    </td>
+                </tr>
+                Index++;
+                index++;
+            }
+        </tbody>
+        </table>
+</div>
+
+
+
+
+<script type="text/javascript">
+    function deleteEducationalDetails(Id) {        
+        $("#" + Id).remove();
+        AddNewEducation(true);
+    }
+</script>
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39

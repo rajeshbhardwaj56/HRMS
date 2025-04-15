@@ -1,22 +1,32 @@
 ﻿using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
+<<<<<<< HEAD
 using HRMS.Models.Employee;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.LeavePolicy;
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+<<<<<<< HEAD
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using System.Formats.Asn1;
 using System.Globalization;
 
+=======
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
+<<<<<<< HEAD
     [Authorize(Roles = (RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+=======
+    [Authorize(Roles = (RoleConstants.Admin))]
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     public class DashBoardController : Controller
     {
         IConfiguration _configuration;
@@ -32,6 +42,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
+<<<<<<< HEAD
             var CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
 
             DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
@@ -139,6 +150,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public async Task<IActionResult> ImportExcel()
         {
             return View();
+=======
+            DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
+            var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardodel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
+            _context.HttpContext.Session.SetString(Constants.ProfilePhoto, string.IsNullOrEmpty(model.ProfilePhoto) ? "" : model.ProfilePhoto);
+            return View(model);
+>>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
         }
 
         [HttpPost]
