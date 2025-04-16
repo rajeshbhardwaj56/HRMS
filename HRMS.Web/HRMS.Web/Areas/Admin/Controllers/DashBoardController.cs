@@ -320,7 +320,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             if (!string.IsNullOrEmpty(ReportingToIDL1Name) && employmentDetailsDictionaries.TryGetValue("Employees", out var ReportingToIDL1NameDict))
                             {
                                 ReportingToIDL1Id = ReportingToIDL1NameDict
-                                    .FirstOrDefault(kvp => kvp.Key.Contains(ReportingToIDL1Name, StringComparison.OrdinalIgnoreCase)).Value;
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(ReportingToIDL1Name.ToLower(), StringComparison.OrdinalIgnoreCase)).Value;
                                 if (ReportingToIDL1Id == 0) ReportingToIDL1Id = 0;
                             }
 
@@ -329,7 +329,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             if (!string.IsNullOrEmpty(ReportingToIDL2Name) && employmentDetailsDictionaries.TryGetValue("Employees", out var ReportingToIDL2NameDict))
                             {
                                 ReportingToIDL2Id = ReportingToIDL2NameDict
-                                    .FirstOrDefault(kvp => kvp.Key.Contains(ReportingToIDL2Name, StringComparison.OrdinalIgnoreCase)).Value;
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(ReportingToIDL2Name.ToLower(), StringComparison.OrdinalIgnoreCase)).Value;
                                 if (ReportingToIDL2Id == 0) ReportingToIDL2Id = 0;
                             }
 
