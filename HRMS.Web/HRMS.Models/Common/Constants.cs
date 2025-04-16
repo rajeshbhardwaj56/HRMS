@@ -166,23 +166,7 @@ namespace HRMS.Models.Common
         public const string DeleteLeavePolicyDetails = "DeleteLeavePolicyDetails";
         public const string GetLeavePolicyList = "GetLeavePolicyList";
         public const string GetAllLeavePolicyDetails = "GetAllLeavePolicyDetails";
-        public const string GetAllLeavePolicyDetailsByCompanyId = "GetAllLeavePolicyDetailsByCompanyId";
-
-        public const string AddUpdatePolicyCategory = "AddUpdatePolicyCategory";
-        public const string GetAllPolicyCategory = "GetAllPolicyCategory";
-        public const string GetPolicyCategoryList = "GetPolicyCategoryList";
-        public const string DeletePolicyCategory = "DeletePolicyCategory";
-        public const string PolicyCategoryDetails = "PolicyCategoryDetails";
-
-
-
-
-        public const string AddUpdateLeavePolicyDetails = "AddUpdateLeavePolicyDetails";
-        public const string DeleteLeavePolicyDetails = "DeleteLeavePolicyDetails";
-        public const string GetLeavePolicyList = "GetLeavePolicyList";
-        public const string GetAllLeavePolicyDetails = "GetAllLeavePolicyDetails";
-        public const string GetAllLeavePolicyDetailsByCompanyId = "GetAllLeavePolicyDetailsByCompanyId";
-
+        public const string GetAllLeavePolicyDetailsByCompanyId = "GetAllLeavePolicyDetailsByCompanyId";   
 
         public const string GetLeaveForApprovals = "GetLeaveForApprovals";
         public const string AddUpdateLeavePolicy = "AddUpdateLeavePolicy";
@@ -243,32 +227,7 @@ namespace HRMS.Models.Common
         public const string GetAllWhatsHappeningDetails = "GetAllWhatsHappeningDetails";
         public const string AddUpdateWhatsHappeningDetails = "AddUpdateWhatsHappeningDetails";
         public const string DeleteWhatsHappening = "DeleteWhatsHappening";
-
-
-
-        public const string DeleteLeavesSummary = "DeleteLeavesSummary";
-        public const string GetAttendance = "GetAttendance";
-        public const string GetAttendanceForCalendar = "GetAttendanceForCalendar";
-        public const string GetTeamAttendanceForCalendar = "GetTeamAttendanceForCalendar";
-        public const string AddUpdateAttendace = "AddUpdateAttendace";
-        public const string GetAttendenceListID = "GetAttendenceListID";
-        public const string DeleteAttendanceDetails = "DeleteAttendanceDetails";
-        public const string GetMyAttendanceList = "GetMyAttendanceList";
-        public const string GetAttendanceForApproval = "GetAttendanceForApproval";
-        public const string GetApprovedAttendance = "GetApprovedAttendance";
-        public const string GetAttendanceDeviceLogs = "GetAttendanceDeviceLogs";
-        public const string GetCountryDictionary = "GetCountryDictionary";
-        public const string GetCompaniesDictionary = "GetCompaniesDictionary";
-        public const string GetEmploymentDetailsDictionaries = "GetEmploymentDetailsDictionaries";
-        public const string AddUpdateEmployeeFromExecel = "AddUpdateEmployeeFromExecel";
-        public const string GetSubDepartmentDictionary = "GetSubDepartmentDictionary";
-        
-        
-        public const string GetAllWhatsHappeningDetails = "GetAllWhatsHappeningDetails";
-        public const string AddUpdateWhatsHappeningDetails = "AddUpdateWhatsHappeningDetails";
-        public const string DeleteWhatsHappening = "DeleteWhatsHappening";
-
-
+       
 
         public const string AddUpdateWhatsHappening = "AddUpdateWhatsHappening";
         public const string GetWhatsHappenings = "GetWhatsHappenings";
