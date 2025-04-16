@@ -47,7 +47,6 @@ namespace HRMS.Models.Common
         public Attendance AttendanceModel { get; set; } = new Attendance();
       
 
-
     }
 
 

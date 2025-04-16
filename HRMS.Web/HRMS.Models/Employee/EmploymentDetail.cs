@@ -12,7 +12,6 @@ namespace HRMS.Models.Employee
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
         public long UserID { get; set; }
-
         public long DesignationID { get; set; }
         public long DepartmentID { get; set; }
 
@@ -42,8 +41,6 @@ namespace HRMS.Models.Employee
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
         public DateTime? JobSeprationDate { get; set; } 
         public bool IsActive { get; set; }
-
-       
         public bool IsDeleted { get; set; }
         public long UserID { get; set; }
         public DateTime? InsertedDate { get; set; } = DateTime.UtcNow;

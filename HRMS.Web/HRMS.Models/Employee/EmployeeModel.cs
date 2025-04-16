@@ -29,9 +29,6 @@ namespace HRMS.Models.Employee
         public string EncodedDesignationID { get; set; } = string.Empty;
         public string EncodedDepartmentIDID { get; set; } = string.Empty;
         public string EncodedCompanyID { get; set; } = string.Empty;
-
-    
-
         public long EmployeeID { get; set; }
         public Guid guid { get; set; }
         public long CompanyID { get; set; } = 1;
@@ -98,7 +95,6 @@ namespace HRMS.Models.Employee
         public string? EmployeeTypeName { get; set; } = string.Empty;
         public string? DepartmentName { get; set; } = string.Empty;
         public string? JobLocationName { get; set; } = string.Empty;
-
         public string? ReportingToNameL1 { get; set; } = string.Empty;
         public string? ReportingToNameL2 { get; set; } = string.Empty;
         public string? PayrollTypeName { get; set; } = string.Empty;

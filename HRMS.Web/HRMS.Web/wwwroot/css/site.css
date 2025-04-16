@@ -260,11 +260,11 @@ textarea.form-control {
     line-height: 34px;
     position: sticky;
     top: 0;
-<<<<<<< HEAD
+
     margin-left: auto;
     margin-right: auto;
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
+
 }
 
 .sidebar.sidemenuShow {
@@ -553,11 +553,8 @@ textarea.form-control {
 }
 
 .main-header {
-<<<<<<< HEAD
-    font-size: 18px;
-=======
+
     font-size: 20px;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     color: var(--body-bg);
     font-weight: 700;
     padding-bottom: 12px;
@@ -585,19 +582,13 @@ textarea.form-control {
     font-weight: 600;
     color: var(--body-bg);
     margin: 0px 0 30px;
-<<<<<<< HEAD
-/*    display: inline-block;*/
-/*    width: 100%;*/
-=======
-    display: inline-block;
-    width: 100%;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
 }
 
 .page-wrapper {
     margin-top: 25px;
 }
-<<<<<<< HEAD
+
 .group-box.anim label {
     font-size: 13px;
 }
@@ -622,17 +613,13 @@ button.btn.btn-light.btn-sm.border.border-2.view-announcement-btn {
     border: 2px solid white !important;
 }
     .group-box {
-=======
-
-.group-box {
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
     background: var(--theme-bg);
     padding: 20px;
     margin: 15px 0px;
     border-radius: 10px;
     border: 1px solid #d5e3ff;
 }
-<<<<<<< HEAD
+
 a.UploadExcel {
     font-size: 14px;
     color: #053776;
@@ -650,9 +637,7 @@ a.UploadExcel {
 .list-unstyled li {
     font-size: 12px;
 }
-=======
 
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 .dataTables_filter input {
     height: 34px;
     border: none;
@@ -684,7 +669,6 @@ a.UploadExcel {
 .dataTables_length {
     float: left;
     margin-bottom: 15px;
-<<<<<<< HEAD
     font-size: 14px;
 }
 tr.odd {
@@ -695,10 +679,7 @@ tr.even {
 }
 th.sorting {
     font-size: 12px;
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 }
-
 .dataTables_filter {
     float: right;
     margin-bottom: 15px;
@@ -718,10 +699,8 @@ table.dataTable {
     float: left;
     margin-top: 15px;
     padding-top: 0px !important;
-<<<<<<< HEAD
     font-size: 12px;
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
 }
 
 div.dataTables_wrapper div.dataTables_paginate {
@@ -733,10 +712,8 @@ div.dataTables_wrapper div.dataTables_paginate {
     background-color: var(--body-bg);
     text-decoration: none;
     cursor: pointer;
-<<<<<<< HEAD
     font-size: 10px;
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
 }
 
     .dataTables_wrapper .paging_simple_numbers a.current, .dataTables_wrapper .paging_simple_numbers a:hover {
@@ -890,7 +867,7 @@ table thead th, table tfoot th {
     justify-content: center;
     align-items: center;
 }
-<<<<<<< HEAD
+
     .card.main-box h6{
         font-size:16px;
     }
@@ -900,12 +877,7 @@ table thead th, table tfoot th {
 .dashboard-page .card_widget_img svg, .dashboard-page .card_widget_img svg * {
     fill: var(--theme-bg);
 }
-=======
 
-    .dashboard-page .card_widget_img svg, .dashboard-page .card_widget_img svg * {
-        fill: var(--theme-bg);
-    }
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 .dashboard-page .card.board1.fill1 .card_widget_img {
     background-image: linear-gradient(310deg, var(--secondry-color), #6cceff);
@@ -968,21 +940,13 @@ table thead th, table tfoot th {
             }
 
                 .timeOff ul li .timeOffCard h5 {
-<<<<<<< HEAD
                     font-size: 14px;
-=======
-                    font-size: 16px;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                     font-weight: 600;
                     margin-bottom: 25px;
                 }
 
                 .timeOff ul li .timeOffCard h2 {
-<<<<<<< HEAD
                     font-size: 20px;
-=======
-                    font-size: 56px;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
                     font-weight: 600;
                     line-height: 46px;
                     margin-bottom: 0px;
@@ -1009,18 +973,6 @@ table thead th, table tfoot th {
 .card-header {
     border-bottom: none;
 }
-
-<<<<<<< HEAD
-   /* .card-header h3 {
-        font-size: 24px;
-        font-weight: 600;
-    }*/
-=======
-    .card-header h6 {
-        font-size: 24px;
-        font-weight: 600;
-    }
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 .dashboard-page .card .progress {
     height: 2rem;
@@ -1052,7 +1004,6 @@ table thead th, table tfoot th {
 .dashboard-page .carousel-item {
     background-image: linear-gradient(310deg, var(--secondry-color), var(--body-bg));
     border-radius: 15px;
-<<<<<<< HEAD
 }
 
     .dashboard-page .carousel-item h5 {
@@ -1062,25 +1013,15 @@ table thead th, table tfoot th {
     }
 p.card-text {
     font-size: 13px;
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 }
-
-    .dashboard-page .carousel-item h5 {
-        margin-top: 15px;
-        margin-bottom: 0px;
-    }
-
 .person-img {
     position: relative;
     display: inline-block;
 }
-<<<<<<< HEAD
 a.font-weight-bold.text-decoration-none {
     font-size: 13px;
 }
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
 
 .celebration-type-icon {
     position: absolute;
@@ -1123,16 +1064,12 @@ section.upper-section {
     .profile-header-small-info h2 {
         color: var(--white-text-color);
         margin-bottom: 0px;
-<<<<<<< HEAD
         font-size: 20px;
     }
 .myinfo-menu {
     font-size: 14px;
 }
-=======
-    }
 
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 .joiningDate {
     font-size: 14px;
     color: #fff;
@@ -1182,13 +1119,10 @@ section.upper-section {
 
 
 /***navigation Menu*****/
-<<<<<<< HEAD
 #leaveForm h3 {
     font-size: 16px;
 }
-=======
 
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 .main-menu {
     display: flex;
     max-width: 100%;
@@ -1198,11 +1132,9 @@ section.upper-section {
         display: flex;
         margin: 0px;
         padding: 0px;
-<<<<<<< HEAD
         font-size: 14px;
         font-weight: 500;
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+
     }
 
         .main-menu > ul li {
@@ -1403,11 +1335,7 @@ section.upper-section {
 
 .tabsInfo h3 {
     margin-bottom: 20px;
-<<<<<<< HEAD
     font-size: 18px;
-=======
-    font-size: 24px;
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 }
 
 .tabsInfo .nav-link {
@@ -1445,16 +1373,12 @@ span.badge.holiday-list-text.bg-primary.rounded-pill {
     border-top: none !important;
 }
 
-<<<<<<< HEAD
 .fc-state-active, .fc-state-down {
     background-color: #053572;
     background-image: none;
     box-shadow: inset 0 2px 4px rgba(0,0,0,.15),0 1px 2px rgba(0,0,0,.05);
     color: white;
 }
-=======
-
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
 
 /****************responsive css*******************/
 @media (max-width: 1024px) {
@@ -1632,7 +1556,6 @@ span.badge.holiday-list-text.bg-primary.rounded-pill {
         font-weight: 600;
     }
 }
-<<<<<<< HEAD
 
 .btn-primary {
     color: #fff;
@@ -1653,6 +1576,6 @@ span.badge.holiday-list-text.bg-primary.rounded-pill {
     color: white;
     font-weight: bold;
     border-radius: 5px;
+
 }
-=======
->>>>>>> 8da7dfbc1ac23bd8f84877ccd188f2c120e85b39
+

@@ -58,6 +58,7 @@ namespace HRMS.Models.LeavePolicy
 
 
 
+
         public int MaximumLeaveAllocationAllowed { get; set; }
         public int ApplicableAfterWorkingDays { get; set; }
         public int MaximumConsecutiveLeavesAllowed { get; set; }
@@ -74,6 +75,7 @@ namespace HRMS.Models.LeavePolicy
         public int MaximumEarnedLeaveAllowed { get; set; }
         public int MaximumMedicalLeaveAllocationAllowed { get; set; }
         public int MaximumCompOffLeaveAllocationAllowed { get; set; }
+
 
     }
 }
