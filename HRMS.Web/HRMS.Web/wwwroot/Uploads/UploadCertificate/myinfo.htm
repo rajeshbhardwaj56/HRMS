@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <!-- Character encoding for UTF-8 -->
+    <meta charset="UTF-8">
+    <!-- Viewport settings for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title of the webpage -->
+    <!-- Bootstrap CSS file -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css" />
+    <!-- Favicon for the webpage -->
+    <link type="image/x-icon" href="../assets/img/favicon/favicon.ico" rel="shortcut icon">
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/41.2.1/decoupled-document/ckeditor.css">
+
+
+    <title>Employee - HRMS.Web</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/site.css?v=6deZPECBMAFP32Bv8Y3mT7ZUubxhlLMYmCkUXs7Cfr8" />
+    <link rel="stylesheet" href="/css/ck-editor.css?v=re5LJzdE4pGBH8seb_eisB5Vv-xRCg1EjnZMvUrv0Uk" />
+    <link rel="stylesheet" href="/HRMS.Web.styles.css?v=rkOSDZHcGfgcLs0tPyFCu37YY-Cu6mT-2uOJnB5RV30" />
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/site.js?v=4q1jwFhaPaZgr8WAUSrux6hAuh0XDg9kPS3xIVq36I0"></script>
+    <script src="/assets/js/datatables.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.css" />
+    <link href="/assets/css/custom.css" rel="stylesheet" />
+    <link href="/assets/css/datatables.bootstrap.css" rel="stylesheet" />
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/decoupled-document/ckeditor.js"></script>
+    <script src="/assets/js/jquery.toast.js"></script>
+</head>
+<body>
+
+
+
+    <div class="custome-container">
+        <div class="sidebar">
+            <a class="logo" href="/Admin/Home"><img src="/assets/img/logo/logo-small.png" style="width:50px; height:50px;" /></a>
+            <a class="logo-expand" href="/Admin/Home"><img src="/assets/img/logo/Protalk_Logo-small.png" style="width:150px;" /></a>
+
+
+            <div class="side-wrapper">
+                <div class="side-menu">
+                    <a class="sidebar-link is-active" href="/hr/employee">
+                        <svg viewBox="0 0 512 512" fill="currentColor">
+                            <g>
+                                <path class="st0" d="M256.008,411.524c54.5,0,91.968-7.079,92.54-13.881c2.373-28.421-34.508-43.262-49.381-48.834
+		    c-7.976-2.984-19.588-11.69-19.588-17.103c0-3.587,0-8.071,0-14.214c4.611-5.119,8.095-15.532,10.183-27.317
+		    c4.857-1.738,7.627-4.524,11.095-16.65c3.69-12.93-5.548-12.5-5.548-12.5c7.468-24.715-2.357-47.944-18.825-46.246
+		    c-11.358-19.857-49.397,4.54-61.31,2.841c0,6.818,2.834,11.92,2.834,11.92c-4.143,7.882-2.548,23.564-1.389,31.485
+		    c-0.667,0-9.016,0.079-5.468,12.5c3.452,12.126,6.23,14.912,11.088,16.65c2.079,11.786,5.571,22.198,10.198,27.317
+		    c0,6.143,0,10.627,0,14.214c0,5.413-12.35,14.548-19.611,17.103c-14.953,5.262-51.746,20.413-49.373,48.834
+		    C164.024,404.444,201.491,411.524,256.008,411.524z" />
+                                <path class="st0" d="M404.976,56.889h-75.833v16.254c0,31.365-25.524,56.889-56.889,56.889h-32.508
+		    c-31.366,0-56.889-25.524-56.889-56.889V56.889h-75.834c-25.444,0-46.071,20.627-46.071,46.071v362.969
+		    c0,25.444,20.627,46.071,46.071,46.071h297.952c25.445,0,46.072-20.627,46.072-46.071V102.96
+		    C451.048,77.516,430.421,56.889,404.976,56.889z M402.286,463.238H109.714V150.349h292.572V463.238z" />
+                                <path class="st0" d="M239.746,113.778h32.508c22.405,0,40.635-18.23,40.635-40.635V40.635C312.889,18.23,294.659,0,272.254,0
+		    h-32.508c-22.406,0-40.635,18.23-40.635,40.635v32.508C199.111,95.547,217.341,113.778,239.746,113.778z M231.619,40.635
+		    c0-4.492,3.634-8.127,8.127-8.127h32.508c4.492,0,8.127,3.635,8.127,8.127v16.254c0,4.492-3.635,8.127-8.127,8.127h-32.508
+		    c-4.493,0-8.127-3.635-8.127-8.127V40.635z" />
+                            </g>
+                        </svg>
+                        <span>New Employee</span>
+                    </a>
+                    <a class="sidebar-link" href="/hr/employee/EmployeeListing">
+                        <svg viewBox="0 0 17 17" fill="currentColor">
+                            <path d="M15 5h-9v-1h9v1zM6 6v1h11v-1h-11zM0 8h5v-5h-5v5zM15 11h-9v1h9v-1zM6 14h11v-1h-11v1zM0 15h5v-5h-5v5z" />
+                        </svg>
+                        <span>Employee Listing</span>
+                    </a>
+                    <a class="sidebar-link" href="/employee/myinfo">
+                        <svg viewBox="0 0 1920 1920" fill="currentColor">
+                            <path d="M852.517 606.04C722.804 666.467 612.48 770.67 502.075 923.02c-15.746 21.725-16.38 34.927-.205 46.602 11.372 8.209 17.98 5.583 34.542-12.088 2.217-2.38 2.217-2.38 4.484-4.84 14.318-15.505 25.852-28.662 50.49-57.274 81.407-94.538 121.17-133.45 182.968-169.038 53.478-30.795 100.476 14.462 91.527 72.38-2.51 16.258-6.836 28.257-17.978 54.022-4.432 10.249-6.302 14.707-8.38 20.171-20.085 52.8-37.002 96.846-72.451 188.834l-1.696 4.4c-10.718 27.813-10.718 27.813-21.427 55.62-46.426 120.661-74.598 194.652-103.665 272.901l-1.705 4.587c-7.8 20.975-11.474 30.871-15.534 41.881-33.306 90.321-52.353 149.007-66.84 211.427-2.262 9.713-2.262 9.713-4.556 19.584-8.162 35.31-12.53 58.062-14.972 81.448-4.222 40.439-.827 73.553 11.881 101.382 14.38 31.493 45.278 54.021 80.532 59.138 58.727 8.525 115.393 7.92 163.927-3.123 27.314-6.21 54.338-14.34 80.853-24.306 76.773-28.866 150.735-73.905 222.371-133.442 62.681-52.236 121.988-115.875 184.165-194.965 5.42-6.849 5.42-6.849 10.823-13.686 18.78-23.947 27.981-39.501 31.416-55.93 3.736-17.836-11.342-35.912-23.394-29.864-5.956 2.989-12.187 9.176-21.68 21.15-6.791 8.714-10.483 13.37-14.178 17.555-14.745 16.695-30.315 33.783-47.184 51.837-27.812 29.752-56.07 58.865-97.055 100.308-20.874 21.107-47.126 39.56-75.351 53.435-45.176 22.197-85.929-5.782-81.034-55.857 3.229-33.058 11.238-67.234 23.212-100.275 26.157-72.22 47.544-130.604 94.86-259.27 20.52-55.803 29.38-79.91 40.446-110.086 32.81-89.425 59-161.415 83.919-230.875 30.784-85.803 48.175-149.762 56.227-215.81 6.08-49.817-7.78-97.46-39.389-130.216-35.047-36.312-84.896-53.039-146.979-52.305-68.692.817-148.82 23.261-222.548 57.608Zm470.186-592.224c-123.444-48.028-271.57 34.483-296.373 165.169-17.984 94.72 17.4 176.498 89.622 210.751 143.165 67.897 314.982-40.897 314.989-199.468.007-88.211-37.668-148.991-108.238-176.452Z" />
+                        </svg>
+                        <span>My Info</span>
+                    </a>
+                    <a class="sidebar-link" href="/hr/company">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11 20H21V10C21 8.89543 20.1046 8 19 8H15M11 16H11.01M17 16H17.01M7 16H7.01M11 12H11.01M17 12H17.01M7 12H7.01M11 8H11.01M7 8H7.01M15 20V6C15 4.89543 14.1046 4 13 4H5C3.89543 4 3 4.89543 3 6V20H15Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        </span>New Company</span>
+                    </a>
+                    <a class="sidebar-link" href="/hr/company/CompanyListing">
+                        <svg viewBox="0 0 48 48" fill="currentColor">
+                            <rect x="4" y="6" width="40" height="36" rx="3" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M4 14H44" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M20 24H36" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M20 32H36" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M12 24H14" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M12 32H14" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>Company Listing</span>
+                    </a>
+
+
+                    <a class="sidebar-link" href="/admin/AttendenceList/AttendenceListing">
+                        <svg viewBox="0 0 17 17" fill="currentColor">
+                            <path d="M15 5h-9v-1h9v1zM6 6v1h11v-1h-11zM0 8h5v-5h-5v5zM15 11h-9v1h9v-1zM6 14h11v-1h-11v1zM0 15h5v-5h-5v5z" />
+                        </svg>
+                        <span>Attendence Listing</span>
+                    </a>
+
+                    <a class="sidebar-link" href="/admin/ShiftType/ShiftTypeListing">
+                        <svg viewBox="0 0 17 17" fill="currentColor">
+                            <path d="M15 5h-9v-1h9v1zM6 6v1h11v-1h-11zM0 8h5v-5h-5v5zM15 11h-9v1h9v-1zM6 14h11v-1h-11v1zM0 15h5v-5h-5v5z" />
+                        </svg>
+                        <span>Shift Type</span>
+                    </a>
+
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                &copy; 2024 - HRMS.Web
+
+            </div>
+        </div>
+        <div class="wrapper">
+            <button class="toggleBtn" type="button">
+                <svg width="30px" height="30px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+
+                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                        <g id="Icon-Set-Filled" sketch:type="MSLayerGroup" transform="translate(-258.000000, -1089.000000)" fill="#0088cc">
+                            <path d="M281,1106 L270.414,1106 L274.536,1110.12 C274.926,1110.51 274.926,1111.15 274.536,1111.54 C274.145,1111.93 273.512,1111.93 273.121,1111.54 L267.464,1105.88 C267.225,1105.64 267.15,1105.31 267.205,1105 C267.15,1104.69 267.225,1104.36 267.464,1104.12 L273.121,1098.46 C273.512,1098.07 274.145,1098.07 274.536,1098.46 C274.926,1098.86 274.926,1099.49 274.536,1099.88 L270.414,1104 L281,1104 C281.552,1104 282,1104.45 282,1105 C282,1105.55 281.552,1106 281,1106 L281,1106 Z M274,1089 C265.164,1089 258,1096.16 258,1105 C258,1113.84 265.164,1121 274,1121 C282.836,1121 290,1113.84 290,1105 C290,1096.16 282.836,1089 274,1089 L274,1089 Z" id="arrow-left-circle" sketch:type="MSShapeGroup">
+
+                            </path>
+                        </g>
+                    </g>
+                </svg>
+            </button>
+            <div class="header">  
+                <div class="nav-toggle">
+                    <a class="btn--toggle nav-link" href="#" data-target="#collapse">
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 12H20M4 8H20M4 16H12" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </a>
+                </div>
+                <div class="nav-collapse" id="collapse">
+                    <nav role="navigation" class="main-menu">
+                        <ul class="nav-list">
+                            <li class="nav-list__item"><a class='nav-link' href="#">Dashboard</a></li>
+                            <li class="nav-list__item submenu--triggers">
+                                <a class='nav-link' href="/admin/Template/TemplateListing">Templates<i class="caret-down-icon"></i></a>
+                                <ul class="submenu">
+                                    <li class="nav-list__item"><a class='nav-link' href="/admin/Template/TemplateListing">First Sub Item</a></li>
+                                    <li class="nav-list__item third-submenu--trigger">
+                                        <a class='nav-link' href="#">Sub Item 2<i class="caret-down-icon"></i></a>
+                                        <ul class="third-submenu">
+                                            <li class="nav-list__item"><a class='nav-link' href="#">Second level sub 1</a></li>
+                                            <li class="nav-list__item"><a class='nav-link' href="#">Second level sub 2</a></li>
+                                            <li class="nav-list__item"><a class='nav-link' href="#">Second level sub 3</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class="nav-list__item"><a class='nav-link' href="#">Sub 3</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-list__item"><a class='nav-link' href="/admin/LeavePolicy/LeavePolicyListing">Leave Policy</a></li>
+                            <li class="nav-list__item"><a class='nav-link' href="/admin/Holiday/HolidayListing">Holidays</a></li>
+                           
+                        </ul>
+                    </nav>
+                </div>
+
+
+                <div class="search-bar">
+                    <input type="text" placeholder="Search">
+                </div>
+                <div class="user-settings dropdown">
+                    <a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                        <img class="user-img" src="/assets/img/No_image.png" onerror="this.onerror=null; this.src='/assets/img/No_image.png'" alt="" style="width:40px; height:40px;">
+                        <div class="user-name">Ram7 Singh</div>
+                        <svg viewBox="0 0 492 492" fill="currentColor">
+                            <path d="M484.13 124.99l-16.11-16.23a26.72 26.72 0 00-19.04-7.86c-7.2 0-13.96 2.79-19.03 7.86L246.1 292.6 62.06 108.55c-5.07-5.06-11.82-7.85-19.03-7.85s-13.97 2.79-19.04 7.85L7.87 124.68a26.94 26.94 0 000 38.06l219.14 219.93c5.06 5.06 11.81 8.63 19.08 8.63h.09c7.2 0 13.96-3.57 19.02-8.63l218.93-219.33A27.18 27.18 0 00492 144.1c0-7.2-2.8-14.06-7.87-19.12z"></path>
+                        </svg>
+                    </a>
+
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown" data-bs-popper="none">
+                        <div class="dropdown-item">
+                            <div class="d-flex py-2">
+                                <div class="avatar avatar-md avatar-indicators avatar-online">
+                                    <img alt="avatar" src="/assets/img/No_image.png" onerror="this.onerror=null; this.src='/assets/img/No_image.png'"
+                                         style="width:40px; height:40px;" class="rounded-circle">
+                                </div>
+                                <div class="ml-3 lh-1">
+                                    <h6 class="mb-0">Ram7 Singh</h6>
+                                    <p class="mb-0">ramsinghmscit@gmail.com</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="">
+                            <ul class="list-unstyled">
+
+                                <li>
+                                    <a class="dropdown-item" href="/employee/myinfo/index">
+                                        <span class="mr-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                        </span>
+                                        Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <span class="mr-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings">
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                            </svg>
+                                        </span>
+                                        Settings
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <ul class="list-unstyled">
+                            <li>
+                                <a class="dropdown-item" href="/">
+                                    <span class="mr-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-power">
+                                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                                        </svg>
+                                    </span>
+                                    Sign Out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <a href="#" class="notify">
+                    <div class="notification">10</div>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M18.707 8.796c0 1.256.332 1.997 1.063 2.85.553.628.73 1.435.73 2.31 0 .874-.287 1.704-.863 2.378a4.537 4.537 0 01-2.9 1.413c-1.571.134-3.143.247-4.736.247-1.595 0-3.166-.068-4.737-.247a4.532 4.532 0 01-2.9-1.413 3.616 3.616 0 01-.864-2.378c0-.875.178-1.682.73-2.31.754-.854 1.064-1.594 1.064-2.85V8.37c0-1.682.42-2.781 1.283-3.858C7.861 2.942 9.919 2 11.956 2h.09c2.08 0 4.204.987 5.466 2.625.82 1.054 1.195 2.108 1.195 3.745v.426zM9.074 20.061c0-.504.462-.734.89-.833.5-.106 3.545-.106 4.045 0 .428.099.89.33.89.833-.025.48-.306.904-.695 1.174a3.635 3.635 0 01-1.713.731 3.795 3.795 0 01-1.008 0 3.618 3.618 0 01-1.714-.732c-.39-.269-.67-.694-.695-1.173z"></path>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="main-container" role="main">
+                <style>
+    .fade:not(.show) {
+        opacity: 0;
+        display: none !important;
+    }
+</style>
+
+
+<section class="upper-section d-flex">
+
+    <div class="container-fluid">
+        <div class="profile-header d-flex ">
+            <div class="profile-header-img">
+                <img src="/assets/img/No_image.png" onerror="this.onerror=null; this.src='/assets/img/No_image.png'" class="rounded-circle fixed z-5" />
+            </div>
+            <div class="profile-header-small-info">
+                <h2>Ram7 Kumar Singh</h2>
+                <p class="joiningDate">
+                    <b>Joining Date:</b> &nbsp;Thu, 04 Apr 2024 &nbsp;
+                            <span>0y - 214d</span>
+                </p>
+
+                <div class="myinfo-menu">
+                    <ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabPersonalInfo" role="tab" aria-controls="TabPersonalInfo" aria-selected="true" tabindex="-1">Personal Info</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#TabProfessionalInfo" role="tab" aria-controls="TabProfessionalInfo" aria-selected="false">Professional Info</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#TabLeavesForApproval" role="tab" aria-controls="TabLeavesForApproval" aria-selected="false" tabindex="-1">Leaves For Approval</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabLeaveInfo" role="tab" aria-controls="TabLeaveInfo" aria-selected="false" tabindex="-1">Leave Info</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Separation</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lower-section">
+    <div class="container-fluid">
+        <div class="row">
+
+
+            <div class="col-md-12 py-4">
+                <div class="tab-content" id="myTabContentSection">
+                    <div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
+                        <div class="row">
+                            <div class="col-lg-12">
+
+                                <div class="tab-pane fade active show" id="TabPersonalInfo" role="tabpanel" aria-labelledby="TabPersonalInfo-tab">
+
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo">
+                                            <form class="body-text" method="post" enctype="multipart/form-data">
+                                                <h3>Personal Info</h3>
+                                                <div class="row">
+
+
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Name</h6>
+                                                        Ram7 Kumar Singh
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>ID</h6>
+                                                        ELS0349
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Status</h6>
+                                                        Active - Full Time
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Designation</h6>
+                                                        Business Analyst
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Department</h6>
+                                                        Operations
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Location</h6>
+                                                        Mohali, Punjab
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Date of Birth</h6>
+                                                        27-03-2024 00:00:00
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Place of Birth</h6>
+                                                        Place of Birth
+                                                    </div>
+                                                </div>
+
+
+                                                <hr />
+
+
+
+
+                                                <div class="row">
+                                                    <div class="col-lg-12 col-md-12 mb-2">
+                                                        <h6>Address of Currespondence</h6>
+                                                        Address of Currespondence
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6> City</h6>
+                                                        City
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Pin</h6>
+                                                        Pin
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>State</h6>
+                                                        sad
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Country</h6>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Landline</h6>
+                                                        
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Mobile</h6>
+                                                        08422222224
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 mb-2">
+                                                        <h6>Personal Email Address</h6>
+                                                        Ram7@email.com
+                                                    </div>
+                                                </div>
+                                                <hr />
+
+                                                <div class="row">
+                                                    <div class="col-lg-12 col-md-12 mb-2">
+                                                        <h6>Permanent Address</h6>
+                                                        Address of Currespondence
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>City</h6>
+                                                        City
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Pin</h6>
+                                                        Pin
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>State</h6>
+                                                        Pin
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 mb-2">
+                                                        <h6>Country</h6>
+                                                    </div>
+                                                </div>
+                                                <hr />
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Contact Person</h6>
+                                                        Ram Kumar Singh
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Contact No</h6>
+                                                        08422222222
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Telephone No</h6>
+                                                        08422222222
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="TabProfessionalInfo" role="tabpanel" aria-labelledby="TabProfessionalInfo-tab">
+                                    <div class="group-box anim">
+
+                                        <div class="tabsInfo" id="myTabContent-timeoff">
+                                            <h3>Professional Info</h3>
+
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="TabLeavesForApproval" role="tabpanel" aria-labelledby="TabLeavesForApproval-tab">
+
+
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo" id="myTabContent-timeoff">
+                                            <h3>Leaves For Approval</h3>
+
+                                        </div>
+                                        <div role="tabpanel" aria-labelledby="apply-tab">
+                                            <div class="row">
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="first" style="visibility:hidden"> </th>
+                                                                        <th>Employee Number</th>
+                                                                        <th>Employee Name</th>
+                                                                        <th>From Date</th>
+                                                                        <th>To Date</th>
+                                                                        <th>Reason</th>
+                                                                        <th>Action</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                       
+                                                                        <td class="first" style="visibility:hidden">>1</td>
+                                                                        <td>1001</td>
+                                                                        <td>John Doe</td>
+                                                                        <td>12-03-2024</td>
+                                                                        <td>20-03-2024</td>
+                                                                        <td>Annual leave</td>
+                                                                        <td>
+                                                                            <a data-toggle="tooltip" data-placement="top" class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#" title="" data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>
+                                                                        </td> <!-- Empty for dynamic content -->
+                                                                     </tr>
+                                                                 </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="TabLeaveInfo" role="tabpanel" aria-labelledby="TabLeaveInfo-tab">
+
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo" id="">
+                                            <h3>Leave Info</h3>
+                                            <nav>
+                                                <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
+                                                    <button class="nav-link active" id="apply-leave-tab1" data-bs-toggle="tab" data-bs-target="#apply-leave-tab" type="button" role="tab" aria-controls="apply-leave-tab" aria-selected="true">Apply Leave</button>
+                                                    <button class="nav-link  " id="leave-summary-tab1" data-bs-toggle="tab" data-bs-target="#leave-summary-tab" type="button" role="tab" aria-controls="leave-summary-tab" aria-selected="false">Leave Summary</button>
+                                                </div>
+                                            </nav>
+                                            <div class="tab-content" id="nav-tabContent">
+                                                <div class="tab-pane fade show active" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
+                                                    <div class="row">
+                                                        <div class="col-lg-8">
+
+                                                            <div class="">
+                                                                <div class="">
+                                                                    <form class="body-text" method="post" enctype="multipart/form-data">
+
+                                                                        <div class="row py-2">
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label for="leavetype" class="">Leave Type:</label>
+                                                                                <input data-val="true" data-val-required="The CompanyID field is required." id="leaveResults_leaveSummaryModel_CompanyID" name="leaveResults.leaveSummaryModel.CompanyID" type="hidden" value="0" />
+                                                                                <input data-val="true" data-val-required="The LeaveSummaryID field is required." id="leaveResults_leaveSummaryModel_LeaveSummaryID" name="leaveResults.leaveSummaryModel.LeaveSummaryID" type="hidden" value="0" />
+                                                                                <input data-val="true" data-val-required="The EmployeeID field is required." id="leaveResults_leaveSummaryModel_EmployeeID" name="leaveResults.leaveSummaryModel.EmployeeID" type="hidden" value="0" />
+                                                                                <input data-val="true" data-val-required="The UserID field is required." id="leaveResults_leaveSummaryModel_UserID" name="leaveResults.leaveSummaryModel.UserID" type="hidden" value="0" />
+                                                                                <select class="form-control" data-val="true" data-val-required="The LeaveTypeID field is required." id="leaveTypeDropdown" name="leaveResults.leaveSummaryModel.LeaveTypeID" required="required"><option value="">-- Select Leave Type --</option>
+<option value="1">Maternity Leave</option>
+<option value="2">Adoption </option>
+<option value="3">Annual Leave</option>
+<option value="5">Miscarriage</option>
+<option value="7">Paternity Leave</option>
+</select>
+
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12" id="leaveDurationContainer">
+                                                                                <label for="leavetype" class="">Leave Duration:</label>
+                                                                                <select class="form-control" data-val="true" data-val-required="The LeaveDurationTypeID field is required." id="leaveDurationDropdown" name="leaveResults.leaveSummaryModel.LeaveDurationTypeID"><option value="">-- Select --</option>
+<option value="1">Full Day</option>
+<option value="2">Half Day</option>
+</select>
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12" id="ChildDOBDateContainer">
+                                                                                <!-- New ID for toggling -->
+                                                                                <label for="datepicker2" class="">Child DOB:</label>
+                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv3">
+                                                                                        <input class="form-control body-text" data-val="true" data-val-required="The ChildDOB field is required." id="leaveResults_leaveSummaryModel_ChildDOB" min="2024-11-04" name="leaveResults.leaveSummaryModel.ChildDOB" type="date" value="2024-11-04" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
+                                                                            <div class="col-lg-6 col-md-12" id="fromdatetime">
+                                                                                <label for="datepicker1" class="">From:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv1">
+                                                                                        <input class="form-control body-text" data-val="true" data-val-required="The StartDate field is required." id="leaveResults_leaveSummaryModel_StartDate" min="2024-11-04" name="leaveResults.leaveSummaryModel.StartDate" type="date" value="2024-11-04" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-lg-6 col-md-12" id="todatetime">
+                                                                                <label for="datepicker2" class="">To:</label>
+                                                                                <div class="position-relative">
+                                                                                    <input class="form-control body-text" data-val="true" data-val-required="The EndDate field is required." id="leaveResults_leaveSummaryModel_EndDate" min="2024-11-04" name="leaveResults.leaveSummaryModel.EndDate" type="date" value="2024-11-04" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                                    <div class="input-group date" id="datepickerdiv2">
+                                                                        </div>
+
+                                                                        <div class="row py-2 halfDayContainer" id="halfDayContainer">
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label for="datepicker1" class="">Date:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv1">
+                                                                                        <input class="form-control body-text" data-val="true" data-val-required="The HalfDayDate field is required." id="leaveResults_leaveSummaryModel_HalfDayDate" min="2024-11-04" name="leaveResults.leaveSummaryModel.HalfDayDate" type="date" value="2024-11-04" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div class="row py-2 MaternityAdoptionMiscarrageContainer " id="MaternityAdoptionMiscarrageContainer">
+                                                                            <div class="col-lg-6 col-md-12" id="expectedDeliveryDateContainer">
+                                                                                <!-- New ID for toggling -->
+                                                                                <label for="datepicker2" class="">Expected Delivery Date:</label>
+                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
+
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv3">
+                                                                                        <input class="form-control body-text" data-val="true" data-val-required="The ExpectedDeliveryDate field is required." id="leaveResults_leaveSummaryModel_ExpectedDeliveryDate" min="2024-11-04" name="leaveResults.leaveSummaryModel.ExpectedDeliveryDate" type="date" value="2024-11-04" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label>Upload Certificate:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group ">
+
+                                                                                        <input type="file" name="postedFiles" class="form-control body-text" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row py-3 mb-1">
+                                                                            <div class="col-lg-12">
+                                                                                <label for="Reason" class="">Reason:</label>
+                                                                                <div class="input-group">
+                                                                                    <textarea class="form-control" data-val="true" data-val-required="The Reason field is required." id="leaveResults_leaveSummaryModel_Reason" name="leaveResults.leaveSummaryModel.Reason" required="required">
+</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
+                                                                        <a href="/employee/MyInfo/Index/" class="btn btn-danger" type="reset">Cancel</a>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4 px-4">
+                                                            <div class="card mb-3" style="height:60px;">
+                                                                <div class="card-body">
+                                                                    <ul class="list-group" style="width:100%;">
+                                                                        <li class="d-flex justify-content-between align-items-center ">
+                                                                            <b>Annual Leave Balance</b>
+                                                                            <span class="badge rounded-pill" style="background-color: #05397b">14/14</span>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="card p-3">
+                                                                <div class="accordion accordion-flush" id="accordionFlushExample">
+                                                                    <div class="accordion-item">
+                                                                        <h2 class="accordion-header" id="flush-headingOne">
+                                                                            <button class="accordion-button collapsed   z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                                                                                Holiday List
+                                                                            </button>
+                                                                        </h2>
+                                                                        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                                                            <div class="mt-3">
+                                                                                <ul class="list-group ">
+                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                            01-01-2025 -  01-01-2025
+                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Republic Day</span>
+                                                                                        </li>
+                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                            11-04-2024 -  11-04-2024
+                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Eid al-Fitr</span>
+                                                                                        </li>
+                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                            10-05-2024 -  10-05-2024
+                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Lord Parshuram Jayanti</span>
+                                                                                        </li>
+                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                            08-11-2026 -  16-11-2026
+                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Indian Independence Day</span>
+                                                                                        </li>
+                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                                            31-10-2024 -  01-11-2024
+                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">Diwali</span>
+                                                                                        </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="tab-pane fade" id="leave-summary-tab" role="tabpanel" aria-labelledby="leave-summary-tab1">
+
+                                                    <div class="row">
+                                                        <div class="col-12 col-lg-12">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-striped body-text dataTable no-footer">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Request Date</th>
+                                                                            <th>Start Date</th>
+                                                                            <th>End Date</th>
+                                                                            <th>Type</th>
+                                                                            <th>Days</th>
+                                                                            <th>Status</th>
+                                                                            <th>Actions</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                            <tr>
+                                                                                <td>25-10-2024 18:08:49</td>
+                                                                                <td>31/10/2024</td>
+                                                                                <td>21-11-2024</td>
+                                                                                <td>Miscarriage</td>
+                                                                                <td>
+                                                                                        <span class="fw-bold text-primary">
+                                                                                            22.0
+                                                                                        </span>
+
+
+
+                                                                            </td>
+                                                                                        <td><span class="fw-bold text-primary">Pending Approval</span></td>
+
+                                                                                    <td>
+                                                                                        <a href="/employee/MyInfo/Index/?id=MzM=" id="editButton"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+
+                                                                                        <form action="/employee/MyInfo/DeleteLeavesSummary" method="post" style="display:inline;">
+                                                                                            <input type="hidden" name="id" value="MzM=" />
+                                                                                            <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
+                                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
+                                                                                            </button>
+                                                                                        </form>
+
+
+                                                                                    </td>
+
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>25-10-2024 18:07:21</td>
+                                                                                <td>25/10/2024</td>
+                                                                                <td>25-10-2024</td>
+                                                                                <td>Annual Leave</td>
+                                                                                <td>
+                                                                                        <span class="fw-bold text-primary">
+                                                                                            1.0
+                                                                                        </span>
+
+
+
+                                                                            </td>
+                                                                                        <td><span class="fw-bold text-primary">Pending Approval</span></td>
+
+                                                                                    <td>
+                                                                                        <a href="/employee/MyInfo/Index/?id=MzI=" id="editButton"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+
+                                                                                        <form action="/employee/MyInfo/DeleteLeavesSummary" method="post" style="display:inline;">
+                                                                                            <input type="hidden" name="id" value="MzI=" />
+                                                                                            <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
+                                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
+                                                                                            </button>
+                                                                                        </form>
+
+
+                                                                                    </td>
+
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td>25-10-2024 17:47:34</td>
+                                                                                <td>21/2/2025</td>
+                                                                                <td>28-2-2025</td>
+                                                                                <td>Annual Leave</td>
+                                                                                <td>
+                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Exceeding maximum consecutive allowed 3 days limit" style="cursor: pointer; background: red; color: white !important;">
+                                                                                            6.0
+                                                                                        </span>
+
+
+
+                                                                            </td>
+                                                                                        <td><span class="fw-bold text-primary">Pending Approval</span></td>
+
+                                                                                    <td>
+                                                                                        <a href="/employee/MyInfo/Index/?id=Mjk=" id="editButton"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+
+                                                                                        <form action="/employee/MyInfo/DeleteLeavesSummary" method="post" style="display:inline;">
+                                                                                            <input type="hidden" name="id" value="Mjk=" />
+                                                                                            <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
+                                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
+                                                                                            </button>
+                                                                                        </form>
+
+
+                                                                                    </td>
+
+                                                                            </tr>
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                                <div class="tab-pane fade" id="TabTimeOff" role="tabpanel" aria-labelledby="TabTimeOff-tab">
+
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo" id="">
+                                            <h3>Time Off</h3>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<div class="modal fade" id="ApproveRejectModel" tabindex="-1" role="dialog" aria-labelledby="ApproveRejectModelLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ApproveRejectModelLabel">Leave Approval</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Leave Action for Employee</p>
+                <p>Employee Name: <span id="modalEmployeeName"></span></p>
+                <p>Leave Dates: <span id="modalLeaveDates"></span></p>
+                <p>Reason: <span id="modalLeaveReason"></span></p>
+                <textarea class="form-control mt-3" id="ApproveRejectComment" placeholder="Add comments here..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-danger">Reject</button>
+                <button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-success">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var leaveSummaryID;
+
+   
+
+
+    function ApproveRejectLeave(isApproved) {
+        let data = {
+            leaveSummaryID: leaveSummaryID,
+            isApproved: isApproved,
+            ApproveRejectComment: $("#ApproveRejectComment").val()
+        };
+        var urlData = '/Employee/myinfo/ApproveRejectLeave/';
+        $.post(urlData, data, function (json) {
+            $("#ApproveRejectComment").val("");
+            CloseApproveRejectModel();
+            $.toast({
+                heading: 'Success',
+                text: "Leave status updated successfully.",
+                showHideTransition: 'slide',
+                icon: 'success',
+                position: 'top-right',
+            });
+
+            AutoReload();
+
+
+        });
+
+
+    }
+
+    function OpenApproveRejectModel(rowData) {
+        leaveSummaryID = rowData;
+        $('#ApproveRejectModel').modal('show');
+    }
+
+
+
+    function CloseApproveRejectModel() {
+        $('#ApproveRejectModel').modal('hide');
+    }
+   
+
+    // function InitOverviewDataTable() {
+    //     oOverviewTable = $('#tblLeavesForApproval').DataTable({
+    //         "ordering": true,
+    //         "paging": true,
+    //         "searching": true,
+    //         "info": true,
+    //         "columns": [
+    //              { "data": "leaveSummaryID", "autoWidth": true, }, 
+    //             { "data": "employeeNumber", "autoWidth": true },
+    //             { "data": "employeeName", "autoWidth": true },
+    //             { "data": "startDateFormatted", "autoWidth": true },
+    //             { "data": "endDateFormatted", "autoWidth": true },
+    //             { "data": "reason", "autoWidth": true },
+    //             {
+    //                 // this is Actions Column
+    //                 mRender: function (data, type, row) {
+    //                     var linkEdit = "<a data-toggle='tooltip' data-placement='top'  class='item' onclick='OpenApproveRejectModel(" + row.leaveSummaryID + ")' href='#'  title=''  data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
+
+    //                     return linkEdit;
+    //                 }
+    //             },
+
+
+    //             // { "data": "title", "autoWidth": true },
+    //             // // { "data": "description", "autoWidth": true },
+
+    //             // {
+    //             //     // this is Actions Column
+    //             //     mRender: function (data, type, row) {
+    //             //         return row["description"];
+    //             //     }
+    //             // },
+    //             // { "data": "status", "autoWidth": true },
+    //             // { "data": "createdDate", "autoWidth": true },
+
+    //             // // {
+    //             // //     // this is Actions Column
+    //             //     mRender: function (data, type, row) {
+    //             //         // alert(JSON.stringify(row))
+    //             //         var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="/employee/BriefingUpdate?id=' + row.briefingUpdateID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+    //             //         return linkEdit;
+    //             //     }
+    //             // },
+
+    //             // {
+    //             //     // this is Actions Column
+    //             //     mRender: function (data, type, row) {
+    //             //         // alert(JSON.stringify(row))
+    //             //         var linkDelete = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" onclick="DeleteBriefingUpdate(' + row.briefingUpdateID + ')" href="#"  title=""  data-original-title="Edit"><img src="/assets/img/delete.png" width="20" height="20" /></a>';
+    //             //         return linkDelete;
+    //             //     }
+    //             // }
+
+    //             // for edit icon = < i class= "mdi mdi-border-color" ></i >
+    //             // for delete icon =  <i class="mdi mdi-delete"></i>
+    //         ],
+    //         "columnDefs": [
+    //             {
+    //                 target: 2,
+    //                 visible: false,
+    //                 searchable: false
+    //             },
+
+    //             {
+
+    //                 "targets": [0], //first and last not sortable
+    //                 "orderable": false,
+    //                 "visible": false
+    //             },
+
+    //             {
+
+    //                 "targets": [1], //first and last not sortable
+    //                 "orderable": true,
+    //                 "defaultContent": " "
+    //             }
+
+    //         ]
+    //         , "responsive": true
+
+    //     });
+    // }
+
+    function RefreshTable(tableId, urlData) {
+        $.post(urlData, null, function (json) {
+            table = $(tableId).dataTable();
+            oSettings = table.fnSettings();
+
+            table.fnClearTable(this);
+
+            for (var i = 0; i < json.data.length; i++) {
+                table.oApi._fnAddData(oSettings, json.data[i]);
+            }
+
+            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+            table.fnDraw();
+        });
+    }
+    // Edited by Prasad
+    function AutoReload() {
+        RefreshTable('#tblLeavesForApproval', '/Employee/myinfo/GetLeaveForApprovals/');
+    }
+
+    $(document).ready(function () {
+        InitOverviewDataTable();
+        AutoReload();
+
+    });
+
+
+
+    // Initialize Bootstrap tooltip
+    $(document).ready(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+
+
+      
+
+
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Save selected main tab to localStorage
+        var mainTabs = document.querySelectorAll('.nav-link.section-link');
+        mainTabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
+            });
+        });
+
+        // Check if a main tab was previously selected and open it
+        var activeMainTab = localStorage.getItem('selectedMainTab');
+        if (activeMainTab) {
+            var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
+            if (targetMainTab) {
+                var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
+                bootstrapMainTab.show();
+            }
+        }
+
+        // Save selected sub-tab (inside Leave Info) to localStorage
+        var subTabs = document.querySelectorAll('.nav-link');
+        subTabs.forEach(function (subTab) {
+            subTab.addEventListener('click', function () {
+                localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));
+            });
+        });
+
+        // Check if a sub-tab was previously selected and open it
+        var activeSubTab = localStorage.getItem('selectedSubTab');
+        if (activeSubTab) {
+            var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
+            if (targetSubTab) {
+                var bootstrapSubTab = new bootstrap.Tab(targetSubTab);
+                bootstrapSubTab.show();
+            }
+        }
+
+        // Edit button event to activate Apply Leave tab
+        document.getElementById('editButton').addEventListener('click', function (event) {
+            // Prevent the default behavior of the link 
+
+            // Clear the selectedSubTab from localStorage
+            localStorage.removeItem('selectedSubTab');
+
+            // Set the new selectedSubTab for Apply Leave
+            localStorage.setItem('selectedSubTab', '#apply-leave-tab');
+
+            // Open the Leave Info main tab
+            var leaveInfoTab = new bootstrap.Tab(document.querySelector('#leaveInfo-tab1'));
+            leaveInfoTab.show();
+
+            // Now, switch to the Apply Leave sub-tab
+            var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
+            applyLeaveTab.show();
+        });
+    });
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+
+
+
+
+        var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
+        var fullDayContainer = document.getElementById("fullDayContainer");
+        var halfDayContainer = document.getElementById("halfDayContainer");
+        var leaveTypeDropdown = document.getElementById("leaveTypeDropdown");
+        var maternityAdoptionMiscarrageContainer = document.getElementById("MaternityAdoptionMiscarrageContainer");
+        var leaveDurationContainer = document.getElementById("leaveDurationContainer");
+        var todatetime = document.getElementById("todatetime");
+        var fromdatetime = document.getElementById("fromdatetime");
+
+        function toggleContainers() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+
+            // Check if the leave type is one of the specified types or if it's a full day leave
+            if (selectedLeaveType === 'Maternity Leave' ||
+                selectedLeaveType === 'Adoption' ||
+                selectedLeaveType === 'Miscarriage'  ) {
+                fullDayContainer.style.display = "flex";
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+                todatetime.style.display = "block";
+            }
+           else if (leaveDurationDropdown.value === '1') {
+                fullDayContainer.style.display = "flex";
+                if (1== 1) {
+                    todatetime.style.display = "block";
+                }
+                else{
+                    todatetime.style.display = "none";
+                    fromdatetime.style.display = "block";
+                }
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+            }
+            
+            else if (leaveDurationDropdown.value === '2') {
+                fullDayContainer.style.display = "flex";
+                if (2== 2) {
+                    todatetime.style.display = "none";
+                    fromdatetime.style.display = "block";
+                }
+                 
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+            }
+            else if (
+                selectedLeaveType === 'Paternity Leave') {
+              fullDayContainer.style.display = "flex";
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "block";
+            }
+
+            else {
+                ChildDOBDateContainer.style.display = "none";
+                fullDayContainer.style.display = "none";
+               // halfDayContainer.style.display = "block";
+            }
+        }
+        function toggleMaternityAdoptionMiscarrageContainer() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            if (selectedLeaveType === 'Maternity Leave' || selectedLeaveType === 'Adoption' || selectedLeaveType === 'Miscarriage' || selectedLeaveType === 'Medical Leave' || selectedLeaveType === 'Paternity Leave') {
+                maternityAdoptionMiscarrageContainer.style.display = "flex";
+            } else {
+                maternityAdoptionMiscarrageContainer.style.display = "none";
+            }
+        }
+
+
+        function toggleExpectedDeliveryDate() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            if (selectedLeaveType === 'Maternity Leave') {
+                expectedDeliveryDateContainer.style.display = "block";
+            } else {
+                expectedDeliveryDateContainer.style.display = "none";
+            }
+        }
+        function toggleLeaveDurationVisibility() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            if (selectedLeaveType === 'Annual Leave' || selectedLeaveType === 'Comp Off' || selectedLeaveType === 'Medical Leave') {
+                leaveDurationContainer.style.display = "block";
+                $('#leaveDurationDropdown').attr('required', true);
+            } else {
+                leaveDurationContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
+                $('#leaveDurationDropdown').attr('required', false);
+            }
+        }
+
+
+        leaveDurationDropdown.addEventListener("change", toggleContainers);
+        leaveTypeDropdown.addEventListener("change", function () {
+            toggleMaternityAdoptionMiscarrageContainer();
+            toggleExpectedDeliveryDate();
+            toggleLeaveDurationVisibility();
+            toggleContainers();
+        });
+        toggleContainers();
+        toggleMaternityAdoptionMiscarrageContainer();
+        toggleLeaveDurationVisibility();
+        toggleExpectedDeliveryDate();
+
+
+
+
+
+
+
+    });
+</script>
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+ 
+
+    <script>
+        $(window)
+            .resize(function () {
+                if ($(window).width() > 1090) {
+                    $(".sidebar").removeClass("sidemenuShow");
+                    $(".toggleBtn").removeClass("togglemenuShow");
+                } else {
+                    $(".sidebar").addClass("sidemenuShow");
+                    $(".toggleBtn").addClass("togglemenuShow");
+                }
+            })
+            .resize();
+    </script>
+    <script>
+        $(function () {
+            $('.toggleBtn').click(function () { // when a .myDiv is clicked
+                $('.sidebar').toggleClass('sidemenuShow')
+                $('.toggleBtn').toggleClass('togglemenuShow')
+            })
+        })
+    </script>
+
+    <script>
+        $(function () {
+            $btnToggle = $('.btn--toggle');
+            $submenuTrigger = $('.submenu--trigger');
+            $thirdSubmenuTrigger = $('.third-submenu--trigger');
+
+            $btnToggle.on('click', function (e) {
+                // e.preventDefault();
+                let $target = $($(e.currentTarget).attr('data-target'));
+                $target.toggleClass('showing', 1000, 'easeInQuad');
+            });
+
+
+            $submenuTrigger.on('click', function (e) {
+                e.preventDefault();
+                $(this).toggleClass('active');
+            });
+
+            $thirdSubmenuTrigger.on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).toggleClass('active');
+            })
+        });
+    </script>
+     <link href="/css/jquery.toast.css" rel="stylesheet" />
+<script src="/assets/js/jquery.toast.js"></script>
+
+
+<script>
+
+    //
+    console.log("ready!");
+    var Message = '';
+    var toastType = 'Information';
+    var toastTypeInformation = 'Information';
+    var toastTypeSuccess = 'Success';
+    var toastTypetWarning = 'Warning';
+    var toastTypeError = 'Error';
+
+    $(document).ready(function () {
+      
+        if (Message) {
+            if (toastType == toastTypeInformation) {
+                $.toast({
+                    heading: 'Information',
+                    text: Message,
+                    showHideTransition: 'slide',
+                    icon: 'info',
+                    position: 'top-right',
+                });
+            }
+            else if (toastType == toastTypeSuccess) {
+                $.toast({
+                    heading: 'Success',
+                    text: Message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
+            else if (toastType == toastTypetWarning) {
+                $.toast({
+                    heading: 'Warning',
+                    text: Message,
+                    showHideTransition: 'slide',
+                    icon: 'warning',
+                    position: 'top-right',
+                });
+            }
+            else if (toastType == toastTypeError) {
+                $.toast({
+                    heading: 'Error',
+                    text: Message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+            }
+        }
+    });
+</script>
+    
+</body>
+</html>

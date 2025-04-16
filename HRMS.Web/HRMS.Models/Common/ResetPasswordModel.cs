@@ -31,6 +31,11 @@ namespace HRMS.Models.Common
     }
 
 
+
+
+
+
+
 	public class ChangePasswordModel
 	{
 

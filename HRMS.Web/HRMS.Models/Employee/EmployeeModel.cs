@@ -23,6 +23,7 @@ namespace HRMS.Models.Employee
 
 
     public class EmployeeModel
+
     { 
         public string EncryptedIdentity { get; set; } = string.Empty;
         public string EncodedDesignationID { get; set; } = string.Empty;
@@ -113,6 +114,8 @@ namespace HRMS.Models.Employee
         public string? AadhaarCardImage { get; set; } = string.Empty;
         public string? ManagerName { get; set; } = string.Empty;
         public string? Shift { get; set; } = string.Empty;
+
+        public string? ReportingToName { get; set; } = string.Empty;
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();

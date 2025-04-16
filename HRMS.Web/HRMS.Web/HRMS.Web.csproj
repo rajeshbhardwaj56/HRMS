@@ -7,6 +7,12 @@
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Content Remove="Views\Shared\_Celebrations.cshtml" />
+	  <Content Remove="Views\Shared\_ValidationScriptsPartial.cshtml" />
+	  <Content Remove="Views\Shared\_WhatsHappening.cshtml" />
+	</ItemGroup>
+
   <ItemGroup>
     <None Include="wwwroot\assets\css\fonts\fontawesome-webfont.svg" />
     <None Include="wwwroot\assets\css\fonts\fontawesome-webfont.woff2" />
@@ -261,12 +267,25 @@
     <None Include="wwwroot\assets\vendor\tinymce\tinymce.js" />
     <None Include="wwwroot\assets\vendor\tinymce\tinymce.min.js" />
     <None Include="wwwroot\css\login.css" />
+    <None Include="wwwroot\Uploads\ProfilePhoto\83\blue-circle-with-white-user_78370-4707.avif" />
+    <None Include="wwwroot\Uploads\UploadCertificate\0\dummy-pdf_2.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\0\dummy-pdf_32.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\1\dummy-pdf_32.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\2\dummy-pdf_32.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\39\dummy-pdf_2.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\39\dummy-pdf_32.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\3\dummy-pdf_32.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\45\dummy-pdf_32.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\5\dummy-pdf_32.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\6\dummy-pdf_32.pdf" />
+    <None Include="wwwroot\Uploads\UploadCertificate\dummy-pdf_32.pdf" />
   </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
 		<PackageReference Include="CKEditor" Version="3.6.4" />
 		<PackageReference Include="ClosedXML" Version="0.102.2" />
+		<PackageReference Include="EPPlus-UDI-Fork" Version="4.5.29" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.1.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.4" />
@@ -277,6 +296,13 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Quartz" Version="3.13.1" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+		<PackageReference Include="System.ServiceModel.Duplex" Version="4.10.*" />
+		<PackageReference Include="System.ServiceModel.Federation" Version="4.10.*" />
+		<PackageReference Include="System.ServiceModel.Http" Version="4.10.*" />
+		<PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.*" />
+		<PackageReference Include="System.ServiceModel.Security" Version="4.10.*" />
 		<PackageReference Include="WebMarkupMin.AspNet4.Common" Version="2.16.0" />
 		<PackageReference Include="WebMarkupMin.AspNetCore8" Version="2.16.0" />
 	</ItemGroup>
@@ -384,9 +410,33 @@
 		<Folder Include="wwwroot\assets\images\" />
 		<Folder Include="wwwroot\assets\LoadFiles\" />
 		<Folder Include="wwwroot\assets\MCChckDocs\" />
+		<Folder Include="wwwroot\assets\DownloadExcel\" />
 		<Folder Include="wwwroot\assets\PDF\Invoice\Original\" />
 		<Folder Include="wwwroot\assets\PDF\RateCon\Original\" />
 		<Folder Include="wwwroot\assets\RawReport\" />
+		<Folder Include="wwwroot\Uploads\AadharCard\710\" />
+		<Folder Include="wwwroot\Uploads\PanCard\710\" />
+		<Folder Include="wwwroot\Uploads\ProfilePhoto\48\" />
+		<Folder Include="wwwroot\Uploads\ProfilePhoto\80\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\10\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\13\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\22\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\33\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\38\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\40\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\41\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\46\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\48\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\4\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\54\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\55\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\58\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\64\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\68\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\71\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\73\" />
+		<Folder Include="wwwroot\Uploads\UploadCertificate\7\" />
+
 	</ItemGroup>
 
 </Project>

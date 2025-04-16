@@ -57,5 +57,25 @@ namespace HRMS.Models.LeavePolicy
         public bool Paternity_medicalDocument { get; set; }
 
 
+
+
+        public int MaximumLeaveAllocationAllowed { get; set; }
+        public int ApplicableAfterWorkingDays { get; set; }
+        public int MaximumConsecutiveLeavesAllowed { get; set; }
+        public bool IsCarryForward { get; set; }
+        public bool IsLeaveWithoutPay { get; set; }
+        public bool IsPartiallyPaidLeave { get; set; }
+        public bool IsOptionalLeave { get; set; }
+        public bool IsAllowNegativeBalance { get; set; }
+        public bool IsAllowOverAllocation { get; set; }
+        public bool IsIncludeHolidaysWithinLeavesAsLeaves { get; set; }
+        public bool IsCompendatory { get; set; }
+        public bool IsAllowEncashment { get; set; }
+        public bool IsEarnedLeave { get; set; }
+        public int MaximumEarnedLeaveAllowed { get; set; }
+        public int MaximumMedicalLeaveAllocationAllowed { get; set; }
+        public int MaximumCompOffLeaveAllocationAllowed { get; set; }
+
+
     }
 }
