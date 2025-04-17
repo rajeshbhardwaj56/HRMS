@@ -72,7 +72,8 @@ namespace HRMS.Models.ImportFromExcel
         public string? ForiegnCountryVisits { get; set; }
         public string? ExtraCuricuarActivities { get; set; }
         public string? Gender { get; set; }
-        public string ESINumber { get; set; } = string.Empty;
+        public string? ESINumber { get; set; }
+       // public string ESINumber { get; set; } = string.Empty;
         public string? RegistrationDateInESIC { get; set; }
         public string? BankAccountNumber { get; set; }
         public string? IFSCCode { get; set; }

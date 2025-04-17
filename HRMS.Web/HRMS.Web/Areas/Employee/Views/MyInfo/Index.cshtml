@@ -160,8 +160,6 @@
                                             <form class="body-text" method="post" enctype="multipart/form-data">
                                                 <h3>Personal Info</h3>
                                                 <div class="row">
-
-
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Name</h6>
                                                         @Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
@@ -1174,9 +1172,7 @@
 </div>
 <input type="hidden" id="leaveSummaryID" value="" />
 <script type="text/javascript">
-
     var leaveSummaryID;
-
     function ApproveRejectLeave(isApproved) {
         let actionText = isApproved ? "approve" : "reject";
         if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
@@ -1236,7 +1232,6 @@
             });
         }
     }
-
     function OpenApproveRejectModel(employeeID, leaveSummaryID) {
         $("#leaveSummaryID").val(leaveSummaryID);
         $.ajax({
@@ -1446,13 +1441,9 @@
 
         $('#ApproveRejectModel').modal('show');
     }
-
     function CloseApproveRejectModel() {
         $('#ApproveRejectModel').modal('hide');
     }
-
-
-
     function RefreshTable(tableId, urlData) {
         $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
@@ -1468,7 +1459,6 @@
             table.fnDraw();
         });
     }
-
     function RefreshTable1(tableId, urlData) {
         $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
@@ -1484,7 +1474,6 @@
             table.fnDraw();
         });
     }
-
     function RefreshTable2(tableId, urlData) {
         $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
@@ -1500,7 +1489,6 @@
             table.fnDraw();
         });
     }
-    // Edited by Prasad
     function AutoReload() {
         RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
         if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
@@ -1524,8 +1512,6 @@
             InittblLeavesForReject();
         }
     }
-
-
     $(document).ready(function () {
         if (@RoleName == @Convert.ToInt64(Roles.Admin) || @RoleName == @Convert.ToInt64(Roles.Manager)|| @RoleName == @Convert.ToInt64(Roles.SuperAdmin)) {
             $('#applied-leave-tab1').click();
@@ -1609,7 +1595,6 @@
 
         });
     }
-
     function InittblLeavesForApproved() {
         const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 
@@ -1674,7 +1659,6 @@
             }
         });
     }
-
     function InittblLeavesForReject() {
         const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 
@@ -1738,11 +1722,7 @@
                 }
             }
         });
-    }
-
-
-
-    // Initialize Bootstrap tooltip
+    }   
     $(document).ready(function () {
         $('[data-bs-toggle="tooltip"]').tooltip();
     });
@@ -1817,34 +1797,18 @@
 
 
     });
-
-
-
-
-
-
     document.getElementById("myForm").onsubmit = async function (event) {
-        event.preventDefault(); // Prevent default form submission
-
-        // Clear any previous messages
+        event.preventDefault();       
         const responseMessage = document.getElementById("responseMessage");
         responseMessage.textContent = "";
-        responseMessage.className = "";
-
-        // Collect form data
-        const formData = new FormData(this);
-
-        // Send form data to the server using fetch API
+        responseMessage.className = "";      
+        const formData = new FormData(this);      
         const response = await fetch(this.action, {
             method: 'POST',
             body: formData
         });
-
-        const result = await response.json();
-
-        // Handle the server response
-        if (result.isValid) {
-            // Display success message and reset form
+        const result = await response.json();      
+        if (result.isValid) {           
             $.toast({
                 heading: 'Success',
                 text: result.message,
@@ -1864,14 +1828,6 @@
             responseMessage.className = "error-message";
         }
     };
-
-
-
-
-
-
-
-
 </script>
 
 

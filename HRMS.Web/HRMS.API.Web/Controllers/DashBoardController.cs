@@ -52,7 +52,7 @@ namespace HRMS.API.Web.Controllers
         }
         
         [HttpPost]
-        [AllowAnonymous]
+      
         public IActionResult AddUpdateEmployeeFromExecel(ImportEmployeeDetail model)
         {
             IActionResult response = Unauthorized();

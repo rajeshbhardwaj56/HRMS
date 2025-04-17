@@ -44,6 +44,15 @@ namespace HRMS.Models.Common
 
     }
 
+    public enum AttendanceStatusId
+    {
+        Pending = 1,        
+        L1Approved = 2,
+        L2Approved = 3,      
+        L1Rejected = 4,      
+        L2Rejected = 5     
+    }
+
     public enum MaxMedicalLeaveDoc
     {
         MaxMedicalDoc= 3

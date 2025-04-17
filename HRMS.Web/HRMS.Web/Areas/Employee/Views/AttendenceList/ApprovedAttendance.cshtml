@@ -42,10 +42,8 @@
                                         </label>
                                         <label>
                                             <input type="radio" name="attendanceStatus" value="L1Approved" checked> L2 Manager
-                                        </label>
-                                        
+                                        </label>                                      
                                     </div>
-
                                     <div role="tabpanel" aria-labelledby="apply-tab">
                                         <div class="row">
                                             <div class="col-lg-12 col-md-12 col-sm-12">
@@ -81,6 +79,18 @@
                                         <h3>Approved Attendance</h3>
 
                                     </div>
+                                    <div>
+
+                                        <label>
+                                            View As
+                                            <input type="radio" name="approvedAttendanceStatus" value="Submitted"> L1 Manager
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="approvedAttendanceStatus" value="L1Approved" checked> L2 Manager
+                                        </label>
+
+                                    </div>
+
                                     <div role="tabpanel" aria-labelledby="apply-tab">
                                         <div class="row">
                                             <div class="col-lg-12 col-md-12 col-sm-12">
@@ -181,7 +191,6 @@
                                                 <div class="tab-pane fade active show">
                                                     <div class="group-box anim">
                                                         <div class="tabsInfo">
-
                                                             <h3>Employee Info</h3>
                                                             <div class="row">
                                                                 <div class="col-lg-4 col-md-4 mb-2">
@@ -265,13 +274,39 @@
 <input type="hidden" id="AttStartDate" />
 <input type="hidden" id="AttEndDate" />
 <script>
-    $(document).ready(function () {
+        $(document).ready(function () {
+        // Existing
         ApprovalAttendanceAutoReload();
+
+        // For pending approval
         $("input[name='attendanceStatus']").change(function () {
             ApprovalAttendanceAutoReload();
         });
-    });
 
+        // For approved attendance
+        $("input[name='approvedAttendanceStatus']").change(function () {
+            ApprovedAttendanceAutoReload();
+        });
+
+        // Optional: Trigger once initially
+        ApprovedAttendanceAutoReload();
+    });
+        function ApprovedAttendanceAutoReload() {
+        let tableId = '#tblLeavesForApproved';
+        let status = $("input[name='approvedAttendanceStatus']:checked").val(); // Get selected View As
+
+        let url = '@(_configuration["AppSettings:RootUrl"])Employee/AttendenceList/GetApprovedAttendance/';
+        let params = new URLSearchParams();
+        params.append('attendanceStatus', status);
+
+        let finalUrl = url + '?' + params.toString();
+
+        RefreshTable1(tableId, finalUrl);
+
+        if (!$.fn.DataTable.isDataTable(tableId)) {
+            InittblLeavesForApproved();
+        }
+    }
     function ApprovalAttendanceAutoReload() {
         let tableId = '#tblAttendanceForApproval';
         let url = '@(_configuration["AppSettings:RootUrl"])Employee/AttendenceList/GetApprovedAttendance/';
@@ -279,7 +314,6 @@
         let params = new URLSearchParams();
         params.append('attendanceStatus', attendanceStatus);
 
-        // Construct the full URL with query parameters
         let finalUrl = url + '?' + params.toString();
 
         RefreshTable(tableId, finalUrl);
@@ -289,7 +323,7 @@
         }
     }
 
-    function InitOverviewDataTable() {         
+    function InitOverviewDataTable() {
         $('#tblAttendanceForApproval').DataTable({
             ordering: true,
             paging: true,
@@ -301,21 +335,21 @@
                 {
                     data: "firstLogDate",
                     autoWidth: true,
-                    render: function (data, type, row) {                       
+                    render: function (data) {
                         return formatDate(data);
                     }
                 },
                 {
                     data: "lastLogDate",
                     autoWidth: true,
-                    render: function (data, type, row) {                      
+                    render: function (data) {
                         return formatDate(data);
                     }
                 },
                 {
                     data: "workDate",
                     autoWidth: true,
-                    render: function (data, type, row) { 
+                    render: function (data) {
                         return formatDate(data);
                     }
                 },
@@ -324,89 +358,67 @@
                 {
                     render: function (data, type, row) {
                         return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id}, '${row.firstLogDate}', '${row.lastLogDate}',  '${row.attendanceStatus}','${row.workDate}')" href="#" title="Approve">
-                                            <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
-                                        </a>`;
+                                    <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
+                                </a>`;
                     }
                 }
             ]
         });
     }
-    function formatDate(dateString) {
-        var date = new Date(dateString);
 
-        // Array of month names
-        var monthNames = [
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const monthNames = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
-
-        // Get the day, month, and year
-        var day = date.getDate();
-        var month = monthNames[date.getMonth()];  // Get the month name
-        var year = date.getFullYear();
-
-        // Get the hours and minutes for the time
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        var ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12;  // the hour '0' should be '12'
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
         minutes = minutes < 10 ? '0' + minutes : minutes;
-        var strTime = hours + ':' + minutes + ' ' + ampm;
+        const strTime = hours + ':' + minutes + ' ' + ampm;
 
-        // Return formatted date in the desired format: DD MMMM YYYY hh:mm AM/PM
-        return day + ' ' + month + ' ' + year + ' ' + strTime;
+        return `${day} ${month} ${year} ${strTime}`;
     }
-
-
 
     function RefreshTable(tableId, url) {
         $.post(url, function (json) {
             if (json.data && json.data.attendances) {
-                let table = $(tableId).DataTable();
+                const table = $(tableId).DataTable();
                 table.clear();
-                console.log(json.data.attendances);
                 table.rows.add(json.data.attendances).draw();
             }
         });
     }
 
-
     function ApproveRejectAttendance(isApproved) {
-      
-        let actionText = isApproved ? "approve" : "reject";
+        const actionText = isApproved ? "approve" : "reject";
         if (confirm(`Are you sure you want to ${actionText} this attendance request?`)) {
-            let employeeID = $("#employeeID").val();
-            var ApproveRejectComment = $("#ApproveRejectComment").val();
-            if (ApproveRejectComment == "") {
-                $("#approverejectrequire").text('');
+            const employeeID = $("#employeeID").val();
+            const ApproveRejectComment = $("#ApproveRejectComment").val();
+            if (ApproveRejectComment === "") {
                 $("#approverejectrequire").text('Comment required');
                 return;
             }
-            let attendanceId = $("#attendanceId").val();
-            var status = $("#status").val();
-            let startDate = $("#AttStartDate").val();
-            let endDate = $("#AttEndDate").val();
-            let workDate = $("#AttWorkDate").val();
-            let data = {
-                attendanceId: attendanceId,
-                employeeID: employeeID,
-                status: status,
-                ApproveRejectComment: ApproveRejectComment,
-                startDate: startDate,
-                endDate: endDate,
-                workDate: workDate
+            const attendanceId = $("#attendanceId").val();
+            const status = $("#status").val();
+            const startDate = $("#AttStartDate").val();
+            const endDate = $("#AttEndDate").val();
+            const workDate = $("#AttWorkDate").val();
+            const data = {
+                attendanceId, employeeID, status, ApproveRejectComment,
+                startDate, endDate, workDate
             };
-            var urlData = '/Employee/AttendenceList/ApproveRejectAttendance/';
-            $.post(urlData, data, function (json) {                
+
+            $.post('/Employee/AttendenceList/ApproveRejectAttendance/', data, function (json) {
                 if (json.data && json.data.message) {
-
                     if (json.data.status == 1) {
-                        $("#approverejectrequire").text('');
                         $("#approverejectrequire").text(json.data.message);
-
-                    }
-                    else {
+                    } else {
                         $.toast({
                             heading: 'Success',
                             text: "Attendance status updated successfully.",
@@ -427,15 +439,12 @@
                         position: 'top-right',
                     });
                     $("#ApproveRejectComment").val("");
-
                 }
-
             });
         }
     }
 
-
-    function OpenApproveRejectModel(employeeID, Id, firstLogDate, lastLogDate, comments,workDate) {  
+    function OpenApproveRejectModel(employeeID, Id, firstLogDate, lastLogDate, comments, workDate) {
         $("#employeeID").val(employeeID);
         $("#attendanceId").val(Id);
         $("#status").val(comments);
@@ -443,37 +452,36 @@
         $("#AttStartDate").val(firstLogDate);
         $("#AttEndDate").val(lastLogDate);
         $("#WorkDate").text(formatDate(workDate));
+
         $.ajax({
             url: '/employee/AttendenceList/GetEmployeeAttendanceShiftDetails',
             type: 'GET',
-            data: { employeeID: employeeID, Id: Id },
+            data: { employeeID, Id },
             success: function (response) {
                 $("#FullName").text(response.fullName);
                 $("#EmployeeJoiningdate").text(response.employeeJoiningdate);
                 $("#StartDate").text(formatDate(firstLogDate));
                 $("#EndDate").text(formatDate(lastLogDate));
-               
-                var logFirstTime = new Date(firstLogDate);
-                var logLastTime = new Date(lastLogDate);
 
-                var shiftStartTime = new Date(logFirstTime.toDateString() + ' ' + response.shiftStartDate);
-                var shiftEndTime = new Date(logLastTime.toDateString() + ' ' + response.shiftEndDate);
-                 
-                if (shiftStartTime.getTime() !== logFirstTime.getTime() || shiftEndTime.getTime() !== logLastTime.getTime()) {
-                    $('#responseMessage').text(' The provided times do not match the shift times.');
-                    $('#responseMessage').css('color', 'red');  
+                const logFirstTime = new Date(firstLogDate);
+                const logLastTime = new Date(lastLogDate);
+                const shiftStartTime = new Date(logFirstTime.toDateString() + ' ' + response.shiftStartDate);
+                const shiftEndTime = new Date(logLastTime.toDateString() + ' ' + response.shiftEndDate);
+
+                if (shiftStartTime.getTime() !== logFirstTime.getTime() ||
+                    shiftEndTime.getTime() !== logLastTime.getTime()) {
+                    $('#responseMessage').text('The provided times do not match the shift times.').css('color', 'red');
                     $('#approveButton').prop('disabled', true);
-                } else {                    
-                    $('#responseMessage').text('The times match.');
-                    $('#responseMessage').css('color', 'green'); 
+                } else {
+                    $('#responseMessage').text('The times match.').css('color', 'green');
                     $('#approveButton').prop('disabled', false);
                 }
-
             },
-            error: function (xhr, status, error) {
+            error: function (xhr) {
                 $('#responseMessage').text('Error: ' + xhr.responseText);
             }
         });
+
         $('#ApproveRejectModel').modal('show');
     }
 
@@ -481,23 +489,108 @@
         $('#ApproveRejectModel').modal('hide');
     }
 
+       function LeavesForApproved() {
+        new bootstrap.Tab(document.querySelector('#leave-approved-tab1')).show();
 
-    function LeavesForApproved() {
-        $('#leave-approved-tab').css("display", "block");
-        RefreshTable1('#tblLeavesForApproved', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApproved`); //Approved
+        let status = $("input[name='approvedAttendanceStatus']:checked").val(); // Get selected view
+        let url = `@(_configuration["AppSettings:RootUrl"])/Employee/myinfo/GetLeaveForApproved?attendanceStatus=${status}`;
+
+        RefreshTable1('#tblLeavesForApproved', url);
 
         if (!$.fn.DataTable.isDataTable('#tblLeavesForApproved')) {
             InittblLeavesForApproved();
         }
     }
+
     function LeavesForReject() {
-        $('#leave-Reject-tab').css("display", "block");
-        RefreshTable2('#tblLeavesForReject', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForReject`);//Rejected
+        new bootstrap.Tab(document.querySelector('#leave-Reject-tab1')).show();
+
+        RefreshTable2('#tblLeavesForReject', `@(_configuration["AppSettings:RootUrl"])/Employee/myinfo/GetLeaveForReject`);
+
         if (!$.fn.DataTable.isDataTable('#tblLeavesForReject')) {
             InittblLeavesForReject();
         }
     }
 
+        function RefreshTable1(tableId, url) {
+        $.post(url, function (json) {
+            if (json.data && json.data.leaves) {
+                const table = $(tableId).DataTable();
+                table.clear();
+                table.rows.add(json.data.leaves).draw();
+            }
+        });
+    }
+        function InittblLeavesForApproved() {
+        $('#tblLeavesForApproved').DataTable({
+            ordering: true,
+            paging: true,
+            searching: true,
+            info: true,
+            responsive: true,
+            columns: [
+                { data: null, visible: false }, // Hidden column
+                { data: "employeeNumber", autoWidth: true },
+                { data: "employeeName", autoWidth: true },
+                {
+                    data: "fromDate",
+                    render: function (data) {
+                        return formatDate(data);
+                    }
+                },
+                {
+                    data: "toDate",
+                    render: function (data) {
+                        return formatDate(data);
+                    }
+                },
+                { data: "type", autoWidth: true },
+                { data: "days", autoWidth: true },
+                { data: "status", autoWidth: true },
+                { data: "reason", autoWidth: true }
+            ]
+        });
+    }
+        function RefreshTable2(tableId, url) {
+        $.post(url, function (json) {
+            if (json.data && json.data.leaves) {
+                const table = $(tableId).DataTable();
+                table.clear();
+                table.rows.add(json.data.leaves).draw();
+            }
+        });
+    }
+        function InittblLeavesForReject() {
+        $('#tblLeavesForReject').DataTable({
+            ordering: true,
+            paging: true,
+            searching: true,
+            info: true,
+            responsive: true,
+            columns: [
+                { data: null, visible: false }, // Hidden column
+                { data: "employeeNumber", autoWidth: true },
+                { data: "employeeName", autoWidth: true },
+                {
+                    data: "fromDate",
+                    render: function (data) {
+                        return formatDate(data);
+                    }
+                },
+                {
+                    data: "toDate",
+                    render: function (data) {
+                        return formatDate(data);
+                    }
+                },
+                { data: "type", autoWidth: true },
+                { data: "days", autoWidth: true },
+                { data: "status", autoWidth: true },
+                { data: "reason", autoWidth: true }
+            ]
+        });
+    }
 
 </script>
+
 

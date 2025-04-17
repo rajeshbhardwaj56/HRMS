@@ -193,8 +193,6 @@ namespace HRMS.Web.Controllers
             {
                 EmployeeInputParams objmodel = new EmployeeInputParams();
                 objmodel.CompanyID = result.CompanyID;
-
-
                 _context.HttpContext.Session.SetString(Constants.SessionBearerToken, result.token);
                 _context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
                 _context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());

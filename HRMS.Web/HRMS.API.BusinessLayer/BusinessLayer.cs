@@ -1068,10 +1068,6 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@DepartmentID", model.DepartmentID));
             sqlParameter.Add(new SqlParameter("@DesignationID", model.DesignationID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
-
-
-
-
             EmploymentDetail employmentDetail = dataSet.Tables[8].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
@@ -1215,9 +1211,6 @@ namespace HRMS.API.BusinessLayer
                          }
                     ).FirstOrDefault();
             }
-
-
-
             return model;
         }
 
@@ -2710,6 +2703,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@Comments", att.Comments));
             sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
             sqlParameter.Add(new SqlParameter("@ModifiedDate", att.ModifiedDate));
+            sqlParameter.Add(new SqlParameter("@AttendanceStatusId", att.AttendanceStatusId));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_SaveAttendanceManualLog, sqlParameter);
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -2789,16 +2783,13 @@ namespace HRMS.API.BusinessLayer
             };
             return result;
         }
-
-
         public MyAttendanceList GetApprovedAttendance(AttendanceInputParams model)
         {
             List<Attendance> attendanceList = new List<Attendance>();
             List<SqlParameter> sqlParameters = new List<SqlParameter>  {
             new SqlParameter("@ReportingUserID", model.UserId),
             new SqlParameter("@AttendanceStatus", model.Status)
-            };
-            // Get the dataset from the stored procedure
+            };           
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ApprovedAttendance, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
@@ -2873,8 +2864,6 @@ namespace HRMS.API.BusinessLayer
 
             return new Dictionary<string, long>(); // Return empty dictionary if no data
         }
-
-
         public Dictionary<string, Dictionary<string, long>> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model)
         {
             Dictionary<string, Dictionary<string, long>> employmentDictionaries = new Dictionary<string, Dictionary<string, long>>();
@@ -3002,7 +2991,7 @@ namespace HRMS.API.BusinessLayer
            
 
                 List<SqlParameter> sqlParametersBank = new List<SqlParameter>();
-                sqlParametersBank.Add(new SqlParameter("@EmployeeID", model.UserID));
+                sqlParametersBank.Add(new SqlParameter("@EmployeeID", model.UserID)); 
                 sqlParametersBank.Add(new SqlParameter("@BankAccountNumber", employeeModel.BankAccountNumber));
                 sqlParametersBank.Add(new SqlParameter("@IFSCCode", employeeModel.IFSCCode));
                 sqlParametersBank.Add(new SqlParameter("@BankName", employeeModel.BankName));

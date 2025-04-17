@@ -15,7 +15,7 @@ namespace HRMS.Web.BusinessLayer
     {
         public string bearerToken { get; set; }
         public IConfiguration _configuration { get; set; }
-        public Task<object> SendPostAPIRequest(object body, string ActionUrl, string BearerToken, bool isTokenRequired = true);
+        public Task<object> SendPostAPIRequest(object body, string ActionUrl, string BearerToken, bool isTokenRequired = true);      
         public Task<object> SendGetAPIRequest(string ActionUrl, string BearerToken, bool isTokenRequired = true);
         public string GetControllarNameByRole(int RoleID);
         public string GetAreaNameByRole(int RoleID);
@@ -71,7 +71,7 @@ namespace HRMS.Web.BusinessLayer
             _httpClient.DefaultRequestHeaders.Clear();
             return await response.Content.ReadAsStringAsync();
         }
-
+      
         public async Task<object> SendGetAPIRequest(string ActionUrl, string BearerToken, bool isTokenRequired = true)
         {
             _httpClient = new HttpClient();

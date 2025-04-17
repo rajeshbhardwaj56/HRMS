@@ -22,6 +22,7 @@ namespace HRMS.Models.Common
     }
     public class Attendance
     {
+        public int? AttendanceStatusId { get; set; }
         public long ID { get; set; }
         public string? UserId { get; set; }
         public string? EmployeeName { get; set; }

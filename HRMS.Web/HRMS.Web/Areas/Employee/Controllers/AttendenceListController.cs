@@ -213,6 +213,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             AttendenceListModel.ModifiedBy = UserId;
             AttendenceListModel.IsManual = true;
             AttendenceListModel.AttendanceStatus = AttendanceStatus.Submitted.ToString();
+            AttendenceListModel.AttendanceStatusId = (int)AttendanceStatusId.Pending;
             var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
             if (result != null && result.Message.Contains("Record for this user with the same date already exists!", StringComparison.OrdinalIgnoreCase))
@@ -362,7 +363,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             if (string.IsNullOrEmpty(attendanceStatus))
             {
                 attendanceStatus = AttendanceStatus.L1Approved.ToString(); 
-            }
+            } 
             attendenceListParams.Status = attendanceStatus;
             // attendenceListParams.Status = AttendanceStatus.L1Approved.ToString();
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
