@@ -48,8 +48,8 @@ namespace HRMS.Models.Common
     {
         Pending = 1,        
         L1Approved = 2,
-        L2Approved = 3,      
-        L1Rejected = 4,      
+        L1Rejected = 3,
+        L2Approved = 4,      
         L2Rejected = 5     
     }
 

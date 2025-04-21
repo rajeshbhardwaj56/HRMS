@@ -2788,7 +2788,7 @@ namespace HRMS.API.BusinessLayer
             List<Attendance> attendanceList = new List<Attendance>();
             List<SqlParameter> sqlParameters = new List<SqlParameter>  {
             new SqlParameter("@ReportingUserID", model.UserId),
-            new SqlParameter("@AttendanceStatus", model.Status)
+            new SqlParameter("@AttendanceStatusId", model.AttendanceStatusId)
             };           
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ApprovedAttendance, sqlParameters);
 
@@ -2914,6 +2914,9 @@ namespace HRMS.API.BusinessLayer
 
             return employmentDictionaries;
         }
+
+
+
         public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel)
         {
             Result model = new Result();

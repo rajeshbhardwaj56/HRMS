@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Employee;
+﻿using HRMS.Models.DashBoard;
+using HRMS.Models.Employee;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -91,6 +92,8 @@ namespace HRMS.Models.ImportFromExcel
         public string? DateOfEmailSentToITForIDDeletion { get; set; }
         public string? AON  { get; set; }
         public string? PreviousExperience  { get; set; }
+
+        public List<ImportEmployeeDetail> ImportEmployeeDetails { get; set; }
     }
 
     public class ImportEducationalDetail

@@ -85,7 +85,6 @@ namespace HRMS.Models.Common
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
 
     }
-
     public class RoleConstants
     {
         // Roles

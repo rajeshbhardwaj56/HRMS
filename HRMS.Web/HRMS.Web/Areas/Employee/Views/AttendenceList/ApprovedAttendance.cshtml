@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using Microsoft.Extensions.Configuration
+@using HRMS.Models.Common
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject IConfiguration _configuration
 @{
@@ -38,11 +39,11 @@
 
                                         <label>
                                             View As
-                                            <input type="radio" name="attendanceStatus" value="Submitted"> L1 Manager
+                                            <input type="radio" name="attendanceStatus" value="@(AttendanceStatusId.Pending)"> L1 Manager
                                         </label>
                                         <label>
-                                            <input type="radio" name="attendanceStatus" value="L1Approved" checked> L2 Manager
-                                        </label>                                      
+                                            <input type="radio" name="attendanceStatus" value="@(AttendanceStatusId.L1Approved)" checked> L2 Manager
+                                        </label>
                                     </div>
                                     <div role="tabpanel" aria-labelledby="apply-tab">
                                         <div class="row">
@@ -83,10 +84,10 @@
 
                                         <label>
                                             View As
-                                            <input type="radio" name="approvedAttendanceStatus" value="Submitted"> L1 Manager
+                                            <input type="radio" name="approvedAttendanceStatus" value="@(AttendanceStatusId.L1Approved)"> L1 Manager
                                         </label>
                                         <label>
-                                            <input type="radio" name="approvedAttendanceStatus" value="L1Approved" checked> L2 Manager
+                                            <input type="radio" name="approvedAttendanceStatus" value="@(AttendanceStatusId.L2Approved)" checked> L2 Manager
                                         </label>
 
                                     </div>
@@ -275,25 +276,18 @@
 <input type="hidden" id="AttEndDate" />
 <script>
         $(document).ready(function () {
-        // Existing
         ApprovalAttendanceAutoReload();
-
-        // For pending approval
         $("input[name='attendanceStatus']").change(function () {
             ApprovalAttendanceAutoReload();
-        });
-
-        // For approved attendance
+        });   
         $("input[name='approvedAttendanceStatus']").change(function () {
             ApprovedAttendanceAutoReload();
-        });
-
-        // Optional: Trigger once initially
+        });       
         ApprovedAttendanceAutoReload();
     });
         function ApprovedAttendanceAutoReload() {
         let tableId = '#tblLeavesForApproved';
-        let status = $("input[name='approvedAttendanceStatus']:checked").val(); // Get selected View As
+        let status = $("input[name='approvedAttendanceStatus']:checked").val(); 
 
         let url = '@(_configuration["AppSettings:RootUrl"])Employee/AttendenceList/GetApprovedAttendance/';
         let params = new URLSearchParams();
@@ -413,7 +407,6 @@
                 attendanceId, employeeID, status, ApproveRejectComment,
                 startDate, endDate, workDate
             };
-
             $.post('/Employee/AttendenceList/ApproveRejectAttendance/', data, function (json) {
                 if (json.data && json.data.message) {
                     if (json.data.status == 1) {
@@ -501,7 +494,6 @@
             InittblLeavesForApproved();
         }
     }
-
     function LeavesForReject() {
         new bootstrap.Tab(document.querySelector('#leave-Reject-tab1')).show();
 

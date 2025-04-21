@@ -10,6 +10,7 @@ namespace HRMS.Models.Common
 {
     public class AttendanceInputParams
     {
+        public int AttendanceStatusId { get; set; }
         public int ID { get; set; } 
         public int Year { get; set; } 
         public int Month { get; set; } 

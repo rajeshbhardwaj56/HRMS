@@ -11,7 +11,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using System.Formats.Asn1;
 using System.Globalization;
-
+using System.Data;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -138,6 +138,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> ImportExcel()
         {
+            ViewBag.ErrorTable = TempData["ErrorTable"];
+            ViewBag.Error = TempData["Error"];
+            ViewBag.Success = TempData["Success"];
             return View();
         }
 
@@ -145,15 +148,98 @@ namespace HRMS.Web.Areas.Admin.Controllers
             public async Task<JsonResult> ImportExcel(IFormFile file)
             {
                 var list = new List<ImportEmployeeDetail>();
-
                 var data = _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var countryDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(data);
-
                 var GetCompaniesDictionary = _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCompaniesDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var CompaniesDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(GetCompaniesDictionary);
-
-                try
-                {
+            DataTable mainDataTable = new DataTable();
+            mainDataTable.Columns.Add("EmployeeID", typeof(long));
+            mainDataTable.Columns.Add("EmployeeNumber", typeof(string));
+            mainDataTable.Columns.Add("CompanyName", typeof(string));
+            mainDataTable.Columns.Add("FirstName", typeof(string));
+            mainDataTable.Columns.Add("MiddleName", typeof(string));
+            mainDataTable.Columns.Add("Surname", typeof(string));
+            mainDataTable.Columns.Add("CorrespondenceAddress", typeof(string));
+            mainDataTable.Columns.Add("CorrespondenceCity", typeof(string));
+            mainDataTable.Columns.Add("CorrespondencePinCode", typeof(string));
+            mainDataTable.Columns.Add("CorrespondenceState", typeof(string));
+            mainDataTable.Columns.Add("CorrespondenceCountryName", typeof(string));
+            mainDataTable.Columns.Add("EmailAddress", typeof(string));
+            mainDataTable.Columns.Add("Landline", typeof(string));
+            mainDataTable.Columns.Add("Mobile", typeof(string));
+            mainDataTable.Columns.Add("Telephone", typeof(string));
+            mainDataTable.Columns.Add("PersonalEmailAddress", typeof(string));
+            mainDataTable.Columns.Add("PermanentAddress", typeof(string));
+            mainDataTable.Columns.Add("PermanentCity", typeof(string));
+            mainDataTable.Columns.Add("PermanentPinCode", typeof(string));
+            mainDataTable.Columns.Add("PermanentState", typeof(string));
+            mainDataTable.Columns.Add("PermanentCountryName", typeof(string));
+            mainDataTable.Columns.Add("PeriodOfStay", typeof(string));
+            mainDataTable.Columns.Add("VerificationContactPersonName", typeof(string));
+            mainDataTable.Columns.Add("VerificationContactPersonContactNo", typeof(string));
+            mainDataTable.Columns.Add("DateOfBirth", typeof(string));
+            mainDataTable.Columns.Add("PlaceOfBirth", typeof(string));
+            mainDataTable.Columns.Add("IsReferredByExistingEmployee", typeof(bool));
+            mainDataTable.Columns.Add("ReferredByEmployeeName", typeof(string));
+            mainDataTable.Columns.Add("BloodGroup", typeof(string));
+            mainDataTable.Columns.Add("AadharCardNo", typeof(string));
+            mainDataTable.Columns.Add("PANNo", typeof(string));
+            mainDataTable.Columns.Add("Allergies", typeof(string));
+            mainDataTable.Columns.Add("IsRelativesWorkingWithCompany", typeof(bool));
+            mainDataTable.Columns.Add("RelativesDetails", typeof(string));
+            mainDataTable.Columns.Add("MajorIllnessOrDisability", typeof(string));
+            mainDataTable.Columns.Add("AwardsAchievements", typeof(string));
+            mainDataTable.Columns.Add("EducationGap", typeof(string));
+            mainDataTable.Columns.Add("ExtraCurricularActivities", typeof(string));
+            mainDataTable.Columns.Add("ForeignCountryVisits", typeof(string));
+            mainDataTable.Columns.Add("ContactPersonName", typeof(string));
+            mainDataTable.Columns.Add("ContactPersonMobile", typeof(string));
+            mainDataTable.Columns.Add("ContactPersonTelephone", typeof(string));
+            mainDataTable.Columns.Add("ContactPersonRelationship", typeof(string));
+            mainDataTable.Columns.Add("ITSkillsKnowledge", typeof(string));
+            mainDataTable.Columns.Add("JoiningDate", typeof(string));
+            mainDataTable.Columns.Add("DesignationName", typeof(string));
+            mainDataTable.Columns.Add("EmployeeType", typeof(string));
+            mainDataTable.Columns.Add("DepartmentName", typeof(string));
+            mainDataTable.Columns.Add("SubDepartmentName", typeof(string));
+            mainDataTable.Columns.Add("ShiftTypeName", typeof(string));
+            mainDataTable.Columns.Add("JobLocationName", typeof(string));
+            mainDataTable.Columns.Add("ReportingToIDL1Name", typeof(string));
+            mainDataTable.Columns.Add("ReportingToIDL2Name", typeof(string));
+            mainDataTable.Columns.Add("OfficialEmailID", typeof(string));
+            mainDataTable.Columns.Add("OfficialContactNo", typeof(string));
+            mainDataTable.Columns.Add("PayrollTypeName", typeof(string));
+            mainDataTable.Columns.Add("LeavePolicyName", typeof(string));
+            mainDataTable.Columns.Add("ClientName", typeof(string));
+            mainDataTable.Columns.Add("RoleName", typeof(string));
+            mainDataTable.Columns.Add("ForiegnCountryVisits", typeof(string));
+            mainDataTable.Columns.Add("ExtraCuricuarActivities", typeof(string));
+            mainDataTable.Columns.Add("Gender", typeof(string));
+            mainDataTable.Columns.Add("ESINumber", typeof(string));
+            mainDataTable.Columns.Add("RegistrationDateInESIC", typeof(string));
+            mainDataTable.Columns.Add("BankAccountNumber", typeof(string));
+            mainDataTable.Columns.Add("IFSCCode", typeof(string));
+            mainDataTable.Columns.Add("BankName", typeof(string));
+            mainDataTable.Columns.Add("DOJInTraining", typeof(string));
+            mainDataTable.Columns.Add("DOJOnFloor", typeof(string));
+            mainDataTable.Columns.Add("DOJInOJTOnroll", typeof(string));
+            mainDataTable.Columns.Add("DateOfResignation", typeof(string));
+            mainDataTable.Columns.Add("DateOfLeaving", typeof(string));
+            mainDataTable.Columns.Add("BackOnFloor", typeof(string));
+            mainDataTable.Columns.Add("LeavingType", typeof(string));
+            mainDataTable.Columns.Add("LeavingRemarks", typeof(string));
+            mainDataTable.Columns.Add("NoticeServed", typeof(string));
+            mainDataTable.Columns.Add("MailReceivedFromAndDate", typeof(string));
+            mainDataTable.Columns.Add("DateOfEmailSentToITForIDDeletion", typeof(string));
+            mainDataTable.Columns.Add("AON", typeof(string));
+            mainDataTable.Columns.Add("PreviousExperience", typeof(string));
+            mainDataTable.Columns.Add("Excel file", typeof(string));
+            DataTable errorDataTable = new DataTable();
+            errorDataTable = mainDataTable.Clone();
+            errorDataTable.Columns.Add("ErrorColumn", typeof(string));
+            errorDataTable.Columns.Add("ErrorMessage", typeof(string));
+            try
+            {
                     using (var stream = new MemoryStream())
                     {
                         await file.CopyToAsync(stream);
@@ -164,14 +250,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         {
                             return Json(new { error = "Unsupported file format." });
                         }
-
                         using (var package = new ExcelPackage(stream))
                         {
                             ExcelWorksheet worksheet = package.Workbook.Worksheets.FirstOrDefault();
                             if (worksheet == null)
                             {
-                                return Json(new { error = "No worksheet found in the file." });
-                            }
+                            var errorDataRow = errorDataTable.NewRow();
+                            errorDataRow["ErrorColumn"] = "Excel file";
+                            errorDataRow["ErrorMessage"] = $"The Excel sheet is empty.";
+                            errorDataTable.Rows.Add(errorDataRow);
+                            return Json(new { error = "Excel file is empty or missing data." });
+                        }
 
                             int totalColumns = worksheet.Dimension?.Columns ?? 0;
                             int totalRows = worksheet.Dimension?.Rows ?? 0;
@@ -185,8 +274,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             List<string> excelHeaders = new List<string>();
                             HashSet<string> headerCheck = new HashSet<string>(); // To check duplicates
                             Dictionary<string, int> columnIndexes = new Dictionary<string, int>(); // Store column index
-
-                            for (int col = 1; col <= totalColumns; col++)
+                        
+                        
+                        for (int col = 1; col <= totalColumns; col++)
                             {
                                 string header = worksheet.Cells[1, col].Text.Trim();
 
@@ -203,10 +293,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 }
 
                                 excelHeaders.Add(header);
-                                columnIndexes[header] = col; // Store column index
-                            }
-
-                            // Ensure required headers exist
+                                columnIndexes[header] = col; 
+                            }                           
                             HashSet<string> requiredHeaders = new HashSet<string> { "FirstName", "MiddleName", "Surname", "EmailAddress" };
                             if (!requiredHeaders.IsSubsetOf(headerCheck))
                             {
@@ -220,19 +308,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 string email = GetCellValue(worksheet, row, columnIndexes, "EmailAddress");
                                 if (string.IsNullOrEmpty(email) || uniqueEmails.Contains(email))
                                 {
-                                    continue;
+                                var errorRow = errorDataTable.NewRow();
+                                errorRow["ErrorColumn"] = "EmailAddress";
+                                errorRow["ErrorMessage"] = $"Row {row}: EmailAddress is required.";
+                                errorDataTable.Rows.Add(errorRow);
+                                continue;
                                 }
-
-                                string countryName = GetCellValue(worksheet, row, columnIndexes, "CorrespondenceCountryName");
-
-                                // Get Country ID from the dictionary (if exists)
+                                string countryName = GetCellValue(worksheet, row, columnIndexes, "CorrespondenceCountryName");                           
                                 long? countryId = countryDictionary.TryGetValue(countryName.ToLower().Trim(), out long id) ? id : (long?)0;
-                            
-                                string CompaniesName= GetCellValue(worksheet, row, columnIndexes, "CompanyName");
-
-                                // Get Country ID from the dictionary (if exists)
-                                long? GetCompanyId = CompaniesDictionary.TryGetValue(CompaniesName.ToLower().Trim(), out long CompanyId) ? CompanyId : (long?)0;
-                             
+                                string CompaniesName= GetCellValue(worksheet, row, columnIndexes, "CompanyName");                              
+                                long? GetCompanyId = CompaniesDictionary.TryGetValue(CompaniesName.ToLower().Trim(), out long CompanyId) ? CompanyId : (long?)0;       
                                 EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
                                 {
                                     CompanyID = GetCompanyId ??0,
@@ -247,17 +332,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 };
                                 var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                                 var SubDepartmentDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment);
-
-
                                 // Get SubDepartment Name with LIKE
                                 string SubDepartmentName = GetCellValue(worksheet, row, columnIndexes, "SubDepartmentName")?.Trim();
-                                long? SubDepartmentNameId = SubDepartmentDictionaries.TryGetValue(SubDepartmentName.ToLower().Trim(), out long DID) ? DID : (long?)null;
-
-                                // Initialize all variables with 0
+                                long? SubDepartmentNameId = SubDepartmentDictionaries.TryGetValue(SubDepartmentName.ToLower().Trim(), out long DID) ? DID : (long?)null;                         
                                 long DepartmentId = 0;
                                 long DesignationsId = 0;
-                                long EmploymentTypesId = 0;
-                          
+                                long EmploymentTypesId = 0;           
                                 long ShiftTypeId = 0;
                                 long JobLocationId = 0;
                                 long ReportingToIDL1Id = 0;
@@ -265,9 +345,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 long RoleId = 0;
                                 long PayrollTypeId = 0;
                                 long LeavePolicyId = 0;
-                                long GenderId = 0;
-
-                                // Get Department Name with LIKE
+                                long GenderId = 0;                     
                                 string departmentName = GetCellValue(worksheet, row, columnIndexes, "DepartmentName")?.Trim();
                           
                                 if (!string.IsNullOrEmpty(departmentName) && employmentDetailsDictionaries.TryGetValue("Departments", out var departmentDict))
@@ -457,10 +535,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 };                            
                             // list.Add(employee);
                             uniqueEmails.Add(email);
-                                var EmaployeeData = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                                var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
-                            }                     
-                        }
+                            list.Add(employee);
+                            
+                            }
+
+                        var EmployeeData = _businessLayer.SendPostAPIRequest(list, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                        var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
+
+                    }
                     }
                 }
                 catch (Exception ex)
@@ -470,6 +552,458 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 return Json(new { success = "Excel data imported successfully.", totalRecords = list.Count });
             }
+
+        [HttpPost]
+        public async Task<JsonResult> ImportExcels(IFormFile file)
+        {
+            if (file == null || !(file.ContentType == "application/vnd.ms-excel" ||
+                                  file.ContentType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Invalid file type. Please upload a valid Excel file."
+                });
+            }
+            try
+            {
+                var fileName = Path.GetFileName(file.FileName);
+                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets", "ImportFiles");
+
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                var filePath = Path.Combine(directoryPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                string htmlTable = ProcessExcelFile(filePath,file); 
+
+                if (!string.IsNullOrEmpty(htmlTable) && htmlTable.Length > 5)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        hasErrors = true,
+                        message = "Some rows contain errors.",
+                        errorTable = htmlTable
+                    });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    message = $"File uploaded and processed successfully. Processed {htmlTable} records."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"An error occurred while processing the file: {ex.Message}"
+                });
+            }
+        }
+
+        public string ProcessExcelFile(string filePath, IFormFile file)
+        {
+            var list = new List<ImportEmployeeDetail>();
+            var data = _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var countryDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(data);
+            var GetCompaniesDictionary = _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCompaniesDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var CompaniesDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(GetCompaniesDictionary);
+            DataTable mainDataTable = new DataTable();
+            //mainDataTable.Columns.Add("EmployeeID", typeof(long));
+            mainDataTable.Columns.Add("EmployeeNumber", typeof(string));
+            mainDataTable.Columns.Add("CompanyName", typeof(string));
+            mainDataTable.Columns.Add("FirstName", typeof(string));
+            mainDataTable.Columns.Add("MiddleName", typeof(string));
+            mainDataTable.Columns.Add("Surname", typeof(string));
+            mainDataTable.Columns.Add("CorrespondenceAddress", typeof(string));
+            //mainDataTable.Columns.Add("CorrespondenceCity", typeof(string));
+            //mainDataTable.Columns.Add("CorrespondencePinCode", typeof(string));
+            //mainDataTable.Columns.Add("CorrespondenceState", typeof(string));
+            //mainDataTable.Columns.Add("CorrespondenceCountryName", typeof(string));
+            //mainDataTable.Columns.Add("EmailAddress", typeof(string));
+            //mainDataTable.Columns.Add("Landline", typeof(string));
+            //mainDataTable.Columns.Add("Mobile", typeof(string));
+            //mainDataTable.Columns.Add("Telephone", typeof(string));
+            //mainDataTable.Columns.Add("PersonalEmailAddress", typeof(string));
+            //mainDataTable.Columns.Add("PermanentAddress", typeof(string));
+            //mainDataTable.Columns.Add("PermanentCity", typeof(string));
+            //mainDataTable.Columns.Add("PermanentPinCode", typeof(string));
+            //mainDataTable.Columns.Add("PermanentState", typeof(string));
+            //mainDataTable.Columns.Add("PermanentCountryName", typeof(string));
+            //mainDataTable.Columns.Add("PeriodOfStay", typeof(string));
+            //mainDataTable.Columns.Add("VerificationContactPersonName", typeof(string));
+            //mainDataTable.Columns.Add("VerificationContactPersonContactNo", typeof(string));
+            //mainDataTable.Columns.Add("DateOfBirth", typeof(string));
+            //mainDataTable.Columns.Add("PlaceOfBirth", typeof(string));
+            //mainDataTable.Columns.Add("IsReferredByExistingEmployee", typeof(bool));
+            //mainDataTable.Columns.Add("ReferredByEmployeeName", typeof(string));
+            //mainDataTable.Columns.Add("BloodGroup", typeof(string));
+            //mainDataTable.Columns.Add("AadharCardNo", typeof(string));
+            //mainDataTable.Columns.Add("PANNo", typeof(string));
+            //mainDataTable.Columns.Add("Allergies", typeof(string));
+            //mainDataTable.Columns.Add("IsRelativesWorkingWithCompany", typeof(bool));
+            //mainDataTable.Columns.Add("RelativesDetails", typeof(string));
+            //mainDataTable.Columns.Add("MajorIllnessOrDisability", typeof(string));
+            //mainDataTable.Columns.Add("AwardsAchievements", typeof(string));
+            //mainDataTable.Columns.Add("EducationGap", typeof(string));
+            //mainDataTable.Columns.Add("ExtraCurricularActivities", typeof(string));
+            //mainDataTable.Columns.Add("ForeignCountryVisits", typeof(string));
+            //mainDataTable.Columns.Add("ContactPersonName", typeof(string));
+            //mainDataTable.Columns.Add("ContactPersonMobile", typeof(string));
+            //mainDataTable.Columns.Add("ContactPersonTelephone", typeof(string));
+            //mainDataTable.Columns.Add("ContactPersonRelationship", typeof(string));
+            //mainDataTable.Columns.Add("ITSkillsKnowledge", typeof(string));
+            //mainDataTable.Columns.Add("JoiningDate", typeof(string));
+            //mainDataTable.Columns.Add("DesignationName", typeof(string));
+            //mainDataTable.Columns.Add("EmployeeType", typeof(string));
+            //mainDataTable.Columns.Add("DepartmentName", typeof(string));
+            //mainDataTable.Columns.Add("SubDepartmentName", typeof(string));
+            //mainDataTable.Columns.Add("ShiftTypeName", typeof(string));
+            //mainDataTable.Columns.Add("JobLocationName", typeof(string));
+            //mainDataTable.Columns.Add("ReportingToIDL1Name", typeof(string));
+            //mainDataTable.Columns.Add("ReportingToIDL2Name", typeof(string));
+            //mainDataTable.Columns.Add("OfficialEmailID", typeof(string));
+            //mainDataTable.Columns.Add("OfficialContactNo", typeof(string));
+            //mainDataTable.Columns.Add("PayrollTypeName", typeof(string));
+            //mainDataTable.Columns.Add("LeavePolicyName", typeof(string));
+            //mainDataTable.Columns.Add("ClientName", typeof(string));
+            //mainDataTable.Columns.Add("RoleName", typeof(string));
+            //mainDataTable.Columns.Add("ForiegnCountryVisits", typeof(string));
+            //mainDataTable.Columns.Add("ExtraCuricuarActivities", typeof(string));
+             //mainDataTable.Columns.Add("Gender", typeof(string));
+            //mainDataTable.Columns.Add("ESINumber", typeof(string));
+            //mainDataTable.Columns.Add("RegistrationDateInESIC", typeof(string));
+            //mainDataTable.Columns.Add("BankAccountNumber", typeof(string));
+            //mainDataTable.Columns.Add("IFSCCode", typeof(string));
+            //mainDataTable.Columns.Add("BankName", typeof(string));
+            //mainDataTable.Columns.Add("DOJInTraining", typeof(string));
+            //mainDataTable.Columns.Add("DOJOnFloor", typeof(string));
+            //mainDataTable.Columns.Add("DOJInOJTOnroll", typeof(string));
+            //mainDataTable.Columns.Add("DateOfResignation", typeof(string));
+            //mainDataTable.Columns.Add("DateOfLeaving", typeof(string));
+            //mainDataTable.Columns.Add("BackOnFloor", typeof(string));
+            //mainDataTable.Columns.Add("LeavingType", typeof(string));
+            //mainDataTable.Columns.Add("LeavingRemarks", typeof(string));
+            //mainDataTable.Columns.Add("NoticeServed", typeof(string));
+            //mainDataTable.Columns.Add("MailReceivedFromAndDate", typeof(string));
+            //mainDataTable.Columns.Add("DateOfEmailSentToITForIDDeletion", typeof(string));
+            //mainDataTable.Columns.Add("AON", typeof(string));
+            //mainDataTable.Columns.Add("PreviousExperience", typeof(string));
+            mainDataTable.Columns.Add("Excel file", typeof(string));
+            DataTable errorDataTable = new DataTable();
+            errorDataTable = mainDataTable.Clone();
+            errorDataTable.Columns.Add("ErrorColumn", typeof(string));
+            errorDataTable.Columns.Add("ErrorMessage", typeof(string));
+                using (var stream = new MemoryStream())
+                {
+                file.CopyTo(stream);
+                stream.Position = 0; // Reset the stream before reading
+
+                    var fileExtension = Path.GetExtension(file.FileName).ToLower();                
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                        if (worksheet == null)
+                        {
+                            var errorDataRow = errorDataTable.NewRow();
+                            errorDataRow["ErrorColumn"] = "Excel file";
+                            errorDataRow["ErrorMessage"] = $"The Excel sheet is empty.";
+                            errorDataTable.Rows.Add(errorDataRow);
+                        return ConvertDataTableToHTML(errorDataTable);
+                    }
+
+                        int totalColumns = worksheet.Dimension?.Columns ?? 0;
+                        int totalRows = worksheet.Dimension?.Rows ?? 0;
+                        if (totalColumns == 0 || totalRows < 2)
+                        {
+                        var errorDataRow = errorDataTable.NewRow();
+                        errorDataRow["ErrorColumn"] = "Excel file";
+                        errorDataRow["ErrorMessage"] = $"The Excel sheet is empty.";
+                        errorDataTable.Rows.Add(errorDataRow);
+                        return ConvertDataTableToHTML(errorDataTable);
+                    }
+
+                        // Read headers from the first row
+                        List<string> excelHeaders = new List<string>();
+                        HashSet<string> headerCheck = new HashSet<string>(); // To check duplicates
+                        Dictionary<string, int> columnIndexes = new Dictionary<string, int>(); // Store column index
+
+                    bool isHeaderValid = ValidateHeaderRow(worksheet, mainDataTable);
+                    if (!isHeaderValid)
+                    {
+                      
+                        var errorDataRow = errorDataTable.NewRow();
+                        errorDataRow["ErrorColumn"] = "Excel file";
+                        errorDataRow["ErrorMessage"] = "The Excel file's header does not match the expected format.";
+                        errorDataTable.Rows.Add(errorDataRow);
+
+                        return ConvertDataTableToHTML(errorDataTable);
+                    }
+                    for (int col = 1; col <= totalColumns; col++)
+                    {
+                        string header = worksheet.Cells[1, col].Text.Trim();                                     
+                        excelHeaders.Add(header);
+                        columnIndexes[header] = col; 
+                    }
+
+
+                 
+
+                        HashSet<string> uniqueEmails = new HashSet<string>(); // Store unique emails
+
+                        for (int row = 2; row <= totalRows; row++)
+                        {
+                            string email = GetCellValue(worksheet, row, columnIndexes, "EmailAddress");
+                            if (string.IsNullOrEmpty(email) || uniqueEmails.Contains(email))
+                            {
+                              
+                                continue;
+                            }
+                            string countryName = GetCellValue(worksheet, row, columnIndexes, "CorrespondenceCountryName");
+                            long? countryId = countryDictionary.TryGetValue(countryName.ToLower().Trim(), out long id) ? id : (long?)0;
+                            string CompaniesName = GetCellValue(worksheet, row, columnIndexes, "CompanyName");
+                            long? GetCompanyId = CompaniesDictionary.TryGetValue(CompaniesName.ToLower().Trim(), out long CompanyId) ? CompanyId : (long?)0;
+                            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
+                            {
+                                CompanyID = GetCompanyId ?? 0,
+                                EmployeeID = 0
+                            };
+                            var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                            var employmentDetailsDictionaries = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long>>>(EmploymentDetailsDictionaries);
+                            EmployeeInputParams employmentSubDepartmentInputParams = new EmployeeInputParams()
+                            {
+                                CompanyID = GetCompanyId ?? 0,
+                            };
+                            var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                            var SubDepartmentDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment);
+                            // Get SubDepartment Name with LIKE
+                            string SubDepartmentName = GetCellValue(worksheet, row, columnIndexes, "SubDepartmentName")?.Trim();
+                            long? SubDepartmentNameId = SubDepartmentDictionaries.TryGetValue(SubDepartmentName.ToLower().Trim(), out long DID) ? DID : (long?)null;
+                            long DepartmentId = 0;
+                            long DesignationsId = 0;
+                            long EmploymentTypesId = 0;
+                            long ShiftTypeId = 0;
+                            long JobLocationId = 0;
+                            long ReportingToIDL1Id = 0;
+                            long ReportingToIDL2Id = 0;
+                            long RoleId = 0;
+                            long PayrollTypeId = 0;
+                            long LeavePolicyId = 0;
+                            long GenderId = 0;
+                            string departmentName = GetCellValue(worksheet, row, columnIndexes, "DepartmentName")?.Trim();
+
+                            if (!string.IsNullOrEmpty(departmentName) && employmentDetailsDictionaries.TryGetValue("Departments", out var departmentDict))
+                            {
+                                DepartmentId = departmentDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(departmentName, StringComparison.OrdinalIgnoreCase)).Value;
+                                if (DepartmentId == 0) DepartmentId = 0; // Default to 0 if no match is found
+                            }
+
+                            // Get Designation Name with LIKE
+                            string DesignationName = GetCellValue(worksheet, row, columnIndexes, "DesignationName")?.Trim();
+                            if (!string.IsNullOrEmpty(DesignationName) && employmentDetailsDictionaries.TryGetValue("Designations", out var DesignationsDict))
+                            {
+                                DesignationsId = DesignationsDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(DesignationName, StringComparison.OrdinalIgnoreCase)).Value;
+                                if (DesignationsId == 0) DesignationsId = 0;
+                            }
+
+                            // Get Employee Type with LIKE
+                            string EmployeeType = GetCellValue(worksheet, row, columnIndexes, "EmployeeType")?.Trim();
+                            if (!string.IsNullOrEmpty(EmployeeType) && employmentDetailsDictionaries.TryGetValue("EmploymentTypes", out var EmploymentTypesDict))
+                            {
+                                EmploymentTypesId = EmploymentTypesDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(EmployeeType, StringComparison.OrdinalIgnoreCase)).Value;
+                                if (EmploymentTypesId == 0) EmploymentTypesId = 0;
+                            }
+
+
+
+                            // Get ShiftType Name with LIKE
+                            string ShiftTypeName = GetCellValue(worksheet, row, columnIndexes, "ShiftTypeName")?.Trim();
+                            if (!string.IsNullOrEmpty(ShiftTypeName) && employmentDetailsDictionaries.TryGetValue("ShiftTypes", out var ShiftTypeNameDict))
+                            {
+                                ShiftTypeId = ShiftTypeNameDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(ShiftTypeName, StringComparison.OrdinalIgnoreCase)).Value;
+                                if (ShiftTypeId == 0) ShiftTypeId = 0;
+                            }
+
+                            // Get JobLocation Name with LIKE
+                            string JobLocationName = GetCellValue(worksheet, row, columnIndexes, "JobLocationName")?.Trim();
+                            if (!string.IsNullOrEmpty(JobLocationName) && employmentDetailsDictionaries.TryGetValue("JobLocations", out var JobLocationNameDict))
+                            {
+                                JobLocationId = JobLocationNameDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(JobLocationName, StringComparison.OrdinalIgnoreCase)).Value;
+                                if (JobLocationId == 0) JobLocationId = 0;
+                            }
+
+                            // Get ReportingToIDL1 Name with LIKE
+                            string ReportingToIDL1Name = GetCellValue(worksheet, row, columnIndexes, "ReportingToIDL1Name")?.Trim();
+                            if (!string.IsNullOrEmpty(ReportingToIDL1Name) && employmentDetailsDictionaries.TryGetValue("Employees", out var ReportingToIDL1NameDict))
+                            {
+                                ReportingToIDL1Id = ReportingToIDL1NameDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(ReportingToIDL1Name.ToLower(), StringComparison.OrdinalIgnoreCase)).Value;
+                                if (ReportingToIDL1Id == 0) ReportingToIDL1Id = 0;
+                            }
+
+                            // Get ReportingToIDL2 Name with LIKE
+                            string ReportingToIDL2Name = GetCellValue(worksheet, row, columnIndexes, "ReportingToIDL2Name")?.Trim();
+                            if (!string.IsNullOrEmpty(ReportingToIDL2Name) && employmentDetailsDictionaries.TryGetValue("Employees", out var ReportingToIDL2NameDict))
+                            {
+                                ReportingToIDL2Id = ReportingToIDL2NameDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(ReportingToIDL2Name.ToLower(), StringComparison.OrdinalIgnoreCase)).Value;
+                                if (ReportingToIDL2Id == 0) ReportingToIDL2Id = 0;
+                            }
+
+                            // Get Role Name with LIKE
+                            string RoleName = GetCellValue(worksheet, row, columnIndexes, "RoleName")?.Trim();
+                            if (!string.IsNullOrEmpty(RoleName) && employmentDetailsDictionaries.TryGetValue("Roles", out var RoleNameDict))
+                            {
+                                RoleId = RoleNameDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(RoleName, StringComparison.OrdinalIgnoreCase)).Value;
+                                if (RoleId == 0) RoleId = 0;
+                            }
+
+                            // Get PayrollType Name with LIKE
+                            string PayrollTypeName = GetCellValue(worksheet, row, columnIndexes, "PayrollTypeName")?.Trim();
+                            if (!string.IsNullOrEmpty(PayrollTypeName) && employmentDetailsDictionaries.TryGetValue("PayrollTypes", out var PayrollTypeNameDict))
+                            {
+                                PayrollTypeId = PayrollTypeNameDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(PayrollTypeName, StringComparison.OrdinalIgnoreCase)).Value;
+                                if (PayrollTypeId == 0) PayrollTypeId = 0;
+                            }
+
+                            // Get LeavePolicy Name with LIKE
+                            string LeavePolicyName = GetCellValue(worksheet, row, columnIndexes, "LeavePolicyName")?.Trim();
+                            if (!string.IsNullOrEmpty(LeavePolicyName) && employmentDetailsDictionaries.TryGetValue("LeavePolicies", out var LeavePolicyNameDict))
+                            {
+                                LeavePolicyId = LeavePolicyNameDict
+                                    .FirstOrDefault(kvp => kvp.Key.Contains(LeavePolicyName, StringComparison.OrdinalIgnoreCase)).Value;
+                                if (LeavePolicyId == 0) LeavePolicyId = 0;
+                            }
+
+                            // Get Gender (Male or Female)
+                            string GenderName = GetCellValue(worksheet, row, columnIndexes, "Gender")?.Trim();
+                            if (GenderName == "FeMale")
+                            {
+                                GenderId = 2;  // Female
+                            }
+                            else
+                            {
+                                GenderId = 1;  // Male or Default
+                            }
+
+                            var employee = new ImportEmployeeDetail
+                            {
+                                EmployeeNumber = GetCellValue(worksheet, row, columnIndexes, "EmployeeNumber"),
+                                CompanyName = GetCompanyId.ToString(),
+                                FirstName = GetCellValue(worksheet, row, columnIndexes, "FirstName"),
+                                MiddleName = GetCellValue(worksheet, row, columnIndexes, "MiddleName"),
+                                Surname = GetCellValue(worksheet, row, columnIndexes, "Surname"),
+                                CorrespondenceAddress = GetCellValue(worksheet, row, columnIndexes, "CorrespondenceAddress"),
+                                CorrespondenceCity = GetCellValue(worksheet, row, columnIndexes, "CorrespondenceCity"),
+                                CorrespondencePinCode = GetCellValue(worksheet, row, columnIndexes, "CorrespondencePinCode"),
+                                CorrespondenceState = GetCellValue(worksheet, row, columnIndexes, "CorrespondenceState"),
+                                CorrespondenceCountryName = countryId.ToString(),
+                                EmailAddress = email,
+                                Landline = GetCellValue(worksheet, row, columnIndexes, "Landline"),
+                                Mobile = GetCellValue(worksheet, row, columnIndexes, "Mobile"),
+                                Telephone = GetCellValue(worksheet, row, columnIndexes, "Telephone"),
+                                PersonalEmailAddress = GetCellValue(worksheet, row, columnIndexes, "PersonalEmailAddress"),
+                                PermanentAddress = GetCellValue(worksheet, row, columnIndexes, "PermanentAddress"),
+                                PermanentCity = GetCellValue(worksheet, row, columnIndexes, "PermanentCity"),
+                                PermanentPinCode = GetCellValue(worksheet, row, columnIndexes, "PermanentPinCode"),
+                                PermanentState = GetCellValue(worksheet, row, columnIndexes, "PermanentState"),
+                                PermanentCountryName = GetCellValue(worksheet, row, columnIndexes, "PermanentCountryName"),
+                                PeriodOfStay = GetCellValue(worksheet, row, columnIndexes, "PeriodOfStay"),
+                                VerificationContactPersonName = GetCellValue(worksheet, row, columnIndexes, "VerificationContactPersonName"),
+                                VerificationContactPersonContactNo = GetCellValue(worksheet, row, columnIndexes, "VerificationContactPersonContactNo"),
+                                DateOfBirth = "1990 - 01 - 01",
+                                PlaceOfBirth = GetCellValue(worksheet, row, columnIndexes, "PlaceOfBirth"),
+                                IsReferredByExistingEmployee = GetBooleanValue(worksheet, row, columnIndexes, "IsReferredByExistingEmployee"),
+                                ReferredByEmployeeName = GetCellValue(worksheet, row, columnIndexes, "ReferredByEmployeeName"),
+                                BloodGroup = GetCellValue(worksheet, row, columnIndexes, "BloodGroup"),
+                                AadharCardNo = GetCellValue(worksheet, row, columnIndexes, "AadharCardNo"),
+                                PANNo = GetCellValue(worksheet, row, columnIndexes, "PANNo"),
+                                Allergies = GetCellValue(worksheet, row, columnIndexes, "Allergies"),
+                                IsRelativesWorkingWithCompany = GetBooleanValue(worksheet, row, columnIndexes, "IsRelativesWorkingWithCompany"),
+                                RelativesDetails = GetCellValue(worksheet, row, columnIndexes, "RelativesDetails"),
+                                MajorIllnessOrDisability = GetCellValue(worksheet, row, columnIndexes, "MajorIllnessOrDisability"),
+                                AwardsAchievements = GetCellValue(worksheet, row, columnIndexes, "AwardsAchievements"),
+                                EducationGap = GetCellValue(worksheet, row, columnIndexes, "EducationGap"),
+                                ExtraCurricularActivities = GetCellValue(worksheet, row, columnIndexes, "ExtraCurricularActivities"),
+                                ForeignCountryVisits = GetCellValue(worksheet, row, columnIndexes, "ForeignCountryVisits"),
+                                ContactPersonName = GetCellValue(worksheet, row, columnIndexes, "ContactPersonName"),
+                                ContactPersonMobile = GetCellValue(worksheet, row, columnIndexes, "ContactPersonMobile"),
+                                ContactPersonTelephone = GetCellValue(worksheet, row, columnIndexes, "ContactPersonTelephone"),
+                                ContactPersonRelationship = GetCellValue(worksheet, row, columnIndexes, "ContactPersonRelationship"),
+                                ITSkillsKnowledge = GetCellValue(worksheet, row, columnIndexes, "ITSkillsKnowledge"),
+                                JoiningDate = GetCellValue(worksheet, row, columnIndexes, "JoiningDate"),
+                                DesignationName = DesignationsId.ToString(),
+                                EmployeeType = EmploymentTypesId.ToString(),
+                                DepartmentName = DepartmentId.ToString(),
+                                SubDepartmentName = SubDepartmentNameId.ToString(),
+                                ShiftTypeName = ShiftTypeId.ToString(),
+                                JobLocationName = JobLocationId.ToString(),
+                                ReportingToIDL1Name = ReportingToIDL1Id.ToString(),
+                                ReportingToIDL2Name = ReportingToIDL2Id.ToString(),
+                                OfficialEmailID = GetCellValue(worksheet, row, columnIndexes, "OfficialEmailID"),
+                                OfficialContactNo = GetCellValue(worksheet, row, columnIndexes, "OfficialContactNo"),
+                                PayrollTypeName = PayrollTypeId.ToString(),
+                                LeavePolicyName = LeavePolicyId.ToString(),
+                                ClientName = GetCellValue(worksheet, row, columnIndexes, "ClientName"),
+                                RoleName = RoleId.ToString(),
+                                ForiegnCountryVisits = GetCellValue(worksheet, row, columnIndexes, "ForiegnCountryVisits"),
+                                ExtraCuricuarActivities = GetCellValue(worksheet, row, columnIndexes, "ExtraCuricuarActivities"),
+                                ESINumber = GetCellValue(worksheet, row, columnIndexes, "ESI Number"),
+                                BankAccountNumber = GetCellValue(worksheet, row, columnIndexes, "Bank Account Number"),
+                                RegistrationDateInESIC = GetCellValue(worksheet, row, columnIndexes, "Registration Date in ESIC"),
+                                IFSCCode = GetCellValue(worksheet, row, columnIndexes, "IFSC CODE"),
+                                BankName = GetCellValue(worksheet, row, columnIndexes, "BANK NAME"),
+                                DOJInTraining = GetCellValue(worksheet, row, columnIndexes, "D.O.J in Training"),
+                                DOJInOJTOnroll = GetCellValue(worksheet, row, columnIndexes, "DOJ IN OJT/Onroll"),
+                                DateOfResignation = GetCellValue(worksheet, row, columnIndexes, "DATE OF RESIGNATION/intimation"),
+                                DateOfLeaving = GetCellValue(worksheet, row, columnIndexes, "DOL"),
+                                BackOnFloor = GetCellValue(worksheet, row, columnIndexes, "Back On Floor"),
+                                LeavingType = GetCellValue(worksheet, row, columnIndexes, "Leaving Type"),
+                                LeavingRemarks = GetCellValue(worksheet, row, columnIndexes, "Leaving Remarks"),
+                                NoticeServed = GetCellValue(worksheet, row, columnIndexes, "Notice Served"),
+                                MailReceivedFromAndDate = GetCellValue(worksheet, row, columnIndexes, "Mail received from and Date"),
+                                DateOfEmailSentToITForIDDeletion = GetCellValue(worksheet, row, columnIndexes, "DateOfEmailSentToITForIDDeletion"),
+                                PreviousExperience = GetCellValue(worksheet, row, columnIndexes, "Previous Experience"),
+                                AON = GetCellValue(worksheet, row, columnIndexes, "AON"),
+
+                                Gender = GenderId.ToString(),
+                                EmployeeID = 0,
+
+                            };
+                            // list.Add(employee);
+                            uniqueEmails.Add(email);
+                            list.Add(employee);
+
+                        }
+
+                        var EmployeeData = _businessLayer.SendPostAPIRequest(list, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                        var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
+
+                    }
+                }
+            
+           
+
+            return ConvertDataTableToHTML(errorDataTable);
+        }
+
 
         // Helper Method: Get Cell Value Safely
         private string GetCellValue(ExcelWorksheet worksheet, int row, Dictionary<string, int> columnIndexes, string columnName)
@@ -507,6 +1041,66 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return false;
         }
 
+        private bool IsValidData(string data)
+        {
+            if (string.IsNullOrWhiteSpace(data))
+                return false;
 
+            return true;
+        }
+
+        private bool IsNumeric(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            foreach (char c in value)
+            {
+                if (!char.IsDigit(c))
+                    return false;
+            }
+            return true;
+        }
+        private static string ConvertDataTableToHTML(DataTable dt)
+        {
+            if (dt.Rows.Count > 0)
+            {
+                var html = new System.Text.StringBuilder();
+                html.Append("<table border='1'>");
+                html.Append("<thead><tr>");
+
+                html.Append("<th>Error Location</th>");
+                html.Append("<th>Error Message</th>");
+
+                html.Append("</tr></thead>");
+                html.Append("<tbody>");
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    html.Append("<tr>");
+
+                    // Add only the ErrorColumn and ErrorMessage values
+                    html.Append("<td>").Append(row["ErrorColumn"]).Append("</td>");
+                    html.Append("<td>").Append(row["ErrorMessage"]).Append("</td>");
+
+                    html.Append("</tr>");
+                }
+
+                html.Append("</tbody></table>");
+                return html.ToString();
+            }
+            return string.Empty;
+        }
+        private static bool ValidateHeaderRow(ExcelWorksheet worksheet, DataTable mainDataTable)
+        {
+            for (int col = 1; col < mainDataTable.Columns.Count; col++)
+            {
+                if (!string.Equals(mainDataTable.Columns[col - 1].ColumnName, worksheet.Cells[1, col].Text.Trim(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
