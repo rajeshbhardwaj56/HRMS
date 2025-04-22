@@ -93,7 +93,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? AON  { get; set; }
         public string? PreviousExperience  { get; set; }
 
-        public List<ImportEmployeeDetail> ImportEmployeeDetails { get; set; }
+        
     }
 
     public class ImportEducationalDetail

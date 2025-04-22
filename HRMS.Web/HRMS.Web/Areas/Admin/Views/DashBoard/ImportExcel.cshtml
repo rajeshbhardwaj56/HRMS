@@ -11,18 +11,36 @@
 <style>
     .alert {
         margin-top: 15px;
-        padding: 10px;
-        border-radius: 5px;
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: 1px solid transparent;
     }
 
     .alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
+        background-color: #fdecea;
+        color: #b71c1c;
+        border-color: #f5c6cb;
     }
 
     .alert-success {
-        background-color: #d4edda;
-        color: #155724;
+        background-color: #e6f4ea;
+        color: #2e7d32;
+        border-color: #c3e6cb;
+    }
+
+    .custom-alert {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .small-text {
+        font-size: 0.875rem;
+    }
+
+    #upload-messages h5 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        font-weight: 600;
     }
 </style>
 
@@ -89,14 +107,14 @@
 
                 if (data.success && !data.hasErrors) {
                     $("#upload-messages").append(
-                        `<div class="alert alert-success">${data.message}</div>`
+                        `<div class="alert alert-success custom-alert">✔️ ${data.message}</div>`
                     );
                 }
 
                 if (data.hasErrors && data.errorTable) {
                     $("#upload-messages").append(`
-                        <div class="alert alert-danger">
-                            <h5>Errors in Uploaded File</h5>
+                        <div class="alert alert-danger custom-alert small-text">
+                            <h5>⚠️ Errors in Uploaded File</h5>
                             ${data.errorTable}
                         </div>
                     `);
@@ -104,14 +122,14 @@
 
                 if (!data.success && !data.hasErrors) {
                     $("#upload-messages").append(
-                        `<div class="alert alert-danger">${data.message}</div>`
+                        `<div class="alert alert-danger custom-alert">❌ ${data.message}</div>`
                     );
                 }
             },
             error: function (xhr, error, status) {
                 $("#btnfileupload").val("Import").prop('disabled', false);
                 $("#upload-messages").html(
-                    `<div class="alert alert-danger">Upload failed: ${error}</div>`
+                    `<div class="alert alert-danger custom-alert small-text">❌ Upload failed: ${error}</div>`
                 );
             }
         });
