@@ -12,6 +12,7 @@ using HRMS.Models.ShiftType;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.WhatsHappeningModel;
+using System.Data;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -92,6 +93,9 @@ namespace HRMS.API.BusinessLayer.ITF
         public Dictionary<string, Dictionary<string, long>> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model);
         public Dictionary<string, long> GetCompaniesDictionary();
         public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel);
+
+        public Result AddUpdateEmployeeFromExecel1(DataTable importDataTable);
+
         public Dictionary<string, long> GetSubDepartmentDictionary(EmployeeInputParams model);
         public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model);
         public Results GetAllWhatsHappeningDetails(WhatsHappeningModelParans model);

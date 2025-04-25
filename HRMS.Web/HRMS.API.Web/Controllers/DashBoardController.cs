@@ -1,4 +1,5 @@
-﻿using HRMS.API.BusinessLayer.ITF;
+﻿using System.Data;
+using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.DashBoard;
@@ -50,13 +51,22 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetEmploymentDetailsDictionaries(model));
             return response;
         }
-        
+
         [HttpPost]
-      
+
         public IActionResult AddUpdateEmployeeFromExecel(ImportEmployeeDetail model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.AddUpdateEmployeeFromExecel(model));
+            return response;
+        }
+
+        [HttpPost]
+
+        public IActionResult AddUpdateEmployeeFromExecel1(DataTable importDataTable )
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmployeeFromExecel1(importDataTable));
             return response;
         }
         [HttpPost] 

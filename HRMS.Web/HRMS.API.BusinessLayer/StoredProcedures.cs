@@ -16,6 +16,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_Currencies = "usp_Get_Currencies";
         public const string usp_Get_Languages = "usp_Get_Languages";
         public const string usp_AddUpdate_Employee = "usp_AddUpdate_Employee";
+        public const string usp_AddUpdateExcelImport = "usp_AddUpdateExcelImport";
         public const string usp_Get_FogotPasswordDetails = "usp_Get_FogotPasswordDetails";
         public const string usp_Get_Celebrations = "usp_Get_Celebrations";
         public const string usp_Get_CompanyDepartments = "usp_Get_CompanyDepartments";

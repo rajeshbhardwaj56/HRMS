@@ -2915,7 +2915,35 @@ namespace HRMS.API.BusinessLayer
             return employmentDictionaries;
         }
 
+        public Result AddUpdateEmployeeFromExecel1(DataTable importDataTable)
+        {
+            try
+            {
+                var parameters = new List<SqlParameter>
+        {
+            new SqlParameter("@EmployeeTVP", SqlDbType.Structured)
+            {
+                TypeName = "dbo.EmployeeTVP",
+                Value = importDataTable
+            }
+        };
 
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdateExcelImport, parameters);
+
+                return new Result
+                {
+                    Message = "Employee data imported successfully.",
+                    Data = dataSet
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result
+                {
+                    Message = $"Error while importing employee data: {ex.Message}"
+                };
+            }
+        }
 
         public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel)
         {
@@ -2990,44 +3018,44 @@ namespace HRMS.API.BusinessLayer
                    ).ToList().FirstOrDefault();
             }
             long employmentDetailID = 0;
-           
-           
-
-                List<SqlParameter> sqlParametersBank = new List<SqlParameter>();
-                sqlParametersBank.Add(new SqlParameter("@EmployeeID", model.UserID)); 
-                sqlParametersBank.Add(new SqlParameter("@BankAccountNumber", employeeModel.BankAccountNumber));
-                sqlParametersBank.Add(new SqlParameter("@IFSCCode", employeeModel.IFSCCode));
-                sqlParametersBank.Add(new SqlParameter("@BankName", employeeModel.BankName));
-                sqlParametersBank.Add(new SqlParameter("@UserID", model.UserID));
-                SqlParameterCollection pOutputParamsdataSetBankDetails = null;
-
-                var dataSetBankDetails = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeBankDetails, sqlParametersBank, ref pOutputParamsdataSetBankDetails);
-               
-                List<SqlParameter> sqlParameterSeparation = new List<SqlParameter>();
-
-                sqlParameterSeparation.Add(new SqlParameter("@EmployeeID", model.UserID));
-                sqlParameterSeparation.Add(new SqlParameter("@DateOfJoiningTraining", ConvertToDbValue(employeeModel.DOJInTraining)));
-                sqlParameterSeparation.Add(new SqlParameter("@DateOfJoiningFloor", ConvertToDbValue(employeeModel.JoiningDate)));
-                sqlParameterSeparation.Add(new SqlParameter("@DateOfJoiningOJT", ConvertToDbValue(employeeModel.DOJInOJTOnroll)));
-                sqlParameterSeparation.Add(new SqlParameter("@DateOfResignation", ConvertToDbValue(employeeModel.DateOfResignation)));
-                sqlParameterSeparation.Add(new SqlParameter("@DateOfLeaving", ConvertToDbValue(employeeModel.DateOfLeaving)));
-                sqlParameterSeparation.Add(new SqlParameter("@BackOnFloorDate", ConvertToDbValue(employeeModel.BackOnFloor)));
-                sqlParameterSeparation.Add(new SqlParameter("@LeavingRemarks", ConvertToDbValue(employeeModel.LeavingRemarks, isString: true)));
-                sqlParameterSeparation.Add(new SqlParameter("@MailReceivedFromAndDate", ConvertToDbValue(employeeModel.MailReceivedFromAndDate)));
-                sqlParameterSeparation.Add(new SqlParameter("@LeavingType", ConvertToDbValue(employeeModel.LeavingType, isString: true)));
-                sqlParameterSeparation.Add(new SqlParameter("@NoticeServed", ConvertToDbValue(employeeModel.NoticeServed, isString: true)));
-                sqlParameterSeparation.Add(new SqlParameter("@UserID", model.UserID));
-                sqlParameterSeparation.Add(new SqlParameter("@AgeOnNetwork", employeeModel.AON));
-                sqlParameterSeparation.Add(new SqlParameter("@PreviousExperience", employeeModel.PreviousExperience));
-
-                SqlParameterCollection pOutputParamSeparation = null;
 
 
-                var dataSetSeparation = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeSeparation, sqlParameterSeparation, ref pOutputParamSeparation);
-                if (dataSetSeparation.Tables[0].Columns.Contains("Result"))
-                {
-                 
-                }
+
+            List<SqlParameter> sqlParametersBank = new List<SqlParameter>();
+            sqlParametersBank.Add(new SqlParameter("@EmployeeID", model.UserID));
+            sqlParametersBank.Add(new SqlParameter("@BankAccountNumber", employeeModel.BankAccountNumber));
+            sqlParametersBank.Add(new SqlParameter("@IFSCCode", employeeModel.IFSCCode));
+            sqlParametersBank.Add(new SqlParameter("@BankName", employeeModel.BankName));
+            sqlParametersBank.Add(new SqlParameter("@UserID", model.UserID));
+            SqlParameterCollection pOutputParamsdataSetBankDetails = null;
+
+            var dataSetBankDetails = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeBankDetails, sqlParametersBank, ref pOutputParamsdataSetBankDetails);
+
+            List<SqlParameter> sqlParameterSeparation = new List<SqlParameter>();
+
+            sqlParameterSeparation.Add(new SqlParameter("@EmployeeID", model.UserID));
+            sqlParameterSeparation.Add(new SqlParameter("@DateOfJoiningTraining", ConvertToDbValue(employeeModel.DOJInTraining)));
+            sqlParameterSeparation.Add(new SqlParameter("@DateOfJoiningFloor", ConvertToDbValue(employeeModel.JoiningDate)));
+            sqlParameterSeparation.Add(new SqlParameter("@DateOfJoiningOJT", ConvertToDbValue(employeeModel.DOJInOJTOnroll)));
+            sqlParameterSeparation.Add(new SqlParameter("@DateOfResignation", ConvertToDbValue(employeeModel.DateOfResignation)));
+            sqlParameterSeparation.Add(new SqlParameter("@DateOfLeaving", ConvertToDbValue(employeeModel.DateOfLeaving)));
+            sqlParameterSeparation.Add(new SqlParameter("@BackOnFloorDate", ConvertToDbValue(employeeModel.BackOnFloor)));
+            sqlParameterSeparation.Add(new SqlParameter("@LeavingRemarks", ConvertToDbValue(employeeModel.LeavingRemarks, isString: true)));
+            sqlParameterSeparation.Add(new SqlParameter("@MailReceivedFromAndDate", ConvertToDbValue(employeeModel.MailReceivedFromAndDate)));
+            sqlParameterSeparation.Add(new SqlParameter("@LeavingType", ConvertToDbValue(employeeModel.LeavingType, isString: true)));
+            sqlParameterSeparation.Add(new SqlParameter("@NoticeServed", ConvertToDbValue(employeeModel.NoticeServed, isString: true)));
+            sqlParameterSeparation.Add(new SqlParameter("@UserID", model.UserID));
+            sqlParameterSeparation.Add(new SqlParameter("@AgeOnNetwork", employeeModel.AON));
+            sqlParameterSeparation.Add(new SqlParameter("@PreviousExperience", employeeModel.PreviousExperience));
+
+            SqlParameterCollection pOutputParamSeparation = null;
+
+
+            var dataSetSeparation = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeSeparation, sqlParameterSeparation, ref pOutputParamSeparation);
+            if (dataSetSeparation.Tables[0].Columns.Contains("Result"))
+            {
+
+            }
             long SuperAdminId = 36;
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@EmploymentDetailID", employmentDetailID));
@@ -3072,27 +3100,27 @@ namespace HRMS.API.BusinessLayer
 
             List<SqlParameter> sqlParameterss = new List<SqlParameter>();
 
-                sqlParameterss.Add(new SqlParameter("@RoleID", Convert.ToInt32(employeeModel.RoleName)));
-                sqlParameterss.Add(new SqlParameter("@UserID", model.UserID));
+            sqlParameterss.Add(new SqlParameter("@RoleID", Convert.ToInt32(employeeModel.RoleName)));
+            sqlParameterss.Add(new SqlParameter("@UserID", model.UserID));
 
-                SqlParameterCollection OutputParams1 = null;
+            SqlParameterCollection OutputParams1 = null;
 
-                var datasSet2 = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertUserRole, sqlParameterss, ref OutputParams1);
-                if (datasSet2.Tables[0].Columns.Contains("Result"))
-                {
-                    model = dataSet.Tables[0].AsEnumerable()
-                       .Select(dataRow =>
-                            new Result()
-                            {
-                                Message = dataRow.Field<string>("Result").ToString(),
-                                PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
-                                IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired")
-                            }
-                       ).ToList().FirstOrDefault();
-                }
+            var datasSet2 = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertUserRole, sqlParameterss, ref OutputParams1);
+            if (datasSet2.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                   .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
+                            IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired")
+                        }
+                   ).ToList().FirstOrDefault();
+            }
 
-        
-                
+
+
             return model;
         }
         private object ConvertToDbValue(object value, bool isString = false)
