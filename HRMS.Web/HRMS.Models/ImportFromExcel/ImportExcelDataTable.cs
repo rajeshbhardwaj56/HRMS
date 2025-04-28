@@ -95,8 +95,95 @@ namespace HRMS.Models.ImportFromExcel
         public long? CompanyID { get; set; }
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
+        public string? Surname { get; set; }  
+        public string? CorrespondenceAddress { get; set; }
+        public string? CorrespondenceCity { get; set; }
+        public string? CorrespondencePinCode { get; set; }
+        public string? CorrespondenceState { get; set; }
+        public long? CorrespondenceCountryID { get; set; }
+        public string? EmailAddress { get; set; }
+        public string? Landline { get; set; }
+        public string? Mobile { get; set; }
+        public string? Telephone { get; set; }
+        public string? PersonalEmailAddress { get; set; }
+        public string? PermanentAddress { get; set; }
+        public string? PermanentCity { get; set; }
+        public string? PermanentPinCode { get; set; }
+        public string? PermanentState { get; set; }
+        public long? PermanentCountryID { get; set; }
+        public string? PeriodOfStay { get; set; }
+        public string? VerificationContactPersonName { get; set; }
+        public string? VerificationContactPersonContactNo { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string? PlaceOfBirth { get; set; }
+        public bool? IsReferredByExistingEmployee { get; set; }
+        public string? ReferredByEmployeeID { get; set; }
+        public string? BloodGroup { get; set; }
+        public string? PANNo { get; set; }
+        public string? AadharCardNo { get; set; }
+        public string? Allergies { get; set; }
+        public bool? IsRelativesWorkingWithCompany { get; set; }
+        public string? RelativesDetails { get; set; }
+        public string? MajorIllnessOrDisability { get; set; }
+        public string? AwardsAchievements { get; set; }
+        public string? EducationGap { get; set; }
+        public string? ExtraCuricuarActivities { get; set; }
+        public string? ForiegnCountryVisits { get; set; }
+        public string? ContactPersonName { get; set; }
+        public string? ContactPersonMobile { get; set; }
+        public string? ContactPersonTelephone { get; set; }
+        public string? ContactPersonRelationship { get; set; }
+        public string? ITSkillsKnowledge { get; set; }
+        public long? InsertedByUserID { get; set; }    
+        public long? LeavePolicyID { get; set; }
+        public long? CarryForword { get; set; }
+        public int? Gender { get; set; } 
+        public string? AadhaarCardImage { get; set; }
+        public string? UserName { get; set; }
+        public string? PasswordHash { get; set; }
+        public string? Email { get; set; }       
+        public int RoleID { get; set; }
+        public string? EmployeNumber { get; set; }
+        public long? DesignationID { get; set; }
+        public long? EmployeeTypeID { get; set; }
+        public long? DepartmentID { get; set; }
+        public long? JobLocationID { get; set; }
+        public string? OfficialEmailID { get; set; }
+        public string? OfficialContactNo { get; set; }
+        public DateTime? JoiningDate { get; set; }
+        public DateTime? JobSeprationDate { get; set; }
+        public long? ReportingToIDL1 { get; set; }
+        public long? PayrollTypeID { get; set; }
+        public long? ReportingToIDL2 { get; set; }
+        public string? ClientName { get; set; }
+        public long? SubDepartmentID { get; set; }
+        public long? ShiftTypeID { get; set; }
+        public string? ESINumber { get; set; }
+        public DateTime? ESIRegistrationDate { get; set; }
+        public string? BankAccountNumber { get; set; }
+        public string? IFSCCode { get; set; }
+        public string?   BankName { get; set; }
+        public int? AgeOnNetwork { get; set; }
+        public int? NoticeServed { get; set; }
+        public string? LeavingType { get; set; }
+        public int? PreviousExperience { get; set; }
+        public DateTime? DateOfJoiningTraining { get; set; }
+        public DateTime? DateOfJoiningFloor { get; set; }
+        public DateTime? DateOfJoiningOJT { get; set; }
+        public DateTime? DateOfResignation { get; set; }
+        public DateTime? DateOfLeaving { get; set; }
+        public DateTime? BackOnFloorDate { get; set; }
+        public string? LeavingRemarks { get; set; }
+        public string? MailReceivedFromAndDate { get; set; }
+        public DateTime? EmailSentToITDate { get; set; }
+    }
+    public class ImportEmployeeOnlyIDModel
+    {
+        public long? EmployeeID { get; set; }
+        public long? CompanyID { get; set; }
+        public string? FirstName { get; set; }
+        public string? MiddleName { get; set; }
         public string? Surname { get; set; }
-        public string? ProfilePhoto { get; set; }
         public string? CorrespondenceAddress { get; set; }
         public string? CorrespondenceCity { get; set; }
         public string? CorrespondencePinCode { get; set; }
@@ -136,22 +223,13 @@ namespace HRMS.Models.ImportFromExcel
         public string? ContactPersonRelationship { get; set; }
         public string? ITSkillsKnowledge { get; set; }
         public long? InsertedByUserID { get; set; }
-        public long? UpdatedByUserID { get; set; }
-        public DateTime? InsertedDate { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public bool? IsActive { get; set; }
-        public bool? IsDeleted { get; set; }
         public long? LeavePolicyID { get; set; }
         public long? CarryForword { get; set; }
         public int? Gender { get; set; }
-        public string? PanCardImage { get; set; }
-        public string? AadhaarCardImage { get; set; }
         public string? UserName { get; set; }
         public string? PasswordHash { get; set; }
         public string? Email { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public bool IsResetPasswordRequired { get; set; }
-        public int RoleID { get; set; }
+        public int RoleID { get; set; } // Note: NOT NULL
         public string? EmployeNumber { get; set; }
         public long? DesignationID { get; set; }
         public long? EmployeeTypeID { get; set; }
@@ -171,7 +249,7 @@ namespace HRMS.Models.ImportFromExcel
         public DateTime? ESIRegistrationDate { get; set; }
         public string? BankAccountNumber { get; set; }
         public string? IFSCCode { get; set; }
-        public string?   BankName { get; set; }
+        public string? BankName { get; set; }
         public int? AgeOnNetwork { get; set; }
         public int? NoticeServed { get; set; }
         public string? LeavingType { get; set; }
@@ -185,5 +263,9 @@ namespace HRMS.Models.ImportFromExcel
         public string? LeavingRemarks { get; set; }
         public string? MailReceivedFromAndDate { get; set; }
         public DateTime? EmailSentToITDate { get; set; }
+    }
+    public class ImportEmployeeOnlyIDListModel
+    {
+        public List<ImportEmployeeOnlyIDModel> Employees { get; set; }
     }
 }

@@ -2915,23 +2915,25 @@ namespace HRMS.API.BusinessLayer
             return employmentDictionaries;
         }
 
-        public Result AddUpdateEmployeeFromExecel1(DataTable importDataTable)
+        public Result AddUpdateEmployeeFromExecel1(ImportEmployeeOnlyIDListModel importDataTable)
         {
             try
             {
+                var employeeDataTable = ConvertToDataTable(importDataTable.Employees);
+
                 var parameters = new List<SqlParameter>
         {
             new SqlParameter("@EmployeeTVP", SqlDbType.Structured)
             {
                 TypeName = "dbo.EmployeeTVP",
-                Value = importDataTable
+                Value = employeeDataTable
             }
         };
-
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdateExcelImport, parameters);
 
                 return new Result
                 {
+                 
                     Message = "Employee data imported successfully.",
                     Data = dataSet
                 };
@@ -2939,12 +2941,11 @@ namespace HRMS.API.BusinessLayer
             catch (Exception ex)
             {
                 return new Result
-                {
+                {               
                     Message = $"Error while importing employee data: {ex.Message}"
                 };
             }
         }
-
         public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel)
         {
             Result model = new Result();
@@ -3224,7 +3225,189 @@ namespace HRMS.API.BusinessLayer
 
         #endregion What's happening
 
+        private DataTable ConvertToDataTable(List<ImportEmployeeOnlyIDModel> employees)
+        {
+            var table = new DataTable();
 
+            // Define all the columns matching your TVP
+            table.Columns.Add("EmployeeID", typeof(long));
+            table.Columns.Add("CompanyID", typeof(long));
+            table.Columns.Add("FirstName", typeof(string));
+            table.Columns.Add("MiddleName", typeof(string));
+            table.Columns.Add("Surname", typeof(string));
+            table.Columns.Add("CorrespondenceAddress", typeof(string));
+            table.Columns.Add("CorrespondenceCity", typeof(string));
+            table.Columns.Add("CorrespondencePinCode", typeof(string));
+            table.Columns.Add("CorrespondenceState", typeof(string));
+            table.Columns.Add("CorrespondenceCountryID", typeof(long));
+            table.Columns.Add("EmailAddress", typeof(string));
+            table.Columns.Add("Landline", typeof(string));
+            table.Columns.Add("Mobile", typeof(string));
+            table.Columns.Add("Telephone", typeof(string));
+            table.Columns.Add("PersonalEmailAddress", typeof(string));
+            table.Columns.Add("PermanentAddress", typeof(string));
+            table.Columns.Add("PermanentCity", typeof(string));
+            table.Columns.Add("PermanentPinCode", typeof(string));
+            table.Columns.Add("PermanentState", typeof(string));
+            table.Columns.Add("PermanentCountryID", typeof(long));
+            table.Columns.Add("PeriodOfStay", typeof(string));
+            table.Columns.Add("VerificationContactPersonName", typeof(string));
+            table.Columns.Add("VerificationContactPersonContactNo", typeof(string));
+            table.Columns.Add("DateOfBirth", typeof(DateTime));
+            table.Columns.Add("PlaceOfBirth", typeof(string));
+            table.Columns.Add("IsReferredByExistingEmployee", typeof(bool));
+            table.Columns.Add("ReferredByEmployeeID", typeof(string));
+            table.Columns.Add("BloodGroup", typeof(string));
+            table.Columns.Add("PANNo", typeof(string));
+            table.Columns.Add("AadharCardNo", typeof(string));
+            table.Columns.Add("Allergies", typeof(string));
+            table.Columns.Add("IsRelativesWorkingWithCompany", typeof(bool));
+            table.Columns.Add("RelativesDetails", typeof(string));
+            table.Columns.Add("MajorIllnessOrDisability", typeof(string));
+            table.Columns.Add("AwardsAchievements", typeof(string));
+            table.Columns.Add("EducationGap", typeof(string));
+            table.Columns.Add("ExtraCuricuarActivities", typeof(string));
+            table.Columns.Add("ForiegnCountryVisits", typeof(string));
+            table.Columns.Add("ContactPersonName", typeof(string));
+            table.Columns.Add("ContactPersonMobile", typeof(string));
+            table.Columns.Add("ContactPersonTelephone", typeof(string));
+            table.Columns.Add("ContactPersonRelationship", typeof(string));
+            table.Columns.Add("ITSkillsKnowledge", typeof(string));
+            table.Columns.Add("InsertedByUserID", typeof(long));
+            table.Columns.Add("LeavePolicyID", typeof(long));
+            table.Columns.Add("CarryForword", typeof(long));
+            table.Columns.Add("Gender", typeof(int));
+            table.Columns.Add("UserName", typeof(string));
+            table.Columns.Add("PasswordHash", typeof(string));
+            table.Columns.Add("Email", typeof(string));
+            table.Columns.Add("RoleID", typeof(int));
+            table.Columns.Add("EmployeNumber", typeof(string));
+            table.Columns.Add("DesignationID", typeof(long));
+            table.Columns.Add("EmployeeTypeID", typeof(long));
+            table.Columns.Add("DepartmentID", typeof(long));
+            table.Columns.Add("JobLocationID", typeof(long));
+            table.Columns.Add("OfficialEmailID", typeof(string));
+            table.Columns.Add("OfficialContactNo", typeof(string));
+            table.Columns.Add("JoiningDate", typeof(DateTime));
+            table.Columns.Add("JobSeprationDate", typeof(DateTime));
+            table.Columns.Add("ReportingToIDL1", typeof(long));
+            table.Columns.Add("PayrollTypeID", typeof(long));
+            table.Columns.Add("ReportingToIDL2", typeof(long));
+            table.Columns.Add("ClientName", typeof(string));
+            table.Columns.Add("SubDepartmentID", typeof(long));
+            table.Columns.Add("ShiftTypeID", typeof(long));
+            table.Columns.Add("ESINumber", typeof(string));
+            table.Columns.Add("ESIRegistrationDate", typeof(DateTime));
+            table.Columns.Add("BankAccountNumber", typeof(string));
+            table.Columns.Add("IFSCCode", typeof(string));
+            table.Columns.Add("BankName", typeof(string));
+            table.Columns.Add("AgeOnNetwork", typeof(int));
+            table.Columns.Add("NoticeServed", typeof(int));
+            table.Columns.Add("LeavingType", typeof(string));
+            table.Columns.Add("PreviousExperience", typeof(int));
+            table.Columns.Add("DateOfJoiningTraining", typeof(DateTime));
+            table.Columns.Add("DateOfJoiningFloor", typeof(DateTime));
+            table.Columns.Add("DateOfJoiningOJT", typeof(DateTime));
+            table.Columns.Add("DateOfResignation", typeof(DateTime));
+            table.Columns.Add("DateOfLeaving", typeof(DateTime));
+            table.Columns.Add("BackOnFloorDate", typeof(DateTime));
+            table.Columns.Add("LeavingRemarks", typeof(string));
+            table.Columns.Add("MailReceivedFromAndDate", typeof(string));
+            table.Columns.Add("EmailSentToITDate", typeof(DateTime));
+
+            // Now populate rows
+            foreach (var emp in employees)
+            {
+                table.Rows.Add(
+                    emp.EmployeeID,
+                    emp.CompanyID,
+                    emp.FirstName,
+                    emp.MiddleName,
+                    emp.Surname,
+                    emp.CorrespondenceAddress,
+                    emp.CorrespondenceCity,
+                    emp.CorrespondencePinCode,
+                    emp.CorrespondenceState,
+                    emp.CorrespondenceCountryID,
+                    emp.EmailAddress,
+                    emp.Landline,
+                    emp.Mobile,
+                    emp.Telephone,
+                    emp.PersonalEmailAddress,
+                    emp.PermanentAddress,
+                    emp.PermanentCity,
+                    emp.PermanentPinCode,
+                    emp.PermanentState,
+                    emp.PermanentCountryID,
+                    emp.PeriodOfStay,
+                    emp.VerificationContactPersonName,
+                    emp.VerificationContactPersonContactNo,
+                    emp.DateOfBirth,
+                    emp.PlaceOfBirth,
+                    emp.IsReferredByExistingEmployee,
+                    emp.ReferredByEmployeeID,
+                    emp.BloodGroup,
+                    emp.PANNo,
+                    emp.AadharCardNo,
+                    emp.Allergies,
+                    emp.IsRelativesWorkingWithCompany,
+                    emp.RelativesDetails,
+                    emp.MajorIllnessOrDisability,
+                    emp.AwardsAchievements,
+                    emp.EducationGap,
+                    emp.ExtraCuricuarActivities,
+                    emp.ForiegnCountryVisits,
+                    emp.ContactPersonName,
+                    emp.ContactPersonMobile,
+                    emp.ContactPersonTelephone,
+                    emp.ContactPersonRelationship,
+                    emp.ITSkillsKnowledge,
+                    emp.InsertedByUserID,
+                    emp.LeavePolicyID,
+                    emp.CarryForword,
+                    emp.Gender,
+                    emp.UserName,
+                    emp.PasswordHash,
+                    emp.Email,
+                    emp.RoleID,
+                    emp.EmployeNumber,
+                    emp.DesignationID,
+                    emp.EmployeeTypeID,
+                    emp.DepartmentID,
+                    emp.JobLocationID,
+                    emp.OfficialEmailID,
+                    emp.OfficialContactNo,
+                    emp.JoiningDate,
+                    emp.JobSeprationDate,
+                    emp.ReportingToIDL1,
+                    emp.PayrollTypeID,
+                    emp.ReportingToIDL2,
+                    emp.ClientName,
+                    emp.SubDepartmentID,
+                    emp.ShiftTypeID,
+                    emp.ESINumber,
+                    emp.ESIRegistrationDate,
+                    emp.BankAccountNumber,
+                    emp.IFSCCode,
+                    emp.BankName,
+                    emp.AgeOnNetwork,
+                    emp.NoticeServed,
+                    emp.LeavingType,
+                    emp.PreviousExperience,
+                    emp.DateOfJoiningTraining,
+                    emp.DateOfJoiningFloor,
+                    emp.DateOfJoiningOJT,
+                    emp.DateOfResignation,
+                    emp.DateOfLeaving,
+                    emp.BackOnFloorDate,
+                    emp.LeavingRemarks,
+                    emp.MailReceivedFromAndDate,
+                    emp.EmailSentToITDate
+                );
+            }
+
+            return table;
+        }
 
     }
 }

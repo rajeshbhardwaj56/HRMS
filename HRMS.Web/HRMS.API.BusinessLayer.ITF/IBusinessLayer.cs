@@ -94,7 +94,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Dictionary<string, long> GetCompaniesDictionary();
         public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel);
 
-        public Result AddUpdateEmployeeFromExecel1(DataTable importDataTable);
+        public Result AddUpdateEmployeeFromExecel1(ImportEmployeeOnlyIDListModel importDataTable);
 
         public Dictionary<string, long> GetSubDepartmentDictionary(EmployeeInputParams model);
         public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model);
