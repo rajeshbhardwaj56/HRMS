@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace HRMS.Models.ImportFromExcel
 {
-  public  class ImportExcelDataTable
+    public class ImportExcelDataTable
     {
         public string? EmployeeNumber { get; set; }
         public string? CompanyName { get; set; }
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
         public string? Surname { get; set; }
-        public string?  CorrespondenceAddress { get; set; }
+        public string? CorrespondenceAddress { get; set; }
         public string? CorrespondenceCity { get; set; }
         public string? CorrespondencePinCode { get; set; }
         public string? CorrespondenceState { get; set; }
@@ -30,7 +30,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? PermanentCountryName { get; set; }
         public string? PeriodOfStay { get; set; }
         public string? VerificationContactPersonName { get; set; }
-        public string?  VerificationContactPersonContactNo { get; set; }
+        public string? VerificationContactPersonContactNo { get; set; }
         public string? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
         public string? IsReferredByExistingEmployee { get; set; }
@@ -62,7 +62,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? ReportingToIDL2Name { get; set; }
         public string? OfficialEmailID { get; set; }
         public string? OfficialContactNo { get; set; }
-        public string?   PayrollTypeName { get; set; }
+        public string? PayrollTypeName { get; set; }
         public string? LeavePolicyName { get; set; }
         public string? ClientName { get; set; }
         public string? RoleName { get; set; }
@@ -95,7 +95,7 @@ namespace HRMS.Models.ImportFromExcel
         public long? CompanyID { get; set; }
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
-        public string? Surname { get; set; }  
+        public string? Surname { get; set; }
         public string? CorrespondenceAddress { get; set; }
         public string? CorrespondenceCity { get; set; }
         public string? CorrespondencePinCode { get; set; }
@@ -134,14 +134,14 @@ namespace HRMS.Models.ImportFromExcel
         public string? ContactPersonTelephone { get; set; }
         public string? ContactPersonRelationship { get; set; }
         public string? ITSkillsKnowledge { get; set; }
-        public long? InsertedByUserID { get; set; }    
+        public long? InsertedByUserID { get; set; }
         public long? LeavePolicyID { get; set; }
         public long? CarryForword { get; set; }
-        public int? Gender { get; set; } 
+        public int? Gender { get; set; }
         public string? AadhaarCardImage { get; set; }
         public string? UserName { get; set; }
         public string? PasswordHash { get; set; }
-        public string? Email { get; set; }       
+        public string? Email { get; set; }
         public int RoleID { get; set; }
         public string? EmployeNumber { get; set; }
         public long? DesignationID { get; set; }
@@ -162,7 +162,7 @@ namespace HRMS.Models.ImportFromExcel
         public DateTime? ESIRegistrationDate { get; set; }
         public string? BankAccountNumber { get; set; }
         public string? IFSCCode { get; set; }
-        public string?   BankName { get; set; }
+        public string? BankName { get; set; }
         public int? AgeOnNetwork { get; set; }
         public int? NoticeServed { get; set; }
         public string? LeavingType { get; set; }
@@ -229,7 +229,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? UserName { get; set; }
         public string? PasswordHash { get; set; }
         public string? Email { get; set; }
-        public int RoleID { get; set; } // Note: NOT NULL
+        public int RoleID { get; set; }
         public string? EmployeNumber { get; set; }
         public long? DesignationID { get; set; }
         public long? EmployeeTypeID { get; set; }
@@ -266,6 +266,6 @@ namespace HRMS.Models.ImportFromExcel
     }
     public class ImportEmployeeOnlyIDListModel
     {
-        public List<ImportEmployeeOnlyIDModel> Employees { get; set; }
-    }
+        public List<ImportExcelDataTable> Employees { get; set; }
+    }  
 }

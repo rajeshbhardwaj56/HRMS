@@ -37,13 +37,13 @@ namespace HRMS.Models.ImportFromExcel
         public string? VerificationContactPersonContactNo { get; set; }
         public string? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
-        public bool ? IsReferredByExistingEmployee { get; set; }
+        public bool? IsReferredByExistingEmployee { get; set; }
         public string? ReferredByEmployeeName { get; set; }
         public string? BloodGroup { get; set; }
         public string? AadharCardNo { get; set; }
         public string? PANNo { get; set; }
         public string? Allergies { get; set; }
-        public bool  ? IsRelativesWorkingWithCompany { get; set; }
+        public bool? IsRelativesWorkingWithCompany { get; set; }
         public string? RelativesDetails { get; set; }
         public string? MajorIllnessOrDisability { get; set; }
         public string? AwardsAchievements { get; set; }
@@ -55,7 +55,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? ContactPersonTelephone { get; set; }
         public string? ContactPersonRelationship { get; set; }
         public string? ITSkillsKnowledge { get; set; }
-        public string? JoiningDate { get; set; } 
+        public string? JoiningDate { get; set; }
         public string? DesignationName { get; set; }
         public string? EmployeeType { get; set; }
         public string? DepartmentName { get; set; }
@@ -74,7 +74,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? ExtraCuricuarActivities { get; set; }
         public string? Gender { get; set; }
         public string? ESINumber { get; set; }
-       // public string ESINumber { get; set; } = string.Empty;
+        // public string ESINumber { get; set; } = string.Empty;
         public string? RegistrationDateInESIC { get; set; }
         public string? BankAccountNumber { get; set; }
         public string? IFSCCode { get; set; }
@@ -90,10 +90,10 @@ namespace HRMS.Models.ImportFromExcel
         public string? NoticeServed { get; set; }
         public string? MailReceivedFromAndDate { get; set; }
         public string? DateOfEmailSentToITForIDDeletion { get; set; }
-        public string? AON  { get; set; }
-        public string? PreviousExperience  { get; set; }
+        public string? AON { get; set; }
+        public string? PreviousExperience { get; set; }
 
-        
+
     }
 
     public class ImportEducationalDetail
@@ -131,7 +131,7 @@ namespace HRMS.Models.ImportFromExcel
         public long ReferenceDetailID { get; set; }
         public string Name { get; set; } = string.Empty;
         [Display(Name = "Phone")]
-        [DataType(DataType.PhoneNumber)]    
+        [DataType(DataType.PhoneNumber)]
         public string Contact { get; set; } = string.Empty;
         public string OrgnizationName { get; set; } = string.Empty;
         public string RelationWithCandidate { get; set; } = string.Empty;
@@ -162,4 +162,6 @@ namespace HRMS.Models.ImportFromExcel
         public string HRContactNo { get; set; } = string.Empty;
     }
 }
+
+
 

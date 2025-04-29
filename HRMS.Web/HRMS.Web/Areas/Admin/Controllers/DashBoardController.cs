@@ -16,6 +16,8 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ClosedXML.Excel;
 using System.Text;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -294,9 +296,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     .FirstOrDefault(kvp => kvp.Key.Contains(EmployeeType, StringComparison.OrdinalIgnoreCase)).Value;
                                 if (EmploymentTypesId == 0) EmploymentTypesId = 0;
                             }
-
-
-
                             // Get ShiftType Name with LIKE
                             string ShiftTypeName = GetCellValue(worksheet, row, columnIndexes, "ShiftTypeName")?.Trim();
                             if (!string.IsNullOrEmpty(ShiftTypeName) && employmentDetailsDictionaries.TryGetValue("ShiftTypes", out var ShiftTypeNameDict))
@@ -511,57 +510,53 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         public string ProcessExcelFile(Stream stream, string fileName)
         {
-            var data = _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var countryDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(data);
-            var GetCompaniesDictionary = _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCompaniesDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var CompaniesDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(GetCompaniesDictionary);
-            DataTable mainDataTable = new DataTable();
+            var countryDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(
+                _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()
+            );
+
+            var companiesDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(
+                _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCompaniesDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()
+            );
+
+            List<ImportExcelDataTable> importList = new List<ImportExcelDataTable>();
+            DataTable errorDataTable = new DataTable();
+
             foreach (var prop in typeof(ImportExcelDataTable).GetProperties())
             {
-                mainDataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                errorDataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
             }
-            //DataTable importDataTable = new DataTable();
-            //foreach (var prop in typeof(ImportExcelDataTableType).GetProperties())
-            //{
-            //    importDataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-            //}
-            DataTable errorDataTable = new DataTable();
-            errorDataTable = mainDataTable.Clone();
             errorDataTable.Columns.Add("ErrorColumn", typeof(string));
             errorDataTable.Columns.Add("ErrorMessage", typeof(string));
+
             using (var package = new ExcelPackage(stream))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.FirstOrDefault();
                 if (worksheet == null)
                 {
-                    var errorDataRow = errorDataTable.NewRow();
-                    errorDataRow["ErrorColumn"] = "Excel file";
-                    errorDataRow["ErrorMessage"] = $"The Excel sheet is empty.";
-                    errorDataTable.Rows.Add(errorDataRow);
+                    AddErrorRow(errorDataTable, "Excel file", "The Excel sheet is empty.");
                     return ConvertDataTableToHTML(errorDataTable);
                 }
+
                 int totalColumns = worksheet.Dimension?.Columns ?? 0;
                 int totalRows = worksheet.Dimension?.Rows ?? 0;
+
                 if (totalColumns == 0 || totalRows < 2)
                 {
-                    var errorDataRow = errorDataTable.NewRow();
-                    errorDataRow["ErrorColumn"] = "Excel file";
-                    errorDataRow["ErrorMessage"] = $"The Excel sheet is empty.";
-                    errorDataTable.Rows.Add(errorDataRow);
+                    AddErrorRow(errorDataTable, "Excel file", "The Excel sheet is empty.");
                     return ConvertDataTableToHTML(errorDataTable);
                 }
-                Dictionary<string, int> columnIndexes = new Dictionary<string, int>();
-                var (isHeaderValid, mismatchedColumn) = ValidateHeaderRow(worksheet, mainDataTable);
+
+                var (isHeaderValid, mismatchedColumn) = ValidateHeaderRow(worksheet, typeof(ImportExcelDataTable));
                 if (!isHeaderValid)
                 {
-                    var errorDataRow = errorDataTable.NewRow();
-                    errorDataRow["ErrorColumn"] = "Excel file";
-                    errorDataRow["ErrorMessage"] = $"The Excel file's header does not match the expected format. {mismatchedColumn}";
-                    errorDataTable.Rows.Add(errorDataRow);
+                    AddErrorRow(errorDataTable, "Excel file", $"Header mismatch: {mismatchedColumn}");
                     return ConvertDataTableToHTML(errorDataTable);
                 }
-                long LeavePolicyId = 0;
-                long? countryId = 0;
+
+                var columnIndexMap = typeof(ImportExcelDataTable).GetProperties()
+                    .Select((prop, idx) => new { prop.Name, Index = idx + 1 })
+                    .ToDictionary(x => x.Name, x => x.Index);
+
                 long DepartmentId = 0;
                 long DesignationsId = 0;
                 long EmploymentTypesId = 0;
@@ -572,356 +567,397 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 long ReportingToIDL2Id = 0;
                 long RoleId = 0;
                 long PayrollTypeId = 0;
+                long LeavePolicyId = 0;
                 long GenderId = 0;
-                var columnIndexMap = mainDataTable.Columns.Cast<DataColumn>()
-    .Select((col, idx) => new { col.ColumnName, Index = idx + 1 })
-    .ToDictionary(x => x.ColumnName, x => x.Index);
+
                 for (int row = 2; row <= totalRows; row++)
                 {
                     if (IsRowEmpty(worksheet, row))
                         continue;
+
                     bool hasError = false;
-                    bool isEmptyRow = true;
-                    string CompanyName = worksheet.Cells[row, mainDataTable.Columns.IndexOf("CompanyName") + 1].Text;
-                    long? GetCompanyId = CompaniesDictionary.TryGetValue(CompanyName.ToLower().Trim(), out long CompanyId) ? CompanyId : (long?)0;
-                    if (string.IsNullOrEmpty(CompanyName) || GetCompanyId == 0)
+                    string companyName = worksheet.Cells[row, columnIndexMap["CompanyName"]].Text.Trim();
+                    long? companyId = companiesDictionary.TryGetValue(companyName.ToLower(), out long compId) ? compId : 0;
+
+                    if (string.IsNullOrEmpty(companyName) || companyId == 0)
                     {
-                        hasError = true;
-                        var errorRow = errorDataTable.NewRow();
-                        errorRow["ErrorColumn"] = "CompanyName";
-                        errorRow["ErrorMessage"] = $"Row {row}: Company '{CompanyName}' not found in the system.";
-                        errorDataTable.Rows.Add(errorRow);
+                        AddErrorRow(errorDataTable, "CompanyName", $"Row {row}: Company '{companyName}' not found.");
                         continue;
                     }
                     EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
                     {
-                        CompanyID = GetCompanyId ?? 0,
+                        CompanyID = companyId ?? 0,
                         EmployeeID = 0
                     };
                     var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                     var employmentDetailsDictionaries = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long>>>(EmploymentDetailsDictionaries);
                     EmployeeInputParams employmentSubDepartmentInputParams = new EmployeeInputParams()
                     {
-                        CompanyID = GetCompanyId ?? 0,
+                        CompanyID = companyId ?? 0,
                     };
                     var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                     var SubDepartmentDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment);
-                    DataRow dataRow = mainDataTable.NewRow();
-                    foreach (DataColumn column in mainDataTable.Columns)
+                    var item = new ImportExcelDataTable();
+
+                    foreach (var prop in typeof(ImportExcelDataTable).GetProperties())
                     {
+                        string columnName = prop.Name;
+                        string cellValue = worksheet.Cells[row, columnIndexMap[columnName]].Text?.Trim();
 
-                        string columnName = column.ColumnName;
-                        var cellValue = worksheet.Cells[row, columnIndexMap[columnName]].Text?.Trim();
-                        switch (columnName)
+                        try
                         {
-                            case "CompanyName":
-                                cellValue = GetCompanyId.ToString();
-                                break;
-                            case "CorrespondenceCountryName":
-                                if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    countryId = countryDictionary.TryGetValue(cellValue.ToLower().Trim(), out long id) ? id : (long?)0;
-                                    if (countryId != 0)
+                            switch (columnName)
+                            {
+                                case "CompanyName":
+                                    prop.SetValue(item, companyId.ToString());
+                                    break;
+                                case "CorrespondenceCountryName":
+                                case "PermanentCountryName":
+                                    if (!string.IsNullOrEmpty(cellValue))
                                     {
-                                        cellValue = countryId.ToString();
+                                        long countryId = countryDictionary.TryGetValue(cellValue.ToLower(), out long cid) ? cid : 0;
+                                        if (countryId != 0)
+                                            prop.SetValue(item, countryId.ToString());
+                                        else
+                                        {
+                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Country '{cellValue}' not found.");
+                                            hasError = true;
+                                        }
                                     }
                                     else
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: Country '{cellValue}' not found in master data.");
+                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: Country name is mandatory.");
                                         hasError = true;
                                     }
-                                }
-                                else
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: Country name is mandatory.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "PermanentCountryName":
-                                if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    countryId = countryDictionary.TryGetValue(cellValue.ToLower().Trim(), out long id) ? id : (long?)0;
-                                    if (countryId != 0)
+                                    break;
+
+                                case "JobLocationName":
+                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("JobLocations", out var JobLocationNameDict))
                                     {
-                                        cellValue = countryId.ToString();
+                                        var matchedPolicy = JobLocationNameDict
+                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
+                                        JobLocationId = matchedPolicy.Value;
+                                        prop.SetValue(item, JobLocationId.ToString());
+                                        if (JobLocationId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: JobLocationName '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: JobLocationName dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "LeavePolicyName":
+                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("LeavePolicies", out var leavePolicyDict))
+                                    {
+                                        var matchedPolicy = leavePolicyDict
+                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
+                                        LeavePolicyId = matchedPolicy.Value;
+                                        prop.SetValue(item, LeavePolicyId.ToString());
+                                        if (LeavePolicyId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: LeavePolicy '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: LeavePolicies dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "RoleName":
+                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("Roles", out var RoleNameDict))
+                                    {
+                                        var matchedPolicy = RoleNameDict
+                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
+                                        RoleId = matchedPolicy.Value;
+                                        prop.SetValue(item, RoleId.ToString());
+                                        if (LeavePolicyId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: RoleName '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: RoleName dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "PayrollTypeName":
+                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("PayrollTypes", out var PayrollTypeNameDict))
+                                    {
+                                        var matchedPolicy = PayrollTypeNameDict
+                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
+                                        PayrollTypeId = matchedPolicy.Value;
+                                        prop.SetValue(item, PayrollTypeId.ToString());
+                                        if (PayrollTypeId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "DepartmentName":
+                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("Departments", out var departmentDict))
+                                    {
+                                        var DepartmentName = departmentDict
+                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
+                                        DepartmentId = DepartmentName.Value;
+                                        prop.SetValue(item, DepartmentId.ToString());
+                                        if (DepartmentId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: DepartmentName '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: DepartmentName dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "SubDepartmentName":
+                                    if (!string.IsNullOrEmpty(cellValue) && SubDepartmentDictionaries != null)
+                                    {
+                                        var matchedSubDept = SubDepartmentDictionaries
+                                            .FirstOrDefault(kvp => kvp.Key.Equals(cellValue.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                                        SubDepartmentNameId = matchedSubDept.Value;
+                                        prop.SetValue(item, SubDepartmentNameId.ToString());
+                                        if (SubDepartmentNameId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: SubDepartmentName '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: SubDepartment dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "DesignationName":
+                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("Designations", out var DesignationsDict))
+                                    {
+                                        var DesignationName = DesignationsDict
+                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
+                                        DesignationsId = DesignationName.Value;
+                                        prop.SetValue(item, DesignationsId.ToString());
+                                        if (DesignationsId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: DesignationName '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: LeavePolicies dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "EmployeeType":
+                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("EmploymentTypes", out var EmploymentTypesDict))
+                                    {
+                                        var matchedPolicy = EmploymentTypesDict
+                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
+                                        EmploymentTypesId = matchedPolicy.Value;
+                                        prop.SetValue(item, EmploymentTypesId.ToString());
+                                        if (EmploymentTypesId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: EmployeeType '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: EmployeeType dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "ShiftTypeName":
+                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("ShiftTypes", out var ShiftTypeNameDict))
+                                    {
+                                        var matchedPolicy = ShiftTypeNameDict
+                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
+                                        ShiftTypeId = matchedPolicy.Value;
+                                        prop.SetValue(item, ShiftTypeId.ToString());
+                                        if (ShiftTypeId == 0)
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName '{cellValue}' not found in master data.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "ReportingToIDL1Name":                              
+                                    prop.SetValue(item, "73");
+                                    break;
+
+                                case "ReportingToIDL2Name":                                  
+                                    prop.SetValue(item, "73");
+                                    break;
+
+                                case "Gender":
+                                    if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        if (cellValue.Equals("Female", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            GenderId = 2;
+                                            prop.SetValue(item, GenderId.ToString());
+                                        }
+                                        else if (cellValue.Equals("Male", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            GenderId = 1;
+                                            prop.SetValue(item, GenderId.ToString());
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: Gender '{cellValue}' is invalid. Allowed values are 'Male' or 'Female'.");
+                                            hasError = true;
+                                        }
                                     }
                                     else
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: Country '{cellValue}' not found in master data.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: Gender is required.");
                                         hasError = true;
                                     }
-                                }
-                                else
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: Country name is mandatory.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "JobLocationName":
-                                if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("JobLocations", out var JobLocationNameDict))
-                                {
-                                    var matchedPolicy = JobLocationNameDict
-                                        .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                    JobLocationId = matchedPolicy.Value;
-                                    if (JobLocationId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: JobLocationName '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: JobLocationName dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "LeavePolicyName":
-                                if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("LeavePolicies", out var leavePolicyDict))
-                                {
-                                    var matchedPolicy = leavePolicyDict
-                                        .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                    LeavePolicyId = matchedPolicy.Value;
-                                    if (LeavePolicyId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: LeavePolicy '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: LeavePolicies dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "RoleName":
-                                if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("Roles", out var RoleNameDict))
-                                {
-                                    var matchedPolicy = RoleNameDict
-                                        .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                    RoleId = matchedPolicy.Value;
-                                    if (LeavePolicyId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: RoleName '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: RoleName dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "PayrollTypeName":
-                                if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("PayrollTypes", out var PayrollTypeNameDict))
-                                {
-                                    var matchedPolicy = PayrollTypeNameDict
-                                        .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                    PayrollTypeId = matchedPolicy.Value;
-                                    if (PayrollTypeId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "DepartmentName":
-                                if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("Departments", out var departmentDict))
-                                {
-                                    var DepartmentName = departmentDict
-                                        .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                    DepartmentId = DepartmentName.Value;
-                                    if (DepartmentId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: DepartmentName '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: DepartmentName dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "SubDepartmentName":
-                                if (!string.IsNullOrEmpty(cellValue) && SubDepartmentDictionaries != null)
-                                {
-                                    var matchedSubDept = SubDepartmentDictionaries
-                                        .FirstOrDefault(kvp => kvp.Key.Equals(cellValue.Trim(), StringComparison.OrdinalIgnoreCase));
+                                    break;
 
-                                    SubDepartmentNameId = matchedSubDept.Value;
-
-                                    if (SubDepartmentNameId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: SubDepartmentName '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: SubDepartment dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "DesignationName":
-                                if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("Designations", out var DesignationsDict))
-                                {
-                                    var DesignationName = DesignationsDict
-                                        .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                    DesignationsId = DesignationName.Value;
-                                    if (DesignationsId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: DesignationName '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: LeavePolicies dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "EmployeeType":
-                                if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("EmploymentTypes", out var EmploymentTypesDict))
-                                {
-                                    var matchedPolicy = EmploymentTypesDict
-                                        .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                    EmploymentTypesId = matchedPolicy.Value;
-                                    if (EmploymentTypesId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: EmployeeType '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: EmployeeType dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            case "ShiftTypeName":
-                                if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("ShiftTypes", out var ShiftTypeNameDict))
-                                {
-                                    var matchedPolicy = ShiftTypeNameDict
-                                        .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                    ShiftTypeId = matchedPolicy.Value;
-                                    if (ShiftTypeId == 0)
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName '{cellValue}' not found in master data.");
-                                        hasError = true;
-                                    }
-                                }
-                                else if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName dictionary is missing or empty.");
-                                    hasError = true;
-                                }
-                                break;
-                            //case "reportingtoidl1name":
-                            //    if (!string.isnullorempty(cellvalue) && employmentdetailsdictionaries.trygetvalue("employees", out var reportingtoidl1namedict))
-                            //    {
-                            //        var matchedpolicy = reportingtoidl1namedict
-                            //            .firstordefault(kvp => kvp.key.contains(cellvalue, stringcomparison.ordinalignorecase));
-                            //        reportingtoidl1id = matchedpolicy.value;
-                            //        if (reportingtoidl1id == 0)
-                            //        {
-                            //            adderror(errordatatable, columnname, $"row {row}: reportingtoidl1name '{cellvalue}' not found in master data.");
-                            //            haserror = true;
-                            //        }
-                            //    }
-                            //    else if (!string.isnullorempty(cellvalue))
-                            //    {
-                            //        adderror(errordatatable, columnname, $"row {row}: leavepolicies dictionary is missing or empty.");
-                            //        haserror = true;
-                            //    }
-                            //    break;
-                            //case "reportingtoidl2name":
-                            //    if (!string.isnullorempty(cellvalue) && employmentdetailsdictionaries.trygetvalue("employees", out var reportingtoidl2namedict))
-                            //    {
-                            //        var matchedpolicy = reportingtoidl2namedict
-                            //            .firstordefault(kvp => kvp.key.contains(cellvalue, stringcomparison.ordinalignorecase));
-                            //        reportingtoidl2id = matchedpolicy.value;
-                            //        if (reportingtoidl2id == 0)
-                            //        {
-                            //            adderror(errordatatable, columnname, $"row {row}: reportingtoidl2name '{cellvalue}' not found in master data.");
-                            //            haserror = true;
-                            //        }
-                            //    }
-                            //    else if (!string.isnullorempty(cellvalue))
-                            //    {
-                            //        adderror(errordatatable, columnname, $"row {row}: reportingtoidl2name dictionary is missing or empty.");
-                            //        haserror = true;
-                            //    }
-                            //    break;
-                            case "Gender":
-                                if (!string.IsNullOrEmpty(cellValue))
-                                {
-                                    if (cellValue.Equals("Female", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        GenderId = 2;
-                                    }
-                                    else if (cellValue.Equals("Male", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        GenderId = 1;
-                                    }
-                                    else
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: Gender '{cellValue}' is invalid. Allowed values are 'Male' or 'Female'.");
-                                        hasError = true;
-                                    }
-                                }
-                                else
-                                {
-                                    AddError(errorDataTable, columnName, $"Row {row}: Gender is required.");
-                                    hasError = true;
-                                }
-                                break;
-
+                                default:
+                                    if (!string.IsNullOrEmpty(cellValue))
+                                        prop.SetValue(item, Convert.ChangeType(cellValue, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType));
+                                    break;
+                            }
                         }
-                        if (!string.IsNullOrEmpty(cellValue))
+                        catch (Exception ex)
                         {
-                            isEmptyRow = false;
+                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Invalid data. {ex.Message}");
+                            hasError = true;
                         }
-                        dataRow[columnName] = cellValue;
-                    }
-                    if (!isEmptyRow && !hasError)
-                    {
-                        mainDataTable.Rows.Add(dataRow);
                     }
 
+                    if (!hasError)
+                    {
+                        importList.Add(item);
+                    }
                 }
             }
-            if (mainDataTable.Rows.Count > 0 && errorDataTable.Rows.Count == 0)
+
+            if (importList.Any() && errorDataTable.Rows.Count == 0)
             {
-                var importDataTable = ConvertToImportExcelDataTableType(mainDataTable);
-                var employeeList = ConvertDataTableToList(importDataTable);
-                var EmployeeData = _businessLayer.SendPostAPIRequest(employeeList, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecel1), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(EmployeeData);
+                var employeeList = importList.Select(item => new ImportExcelDataTable
+                {
+                    ForeignCountryVisits = "No",
+                    ReportingToIDL1Name = "Ram",
+                    ReportingToIDL2Name = "Sham",
+                    CompanyName = (item.CompanyName),
+                    FirstName = item.FirstName,
+                    MiddleName = item.MiddleName,
+                    Surname = item.Surname,
+                    CorrespondenceAddress = item.CorrespondenceAddress,
+                    CorrespondenceCity = item.CorrespondenceCity,
+                    CorrespondencePinCode = item.CorrespondencePinCode,
+                    CorrespondenceState = item.CorrespondenceState,
+                    CorrespondenceCountryName = item.CorrespondenceCountryName,
+                    EmailAddress = item.EmailAddress,
+                    Landline = item.Landline,
+                    Mobile = item.Mobile,
+                    Telephone = item.Telephone,
+                    PersonalEmailAddress = item.PersonalEmailAddress,
+                    PermanentAddress = item.PermanentAddress,
+                    PermanentCity = item.PermanentCity,
+                    PermanentPinCode = item.PermanentPinCode,
+                    PermanentState = item.PermanentState,
+                    PermanentCountryName = item.PermanentCountryName,
+                    PeriodOfStay = item.PeriodOfStay,
+                    VerificationContactPersonName = item.VerificationContactPersonName,
+                    VerificationContactPersonContactNo = item.VerificationContactPersonContactNo,
+                    DateOfBirth = item.DateOfBirth,
+                    PlaceOfBirth = item.PlaceOfBirth,
+                    IsReferredByExistingEmployee = item.IsReferredByExistingEmployee,
+                    BloodGroup = item.BloodGroup,
+                    PANNo = item.PANNo,
+                    AadharCardNo = item.AadharCardNo,
+                    Allergies = item.Allergies,
+                    IsRelativesWorkingWithCompany = item.IsRelativesWorkingWithCompany,
+                    RelativesDetails = item.RelativesDetails,
+                    MajorIllnessOrDisability = item.MajorIllnessOrDisability,
+                    AwardsAchievements = item.AwardsAchievements,
+                    EducationGap = item.EducationGap,
+                    ExtraCuricuarActivities = item.ExtraCuricuarActivities,
+                    ForiegnCountryVisits = item.ForiegnCountryVisits,
+                    ContactPersonName = item.ContactPersonName,
+                    ContactPersonMobile = item.ContactPersonMobile,
+                    ContactPersonTelephone = item.ContactPersonTelephone,
+                    ContactPersonRelationship = item.ContactPersonRelationship,
+                    ITSkillsKnowledge = item.ITSkillsKnowledge,
+                    LeavePolicyName = item.LeavePolicyName,
+                    Gender = item.Gender,
+                    RoleName = item.RoleName,
+                    EmployeeNumber = item.EmployeeNumber,
+                    DesignationName = item.DesignationName,
+                    EmployeeType = item.EmployeeType,
+                    DepartmentName = item.DepartmentName,
+                    JobLocationName = item.JobLocationName,
+                    OfficialEmailID = item.OfficialEmailID,
+                    OfficialContactNo = item.OfficialContactNo,
+                    JoiningDate = item.JoiningDate,
+                    DateOfResignation = item.DateOfResignation,
+                    ReferredByEmployeeName = "Aman",
+                    PayrollTypeName = item.PayrollTypeName,
+                    ExtraCurricularActivities = "no",
+                    ClientName = item.ClientName,
+                    SubDepartmentName = item.SubDepartmentName,
+                    ShiftTypeName = item.ShiftTypeName,
+                    ESINumber = item.ESINumber,
+                    RegistrationDateInESIC = item.RegistrationDateInESIC,
+                    BankAccountNumber = item.BankAccountNumber,
+                    IFSCCode = item.IFSCCode,
+                    BankName = item.BankName,
+                    AON = item.AON,
+                    NoticeServed = item.NoticeServed,
+                    LeavingType = item.LeavingType,
+                    PreviousExperience = item.PreviousExperience,
+                    DOJInTraining = item.DOJInTraining,
+                    DOJOnFloor = item.DOJOnFloor,
+                    DOJInOJTOnroll = item.DOJInOJTOnroll,
+                    DateOfLeaving = item.DateOfLeaving,
+                    BackOnFloor = item.BackOnFloor,
+                    LeavingRemarks = item.LeavingRemarks,
+                    MailReceivedFromAndDate = item.MailReceivedFromAndDate,
+                    DateOfEmailSentToITForIDDeletion = item.DateOfEmailSentToITForIDDeletion,
+                    ExcelFile = "abc",
+                }).ToList();
+                var testEmployeeList = importList.Select(item => new ImportCompanyNameOnly
+                {
+                    CompanyName = item.CompanyName 
+                }).ToList();
+             
+                var companyNameModel = new ImportEmployeeOnlyIDListModel
+                {
+                    Employees = employeeList
+                };
+                var employeeData = _businessLayer.SendPostAPIRequest(companyNameModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecel1), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(employeeData);
             }
+
             return ConvertDataTableToHTML(errorDataTable);
         }
-
-        public ImportEmployeeOnlyIDListModel ConvertDataTableToList(DataTable dataTable)
-        {
-            var list = new List<ImportEmployeeOnlyIDModel>();
-
-            foreach (DataRow row in dataTable.Rows)
-            {
-                var item = new ImportEmployeeOnlyIDModel
-                {
-                    EmployeeID = row["EmployeeID"] != DBNull.Value ? Convert.ToInt32(row["EmployeeID"]) : 0
-                    // Add other fields if needed
-                };
-
-                list.Add(item);
-            }
-
-            return new ImportEmployeeOnlyIDListModel { Employees = list };
-        }
+     
         private string GetCellValue(ExcelWorksheet worksheet, int row, Dictionary<string, int> columnIndexes, string columnName)
         {
             return columnIndexes.ContainsKey(columnName)
@@ -953,7 +989,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             return false;
         }
-
+        private long? TryParseLong(string? input)
+        {
+            if (long.TryParse(input, out long result))
+            {
+                return result;
+            }
+            return null;
+        }
         private bool IsValidData(string data)
         {
             if (string.IsNullOrWhiteSpace(data))
@@ -974,7 +1017,33 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             return true;
         }
+
+        private void AddErrorRow(DataTable errorDataTable, string errorColumn, string errorMessage)
+        {
+            var row = errorDataTable.NewRow();
+            row["ErrorColumn"] = errorColumn;
+            row["ErrorMessage"] = errorMessage;
+            errorDataTable.Rows.Add(row);
+        }
+
+        private (bool isHeaderValid, string mismatchedColumn) ValidateHeaderRow(ExcelWorksheet worksheet, Type targetType)
+        {
+            var expectedColumns = targetType.GetProperties().Select(p => p.Name).ToList();
+            for (int i = 0; i < expectedColumns.Count; i++)
+            {
+                string excelHeader = worksheet.Cells[1, i + 1].Text?.Trim();
+                if (!string.Equals(expectedColumns[i], excelHeader, StringComparison.OrdinalIgnoreCase))
+                {
+                    return (false, $"Expected '{expectedColumns[i]}', Found '{excelHeader}' at Column {i + 1}");
+                }
+            }
+            return (true, "");
+        }
         private static string ConvertDataTableToHTML(DataTable dt)
+
+
+
+
         {
             if (dt.Rows.Count > 0)
             {
@@ -1124,13 +1193,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
             { "ContactPersonTelephone", typeof(string) },
             { "ContactPersonRelationship", typeof(string) },
             { "ITSkillsKnowledge", typeof(string) },
-            { "InsertedByUserID", typeof(long?) },            
+            { "InsertedByUserID", typeof(long?) },
             { "LeavePolicyID", typeof(long?) },
             { "CarryForword", typeof(long?) },
             { "Gender", typeof(int?) },
             { "UserName", typeof(string) },
             { "PasswordHash", typeof(string) },
-            { "Email", typeof(string) },                  
+            { "Email", typeof(string) },
             { "RoleID", typeof(int) },
             { "EmployeNumber", typeof(string) },
             { "DesignationID", typeof(long?) },
@@ -1210,7 +1279,48 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return dt;
         }
+        private static DateTime? TryParseDate(string? dateString)
+        {
+            if (DateTime.TryParse(dateString, out var date))
+            {
+                return date;
+            }
+            return null;
+        }
 
+        private static int? TryParseInt(string? intString)
+        {
+            if (int.TryParse(intString, out var number))
+            {
+                return number;
+            }
+            return null;
+        }
+
+        private static bool? TryParseBool(string? boolString)
+        {
+            if (boolString == null) return null;
+            return boolString.Trim().ToLower() switch
+            {
+                "yes" => true,
+                "no" => false,
+                "true" => true,
+                "false" => false,
+                _ => null
+            };
+        }
+
+        private static int? TryParseGender(string? genderString)
+        {
+            if (string.IsNullOrWhiteSpace(genderString)) return null;
+
+            genderString = genderString.Trim().ToLower();
+            if (genderString == "male") return 1;
+            if (genderString == "female") return 2;
+            if (genderString == "other") return 3;
+
+            return null;
+        }
         private static object GetDummyValue(Type type)
         {
             type = Nullable.GetUnderlyingType(type) ?? type;
@@ -1223,7 +1333,134 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (type == typeof(decimal)) return 0.0m;
             return DBNull.Value;
         }
+
+        public ImportEmployeeOnlyIDModel MapExcelToEmployeeModel(ImportExcelDataTable excelRow,
+    Dictionary<string, long> countryDict,
+    Dictionary<string, long> companyDict,
+    Dictionary<string, long> departmentDict,
+    Dictionary<string, long> designationDict,
+    Dictionary<string, long> employeeTypeDict,
+    Dictionary<string, long> shiftTypeDict,
+    Dictionary<string, long> subDepartmentDict,
+    Dictionary<string, long> jobLocationDict,
+    Dictionary<string, long> payrollTypeDict,
+    Dictionary<string, long> leavePolicyDict,
+    Dictionary<string, long> reportingManagerDict,
+    Dictionary<string, int> roleDict,
+    Dictionary<string, int> genderDict)
+        {
+            var model = new ImportEmployeeOnlyIDModel
+            {
+                EmployeNumber = excelRow.EmployeeNumber,
+                FirstName = excelRow.FirstName,
+                MiddleName = excelRow.MiddleName,
+                Surname = excelRow.Surname,
+                CorrespondenceAddress = excelRow.CorrespondenceAddress,
+                CorrespondenceCity = excelRow.CorrespondenceCity,
+                CorrespondencePinCode = excelRow.CorrespondencePinCode,
+                CorrespondenceState = excelRow.CorrespondenceState,
+                CorrespondenceCountryID = countryDict.GetValueOrDefault(excelRow.CorrespondenceCountryName ?? string.Empty),
+                EmailAddress = excelRow.EmailAddress,
+                Landline = excelRow.Landline,
+                Mobile = excelRow.Mobile,
+                Telephone = excelRow.Telephone,
+                PersonalEmailAddress = excelRow.PersonalEmailAddress,
+                PermanentAddress = excelRow.PermanentAddress,
+                PermanentCity = excelRow.PermanentCity,
+                PermanentPinCode = excelRow.PermanentPinCode,
+                PermanentState = excelRow.PermanentState,
+                PermanentCountryID = countryDict.GetValueOrDefault(excelRow.PermanentCountryName ?? string.Empty),
+                PeriodOfStay = excelRow.PeriodOfStay,
+                VerificationContactPersonName = excelRow.VerificationContactPersonName,
+                VerificationContactPersonContactNo = excelRow.VerificationContactPersonContactNo,
+                DateOfBirth = ParseDateTime(excelRow.DateOfBirth),
+                PlaceOfBirth = excelRow.PlaceOfBirth,
+                IsReferredByExistingEmployee = ParseBool(excelRow.IsReferredByExistingEmployee),
+                ReferredByEmployeeID = excelRow.ReferredByEmployeeName,
+                BloodGroup = excelRow.BloodGroup,
+                PANNo = excelRow.PANNo,
+                AadharCardNo = excelRow.AadharCardNo,
+                Allergies = excelRow.Allergies,
+                IsRelativesWorkingWithCompany = ParseBool(excelRow.IsRelativesWorkingWithCompany),
+                RelativesDetails = excelRow.RelativesDetails,
+                MajorIllnessOrDisability = excelRow.MajorIllnessOrDisability,
+                AwardsAchievements = excelRow.AwardsAchievements,
+                EducationGap = excelRow.EducationGap,
+                ExtraCuricuarActivities = excelRow.ExtraCurricularActivities,
+                ForiegnCountryVisits = excelRow.ForeignCountryVisits,
+                ContactPersonName = excelRow.ContactPersonName,
+                ContactPersonMobile = excelRow.ContactPersonMobile,
+                ContactPersonTelephone = excelRow.ContactPersonTelephone,
+                ContactPersonRelationship = excelRow.ContactPersonRelationship,
+                ITSkillsKnowledge = excelRow.ITSkillsKnowledge,
+                JoiningDate = ParseDateTime(excelRow.JoiningDate),
+                DesignationID = designationDict.GetValueOrDefault(excelRow.DesignationName ?? string.Empty),
+                EmployeeTypeID = employeeTypeDict.GetValueOrDefault(excelRow.EmployeeType ?? string.Empty),
+                DepartmentID = departmentDict.GetValueOrDefault(excelRow.DepartmentName ?? string.Empty),
+                SubDepartmentID = subDepartmentDict.GetValueOrDefault(excelRow.SubDepartmentName ?? string.Empty),
+                ShiftTypeID = shiftTypeDict.GetValueOrDefault(excelRow.ShiftTypeName ?? string.Empty),
+                JobLocationID = jobLocationDict.GetValueOrDefault(excelRow.JobLocationName ?? string.Empty),
+                OfficialEmailID = excelRow.OfficialEmailID,
+                OfficialContactNo = excelRow.OfficialContactNo,
+                PayrollTypeID = payrollTypeDict.GetValueOrDefault(excelRow.PayrollTypeName ?? string.Empty),
+                LeavePolicyID = leavePolicyDict.GetValueOrDefault(excelRow.LeavePolicyName ?? string.Empty),
+                ClientName = excelRow.ClientName,
+                ReportingToIDL1 = reportingManagerDict.GetValueOrDefault(excelRow.ReportingToIDL1Name ?? string.Empty),
+                ReportingToIDL2 = reportingManagerDict.GetValueOrDefault(excelRow.ReportingToIDL2Name ?? string.Empty),
+                RoleID = roleDict.GetValueOrDefault(excelRow.RoleName ?? string.Empty, 0), // Role is NOT NULL
+                Gender = genderDict.GetValueOrDefault(excelRow.Gender ?? string.Empty),
+                ESINumber = excelRow.ESINumber,
+                ESIRegistrationDate = ParseDateTime(excelRow.RegistrationDateInESIC),
+                BankAccountNumber = excelRow.BankAccountNumber,
+                IFSCCode = excelRow.IFSCCode,
+                BankName = excelRow.BankName,
+                DateOfJoiningTraining = ParseDateTime(excelRow.DOJInTraining),
+                DateOfJoiningFloor = ParseDateTime(excelRow.DOJOnFloor),
+                DateOfJoiningOJT = ParseDateTime(excelRow.DOJInOJTOnroll),
+                DateOfResignation = ParseDateTime(excelRow.DateOfResignation),
+                DateOfLeaving = ParseDateTime(excelRow.DateOfLeaving),
+                BackOnFloorDate = ParseDateTime(excelRow.BackOnFloor),
+                LeavingType = excelRow.LeavingType,
+                LeavingRemarks = excelRow.LeavingRemarks,
+                NoticeServed = ParseInt(excelRow.NoticeServed),
+                MailReceivedFromAndDate = excelRow.MailReceivedFromAndDate,
+                EmailSentToITDate = ParseDateTime(excelRow.DateOfEmailSentToITForIDDeletion),
+                AgeOnNetwork = ParseInt(excelRow.AON),
+                PreviousExperience = ParseInt(excelRow.PreviousExperience)
+            };
+
+            // Company ID mapping separately because it's critical
+            model.CompanyID = companyDict.GetValueOrDefault(excelRow.CompanyName ?? string.Empty);
+
+            return model;
+        }
+
+        private static DateTime? ParseDateTime(string? value)
+        {
+            if (DateTime.TryParse(value, out DateTime result))
+                return result;
+            return null;
+        }
+
+        private static bool? ParseBool(string? value)
+        {
+            if (string.IsNullOrEmpty(value)) return null;
+            value = value.Trim().ToLower();
+            if (value == "yes" || value == "true" || value == "1") return true;
+            if (value == "no" || value == "false" || value == "0") return false;
+            return null;
+        }
+
+        private static int? ParseInt(string? value)
+        {
+            if (int.TryParse(value, out int result))
+                return result;
+            return null;
+        }
+
     }
+
+
 
 
 

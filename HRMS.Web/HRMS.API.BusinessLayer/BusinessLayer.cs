@@ -2915,11 +2915,160 @@ namespace HRMS.API.BusinessLayer
             return employmentDictionaries;
         }
 
+        private static int? ParseInt(string? value)
+        {
+            if (int.TryParse(value, out int result))
+                return result;
+            return null;
+        }
+        private static bool? TryParseBool(string? boolString)
+        {
+            if (boolString == null) return null;
+            return boolString.Trim().ToLower() switch
+            {
+                "yes" => true,
+                "no" => false,
+                "true" => true,
+                "false" => false,
+                _ => null
+            };
+        }
+        private static DateTime? TryParseDate(string? dateString)
+        {
+            if (DateTime.TryParse(dateString, out var date))
+            {
+                return date;
+            }
+            return null;
+        }
+        private long? TryParseLong(string? input)
+        {
+            if (long.TryParse(input, out long result))
+            {
+                return result;
+            }
+            return null;
+        }
+        private static int? TryParseInt(string? intString)
+        {
+            if (int.TryParse(intString, out var number))
+            {
+                return number;
+            }
+            return null;
+        }
+
+        //public Result AddUpdateEmployeeFromExecel1(ImportEmployeeCompanyNameModel importDataTable)
+        //{
+        //    try
+        //    {
+        //        return new Result
+        //        {
+        //            Message = "Test: Received employee data successfully."
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new Result
+        //        {
+        //            Message = $"Error while importing employee data: {ex.Message}"
+        //        };
+        //    }
+        //}
         public Result AddUpdateEmployeeFromExecel1(ImportEmployeeOnlyIDListModel importDataTable)
         {
             try
             {
-                var employeeDataTable = ConvertToDataTable(importDataTable.Employees);
+                var employeeList = importDataTable.Employees.Select(item => new ImportExcelDataTableType
+                {
+                    EmployeeID = 0,
+                    CompanyID = TryParseLong(item.CompanyName),
+                    FirstName = item.FirstName,
+                    MiddleName = item.MiddleName,
+                    Surname = item.Surname,
+                    CorrespondenceAddress = item.CorrespondenceAddress,
+                    CorrespondenceCity = item.CorrespondenceCity,
+                    CorrespondencePinCode = item.CorrespondencePinCode,
+                    CorrespondenceState = item.CorrespondenceState,
+                    CorrespondenceCountryID = TryParseLong(item.CorrespondenceCountryName),
+                    EmailAddress = item.EmailAddress,
+                    Landline = item.Landline,
+                    Mobile = item.Mobile,
+                    Telephone = item.Telephone,
+                    PersonalEmailAddress = item.PersonalEmailAddress,
+                    PermanentAddress = item.PermanentAddress,
+                    PermanentCity = item.PermanentCity,
+                    PermanentPinCode = item.PermanentPinCode,
+                    PermanentState = item.PermanentState,
+                    PermanentCountryID = TryParseLong(item.PermanentCountryName),
+                    PeriodOfStay = item.PeriodOfStay,
+                    VerificationContactPersonName = item.VerificationContactPersonName,
+                    VerificationContactPersonContactNo = item.VerificationContactPersonContactNo,
+                    DateOfBirth = TryParseDate(item.DateOfBirth),
+                    PlaceOfBirth = item.PlaceOfBirth,
+                    IsReferredByExistingEmployee = TryParseBool(item.IsReferredByExistingEmployee),
+                    ReferredByEmployeeID = "ab",
+                    BloodGroup = item.BloodGroup,
+                    PANNo = item.PANNo,
+                    AadharCardNo = item.AadharCardNo,
+                    Allergies = item.Allergies,
+                    IsRelativesWorkingWithCompany = TryParseBool(item.IsRelativesWorkingWithCompany),
+                    RelativesDetails = item.RelativesDetails,
+                    MajorIllnessOrDisability = item.MajorIllnessOrDisability,
+                    AwardsAchievements = item.AwardsAchievements,
+                    EducationGap = item.EducationGap,
+                    ExtraCuricuarActivities = item.ExtraCuricuarActivities,
+                    ForiegnCountryVisits = item.ForiegnCountryVisits,
+                    ContactPersonName = item.ContactPersonName,
+                    ContactPersonMobile = item.ContactPersonMobile,
+                    ContactPersonTelephone = item.ContactPersonTelephone,
+                    ContactPersonRelationship = item.ContactPersonRelationship,
+                    ITSkillsKnowledge = item.ITSkillsKnowledge,
+                    InsertedByUserID = 36,
+                    LeavePolicyID = TryParseLong(item.LeavePolicyName),
+                    CarryForword = 2,
+                    Gender = TryParseInt(item.Gender),
+                    UserName = item.EmployeeNumber,
+                    PasswordHash = "2",
+                    Email = item.PersonalEmailAddress,
+                    RoleID = TryParseInt(item.RoleName) ?? 0,
+                    EmployeNumber = item.EmployeeNumber,
+                    DesignationID = TryParseLong(item.DesignationName),
+                    EmployeeTypeID = TryParseLong(item.EmployeeType),
+                    DepartmentID = TryParseLong(item.DepartmentName),
+                    JobLocationID = TryParseLong(item.JobLocationName),
+                    OfficialEmailID = item.OfficialEmailID,
+                    OfficialContactNo = item.OfficialContactNo,
+                    JoiningDate = TryParseDate(item.JoiningDate),
+                    JobSeprationDate = TryParseDate(item.DateOfResignation),
+                    ReportingToIDL1 = 73,
+                    PayrollTypeID = TryParseLong(item.PayrollTypeName),
+                    ReportingToIDL2 = 73,
+                    ClientName = item.ClientName,
+                    SubDepartmentID = TryParseLong(item.SubDepartmentName),
+                    ShiftTypeID = TryParseLong(item.ShiftTypeName),
+                    ESINumber = item.ESINumber,
+                    ESIRegistrationDate = TryParseDate(item.RegistrationDateInESIC),
+                    BankAccountNumber = item.BankAccountNumber,
+                    IFSCCode = item.IFSCCode,
+                    BankName = item.BankName,
+                    //AgeOnNetwork = TryParseInt(item.AON),
+                    AgeOnNetwork = 1,
+                    NoticeServed = TryParseInt(item.NoticeServed),
+                    LeavingType = item.LeavingType,
+                    PreviousExperience = TryParseInt(item.PreviousExperience),
+                    DateOfJoiningTraining = TryParseDate(item.DOJInTraining),
+                    DateOfJoiningFloor = TryParseDate(item.DOJOnFloor),
+                    DateOfJoiningOJT = TryParseDate(item.DOJInOJTOnroll),
+                    DateOfResignation = TryParseDate(item.DateOfResignation),
+                    DateOfLeaving = TryParseDate(item.DateOfLeaving),
+                    BackOnFloorDate = TryParseDate(item.BackOnFloor),
+                    LeavingRemarks = item.LeavingRemarks,
+                    MailReceivedFromAndDate = item.MailReceivedFromAndDate,
+                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion)
+                }).ToList();
+
+                var employeeDataTable = ConvertToDataTable(employeeList);
 
                 var parameters = new List<SqlParameter>
         {
@@ -2933,7 +3082,7 @@ namespace HRMS.API.BusinessLayer
 
                 return new Result
                 {
-                 
+
                     Message = "Employee data imported successfully.",
                     Data = dataSet
                 };
@@ -2941,7 +3090,7 @@ namespace HRMS.API.BusinessLayer
             catch (Exception ex)
             {
                 return new Result
-                {               
+                {
                     Message = $"Error while importing employee data: {ex.Message}"
                 };
             }
@@ -3225,11 +3374,11 @@ namespace HRMS.API.BusinessLayer
 
         #endregion What's happening
 
-        private DataTable ConvertToDataTable(List<ImportEmployeeOnlyIDModel> employees)
+        private DataTable ConvertToDataTable(List<ImportExcelDataTableType> employees)
         {
             var table = new DataTable();
 
-            // Define all the columns matching your TVP
+            // Define all the columns matching your TVP     
             table.Columns.Add("EmployeeID", typeof(long));
             table.Columns.Add("CompanyID", typeof(long));
             table.Columns.Add("FirstName", typeof(string));
