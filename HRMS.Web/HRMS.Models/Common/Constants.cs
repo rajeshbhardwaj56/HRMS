@@ -220,7 +220,7 @@ namespace HRMS.Models.Common
         public const string GetCompaniesDictionary = "GetCompaniesDictionary";
         public const string GetEmploymentDetailsDictionaries = "GetEmploymentDetailsDictionaries";
         public const string AddUpdateEmployeeFromExecel = "AddUpdateEmployeeFromExecel";
-        public const string AddUpdateEmployeeFromExecel1 = "AddUpdateEmployeeFromExecel1";
+        public const string AddUpdateEmployeeFromExecelBulk = "AddUpdateEmployeeFromExecelBulk";
         public const string GetSubDepartmentDictionary = "GetSubDepartmentDictionary";
         
         

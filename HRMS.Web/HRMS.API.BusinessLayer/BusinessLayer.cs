@@ -2832,22 +2832,24 @@ namespace HRMS.API.BusinessLayer
             return new Dictionary<string, long>(); // Return empty dictionary if no data
         }
 
-        public Dictionary<string, long> GetCompaniesDictionary()
+        public Dictionary<string, CompanyInfo> GetCompaniesDictionary()
         {
             EmployeeInputParams model = new EmployeeInputParams();
             model.CompanyID = 0;
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
-
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
                 return dataSet.Tables[0].AsEnumerable()
-                            .ToDictionary(row => row.Field<string>("Name").ToLower(), // Convert Name to lowercase
-                                          row => row.Field<long>("CompanyID"));
+                            .ToDictionary(row => row.Field<string>("Name").ToLower(),
+                row => new CompanyInfo
+                {
+                    Abbr = row.Field<string?>("Abbr"),
+                    CompanyID = row.Field<long?>("CompanyID") 
+                });
             }
-
-            return new Dictionary<string, long>(); // Return empty dictionary if no data
+            return new Dictionary<string, CompanyInfo>(); 
         }
         public Dictionary<string, long> GetSubDepartmentDictionary(EmployeeInputParams model)
         {
@@ -2867,20 +2869,17 @@ namespace HRMS.API.BusinessLayer
         public Dictionary<string, Dictionary<string, long>> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model)
         {
             Dictionary<string, Dictionary<string, long>> employmentDictionaries = new Dictionary<string, Dictionary<string, long>>();
-
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
         new SqlParameter("@CompanyID", model.CompanyID),
         new SqlParameter("@EmployeeID", model.EmployeeID),
     };
-
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
 
             if (dataSet.Tables.Count > 0)
             {
                 employmentDictionaries["JobLocations"] = dataSet.Tables[0].AsEnumerable()
                     .ToDictionary(row => row.Field<string>("Name"), row => row.Field<long>("ID"));
-
                 employmentDictionaries["EmploymentTypes"] = dataSet.Tables[1].AsEnumerable()
                     .ToDictionary(row => row.Field<string>("Name"), row => row.Field<long>("ID"));
 
@@ -2889,21 +2888,14 @@ namespace HRMS.API.BusinessLayer
 
                 employmentDictionaries["Departments"] = dataSet.Tables[3].AsEnumerable()
                     .ToDictionary(row => row.Field<string>("Name"), row => row.Field<long>("ID"));
-
-
                 employmentDictionaries["Designations"] = dataSet.Tables[5].AsEnumerable()
                     .ToDictionary(row => row.Field<string>("Name"), row => row.Field<long>("ID"));
-
                 employmentDictionaries["ShiftTypes"] = dataSet.Tables[6].AsEnumerable()
                     .ToDictionary(row => row.Field<string>("Name"), row => row.Field<long>("ID"));
-
-
                 employmentDictionaries["Employees"] = dataSet.Tables[7].AsEnumerable()
                     .ToDictionary(row => row.Field<string>("Name"), row => row.Field<long>("EmployeeID"));
-
                 employmentDictionaries["LeavePolicies"] = dataSet.Tables[9].AsEnumerable()
                     .ToDictionary(row => row.Field<string>("LeavePolicyName"), row => row.Field<long>("LeavePolicyID"));
-
                 employmentDictionaries["Roles"] = dataSet.Tables[10].AsEnumerable()
      .ToDictionary(
          row => row.Field<string>("UniqueName"),
@@ -2913,13 +2905,6 @@ namespace HRMS.API.BusinessLayer
             }
 
             return employmentDictionaries;
-        }
-
-        private static int? ParseInt(string? value)
-        {
-            if (int.TryParse(value, out int result))
-                return result;
-            return null;
         }
         private static bool? TryParseBool(string? boolString)
         {
@@ -2941,14 +2926,6 @@ namespace HRMS.API.BusinessLayer
             }
             return null;
         }
-        private long? TryParseLong(string? input)
-        {
-            if (long.TryParse(input, out long result))
-            {
-                return result;
-            }
-            return null;
-        }
         private static int? TryParseInt(string? intString)
         {
             if (int.TryParse(intString, out var number))
@@ -2956,33 +2933,15 @@ namespace HRMS.API.BusinessLayer
                 return number;
             }
             return null;
-        }
-
-        //public Result AddUpdateEmployeeFromExecel1(ImportEmployeeCompanyNameModel importDataTable)
-        //{
-        //    try
-        //    {
-        //        return new Result
-        //        {
-        //            Message = "Test: Received employee data successfully."
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new Result
-        //        {
-        //            Message = $"Error while importing employee data: {ex.Message}"
-        //        };
-        //    }
-        //}
-        public Result AddUpdateEmployeeFromExecel1(ImportEmployeeOnlyIDListModel importDataTable)
+        }     
+        public Result AddUpdateEmployeeFromExecelBulk(ImportEmployeeOnlyIDListModel importDataTable)
         {
             try
             {
                 var employeeList = importDataTable.Employees.Select(item => new ImportExcelDataTableType
                 {
                     EmployeeID = 0,
-                    CompanyID = TryParseLong(item.CompanyName),
+                    CompanyID = Convert.ToInt64(item.CompanyName),
                     FirstName = item.FirstName,
                     MiddleName = item.MiddleName,
                     Surname = item.Surname,
@@ -2990,7 +2949,7 @@ namespace HRMS.API.BusinessLayer
                     CorrespondenceCity = item.CorrespondenceCity,
                     CorrespondencePinCode = item.CorrespondencePinCode,
                     CorrespondenceState = item.CorrespondenceState,
-                    CorrespondenceCountryID = TryParseLong(item.CorrespondenceCountryName),
+                    CorrespondenceCountryID = Convert.ToInt64(item.CorrespondenceCountryName),
                     EmailAddress = item.EmailAddress,
                     Landline = item.Landline,
                     Mobile = item.Mobile,
@@ -3000,14 +2959,13 @@ namespace HRMS.API.BusinessLayer
                     PermanentCity = item.PermanentCity,
                     PermanentPinCode = item.PermanentPinCode,
                     PermanentState = item.PermanentState,
-                    PermanentCountryID = TryParseLong(item.PermanentCountryName),
+                    PermanentCountryID = Convert.ToInt64(item.PermanentCountryName),
                     PeriodOfStay = item.PeriodOfStay,
                     VerificationContactPersonName = item.VerificationContactPersonName,
                     VerificationContactPersonContactNo = item.VerificationContactPersonContactNo,
                     DateOfBirth = TryParseDate(item.DateOfBirth),
                     PlaceOfBirth = item.PlaceOfBirth,
-                    IsReferredByExistingEmployee = TryParseBool(item.IsReferredByExistingEmployee),
-                    ReferredByEmployeeID = "ab",
+                    IsReferredByExistingEmployee = TryParseBool(item.IsReferredByExistingEmployee),                
                     BloodGroup = item.BloodGroup,
                     PANNo = item.PANNo,
                     AadharCardNo = item.AadharCardNo,
@@ -3024,29 +2982,27 @@ namespace HRMS.API.BusinessLayer
                     ContactPersonTelephone = item.ContactPersonTelephone,
                     ContactPersonRelationship = item.ContactPersonRelationship,
                     ITSkillsKnowledge = item.ITSkillsKnowledge,
-                    InsertedByUserID = 36,
-                    LeavePolicyID = TryParseLong(item.LeavePolicyName),
-                    CarryForword = 2,
+                    InsertedByUserID = Convert.ToInt64(item.InsertedByUserID),
+                    LeavePolicyID = Convert.ToInt64(item.LeavePolicyName),        
                     Gender = TryParseInt(item.Gender),
-                    UserName = item.EmployeeNumber,
-                    PasswordHash = "2",
+                    UserName = item.EmployeeNumber,                 
                     Email = item.PersonalEmailAddress,
                     RoleID = TryParseInt(item.RoleName) ?? 0,
                     EmployeNumber = item.EmployeeNumber,
-                    DesignationID = TryParseLong(item.DesignationName),
-                    EmployeeTypeID = TryParseLong(item.EmployeeType),
-                    DepartmentID = TryParseLong(item.DepartmentName),
-                    JobLocationID = TryParseLong(item.JobLocationName),
+                    DesignationID = Convert.ToInt64(item.DesignationName),
+                    EmployeeTypeID = Convert.ToInt64(item.EmployeeType),
+                    DepartmentID = Convert.ToInt64(item.DepartmentName),
+                    JobLocationID = Convert.ToInt64(item.JobLocationName),
                     OfficialEmailID = item.OfficialEmailID,
                     OfficialContactNo = item.OfficialContactNo,
                     JoiningDate = TryParseDate(item.JoiningDate),
                     JobSeprationDate = TryParseDate(item.DateOfResignation),
-                    ReportingToIDL1 = 73,
-                    PayrollTypeID = TryParseLong(item.PayrollTypeName),
-                    ReportingToIDL2 = 73,
+                    ReportingToIDL1 = Convert.ToInt64(item.ReportingToIDL1Name),
+                    PayrollTypeID = Convert.ToInt64(item.PayrollTypeName),
+                    ReportingToIDL2 = Convert.ToInt64(item.ReportingToIDL2Name),
                     ClientName = item.ClientName,
-                    SubDepartmentID = TryParseLong(item.SubDepartmentName),
-                    ShiftTypeID = TryParseLong(item.ShiftTypeName),
+                    SubDepartmentID = Convert.ToInt64(item.SubDepartmentName),
+                    ShiftTypeID = Convert.ToInt64(item.ShiftTypeName),
                     ESINumber = item.ESINumber,
                     ESIRegistrationDate = TryParseDate(item.RegistrationDateInESIC),
                     BankAccountNumber = item.BankAccountNumber,
@@ -3054,9 +3010,9 @@ namespace HRMS.API.BusinessLayer
                     BankName = item.BankName,
                     //AgeOnNetwork = TryParseInt(item.AON),
                     AgeOnNetwork = 1,
-                    NoticeServed = TryParseInt(item.NoticeServed),
+                    NoticeServed = Convert.ToInt32(item.NoticeServed),
                     LeavingType = item.LeavingType,
-                    PreviousExperience = TryParseInt(item.PreviousExperience),
+                    PreviousExperience = Convert.ToInt32(item.PreviousExperience),
                     DateOfJoiningTraining = TryParseDate(item.DOJInTraining),
                     DateOfJoiningFloor = TryParseDate(item.DOJOnFloor),
                     DateOfJoiningOJT = TryParseDate(item.DOJInOJTOnroll),
@@ -3067,9 +3023,7 @@ namespace HRMS.API.BusinessLayer
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
                     EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion)
                 }).ToList();
-
                 var employeeDataTable = ConvertToDataTable(employeeList);
-
                 var parameters = new List<SqlParameter>
         {
             new SqlParameter("@EmployeeTVP", SqlDbType.Structured)
@@ -3084,7 +3038,7 @@ namespace HRMS.API.BusinessLayer
                 {
 
                     Message = "Employee data imported successfully.",
-                    Data = dataSet
+                 
                 };
             }
             catch (Exception ex)
@@ -3151,10 +3105,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@EmployeeID", Convert.ToInt64(employeeModel.EmployeeID)));
             sqlParameter.Add(new SqlParameter("@RetEmployeeID", Convert.ToInt64(employeeModel.EmployeeID)));
             sqlParameter.Add(new SqlParameter("@IsActive", false));
-
             SqlParameterCollection pOutputParams = null;
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
-
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -3168,9 +3120,6 @@ namespace HRMS.API.BusinessLayer
                    ).ToList().FirstOrDefault();
             }
             long employmentDetailID = 0;
-
-
-
             List<SqlParameter> sqlParametersBank = new List<SqlParameter>();
             sqlParametersBank.Add(new SqlParameter("@EmployeeID", model.UserID));
             sqlParametersBank.Add(new SqlParameter("@BankAccountNumber", employeeModel.BankAccountNumber));
@@ -3178,9 +3127,7 @@ namespace HRMS.API.BusinessLayer
             sqlParametersBank.Add(new SqlParameter("@BankName", employeeModel.BankName));
             sqlParametersBank.Add(new SqlParameter("@UserID", model.UserID));
             SqlParameterCollection pOutputParamsdataSetBankDetails = null;
-
             var dataSetBankDetails = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeBankDetails, sqlParametersBank, ref pOutputParamsdataSetBankDetails);
-
             List<SqlParameter> sqlParameterSeparation = new List<SqlParameter>();
 
             sqlParameterSeparation.Add(new SqlParameter("@EmployeeID", model.UserID));

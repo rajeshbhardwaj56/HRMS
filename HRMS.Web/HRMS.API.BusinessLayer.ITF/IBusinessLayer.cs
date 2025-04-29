@@ -29,8 +29,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParams model);
         public Results GetAllActiveEmployees(EmployeeInputParams model);
-
-
         public Result AddUpdateTemplate(TemplateModel model);
         public Results GetAllTemplates(TemplateInputParams model);
         public Result AddUpdateCompany(CompanyModel model);
@@ -61,7 +59,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
         public Results GetAllHolidayList(HolidayInputParams model);
         public string DeleteLeavesSummary(MyInfoInputParams model);
-
         public Result AddUpdateLeavePolicyDetails(LeavePolicyDetailsModel LeavePolicyModel);
         public Results GetLeavePolicyList(LeavePolicyDetailsInputParams model);
         public Results GetAllLeavePolicyDetails(LeavePolicyDetailsInputParams model);
@@ -69,7 +66,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetAllCompaniesList(EmployeeInputParams model);
         public Results GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model);
         public List<EmployeeDetails> GetEmployeeListByManagerID(EmployeeInputParams model);
-
         public Result AddUpdatePolicyCategory(PolicyCategoryModel LeavePolicyModel);
         public Results GetAllPolicyCategory(PolicyCategoryInputParams model);
         public Results GetPolicyCategoryList(PolicyCategoryInputParams model);
@@ -81,21 +77,16 @@ namespace HRMS.API.BusinessLayer.ITF
         public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttendanceInputParams model);
         public Result AddUpdateAttendace(Attendance att);
         public Results GetAttendenceListID(Attendance model);
-
         public AttendanceLogResponse GetAttendanceDeviceLogs(AttendanceDeviceLog model);
-
         public string DeleteAttendanceDetails(Attendance model);
         public MyAttendanceList GetMyAttendanceList(AttendanceInputParams model);
-
         public MyAttendanceList GetAttendanceForApproval(AttendanceInputParams model);
         public MyAttendanceList GetApprovedAttendance(AttendanceInputParams model);
         public Dictionary<string, long> GetCountryDictionary();
         public Dictionary<string, Dictionary<string, long>> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model);
-        public Dictionary<string, long> GetCompaniesDictionary();
+        public Dictionary<string, CompanyInfo> GetCompaniesDictionary();
         public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel);
-
-        public Result AddUpdateEmployeeFromExecel1(ImportEmployeeOnlyIDListModel importDataTable);
-
+        public Result AddUpdateEmployeeFromExecelBulk(ImportEmployeeOnlyIDListModel importDataTable);
         public Dictionary<string, long> GetSubDepartmentDictionary(EmployeeInputParams model);
         public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model);
         public Results GetAllWhatsHappeningDetails(WhatsHappeningModelParans model);

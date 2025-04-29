@@ -63,10 +63,10 @@ namespace HRMS.API.Web.Controllers
 
         [HttpPost]
 
-        public IActionResult AddUpdateEmployeeFromExecel1(ImportEmployeeOnlyIDListModel employeeList)
+        public IActionResult AddUpdateEmployeeFromExecelBulk(ImportEmployeeOnlyIDListModel employeeList)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUpdateEmployeeFromExecel1(employeeList));
+            response = Ok(_businessLayer.AddUpdateEmployeeFromExecelBulk(employeeList));
             return response;
         }
         [HttpPost] 

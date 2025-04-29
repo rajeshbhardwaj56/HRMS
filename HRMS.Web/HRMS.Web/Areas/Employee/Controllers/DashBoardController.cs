@@ -26,10 +26,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public IActionResult Index()
         {
             var CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
-
             DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
             dashBoardModelInputParams.RoleID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.RoleID));
-
             var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
              var leavePolicyModel = GetLeavePolicyData(CompanyID, model.LeavePolicyId??0);
@@ -47,7 +45,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 Totaleavewithcarryforword = accruedLeaves;
             }
             model.NoOfLeaves = Convert.ToInt64(Totaleavewithcarryforword);
-
             _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
             return View(model);
         }
