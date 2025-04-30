@@ -184,7 +184,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? Abbr { get; set; }
         public long? CompanyID { get; set; }
     }   
-    public class ImportEmployeeOnlyIDListModel
+    public class BulkEmployeeImportModel
     {
         public List<ImportExcelDataTable> Employees { get; set; }
     }  

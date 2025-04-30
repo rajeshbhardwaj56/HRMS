@@ -562,6 +562,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 long LeavePolicyId = 0;
                 long GenderId = 0;
                 HashSet<string> uniqueEmployeeNumber = new HashSet<string>();
+                HashSet<string> uniqueOfficialEmails = new HashSet<string>();
                 for (int row = 2; row <= totalRows; row++)
                 {
                     if (IsRowEmpty(worksheet, row))
@@ -647,7 +648,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 case "OfficialEmailID":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
-                                        prop.SetValue(item, cellValue);
+                                        if (!uniqueOfficialEmails.Add(cellValue))
+                                        {
+                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Duplicate OfficialEmailID '{cellValue}' found.");
+                                            hasError = true;
+                                        }
+                                        else
+                                        {
+                                            uniqueOfficialEmails.Add(cellValue);
+                                            prop.SetValue(item, cellValue);
+                                        }
                                     }
                                     else
                                     {
@@ -655,6 +665,28 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
+                                case "FirstName":
+                                    if (!string.IsNullOrWhiteSpace(cellValue))
+                                    {
+                                        prop.SetValue(item, cellValue);
+                                    }
+                                    else
+                                    {
+                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: FirstName is mandatory.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "Surname":
+                                    if (!string.IsNullOrWhiteSpace(cellValue))
+                                    {
+                                        prop.SetValue(item, cellValue);
+                                    }
+                                    else
+                                    {
+                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: Surname is mandatory.");
+                                        hasError = true;
+                                    }
+                                    break;                               
                                 case "PersonalEmailAddress":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -759,6 +791,45 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     else if (!string.IsNullOrEmpty(cellValue))
                                     {
                                         AddError(errorDataTable, columnName, $"Row {row}: LeavePolicies dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
+                                    break;
+                                case "IsRelativesWorkingWithCompany":
+                                    if (!string.IsNullOrWhiteSpace(cellValue))
+                                    {
+                                        if (cellValue.Equals("Yes", StringComparison.OrdinalIgnoreCase) || cellValue.Equals("No", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            prop.SetValue(item, cellValue);
+                                        }
+                                        else
+                                        {
+                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: IsRelativesWorkingWithCompany must be 'Yes' or 'No'.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: IsRelativesWorkingWithCompany is mandatory.");
+                                        hasError = true;
+                                    }
+                                    break;
+
+                                case "IsReferredByExistingEmployee":
+                                    if (!string.IsNullOrWhiteSpace(cellValue))
+                                    {
+                                        if (cellValue.Equals("Yes", StringComparison.OrdinalIgnoreCase) || cellValue.Equals("No", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            prop.SetValue(item, cellValue);
+                                        }
+                                        else
+                                        {
+                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: IsReferredByExistingEmployee must be 'Yes' or 'No'.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: IsReferredByExistingEmployee is mandatory.");
                                         hasError = true;
                                     }
                                     break;
@@ -1031,7 +1102,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     ReportingToIDL2Name = HttpContext.Session.GetString(Constants.EmployeeID),
                     InsertedByUserID = HttpContext.Session.GetString(Constants.UserID),
                 }).ToList();
-                var companyNameModel = new ImportEmployeeOnlyIDListModel
+                var companyNameModel = new BulkEmployeeImportModel
                 {
                     Employees = employeeList
                 };

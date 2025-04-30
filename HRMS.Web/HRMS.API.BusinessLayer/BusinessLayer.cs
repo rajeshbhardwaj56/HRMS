@@ -2831,7 +2831,6 @@ namespace HRMS.API.BusinessLayer
 
             return new Dictionary<string, long>(); // Return empty dictionary if no data
         }
-
         public Dictionary<string, CompanyInfo> GetCompaniesDictionary()
         {
             EmployeeInputParams model = new EmployeeInputParams();
@@ -2934,11 +2933,11 @@ namespace HRMS.API.BusinessLayer
             }
             return null;
         }     
-        public Result AddUpdateEmployeeFromExecelBulk(ImportEmployeeOnlyIDListModel importDataTable)
+        public Result AddUpdateEmployeeFromExecelBulk(BulkEmployeeImportModel bulkImportModel)
         {
             try
             {
-                var employeeList = importDataTable.Employees.Select(item => new ImportExcelDataTableType
+                var employeeList = bulkImportModel.Employees.Select(item => new ImportExcelDataTableType
                 {
                     EmployeeID = 0,
                     CompanyID = Convert.ToInt64(item.CompanyName),
@@ -3233,7 +3232,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     return dateValue;
                 }
-                return DBNull.Value; // If date parsing fails, store null in SQL
+                return DBNull.Value; 
             }
 
             return value.ToString().Trim();
@@ -3319,13 +3318,11 @@ namespace HRMS.API.BusinessLayer
             return message;
         }
 
-        #endregion What's happening
+        #endregion What's happeningS
 
         private DataTable ConvertToDataTable(List<ImportExcelDataTableType> employees)
         {
-            var table = new DataTable();
-
-            // Define all the columns matching your TVP     
+            var table = new DataTable();              
             table.Columns.Add("EmployeeID", typeof(long));
             table.Columns.Add("CompanyID", typeof(long));
             table.Columns.Add("FirstName", typeof(string));
