@@ -14,7 +14,6 @@
     SelectListItem employmentHistoryCountry;
     var CountryData = @Model.employeeModel.Countries;
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-
     var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
     ViewData["Title"] = "Employee";
     var ProfilePhoto = "";
@@ -76,24 +75,29 @@
             </div>
             <div class="profile-header-small-info">
                 <h2>@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
-                <p class="joiningDate">
-                    <b>Joining Date:</b> &nbsp;@Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyy") &nbsp;
-                    @{
+               <p class="joiningDate">
+    <b>Joining Date:</b> &nbsp;
+    @if (Model.employmentDetail.JoiningDate != null)
+    {
+        @Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyyy");
+        
+         
+            DateTime zeroTime = new DateTime(1, 1, 1);
+            DateTime TodayDate = DateTime.Now;
+            DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
+            TimeSpan span = TodayDate - JoiningDate.Date;
+            int years = (zeroTime + span).Year - 1;
+            var Month = (TodayDate - JoiningDate.AddYears(years));
+            var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
+            <span>@(years)y - @(Days)d</span>
+        
+    }
+    else
+    {
+        <span>Joining Date not available</span>
+    }
+</p>
 
-                        if (Model.employmentDetail.JoiningDate != null)
-                        {
-
-                            DateTime zeroTime = new DateTime(1, 1, 1);
-                            DateTime TodayDate = DateTime.Now;
-                            DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
-                            TimeSpan span = TodayDate - JoiningDate;
-                            int years = (zeroTime + span).Year - 1;
-                            var Month = (TodayDate - JoiningDate.AddYears(years));
-                            var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
-                                    <span>@(years)y - @(Days)d</span>
-                        }
-                    }
-                </p>
 
                 <div class="myinfo-menu">
                     <ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
@@ -117,7 +121,7 @@
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="Attendance-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
                         </li>
                         <li class="nav-item" role="presentation" style="display: none;">
@@ -214,7 +218,7 @@
 
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 mb-2">
-                                                        <h6>Address of Currespondence</h6>
+                                                        <h6>Address of Correspondence</h6>
                                                         @Model.employeeModel.CorrespondenceAddress
                                                     </div>
                                                     <div class="col-lg-4 col-md-4 mb-2">
@@ -1027,9 +1031,6 @@
                                                             @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "adminleaveTypeDropdown", @disabled = "disabled" })
 
                                                             <p id="adminleaveTypeDropdown1" class="form-control"></p>
-
-
-
                                                         </div>
                                                         <div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
                                                             <label for="leavetype" class="">Leave Duration:</label>
@@ -1122,10 +1123,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-
-
-
                                     <div class="col-lg-4 px-4">
                                         <div class="card mb-3" style="height:60px; display:none" id="AnnualLeaveBalance">
                                             <div class="card-body">

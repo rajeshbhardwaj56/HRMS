@@ -4,6 +4,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
+using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -104,9 +105,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             LeavePolicyInputParans leavePolicyParams = new LeavePolicyInputParans();
             leavePolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetLeavePolicyList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
+            results.LeavePolicyDetailsList.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.Id.ToString()));
 
             return Json(new { data = results.LeavePolicyDetailsList });
 
@@ -120,6 +121,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(id))
             {
+                id = _businessLayer.DecodeStringBase64(id);
                 leavePolicyModel.Id = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).LeavePolicyDetailsModel;
@@ -199,11 +201,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
         [HttpGet]
-        public IActionResult DeleteLeavesDetails(int id)
+        public IActionResult DeleteLeavesDetails(string id)
         {
+            id = _businessLayer.DecodeStringBase64(id);
             LeavePolicyDetailsInputParams model = new LeavePolicyDetailsInputParams()
             {
-                Id = id,
+                Id = Convert.ToInt64(id),
             };
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.DeleteLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             if (data != null)
@@ -292,7 +295,119 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
 
+        #region Whatshappening Details
 
+        public IActionResult WhatshappeningListing()
+        {
+            Results results = new Results();
+            return View(results);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult WhatshappeningListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            WhatsHappeningModelParans WhatsHappeningModelParams = new WhatsHappeningModelParans();
+            WhatsHappeningModelParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<Results>(data);
+            results.WhatsHappeningList.ForEach(x => x.EncodedWhatsHappeningID = _businessLayer.EncodeStringBase64(x.WhatsHappeningID.ToString()));
+            return Json(new { data = results.WhatsHappeningList });
+
+        }
+
+        public IActionResult AddWhatshappening(string id)
+        {
+            WhatsHappeningModels objModelParams = new WhatsHappeningModels();
+            WhatsHappeningModelParans WhatsHappeningModelParams = new WhatsHappeningModelParans();
+            WhatsHappeningModelParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            if (!string.IsNullOrEmpty(id))
+            {
+                id = _businessLayer.DecodeStringBase64(id);
+                WhatsHappeningModelParams.WhatsHappeningID = Convert.ToInt64(id);
+                var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                objModelParams = JsonConvert.DeserializeObject<Results>(data).WhatsHappeningModel;
+            }
+            return View(objModelParams);
+        }
+
+        [HttpPost]
+        public IActionResult AddWhatshappening(WhatsHappeningModels objModel, List<IFormFile> postedFiles)
+        {
+            string fileName = null;
+
+            if (objModel.Description == null)
+            {
+                objModel.Description = string.Empty;
+            }
+            if (postedFiles.Count > 0)
+            {
+                string wwwPath = Environment.WebRootPath;
+                string contentPath = this.Environment.ContentRootPath;
+
+                foreach (IFormFile postedFile in postedFiles)
+                {
+                    fileName = postedFile.FileName.Replace(" ", "");
+                }
+                if (fileName != null)
+                {
+                    objModel.IconImage = fileName;
+                }
+                else
+                {
+                    objModel.IconImage = "";
+
+                }
+            }
+            objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            objModel.CreatedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+            var data = _businessLayer.SendPostAPIRequest(objModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);
+
+            if (postedFiles.Count > 0)
+            {
+                string path = Path.Combine(this.Environment.WebRootPath, Constants.Whatshappening + result.PKNo.ToString());
+
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                foreach (IFormFile postedFile in postedFiles)
+                {
+                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                    {
+                        postedFile.CopyTo(stream);
+                    }
+                }
+            }
+
+
+            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+            TempData[HRMS.Models.Common.Constants.toastMessage] = "Whats happening  created successfully.";
+            return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);
+
+        }
+
+
+        [HttpGet]
+        public IActionResult DeleteWhatshappening (string id)
+        {
+            id = _businessLayer.DecodeStringBase64(id);
+         
+            WhatsHappeningModelParans model = new WhatsHappeningModelParans()
+            {
+                WhatsHappeningID = Convert.ToInt64(id),
+            };
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.DeleteWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            if (data != null)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = data;
+            }
+            return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);
+        }
+        #endregion Whatshappening Details
 
 
     }

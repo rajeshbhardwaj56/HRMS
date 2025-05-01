@@ -48,4 +48,12 @@ namespace HRMS.Models.Common
     {
         MaxMedicalDoc= 3
     }
+    public enum AttendanceStatus
+    {
+        Submitted = 1,
+        L1Approved = 2,
+        L2Approve = 3,
+        Approved = 4,
+        Cancelled = 5
+    }
 }

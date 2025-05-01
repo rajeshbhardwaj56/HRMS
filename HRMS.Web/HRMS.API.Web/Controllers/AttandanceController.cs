@@ -18,12 +18,12 @@ namespace HRMS.API.Web.Controllers
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
-        [HttpPost]
-        public IActionResult GetAttandance(AttandanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendance(model));
-            return response;
-        }
+        //[HttpPost]
+        //public IActionResult GetAttandance(AttandanceInputParams model)
+        //{
+        //    IActionResult response = Unauthorized();
+        //    response = Ok(_businessLayer.GetAttendance(model));
+        //    return response;
+        //}
     }
 }

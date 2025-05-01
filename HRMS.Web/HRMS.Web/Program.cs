@@ -1,9 +1,14 @@
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using HRMS.Web.AttendanceScheduler;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Quartz.Impl;
+using Quartz.Spi;
+using Quartz;
 using System.Globalization;
 using WebMarkupMin.AspNetCore8;
 
@@ -90,6 +95,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 // Enable runtime compilation of Razor views
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
+
+
+//Scheduker
+IServiceCollection service = builder.Services.AddHostedService<QuartzHostedService>();
+builder.Services.AddSingleton<QuartzJobRunner>();
+ builder.Services.AddSingleton<IJobFactory, JobFactory>();
+builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+builder.Services.TryAddTransient<AttendanceReminderJob>();
+builder.Services.AddSingleton(new JobSchedule(
+    jobType: typeof(AttendanceReminderJob),
+cronExpression: "0 00 06 * * ?"));
 
 var app = builder.Build();
 

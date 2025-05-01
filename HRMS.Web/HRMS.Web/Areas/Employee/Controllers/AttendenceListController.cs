@@ -1,11 +1,18 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
+﻿using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
+using HRMS.Models.DashBoard;
+using HRMS.Models.Employee;
+using HRMS.Models.Leave;
+using HRMS.Models.MyInfo;
+using HRMS.Models.ShiftType;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System;
 
 namespace HRMS.Web.Areas.Employee.Controllers
 {
@@ -40,32 +47,60 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(new { data = results.AttendenceList });
 
         }
+        //public IActionResult Index(string id)
+        //{
+        //    AttendenceListModel model = new AttendenceListModel();
+
+        //    if (!string.IsNullOrEmpty(id))
+        //    {
+        //        model.ID = Convert.ToInt64(id);
+        //        var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+        //        model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendenceListModel;
+
+        //    }
+
+        //    HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
+        //    model.Employeelist = results.Employee;
+        //    model.StatusList = new SelectList(Enum.GetValues(typeof(Status)));
+        //    model.ShiftList = Enum.GetValues(typeof(ShiftSelection)).Cast<ShiftSelection>()
+        //   .Select(e => new SelectListItem
+        //   {
+        //       Value = ((int)e).ToString(),
+        //       Text = e.ToString(),
+        //   })
+        //  .ToList();
+        //    return View(model);
+        //}
         public IActionResult Index(string id)
         {
-            AttendenceListModel model = new AttendenceListModel();
-
+            Attendance model = new Attendance();
             if (!string.IsNullOrEmpty(id))
             {
                 model.ID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendenceListModel;
-
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendanceModel;
             }
-
             HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
             model.Employeelist = results.Employee;
-            model.StatusList = new SelectList(Enum.GetValues(typeof(Status)));
-            model.ShiftList = Enum.GetValues(typeof(ShiftSelection)).Cast<ShiftSelection>()
-           .Select(e => new SelectListItem
-           {
-               Value = ((int)e).ToString(),
-               Text = e.ToString(),
-           })
-          .ToList();
             return View(model);
         }
 
-
+        public HRMS.Models.Common.Results GetAllEmployees(long EmployeeID)
+        {
+            HRMS.Models.Common.Results result = null;
+            var data = "";
+            if (HttpContext.Session.GetString(Constants.ResultsData) != null)
+            {
+                data = HttpContext.Session.GetString(Constants.ResultsData);
+            }
+            else
+            {
+                data = _businessLayer.SendGetAPIRequest("Common/GetAllEmployees?EmployeeID=" + EmployeeID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            }
+            HttpContext.Session.SetString(Constants.ResultsData, data);
+            result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            return result;
+        }
 
         [HttpPost]
         public IActionResult Index(AttendenceListModel AttendenceListModel)
@@ -97,35 +132,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         }
-        public HRMS.Models.Common.Results GetAllEmployees(long EmployeeID)
-        {
-            HRMS.Models.Common.Results result = null;
-            var data = "";
-            if (HttpContext.Session.GetString(Constants.ResultsData) != null)
-            {
-                data = HttpContext.Session.GetString(Constants.ResultsData);
-            }
-            else
-            {
-                data = _businessLayer.SendGetAPIRequest("Common/GetAllEmployees?EmployeeID=" + EmployeeID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            }
-            HttpContext.Session.SetString(Constants.ResultsData, data);
-            result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            return result;
-        }
-
-
-
 
         [HttpGet]
         public IActionResult AttendenceList()
         {
-            
             return View();
         }
-
-
-
         [HttpGet]
         public IActionResult AttendenceCalendarList(int year, int month)
         {
@@ -137,84 +149,310 @@ namespace HRMS.Web.Areas.Employee.Controllers
             // Concatenate full name
             var employeeFullName = string.Join(" ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
 
-            AttandanceInputParams models = new AttandanceInputParams
+            AttendanceInputParams models = new AttendanceInputParams
             {
                 Year = year,
                 Month = month,
                 UserId = employeeId,
             };
 
-            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var model = JsonConvert.DeserializeObject<List<Attandance>>(data);
+            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
 
             return Json(new { data = model, employeeFullName = employeeFullName });
         }
-
-
         [HttpGet]
         public IActionResult MyAttendanceList()
         {
+            var ManagerL1 = HttpContext.Session.GetString(Constants.Manager1Name).ToString();
+            var ManagerL2 = HttpContext.Session.GetString(Constants.Manager2Name).ToString();
+            ViewBag.ManagerL1 = ManagerL1;
+            ViewBag.ManagerL2 = ManagerL2;
+
             return View();
 
         }
         [HttpPost]
-        [AllowAnonymous]
         public JsonResult GetMyAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            AttandanceInputParams attendenceListParams = new AttandanceInputParams();
+            var ManagerL1 = HttpContext.Session.GetString(Constants.Manager1Name).ToString();
+            var ManagerL2 = HttpContext.Session.GetString(Constants.Manager2Name).ToString();
+            ViewBag.ManagerL1 = ManagerL1;
+            ViewBag.ManagerL2 = ManagerL2;
+            AttendanceInputParams attendenceListParams = new AttendanceInputParams();
             attendenceListParams.Month = DateTime.Now.Month;
-            //attendenceListParams.Month =1;
             attendenceListParams.Year = DateTime.Now.Year;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetMyAttendanceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
-            var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
-
+            var model = JsonConvert.DeserializeObject<MyAttendanceList>(data);
             return Json(new { data = model });
-
         }
-
         [HttpGet]
         public IActionResult MyAttendance(string id)
         {
-            Attandance model = new Attandance();
+            Attendance model = new Attendance();
 
             if (!string.IsNullOrEmpty(id))
             {
                 model.ID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttandanceModel;
-
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendanceModel;
             }
-
-            HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
-            model.Employeelist = results.Employee;
+            //HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
+            //model.Employeelist = results.Employee;
             return View(model);
 
         }
         [HttpPost]
-        public IActionResult MyAttendance(Attandance AttendenceListModel)
+        public IActionResult MyAttendance(Attendance AttendenceListModel)
         {
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
-            AttendenceListModel.UserId= Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeID));
+            var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            AttendenceListModel.UserId = UserId.ToString();
+            AttendenceListModel.ModifiedBy = UserId;
+            AttendenceListModel.AttendanceStatusId = 1;
+            AttendenceListModel.IsManual = true;
+            AttendenceListModel.AttendanceStatus = AttendanceStatus.Submitted.ToString();
             var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
-
-            if (AttendenceListModel.ID > 0)
+            if (result != null && result.Message.Contains("Record for this user with the same date already exists!", StringComparison.OrdinalIgnoreCase))
             {
-                return RedirectToActionPermanent(WebControllarsConstants.MyAttendance, WebControllarsConstants.AttendenceList);
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
             }
             else
             {
-              
-                return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.AttendenceList);
-
+                var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
+                var Manager2Email = HttpContext.Session.GetString(Constants.Manager2Email).ToString();
+                var EmployeeFirstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+                sendEmailProperties sendEmailProperties = new sendEmailProperties();
+                sendEmailProperties.emailSubject = "Send a request for attendance approval";
+                sendEmailProperties.emailBody = ("Hii," + EmployeeFirstName + ' ' + "Send a request for attendance approval");
+                sendEmailProperties.EmailToList.Add(Manager1Email);
+                //sendEmailProperties.EmailToList.Add(Manager2Email);
+                emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
+                if (responses.responseCode == "200")
+                {
+                }
+                else
+                {
+                }
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
             }
+            return View(AttendenceListModel);
+        }
+        [HttpGet]
+        public IActionResult DeleteAttendanceDetails(int id)
+        {
+            Attendance model = new Attendance()
+            {
+                ID = id,
+            };
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.DeleteAttendanceDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            if (data != null)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = data;
+            }
+            return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.AttendenceList);
+        }
+        public IActionResult TeamAttendenceList()
+        {
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            return View(results);
+        }
 
 
+        [HttpPost]
+        public JsonResult ApproveRejectAttendance(long attendanceId ,long employeeID, string status, string ApproveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate)
+        {
+            var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+          
+            var attendanceListModel = new Attendance
+            {
+                ID= attendanceId,
+                WorkDate = workDate,
+                UserId = employeeID.ToString(),               
+                AttendanceStatus = status,
+                FirstLogDate= startDate,
+                LastLogDate= endDate,
+                Comments=ApproveRejectComment,
+                ModifiedBy= modifiedBy,
+                ModifiedDate=DateTime.Today
+
+            };
+            if (attendanceListModel.AttendanceStatus == "Submitted")
+            {
+                attendanceListModel.AttendanceStatus = "L1Approved";
+                var Manager2Email = HttpContext.Session.GetString(Constants.Manager2Email).ToString();
+                var EmployeeFirstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+                sendEmailProperties sendEmailProperties = new sendEmailProperties();
+                sendEmailProperties.emailSubject = "Send a request for attendance approval";
+                sendEmailProperties.emailBody = ("Hii," + EmployeeFirstName + ' ' + "Send a request for attendance approval");
+                sendEmailProperties.EmailToList.Add(Manager2Email);
+                emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
+                if (responses.responseCode == "200")
+                {
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+                attendanceListModel.AttendanceStatusId =2;  
+                attendanceListModel.AttendanceStatus = "L2Approved";  
+            }
+            var data = _businessLayer.SendPostAPIRequest(
+                attendanceListModel,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);         
+            if (result != null && result.Message.Contains("Record for this user with the same date already exists!", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(new { success = false, message = result.Message });
+            }
+            else
+            {           
+                var manager1Email = HttpContext.Session.GetString(Constants.Manager1Email);
+                var employeeFirstName = HttpContext.Session.GetString(Constants.FirstName);
+                sendEmailProperties sendEmailProperties = new sendEmailProperties
+                {
+                    emailSubject = "Send a request for attendance approval",
+                    emailBody = $"Hi, {employeeFirstName} has sent a request for attendance approval."
+                };
+                sendEmailProperties.EmailToList.Add(manager1Email);          
+                emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);               
+                if (responses.responseCode == "200")
+                {
+                    return Json(new { success = true, message = "Attendance approved/rejected successfully and email sent." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Attendance approved/rejected, but email sending failed." });
+                }
+            }
+        }
+
+[HttpPost]
+        [AllowAnonymous]
+        public JsonResult GetTeamAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            AttendanceInputParams attendenceListParams = new AttendanceInputParams();
+            attendenceListParams.Month = DateTime.Now.Month;
+            //attendenceListParams.Month =1;
+            attendenceListParams.Year = DateTime.Now.Year;
+            attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
+            return Json(new { data = model });
+
+        }
+
+        public IActionResult ApprovedAttendance()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult GetApprovedAttendance(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string attendanceStatus)
+        {
+            int attendanceAdminStatus = 0;
+            AttendanceInputParams attendenceListParams = new AttendanceInputParams();
+            if (attendanceStatus == "L1Approved")
+            {
+                attendanceAdminStatus = Convert.ToInt32(AttendanceStatus.L1Approved); 
+            }
+            if (attendanceStatus == "Submitted")
+            {
+                attendanceAdminStatus = Convert.ToInt32(AttendanceStatus.Submitted); 
+            }
+            if (attendanceStatus == "L2Approve")
+            {
+                attendanceAdminStatus = Convert.ToInt32(AttendanceStatus.L2Approve); 
+            }
+            attendenceListParams.Status = attendanceAdminStatus.ToString();
+            // attendenceListParams.Status = AttendanceStatus.L1Approved.ToString();
+            attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model = JsonConvert.DeserializeObject<MyAttendanceList>(data);
+            return Json(new { data = model });
+        }
+        [HttpGet]
+        public IActionResult GetEmployeeAttendanceShiftDetails(int employeeID, int Id)
+        {
+            ShiftTypeModel shiftTypeModel = new ShiftTypeModel();
+            EmployeeAttendance EmployeeAttendanceModel = new EmployeeAttendance();
+            var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var employeeDetails = GetEmployeeDetails(CompanyID, employeeID);
+            shiftTypeModel.ShiftTypeID = employeeDetails.ShiftTypeID;
+            shiftTypeModel.CompanyID = CompanyID;
+            var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            shiftTypeModel = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).shiftTypeModel;
+            EmployeeAttendanceModel.FullName = employeeDetails.FirstName + ' ' + employeeDetails.MiddleName + ' ' + employeeDetails.Surname;
+           // EmployeeAttendanceModel.EmployeeNumber = employeeDetails.EmployeeNumber;
+            EmployeeAttendanceModel.EmployeeJoiningdate = employeeDetails.JoiningDate.Value.ToString("dd/MM/yyyy");
+            //EmployeeAttendanceModel.EmployeeDesignation = employeeDetails.DesignationName;
+            //EmployeeAttendanceModel.EmployeeDepartment = employeeDetails.DepartmentName;
+            //EmployeeAttendanceModel.Employeeemail = employeeDetails.OfficialEmailID;
+            EmployeeAttendanceModel.ShiftStartDate = shiftTypeModel.StartTime;
+            EmployeeAttendanceModel.ShiftEndDate = shiftTypeModel.EndTime;
+            return Json(EmployeeAttendanceModel);
+        }
 
 
+        public IActionResult TeamAttendanceLogs()
+        {
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            return View(results);
+        }
 
+
+        [HttpPost]
+      
+        public JsonResult GetTeamAttendanceLogs(string EmployeeId)
+        {
+            AttendanceDeviceLog attendenceDeviceLogs = new AttendanceDeviceLog();
+            attendenceDeviceLogs.EmployeeId = EmployeeId;
+            attendenceDeviceLogs.CreatedBy = HttpContext.Session.GetString(Constants.EmployeeID);
+            var data = _businessLayer.SendPostAPIRequest(attendenceDeviceLogs, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceDeviceLogs), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model = JsonConvert.DeserializeObject<AttendanceLogResponse>(data);
+            return Json(new { data = model.AttendanceLogs });
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult GetTeamEmployeeList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)      
+        {
+            try
+            {
+                List<EmployeeDetails> employeeDetails = new List<EmployeeDetails>();
+                EmployeeInputParams model = new EmployeeInputParams();
+                model.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
+                if (employeeDetails == null || employeeDetails.Count == 0)
+                {
+                    return Json(new { data = new List<object>(), message = "No employees found" });
+                };
+                return Json(new { data = employeeDetails });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "An error occurred", details = ex.Message });
+            }
+        }
+
+        private EmployeeModel GetEmployeeDetails(long companyId, long employeeId)
+        {
+            var employeeDetailsJson = _businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = companyId, EmployeeID = employeeId }, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(employeeDetailsJson).employeeModel;
+            return employeeDetails;
         }
     }
 

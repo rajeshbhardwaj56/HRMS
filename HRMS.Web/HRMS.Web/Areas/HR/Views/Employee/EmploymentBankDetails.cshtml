@@ -1,0 +1,51 @@
+﻿﻿@using HRMS.Models.Employee;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmploymentBankDetail
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "Official Bank Details";
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    Add Bank Details  
+</div>
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">         
+            <div class="small-header">
+                @Html.HiddenFor(m => m.EmployeeID)               
+                @Html.HiddenFor(m => m.UserID)
+                @Html.HiddenFor(m => m.BankDetailID)
+            </div>
+            <div class="row">            
+                <div class="col-md-4 form-group">
+                    <label>Bank Account Number <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.BankAccountNumber, new { @class = "form-control", @type = "text", @required = "required" })
+                    
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>IFSC Code<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.IFSCCode, new { @class = "form-control", @type = "text", @required = "required" })             
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Bank Name <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.BankName, new { @class = "form-control", @type = "text", @required = "required" })
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="submit" value="Submit" class="btn btn-success" />
+                        <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+</form>
+
+<script>
+  document.getElementById('cancelButton').addEventListener('click', function () {
+
+        window.location.href = '@Url.Action("EmployeeListing", "employee")';
+    });
+    </script>

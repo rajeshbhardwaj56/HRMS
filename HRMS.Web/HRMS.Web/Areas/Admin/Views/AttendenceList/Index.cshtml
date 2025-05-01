@@ -1,18 +1,18 @@
 ﻿@using HRMS.Models.Common
-@model Attandance
+@model Attendance
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Attendence List";
+    ViewData["Title"] = "Attendance List";
 
 }
 
-<div class="main-header anim" style="--delay: 0s">Attendence List </div>
+<div class="main-header anim" style="--delay: 0s">Attendance List </div>
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
         <div class="group-box anim" style="--delay: .3s">
 
             @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label class="form-label">Attendence List</label>
+            <label class="form-label">Attendance List</label>
             </div> *@
             @Html.HiddenFor(x => x.ID)         
             <div class="row">

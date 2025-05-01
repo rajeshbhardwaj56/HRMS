@@ -13,7 +13,7 @@
 <div class="main-header anim" style="--delay: 0s">Dashboard</div>
 <div class="page-wrapper dashboard-page">
     <div class="page-name 	mb-4">
-        <h4 class="m-0"><img src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="mr-1" alt="profile" /> Hi @Model.FirstName, @_businessLayer.GetSatutation() !</h4>
+        <h4 class="m-0"><img src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="mr-1" alt="profile" /> Hi @Model.FirstName (@Model.EmployeNumber), @_businessLayer.GetSatutation() !</h4>
         <label>@DateTime.Now.ToString("ddd, dd MMM yyy")</label>
     </div>
 
@@ -151,40 +151,30 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>
-                                        2024-Mar-7
-                                    </td>
-                                    <td>587</td>
-                                    <td>13</td>
+                                @if(Model !=null)
+                                {
+                                    @if(Model.AttendanceModel !=null && Model.AttendanceModel.Count()>0)
+                                    {
+                                        foreach(var item in Model.AttendanceModel)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @item.Day.Value.ToString("yyyy-dd-MM")
+                                                </td>
+                                                <td>@item.Present</td>
+                                                <td>@item.Absent</td>
 
-                                </tr>
-                                <tr>
-                                    <td>
-                                        2024-Mar-6
-                                    </td>
-                                    <td>589</td>
-                                    <td>11</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        2024-Mar-6
-                                    </td>
-                                    <td>595</td>
-                                    <td>5</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        2024-Mar-6
-                                    </td>
-                                    <td>595</td>
-                                    <td>5</td>
-                                </tr>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                             
+                           
                             </tbody>
                         </table>
                     </div>
-                    <a href="" class="viewAll">View All →</a>
-                </div>
+@*                     <a href="/employee/myinfo/TeamAttendenceList" class="viewAll">View All →</a>
+ *@                </div>
             </div>
         </div>
 
@@ -212,21 +202,20 @@
                             }
                         </div>
 
-                        <!-- Carousel items -->
                         <div class="carousel-inner border-radius-lg h-100">
                             @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
                             {
                                 int index = 0;
                                 foreach (var item in Model.EmployeeDetails)
                                 {
-                                    var UserPhoto = "/Uploads/ProfilePhoto/" + item.EmployeeId + "/" + @item.EmplpoyeePhoto;
+                                    var UserPhoto = "/Uploads/ProfilePhoto/" + item.EmployeeId + "/" + @item.EmployeePhoto;
                                     var isActive = index == 0 ? "active" : "";
 
                                     <div class="carousel-item h-100 @isActive">
                                         <div class="carousel-caption d-none d-md-block top-10 text-center">
                                             <div class="person-img">
                                                 <div class="ratio ratio-1x1 rounded-circle overflow-hidden">
-                                                    @if (item.EmplpoyeePhoto == null)
+                                                    @if (item.EmployeePhoto == null)
                                                     {
                                                         <img src="/assets/img/No_image.png" class="card-img-top img-cover" alt="@item.FirstName">
                                                     }
@@ -237,7 +226,11 @@
                                                 </div>
                                             </div>
                                             <h5 class="card-title">@item.FirstName @item.LastName</h5>
-                                            <p class="card-text">@item.DOB.ToString("MMMM d") - Happy Birthday!</p>
+                                            @if (item.DOB.HasValue)
+                                            {
+                                                <p class="card-text">@item.DOB.Value.ToString("MMMM d") - Happy Birthday!</p>
+                                            }
+
                                         </div>
                                     </div>
                                     index++;
@@ -269,69 +262,95 @@
         <div class="col col-lg-12 order-0 mb-4 anim" style="--delay: .1s">
             <div class="card">
                 <div class="card-header pb-0 p-3">
-                    <h6 class="mb-0">What's happening at Eternity</h6>
+                    <h6 class="mb-0">What's happening at Protalk</h6>
                 </div>
                 <div class="p-3">
                     <ul class="list-group body-text">
-                        <li class="list-group-item py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <img src="../assets/img/icons/fun.png" width="30" height="30">
-                                    <a href="" class="font-weight-bold text-decoration-none" style="color:#05397b;">&nbsp;&nbsp;Fun Friday - Theme Dress Code Rainbow!<b>&nbsp;&nbsp;| 04-Mar-2024</b></a>
-                                </div>
-                                <div>
-                                    <a href="" class="btn btn-light btn-sm border border-secondary border-2">View Announcement</a>
-                                    <a href="" class="px-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#05397b" class="bi bi-x" viewBox="0 0 16 16">
-                                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"></path>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#05397b" class="bi bi-trophy-fill" viewBox="0 0 16 16">
-                                        <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5q0 .807-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33 33 0 0 1 2.5.5m.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935m10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935"></path>
-                                    </svg>
-                                    <a href="" class="font-weight-bold text-decoration-none" style="color:#05397b;">&nbsp;&nbsp;RNR for Feb 2024<b>&nbsp;&nbsp;| 04-Mar-2024</b></a>
-                                </div>
-                                <div>
-                                    <a href="" class="btn btn-light btn-sm border border-secondary border-2">View Announcement</a>
-                                    <span>
-                                        <a href="" class="px-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#05397b" class="bi bi-x" viewBox="0 0 16 16">
-                                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"></path>
-                                            </svg>
+                     
+                        @if (Model?.WhatsHappening != null && Model.WhatsHappening.Any(x => x.FromDate >= DateTime.Today))
+                        {
+                            foreach (var item in Model.WhatsHappening.Where(x => x.FromDate >= DateTime.Today))
+                            {
+                            <li class="list-group-item py-3">
+                                <div class="d-flex justify-content-between align-items-center">                                                                    
+                                    <div>
+                                            <img src="/Uploads/Whatshappening/@item.IconImage" width="30" height="30">
+                                            <a href="javascript:void(0)" class="font-weight-bold text-decoration-none" style="color:#05397b;">@item.Title   <b>&nbsp;&nbsp;|  @item.FromDate?.ToString("dd-MMM-yyyy") </b></a>
+                                    </div>
+                                     <div>
+                                            <button class="btn btn-light btn-sm border border-2 view-announcement-btn"                                                  
+                                                    data-title="@item.Title"
+                                                    data-description="@item.Description"
+                                                    data-fromdate="@item.FromDate?.ToString("dd-MMM-yyyy")"
+                                                    data-todate="@item.ToDate?.ToString("dd-MMM-yyyy")"
+                                                    data-image="/Uploads/Whatshappening/@item.IconImage">
+                                                View Announcement
+                                            </button>
+                                            <a href="javascript:void(0)" class="px-2">
+                                             
                                         </a>
-                                    </span>
+                                    </div> 
+                                    
                                 </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <img src="../assets/img/icons/fun.png" width="30" height="30">
-                                    <a href="" class="font-weight-bold text-decoration-none" style="color:#05397b;">&nbsp;&nbsp;Fun Friday - Theme Dress Code Rainbow!<b>&nbsp;&nbsp;| 09-Mar-2024</b></a>
-                                </div>
-                                <div>
-                                    <a href="" class="btn btn-light btn-sm border border-secondary border-2">View Announcement</a>
-                                    <a href="" class="px-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#05397b" class="bi bi-x" viewBox="0 0 16 16">
-                                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"></path>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
+                            </li>
+                        }
+                        }
+                        else
+                        {
+                            <p>No Record Found</p>
+                        }
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="announcementModalLabel">Announcement Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="rounded mb-3" width="50" height="50" alt="Announcement Image">
+                <h5 id="modalTitle"></h5>
+                <p id="modalDescription"></p>
+                <p><b>From Date:</b> <span id="modalFromDate"></span></p>
+                <p><b>To Date:</b> <span id="modalToDate"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondaryannouncement" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
+        document.querySelectorAll(".view-announcement-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                const title = this.getAttribute("data-title");
+                const description = this.getAttribute("data-description");
+                const fromDate = this.getAttribute("data-fromdate");
+                const toDate = this.getAttribute("data-todate");
+                const image = this.getAttribute("data-image");
+                document.getElementById("modalTitle").innerText = title;
+                document.getElementById("modalDescription").innerText = description;
+                document.getElementById("modalFromDate").innerText = fromDate;
+                document.getElementById("modalToDate").innerText = toDate;
+                document.getElementById("modalImage").src = image;
+
+                modal.show();
+            });
+        });
+    });
+
+
+
+
+
     document.getElementById('RedirectBtn').addEventListener('click', function () {
         window.location.href = '@Url.Action("GetTeamEmployeeList", "myinfo")';
     });

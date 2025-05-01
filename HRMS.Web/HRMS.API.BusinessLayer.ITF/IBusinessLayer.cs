@@ -10,6 +10,8 @@ using HRMS.Models.Template;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.ShiftType;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using HRMS.Models.ImportFromExcel;
+using HRMS.Models.WhatsHappeningModel;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -26,6 +28,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParams model);
         public Results GetAllActiveEmployees(EmployeeInputParams model);
+
+
         public Result AddUpdateTemplate(TemplateModel model);
         public Results GetAllTemplates(TemplateInputParams model);
         public Result AddUpdateCompany(CompanyModel model);
@@ -40,10 +44,14 @@ namespace HRMS.API.BusinessLayer.ITF
         public MyInfoResults GetMyInfo(MyInfoInputParams model);
         public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails);
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
+        public Result AddUpdateEmploymentBankDetails(EmploymentBankDetail employmentBankDetails);
+        public EmploymentBankDetail GetEmploymentBankDetails(EmploymentBankDetailInputParams model);
+        public Result AddUpdateEmploymentSeparationDetails(EmploymentSeparationDetail employmentSeparationDetails);
+        public EmploymentSeparationDetail GetEmploymentSeparationDetails(EmploymentSeparationInputParams model);
         public Result GetFogotPasswordDetails(ChangePasswordModel model);
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
-        public DashBoardModel GetDashBoardodel(DashBoardModelInputParams model);
+        public DashBoardModel GetDashBoardModel(DashBoardModelInputParams model);
         public Results GetAllAttendenceList(AttendenceListInputParans model);
         public Result AddUpdateAttendenceList(AttendenceListModel model);
         public Results GetAllEmployees();
@@ -67,12 +75,26 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeletePolicyCategory(PolicyCategoryInputParams model);
         public List<LeavePolicyDetailsModel> PolicyCategoryDetails(PolicyCategoryInputParams model);
         public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
-        public Results GetAttendance(AttandanceInputParams model);
-        public AttendanceWithHolidays GetAttendanceForCalendar(AttandanceInputParams model);
-        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttandanceInputParams model);
-        public Result AddUpdateAttendace(Attandance att);
-        public Results GetAttendenceListID(Attandance model);
+        public AttendanceInputParams GetAttendance(AttendanceInputParams model);
+        public AttendanceWithHolidays GetAttendanceForCalendar(AttendanceInputParams model);
+        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttendanceInputParams model);
+        public Result AddUpdateAttendace(Attendance att);
+        public Results GetAttendenceListID(Attendance model);
 
-        public string DeleteAttendanceDetails(Attandance model);
+        public AttendanceLogResponse GetAttendanceDeviceLogs(AttendanceDeviceLog model);
+
+        public string DeleteAttendanceDetails(Attendance model);
+        public MyAttendanceList GetMyAttendanceList(AttendanceInputParams model);
+
+        public MyAttendanceList GetAttendanceForApproval(AttendanceInputParams model);
+        public MyAttendanceList GetApprovedAttendance(AttendanceInputParams model);
+        public Dictionary<string, long> GetCountryDictionary();
+        public Dictionary<string, Dictionary<string, long>> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model);
+        public Dictionary<string, long> GetCompaniesDictionary();
+        public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel);
+        public Dictionary<string, long> GetSubDepartmentDictionary(EmployeeInputParams model);
+        public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model);
+        public Results GetAllWhatsHappeningDetails(WhatsHappeningModelParans model);
+        public string DeleteWhatsHappening(WhatsHappeningModelParans model);
     }
 }

@@ -172,6 +172,37 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
+        [HttpPost]
+        public IActionResult GetEmploymentBankDetails(EmploymentBankDetailInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmploymentBankDetails(model));
+            return response;
+        }
+
+
+        [HttpPost]
+        public IActionResult AddUpdateEmploymentBankDetails(EmploymentBankDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmploymentBankDetails(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetEmploymentSeparationDetails(EmploymentSeparationInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmploymentSeparationDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateEmploymentSeparationDetails(EmploymentSeparationDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmploymentSeparationDetails(model));
+            return response;
+        }
 
     }
 }

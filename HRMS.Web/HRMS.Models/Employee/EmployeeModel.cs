@@ -16,6 +16,9 @@ namespace HRMS.Models.Employee
         public long CompanyID { get; set; }
         public long EmployeeID { get; set; }
         public long RoleID { get; set; }
+        public int? DisplayStart { get; set; } = 0;
+        public int? DisplayLength { get; set; } = 0;
+        public string? Searching { get; set; }
     }
 
 
@@ -103,6 +106,13 @@ namespace HRMS.Models.Employee
         public long? CarryForword { get; set; }
         public int Gender { get; set; }
         public bool IsActive { get; set; }
+        public long ShiftTypeID { get; set; }
+        public int? TotalRecords { get; set; } = 0;
+        public int? FilteredRecords { get; set; } = 0;
+        public string? PanCardImage { get; set; } = string.Empty;
+        public string? AadhaarCardImage { get; set; } = string.Empty;
+        public string? ManagerName { get; set; } = string.Empty;
+        public string? Shift { get; set; } = string.Empty;
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();

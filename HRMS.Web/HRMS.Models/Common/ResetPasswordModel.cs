@@ -35,10 +35,10 @@ namespace HRMS.Models.Common
 	{
 
 		//[Required(ErrorMessage = "Username is required")]
-		[Required(ErrorMessage = "Email is required")]
-		[StringLength(200)]
-		[EmailAddress(ErrorMessage = "Invalid Email Address")]
-		[Display(Name = "Email ID: ")]
+		//[Required(ErrorMessage = "Email is required")]
+		//[StringLength(200)]
+		//[EmailAddress(ErrorMessage = "Invalid Email Address")]
+		//[Display(Name = "Email ID: ")]
 		public string EmailId { get; set; } = string.Empty;
 
 		//[Required(ErrorMessage = "Old Password is required")]

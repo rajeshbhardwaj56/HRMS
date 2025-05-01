@@ -5,7 +5,16 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Leave Policy";
-}
+    var IconImage = "";
+    if (!string.IsNullOrEmpty(Model.PolicyDocument))
+    {
+        IconImage = "/" + HRMS.Models.Common.Constants.UploadCertificate + Model.PolicyDocument;
+    }
+    else
+    {
+        IconImage = HRMS.Models.Common.Constants.NoImagePath;
+    }
+} 
 
 <div class="main-header anim" style="--delay: 0s">Leave Policy Details </div>
 <form id="leaveForm" method="post" enctype="multipart/form-data">
@@ -16,6 +25,7 @@
             @Html.HiddenFor(x => x.Companies)
             @Html.HiddenFor(x => x.PolicyList)
             @Html.HiddenFor(x => x.PolicyDocument)
+            @Html.HiddenFor(x => x.Id)
 
             <div class="row">
                 <div class="col-md-4 form-group">
@@ -30,29 +40,32 @@
                     <label>Policy Category <span class="Mandetory">*</span></label>  <a class='nav-link' href="/admin/LeavePolicy/PolicyCategoryListing">Add Policy Category </a>
                     @Html.DropDownList("PolicyCategoryId", new SelectList(Model.PolicyList, "Id", "Name"), " -- Select Category -- ", new { @class = "form-control", placeholder = "", required = true })
                 </div>
-                
+
                 <div class="col-md-4 form-group">
-                    <label>Document <span class="Mandetory">*</span></label>
-                    <input type="file" name="postedFiles" class="form-control body-text" required />
-
-
+                    <label>Image <span class="Mandetory">*</span></label>
+                    <div class="col-md-4">
+                        <img id="previewImage" src="@IconImage"
+                             onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                             style="width:100px; height:100px" />
+                    </div>
+                    <div class="col-md-8">
+                        <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
+                    </div>
                 </div>
             </div>
             <div class="col-md-12 form-group">
                 <label>Description <span class="Mandetory">*</span></label>
-                @Html.TextAreaFor(a => a.Description, new { @class = "form-control",  id = "editor" })
+                @Html.TextAreaFor(a => a.Description, new { @class = "form-control", id = "editor", rows = "10", cols = "50" })
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8"></div>
-            <div class="col-md-2">
+            <div class="col-md-12">
                 <input type="submit" value="Submit" class="btn btn-success" />
-            </div>
-            <div class="col-md-2">
                 <input id="cancelButton" type="button" value="Cancel" class="btn btn-danger" />
-            </div>
+             </div>
         </div>
-    </div>
+
+        </div>
 </form>
 
 
@@ -85,6 +98,17 @@
             .catch(error => {
                 console.error(error);
             });
+    function showPreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
     </script>
 
      

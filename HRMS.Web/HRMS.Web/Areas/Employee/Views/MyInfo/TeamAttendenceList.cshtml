@@ -25,31 +25,35 @@
             border: 1px solid #aea6a6;
             margin: 20px;
             border-radius: 13px;
+            overflow-x: scroll;
         }
 
         .attendance-header {
             display: flex;
-            justify-content: space-evenly;
+            justify-content: space-between;
             border-bottom: 2px solid #ccc;
             padding-bottom: 5px;
             background-color: #edf3ff;
+            margin-inline: 5px;
         }
 
         div.calendar {
-            padding-left: 146px;
+/*             padding-left: 146px; */
             border-bottom: 1px solid #ccc;
         }
         .calendar {
             display: flex;
-            overflow-x: auto;
+
+       /*      overflow-x: auto;
             padding: 10px 0;
-            justify-content: flex-end;
+            justify-content: flex-end; */
         }
 
         .day {
-            width: 40px;
+        /*     width: 40px; */
+            min-width: 35px;
+            font-size: 14px;
             height: 60px;
-            margin: 0 5px;
             text-align: center;
             position: relative;
             border: 1px solid #ccc;
@@ -66,24 +70,43 @@
             background-color: green;
             color: white;
             padding: 3px;
-            border-radius: 5px;
+            border-radius: 28px;
             font-size: 12px;
+            height: 25px;
+            width: 25px;
+            text-align: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .absent {
             background-color: #138fab;
             color: white;
             padding: 3px;
-            border-radius: 5px;
+            border-radius: 28px;
             font-size: 12px;
+            height: 25px;
+            width: 25px;
+            text-align: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
+
         }
 
         .leave {
             background-color: red;
             color: white;
             padding: 3px;
-            border-radius: 5px;
+            border-radius: 28px;
             font-size: 12px;
+            height: 25px;
+            width: 25px;
+            text-align: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
         }
         .attendance-row {
             display: flex;
@@ -92,14 +115,15 @@
         }
 
         .employee-name {
-            width: 150px;
-            padding: 10px;
+          /*   width: 150px;
+            padding: 10px; */
             text-align: left;
             font-weight: bold;
         }
 
         .day-cell {
-            width: 40px;
+            min-width: 31.1px;
+            font-size: 14px;
             height: 60px;
             margin: 0 5px;
             text-align: center;
@@ -212,7 +236,8 @@
             right: 5px;
             font-size: 22px;
             cursor: pointer;
-            color: red;
+            color: #05397b;
+            font-weight: 800;
         }
 
         #popup h3 {
@@ -226,11 +251,24 @@
             background-color: black;
             color: white;
             padding: 3px;
-            border-radius: 5px;
+            border-radius: 28px;
             font-size: 12px;
+            height: 25px;
+            width: 25px;
+            text-align: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
         }
 
 
+        @@media screen and (max-width:1399px){
+            .employee-label.col-md-1
+        {
+            font-size: 12px;
+            font-weight: 900;
+        }
+        }
     </style>
 </head>
 <body>
@@ -268,7 +306,7 @@
                 <h3 class="detail-poup">Attendance Details</h3>
             </div>
             <div class="col-md-2">
-                <h1 class="cross" id="closePopup"> X </h1>
+                <h1 class="cross" id="closePopup"> x </h1>
             </div>
 
         </div>
@@ -343,11 +381,11 @@
 
             // Create the employee label column with slight left shift
             const employeeLabelColumn = document.createElement('div');
-            employeeLabelColumn.classList.add('employee-label'); // Optional: Add a class for styling
+            employeeLabelColumn.classList.add('employee-label', 'col-md-1'); // Optional: Add a class for styling
             employeeLabelColumn.textContent = 'Employee Name';
 
             // Apply a slight left shift using CSS (negative margin or padding)
-            employeeLabelColumn.style.marginRight = '7px';  // Adjusted margin-right as per your requirement
+            employeeLabelColumn.style.marginRight = '0px';  // Adjusted margin-right as per your requirement
             employeeLabelColumn.style.padding = '10px';     // Set padding
             employeeLabelColumn.style.fontWeight = 'bold';  // Make font bold
             calendarContainer.appendChild(employeeLabelColumn);
@@ -362,7 +400,7 @@
                 dayElement.setAttribute('data-day', day);
 
                 // Apply slight right shift using margin-left to the day class
-                dayElement.style.marginLeft = '9px';  // Adjust this value as needed for the shift
+                dayElement.style.marginLeft = '6px';  // Adjust this value as needed for the shift
 
                 // Create and append the week name
                 const weekDayLabel = document.createElement('span');
@@ -566,7 +604,7 @@
                 row.setAttribute('data-employee-id', employeeId);
                 // Create employee name cell
                 const employeeNameCell = document.createElement('div');
-                employeeNameCell.classList.add('employee-name', 'col-md-4');
+                employeeNameCell.classList.add('employee-name', 'col-md-1');
                 employeeNameCell.textContent = employeeName;
                 row.appendChild(employeeNameCell);
 

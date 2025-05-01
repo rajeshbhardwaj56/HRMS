@@ -15,6 +15,7 @@ namespace HRMS.Models.Employee
         public string YearOfPassing { get; set; } = string.Empty;
         public string Percentage { get; set; } = string.Empty;
         public string Major_OptionalSubjects { get; set; } = string.Empty;
+        public string CertificateImage { get; set; } = string.Empty;
 
     }
 }

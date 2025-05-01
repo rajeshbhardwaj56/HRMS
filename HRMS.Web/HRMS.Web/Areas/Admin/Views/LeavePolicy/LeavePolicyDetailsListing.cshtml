@@ -54,10 +54,10 @@
                     mRender: function (data, type, row) {
                         var linkActions = `
                         <div class="table-data-feature">
-                            <a data-toggle="tooltip" data-placement="top" class="item" href="LeavePolicyDetails?id=${row.id}" title="Edit" data-original-title="Edit">
+                                <a data-toggle="tooltip" data-placement="top" class="item" href="LeavePolicyDetails?id=${row.encodedId}" title="Edit" data-original-title="Edit">
                                 <img src="/assets/img/edit.png" width="20" height="20" />
                             </a>
-                            <a data-toggle="tooltip" data-placement="top" class="item delete-btn" href="DeleteLeavesDetails?id=${row.id}" title="Delete" data-original-title="Delete" data-id="${row.id}">
+                                <a data-toggle="tooltip" data-placement="top" class="item delete-btn" href="DeleteLeavesDetails?id=${row.encodedId}" title="Delete" data-original-title="Delete"  >
                                 <img src="/assets/img/delete.png" width="20" height="20" />
                             </a>
                         </div>`;
@@ -86,7 +86,7 @@
         });
 
         // Add confirmation alert for delete action
-        $(document).on('click', '.delete-btn', function (e) {
+        $(document).on('click', '.delete-btn', function (e) {         
             e.preventDefault(); // Prevent default behavior of the link
             var deleteUrl = $(this).attr('href'); // Get the href value for the delete URL
             var rowId = $(this).data('id'); // Get the ID from the data attribute

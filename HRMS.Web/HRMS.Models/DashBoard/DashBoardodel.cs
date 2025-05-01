@@ -22,7 +22,6 @@ namespace HRMS.Models.DashBoard
         public string? FirstName { get; set; } = string.Empty;
         public string? MiddleName { get; set; } = string.Empty;
         public string? Surname { get; set; } = string.Empty;
-
         public string EncryptedIdentity { get; set; } = string.Empty;
         public long EmploymentDetailID { get; set; }
         public long DesignationID { get; set; }
@@ -33,6 +32,7 @@ namespace HRMS.Models.DashBoard
         public long ReportingToIDL1 { get; set; }
         public long ReportingToIDL2 { get; set; }
         public string ClientName { get; set; } = string.Empty;
+        public string EmployeNumber { get; set; } = string.Empty;
         public string OfficialEmailID { get; set; } = string.Empty;
         public string OfficialContactNo { get; set; } = string.Empty;
         public DateTime? JoiningDate { get; set; }
@@ -87,19 +87,44 @@ namespace HRMS.Models.DashBoard
         public decimal TotalLeave { get; set; } 
         public long? LeavePolicyId { get; set; } 
         public long? CarryForword { get; set; } 
+
         public List<EmployeeDetails> EmployeeDetails { get; set; }
         public List<HolidayModel> HolidayList { get; set; }
         public List<LeaveSummaryModel> leavesSummary { get; set; } = new List<LeaveSummaryModel>();
+        public List<AttendanceModel> AttendanceModel { get; set; } = new List<AttendanceModel>();
+
+        public List<WhatsHappening> WhatsHappening { get; set; }
 
     }
     public class EmployeeDetails
     {
         public long? EmployeeId { get; set; }
         public string FirstName { get; set; }
+
+        public string MiddelName { get; set; }
         public string LastName { get; set; }
-        public DateTime DOB { get; set; }
-        public string EmplpoyeePhoto { get; set; }
+        public DateTime? DOB { get; set; }
+        public string EmployeePhoto { get; set; }
         public string? DesignationName { get; set; }
         public string? DepartmentName { get; set; }
     }
+
+    public class WhatsHappening
+    {    
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+        public string? IconImage { get; set; }
+        
+    }
+    public class AttendanceModel
+    {    
+        public DateTime? Day { get; set; }
+        public int? Present { get; set; }
+        public int? Absent { get; set; }
+ 
+        
+    }
+
 }

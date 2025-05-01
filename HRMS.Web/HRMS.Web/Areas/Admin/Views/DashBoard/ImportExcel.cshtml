@@ -1,0 +1,77 @@
+﻿﻿@using HRMS.Models.Employee;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmployeeModel
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "Upload Excel";
+    var ProfilePhoto = "";
+  
+}
+<div class="main-header anim" style="--delay: 0s">Import Employee</div>
+<div  >
+    <div class="Container">
+
+        <div class="group-box anim" style="--delay: .3s">
+           
+    <div class="importemployee-section">
+                <div class="small-header">Import Employee</div>
+                <span>  <a class="UploadExcel" href="/assets/downloadexcel/employee_details.xlsx" download>Download Sample File</a></span>
+    </div>
+    <div>
+        <input type="file" name="file" id="file" />
+        <input type="submit" value="Import" id="btnfileupload" class="btn btn-success" />
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+    $('#btnfileupload').on('click', function (e) {
+        e.preventDefault(); // stop the standard form submission
+
+        var formData = new FormData();
+        var files = $("#file").get(0).files;
+
+        // Check if a file is selected
+        if (files.length === 0) {
+            alert('Please select a file for upload');
+            return false; // Stop further execution
+        }
+
+        // Check if the file extension is either XLS, XLSX, or CSV
+        var extension = $("#file").val().split('.').pop().toUpperCase();
+        if (extension !== "XLS" && extension !== "XLSX" && extension !== "CSV") {
+            alert('Invalid file format. Please upload an XLS, XLSX, or CSV file');
+            $("#file").val(''); // Clear the file input
+            return false; // Stop further execution
+        }
+
+        // Change button text to "Please wait, file uploading..."
+        $("#btnfileupload").val("Please wait, file uploading...").prop('disabled', true);
+
+        // Append the selected file to formData
+        formData.append("file", files[0]);
+
+        // Perform the AJAX file upload
+        $.ajax({
+            url: '/admin/Dashboard/ImportExcel/',
+            type: 'POST',
+            dataType: 'json',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                console.log(data);
+                alert('File uploaded successfully');
+                $("#file").val(''); // Clear the file input after upload
+                $("#btnfileupload").val("Import  ").prop('disabled', false); // Reset button text and enable
+            },
+            error: function (xhr, error, status) {
+                alert(error);
+                $("#btnfileupload").val("Import ").prop('disabled', false); // Reset button text and enable
+            }
+        });
+    });
+</script>

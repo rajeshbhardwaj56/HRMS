@@ -152,7 +152,7 @@ namespace HRMS.Web.BusinessLayer
                 }
             }
 
-            return null; // Or throw an exception, depending on your requirements
+            return null; 
         }
 
 
