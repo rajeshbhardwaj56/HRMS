@@ -283,12 +283,17 @@
                                         <div>
                                             <button class="btn btn-light btn-sm border border-2 view-announcement-btn"
                                                     data-title="@item.Title"
-                                                    data-description="@item.Description"
                                                     data-fromdate="@item.FromDate?.ToString("dd-MMM-yyyy")"
                                                     data-todate="@item.ToDate?.ToString("dd-MMM-yyyy")"
-                                                    data-image="/Uploads/Whatshappening/@item.IconImage">
+                                                    data-image="/Uploads/Whatshappening/@item.IconImage"
+                                                    data-description-id="desc-@item.WhatsHappeningID">
                                                 View Announcement
                                             </button>
+
+                                            <div id="desc-@item.WhatsHappeningID" class="d-none">
+                                                @Html.Raw(item.Description)
+                                            </div>
+
                                             <a href="javascript:void(0)" class="px-2">
                                              
                                             </a>
@@ -308,26 +313,6 @@
         </div>
     </div>
 </div>
-@* <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog modal-fullscreen">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="announcementModalLabel">Announcement Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="modalImage" src="" class="rounded mb-3" width="50" height="50" alt="Announcement Image">
-                <h5 id="modalTitle"></h5>
-                <p id="modalDescription"></p>
-                <p><b>From Date:</b> <span id="modalFromDate"></span></p>
-                <p><b>To Date:</b> <span id="modalToDate"></span></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div> *@
 <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -351,24 +336,29 @@
 
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+       document.addEventListener("DOMContentLoaded", function () {
         const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
         document.querySelectorAll(".view-announcement-btn").forEach(button => {
             button.addEventListener("click", function () {
                 const title = this.getAttribute("data-title");
-                const description = this.getAttribute("data-description");
                 const fromDate = this.getAttribute("data-fromdate");
                 const toDate = this.getAttribute("data-todate");
                 const image = this.getAttribute("data-image");
+
+                const descId = this.getAttribute("data-description-id");
+                const descriptionHtml = document.getElementById(descId).innerHTML;
+
                 document.getElementById("modalTitle").innerText = title;
-                document.getElementById("modalDescription").innerText = description;
+                document.getElementById("modalDescription").innerHTML = descriptionHtml;
                 document.getElementById("modalFromDate").innerText = fromDate;
                 document.getElementById("modalToDate").innerText = toDate;
                 document.getElementById("modalImage").src = image;
+
                 modal.show();
             });
         });
     });
+
     document.getElementById('RedirectBtn').addEventListener('click', function () {
         window.location.href = '/hr/employee/EmployeeListing';
     });

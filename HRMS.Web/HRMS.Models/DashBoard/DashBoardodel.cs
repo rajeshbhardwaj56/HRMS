@@ -111,6 +111,7 @@ namespace HRMS.Models.DashBoard
 
     public class WhatsHappening
     {    
+        public long? WhatsHappeningID { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public DateTime? FromDate { get; set; }

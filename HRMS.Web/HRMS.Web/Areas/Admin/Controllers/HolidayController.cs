@@ -36,6 +36,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             var data = _businessLayer.SendPostAPIRequest(HolidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
+            results.Holiday.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.HolidayID.ToString()));
 
             return Json(new { data = results.Holiday });
 
@@ -51,6 +52,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(id))
             {
+                id = _businessLayer.DecodeStringBase64(id); 
                 HolidayModel.HolidayID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(HolidayModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 HolidayModel = JsonConvert.DeserializeObject<Results>(data).holidayModel;
@@ -71,7 +73,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 if (HolidayModel.HolidayID > 0)
                 {
-                    return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.Holiday, new { id = HolidayModel.HolidayID.ToString() });
+                    return RedirectToActionPermanent(WebControllarsConstants.HolidayListing, WebControllarsConstants.Holiday);
                 }
                 else
                 {

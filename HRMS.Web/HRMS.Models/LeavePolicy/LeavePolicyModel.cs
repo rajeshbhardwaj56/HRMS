@@ -21,6 +21,7 @@ namespace HRMS.Models.LeavePolicy
     public class LeavePolicyModel
     {
         public long LeavePolicyID { get; set; }
+
         public long CompanyID { get; set; }
         public string LeavePolicyName { get; set; } = string.Empty;
         //Annual

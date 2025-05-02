@@ -1892,8 +1892,9 @@ namespace HRMS.API.BusinessLayer
                 var WhatsHappening = dataSet.Tables[6].AsEnumerable()
                              .Select(dataRow => new WhatsHappening
                              {
+                                 WhatsHappeningID = dataRow.Field<long>("WhatsHappeningID"),
                                  Title = dataRow.Field<string>("Title"),
-
+                                 Description = dataRow.Field<string>("Description"),
                                  FromDate = dataRow.Field<DateTime>("FromDate"),
                                  ToDate = dataRow.Field<DateTime>("ToDate"),
                                  IconImage = dataRow.Field<string>("IconImage"),

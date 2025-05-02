@@ -278,14 +278,18 @@
                                             <a href="javascript:void(0)" class="font-weight-bold text-decoration-none" style="color:#05397b;">@item.Title   <b>&nbsp;&nbsp;|  @item.FromDate?.ToString("dd-MMM-yyyy") </b></a>
                                     </div>
                                      <div>
-                                            <button class="btn btn-light btn-sm border border-2 view-announcement-btn"                                                  
+                                            <button class="btn btn-light btn-sm border border-2 view-announcement-btn"
                                                     data-title="@item.Title"
-                                                    data-description="@item.Description"
                                                     data-fromdate="@item.FromDate?.ToString("dd-MMM-yyyy")"
                                                     data-todate="@item.ToDate?.ToString("dd-MMM-yyyy")"
-                                                    data-image="/Uploads/Whatshappening/@item.IconImage">
+                                                    data-image="/Uploads/Whatshappening/@item.IconImage"
+                                                    data-description-id="desc-@item.WhatsHappeningID">
                                                 View Announcement
                                             </button>
+
+                                            <div id="desc-@item.WhatsHappeningID" class="d-none">
+                                                @Html.Raw(item.Description)
+                                            </div>
                                             <a href="javascript:void(0)" class="px-2">
                                              
                                         </a>
@@ -327,17 +331,20 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener("DOMContentLoaded", function () {
         const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
         document.querySelectorAll(".view-announcement-btn").forEach(button => {
             button.addEventListener("click", function () {
                 const title = this.getAttribute("data-title");
-                const description = this.getAttribute("data-description");
                 const fromDate = this.getAttribute("data-fromdate");
                 const toDate = this.getAttribute("data-todate");
                 const image = this.getAttribute("data-image");
+
+                const descId = this.getAttribute("data-description-id");
+                const descriptionHtml = document.getElementById(descId).innerHTML;
+
                 document.getElementById("modalTitle").innerText = title;
-                document.getElementById("modalDescription").innerText = description;
+                document.getElementById("modalDescription").innerHTML = descriptionHtml;
                 document.getElementById("modalFromDate").innerText = fromDate;
                 document.getElementById("modalToDate").innerText = toDate;
                 document.getElementById("modalImage").src = image;
@@ -346,7 +353,6 @@
             });
         });
     });
-
 
 
 
