@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
+﻿using Amazon;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.InkML;
@@ -14,6 +15,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net.Mail;
+using System.Reflection;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography.Xml;
 using System.Text;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
@@ -53,7 +56,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             employee.DisplayStart = iDisplayStart;
-            employee.DisplayLength = iDisplayLength;          
+            employee.DisplayLength = iDisplayLength;
             employee.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
             var data = _businessLayer.SendPostAPIRequest(
                 employee,
@@ -62,16 +65,22 @@ namespace HRMS.Web.Areas.HR.Controllers
                 true
             ).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
-            results.Employees.ForEach(x => x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString()));
-            results.Employees.ForEach(x => x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString()));
-            results.Employees.ForEach(x => x.ProfilePhoto = _s3Service.GetFileUrl(x.ProfilePhoto));
+            results.Employees.ForEach(x =>
+            {
+                x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString());
+                x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString());
+                x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString());
+                x.ProfilePhoto = string.IsNullOrEmpty(x.ProfilePhoto)
+                    ? "/assets/img/No_image.png"   //Use default image if profile photo is missing
+                    : _s3Service.GetFileUrl(x.ProfilePhoto);
+            });
+
             //return Json(new { data = results.Employees });
             return Json(new
             {
                 draw = sEcho,
-                 recordsTotal = results.Employees.Select(x=>x.TotalRecords).FirstOrDefault() ??0,   
-                recordsFiltered = results.Employees.Select(x=>x.FilteredRecords).FirstOrDefault()??0,   
+                recordsTotal = results.Employees.Select(x => x.TotalRecords).FirstOrDefault() ?? 0,
+                recordsFiltered = results.Employees.Select(x => x.FilteredRecords).FirstOrDefault() ?? 0,
                 data = results.Employees
             });
         }
@@ -110,8 +119,9 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else if (employee.References.Count == 1)
                 {
-                    employee.References.Add(new HRMS.Models.Employee.Reference());
-                };
+                    //employee.References.Add(new HRMS.Models.Employee.Reference());
+                }
+                ;
             }
 
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
@@ -140,12 +150,14 @@ namespace HRMS.Web.Areas.HR.Controllers
                     {
                         if (postedFile != null && postedFile.Length > 0)
                         {
-                            string fileName = $"{Path.GetExtension(postedFile.FileName)}";
-                            profileUploadedKey = _s3Service.UploadFile(postedFile, fileName);
+                           
+                            profileUploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
                             if (!string.IsNullOrEmpty(profileUploadedKey))
                             {
-
-                                _s3Service.DeleteFile(profileKeyToDelete);
+                                if (profileKeyToDelete != null)
+                                {
+                                    _s3Service.DeleteFile(profileKeyToDelete);
+                                }
                                 employee.ProfilePhoto = profileUploadedKey;
                             }
                         }
@@ -153,14 +165,14 @@ namespace HRMS.Web.Areas.HR.Controllers
                     foreach (IFormFile postedFile in PanPostedFile)
                     {
                         if (postedFile != null && postedFile.Length > 0)
-                        {
-
-                            string fileName = $"{Path.GetExtension(postedFile.FileName)}";
-                            uploadedKey = _s3Service.UploadFile(postedFile, fileName);
+                        { 
+                            uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
                             if (!string.IsNullOrEmpty(uploadedKey))
                             {
-
-                                _s3Service.DeleteFile(panKeyToDelete);
+                                if (panKeyToDelete != null)
+                                {
+                                    _s3Service.DeleteFile(panKeyToDelete);
+                                }
                                 employee.PanCardImage = uploadedKey;
                             }
                         }
@@ -170,31 +182,25 @@ namespace HRMS.Web.Areas.HR.Controllers
                     {
 
                         if (postedFile != null && postedFile.Length > 0)
-                        {
-
-
-                            string fileName = $"{Path.GetExtension(postedFile.FileName)}";
-                            uploadedKey = _s3Service.UploadFile(postedFile, fileName);
+                        { 
+                            uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
                             if (!string.IsNullOrEmpty(uploadedKey))
                             {
-
-                                _s3Service.DeleteFile(aadhaarKeyToDelete);
+                                if (aadhaarKeyToDelete != null)
+                                {
+                                    _s3Service.DeleteFile(aadhaarKeyToDelete);
+                                }
                                 employee.AadhaarCardImage = uploadedKey;
                             }
                         }
                     }
-                    var ProfilePhoto = _s3Service.GetFileUrl(profileUploadedKey);
-                    _context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
-                    var data = _businessLayer.SendPostAPIRequest(
-                        employee,
-                        _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee),
-                        HttpContext.Session.GetString(Constants.SessionBearerToken),
-                        true).Result.ToString();
-
+                    //var ProfilePhoto = _s3Service.GetFileUrl(profileUploadedKey);
+                    //_context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
+                    var data = _businessLayer.SendPostAPIRequest(employee,_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee),
+                        HttpContext.Session.GetString(Constants.SessionBearerToken),true).Result.ToString();
                     var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
-
                     if (result != null && result.PKNo > 0)
-                    {                                             
+                    {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                         TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
 
@@ -208,8 +214,8 @@ namespace HRMS.Web.Areas.HR.Controllers
             catch (Exception ex)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try later.";               
-            }         
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try later.";
+            }
             employee.Languages = results.Languages;
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
@@ -218,66 +224,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(employee);
         }
 
-        // Helper method to save and return file name
-        private string SaveUploadedFile(List<IFormFile> files, string rootPath, string folderPath)
-        {
-            if (files != null && files.Count > 0)
-            {
-                string fileName = files[0].FileName.Replace(" ", "");
-                return fileName;
-            }
-            return null;
-        }
-
-        // Helper method to save files in directories
-        private void SaveFileToDirectory(List<IFormFile> files, string rootPath, string folderPath, long? pkNo)
-        {
-            if (files != null && files.Count > 0)
-            {
-                string path = Path.Combine(rootPath, folderPath + pkNo.ToString());
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                foreach (IFormFile file in files)
-                {
-                    string filePath = Path.Combine(path, file.FileName.Replace(" ", ""));
-                    using (FileStream stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        file.CopyTo(stream);
-                    }
-                }
-            }
-        }
-
-
-
-        [HttpPost]
-        public    JsonResult UploadFile(IFormFile file)
-        {
-            if (file != null && file.Length > 0)
-            {
-                string uploadsFolder = Path.Combine(this.Environment.WebRootPath, Constants.EmployeeDocuments + DateTime.Now.Second.ToString());
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
-                }
-
-                string fileName = Path.GetFileName(file.FileName);
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                      file.CopyToAsync(stream); // Save file
-                }
-
-                // Return file URL for preview
-                return Json(new { filePath = "/UploadedFiles/" + fileName });
-            }
-            return Json(new { error = "File upload failed" });
-        }
-
+        
 
 
         public HRMS.Models.Common.Results GetAllResults(long CompanyID)
@@ -373,7 +320,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 employmentDetailInputParams.DesignationID = long.Parse(_businessLayer.DecodeStringBase64(DegtId));
-              employmentDetailInputParams.DepartmentID = long.Parse(_businessLayer.DecodeStringBase64(DeptId));
+                employmentDetailInputParams.DepartmentID = long.Parse(_businessLayer.DecodeStringBase64(DeptId));
                 employmentDetailInputParams.EmployeeID = long.Parse(id);
             }
             employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -412,15 +359,15 @@ namespace HRMS.Web.Areas.HR.Controllers
             if (ModelState.IsValid)
             {
                 var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-                employmentDetail.CompanyID =Convert.ToInt64(CompanyID);
+                employmentDetail.CompanyID = Convert.ToInt64(CompanyID);
                 var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Result result = JsonConvert.DeserializeObject<Result>(data);
-                if (result != null && result.PKNo>0 && result.Message.Contains("EmailID already Exists in System, please try again with another email.", StringComparison.OrdinalIgnoreCase))
+                if (result != null && result.PKNo > 0 && result.Message.Contains("EmailID already Exists in System, please try again with another email.", StringComparison.OrdinalIgnoreCase))
                 {
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                     TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
                 }
-               else if (result != null && result.PKNo>0 && result.Message.Contains("Some error occurred, please try again later.", StringComparison.OrdinalIgnoreCase))
+                else if (result != null && result.PKNo > 0 && result.Message.Contains("Some error occurred, please try again later.", StringComparison.OrdinalIgnoreCase))
                 {
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                     TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
@@ -503,11 +450,11 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
 
-      
+
         [HttpGet]
         public ActionResult EmploymentBankDetails(string id)
         {
-            EmploymentBankDetailInputParams employmentBankInputParams = new EmploymentBankDetailInputParams()         
+            EmploymentBankDetailInputParams employmentBankInputParams = new EmploymentBankDetailInputParams()
             {
                 UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
             };
@@ -516,7 +463,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 id = _businessLayer.DecodeStringBase64(id);
                 employmentBankInputParams.EmployeeID = long.Parse(id);
             }
-          
+
             EmploymentBankDetail employmentBankDetail = new EmploymentBankDetail();
             var data = _businessLayer.SendPostAPIRequest(employmentBankInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentBankDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             employmentBankDetail = JsonConvert.DeserializeObject<EmploymentBankDetail>(data);
@@ -548,8 +495,8 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
             }
 
-           
-           
+
+
 
             return View(employmentBankDetail);
         }

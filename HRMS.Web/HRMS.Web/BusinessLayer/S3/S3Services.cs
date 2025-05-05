@@ -22,9 +22,9 @@ namespace HRMS.Web.BusinessLayer.S3
 
         public S3Service(IConfiguration configuration)
         {
-             _accessKey = configuration["AWS:AccessKey"];
-             _secretKey = configuration["AWS:SecretKey"];
-             _region = configuration["AWS:Region"];
+            _accessKey = configuration["AWS:AccessKey"];
+            _secretKey = configuration["AWS:SecretKey"];
+            _region = configuration["AWS:Region"];
             _bucketName = configuration["AWS:BucketName"];
             _s3Client = new AmazonS3Client(_accessKey, _secretKey, RegionEndpoint.GetBySystemName(_region));
         }

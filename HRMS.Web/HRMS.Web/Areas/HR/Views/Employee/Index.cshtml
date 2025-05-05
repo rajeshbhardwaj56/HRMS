@@ -444,9 +444,12 @@
                 </div>
             </div>
         </div>
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">Employee Status  (Active/In-active)</div>
         <div class="col-md-4 form-group">
-            <label>Is Active</label>
+            <label>Status</label>
             @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+        </div>
         </div>
         <div class="row">
             <div class="col-md-12">
