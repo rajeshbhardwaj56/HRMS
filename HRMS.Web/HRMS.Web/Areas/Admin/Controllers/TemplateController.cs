@@ -5,6 +5,7 @@ using HRMS.Models.Employee;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.Template;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -21,12 +22,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
     {
         IConfiguration _configuration;
         IBusinessLayer _businessLayer; private IHostingEnvironment Environment;
+        private readonly IS3Service _s3Service;
 
-        public TemplateController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
+        public TemplateController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
+            _s3Service = s3Service;           
         }
 
         public IActionResult TemplateListing()
@@ -42,10 +45,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             TemplateInputParams Template = new TemplateInputParams();
             Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-
+            results.Template.ForEach(x => x.HeaderImage = _s3Service.GetFileUrl(x.HeaderImage));
+            results.Template.ForEach(x => x.FooterImage = _s3Service.GetFileUrl(x.FooterImage));
             return Json(new { data = results.Template });
         }
         public IActionResult Index(string id)
@@ -59,6 +62,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
             }
+            ViewBag.HeaderImageUrl = _s3Service.GetFileUrl(Template.HeaderImage);
+            ViewBag.FooterImageUrl = _s3Service.GetFileUrl(Template.FooterImage);
             return View(Template);
         }
 
@@ -66,43 +71,36 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult Index(TemplateModel template, IFormFile HeaderImageFile, IFormFile FooterImageFile)
         {
             template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            string wwwPath = this.Environment.WebRootPath;
-
-            string HeaderImageFileName = "";
-            if (HeaderImageFile != null)
+            string headerKeyToDelete = template.HeaderImage;
+            string footerKeyToDelete = template.FooterImage;
+            string uploadedHeaderKey = string.Empty;
+            string uploadedFooterKey = string.Empty;
+            if (HeaderImageFile != null && HeaderImageFile.Length > 0)
             {
-                template.HeaderImage = HeaderImageFileName = Guid.NewGuid().ToString() + HeaderImageFile.FileName.Replace(" ", "");
-            }
-
-            string FooterImageFileName = "";
-            if (FooterImageFile != null)
+                string fileName = $"{Path.GetExtension(HeaderImageFile.FileName)}";
+                uploadedHeaderKey = _s3Service.UploadFile(HeaderImageFile, fileName);
+                if (!string.IsNullOrEmpty(uploadedHeaderKey))
+                {
+                    if (headerKeyToDelete != null) {
+                        _s3Service.DeleteFile(headerKeyToDelete);
+                        template.HeaderImage = uploadedHeaderKey;
+                    }
+                }
+            } 
+            if (FooterImageFile != null && FooterImageFile.Length > 0)
             {
-                template.FooterImage = FooterImageFileName = Guid.NewGuid().ToString() + FooterImageFile.FileName.Replace(" ", "");
-            }
+                string fileName = $"{Path.GetExtension(FooterImageFile.FileName)}";
+                uploadedFooterKey = _s3Service.UploadFile(FooterImageFile, fileName);
+                if (!string.IsNullOrEmpty(uploadedFooterKey))
+                {
+                    if (footerKeyToDelete != null) {
+                        _s3Service.DeleteFile(footerKeyToDelete);
+                        template.FooterImage = uploadedFooterKey;
+                    }
+                }
+            }       
             var data = _businessLayer.SendPostAPIRequest(template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.AddUpdateTemplate), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
-            string path = Path.Combine(wwwPath, Constants.TemplatePath);
-
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            if (HeaderImageFile != null)
-            {
-                using (FileStream stream = new FileStream(Path.Combine(path, HeaderImageFileName), FileMode.Create))
-                {
-                    HeaderImageFile.CopyTo(stream);
-                }
-            }
-
-            if (FooterImageFile != null)
-            {
-                using (FileStream stream = new FileStream(Path.Combine(path, FooterImageFileName), FileMode.Create))
-                {
-                    FooterImageFile.CopyTo(stream);
-                }
-            }
-
+            var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);                                     
             if (template.TemplateID > 0)
             {
                 return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.Template, new { id = template.TemplateID.ToString() }
