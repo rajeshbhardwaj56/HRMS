@@ -1,7 +1,15 @@
 html {
     font-size: 14px;
 }
-
+button#DeleteButton {
+    width: 25px;
+    height: 25px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center; 
+    border: none;
+}
 @media (min-width: 768px) {
     html {
         font-size: 16px;
@@ -1356,7 +1364,7 @@ section.upper-section {
 }
 
 span.badge.holiday-list-text.bg-primary.rounded-pill {
-    background: #0088cc !important;
+    background: #044c8e !important
 }
 
 .ck-editor__editable {
@@ -1567,4 +1575,19 @@ span.badge.holiday-list-text.bg-primary.rounded-pill {
     color: white;
     font-weight: bold;
     border-radius: 5px;
+}
+button.Previewtemplate {
+    background: #05397b;
+    color: white;
+    border-radius: 7px;
+    gap: 12px;
+}
+.nav-link.is-active {
+    font-weight: bold;
+    color: white;
+}
+
+.nav-list__item.is-active {
+    background-color: #05397b; /* optional highlight for li */
+    color:white !important;
 }

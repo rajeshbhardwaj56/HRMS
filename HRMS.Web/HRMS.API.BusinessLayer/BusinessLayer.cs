@@ -1620,7 +1620,7 @@ namespace HRMS.API.BusinessLayer
                                   IsActive = dataRow.Field<bool>("IsActive"),
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                  OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
+                                  OfficialEmailID = dataRow.Field<string>("OfficialEmailID" ?? ""),
                                   ManagerOfficialEmailID = dataRow.Field<string>("ManagerOfficialEmailID"),
                                   EmployeeFirstName = dataRow.Field<string>("EmployeeFirstName"),
                                   ManagerFirstName = dataRow.Field<string>("ManagerFirstName"),

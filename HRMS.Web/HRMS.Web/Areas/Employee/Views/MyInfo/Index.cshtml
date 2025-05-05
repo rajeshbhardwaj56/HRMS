@@ -59,8 +59,8 @@
 }
 <style>
     .fade:not(.show) {
-        opacity: 0;
-        display: none !important;
+    opacity: 0;
+    display: none !important;
     }
 </style>
 @* <div class="main-header anim" style="--delay: 0s">My Info</div> *@
@@ -75,28 +75,28 @@
             </div>
             <div class="profile-header-small-info">
                 <h2>@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
-               <p class="joiningDate">
-    <b>Joining Date:</b> &nbsp;
-    @if (Model.employmentDetail.JoiningDate != null)
-    {
-        @Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyyy");
-        
-         
-            DateTime zeroTime = new DateTime(1, 1, 1);
-            DateTime TodayDate = DateTime.Now;
-            DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
-            TimeSpan span = TodayDate - JoiningDate.Date;
-            int years = (zeroTime + span).Year - 1;
-            var Month = (TodayDate - JoiningDate.AddYears(years));
-            var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
-            <span>@(years)y - @(Days)d</span>
-        
-    }
-    else
-    {
-        <span>Joining Date not available</span>
-    }
-</p>
+                <p class="joiningDate">
+                    <b>Joining Date:</b> &nbsp;
+                    @if (Model.employmentDetail.JoiningDate != null)
+                    {
+                        @Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyyy");
+
+
+                        DateTime zeroTime = new DateTime(1, 1, 1);
+                        DateTime TodayDate = DateTime.Now;
+                        DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
+                        TimeSpan span = TodayDate - JoiningDate.Date;
+                        int years = (zeroTime + span).Year - 1;
+                        var Month = (TodayDate - JoiningDate.AddYears(years));
+                        var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
+                        <span>@(years)y - @(Days)d</span>
+
+                    }
+                    else
+                    {
+                        <span>Joining Date not available</span>
+                    }
+                </p>
 
 
                 <div class="myinfo-menu">
@@ -113,11 +113,11 @@
                                 <a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
                             </li>
                         }
-                        
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
-                            </li>
-                       
+
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+                        </li>
+
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
                         </li>
@@ -314,200 +314,200 @@
                                                 {
                                                     foreach (var familyDetail in Model.employmentHistory)
                                                     {
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="row">
+                                                                    <div class="col-md-10">
+                                                                        <b> Employer-@(index)</b>
+                                                                    </div>
+                                                                </div>
                                                                 <div class="row">
                                                                     <div class="col-md-12">
+
                                                                         <div class="row">
-                                                                            <div class="col-md-10">
-                                                                                <b> Employer-@(index)</b>
+                                                                            <div class="col-md-3">
+                                                                                <h6>Company Name</h6>
+                                                                                @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
+                                                                                @Model.employmentHistory[Index].CompanyName
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <h6>Employee ID</h6>
+                                                                                @Model.employmentHistory[Index].EmploymentID
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <h6>From</h6>
+                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <h6>To</h6>
+                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
                                                                             </div>
                                                                         </div>
+
                                                                         <div class="row">
-                                                                            <div class="col-md-12">
+                                                                            <div class="col-md-6">
+                                                                                Address/Branch
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                Phone
+                                                                            </div>
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-3">
-                                                                                        <h6>Company Name</h6>
-                                                                                        @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
-                                                                                        @Model.employmentHistory[Index].CompanyName
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        <h6>Employee ID</h6>
-                                                                                        @Model.employmentHistory[Index].EmploymentID
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        <h6>From</h6>
-                                                                                        @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
-                                                                                    </div>
+                                                                        </div>
 
-                                                                                    <div class="col-md-3">
-                                                                                        <h6>To</h6>
-                                                                                        @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6">
-                                                                                        Address/Branch
-                                                                                    </div>
-                                                                                    <div class="col-md-6">
-                                                                                        Phone
-                                                                                    </div>
-
-                                                                                </div>
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6">
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
 
 
-                                                                                        @Model.employmentHistory[Index].Address
-                                                                                    </div>
-                                                                                    <div class="col-md-6">
-                                                                                        @Model.employmentHistory[Index].Phone
-                                                                                    </div>
+                                                                                @Model.employmentHistory[Index].Address
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].Phone
+                                                                            </div>
 
-                                                                                </div>
+                                                                        </div>
 
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-3">
-                                                                                        City
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        State
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        Country
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        Postal Code
-                                                                                    </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-3">
+                                                                                City
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                State
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                Country
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                Postal Code
+                                                                            </div>
 
-                                                                                </div>
+                                                                        </div>
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-3">
-                                                                                        @Model.employmentHistory[Index].City
+                                                                        <div class="row">
+                                                                            <div class="col-md-3">
+                                                                                @Model.employmentHistory[Index].City
 
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        @Model.employmentHistory[Index].State
-                                                                                    </div>
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                @Model.employmentHistory[Index].State
+                                                                            </div>
 
-                                                                                    <div class="col-md-3">
-                                                                                        @{
+                                                                            <div class="col-md-3">
+                                                                                @{
                                                                                     employmentHistoryCountry = @CountryData.Where(x => x.Value == Model.employmentHistory[Index].CountryID.ToString()).FirstOrDefault();
                                                                                     if (employmentHistoryCountry != null)
                                                                                     {
                                                                                         employmentHistoryCountry.Value.ToString();
                                                                                     }
-                                                                                        }
-                                                                                    </div>
+                                                                                }
+                                                                            </div>
 
-                                                                                    <div class="col-md-3">
+                                                                            <div class="col-md-3">
 
-                                                                                        @Model.employmentHistory[Index].PostalCode
-                                                                                    </div>
-                                                                                </div>
+                                                                                @Model.employmentHistory[Index].PostalCode
+                                                                            </div>
+                                                                        </div>
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-12">
-                                                                                        Reasion for Leaving
-                                                                                    </div>
-                                                                                    <div class="col-md-12">
-                                                                                        @Model.employmentHistory[Index].ReasionFoLeaving
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                Reasion for Leaving
+                                                                            </div>
+                                                                            <div class="col-md-12">
+                                                                                @Model.employmentHistory[Index].ReasionFoLeaving
 
-                                                                                    </div>
+                                                                            </div>
 
-                                                                                </div>
-
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6">
-                                                                                        Designition (As per document)
-                                                                                    </div>
-                                                                                    <div class="col-md-6">
-                                                                                        Final Gross Salary(as per Company Letter)
-                                                                                    </div>
-
-                                                                                </div>
+                                                                        </div>
 
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6">
-                                                                                        @Model.employmentHistory[Index].Designition
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                Designition (As per document)
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                Final Gross Salary(as per Company Letter)
+                                                                            </div>
 
-                                                                                    </div>
-                                                                                    <div class="col-md-6">
-                                                                                        @Model.employmentHistory[Index].GrossSalary
+                                                                        </div>
 
-                                                                                    </div>
 
-                                                                                </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].Designition
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-4">
-                                                                                        Supervisor Name
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        Supervisor's Designition
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        Supervisor's ContactNo
-                                                                                    </div>
-                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].GrossSalary
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].SupervisorName
+                                                                            </div>
 
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].SupervisorDesignition
+                                                                        </div>
 
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].SupervisorContactNo
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                Supervisor Name
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                Supervisor's Designition
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                Supervisor's ContactNo
+                                                                            </div>
+                                                                        </div>
 
-                                                                                    </div>
-                                                                                </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorName
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-4">
-                                                                                        HR Manager Name
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        HR Manager's ContactNo
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        HR Manager's Email
-                                                                                    </div>
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorDesignition
 
-                                                                                </div>
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].HRName
-
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].HRContactNo
-
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].HRContactNo
-
-                                                                                    </div>
-                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorContactNo
 
                                                                             </div>
                                                                         </div>
 
                                                                         <div class="row">
-                                                                            &nbsp;
-                                                                            <hr style="width:100%" />
+                                                                            <div class="col-md-4">
+                                                                                HR Manager Name
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                HR Manager's ContactNo
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                HR Manager's Email
+                                                                            </div>
+
                                                                         </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRName
+
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRContactNo
+
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRContactNo
+
+                                                                            </div>
+                                                                        </div>
+
                                                                     </div>
                                                                 </div>
+
+                                                                <div class="row">
+                                                                    &nbsp;
+                                                                    <hr style="width:100%" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                         Index++;
                                                         index++;
@@ -523,7 +523,7 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
-                                      <div class="group-box anim">
+                                    <div class="group-box anim">
                                         <div class="tabsInfo" id="">
                                             <h3>Leave Info</h3>
                                             <nav>
@@ -685,7 +685,7 @@
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
                                                                                 @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" })
-                                                                                
+
                                                                             </div>
                                                                             <div class="col-lg-6 col-md-12" id="leaveDurationContainer">
                                                                                 <label for="leavetype" class="">Leave Duration:</label>
@@ -841,7 +841,7 @@
                                                                         @foreach (var item in Model.leaveResults.leavesSummary)
                                                                         {
                                                                             <tr>
-                                                                                <td>@item.RequestDate</td>
+                                                                                <td>@item.RequestDate.ToString("MM/dd/yyyy hh:mm tt")</td>
                                                                                 <td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
                                                                                 <td>@item.EndDate.ToString("dd/M/yyyy")</td>
                                                                                 <td>@item.LeaveTypeName</td>
@@ -900,6 +900,10 @@
 
 
                                                                                     </td>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <td> </td>
                                                                                 }
 
                                                                             </tr>
@@ -1252,7 +1256,8 @@
                 console.log(response);
                 const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
                 if (response.employeeModel && response.employmentDetail) {
-                    $("#EmplyoeeName").text(response.employeeModel.firstName + ' ' + response.employeeModel.middleName + ' ' + response.employeeModel.surname);
+                    const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
+                    $("#EmplyoeeName").text(names.join(' '));
                     $("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
                     $("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
                     $("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
