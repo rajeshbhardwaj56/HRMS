@@ -10,21 +10,14 @@
     var FooterImage = "";
     if (!string.IsNullOrEmpty(Model.HeaderImage))
     {
-        HeaderImage = "/" + HRMS.Models.Common.Constants.TemplatePath + Model.HeaderImage;
+        HeaderImage = @ViewBag.HeaderImageUrl;
     }
-    else
-    {
-        HeaderImage = HRMS.Models.Common.Constants.NoImagePath;
-    }
+   
 
     if (!string.IsNullOrEmpty(Model.FooterImage))
     {
-        FooterImage = "/" + HRMS.Models.Common.Constants.TemplatePath + Model.FooterImage;
-    }
-    else
-    {
-        FooterImage = HRMS.Models.Common.Constants.NoImagePath;
-    }
+        FooterImage =@ViewBag.FooterImageUrl;
+    }   
 }
 
 
@@ -66,8 +59,6 @@
                         </div>
                     </div>
                 </div>
-
-
                 <div class="col-md-6 form-group">
                     <label>Footer Image <span class="Mandetory">*</span></label>
                     <div class="row d-flex align-items-center">

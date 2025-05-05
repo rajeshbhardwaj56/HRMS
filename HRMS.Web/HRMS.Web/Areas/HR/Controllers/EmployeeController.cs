@@ -37,8 +37,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             _businessLayer = businessLayer;
             EmailSender.configuration = _configuration;
             _s3Service = s3Service;
-            _context = context;
-            _context = context;
+            _context = context;         
         }
         public IActionResult EmployeeListing()
         {
@@ -348,8 +347,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
-
-
         [HttpPost]
         [AllowAnonymous]
         public JsonResult ActiveEmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
