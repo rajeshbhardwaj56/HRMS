@@ -40,7 +40,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             _context = context;
             _businessLayer = businessLayer;
             _s3Service = s3Service;
-          
+
         }
         public IActionResult Index()
         {
@@ -324,16 +324,27 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             if (!string.IsNullOrEmpty(ReportingToIDL1Name) && employmentDetailsDictionaries.TryGetValue("Employees", out var ReportingToIDL1NameDict))
                             {
                                 ReportingToIDL1Id = ReportingToIDL1NameDict
-                                    .FirstOrDefault(kvp => kvp.Key.Contains(ReportingToIDL1Name.ToLower(), StringComparison.OrdinalIgnoreCase)).Value;
-                                if (ReportingToIDL1Id == 0) ReportingToIDL1Id = 0;
+                                    .Where(kvp => kvp.Key.Contains(ReportingToIDL1Name, StringComparison.OrdinalIgnoreCase))
+                                    .Select(kvp => kvp.Value)
+                                    .FirstOrDefault(id => id != 0); // only take the first non-zero id
+
+                                if (ReportingToIDL1Id == 0)
+                                {
+                                    // Handle case where no match found
+                                }
                             }
+
                             string ReportingToIDL2Name = GetCellValue(worksheet, row, columnIndexes, "ReportingToIDL2Name")?.Trim();
-                            if (!string.IsNullOrEmpty(ReportingToIDL2Name) && employmentDetailsDictionaries.TryGetValue("Employees", out var ReportingToIDL2NameDict))
+
+                            if (!string.IsNullOrEmpty(ReportingToIDL2Name) &&
+                                employmentDetailsDictionaries.TryGetValue("Employees", out var ReportingToIDL2NameDict))
                             {
                                 ReportingToIDL2Id = ReportingToIDL2NameDict
-                                    .FirstOrDefault(kvp => kvp.Key.Contains(ReportingToIDL2Name.ToLower(), StringComparison.OrdinalIgnoreCase)).Value;
-                                if (ReportingToIDL2Id == 0) ReportingToIDL2Id = 0;
+                                    .Where(kvp => kvp.Key.Contains(ReportingToIDL2Name, StringComparison.OrdinalIgnoreCase))
+                                    .Select(kvp => kvp.Value)
+                                    .FirstOrDefault(id => id != 0);
                             }
+
                             string RoleName = GetCellValue(worksheet, row, columnIndexes, "RoleName")?.Trim();
                             if (!string.IsNullOrEmpty(RoleName) && employmentDetailsDictionaries.TryGetValue("Roles", out var RoleNameDict))
                             {
@@ -356,11 +367,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 LeavePolicyId = LeavePolicyNameDict
                                     .FirstOrDefault(kvp => kvp.Key.Contains(LeavePolicyName, StringComparison.OrdinalIgnoreCase)).Value;
                                 if (LeavePolicyId == 0) LeavePolicyId = 0;
-                            }                         
+                            }
                             string GenderName = GetCellValue(worksheet, row, columnIndexes, "Gender")?.Trim();
                             if (GenderName == "FeMale")
                             {
-                                GenderId = 2;  
+                                GenderId = 2;
                             }
                             else
                             {
@@ -476,7 +487,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     await file.CopyToAsync(stream);
                     stream.Position = 0;
                     string htmlTable = ProcessExcelFile(stream, file.FileName);
-                    if (!string.IsNullOrEmpty(htmlTable) && htmlTable.Length > 5)
+                    //if (!string.IsNullOrEmpty(htmlTable))
+                    //{
+                    //    return Json(new
+                    //    {
+                    //        success = false,
+                    //        hasErrors = true,
+                    //        message = "Some rows contain errors.",
+                    //        errorTable = htmlTable
+                    //    });
+                    //}
+                    if (htmlTable.Contains("Error while importing employee"))
                     {
                         return Json(new
                         {
@@ -486,11 +507,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             errorTable = htmlTable
                         });
                     }
-                    return Json(new
+                    else
                     {
-                        success = true,
-                        message = $"File uploaded and processed successfully."
-                    });
+                        return Json(new
+                        {
+                            success = true,
+                            message = $"File uploaded and processed successfully."
+                        });
+                    }
                 }
             }
             catch (Exception ex)
@@ -685,7 +709,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddErrorRow(errorDataTable, columnName, $"Row {row}: Surname is mandatory.");
                                         hasError = true;
                                     }
-                                    break;                               
+                                    break;
                                 case "PersonalEmailAddress":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -965,10 +989,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-                                case "ReportingToIDL1Name":                              
+                                case "ReportingToIDL1Name":
                                     prop.SetValue(item, "73");
                                     break;
-                                case "ReportingToIDL2Name":                                  
+                                case "ReportingToIDL2Name":
                                     prop.SetValue(item, "73");
                                     break;
                                 case "Gender":
@@ -1011,7 +1035,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     }
                     if (!hasError)
                     {
-                     
+
                         importList.Add(item);
                     }
                 }
@@ -1105,9 +1129,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     Employees = employeeList
                 };
                 var employeeData = _businessLayer.SendPostAPIRequest(companyNameModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecelBulk), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                //var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(employeeData);              
-                 return employeeList.Count.ToString();
-                
+                if (employeeData != null)
+                {
+                    var model = JsonConvert.DeserializeObject<Result>(employeeData);
+
+                    return model.Message;
+
+                }
+
             }
 
             return ConvertDataTableToHTML(errorDataTable);
@@ -1117,7 +1146,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return columnIndexes.ContainsKey(columnName)
                 ? worksheet.Cells[row, columnIndexes[columnName]]?.Value?.ToString()?.Trim()
                 : null;
-        }     
+        }
         private bool GetBooleanValue(ExcelWorksheet worksheet, int row, Dictionary<string, int> columnIndexes, string columnName)
         {
             if (columnIndexes.ContainsKey(columnName) && worksheet.Cells[row, columnIndexes[columnName]]?.Value != null)
@@ -1126,7 +1155,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 return value.Equals("true", StringComparison.OrdinalIgnoreCase) || value.Equals("1");
             }
             return false;
-        }       
+        }
         private void AddErrorRow(DataTable errorDataTable, string errorColumn, string errorMessage)
         {
             var row = errorDataTable.NewRow();
@@ -1135,7 +1164,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             errorDataTable.Rows.Add(row);
         }
         private (bool isHeaderValid, string mismatchedColumn) ValidateHeaderRow(ExcelWorksheet worksheet, Type targetType)
-        {         
+        {
             var excludeHeaders = new List<string> { "InsertedByUserID", "ExcelFile" };
 
             var expectedProperties = targetType.GetProperties()
@@ -1167,7 +1196,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 html.Append("<tbody>");
                 foreach (DataRow row in dt.Rows)
                 {
-                    html.Append("<tr>");                  
+                    html.Append("<tr>");
                     html.Append("<td>").Append(row["ErrorColumn"]).Append("</td>");
                     html.Append("<td>").Append(row["ErrorMessage"]).Append("</td>");
                     html.Append("</tr>");
@@ -1176,7 +1205,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 return html.ToString();
             }
             return string.Empty;
-        } 
+        }
         private bool IsRowEmpty(ExcelWorksheet worksheet, int row)
         {
             for (int col = 1; col <= worksheet.Dimension.End.Column; col++)
@@ -1196,7 +1225,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 errorTable.Rows.Add(errorRow);
             }
         }
-       
-     
+
+
     }
 }

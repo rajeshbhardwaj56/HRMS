@@ -3008,7 +3008,7 @@ namespace HRMS.API.BusinessLayer
                     BankName = item.BankName,
                     //AgeOnNetwork = TryParseInt(item.AON),
                     AgeOnNetwork = 1,
-                    NoticeServed = Convert.ToInt32(item.NoticeServed),
+                    NoticeServed = 1,
                     LeavingType = item.LeavingType,
                     PreviousExperience = Convert.ToInt32(item.PreviousExperience),
                     DateOfJoiningTraining = TryParseDate(item.DOJInTraining),
