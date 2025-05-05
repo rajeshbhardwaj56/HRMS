@@ -7,6 +7,12 @@ using Newtonsoft.Json;
 using System.Buffers.Text;
 using System.Data;
 using System.Text;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+using System.Drawing;
+using System.Net;
+
 
 namespace HRMS.Web.BusinessLayer
 {
@@ -27,6 +33,8 @@ namespace HRMS.Web.BusinessLayer
         public string DecodeStringBase64(string base64EncodedData);
         public string GetSatutation();
         public string GetProfilePhoto();
+        public Task<string> UploadFileToS3(IFormFile file, string folder = "uploads");
+        bool DeleteFileFromS3(string key);
     }
 
 
@@ -35,6 +43,11 @@ namespace HRMS.Web.BusinessLayer
         public string bearerToken { get; set; }
         private static readonly object Locker = new object();
         private HttpClient _httpClient;
+        private readonly string _accessKey;
+        private readonly string _secretKey;
+        private readonly string _region;
+        private readonly string _bucketName;
+        private readonly IAmazonS3 _s3Client;
         Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor;
         public string BaseAPIUrl { get; set; }
         public IConfiguration _configuration { get; set; }
@@ -44,6 +57,11 @@ namespace HRMS.Web.BusinessLayer
             _configuration = configuration;
             _httpClient = new HttpClient();
             BaseAPIUrl = _configuration.GetSection("AppSettings").GetSection("BaseAPIUrl").Value;
+            _accessKey = _configuration["AWS:AccessKey"];
+            _secretKey = _configuration["AWS:SecretKey"];
+            _region = _configuration["AWS:Region"];
+            _bucketName = _configuration["AWS:BucketName"];
+            _s3Client = new AmazonS3Client(_accessKey, _secretKey, RegionEndpoint.GetBySystemName(_region));
         }
 
         public string GetFormattedAPIUrl(string ApiControllarName, string APIActionName)
@@ -64,14 +82,12 @@ namespace HRMS.Web.BusinessLayer
                 }
             }
             var requestContent = new StringContent(requestData, Encoding.UTF8, "application/json");
-
             var response = await _httpClient.PostAsync(apiUrl, requestContent);
-
             response.EnsureSuccessStatusCode();
             _httpClient.DefaultRequestHeaders.Clear();
             return await response.Content.ReadAsStringAsync();
         }
-      
+
         public async Task<object> SendGetAPIRequest(string ActionUrl, string BearerToken, bool isTokenRequired = true)
         {
             _httpClient = new HttpClient();
@@ -83,7 +99,6 @@ namespace HRMS.Web.BusinessLayer
                     _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + BearerToken);
                 }
             }
-
             string apiUrl = GetFullAPIUrl(ActionUrl);
             var response = await _httpClient.GetAsync(apiUrl);
             response.EnsureSuccessStatusCode();
@@ -152,7 +167,7 @@ namespace HRMS.Web.BusinessLayer
                 }
             }
 
-            return null; 
+            return null;
         }
 
 
@@ -196,7 +211,7 @@ namespace HRMS.Web.BusinessLayer
             var ProfilePhoto = "";
             if (!string.IsNullOrEmpty(httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto)))
             {
-                ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeID) + "/" + httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto);
+                ProfilePhoto =httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto);
             }
             else
             {
@@ -204,5 +219,62 @@ namespace HRMS.Web.BusinessLayer
             }
             return ProfilePhoto;
         }
+        public Task<string> UploadFileToS3(IFormFile file, string folder = "uploads")
+        {
+            var key = $"{folder}";           
+            using (var stream = file.OpenReadStream())
+            {
+                var request = new PutObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = key,
+                    InputStream = stream,
+                    ContentType = file.ContentType
+                };                
+                var response = _s3Client.PutObjectAsync(request).Result;                
+                if (response.HttpStatusCode == HttpStatusCode.OK)
+                {                    
+                    var downloadResponse = _s3Client.GetObjectAsync(_bucketName, key).Result;
+                    if (downloadResponse.HttpStatusCode == HttpStatusCode.OK)
+                    {                                              
+                        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads", Path.GetFileName(file.FileName));                       
+                        var directory = Path.GetDirectoryName(filePath);
+                        if (!Directory.Exists(directory))
+                        {
+                            Directory.CreateDirectory(directory);
+                        }                      
+                        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                        {
+                            downloadResponse.ResponseStream.CopyTo(fileStream);
+                        }                       
+                        return Task.FromResult(key); 
+                    }
+                    else
+                    {
+                        throw new Exception("File download verification failed.");
+                    }
+                }
+                else
+                {
+                    
+                    throw new Exception("File upload failed");
+                }
+            }
+        }
+
+        public bool DeleteFileFromS3(string key)
+        {
+            var deleteRequest = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = key
+            };
+            var response = _s3Client.DeleteObjectAsync(deleteRequest).Result;
+            return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent;
+        }
+
     }
+
+
+
 }

@@ -24,6 +24,7 @@ namespace HRMS.Models.Common
         public const string CompanyID = "CompanyID";
         public const string EmployeeID = "EmployeeID";
         public const string ProfilePhoto = "ProfilePhoto";
+        public const string ProfileLogo = "ProfileLogo";
         public const string FirstName = "FirstName";
         public const string MiddleName = "MiddleName";
         public const string Surname = "Surname";
@@ -61,7 +62,6 @@ namespace HRMS.Models.Common
         public const string Departments = "Departments";
         public const string ResultsData = "ResultsData";
         public const string EmployeePhotoPath = "Uploads/ProfilePhoto/";
-
         public const string EmployeeAadharCardPath = "Uploads/AadharCard/";
         public const string EmployeePanCardPath = "Uploads/PanCard/";
         public const string UploadCertificate = "Uploads/UploadCertificate/";

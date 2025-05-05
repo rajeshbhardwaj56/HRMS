@@ -33,10 +33,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             HolidayInputParams HolidayParams = new HolidayInputParams();
             HolidayParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             var data = _businessLayer.SendPostAPIRequest(HolidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
-
             return Json(new { data = results.Holiday });
 
         }
@@ -47,15 +45,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
             HolidayModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             HolidayModel.FromDate = DateTime.Now;
             HolidayModel.ToDate = DateTime.Now;
-
-
             if (!string.IsNullOrEmpty(id))
             {
                 HolidayModel.HolidayID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(HolidayModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 HolidayModel = JsonConvert.DeserializeObject<Results>(data).holidayModel;
             }
-
             return View(HolidayModel);
         }
 

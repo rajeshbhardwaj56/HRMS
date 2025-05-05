@@ -2,6 +2,7 @@
 using HRMS.Models.DashBoard;
 using HRMS.Models.LeavePolicy;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -16,12 +17,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
         IBusinessLayer _businessLayer;
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
         IHttpContextAccessor _context;
-        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context)
+        private readonly IS3Service _s3Service;
+        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
             _context = context;
             _businessLayer = businessLayer;
+            _s3Service = s3Service;
+         
         }
         public IActionResult Index()
         {
@@ -30,7 +34,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
             dashBoardModelInputParams.RoleID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.RoleID));
             var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
-             var leavePolicyModel = GetLeavePolicyData(CompanyID, model.LeavePolicyId??0);
+            model.EmployeeDetails.ForEach(x => x.EmployeePhoto = _s3Service.GetFileUrl(x.EmployeePhoto));
+            model.WhatsHappening.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
+            var leavePolicyModel = GetLeavePolicyData(CompanyID, model.LeavePolicyId??0);
             double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(model.JoiningDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
             double Totacarryforword = 0.0;
             var Totaleavewithcarryforword = 0.0;
@@ -45,7 +51,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 Totaleavewithcarryforword = accruedLeaves;
             }
             model.NoOfLeaves = Convert.ToInt64(Totaleavewithcarryforword);
-            _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+            //_context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
             return View(model);
         }
         private LeavePolicyModel GetLeavePolicyData(long companyId, long leavePolicyId)

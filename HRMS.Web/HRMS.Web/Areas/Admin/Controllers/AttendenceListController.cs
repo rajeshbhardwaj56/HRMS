@@ -22,13 +22,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
-
         public AttendenceListController(IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
-
         public IActionResult AttendenceListing()
         {
             Results results = new Results();
@@ -66,9 +64,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             model.Employeelist = results.Employee;
             return View(model);
         }
-
-
-
         [HttpPost]
         public IActionResult Index(Attendance AttendenceListModel)
         {
@@ -86,12 +81,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 {
                     return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.AttendenceList);
 
-                }
-
-           
-
-
-
+                }        
         }
         public HRMS.Models.Common.Results GetAllEmployees(long EmployeeID)
         {

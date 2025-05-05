@@ -19,6 +19,8 @@ using System.Text;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using HRMS.Web.BusinessLayer.S3;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -30,22 +32,25 @@ namespace HRMS.Web.Areas.Admin.Controllers
         IBusinessLayer _businessLayer;
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
         IHttpContextAccessor _context;
-        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context)
+        private readonly IS3Service _s3Service;
+        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
             _context = context;
             _businessLayer = businessLayer;
+            _s3Service = s3Service;
+          
         }
         public IActionResult Index()
         {
             var CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
-
             DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
             dashBoardModelInputParams.RoleID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.RoleID));
-
             var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
+            model.EmployeeDetails.ForEach(x => x.EmployeePhoto = _s3Service.GetFileUrl(x.EmployeePhoto));
+            model.WhatsHappening.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
             var leavePolicyModel = GetLeavePolicyData(CompanyID, model.LeavePolicyId ?? 0);
             double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(model.JoiningDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
             double Totacarryforword = 0.0;
@@ -62,7 +67,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             model.NoOfLeaves = Convert.ToInt64(Totaleavewithcarryforword);
 
-            _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+            //_context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
             return View(model);
         }
 
@@ -351,13 +356,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 LeavePolicyId = LeavePolicyNameDict
                                     .FirstOrDefault(kvp => kvp.Key.Contains(LeavePolicyName, StringComparison.OrdinalIgnoreCase)).Value;
                                 if (LeavePolicyId == 0) LeavePolicyId = 0;
-                            }
-
-                            // Get Gender (Male or Female)
+                            }                         
                             string GenderName = GetCellValue(worksheet, row, columnIndexes, "Gender")?.Trim();
                             if (GenderName == "FeMale")
                             {
-                                GenderId = 2;  // Female
+                                GenderId = 2;  
                             }
                             else
                             {
@@ -445,14 +448,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 AON = GetCellValue(worksheet, row, columnIndexes, "AON"),
                                 Gender = GenderId.ToString(),
                                 EmployeeID = 0,
-
                             };
                             uniqueEmails.Add(email);
                             var EmaployeeData = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                             var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
                         }
-
-
                     }
                 }
             }
@@ -460,7 +460,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 return Json(new { error = $"Error processing Excel file: {ex.Message}" });
             }
-
             return Json(new { success = "Excel data imported successfully.", });
         }
         [HttpPost]
@@ -813,7 +812,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-
                                 case "IsReferredByExistingEmployee":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {

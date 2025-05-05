@@ -6,6 +6,7 @@ using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -18,13 +19,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
     public class LeavePolicyController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly IS3Service _s3Service;
         private readonly IBusinessLayer _businessLayer;
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
-        public LeavePolicyController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment)
+        public LeavePolicyController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, IS3Service s3Service)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
             Environment = environment;
+            _s3Service = s3Service;        
         }
 
         public IActionResult LeavePolicyListing()
@@ -312,8 +315,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.WhatsHappeningList.ForEach(x => x.EncodedWhatsHappeningID = _businessLayer.EncodeStringBase64(x.WhatsHappeningID.ToString()));
+            results.WhatsHappeningList.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
             return Json(new { data = results.WhatsHappeningList });
-
         }
 
         public IActionResult AddWhatshappening(string id)
@@ -327,6 +330,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 WhatsHappeningModelParams.WhatsHappeningID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 objModelParams = JsonConvert.DeserializeObject<Results>(data).WhatsHappeningModel;
+                ViewBag.WhatshappeningLogoUrl = _s3Service.GetFileUrl(objModelParams.IconImage);
             }
             return View(objModelParams);
         }
@@ -334,30 +338,29 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult AddWhatshappening(WhatsHappeningModels objModel, List<IFormFile> postedFiles)
         {
+            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
             string fileName = null;
 
             if (objModel.Description == null)
             {
                 objModel.Description = string.Empty;
             }
-            if (postedFiles.Count > 0)
+            string keyToDelete = objModel.IconImage;
+
+            string uploadedKey = string.Empty;
+            foreach (IFormFile postedFile in postedFiles)
             {
-                string wwwPath = Environment.WebRootPath;
-                string contentPath = this.Environment.ContentRootPath;
+                if (postedFile != null && postedFile.Length > 0)
+                {
+                    fileName = $"{Path.GetExtension(postedFile.FileName)}";
+                    uploadedKey = _s3Service.UploadFile(postedFile, fileName);
+                    if (!string.IsNullOrEmpty(uploadedKey))
+                    {
+                        _s3Service.DeleteFile(keyToDelete);
+                        objModel.IconImage = uploadedKey;
+                    }
+                }
 
-                foreach (IFormFile postedFile in postedFiles)
-                {
-                    fileName = postedFile.FileName.Replace(" ", "");
-                }
-                if (fileName != null)
-                {
-                    objModel.IconImage = fileName;
-                }
-                else
-                {
-                    objModel.IconImage = "";
-
-                }
             }
             objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             objModel.CreatedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -365,22 +368,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(objModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
 
-            if (postedFiles.Count > 0)
-            {
-                string path = Path.Combine(this.Environment.WebRootPath, Constants.Whatshappening + result.PKNo.ToString());
-
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                foreach (IFormFile postedFile in postedFiles)
-                {
-                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-                    {
-                        postedFile.CopyTo(stream);
-                    }
-                }
-            }
+          
 
 
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;

@@ -208,7 +208,7 @@
                                 int index = 0;
                                 foreach (var item in Model.EmployeeDetails)
                                 {
-                                    var UserPhoto = "/Uploads/ProfilePhoto/" + item.EmployeeId + "/" + @item.EmployeePhoto;
+                                    var UserPhoto =  @item.EmployeePhoto;
                                     var isActive = index == 0 ? "active" : "";
 
                                     <div class="carousel-item h-100 @isActive">
@@ -270,7 +270,7 @@
                             <li class="list-group-item py-3">
                                 <div class="d-flex justify-content-between align-items-center">                                                                    
                                     <div>
-                                            <img src="/Uploads/Whatshappening/@item.IconImage" width="30" height="30">
+                                            <img src="@item.IconImage" width="30" height="30">
                                             <a href="javascript:void(0)" class="font-weight-bold text-decoration-none" style="color:#05397b;">@item.Title   <b>&nbsp;&nbsp;|  @item.FromDate?.ToString("dd-MMM-yyyy") </b></a>
                                     </div>
                                      <div>
@@ -279,7 +279,7 @@
                                                     data-description="@item.Description"
                                                     data-fromdate="@item.FromDate?.ToString("dd-MMM-yyyy")"
                                                     data-todate="@item.ToDate?.ToString("dd-MMM-yyyy")"
-                                                    data-image="/Uploads/Whatshappening/@item.IconImage">
+                                                    data-image="@item.IconImage">
                                                 View Announcement
                                             </button>
                                             <a href="javascript:void(0)" class="px-2">
@@ -309,7 +309,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="" class="rounded mb-3" width="50" height="50" alt="Announcement Image">
+                <img id="modalImage" src="" class="rounded mb-3" style="width: 20px; height: 20px;" alt="Announcement Image">
                 <h5 id="modalTitle"></h5>
                 <p id="modalDescription"></p>
                 <p><b>From Date:</b> <span id="modalFromDate"></span></p>

@@ -8,7 +8,7 @@
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.ProfilePhoto))
     {
-        ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.EmployeeID + "/" + Model.ProfilePhoto;
+        ProfilePhoto = @ViewBag.ProfilePhotoUrl;
     }
     else
     {
@@ -17,7 +17,7 @@
     var PancardPhoto = "";
     if (!string.IsNullOrEmpty(Model.PanCardImage))
     {
-        PancardPhoto = "/" + HRMS.Models.Common.Constants.EmployeePanCardPath + Model.EmployeeID + "/" + Model.PanCardImage;
+        PancardPhoto = @ViewBag.PanCardImageUrl;
     }
     else
     {
@@ -27,7 +27,7 @@
     var AddharCardPhoto = "";
     if (!string.IsNullOrEmpty(Model.AadhaarCardImage))
     {
-        AddharCardPhoto = "/" + HRMS.Models.Common.Constants.EmployeeAadharCardPath + Model.EmployeeID + "/" + Model.AadhaarCardImage;
+        AddharCardPhoto = @ViewBag.AadhaarCardImageUrl;
     }
     else
     {
@@ -46,7 +46,9 @@
             <div class="small-header">Personal Details</div>
             @Html.HiddenFor(m => m.EmployeeID)
             @Html.HiddenFor(m => m.CompanyID)
-
+            @Html.HiddenFor(m => m.ProfilePhoto)
+            @Html.HiddenFor(m => m.PanCardImage)
+            @Html.HiddenFor(m => m.AadhaarCardImage)
             @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
             <label for="validationDefault01" class="form-label">Personal Details </label>
             @Html.HiddenFor(m => m.EmployeeID)
@@ -303,7 +305,7 @@
                     <div class="form-group">
                         <label> Pan Card No <span class="Mandetory">*</span></label>
                         <div class="col-md-4">
-                            <img id="PanpreviewImage" src="@PancardPhoto"
+                            <img id="PanpreviewImage" src="@PancardPhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
                                  style="width:100px; height:100px" />
                         </div>
                         <div class="col-md-8">
@@ -324,7 +326,7 @@
                     <div class="form-group">
                         <label> Aadhaar Card No <span class="Mandetory">*</span></label>
                         <div class="col-md-4">
-                            <img id="AadhaarpreviewImage" src="@AddharCardPhoto"
+                            <img id="AadhaarpreviewImage" src="@AddharCardPhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
                                  style="width:100px; height:100px" />
                         </div>
                         <div class="col-md-8">

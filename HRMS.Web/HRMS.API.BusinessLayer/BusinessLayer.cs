@@ -678,7 +678,6 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@Gender", employeeModel.Gender));
             sqlParameter.Add(new SqlParameter("@PanCardImage", employeeModel.PanCardImage));
             sqlParameter.Add(new SqlParameter("@AadhaarCardImage", employeeModel.AadhaarCardImage));
-
             SqlParameterCollection pOutputParams = null;
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
 
@@ -3238,7 +3237,7 @@ namespace HRMS.API.BusinessLayer
             return value.ToString().Trim();
         }
 
-        #region What's happening
+        #region What's Happening
 
         public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model)
         {

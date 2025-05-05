@@ -45,9 +45,6 @@
 
     </table>
 </div>
-
-
-
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -80,9 +77,8 @@
                             return '<img src="' + data + '" class="profile-photo" width="40" height="40" style="border-radius: 50%;" />';
                         }
                         else {
-                            var filedata = "/uploads/ProfilePhoto/" + row.employeeID + "/" + data;
+                            var filedata =  data;
                             return '<img src="' + filedata + '" class="profile-photo" width="40" height="40" style="border-radius: 50%;" />';
-
                         }
                     },
                     "orderable": false
@@ -98,8 +94,7 @@
                 { "data": "shift", "autoWidth": true },
                 { "data": "payrollTypeName", "autoWidth": true },
                 { "data": "mobile", "autoWidth": true },
-                {
-                    // 🔹 Actions Column
+                {                
                     "data": null,
                     "render": function (data, type, row) {
                         var linkEdit = '<div class="table-data-feature">' +
@@ -126,8 +121,4 @@
             "responsive": true
         });
     });
-
-
-
-
 </script>

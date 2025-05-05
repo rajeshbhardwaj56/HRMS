@@ -11,6 +11,7 @@ using Quartz.Spi;
 using Quartz;
 using System.Globalization;
 using WebMarkupMin.AspNetCore8;
+using HRMS.Web.BusinessLayer.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,10 +75,9 @@ builder.Services.AddMvcCore()
     .SetCompatibilityVersion(CompatibilityVersion.Latest)
         .AddDataAnnotations()
         .AddCors();
-
+builder.Services.AddSingleton<IS3Service, S3Service>();
 builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
 builder.Services.AddHttpContextAccessor();
-
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     // This lambda determines whether user consent for non-essential cookies is needed for a given request.  

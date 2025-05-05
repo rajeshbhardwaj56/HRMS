@@ -15,7 +15,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
-
         public ShiftTypeController(IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;

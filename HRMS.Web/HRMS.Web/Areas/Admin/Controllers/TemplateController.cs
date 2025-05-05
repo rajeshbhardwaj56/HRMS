@@ -44,11 +44,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
             Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
             var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
 
             return Json(new { data = results.Template });
-
         }
         public IActionResult Index(string id)
         {
@@ -61,8 +59,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
             }
-
-
             return View(Template);
         }
 
@@ -83,12 +79,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 template.FooterImage = FooterImageFileName = Guid.NewGuid().ToString() + FooterImageFile.FileName.Replace(" ", "");
             }
-
             var data = _businessLayer.SendPostAPIRequest(template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.AddUpdateTemplate), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
-
-
-
             string path = Path.Combine(wwwPath, Constants.TemplatePath);
 
             if (!Directory.Exists(path))
@@ -138,9 +130,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 // Generate a unique filename
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + upload.FileName;
-
-
-
                 string path = Path.Combine(this.Environment.WebRootPath, Constants.CKEditorImagesPath);
                 if (!Directory.Exists(path))
                 {

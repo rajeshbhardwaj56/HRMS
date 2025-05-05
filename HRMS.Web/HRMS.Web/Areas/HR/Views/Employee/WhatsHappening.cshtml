@@ -33,7 +33,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="" class="rounded mb-3" width="50" height="50" alt="Announcement Image">
+                <img id="modalImage" src="" class="rounded mb-3" style="width: 20px; height: 20px;" alt="Announcement Image">
                 <h5 id="modalTitle"></h5>
                 <p id="modalDescription"></p>
                 <p><b>From Date:</b> <span id="modalFromDate"></span></p>
@@ -76,7 +76,7 @@
                     "data": "iconImage",
                     "autoWidth": true,
                     "render": function (data, type, row) {
-                        return data ? `<img src="/Uploads/Whatshappening/${data}" alt="${row.title}" style="width: 50px; height: 50px;"/>` : 'No Image';
+                        return data ? `<img src="${data}" alt="${row.title}" style="width: 50px; height: 50px;"/>` : 'No Image';
                     }
                 },
                 {
@@ -89,7 +89,7 @@
 
                           data-fromdate="${formatDate(row.fromDate)}"
                                     data-todate="${formatDate(row.toDate)}"
-                    data-image="/Uploads/Whatshappening/${row.iconImage}">
+                    data-image="${row.iconImage}">
                 View Announcement
             </button>
             <a href="javascript:void(0)" class="px-2">

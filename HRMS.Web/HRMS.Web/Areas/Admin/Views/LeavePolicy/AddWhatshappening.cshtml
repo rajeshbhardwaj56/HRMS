@@ -8,14 +8,13 @@
     var IconImage = "";
     if (!string.IsNullOrEmpty(Model.IconImage))
     {
-        IconImage = "/" + HRMS.Models.Common.Constants.Whatshappening + Model.IconImage;
+        IconImage = Model.IconImage;
     }
     else
     {
         IconImage = HRMS.Models.Common.Constants.NoImagePath;
     }
 }
-
 <div class="main-header anim" style="--delay: 0s">  Whats Happening</div>
 <form id="AddWhatshappeningForm" method="post" enctype="multipart/form-data">
 
@@ -51,7 +50,7 @@
                 <div class="col-md-4 form-group">
                     <label>Image <span class="Mandetory">*</span></label>
                     <div class="col-md-4">
-                        <img id="previewImage" src="@IconImage"
+                        <img id="previewImage" src="@ViewBag.WhatshappeningLogoUrl"
                              onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
                              style="width:100px; height:100px" />
                     </div>

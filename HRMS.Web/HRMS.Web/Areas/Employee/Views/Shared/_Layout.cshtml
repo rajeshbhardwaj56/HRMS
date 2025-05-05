@@ -5,6 +5,8 @@
 @{
     var Logo = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.CompanyLogo);
     var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+    //var Photo = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto);
+}
 }
 <head>
     <!-- Character encoding for UTF-8 -->
@@ -107,6 +109,7 @@
                         </svg>
                         <span>Attendance correction</span>
                     </a>
+
                 </div>
             </div>
             <div class="sidebar-footer">

@@ -11,6 +11,7 @@ using System.Security.Claims;
 using HRMS.Models.DashBoard;
 using HRMS.Models.User;
 using HRMS.Models.Employee;
+using HRMS.Web.BusinessLayer.S3;
 
 namespace HRMS.Web.Controllers
 {
@@ -19,15 +20,18 @@ namespace HRMS.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IHttpContextAccessor _context;
         private IConfiguration _configuration;
+        private IS3Service _s3Service;
+
         IBusinessLayer _businessLayer;
-        public HomeController(ILogger<HomeController> logger, IBusinessLayer businessLayer, IHttpContextAccessor context, IConfiguration configuration)
+        public HomeController(ILogger<HomeController> logger, IBusinessLayer businessLayer, IHttpContextAccessor context, IConfiguration configuration, IS3Service s3Service)
         {
             _logger = logger;
             _businessLayer = businessLayer;
-            _context = context;
-            _configuration =
+            _context = context;        
             _configuration = configuration;
+            _s3Service = s3Service; 
             EmailSender.configuration = _configuration;
+            
         }
 
         public IActionResult Index()
@@ -188,7 +192,6 @@ namespace HRMS.Web.Controllers
         {
             var data = _businessLayer.SendPostAPIRequest(loginModel, "Login", HttpContext.Session.GetString(Constants.SessionBearerToken), false).Result.ToString();
             var result = JsonConvert.DeserializeObject<LoginUser>(data);
-
             if (result != null && !string.IsNullOrEmpty(result.token))
             {
                 EmployeeInputParams objmodel = new EmployeeInputParams();
@@ -208,9 +211,7 @@ namespace HRMS.Web.Controllers
                     new Claim(ClaimTypes.Name, result.UserID.ToString()),
                      new Claim(ClaimTypes.Role,  result.Role)
                 }, CookieAuthenticationDefaults.AuthenticationScheme);
-
                 var principal = new ClaimsPrincipal(identity);
-
                 var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                 DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
                 var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -218,8 +219,13 @@ namespace HRMS.Web.Controllers
                 if (string.IsNullOrEmpty(model.ProfilePhoto))
                 {
                     model.ProfilePhoto = "";
+                    _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
                 }
-                _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+                else
+                {
+                    var ProfilePhoto = _s3Service.GetFileUrl(model.ProfilePhoto);
+                    _context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
+                }                 
                 _context.HttpContext.Session.SetString(Constants.FirstName, model.FirstName);
                 _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName);
                 _context.HttpContext.Session.SetString(Constants.Surname, model.Surname);
@@ -227,8 +233,9 @@ namespace HRMS.Web.Controllers
                 var CompanyDatas = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas);
                 var CompanyData = results.companyModel;
-                var CompanyLogo = "/Uploads/CompanyLogo/" + CompanyData.CompanyID + "/"+ CompanyData.CompanyLogo;
-                _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo);
+              //  var CompanyLogo = "/Uploads/CompanyLogo/" + CompanyData.CompanyID + "/"+ CompanyData.CompanyLogo;
+               var CompanyLogo = _s3Service.GetFileUrl(CompanyData.CompanyLogo);
+                _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
 
                 return RedirectToActionPermanent(
                    Constants.Index,

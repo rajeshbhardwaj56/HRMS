@@ -19,7 +19,7 @@
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
     {
-        ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.employeeModel.EmployeeID + "/" + Model.employeeModel.ProfilePhoto;
+        ProfilePhoto = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto) ;
     }
     else
     {

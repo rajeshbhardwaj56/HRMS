@@ -7,6 +7,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -27,21 +28,23 @@ namespace HRMS.Web.Areas.HR.Controllers
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
         private IHostingEnvironment Environment;
-        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment)
+        private readonly IS3Service _s3Service;
+        private readonly IHttpContextAccessor _context;
+        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
         {
             Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
             EmailSender.configuration = _configuration;
+            _s3Service = s3Service;
+            _context = context;
+            _context = context;
         }
-
-
         public IActionResult EmployeeListing()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
-
         [HttpPost]
         [AllowAnonymous]
         public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
@@ -50,23 +53,19 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             employee.DisplayStart = iDisplayStart;
-            employee.DisplayLength = iDisplayLength;
-
-            // 🔹 Ensure search is passed correctly
+            employee.DisplayLength = iDisplayLength;          
             employee.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
-
             var data = _businessLayer.SendPostAPIRequest(
                 employee,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
-
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
             results.Employees.ForEach(x => x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString()));
-
             results.Employees.ForEach(x => x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString()));
+            results.Employees.ForEach(x => x.ProfilePhoto = _s3Service.GetFileUrl(x.ProfilePhoto));
             //return Json(new { data = results.Employees });
             return Json(new
             {
@@ -81,7 +80,6 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             EmployeeModel employee = new EmployeeModel();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             if (string.IsNullOrEmpty(id))
             {
                 employee.FamilyDetails.Add(new FamilyDetail());
@@ -99,6 +97,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employee.EmployeeID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
+                ViewBag.ProfilePhotoUrl = _s3Service.GetFileUrl(employee.ProfilePhoto);
+                ViewBag.AadhaarCardImageUrl = _s3Service.GetFileUrl(employee.AadhaarCardImage);
+                ViewBag.PanCardImageUrl = _s3Service.GetFileUrl(employee.PanCardImage);
+
                 if (employee.References == null || employee.References.Count == 0)
                 {
                     employee.References = new List<HRMS.Models.Employee.Reference>() {
@@ -123,23 +125,66 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpPost]
         public IActionResult Index(EmployeeModel employee, List<IFormFile> postedFiles, List<IFormFile> PanPostedFile, List<IFormFile> AadhaarPostedFile)
         {
+            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
             try
             {
                 if (ModelState.IsValid)
                 {
-                    string wwwPath = Environment.WebRootPath;
+                    string uploadedKey = string.Empty;
+                    string profileUploadedKey = string.Empty;
+                    string profileKeyToDelete = employee.ProfilePhoto;
+                    string panKeyToDelete = employee.PanCardImage;
+                    string aadhaarKeyToDelete = employee.AadhaarCardImage;
+                    foreach (IFormFile postedFile in postedFiles)
+                    {
+                        if (postedFile != null && postedFile.Length > 0)
+                        {
+                            string fileName = $"{Path.GetExtension(postedFile.FileName)}";
+                            profileUploadedKey = _s3Service.UploadFile(postedFile, fileName);
+                            if (!string.IsNullOrEmpty(profileUploadedKey))
+                            {
 
-                    // Profile Photo
-                    employee.ProfilePhoto = SaveUploadedFile(postedFiles, wwwPath, Constants.EmployeePhotoPath);
+                                _s3Service.DeleteFile(profileKeyToDelete);
+                                employee.ProfilePhoto = profileUploadedKey;
+                            }
+                        }
+                    }
+                    foreach (IFormFile postedFile in PanPostedFile)
+                    {
+                        if (postedFile != null && postedFile.Length > 0)
+                        {
 
-                    // PAN Card
-                    employee.PanCardImage = SaveUploadedFile(PanPostedFile, wwwPath, Constants.EmployeePanCardPath);
+                            string fileName = $"{Path.GetExtension(postedFile.FileName)}";
+                            uploadedKey = _s3Service.UploadFile(postedFile, fileName);
+                            if (!string.IsNullOrEmpty(uploadedKey))
+                            {
 
-                    // Aadhaar Card
-                    employee.AadhaarCardImage = SaveUploadedFile(AadhaarPostedFile, wwwPath, Constants.EmployeeAadharCardPath);
+                                _s3Service.DeleteFile(panKeyToDelete);
+                                employee.PanCardImage = uploadedKey;
+                            }
+                        }
+                    }
 
-                    // Call API
+                    foreach (IFormFile postedFile in AadhaarPostedFile)
+                    {
+
+                        if (postedFile != null && postedFile.Length > 0)
+                        {
+
+
+                            string fileName = $"{Path.GetExtension(postedFile.FileName)}";
+                            uploadedKey = _s3Service.UploadFile(postedFile, fileName);
+                            if (!string.IsNullOrEmpty(uploadedKey))
+                            {
+
+                                _s3Service.DeleteFile(aadhaarKeyToDelete);
+                                employee.AadhaarCardImage = uploadedKey;
+                            }
+                        }
+                    }
+                    var ProfilePhoto = _s3Service.GetFileUrl(profileUploadedKey);
+                    _context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
                     var data = _businessLayer.SendPostAPIRequest(
                         employee,
                         _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee),
@@ -149,12 +194,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
 
                     if (result != null && result.PKNo > 0)
-                    {
-                        // Save files in respective directories
-                        SaveFileToDirectory(postedFiles, wwwPath, Constants.EmployeePhotoPath, result.PKNo);
-                        SaveFileToDirectory(PanPostedFile, wwwPath, Constants.EmployeePanCardPath, result.PKNo);
-                        SaveFileToDirectory(AadhaarPostedFile, wwwPath, Constants.EmployeeAadharCardPath, result.PKNo);
-
+                    {                                             
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                         TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
 
@@ -168,11 +208,8 @@ namespace HRMS.Web.Areas.HR.Controllers
             catch (Exception ex)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try later.";
-                // Log exception (optional)
-            }
-
-            // Populate dropdown lists for the view
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try later.";               
+            }         
             employee.Languages = results.Languages;
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
@@ -581,6 +618,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             WhatsHappeningModelParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            results.WhatsHappeningList.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
             return Json(new { data = results.WhatsHappeningList });
 
         }
