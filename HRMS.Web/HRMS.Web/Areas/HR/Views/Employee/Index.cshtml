@@ -8,7 +8,7 @@
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.ProfilePhoto))
     {
-        ProfilePhoto = @ViewBag.ProfilePhotoUrl;
+        ProfilePhoto = Model.ProfilePhoto;
     }
     else
     {
@@ -17,7 +17,7 @@
     var PancardPhoto = "";
     if (!string.IsNullOrEmpty(Model.PanCardImage))
     {
-        PancardPhoto = @ViewBag.PanCardImageUrl;
+        PancardPhoto = @Model.PanCardImage;
     }
     else
     {
@@ -27,7 +27,7 @@
     var AddharCardPhoto = "";
     if (!string.IsNullOrEmpty(Model.AadhaarCardImage))
     {
-        AddharCardPhoto = @ViewBag.AadhaarCardImageUrl;
+        AddharCardPhoto = @Model.AadhaarCardImage;
     }
     else
     {

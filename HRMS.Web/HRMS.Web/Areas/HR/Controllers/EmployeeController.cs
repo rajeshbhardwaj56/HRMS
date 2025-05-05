@@ -1,4 +1,5 @@
 ﻿using Amazon;
+using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.EMMA;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
 using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.Intrinsics.X86;
@@ -40,7 +42,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             _businessLayer = businessLayer;
             EmailSender.configuration = _configuration;
             _s3Service = s3Service;
-            _context = context;         
+            _context = context;
         }
         public IActionResult EmployeeListing()
         {
@@ -105,9 +107,9 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employee.EmployeeID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
-                ViewBag.ProfilePhotoUrl = _s3Service.GetFileUrl(employee.ProfilePhoto);
-                ViewBag.AadhaarCardImageUrl = _s3Service.GetFileUrl(employee.AadhaarCardImage);
-                ViewBag.PanCardImageUrl = _s3Service.GetFileUrl(employee.PanCardImage);
+                employee.ProfilePhoto = _s3Service.GetFileUrl(employee.ProfilePhoto);
+                employee.AadhaarCardImage = _s3Service.GetFileUrl(employee.AadhaarCardImage);
+                employee.PanCardImage = _s3Service.GetFileUrl(employee.PanCardImage);
 
                 if (employee.References == null || employee.References.Count == 0)
                 {
@@ -145,58 +147,84 @@ namespace HRMS.Web.Areas.HR.Controllers
                     string profileKeyToDelete = employee.ProfilePhoto;
                     string panKeyToDelete = employee.PanCardImage;
                     string aadhaarKeyToDelete = employee.AadhaarCardImage;
-                    foreach (IFormFile postedFile in postedFiles)
+                    if (postedFiles != null && postedFiles.Count > 0)
                     {
-                        if (postedFile != null && postedFile.Length > 0)
+                        foreach (IFormFile postedFile in postedFiles)
                         {
-                           
-                            profileUploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
-                            if (!string.IsNullOrEmpty(profileUploadedKey))
+                            if (postedFile != null && postedFile.Length > 0)
                             {
-                                if (profileKeyToDelete != null)
+
+                                profileUploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
+                                if (!string.IsNullOrEmpty(profileUploadedKey))
                                 {
-                                    _s3Service.DeleteFile(profileKeyToDelete);
+                                    if (profileKeyToDelete != null)
+                                    {
+                                        _s3Service.DeleteFile(profileKeyToDelete);
+                                    }
+                                    employee.ProfilePhoto = profileUploadedKey;
                                 }
-                                employee.ProfilePhoto = profileUploadedKey;
                             }
                         }
                     }
-                    foreach (IFormFile postedFile in PanPostedFile)
+                    else
                     {
-                        if (postedFile != null && postedFile.Length > 0)
-                        { 
-                            uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
-                            if (!string.IsNullOrEmpty(uploadedKey))
+                        string fileWithQuery = employee.ProfilePhoto.Substring(employee.ProfilePhoto.LastIndexOf('/') + 1);
+                        employee.ProfilePhoto = fileWithQuery.Split('?')[0];
+
+                    }
+                    if (PanPostedFile != null && PanPostedFile.Count > 0)
+                    {
+                        foreach (IFormFile postedFile in PanPostedFile)
+                        {
+                            if (postedFile != null && postedFile.Length > 0)
                             {
-                                if (panKeyToDelete != null)
+                                uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
+                                if (!string.IsNullOrEmpty(uploadedKey))
                                 {
-                                    _s3Service.DeleteFile(panKeyToDelete);
+                                    if (panKeyToDelete != null)
+                                    {
+                                        _s3Service.DeleteFile(panKeyToDelete);
+                                    }
+                                    employee.PanCardImage = uploadedKey;
                                 }
-                                employee.PanCardImage = uploadedKey;
                             }
                         }
                     }
-
-                    foreach (IFormFile postedFile in AadhaarPostedFile)
+                    else
                     {
+                        string fileWithQuery = employee.PanCardImage.Substring(employee.PanCardImage.LastIndexOf('/') + 1);
+                        employee.PanCardImage = fileWithQuery.Split('?')[0];
 
-                        if (postedFile != null && postedFile.Length > 0)
-                        { 
-                            uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
-                            if (!string.IsNullOrEmpty(uploadedKey))
+                    }
+                    if (AadhaarPostedFile != null && AadhaarPostedFile.Count > 0)
+                    {
+                        foreach (IFormFile postedFile in AadhaarPostedFile)
+                        {
+
+                            if (postedFile != null && postedFile.Length > 0)
                             {
-                                if (aadhaarKeyToDelete != null)
+                                uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
+                                if (!string.IsNullOrEmpty(uploadedKey))
                                 {
-                                    _s3Service.DeleteFile(aadhaarKeyToDelete);
+                                    if (aadhaarKeyToDelete != null)
+                                    {
+                                        _s3Service.DeleteFile(aadhaarKeyToDelete);
+                                    }
+                                    employee.AadhaarCardImage = uploadedKey;
                                 }
-                                employee.AadhaarCardImage = uploadedKey;
                             }
                         }
+                    }
+                    else
+                    {
+                        string fileWithQuery = employee.AadhaarCardImage.Substring(employee.AadhaarCardImage.LastIndexOf('/') + 1);
+                        employee.AadhaarCardImage = fileWithQuery.Split('?')[0];
+
                     }
                     //var ProfilePhoto = _s3Service.GetFileUrl(profileUploadedKey);
                     //_context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
-                    var data = _businessLayer.SendPostAPIRequest(employee,_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee),
-                        HttpContext.Session.GetString(Constants.SessionBearerToken),true).Result.ToString();
+                    var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee),
+                        HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                     var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
                     if (result != null && result.PKNo > 0)
                     {
@@ -223,7 +251,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(employee);
         }
 
-        
+
 
 
         public HRMS.Models.Common.Results GetAllResults(long CompanyID)
