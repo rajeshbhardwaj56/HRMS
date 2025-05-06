@@ -375,8 +375,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 endDate = startDate;
             }
-
-
             //get current year date
             var currentYearDate = GetAprilFirstDate();
             //validation for fromdate should not greater than todate
@@ -760,51 +758,45 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 //        return View();
                 //    }
                 //}
-                string fileName = null;
+                string keyToDelete = model.leaveResults.leaveSummaryModel.UploadCertificate;
+                string uploadedKey = string.Empty;
 
-                if (postedFiles.Count > 0)
+                if (postedFiles != null && postedFiles.Count > 0)
                 {
-                    string wwwPath = Environment.WebRootPath;
-                    string contentPath = this.Environment.ContentRootPath;
-
                     foreach (IFormFile postedFile in postedFiles)
                     {
-                        fileName = postedFile.FileName.Replace(" ", "");
+                        if (postedFile != null && postedFile.Length > 0)
+                        {
+                            uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName.Replace(" ", ""));
+                            if (!string.IsNullOrEmpty(uploadedKey))
+                            {
+                                if (keyToDelete != null)
+                                {
+                                    _s3Service.DeleteFile(keyToDelete);
+
+                                }
+                                model.leaveResults.leaveSummaryModel.UploadCertificate = uploadedKey;
+                            }
+                        }
                     }
-                    if (fileName != null)
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(model.leaveResults.leaveSummaryModel.UploadCertificate))
                     {
-                        model.leaveResults.leaveSummaryModel.UploadCertificate = fileName;
+                        string fileWithQuery = model.leaveResults.leaveSummaryModel.UploadCertificate.Substring(model.leaveResults.leaveSummaryModel.UploadCertificate.LastIndexOf('/') + 1);
+                        model.leaveResults.leaveSummaryModel.UploadCertificate = fileWithQuery.Split('?')[0];
                     }
                     else
                     {
                         model.leaveResults.leaveSummaryModel.UploadCertificate = "";
-
                     }
-                }
-                if (model.leaveResults.leaveSummaryModel.UploadCertificate == null)
-                {
-                    model.leaveResults.leaveSummaryModel.UploadCertificate = "";
                 }
                 var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
-                if (postedFiles.Count > 0)
-                {
-                    string path = Path.Combine(this.Environment.WebRootPath, Constants.UploadCertificate + result.PKNo.ToString());
-
-                    if (!Directory.Exists(path))
-                    {
-                        Directory.CreateDirectory(path);
-                    }
-                    foreach (IFormFile postedFile in postedFiles)
-                    {
-                        using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-                        {
-                            postedFile.CopyTo(stream);
-                        }
-                    }
-                }
+              
 
 
 
@@ -1016,13 +1008,22 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
-               
-              
+
+
                 if (employeeDetails == null || employeeDetails.Count == 0)
                 {
                     return Json(new { data = new List<object>(), message = "No employees found" });
-                };
-                return Json(new { data = employeeDetails });
+                }
+                else
+                {
+                    employeeDetails.ForEach(x =>
+                    {                                          
+                        x.EmployeePhoto = string.IsNullOrEmpty(x.EmployeePhoto)
+                            ? "/assets/img/No_image.png"   //Use default image if profile photo is missing
+                            : _s3Service.GetFileUrl(x.EmployeePhoto);
+                    });
+                }
+                    return Json(new { data = employeeDetails });
             }
             catch (Exception ex)
             {

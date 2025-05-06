@@ -176,8 +176,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     {
                         foreach (IFormFile postedFile in PanPostedFile)
                         {
-                            if (postedFile != null && postedFile.Length > 0)
-                            {
+                          
                                 uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
                                 if (!string.IsNullOrEmpty(uploadedKey))
                                 {
@@ -187,7 +186,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                                     }
                                     employee.PanCardImage = uploadedKey;
                                 }
-                            }
+                            
                         }
                     }
                     else

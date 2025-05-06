@@ -330,7 +330,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 WhatsHappeningModelParams.WhatsHappeningID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 objModelParams = JsonConvert.DeserializeObject<Results>(data).WhatsHappeningModel;
-                ViewBag.WhatshappeningLogoUrl = _s3Service.GetFileUrl(objModelParams.IconImage);
+                objModelParams.IconImage = _s3Service.GetFileUrl(objModelParams.IconImage);
             }
             return View(objModelParams);
         }
@@ -339,38 +339,43 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult AddWhatshappening(WhatsHappeningModels objModel, List<IFormFile> postedFiles)
         {
             string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
-            string fileName = null;
+           
 
             if (objModel.Description == null)
             {
                 objModel.Description = string.Empty;
             }
             string keyToDelete = objModel.IconImage;
-
             string uploadedKey = string.Empty;
-            foreach (IFormFile postedFile in postedFiles)
+            if (postedFiles != null && postedFiles.Count > 0)
             {
-                if (postedFile != null && postedFile.Length > 0)
+                foreach (IFormFile postedFile in postedFiles)
                 {
-                    fileName = $"{Path.GetExtension(postedFile.FileName)}";
-                    uploadedKey = _s3Service.UploadFile(postedFile, fileName);
-                    if (!string.IsNullOrEmpty(uploadedKey))
+                    if (postedFile != null && postedFile.Length > 0)
                     {
-                        _s3Service.DeleteFile(keyToDelete);
-                        objModel.IconImage = uploadedKey;
+                        uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
+                        if (!string.IsNullOrEmpty(uploadedKey))
+                        {
+                            if (keyToDelete != null)
+                            {
+                                _s3Service.DeleteFile(keyToDelete);
+                            }
+                            objModel.IconImage = uploadedKey;
+                        }
                     }
-                }
 
+                }
             }
-            objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            else
+            {
+                string fileWithQuery = objModel.IconImage.Substring(objModel.IconImage.LastIndexOf('/') + 1);
+                objModel.IconImage = fileWithQuery.Split('?')[0];
+            }
+                objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             objModel.CreatedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
 
             var data = _businessLayer.SendPostAPIRequest(objModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var result = JsonConvert.DeserializeObject<Result>(data);
-
-          
-
-
+            var result = JsonConvert.DeserializeObject<Result>(data);         
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
             TempData[HRMS.Models.Common.Constants.toastMessage] = "Whats happening  created successfully.";
             return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);

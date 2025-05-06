@@ -128,9 +128,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 return View(AttendenceListModel);
             }
-
-
-
         }
 
         [HttpGet]

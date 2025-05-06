@@ -48,7 +48,7 @@
                         <div class="col-md-4">  
 @*                             <img id="previewImage" src="@Url.Action("ViewImage", "Company", new { key = @CompanyLogo })" alt="Company Logo" style="width:100px; height:100px" />
  *@                           
- <img id="previewImage" src="@ViewBag.CompanyLogoUrl" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
+ <img id="previewImage" src="@CompanyLogo" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
                         </div>
                         <div class="col-md-8">
                             <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />

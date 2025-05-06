@@ -37,8 +37,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
-
-
         [HttpPost]
         [AllowAnonymous]
         public JsonResult TemplateListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
@@ -47,8 +45,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
             Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            results.Template.ForEach(x => x.HeaderImage = _s3Service.GetFileUrl(x.HeaderImage));
-            results.Template.ForEach(x => x.FooterImage = _s3Service.GetFileUrl(x.FooterImage));
+            results.Template.ForEach(x =>
+            {
+                x.HeaderImage = string.IsNullOrEmpty(x.HeaderImage)
+                    ? "/assets/img/No_image.png" 
+                    : _s3Service.GetFileUrl(x.HeaderImage);
+                x.FooterImage = string.IsNullOrEmpty(x.FooterImage)
+                    ? "/assets/img/No_image.png"
+                    : _s3Service.GetFileUrl(x.FooterImage);
+            });
             return Json(new { data = results.Template });
         }
         public IActionResult Index(string id)
@@ -62,8 +67,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
             }
-            ViewBag.HeaderImageUrl = _s3Service.GetFileUrl(Template.HeaderImage);
-            ViewBag.FooterImageUrl = _s3Service.GetFileUrl(Template.FooterImage);
+            Template.HeaderImage = _s3Service.GetFileUrl(Template.HeaderImage);
+            Template.FooterImage = _s3Service.GetFileUrl(Template.FooterImage);
             return View(Template);
         }
 
@@ -77,28 +82,41 @@ namespace HRMS.Web.Areas.Admin.Controllers
             string uploadedFooterKey = string.Empty;
             if (HeaderImageFile != null && HeaderImageFile.Length > 0)
             {
-                string fileName = $"{Path.GetExtension(HeaderImageFile.FileName)}";
-                uploadedHeaderKey = _s3Service.UploadFile(HeaderImageFile, fileName);
+                uploadedHeaderKey = _s3Service.UploadFile(HeaderImageFile, HeaderImageFile.FileName);
                 if (!string.IsNullOrEmpty(uploadedHeaderKey))
                 {
-                    if (headerKeyToDelete != null) {
+                    if (headerKeyToDelete != null)
+                    {
                         _s3Service.DeleteFile(headerKeyToDelete);
-                        template.HeaderImage = uploadedHeaderKey;
+
                     }
+                    template.HeaderImage = uploadedHeaderKey;
                 }
-            } 
+            }
+            else
+            {
+                string fileWithQuery = template.HeaderImage.Substring(template.HeaderImage.LastIndexOf('/') + 1);
+                template.HeaderImage = fileWithQuery.Split('?')[0];
+            }
             if (FooterImageFile != null && FooterImageFile.Length > 0)
             {
                 string fileName = $"{Path.GetExtension(FooterImageFile.FileName)}";
                 uploadedFooterKey = _s3Service.UploadFile(FooterImageFile, fileName);
                 if (!string.IsNullOrEmpty(uploadedFooterKey))
                 {
-                    if (footerKeyToDelete != null) {
+                    if (footerKeyToDelete != null)
+                    {
                         _s3Service.DeleteFile(footerKeyToDelete);
-                        template.FooterImage = uploadedFooterKey;
+
                     }
+                    template.FooterImage = uploadedFooterKey;
                 }
-            }       
+            }
+            else
+            {
+                string fileWithQuery = template.FooterImage.Substring(template.FooterImage.LastIndexOf('/') + 1);
+                template.FooterImage = fileWithQuery.Split('?')[0];
+            }
             var data = _businessLayer.SendPostAPIRequest(template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.AddUpdateTemplate), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);                                     
             if (template.TemplateID > 0)

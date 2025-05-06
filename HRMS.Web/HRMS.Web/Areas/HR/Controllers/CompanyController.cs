@@ -64,7 +64,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 				var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 				model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyModel;
 			}
-            ViewBag.CompanyLogoUrl = _s3Service.GetFileUrl(model.CompanyLogo);
+            model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
             HRMS.Models.Common.Results results = GetAllResults(Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)));
 			model.Countries = results.Countries;
 			model.Currencies = results.Currencies;		
@@ -81,20 +81,29 @@ namespace HRMS.Web.Areas.HR.Controllers
 				model.Countries = results.Countries;
 				model.Currencies = results.Currencies;
                 string keyToDelete =model.CompanyLogo;
-                
-                string uploadedKey = string.Empty;
-				foreach (IFormFile postedFile in postedFiles)
+
+				string uploadedKey = string.Empty;
+                if (postedFiles != null && postedFiles.Count > 0)
 				{
-					if (postedFile != null && postedFile.Length > 0)
-					{
-						string fileName = $"{Path.GetExtension(postedFile.FileName)}";
-						uploadedKey = _s3Service.UploadFile(postedFile, fileName);
-						if (!string.IsNullOrEmpty(uploadedKey))
+					
+					foreach (IFormFile postedFile in postedFiles)
+					{						
+							uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
+							if (!string.IsNullOrEmpty(uploadedKey))
 						{
-							_s3Service.DeleteFile(keyToDelete);
-							model.CompanyLogo = uploadedKey;
-						}
+							if (keyToDelete != null)
+							{
+								_s3Service.DeleteFile(keyToDelete);
+
+							}
+                            model.CompanyLogo = uploadedKey;
+                        }
 					}
+				}
+				else
+				{
+					string fileWithQuery = model.CompanyLogo.Substring(model.CompanyLogo.LastIndexOf('/') + 1);
+					model.CompanyLogo = fileWithQuery.Split('?')[0];
 
 				}
                 var CompanyLogo = _s3Service.GetFileUrl(uploadedKey);
