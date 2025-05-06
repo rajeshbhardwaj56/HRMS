@@ -12,6 +12,7 @@ namespace HRMS.Models.ImportFromExcel
     public class ImportEmployeeDetail
     {
         public long? EmployeeID { get; set; }
+        public string? InsertedBy { get; set; }
         public string? EmployeeNumber { get; set; }
         public string? CompanyName { get; set; }
         public string? FirstName { get; set; }
@@ -55,7 +56,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? ContactPersonTelephone { get; set; }
         public string? ContactPersonRelationship { get; set; }
         public string? ITSkillsKnowledge { get; set; }
-        public string? JoiningDate { get; set; }
+        public string? JoiningDate { get; set; } 
         public string? DesignationName { get; set; }
         public string? EmployeeType { get; set; }
         public string? DepartmentName { get; set; }
@@ -131,7 +132,7 @@ namespace HRMS.Models.ImportFromExcel
         public long ReferenceDetailID { get; set; }
         public string Name { get; set; } = string.Empty;
         [Display(Name = "Phone")]
-        [DataType(DataType.PhoneNumber)]
+        [DataType(DataType.PhoneNumber)]    
         public string Contact { get; set; } = string.Empty;
         public string OrgnizationName { get; set; } = string.Empty;
         public string RelationWithCandidate { get; set; } = string.Empty;

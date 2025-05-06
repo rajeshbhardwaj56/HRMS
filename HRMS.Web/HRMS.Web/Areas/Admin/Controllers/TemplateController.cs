@@ -54,6 +54,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     ? "/assets/img/No_image.png"
                     : _s3Service.GetFileUrl(x.FooterImage);
             });
+            results.Template.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.TemplateID.ToString()));
+
             return Json(new { data = results.Template });
         }
         public IActionResult Index(string id)
@@ -63,6 +65,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(id))
             {
+                id = _businessLayer.DecodeStringBase64(id);
                 Template.TemplateID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
@@ -121,8 +124,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);                                     
             if (template.TemplateID > 0)
             {
-                return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.Template, new { id = template.TemplateID.ToString() }
-             );
+                return RedirectToActionPermanent(WebControllarsConstants.TemplateListing, WebControllarsConstants.Template);
             }
             else
             {
@@ -179,6 +181,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(id))
             {
+                id = _businessLayer.DecodeStringBase64(id);
                 Template.TemplateID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(Template, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;

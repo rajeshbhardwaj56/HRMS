@@ -4,19 +4,13 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Holiday";
-}
+}<div class="main-header anim" style="--delay: 0s">  Holiday Details</div>
 <form method="post" id="submitForm" enctype="multipart/form-data">
-    <div class="Container">
 
-        <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label class="form-label">Holiday Details </label>
-        </div>
-        <div class="row">
-            &nbsp;
-        </div>
-        <div class="row">
+    <div class="group-box anim" style="--delay: .3s">
+        <div class="Container">
              <div class="row">
-                  <div class="col-md-4">
+                <div class="col-md-4 form-group">
                     <div class="col-md-12">
                         From Date<label class="Mandetory">*</label>
                     </div>
@@ -24,7 +18,7 @@
                         @Html.TextBoxFor(a => a.FromDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 form-group">
                     <div class="col-md-12">
                         To Date<label class="Mandetory">*</label>
                     </div>
@@ -32,12 +26,8 @@
                         @Html.TextBoxFor(a => a.ToDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
                     </div>
                 </div>
-            </div>
-            <div class="row">
-            &nbsp;
-           </div>
-            <div class="row">
-                <div class="col-md-4">
+           
+                <div class="col-md-4 form-group">
                     <div class="col-md-12">
                         Holiday Name <label class="Mandetory">*</label>
                     </div>
@@ -47,7 +37,7 @@
 
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 form-group">
                     <div class="col-md-12">
                         Description<label class="Mandetory">*</label>
                     </div>
@@ -56,28 +46,26 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 form-group">
                     <div class="col-md-12">
-                        Status<label class="Mandetory">*</label>
+                        Status<label></label>
                     </div>
                     <div class="col-md-12">
-                        @Html.CheckBoxFor(a => a.Status, new {  @required = "required" })
+                        @Html.CheckBoxFor(a => a.Status)
                     </div>
                 </div>
             </div>
-            <div class="row">
-                &nbsp;
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <input style="float:right" id="submitBtn" type="submit" value="Submit" class="btn btn-success" />
-                    <input id="cancelButton" style="float:right; margin-right:10px;" type="button" value="Cancel" class="btn btn-success" />
-                </div>
-
-            </div>
+            
+          
 
         </div>
+   </div>
+    <div class="row">
+        <div class="col-md-12">
+            <input   id="submitBtn" type="submit" value="Submit" class="btn btn-success" />
+            <input id="cancelButton" style=" margin-right:10px;" type="button" value="Cancel" class="btn btn-danger" />
+        </div>
+
     </div>
 </form>
 

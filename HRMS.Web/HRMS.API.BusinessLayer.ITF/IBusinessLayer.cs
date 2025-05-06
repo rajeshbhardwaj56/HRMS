@@ -12,7 +12,6 @@ using HRMS.Models.ShiftType;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.WhatsHappeningModel;
-using System.Data;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -29,6 +28,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParams model);
         public Results GetAllActiveEmployees(EmployeeInputParams model);
+
+
         public Result AddUpdateTemplate(TemplateModel model);
         public Results GetAllTemplates(TemplateInputParams model);
         public Result AddUpdateCompany(CompanyModel model);

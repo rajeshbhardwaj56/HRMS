@@ -513,7 +513,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = $"File not aded and processed successfully"
+                    message = $"File not added and processed successfully"
                 });
             }
         }

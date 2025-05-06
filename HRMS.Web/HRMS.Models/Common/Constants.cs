@@ -83,7 +83,6 @@ namespace HRMS.Models.Common
         public const string Manager2Email = "Manager2Email";
         public const string Whatshappening = "Uploads/Whatshappening/";
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
-
     }
     public class RoleConstants
     {
@@ -119,7 +118,6 @@ namespace HRMS.Models.Common
         public const string ShiftType = "ShiftType";
        
 
-
     }
 
     public class WebControllarsConstants
@@ -147,7 +145,6 @@ namespace HRMS.Models.Common
         public const string MyAttendanceList = "MyAttendanceList";
         public const string MyAttendance = "MyAttendance";
         public const string WhatshappeningListing = "WhatshappeningListing";
-
     }
 
     public class APIApiActionConstants
@@ -192,8 +189,6 @@ namespace HRMS.Models.Common
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string GetFilterEmploymentDetailsByEmployee = "GetFilterEmploymentDetailsByEmployee";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
-
-
         public const string GetEmploymentBankDetails = "GetEmploymentBankDetails";
         public const string AddUpdateEmploymentBankDetails = "AddUpdateEmploymentBankDetails";
         public const string GetEmploymentSeparationDetails = "GetEmploymentSeparationDetails";
