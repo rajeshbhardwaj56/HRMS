@@ -487,17 +487,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     await file.CopyToAsync(stream);
                     stream.Position = 0;
                     string htmlTable = ProcessExcelFile(stream, file.FileName);
-                    //if (!string.IsNullOrEmpty(htmlTable))
-                    //{
-                    //    return Json(new
-                    //    {
-                    //        success = false,
-                    //        hasErrors = true,
-                    //        message = "Some rows contain errors.",
-                    //        errorTable = htmlTable
-                    //    });
-                    //}
-                    if (htmlTable.Contains("Error while importing employee"))
+
+                     if (!string.IsNullOrEmpty(htmlTable) && !htmlTable.Contains("Employee data imported successfully."))
                     {
                         return Json(new
                         {
@@ -512,7 +503,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         return Json(new
                         {
                             success = true,
-                            message = $"File uploaded and processed successfully."
+                            message = htmlTable
                         });
                     }
                 }
@@ -585,7 +576,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 long LeavePolicyId = 0;
                 long GenderId = 0;
                 HashSet<string> uniqueEmployeeNumber = new HashSet<string>();
-                HashSet<string> uniqueOfficialEmails = new HashSet<string>();
+                //HashSet<string> uniqueOfficialEmails = new HashSet<string>();
                 for (int row = 2; row <= totalRows; row++)
                 {
                     if (IsRowEmpty(worksheet, row))
@@ -668,26 +659,26 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-                                case "OfficialEmailID":
-                                    if (!string.IsNullOrWhiteSpace(cellValue))
-                                    {
-                                        if (!uniqueOfficialEmails.Add(cellValue))
-                                        {
-                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Duplicate OfficialEmailID '{cellValue}' found.");
-                                            hasError = true;
-                                        }
-                                        else
-                                        {
-                                            uniqueOfficialEmails.Add(cellValue);
-                                            prop.SetValue(item, cellValue);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: OfficialEmailID is mandatory.");
-                                        hasError = true;
-                                    }
-                                    break;
+                                //case "OfficialEmailID":
+                                //    if (!string.IsNullOrWhiteSpace(cellValue))
+                                //    {
+                                //        if (!uniqueOfficialEmails.Add(cellValue))
+                                //        {
+                                //            AddErrorRow(errorDataTable, columnName, $"Row {row}: Duplicate OfficialEmailID '{cellValue}' found.");
+                                //            hasError = true;
+                                //        }
+                                //        else
+                                //        {
+                                //            uniqueOfficialEmails.Add(cellValue);
+                                //            prop.SetValue(item, cellValue);
+                                //        }
+                                //    }
+                                //    else
+                                //    {
+                                //        AddErrorRow(errorDataTable, columnName, $"Row {row}: OfficialEmailID is mandatory.");
+                                //        hasError = true;
+                                //    }
+                                //    break;
                                 case "FirstName":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {

@@ -107,9 +107,18 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employee.EmployeeID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
-                employee.ProfilePhoto = _s3Service.GetFileUrl(employee.ProfilePhoto);
-                employee.AadhaarCardImage = _s3Service.GetFileUrl(employee.AadhaarCardImage);
-                employee.PanCardImage = _s3Service.GetFileUrl(employee.PanCardImage);
+                if (!string.IsNullOrEmpty(employee.ProfilePhoto))
+                {
+                    employee.ProfilePhoto = _s3Service.GetFileUrl(employee.ProfilePhoto);
+                }
+                if (!string.IsNullOrEmpty(employee.AadhaarCardImage))
+                {
+                    employee.AadhaarCardImage = _s3Service.GetFileUrl(employee.AadhaarCardImage);
+                }
+                if (!string.IsNullOrEmpty(employee.PanCardImage))
+                {
+                    employee.PanCardImage = _s3Service.GetFileUrl(employee.PanCardImage);
+                }
 
                 if (employee.References == null || employee.References.Count == 0)
                 {
@@ -136,112 +145,118 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpPost]
         public IActionResult Index(EmployeeModel employee, List<IFormFile> postedFiles, List<IFormFile> PanPostedFile, List<IFormFile> AadhaarPostedFile)
         {
-            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
-            HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
+            string s3UploadUrl = _configuration["AWS:S3UploadUrl"];
+            var results = GetAllResults(employee.CompanyID);
+
             try
             {
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
-                    string uploadedKey = string.Empty;
-                    string profileUploadedKey = string.Empty;
-                    string profileKeyToDelete = employee.ProfilePhoto;
-                    string panKeyToDelete = employee.PanCardImage;
-                    string aadhaarKeyToDelete = employee.AadhaarCardImage;
-                    if (postedFiles != null && postedFiles.Count > 0)
-                    {
-                        foreach (IFormFile postedFile in postedFiles)
-                        {
-                            if (postedFile != null && postedFile.Length > 0)
-                            {
-
-                                profileUploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
-                                if (!string.IsNullOrEmpty(profileUploadedKey))
-                                {
-                                    if (profileKeyToDelete != null)
-                                    {
-                                        _s3Service.DeleteFile(profileKeyToDelete);
-                                    }
-                                    employee.ProfilePhoto = profileUploadedKey;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        string fileWithQuery = employee.ProfilePhoto.Substring(employee.ProfilePhoto.LastIndexOf('/') + 1);
-                        employee.ProfilePhoto = fileWithQuery.Split('?')[0];
-
-                    }
-                    if (PanPostedFile != null && PanPostedFile.Count > 0)
-                    {
-                        foreach (IFormFile postedFile in PanPostedFile)
-                        {
-                          
-                                uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
-                                if (!string.IsNullOrEmpty(uploadedKey))
-                                {
-                                    if (panKeyToDelete != null)
-                                    {
-                                        _s3Service.DeleteFile(panKeyToDelete);
-                                    }
-                                    employee.PanCardImage = uploadedKey;
-                                }
-                            
-                        }
-                    }
-                    else
-                    {
-                        string fileWithQuery = employee.PanCardImage.Substring(employee.PanCardImage.LastIndexOf('/') + 1);
-                        employee.PanCardImage = fileWithQuery.Split('?')[0];
-
-                    }
-                    if (AadhaarPostedFile != null && AadhaarPostedFile.Count > 0)
-                    {
-                        foreach (IFormFile postedFile in AadhaarPostedFile)
-                        {
-
-                            if (postedFile != null && postedFile.Length > 0)
-                            {
-                                uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
-                                if (!string.IsNullOrEmpty(uploadedKey))
-                                {
-                                    if (aadhaarKeyToDelete != null)
-                                    {
-                                        _s3Service.DeleteFile(aadhaarKeyToDelete);
-                                    }
-                                    employee.AadhaarCardImage = uploadedKey;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        string fileWithQuery = employee.AadhaarCardImage.Substring(employee.AadhaarCardImage.LastIndexOf('/') + 1);
-                        employee.AadhaarCardImage = fileWithQuery.Split('?')[0];
-
-                    }
-                    //var ProfilePhoto = _s3Service.GetFileUrl(profileUploadedKey);
-                    //_context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
-                    var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee),
-                        HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                    var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
-                    if (result != null && result.PKNo > 0)
-                    {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
-
-                        return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee);
-                    }
+                    SetWarningToast("Please check all data and try again.");
+                    return ReturnEmployeeViewWithData(employee, results);
                 }
 
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "Please check all data and try again.";
+                ProcessFileUpload(postedFiles, employee.ProfilePhoto, out string newProfileKey);
+                if (!string.IsNullOrEmpty(newProfileKey))
+                {
+                    if (!string.IsNullOrEmpty(employee.ProfilePhoto))
+                    {
+                        _s3Service.DeleteFile(employee.ProfilePhoto);
+                    }
+                    employee.ProfilePhoto = newProfileKey;
+                }
+                else
+                {
+                    employee.ProfilePhoto = ExtractKeyFromUrl(employee.ProfilePhoto);
+                }
+
+                ProcessFileUpload(PanPostedFile, employee.PanCardImage, out string newPanKey);
+                if (!string.IsNullOrEmpty(newPanKey))
+                {
+                    if (!string.IsNullOrEmpty(employee.PanCardImage))
+                    {
+                        _s3Service.DeleteFile(employee.PanCardImage);
+                    }
+                    employee.PanCardImage = newPanKey;
+                }
+                else
+                {
+                    employee.PanCardImage = ExtractKeyFromUrl(employee.PanCardImage);
+                }
+
+                ProcessFileUpload(AadhaarPostedFile, employee.AadhaarCardImage, out string newAadhaarKey);
+                if (!string.IsNullOrEmpty(newAadhaarKey))
+                {
+                    if (!string.IsNullOrEmpty(employee.AadhaarCardImage))
+                    {
+                        _s3Service.DeleteFile(employee.AadhaarCardImage);
+                    }
+                    employee.AadhaarCardImage = newAadhaarKey;
+                }
+                else
+                {
+                    employee.AadhaarCardImage = ExtractKeyFromUrl(employee.AadhaarCardImage);
+                }
+
+                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee);
+                var apiResult = _businessLayer.SendPostAPIRequest(employee, apiUrl, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(apiResult);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    SetSuccessToast("Data saved successfully.");
+                    return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee);
+                }
+
+                SetWarningToast("Please check all data and try again.");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try later.";
+                SetWarningToast("Some error occurred, please try later.");
             }
+
+            return ReturnEmployeeViewWithData(employee, results);
+        }
+
+        private void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey)
+        {
+            uploadedKey = string.Empty;
+
+            if (files != null && files.Count > 0)
+            {
+                foreach (var file in files)
+                {
+                    if (file?.Length > 0)
+                    {
+                        uploadedKey = _s3Service.UploadFile(file, file.FileName);
+                        if (!string.IsNullOrEmpty(uploadedKey)) break;
+                    }
+                }
+            }
+        }
+
+        private string ExtractKeyFromUrl(string fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl)) return string.Empty;
+
+            var fileName = fileUrl.Substring(fileUrl.LastIndexOf('/') + 1);
+            return fileName.Split('?')[0];
+        }
+
+        private void SetSuccessToast(string message)
+        {
+            TempData[Constants.toastType] = Constants.toastTypeSuccess;
+            TempData[Constants.toastMessage] = message;
+        }
+
+        private void SetWarningToast(string message)
+        {
+            TempData[Constants.toastType] = Constants.toastTypetWarning;
+            TempData[Constants.toastMessage] = message;
+        }
+
+        private IActionResult ReturnEmployeeViewWithData(EmployeeModel employee, HRMS.Models.Common.Results results)
+        {
             employee.Languages = results.Languages;
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
@@ -249,7 +264,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             return View(employee);
         }
-
 
 
 
