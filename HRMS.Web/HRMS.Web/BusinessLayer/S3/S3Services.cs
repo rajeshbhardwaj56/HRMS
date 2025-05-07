@@ -8,8 +8,9 @@ namespace HRMS.Web.BusinessLayer.S3
     {
         string UploadFile(IFormFile file, string bucketFolder);
         bool DeleteFile(string key);
-        Stream DownloadFile(string key);
         string GetFileUrl(string key);
+        string ExtractKeyFromUrl(string fileUrl);
+        void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey);
     }
 
     public class S3Service : IS3Service
@@ -52,7 +53,6 @@ namespace HRMS.Web.BusinessLayer.S3
                 return uniqueFileName;
             }
         }
-
         public bool DeleteFile(string key)
         {
             var deleteRequest = new DeleteObjectRequest
@@ -64,17 +64,6 @@ namespace HRMS.Web.BusinessLayer.S3
             var response = _s3Client.DeleteObjectAsync(deleteRequest).GetAwaiter().GetResult();
 
             return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent;
-        }
-
-        public Stream DownloadFile(string key)
-        {
-            var request = new GetObjectRequest
-            {
-                BucketName = _bucketName,
-                Key = key
-            };
-            var response = _s3Client.GetObjectAsync(request).GetAwaiter().GetResult();
-            return response.ResponseStream;
         }
         public string GetFileUrl(string key)
         {
@@ -88,6 +77,28 @@ namespace HRMS.Web.BusinessLayer.S3
             string url = _s3Client.GetPreSignedURL(request);
             return url;
         }
+        public string ExtractKeyFromUrl(string fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl)) return string.Empty;
 
+            var fileName = fileUrl.Substring(fileUrl.LastIndexOf('/') + 1);
+            return fileName.Split('?')[0];
+        }
+        public void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey)
+        {
+            uploadedKey = string.Empty;
+
+            if (files != null && files.Count > 0)
+            {
+                foreach (var file in files)
+                {
+                    if (file?.Length > 0)
+                    {
+                        uploadedKey = UploadFile(file, file.FileName);
+                        if (!string.IsNullOrEmpty(uploadedKey)) break;
+                    }
+                }
+            }
+        }
     }
 }

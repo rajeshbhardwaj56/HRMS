@@ -304,7 +304,8 @@
     function ApprovalAttendanceAutoReload() {
         let tableId = '#tblAttendanceForApproval';
         let url = '@(_configuration["AppSettings:RootUrl"])Employee/AttendenceList/GetApprovedAttendance/';
-        let attendanceStatus = $("input[name='attendanceStatus']:checked").val();
+        debugger;
+    let attendanceStatus = 2;
         let params = new URLSearchParams();
         params.append('attendanceStatus', attendanceStatus);
 

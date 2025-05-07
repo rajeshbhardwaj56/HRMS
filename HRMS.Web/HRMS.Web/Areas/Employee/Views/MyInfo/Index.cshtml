@@ -738,11 +738,11 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="col-lg-6 col-md-12">
+                                                                          @*   <div class="col-lg-6 col-md-12">
                                                                                 <label>Upload Certificate:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group ">
-                                                                                        @* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
+                                                                                         //<img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  
 
                                                                                         <input type="file" name="postedFiles" class="form-control body-text" />
                                                                                         @if (Model.leaveResults.leaveSummaryModel.UploadCertificate != null  && Model.leaveResults.leaveSummaryModel.UploadCertificate != "")
@@ -750,6 +750,20 @@
                                                                                             <p> <i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></p>
                                                                                         }
 
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div> *@
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label>Upload Certificate:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group">
+                                                                                       
+                                                                                        <img id="UploadCertificatePreviewImage"
+                                                                                             src="@Html.Raw(Model.leaveResults.leaveSummaryModel.UploadCertificate)"
+                                                                                             onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                                                                             style="width:100px; height:100px; display:none;" />                                                                              
+                                                                                        <iframe id="UploadCertificatePreviewPDF" style="width:100px; height:100px; display:none;" frameborder="0"></iframe>                                                                                     
+                                                                                        <input type="file" name="postedFiles" class="form-control body-text" accept="image/*,application/pdf" onchange="UploadCertificatePreview(event)" />
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1173,6 +1187,52 @@
 <input type="hidden" id="leaveSummaryID" value="" />
 <script type="text/javascript">
     var leaveSummaryID;
+     function UploadCertificatePreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const previewImage = document.getElementById('UploadCertificatePreviewImage');
+            const previewPDF = document.getElementById('UploadCertificatePreviewPDF');
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const result = e.target.result;
+
+                if (file.type.startsWith('image/')) {
+                    previewImage.src = result;
+                    previewImage.style.display = 'block';
+                    previewPDF.style.display = 'none';
+                } else if (file.type === 'application/pdf') {
+                    previewPDF.src = result;
+                    previewPDF.style.display = 'block';
+                    previewImage.style.display = 'none';
+                } else {
+                    alert('Unsupported file type. Please upload an image or PDF.');
+                    previewImage.style.display = 'none';
+                    previewPDF.style.display = 'none';
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+    window.onload = function () {
+        const certPath = '@Html.Raw(Model.leaveResults.leaveSummaryModel.UploadCertificate)';
+        const certFilePath = certPath.toLowerCase();
+        const certImg = document.getElementById('UploadCertificatePreviewImage');
+        const certPdf = document.getElementById('UploadCertificatePreviewPDF');
+
+        if (certFilePath.includes('.pdf')) {
+            certPdf.src = certPath;
+            certPdf.style.display = 'block';
+            certImg.style.display = 'none';
+        } else if (certPath) {
+            certImg.src = certPath;
+            certImg.style.display = 'block';
+            certPdf.style.display = 'none';
+        }
+    };
+
+
     function ApproveRejectLeave(isApproved) {
         let actionText = isApproved ? "approve" : "reject";
         if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
@@ -1257,20 +1317,16 @@
                 } else {
                     console.warn("Employee details not found in response.");
                 }
-
                 let leavesSummary = response.leaveResults?.leavesSummary || [];
                 $("#adminleaveTypeDropdown").css("display", "none");
                 $("#adminChildDOBDateContainer").css("display", "none");
                 $("#adminexpectedDeliveryDateContainer").css("display", "none");
-
                 if (Array.isArray(leavesSummary)) {
                     let leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
                     console.log(leaveSummary);
                     if (leaveSummary) {
                         $("#showalert").text('');
                         $("#showDocumentalert").text('');
-
-
                         $('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
                         if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)|| leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
 
@@ -1309,7 +1365,7 @@
                             $('#downloaddocument').html('');
                             if (leaveSummary.uploadCertificate != "") {
                                 $("#downloaddocument").css("display", "block");
-                                var filedata = "/uploads/uploadCertificate/0/" + leaveSummary.uploadCertificate;
+                                var filedata =leaveSummary.uploadCertificate;
                                 $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
                             }
                         }
@@ -1364,7 +1420,7 @@
                             if (leaveSummary.uploadCertificate != "") {
                                 $("#downloaddocument").css("display", "block");
                                 $("#LabelUploadCertificate").css("display", "block");
-                                var filedata = "/uploads/uploadCertificate/0/" + leaveSummary.uploadCertificate;
+                                var filedata = leaveSummary.uploadCertificate;
                                 $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
                             }
                         }
@@ -1401,8 +1457,6 @@
                                     $("#showDocumentalert").text(`Document required for paternity leave`);
                                 }
                             }
-
-
                             $("#adminfullDayContainer").css("display", "flex");
                             $("#admintodatetime").css("display", "block");
                             $("#adminChildDOBDateContainer").css("display", "block");
@@ -1416,7 +1470,7 @@
                             $('#adminReason').val(leaveSummary.reason);
                             if (leaveSummary.uploadCertificate != "") {
                                 $("#downloaddocument").css("display", "block");
-                                var filedata = "/uploads/uploadCertificate/0/" + leaveSummary.uploadCertificate;
+                                var filedata =leaveSummary.uploadCertificate;
                                 $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
                             }
                         }
@@ -1427,11 +1481,6 @@
                 } else {
                     $('#responseMessage').text('Error: Leave Summary data not found.');
                 }
-
-
-
-
-
             },
             error: function (xhr, status, error) {
                 $('#responseMessage').text('Error: ' + xhr.responseText);
@@ -1935,6 +1984,37 @@
 
 
 <script>
+    function PanPostedFilePreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const previewImage = document.getElementById('PanpreviewImage');
+            const pdfPreview = document.getElementById('PanpreviewPDF');
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const result = e.target.result;
+
+                if (file.type.startsWith('image/')) {
+                    previewImage.src = result;
+                    previewImage.style.display = 'block';
+                    pdfPreview.style.display = 'none';
+                } else if (file.type === 'application/pdf') {
+                    pdfPreview.src = result;
+                    pdfPreview.style.display = 'block';
+                    previewImage.style.display = 'none';
+                } else {
+                    alert('Unsupported file type. Please upload an image or a PDF.');
+                    previewImage.style.display = 'none';
+                    pdfPreview.style.display = 'none';
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+  
+
+
     document.addEventListener("DOMContentLoaded", function () {
         // Define Standard User Elements
         var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
@@ -1947,7 +2027,6 @@
         var fromdatetime = document.getElementById("fromdatetime");
         var ChildDOBDateContainer = document.getElementById("ChildDOBDateContainer");
         var expectedDeliveryDateContainer = document.getElementById("expectedDeliveryDateContainer");
-
         // Placeholder values
         var fullDayValue = "1";
         var halfDayValue = "2";
@@ -2020,6 +2099,8 @@
             var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
             expectedDeliveryDateContainer.style.display = selectedLeaveType === 'Maternity Leave' ? "block" : "none";
         }
+
+
 
         function toggleLeaveDurationVisibility() {
             var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;

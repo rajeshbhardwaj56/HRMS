@@ -14,23 +14,23 @@ using HRMS.Web.BusinessLayer.S3;
 namespace HRMS.Web.Areas.HR.Controllers
 {
 	[Area(Constants.ManageHR)]
-	 [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+	[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
 	public class CompanyController : Controller
 	{
 		IConfiguration _configuration;
 		IBusinessLayer _businessLayer;
-        private readonly IS3Service _s3Service;
-        private IHostingEnvironment Environment;
-        private readonly IHttpContextAccessor _context;
-        public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+		private readonly IS3Service _s3Service;
+		private IHostingEnvironment Environment;
+		private readonly IHttpContextAccessor _context;
+		public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
 		{
 			Environment = _environment;
 			_configuration = configuration;
 			_businessLayer = businessLayer;
 			_context = context;
-            _s3Service = s3Service;
+			_s3Service = s3Service;
 
-        }
+		}
 
 		public IActionResult CompanyListing()
 		{
@@ -64,59 +64,50 @@ namespace HRMS.Web.Areas.HR.Controllers
 				var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 				model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyModel;
 			}
-            model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
-            HRMS.Models.Common.Results results = GetAllResults(Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)));
+			if (!string.IsNullOrEmpty(model.CompanyLogo))
+			{
+				model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+			}
+			HRMS.Models.Common.Results results = GetAllResults(Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)));
 			model.Countries = results.Countries;
-			model.Currencies = results.Currencies;		
-            return View(model);
-		}     
-        [HttpPost]
+			model.Currencies = results.Currencies;
+			return View(model);
+		}
+		[HttpPost]
 		public IActionResult Index(CompanyModel model, List<IFormFile> postedFiles)
 		{
-            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
-            if (ModelState.IsValid)
+			string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
+			if (ModelState.IsValid)
 			{
-                model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-                HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
+				model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+				HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
 				model.Countries = results.Countries;
 				model.Currencies = results.Currencies;
-                string keyToDelete =model.CompanyLogo;
 
-				string uploadedKey = string.Empty;
-                if (postedFiles != null && postedFiles.Count > 0)
-				{
-					
-					foreach (IFormFile postedFile in postedFiles)
-					{						
-							uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
-							if (!string.IsNullOrEmpty(uploadedKey))
-						{
-							if (keyToDelete != null)
-							{
-								_s3Service.DeleteFile(keyToDelete);
-
-							}
-                            model.CompanyLogo = uploadedKey;
-                        }
-					}
-				}
-				else
-				{
-					string fileWithQuery = model.CompanyLogo.Substring(model.CompanyLogo.LastIndexOf('/') + 1);
-					model.CompanyLogo = fileWithQuery.Split('?')[0];
-
-				}
-                var CompanyLogo = _s3Service.GetFileUrl(uploadedKey);
-                _context.HttpContext.Session.SetString(Constants.CompanyLogo, "");
-                _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
-                var data = _businessLayer.SendPostAPIRequest(
-                    model,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.AddUpdateCompany),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true
-                ).Result.ToString();
-                var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);                           
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                _s3Service.ProcessFileUpload(postedFiles, model.CompanyLogo, out string newProfileKey);
+                if (!string.IsNullOrEmpty(newProfileKey))
+                {
+                    if (!string.IsNullOrEmpty(model.CompanyLogo))
+                    {
+                        _s3Service.DeleteFile(model.CompanyLogo);
+                    }
+                    model.CompanyLogo = newProfileKey;
+                }
+                else
+                {
+                    model.CompanyLogo = _s3Service.ExtractKeyFromUrl(model.CompanyLogo);
+                }               
+				var CompanyLogo = _s3Service.GetFileUrl(newProfileKey);
+				_context.HttpContext.Session.SetString(Constants.CompanyLogo, "");
+				_context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
+				var data = _businessLayer.SendPostAPIRequest(
+					model,
+					_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.AddUpdateCompany),
+					HttpContext.Session.GetString(Constants.SessionBearerToken),
+					true
+				).Result.ToString();
+				var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
+				TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
 				TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
 				return RedirectToActionPermanent(
 				   Constants.Index,
@@ -149,5 +140,5 @@ namespace HRMS.Web.Areas.HR.Controllers
 			result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
 			return result;
 		}
-	}
+    }
 }

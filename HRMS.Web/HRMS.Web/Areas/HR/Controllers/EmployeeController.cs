@@ -155,7 +155,6 @@ namespace HRMS.Web.Areas.HR.Controllers
                     SetWarningToast("Please check all data and try again.");
                     return ReturnEmployeeViewWithData(employee, results);
                 }
-
                 ProcessFileUpload(postedFiles, employee.ProfilePhoto, out string newProfileKey);
                 if (!string.IsNullOrEmpty(newProfileKey))
                 {

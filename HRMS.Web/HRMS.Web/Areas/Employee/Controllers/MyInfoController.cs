@@ -83,10 +83,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 Totaleavewithcarryforword = accruedLeaves;
             }
-
             ViewBag.TotalLeave = TotalApprove;
             ViewBag.TotalAnnualLeave = Totaleavewithcarryforword;
-
             ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
             return View(results);
 
@@ -103,6 +101,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
             model.GenderId = Convert.ToInt32(employeeDetails.Gender);
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetMyInfo), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<MyInfoResults>(data);
+            if (results?.leaveResults?.leavesSummary != null)
+            {
+                foreach (var leave in results.leaveResults.leavesSummary)
+                {
+                    if (!string.IsNullOrEmpty(leave.UploadCertificate))
+                    {
+                        leave.UploadCertificate = _s3Service.GetFileUrl(leave.UploadCertificate);
+                    }
+                }
+            }
             DateTime today = DateTime.Today;
             DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
             var leavePolicyModel = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
@@ -318,13 +326,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     //    obj.message = Message;
                     //    return Json(new { data = obj });
                     //}
-
-
-
-
-
-
-
                 }
 
 
@@ -364,7 +365,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(MyInfoResults model, List<IFormFile> postedFiles)
+        public IActionResult Index (MyInfoResults model, List<IFormFile> postedFiles)
         {
 
 
@@ -758,50 +759,23 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 //        return View();
                 //    }
                 //}
-                string keyToDelete = model.leaveResults.leaveSummaryModel.UploadCertificate;
-                string uploadedKey = string.Empty;
+                _s3Service.ProcessFileUpload(postedFiles, model.leaveResults.leaveSummaryModel.UploadCertificate, out string newCertificateKey);
 
-                if (postedFiles != null && postedFiles.Count > 0)
-                {
-                    foreach (IFormFile postedFile in postedFiles)
-                    {
-                        if (postedFile != null && postedFile.Length > 0)
-                        {
-                            uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName.Replace(" ", ""));
-                            if (!string.IsNullOrEmpty(uploadedKey))
-                            {
-                                if (keyToDelete != null)
-                                {
-                                    _s3Service.DeleteFile(keyToDelete);
-
-                                }
-                                model.leaveResults.leaveSummaryModel.UploadCertificate = uploadedKey;
-                            }
-                        }
-                    }
-                }
-                else
+                if (!string.IsNullOrEmpty(newCertificateKey))
                 {
                     if (!string.IsNullOrEmpty(model.leaveResults.leaveSummaryModel.UploadCertificate))
                     {
-                        string fileWithQuery = model.leaveResults.leaveSummaryModel.UploadCertificate.Substring(model.leaveResults.leaveSummaryModel.UploadCertificate.LastIndexOf('/') + 1);
-                        model.leaveResults.leaveSummaryModel.UploadCertificate = fileWithQuery.Split('?')[0];
+                        _s3Service.DeleteFile(model.leaveResults.leaveSummaryModel.UploadCertificate);
                     }
-                    else
-                    {
-                        model.leaveResults.leaveSummaryModel.UploadCertificate = "";
-                    }
+                    model.leaveResults.leaveSummaryModel.UploadCertificate = newCertificateKey;
+                }
+                else
+                {
+                    model.leaveResults.leaveSummaryModel.UploadCertificate = _s3Service.ExtractKeyFromUrl(model.leaveResults.leaveSummaryModel.UploadCertificate);
                 }
                 var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
-                var result = JsonConvert.DeserializeObject<Result>(data);
-
-              
-
-
-
-
-
+                var result = JsonConvert.DeserializeObject<Result>(data);         
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 var messageData = "Leave applied successfully.";
                 //return RedirectToActionPermanent(
