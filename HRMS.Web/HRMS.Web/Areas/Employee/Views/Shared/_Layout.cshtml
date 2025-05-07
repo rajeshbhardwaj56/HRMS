@@ -24,8 +24,7 @@
 
     <title>@ViewData["Title"] - HRMS.Web</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/HRMS.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -329,6 +328,19 @@
                 $('.sidebar').toggleClass('sidemenuShow')
             })
         })
+          document.addEventListener('DOMContentLoaded', function () {
+            const links = document.querySelectorAll('.nav-link');
+            const currentPath = window.location.pathname.toLowerCase();
+
+            links.forEach(link => {
+                const href = link.getAttribute('href')?.toLowerCase();
+                if (href && href === currentPath) {
+                    link.classList.add('is-active');
+                    // Optional: add active class to parent <li> too
+                    link.closest('.nav-list__item')?.classList.add('is-active');
+                }
+            });
+        });
     </script>
 
     <script>
