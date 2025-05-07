@@ -142,6 +142,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var employeeName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
             var employeeMiddleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName));
             var employeeLastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname));
+            var EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumber));
 
             // Concatenate full name
             var employeeFullName = string.Join(" ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
@@ -150,7 +151,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 Year = year,
                 Month = month,
-                UserId = employeeId,
+                UserId =Convert.ToInt64(EmployeeNumber),
             };
 
             var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -352,8 +353,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedAttendance),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedAttendance),HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
             var model = JsonConvert.DeserializeObject<MyAttendanceList>(data);

@@ -75,6 +75,7 @@ namespace HRMS.API.BusinessLayer
                                    Manager1Email = dataRow.Field<string>("Manager1Email"),
                                    Manager2Email = dataRow.Field<string>("Manager2Email"),
                                    Manager2Name = dataRow.Field<string>("Manager2Name"),
+                                   EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
                                    IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                }).ToList().FirstOrDefault();
             }
