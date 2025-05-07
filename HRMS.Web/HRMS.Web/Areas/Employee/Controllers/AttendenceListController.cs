@@ -334,6 +334,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
             return Json(new { data = model });
         }
+        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
+
         public IActionResult ApprovedAttendance()
         {
             return View();
@@ -380,6 +382,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(EmployeeAttendanceModel);
         }
 
+        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
 
         public IActionResult TeamAttendanceLogs()
         {
@@ -397,7 +400,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(new { data = model.AttendanceLogs });
         }
         [HttpPost]
-        [AllowAnonymous]
+        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
         public JsonResult GetTeamEmployeeList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)      
         {
             try

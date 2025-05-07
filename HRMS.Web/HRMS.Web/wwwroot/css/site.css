@@ -310,7 +310,10 @@ textarea.form-control {
 
 
 .sidebar-link:hover, .sidebar-link.is-active {
-    color: var(--secondry-color);
+    color: white;
+    background: #05397b;
+    font-weight: bold;
+    border-radius: 5px;
 }
 
 
@@ -375,7 +378,7 @@ textarea.form-control {
 
         .side-menu svg:hover, .sidebar-link:hover svg, .sidebar-link.is-active svg {
             color: var(--white-text-color);
-            background-color: var(--secondry-color);
+            /*background-color: var(--secondry-color);*/
         }
 
 
@@ -1580,7 +1583,7 @@ span.badge.holiday-list-text.bg-primary.rounded-pill {
     align-items: center;
 }
 .sidebar-link.active {
-    background-color: #026eb1;
+    background-color: #05397b;
     color: white;
     font-weight: bold;
     border-radius: 5px;

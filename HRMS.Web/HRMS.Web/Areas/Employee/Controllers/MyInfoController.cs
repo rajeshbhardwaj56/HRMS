@@ -988,6 +988,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View(leavePolicyModel);
         }
 
+        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
 
         public IActionResult GetTeamEmployeeList()
         {
@@ -1052,6 +1053,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View(Details);
         }
         [HttpGet]
+        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + ","  + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
         public IActionResult TeamAttendenceList()
         {
             var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
