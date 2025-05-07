@@ -54,6 +54,8 @@ namespace HRMS.Models.Employee
         public int RoleId { get; set; }
         public string EmployeNumber { get; set; } = string.Empty;
         public long CompanyID { get; set; } =0;
+
+       
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> PayrollTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
@@ -66,7 +68,6 @@ namespace HRMS.Models.Employee
         public List<SelectListItem> RoleList { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> ShiftTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> SubDepartments { get; set; } = new List<SelectListItem>();
-
 
     }
 

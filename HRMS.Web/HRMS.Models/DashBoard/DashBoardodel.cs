@@ -103,7 +103,7 @@ namespace HRMS.Models.DashBoard
 
         public string MiddelName { get; set; }
         public string LastName { get; set; }
-        public DateTime DOB { get; set; }
+        public DateTime? DOB { get; set; }
         public string EmployeePhoto { get; set; }
         public string? DesignationName { get; set; }
         public string? DepartmentName { get; set; }
@@ -111,6 +111,7 @@ namespace HRMS.Models.DashBoard
 
     public class WhatsHappening
     {    
+        public long? WhatsHappeningID { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public DateTime? FromDate { get; set; }

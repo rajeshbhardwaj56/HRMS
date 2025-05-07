@@ -71,8 +71,8 @@
                     // Actions Column
                     "data": null,
                     "render": function (data, type, row) {
-                        var linkEdit = '<a data-toggle="tooltip" data-placement="top" class="item" href="Index?id=' + row.templateID + '" title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                        var linkPreview = '<a href="#" class="preview-btn" data-id="' + row.templateID + '" title="Preview"><img src="/assets/img/preview.png" width="20" height="20" /></a>';
+                        var linkEdit = '<a data-toggle="tooltip" data-placement="top" class="item" href="Index?id=' + row.encodedId + '" title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+    var linkPreview = '<a href="#" class="preview-btn" data-id="' + row.encodedId + '" title="Preview"><img title="Approve" src="/assets/img/view.webp" width="27" height="27"margin-top=""margin-top="5px" /></a>';
                         return '<div class="table-data-feature">' + linkEdit + linkPreview + '</div>';
                     }
                 }

@@ -357,7 +357,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 employmentDetailInputParams.DesignationID = long.Parse(_businessLayer.DecodeStringBase64(DegtId));
-                employmentDetailInputParams.DepartmentID = long.Parse(_businessLayer.DecodeStringBase64(DeptId));
+              employmentDetailInputParams.DepartmentID = long.Parse(_businessLayer.DecodeStringBase64(DeptId));
                 employmentDetailInputParams.EmployeeID = long.Parse(id);
             }
             employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));

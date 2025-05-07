@@ -344,7 +344,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             AttendanceInputParams attendenceListParams = new AttendanceInputParams();           
             if (!Enum.IsDefined(typeof(AttendanceStatusId), attendanceStatus))
             {
-                attendanceStatus = (int)AttendanceStatusId.L1Approved;
+                attendanceStatus = (int)AttendanceStatusId.Pending;
             }
             attendenceListParams.AttendanceStatusId = attendanceStatus;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));

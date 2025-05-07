@@ -15,6 +15,7 @@
         IconImage = HRMS.Models.Common.Constants.NoImagePath;
     }
 }
+
 <div class="main-header anim" style="--delay: 0s">  Whats Happening</div>
 <form id="AddWhatshappeningForm" method="post" enctype="multipart/form-data">
 
@@ -26,16 +27,22 @@
                 <div class="col-md-6 form-group">
                     <label>Title <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.Title, new { @class = "form-control", @required = "required" })
-                </div>             
+                </div>
+
+                
                 <div class="col-md-3 form-group">
                     <label>FromDate <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.FromDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
-                </div>                
+                </div>
+                
+                
                 <div class="col-md-3 form-group">
                     <label>ToDate <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.ToDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
 
                 </div>
+
+
                 <div class="col-md-12 form-group">
                     <label>Description <span class="Mandetory">*</span></label>
                     @Html.TextAreaFor(a => a.Description, new { @class = "form-control", id = "editor", rows = "10", cols = "50" })
@@ -55,13 +62,14 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8"></div>
-            <div class="col-md-2">
+            <div class="col-md-8">
                 <input type="submit" value="Submit" class="btn btn-success" />
-            </div>
-            <div class="col-md-2">
                 <input id="cancelButton" type="button" value="Cancel" class="btn btn-danger" />
             </div>
+            <div class="col-md-2">
+
+            </div>
+           
         </div>
     </div>
 </form>
@@ -69,7 +77,7 @@
 
 <script>
     document.getElementById('cancelButton').addEventListener('click', function () {
-        window.location.href = '@Url.Action("LeavePolicyDetailsListing", "LeavePolicy")';
+        window.location.href = '@Url.Action("WhatshappeningListing", "LeavePolicy")';
     });
 
     ClassicEditor
