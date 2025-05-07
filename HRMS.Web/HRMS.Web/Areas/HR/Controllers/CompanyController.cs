@@ -31,7 +31,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 			_s3Service = s3Service;
 
 		}
-
 		public IActionResult CompanyListing()
 		{
 			EmployeeInputParams employee = new EmployeeInputParams();

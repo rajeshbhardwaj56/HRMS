@@ -10,13 +10,13 @@
     var FooterImage = "";
     if (!string.IsNullOrEmpty(Model.HeaderImage))
     {
-        HeaderImage = @ViewBag.HeaderImageUrl;
+        HeaderImage = Model.HeaderImage;
     }
    
 
     if (!string.IsNullOrEmpty(Model.FooterImage))
     {
-        FooterImage =@ViewBag.FooterImageUrl;
+        FooterImage = Model.FooterImage;
     }   
 }
 

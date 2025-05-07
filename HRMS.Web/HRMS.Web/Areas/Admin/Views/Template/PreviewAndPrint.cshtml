@@ -6,11 +6,11 @@
     ViewData["Title"] = "Template";
 
     var HeaderImage = !string.IsNullOrEmpty(Model.HeaderImage) 
-        ? "/" + HRMS.Models.Common.Constants.TemplatePath + Model.HeaderImage 
+        ?  Model.HeaderImage 
         : HRMS.Models.Common.Constants.NoImagePath;
 
     var FooterImage = !string.IsNullOrEmpty(Model.FooterImage) 
-        ? "/" + HRMS.Models.Common.Constants.TemplatePath + Model.FooterImage 
+        ? Model.FooterImage 
         : HRMS.Models.Common.Constants.NoImagePath;
 }
 

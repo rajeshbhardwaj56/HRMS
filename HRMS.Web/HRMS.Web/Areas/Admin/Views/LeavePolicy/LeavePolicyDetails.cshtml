@@ -8,7 +8,7 @@
     var IconImage = "";
     if (!string.IsNullOrEmpty(Model.PolicyDocument))
     {
-        IconImage = "/" + HRMS.Models.Common.Constants.UploadCertificate + Model.PolicyDocument;
+        IconImage =Model.PolicyDocument;
     }
     else
     {

@@ -126,6 +126,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 leavePolicyModel.Id = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).LeavePolicyDetailsModel;
+                if (!string.IsNullOrEmpty(leavePolicyModel.PolicyDocument))
+                {
+                    leavePolicyModel.PolicyDocument = _s3Service.GetFileUrl(leavePolicyModel.PolicyDocument);
+                }
             }
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = leavePolicyModel.CompanyID;
@@ -148,56 +152,30 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult LeavePolicyDetails(LeavePolicyDetailsModel leavePolicyModel, List<IFormFile> postedFiles)
         {
-            string fileName = null;
-
+            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
+          
             if(leavePolicyModel.Description==null)
             {
                 leavePolicyModel.Description = string.Empty;
             }
-            if (postedFiles.Count > 0)
+            _s3Service.ProcessFileUpload(postedFiles, leavePolicyModel.PolicyDocument, out string newProfileKey);
+            if (!string.IsNullOrEmpty(newProfileKey))
             {
-                string wwwPath = Environment.WebRootPath;
-                string contentPath = this.Environment.ContentRootPath;
-
-                foreach (IFormFile postedFile in postedFiles)
+                if (!string.IsNullOrEmpty(leavePolicyModel.PolicyDocument))
                 {
-                    fileName = postedFile.FileName.Replace(" ", "");
+                    _s3Service.DeleteFile(leavePolicyModel.PolicyDocument);
                 }
-                if (fileName != null)
-                {
-                    leavePolicyModel.PolicyDocument = fileName;
-                }
-                else
-                {
-                    leavePolicyModel.PolicyDocument = "";
-
-                }
+                leavePolicyModel.PolicyDocument = newProfileKey;
             }
             else
             {
-                leavePolicyModel.PolicyDocument = "";
+                leavePolicyModel.PolicyDocument = _s3Service.ExtractKeyFromUrl(leavePolicyModel.PolicyDocument);
             }
 
-                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
 
-            if (postedFiles.Count > 0)
-            {
-                string path = Path.Combine(this.Environment.WebRootPath, Constants.UploadCertificate + result.PKNo.ToString());
-
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                foreach (IFormFile postedFile in postedFiles)
-                {
-                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-                    {
-                        postedFile.CopyTo(stream);
-                    }
-                }
-            }
-
+       
 
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
             TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
@@ -339,9 +317,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 WhatsHappeningModelParams.WhatsHappeningID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 objModelParams = JsonConvert.DeserializeObject<Results>(data).WhatsHappeningModel;
-                objModelParams.IconImage = _s3Service.GetFileUrl(objModelParams.IconImage);
+                if (!string.IsNullOrEmpty(objModelParams.IconImage))
+                {
+                    objModelParams.IconImage = _s3Service.GetFileUrl(objModelParams.IconImage);
+                }
             }
-            return View(objModelParams);
+                return View(objModelParams);
         }
 
         [HttpPost]
@@ -354,33 +335,20 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 objModel.Description = string.Empty;
             }
-            string keyToDelete = objModel.IconImage;
-            string uploadedKey = string.Empty;
-            if (postedFiles != null && postedFiles.Count > 0)
+            _s3Service.ProcessFileUpload(postedFiles, objModel.IconImage, out string newProfileKey);
+            if (!string.IsNullOrEmpty(newProfileKey))
             {
-                foreach (IFormFile postedFile in postedFiles)
+                if (!string.IsNullOrEmpty(objModel.IconImage))
                 {
-                    if (postedFile != null && postedFile.Length > 0)
-                    {
-                        uploadedKey = _s3Service.UploadFile(postedFile, postedFile.FileName);
-                        if (!string.IsNullOrEmpty(uploadedKey))
-                        {
-                            if (keyToDelete != null)
-                            {
-                                _s3Service.DeleteFile(keyToDelete);
-                            }
-                            objModel.IconImage = uploadedKey;
-                        }
-                    }
-
+                    _s3Service.DeleteFile(objModel.IconImage);
                 }
+                objModel.IconImage = newProfileKey;
             }
             else
             {
-                string fileWithQuery = objModel.IconImage.Substring(objModel.IconImage.LastIndexOf('/') + 1);
-                objModel.IconImage = fileWithQuery.Split('?')[0];
+                objModel.IconImage = _s3Service.ExtractKeyFromUrl(objModel.IconImage);
             }
-                objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             objModel.CreatedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
 
             var data = _businessLayer.SendPostAPIRequest(objModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
