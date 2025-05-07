@@ -205,6 +205,7 @@ namespace HRMS.Web.Controllers
                 _context.HttpContext.Session.SetString(Constants.Manager1Name, result.Manager1Name.ToString());
                 _context.HttpContext.Session.SetString(Constants.Manager1Email, result.Manager1Email.ToString());
                 _context.HttpContext.Session.SetString(Constants.Manager2Name, result.Manager2Name.ToString());
+                _context.HttpContext.Session.SetString(Constants.EmployeeNumber, result.EmployeeNumber.ToString());
                 _context.HttpContext.Session.SetString(Constants.Manager2Email, result.Manager2Email.ToString());
                 _context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
                 var identity = new ClaimsIdentity(new[] {
