@@ -101,7 +101,7 @@ namespace HRMS.Models.Common
         Admin,
         Employee,
         Manager,
-        SuperAdmin
+        SuperAdmin=5
     }
 
 

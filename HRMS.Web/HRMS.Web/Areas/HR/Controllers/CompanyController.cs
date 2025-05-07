@@ -33,10 +33,10 @@ namespace HRMS.Web.Areas.HR.Controllers
 		}
 		public IActionResult CompanyListing()
 		{
-			EmployeeInputParams employee = new EmployeeInputParams();
-			var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-			var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-			return View(results);
+			//EmployeeInputParams employee = new EmployeeInputParams();
+			//var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+			//var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+			return View();
 		}
 
 		[HttpPost]

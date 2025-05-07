@@ -766,7 +766,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
-            result.companyModel = dataSet.Tables[0].AsEnumerable()
+            result.Companies = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new CompanyModel
                               {
                                   CompanyID = dataRow.Field<long>("CompanyID"),
@@ -787,12 +787,12 @@ namespace HRMS.API.BusinessLayer
                                   State = dataRow.Field<string>("State"),
                                   Phone = dataRow.Field<string>("Phone")
 
-                              }).ToList().FirstOrDefault();
+                              }).ToList();
 
-            //if (model.CompanyID > 0)
-            //{
-            //    result.companyModel = result.Companies.FirstOrDefault();
-            //}
+            if (model.CompanyID > 0)
+            {
+                result.companyModel = result.Companies.FirstOrDefault();
+            }
 
             return result;
         }
@@ -1904,10 +1904,10 @@ namespace HRMS.API.BusinessLayer
 
                 if (model.RoleID == (int)Roles.SuperAdmin)
                 {
-                    var CompanyDetails = dataSet.Tables[5].AsEnumerable()
+                    var CompanyDetails = dataSet.Tables[7].AsEnumerable()
                            .Select(dataRow => new DashBoardModel
                            {
-                               CountsOfCompanies = dataRow.Field<int>("CountsOfCompanies"),
+                               CountsOfCompanies = dataRow.Field<int>("TotalCompanies"),
                            }).ToList().FirstOrDefault();
                     dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
 
