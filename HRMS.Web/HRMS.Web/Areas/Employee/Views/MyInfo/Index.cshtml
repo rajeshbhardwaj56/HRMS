@@ -28,7 +28,7 @@
     var UploadCertificate = "";
     if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
     {
-        UploadCertificate = "/" + HRMS.Models.Common.Constants.UploadCertificate + Model.employeeModel.EmployeeID + "/" + Model.leaveResults.leaveSummaryModel.UploadCertificate;
+        UploadCertificate =Model.leaveResults.leaveSummaryModel.UploadCertificate;
     }
     else
     {
@@ -743,11 +743,11 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                          @*   <div class="col-lg-6 col-md-12">
+                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label>Upload Certificate:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group ">
-                                                                                         //<img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  
+                                                                                        @* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
 
                                                                                         <input type="file" name="postedFiles" class="form-control body-text" />
                                                                                         @if (Model.leaveResults.leaveSummaryModel.UploadCertificate != null  && Model.leaveResults.leaveSummaryModel.UploadCertificate != "")
@@ -757,21 +757,8 @@
 
                                                                                     </div>
                                                                                 </div>
-                                                                            </div> *@
-                                                                            <div class="col-lg-6 col-md-12">
-                                                                                <label>Upload Certificate:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group">
-                                                                                       
-                                                                                        <img id="UploadCertificatePreviewImage"
-                                                                                             src="@Html.Raw(Model.leaveResults.leaveSummaryModel.UploadCertificate)"
-                                                                                             onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
-                                                                                             style="width:100px; height:100px; display:none;" />                                                                              
-                                                                                        <iframe id="UploadCertificatePreviewPDF" style="width:100px; height:100px; display:none;" frameborder="0"></iframe>                                                                                     
-                                                                                        <input type="file" name="postedFiles" class="form-control body-text" accept="image/*,application/pdf" onchange="UploadCertificatePreview(event)" />
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
+                                                                            </div> 
+                                                                            
                                                                         </div>
 
                                                                         <div class="row py-3 mb-1">

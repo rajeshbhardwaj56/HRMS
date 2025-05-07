@@ -54,6 +54,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var results = JsonConvert.DeserializeObject<MyInfoResults>(data);
 
             results.leaveResults.leavesSummary.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.LeaveSummaryID.ToString()));
+            if (results?.leaveResults?.leavesSummary != null)
+            {
+                foreach (var leave in results.leaveResults.leavesSummary)
+                {
+                    if (!string.IsNullOrEmpty(leave.UploadCertificate))
+                    {
+                        leave.UploadCertificate = _s3Service.GetFileUrl(leave.UploadCertificate);
+                    }
+                }
+            }
             DateTime today = DateTime.Today;
 
             DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
@@ -73,7 +83,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             double Totacarryforword = 0.0;
             var Totaleavewithcarryforword = 0.0;
             var accruedLeaves = accruedLeave1 - TotalApprove;
-
             if (leavePolicyModel.Annual_IsCarryForward == true)
             {
                 Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);

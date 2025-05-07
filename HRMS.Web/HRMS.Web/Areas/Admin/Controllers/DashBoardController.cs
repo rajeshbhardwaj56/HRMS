@@ -21,6 +21,8 @@ using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using HRMS.Web.BusinessLayer.S3;
+using OfficeOpenXml.Packaging.Ionic.Zlib;
+using System.Diagnostics;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -617,20 +619,27 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             {
                                 case "EmployeeNumber":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
-                                    {
+                                    {                                     
                                         if (!cellValue.StartsWith(abbr, StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: EmployeeNumber '{cellValue}' must start with the company abbreviation '{abbr}'.");
-                                            hasError = true;
+                                        {                                           
+                                            var possibleAbbr = new string(cellValue.TakeWhile(char.IsLetter).ToArray());
+                                            if (!string.IsNullOrWhiteSpace(possibleAbbr) && !possibleAbbr.Equals(abbr, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                AddErrorRow(errorDataTable, columnName, $"Row {row}: EmployeeNumber  has incorrect company abbreviation. Expected prefix: '{abbr}'.");
+                                                hasError = true;
+                                            }
+                                            else
+                                            {
+                                                cellValue = $"{abbr}{cellValue}";
+                                            }
                                         }
-                                        else if (!uniqueEmployeeNumber.Add(cellValue))
+                                        if (!uniqueEmployeeNumber.Add(cellValue))
                                         {
-                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Duplicate EmployeeNumber '{cellValue}' found.");
+                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Duplicate EmployeeNumber found.");
                                             hasError = true;
                                         }
                                         else
                                         {
-                                            uniqueEmployeeNumber.Add(cellValue);
                                             prop.SetValue(item, cellValue);
                                         }
                                     }
@@ -690,28 +699,28 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-                                case "Surname":
-                                    if (!string.IsNullOrWhiteSpace(cellValue))
-                                    {
-                                        prop.SetValue(item, cellValue);
-                                    }
-                                    else
-                                    {
-                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: Surname is mandatory.");
-                                        hasError = true;
-                                    }
-                                    break;
-                                case "PersonalEmailAddress":
-                                    if (!string.IsNullOrWhiteSpace(cellValue))
-                                    {
-                                        prop.SetValue(item, cellValue);
-                                    }
-                                    else
-                                    {
-                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: PersonalEmailAddress is mandatory.");
-                                        hasError = true;
-                                    }
-                                    break;
+                                //case "Surname":
+                                //    if (!string.IsNullOrWhiteSpace(cellValue))
+                                //    {
+                                //        prop.SetValue(item, cellValue);
+                                //    }
+                                //    else
+                                //    {
+                                //        AddErrorRow(errorDataTable, columnName, $"Row {row}: Surname is mandatory.");
+                                //        hasError = true;
+                                //    }
+                                //    break;
+                                //case "PersonalEmailAddress":
+                                //    if (!string.IsNullOrWhiteSpace(cellValue))
+                                //    {
+                                //        prop.SetValue(item, cellValue);
+                                //    }
+                                //    else
+                                //    {
+                                //        AddErrorRow(errorDataTable, columnName, $"Row {row}: PersonalEmailAddress is mandatory.");
+                                //        hasError = true;
+                                //    }
+                                //    break;
                                 case "JoiningDate":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -742,7 +751,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                             prop.SetValue(item, countryId.ToString());
                                         else
                                         {
-                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Country '{cellValue}' not found.");
+                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Country  not found.");
                                             hasError = true;
                                         }
                                     }
@@ -753,22 +762,22 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     break;
                                 case "PermanentCountryName":
-                                    if (!string.IsNullOrEmpty(cellValue))
-                                    {
-                                        long countryId = countryDictionary.TryGetValue(cellValue.ToLower(), out long cid) ? cid : 0;
-                                        if (countryId != 0)
-                                            prop.SetValue(item, countryId.ToString());
-                                        else
-                                        {
-                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Country '{cellValue}' not found.");
-                                            hasError = true;
-                                        }
-                                    }
+                                   if (!string.IsNullOrEmpty(cellValue))
+                                   {
+                                       long countryId = countryDictionary.TryGetValue(cellValue.ToLower(), out long cid) ? cid : 0;
+                                      if (countryId != 0)
+                                           prop.SetValue(item, countryId.ToString());
+                                       else
+                                       {
+                                           AddErrorRow(errorDataTable, columnName, $"Row {row}: Country  not found.");
+                                           hasError = true;
+                                       }
+                                   }
                                     else
-                                    {
-                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: Country name is mandatory.");
-                                        hasError = true;
-                                    }
+                                   {
+                                       AddErrorRow(errorDataTable, columnName, $"Row {row}: Country name is mandatory.");
+                                       hasError = true;
+                                   }
                                     break;
                                 case "JobLocationName":
                                     if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("JobLocations", out var JobLocationNameDict))
@@ -779,7 +788,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, JobLocationId.ToString());
                                         if (JobLocationId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: JobLocationName '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: JobLocationName  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -798,7 +807,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, LeavePolicyId.ToString());
                                         if (LeavePolicyId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: LeavePolicy '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: LeavePolicy  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -855,7 +864,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, RoleId.ToString());
                                         if (LeavePolicyId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: RoleName '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: RoleName  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -874,7 +883,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, PayrollTypeId.ToString());
                                         if (PayrollTypeId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -893,7 +902,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, DepartmentId.ToString());
                                         if (DepartmentId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: DepartmentName '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: DepartmentName  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -913,7 +922,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, SubDepartmentNameId.ToString());
                                         if (SubDepartmentNameId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: SubDepartmentName '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: SubDepartmentName  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -932,7 +941,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, DesignationsId.ToString());
                                         if (DesignationsId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: DesignationName '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: DesignationName  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -951,7 +960,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, EmploymentTypesId.ToString());
                                         if (EmploymentTypesId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: EmployeeType '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: EmployeeType ' not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -970,7 +979,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         prop.SetValue(item, ShiftTypeId.ToString());
                                         if (ShiftTypeId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName '{cellValue}' not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -979,13 +988,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName dictionary is missing or empty.");
                                         hasError = true;
                                     }
-                                    break;
-                                case "ReportingToIDL1Name":
-                                    prop.SetValue(item, "73");
-                                    break;
-                                case "ReportingToIDL2Name":
-                                    prop.SetValue(item, "73");
-                                    break;
+                                    break;                               
                                 case "Gender":
                                     if (!string.IsNullOrEmpty(cellValue))
                                     {
@@ -1001,7 +1004,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         }
                                         else
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: Gender '{cellValue}' is invalid. Allowed values are 'Male' or 'Female'.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: Gender  is invalid. Allowed values are 'Male' or 'Female'.");
                                             hasError = true;
                                         }
                                     }

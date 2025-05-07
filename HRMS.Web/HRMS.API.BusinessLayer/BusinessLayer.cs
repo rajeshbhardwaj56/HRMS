@@ -2967,8 +2967,7 @@ namespace HRMS.API.BusinessLayer
         public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel)
         {
             Result model = new Result();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            // Add SQL parameters
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();        
             sqlParameter.Add(new SqlParameter("@CompanyID", Convert.ToInt64(employeeModel.CompanyName)));
             sqlParameter.Add(new SqlParameter("@FirstName", GetDbValue(employeeModel.FirstName)));
             sqlParameter.Add(new SqlParameter("@MiddleName", GetDbValue(employeeModel.MiddleName)));
