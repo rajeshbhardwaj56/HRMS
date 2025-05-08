@@ -2946,7 +2946,7 @@ namespace HRMS.API.BusinessLayer
 
 
                 employmentDictionaries["Employees"] = dataSet.Tables[7].AsEnumerable()
-                    .ToDictionary(row => row.Field<string>("Name"), row => row.Field<long>("EmployeeID"));
+                    .ToDictionary(row => row.Field<string>("EmployeNumber"), row => row.Field<long>("EmployeeID"));
 
                 employmentDictionaries["LeavePolicies"] = dataSet.Tables[9].AsEnumerable()
                     .ToDictionary(row => row.Field<string>("LeavePolicyName"), row => row.Field<long>("LeavePolicyID"));
@@ -3365,7 +3365,7 @@ namespace HRMS.API.BusinessLayer
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
                     //AgeOnNetwork = TryParseInt(item.AON),
-                    AgeOnNetwork = 1,
+                    AgeOnNetwork = Convert.ToInt32(item.AON),
                     NoticeServed = 1,
                     LeavingType = item.LeavingType,
                     PreviousExperience = Convert.ToInt32(item.PreviousExperience),

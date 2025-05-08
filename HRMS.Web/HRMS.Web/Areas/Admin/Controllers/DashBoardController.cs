@@ -620,19 +620,19 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 case "EmployeeNumber":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {                                     
-                                        if (!cellValue.StartsWith(abbr, StringComparison.OrdinalIgnoreCase))
-                                        {                                           
-                                            var possibleAbbr = new string(cellValue.TakeWhile(char.IsLetter).ToArray());
-                                            if (!string.IsNullOrWhiteSpace(possibleAbbr) && !possibleAbbr.Equals(abbr, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                AddErrorRow(errorDataTable, columnName, $"Row {row}: EmployeeNumber  has incorrect company abbreviation. Expected prefix: '{abbr}'.");
-                                                hasError = true;
-                                            }
-                                            else
-                                            {
-                                                cellValue = $"{abbr}{cellValue}";
-                                            }
-                                        }
+                                        //if (!cellValue.StartsWith(abbr, StringComparison.OrdinalIgnoreCase))
+                                        //{                                           
+                                        //    var possibleAbbr = new string(cellValue.TakeWhile(char.IsLetter).ToArray());
+                                        //    if (!string.IsNullOrWhiteSpace(possibleAbbr) && !possibleAbbr.Equals(abbr, StringComparison.OrdinalIgnoreCase))
+                                        //    {
+                                        //        AddErrorRow(errorDataTable, columnName, $"Row {row}: EmployeeNumber  has incorrect company abbreviation. Expected prefix: '{abbr}'.");
+                                        //        hasError = true;
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        cellValue = $"{abbr}{cellValue}";
+                                        //    }
+                                        //}
                                         if (!uniqueEmployeeNumber.Add(cellValue))
                                         {
                                             AddErrorRow(errorDataTable, columnName, $"Row {row}: Duplicate EmployeeNumber found.");
