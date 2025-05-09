@@ -302,7 +302,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.WhatsHappeningList.ForEach(x => x.EncodedWhatsHappeningID = _businessLayer.EncodeStringBase64(x.WhatsHappeningID.ToString()));
-            results.WhatsHappeningList.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
+            if (results?.WhatsHappeningList != null)
+            {
+                results.WhatsHappeningList.ForEach(x =>
+                {
+                    if (!string.IsNullOrEmpty(x.IconImage))
+                    {
+                        x.IconImage = _s3Service.GetFileUrl(x.IconImage);
+                    }
+                });
+            }
             return Json(new { data = results.WhatsHappeningList });
         }
 

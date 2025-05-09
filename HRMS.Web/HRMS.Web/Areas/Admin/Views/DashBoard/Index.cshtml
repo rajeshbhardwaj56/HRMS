@@ -199,10 +199,7 @@
                                     index++;
                                 }
                             }
-                            else
-                            {
-                                <p>No Record Found</p>
-                            }
+                           
                         </div>
 
                         <!-- Carousel items -->
@@ -221,7 +218,7 @@
                                                 <div class="ratio ratio-1x1 rounded-circle overflow-hidden">
                                                     @if (item.EmployeePhoto == null)
                                                     {
-                                                        <img src="/assets/img/No_image.png" class="card-img-top img-cover" alt="@item.FirstName">
+                                                        <img src="/assets/img/No_image.png" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="card-img-top img-cover" alt="@item.FirstName">
                                                     }
                                                     else
                                                     {

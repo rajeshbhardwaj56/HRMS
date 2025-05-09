@@ -1061,18 +1061,12 @@ namespace HRMS.API.BusinessLayer
 
         public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
         {
-
-
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@DepartmentID", model.DepartmentID));
             sqlParameter.Add(new SqlParameter("@DesignationID", model.DesignationID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
-
-
-
-
             EmploymentDetail employmentDetail = dataSet.Tables[8].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
@@ -1307,7 +1301,7 @@ namespace HRMS.API.BusinessLayer
                                 EmployeeSeparationID = dataRow.Field<long>("EmployeeSeparationID"),
                                 EmployeeID = dataRow.Field<long>("EmployeeID"),
                                 AgeOnNetwork = dataRow.Field<int?>("AgeOnNetwork"),
-                                PreviousExperience = dataRow.Field<int?>("PreviousExperience"),
+                                PreviousExperience = dataRow.Field<string>("PreviousExperience"),
                                 DateOfJoiningTraining = dataRow.Field<DateTime?>("DateOfJoiningTraining"),
                                 DateOfJoiningFloor = dataRow.Field<DateTime?>("DateOfJoiningFloor"),
                                 DateOfJoiningOJT = dataRow.Field<DateTime?>("DateOfJoiningOJT"),
@@ -3363,12 +3357,12 @@ namespace HRMS.API.BusinessLayer
                     ESIRegistrationDate = TryParseDate(item.RegistrationDateInESIC),
                     BankAccountNumber = item.BankAccountNumber,
                     IFSCCode = item.IFSCCode,
-                    BankName = item.BankName,
-                    //AgeOnNetwork = TryParseInt(item.AON),
+                    BankName = item.BankName,                 
                     AgeOnNetwork = Convert.ToInt32(item.AON),
                     NoticeServed = 1,
                     LeavingType = item.LeavingType,
-                    PreviousExperience = Convert.ToInt32(item.PreviousExperience),
+                   // PreviousExperience = Convert.ToInt32(item.PreviousExperience),
+                    PreviousExperience =item.PreviousExperience,
                     DateOfJoiningTraining = TryParseDate(item.DOJInTraining),
                     DateOfJoiningFloor = TryParseDate(item.DOJOnFloor),
                     DateOfJoiningOJT = TryParseDate(item.DOJInOJTOnroll),
@@ -3401,7 +3395,7 @@ namespace HRMS.API.BusinessLayer
             {
                 return new Result
                 {
-                    Message = $"Error while importing employee data: {ex.Message}"
+                    Message = $"Error while importing employee data"
                 };
             }
         }
@@ -3482,7 +3476,7 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("AgeOnNetwork", typeof(int));
             table.Columns.Add("NoticeServed", typeof(int));
             table.Columns.Add("LeavingType", typeof(string));
-            table.Columns.Add("PreviousExperience", typeof(int));
+            table.Columns.Add("PreviousExperience", typeof(string));
             table.Columns.Add("DateOfJoiningTraining", typeof(DateTime));
             table.Columns.Add("DateOfJoiningFloor", typeof(DateTime));
             table.Columns.Add("DateOfJoiningOJT", typeof(DateTime));
