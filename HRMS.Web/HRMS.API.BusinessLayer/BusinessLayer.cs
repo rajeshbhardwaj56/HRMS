@@ -3472,7 +3472,7 @@ namespace HRMS.API.BusinessLayer
             {
                 return new Result
                 {
-                    Message = $"Error while importing employee data: {ex.Message}"
+                    Message = $"Error while importing employee data"
                 };
             }
         }
