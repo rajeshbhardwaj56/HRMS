@@ -82,7 +82,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeleteAttendanceDetails(Attendance model);
         public MyAttendanceList GetMyAttendanceList(AttendanceInputParams model);
         public MyAttendanceList GetAttendanceForApproval(AttendanceInputParams model);
-        public MyAttendanceList GetApprovedAttendance(AttendanceInputParams model);
+        public List<Attendance> GetApprovedAttendance(AttendanceInputParams model);
         public Dictionary<string, long> GetCountryDictionary();
         public Dictionary<string, Dictionary<string, long>> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model);
         public Dictionary<string, CompanyInfo> GetCompaniesDictionary();
@@ -92,5 +92,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model);
         public Results GetAllWhatsHappeningDetails(WhatsHappeningModelParans model);
         public string DeleteWhatsHappening(WhatsHappeningModelParans model);
+        public List<Attendance> GetManagerApprovedAttendance(AttendanceInputParams model);
+        public EmployeePersonalDetails GetEmployeeDetails(EmployeePersonalDetailsById objmodel);
     }
 }

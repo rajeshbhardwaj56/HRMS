@@ -79,7 +79,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
                 else
                 {
-                    return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.AttendenceList);
+                    return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.Attendance);
 
                 }        
         }
@@ -113,7 +113,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = data;
             }
-            return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.AttendenceList);
+            return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.Attendance);
         }
 
 

@@ -86,6 +86,7 @@ namespace HRMS.API.BusinessLayer
         public const string sp_GetMyAttendanceLog = "sp_GetMyAttendanceLog";
         public const string usp_Get_AttendanceForApprovals = "usp_Get_AttendanceForApprovals";
         public const string usp_Get_ApprovedAttendance = "usp_Get_ApprovedAttendance";
+        public const string usp_Get_Manager_ApprovedAttendance = "usp_Get_Manager_ApprovedAttendance";
 
 
         public const string sp_SaveAttendanceDeviceLog = "sp_SaveAttendanceDeviceLog";

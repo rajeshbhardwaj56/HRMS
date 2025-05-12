@@ -2322,7 +2322,7 @@ namespace HRMS.API.BusinessLayer
                                   }).ToList();
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
@@ -2692,6 +2692,7 @@ namespace HRMS.API.BusinessLayer
                     UserId = dataRow.Field<string>("EmployeeId"),
                     AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
                     EmployeeName = dataRow.Field<string>("EmployeeName"),
+                    Comments = dataRow.Field<string>("Comments"),
                     WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
                     FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
                     LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
@@ -2717,13 +2718,15 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@Id", att.ID));
                 sqlParameter.Add(new SqlParameter("@EmployeeId", att.UserId));
                 sqlParameter.Add(new SqlParameter("@AttendanceStatusId", att.AttendanceStatusId));
-                sqlParameter.Add(new SqlParameter("@AttendanceStatus", att.AttendanceStatus));
                 sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
                 sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
                 sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
                 sqlParameter.Add(new SqlParameter("@Comments", att.Comments));
                 sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
                 sqlParameter.Add(new SqlParameter("@ModifiedDate", att.ModifiedDate));
+                sqlParameter.Add(new SqlParameter("@CreatedDate", att.CreatedDate));
+                sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
+                sqlParameter.Add(new SqlParameter("@IsDeleted", att.IsDeleted));
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_SaveAttendanceManualLog, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
@@ -2770,10 +2773,15 @@ namespace HRMS.API.BusinessLayer
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@ID", model.ID));
+            sqlParameter.Add(new SqlParameter("@Id", model.ID));
+            SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
+            {
+                Direction = ParameterDirection.Output
+            };
+            sqlParameter.Add(outputMessage);
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_DeleteAttendanceDeviceLog, sqlParameter);
-            return "Deleted successfully";
-
+            string message = outputMessage.Value.ToString();
+            return message;
         }
 
 
@@ -2810,12 +2818,53 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public MyAttendanceList GetApprovedAttendance(AttendanceInputParams model)
+        public List<Attendance> GetApprovedAttendance(AttendanceInputParams model)
         {
-            var result = new MyAttendanceList
+            var result = new List<Attendance>();
+
+            int attStatus = Convert.ToInt32(model.AttendanceStatusId);
+            try
             {
-                Attendances = new List<Attendance>()
-            };
+                List<SqlParameter> sqlParameters = new List<SqlParameter>
+        {
+            new SqlParameter("@ReportingUserID", model.UserId),
+            new SqlParameter("@Year",2025),
+            new SqlParameter("@Month",05),
+            new SqlParameter("@AttendanceStatusId",attStatus)
+        };
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ApprovedAttendance, sqlParameters);
+
+                if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+                {
+                    result = dataSet.Tables[0].AsEnumerable()
+                        .Select(dataRow => new Attendance
+                        {
+                            ID = dataRow.Field<long?>("ID") ?? 0,
+                            UserId = dataRow.Field<string>("employeeId"),
+                            AttendanceStatus = dataRow.Field<string>("AttendanceStatusName"),
+                            AttendanceStatusId = dataRow.Field<int>("AttendanceStatusId"),
+                            EmployeeName = dataRow.Field<string>("EmployeeName"),
+                            WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
+                            FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
+                            LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
+                            HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked"),
+                            Comments = dataRow.Field<string>("Comments"),
+                        })
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in GetApprovedAttendance: " + ex.Message);
+            }
+
+            return result;
+        }
+        public List<Attendance> GetManagerApprovedAttendance(AttendanceInputParams model)
+        {
+            var result = new List<Attendance>();
+
             int attStatus = Convert.ToInt32(model.AttendanceStatusId);
             try
             {
@@ -2825,11 +2874,11 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@AttendanceStatusId",attStatus)
         };
 
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ApprovedAttendance, sqlParameters);
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Manager_ApprovedAttendance, sqlParameters);
 
                 if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
                 {
-                    result.Attendances = dataSet.Tables[0].AsEnumerable()
+                    result = dataSet.Tables[0].AsEnumerable()
                         .Select(dataRow => new Attendance
                         {
                             ID = dataRow.Field<long?>("ID") ?? 0,
@@ -2839,7 +2888,8 @@ namespace HRMS.API.BusinessLayer
                             WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
                             FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
                             LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
-                            HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked")
+                            HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked"),
+                            Comments = dataRow.Field<string>("Comments"),
                         })
                         .ToList();
                 }
@@ -2968,7 +3018,7 @@ namespace HRMS.API.BusinessLayer
         public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel)
         {
             Result model = new Result();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();        
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", Convert.ToInt64(employeeModel.CompanyName)));
             sqlParameter.Add(new SqlParameter("@FirstName", GetDbValue(employeeModel.FirstName)));
             sqlParameter.Add(new SqlParameter("@MiddleName", GetDbValue(employeeModel.MiddleName)));
@@ -3068,7 +3118,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameterSeparation.Add(new SqlParameter("@NoticeServed", ConvertToDbValues(employeeModel.NoticeServed, isString: true)));
             sqlParameterSeparation.Add(new SqlParameter("@UserID", model.UserID));
             sqlParameterSeparation.Add(new SqlParameter("@AgeOnNetwork", employeeModel.AON));
-          //  sqlParameterSeparation.Add(new SqlParameter("@PreviousExperience", employeeModel.PreviousExperience));
+            //  sqlParameterSeparation.Add(new SqlParameter("@PreviousExperience", employeeModel.PreviousExperience));
 
             SqlParameterCollection pOutputParamSeparation = null;
 
@@ -3078,7 +3128,7 @@ namespace HRMS.API.BusinessLayer
             {
 
             }
-            long SuperAdminId =Convert.ToInt64(employeeModel.InsertedBy);
+            long SuperAdminId = Convert.ToInt64(employeeModel.InsertedBy);
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@EmploymentDetailID", employmentDetailID));
             sqlParameters.Add(new SqlParameter("@EmployeeID", model.UserID));
@@ -3089,7 +3139,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameters.Add(new SqlParameter("@JobLocationID", employeeModel.JobLocationName));
             sqlParameters.Add(new SqlParameter("@OfficialEmailID", employeeModel.OfficialEmailID));
             sqlParameters.Add(new SqlParameter("@OfficialContactNo", employeeModel.OfficialContactNo));
-            if (employeeModel.JoiningDate != null )
+            if (employeeModel.JoiningDate != null)
             {
                 sqlParameters.Add(new SqlParameter("@JoiningDate", ConvertToDbValue(employeeModel.JoiningDate)));
 
@@ -3599,5 +3649,29 @@ namespace HRMS.API.BusinessLayer
                 _ => null
             };
         }
+
+        public EmployeePersonalDetails GetEmployeeDetails(EmployeePersonalDetailsById objmodel)
+        {
+            EmployeePersonalDetails model = new EmployeePersonalDetails();
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeId", objmodel.EmployeeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_Get_Employees_details", sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+
+                model.EmployeeID = Convert.ToInt64(row["EmployeeID"]);
+                model.EmployeeName = Convert.ToString(row["EmployeeName"]);
+                model.PersonalEmailAddress = Convert.ToString(row["PersonalEmailAddress"]);
+            }
+
+            return model;
+        }
+
     }
 }

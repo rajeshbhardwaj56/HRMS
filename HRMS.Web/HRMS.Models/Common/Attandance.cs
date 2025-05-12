@@ -25,6 +25,7 @@ namespace HRMS.Models.Common
     {
         public int? AttendanceStatusId { get; set; }
         public long ID { get; set; }
+        public string? EncodedId { get; set; }
         public string? UserId { get; set; }
         public string? EmployeeName { get; set; }
         public DateTime? WorkDate { get; set; }
@@ -35,7 +36,10 @@ namespace HRMS.Models.Common
         public string? AttendanceStatus { get; set; }
         public string? Comments { get; set; }
         public long? ModifiedBy { get; set; }
+        public long? CreatedBy { get; set; }
+        public bool? IsDeleted { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
         public List<SelectListItem> Employeelist = new List<SelectListItem>();
 
     }

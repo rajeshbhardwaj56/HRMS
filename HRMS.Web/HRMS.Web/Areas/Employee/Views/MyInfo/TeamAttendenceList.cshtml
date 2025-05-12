@@ -436,10 +436,6 @@
             attendanceRows.innerHTML = ''; // Clear existing rows
             attendanceRows.appendChild(headerRow);
 
-            // Group attendance by employee and display in rows
-            // Group attendance by employee and display in rows
-            // Function to determine attendance status (present or absent)
-
             // Function to get the attendance for a specific employee on a specific day
             function getAttendanceForEmployeeOnDay(employeeId, dayFormatted) {
                 return employeeData.attendances
@@ -457,18 +453,12 @@
                 if (leaveDataForEmployee.length === 0) {
                     return false; // No leave data found
                 }
-
-                // Normalize the dayFormatted to a date object with time set to midnight (00:00:00)
                 // Step 1: Extract year, month, and day from the dayFormatted string
                 const [year, month, day] = dayFormatted.split('-').map(Number);
-
                 // Step 2: Create a Date object with local time based on year, month, and day
                 const dayDate = new Date(year, month - 1, day); // month is 0-indexed in Date objects
-
                 // Step 3: Normalize the time to midnight (00:00:00)
                 dayDate.setHours(0, 0, 0, 0);
-
-
                 return leaveDataForEmployee.some(current => {
                     const leaveStartDate = new Date(current.startDate);
                     const leaveEndDate = new Date(current.endDate);
@@ -481,23 +471,13 @@
                     return dayDate >= leaveStartDate && dayDate <= leaveEndDate;
                 });
             }
-
-
             function getHolidayForEmployeeOnDay(dayFormatted) {
-                // Step 1: Extract year, month, and day from the dayFormatted string
                 const [year, month, day] = dayFormatted.split('-').map(Number);
-
-                // Step 2: Create a Date object with local time based on year, month, and day
                 const dayDate = new Date(year, month - 1, day); // month is 0-indexed in Date objects
-
-                // Step 3: Normalize the time to midnight (00:00:00)
                 dayDate.setHours(0, 0, 0, 0);
-
-
                 const holiday = employeeData.holidays.find(holiday => {
                     const holidayStart = new Date(holiday.fromDate);
                     const holidayEnd = new Date(holiday.toDate);
-
                     // Normalize the holiday start and end dates
                     holidayStart.setHours(0, 0, 0, 0);
                     holidayEnd.setHours(0, 0, 0, 0);
@@ -508,25 +488,15 @@
                 return holiday ? { fromDate: holiday.fromDate, toDate: holiday.toDate } : null;
                
             }
-        
-
-
-
-
+         
             // Updated getAttendanceStatus to include holiday logic
             function getAttendanceStatus(attendance, dateObj, currentDate, employeeId) {
-                let status = ''; // Default to an empty string, meaning no status shown
-
-                // Normalize the date to remove the time part
-                const dayFormatted = dateObj.toISOString().split('T')[0]; // Get only the date in YYYY-MM-DD format
-
-                // Check if the date is a holiday
+                let status = ''; 
+                const dayFormatted = dateObj.toISOString().split('T')[0];  
                 const isHoliday = getHolidayForEmployeeOnDay(dayFormatted);
                 if (isHoliday) {
                     return 'holiday'; // Return "holiday" for holidays
                 }
-
-                // If it's Sunday, we always return "holiday" regardless of the date being in the future
                 const dayOfWeek = dateObj.getDay(); // Get the day of the week (0 = Sunday, 6 = Saturday)
                 if (dayOfWeek === 0) {
                     return 'holiday'; // Sunday is always a holiday (H)
@@ -589,10 +559,8 @@
 
                 return statusLabel;
             }
-
             // Create a list of unique employeeIds
             const employeeIds = [...new Set(employeeData.attendances.map(item => item.userId))]; // Get unique employeeIds
-
             // For each employeeId, create their attendance row
             employeeIds.forEach(employeeId => {
                 // Find the first attendance record for the employee by employeeId

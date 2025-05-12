@@ -139,7 +139,7 @@ namespace HRMS.Models.Common
         public const string Holiday = "Holiday";
         public const string HolidayListing = "HolidayListing";
         public const string AttendenceListing = "AttendenceListing";
-        public const string AttendenceList = "AttendenceList";
+        public const string Attendance = "Attendance";
         public const string ShiftTypeListing = "ShiftTypeListing";
         public const string ShiftType = "ShiftType";
 
@@ -211,6 +211,7 @@ namespace HRMS.Models.Common
         public const string GetMyAttendanceList = "GetMyAttendanceList";
         public const string GetAttendanceForApproval = "GetAttendanceForApproval";
         public const string GetApprovedAttendance = "GetApprovedAttendance";
+        public const string GetManagerApprovedAttendance = "GetManagerApprovedAttendance";
         public const string GetAttendanceDeviceLogs = "GetAttendanceDeviceLogs";
         public const string GetCountryDictionary = "GetCountryDictionary";
         public const string GetCompaniesDictionary = "GetCompaniesDictionary";
@@ -218,6 +219,7 @@ namespace HRMS.Models.Common
         public const string AddUpdateEmployeeFromExecel = "AddUpdateEmployeeFromExecel";
         public const string AddUpdateEmployeeFromExecelBulk = "AddUpdateEmployeeFromExecelBulk";
         public const string GetSubDepartmentDictionary = "GetSubDepartmentDictionary";
+        public const string GetEmployeeDetails = "GetEmployeeDetails";
         
         
         public const string GetAllWhatsHappeningDetails = "GetAllWhatsHappeningDetails";
