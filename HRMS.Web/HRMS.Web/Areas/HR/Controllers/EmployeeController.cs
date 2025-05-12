@@ -344,11 +344,51 @@ namespace HRMS.Web.Areas.HR.Controllers
             results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
             return Json(new { data = results.Employees });
         }
+        [HttpPost]
+     
+        public JsonResult GetL2Manager(int l1EmployeeId)
+        {
+            try
+            {
+                // Prepare the input parameters for L2 manager retrieval
+                L2ManagerInputParams input = new L2ManagerInputParams
+                {
+                    L1EmployeeID = l1EmployeeId
+                };
+
+               
+                var data = _businessLayer.SendPostAPIRequest(input,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee,
+                    APIApiActionConstants.GetL2ManagerDetails),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+
+              
+                L2ManagerDetail managerDetail = JsonConvert.DeserializeObject<L2ManagerDetail>(data);             
+                if (managerDetail != null)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        managerId = managerDetail.ManagerID,
+                        managerName = managerDetail.ManagerName
+                    });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "L2 manager not found." });
+                }
+            }
+            catch (Exception ex)
+            {
+              
+                return Json(new { success = false, message = "An error occurred while fetching the L2 manager.", error = ex.Message });
+            }
+        }
 
         [HttpGet]
         public ActionResult EmploymentDetails(string id, string DegtId, string DeptId)
         {
-            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
+                EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
             {
                 UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
             };

@@ -1185,6 +1185,33 @@ namespace HRMS.API.BusinessLayer
             return employmentDetail;
         }
 
+        public L2ManagerDetail GetL2ManagerDetails(L2ManagerInputParams model)
+        {
+            // Prepare the SQL parameter for the stored procedure
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@L1EmployeeID", model.L1EmployeeID)
+    };
+
+            // Execute the stored procedure
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetManagerOfManager, sqlParameters);
+
+            L2ManagerDetail managerDetail = new L2ManagerDetail();
+
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {          
+                managerDetail = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new L2ManagerDetail()
+                    {
+                        ManagerID = dataRow.Field<long>("EmployeeID"),
+                        ManagerName = dataRow.Field<string>("ManagerName"),
+                        EmployeNumber = dataRow.Field<string>("EmployeNumber")
+                    })
+                    .FirstOrDefault() ?? new L2ManagerDetail(); 
+            }
+
+            return managerDetail;
+        }
 
         public Result AddUpdateEmploymentBankDetails(EmploymentBankDetail employmentBankDetails)
         {
@@ -3357,12 +3384,11 @@ namespace HRMS.API.BusinessLayer
                     ESIRegistrationDate = TryParseDate(item.RegistrationDateInESIC),
                     BankAccountNumber = item.BankAccountNumber,
                     IFSCCode = item.IFSCCode,
-                    BankName = item.BankName,                 
+                    BankName = item.BankName,
                     AgeOnNetwork = Convert.ToInt32(item.AON),
-                    NoticeServed = 1,
-                    LeavingType = item.LeavingType,
-                   // PreviousExperience = Convert.ToInt32(item.PreviousExperience),
-                    PreviousExperience =item.PreviousExperience,
+                    NoticeServed = Convert.ToInt32(item.NoticeServed),
+                    LeavingType = item.LeavingType,                 
+                    PreviousExperience = item.PreviousExperience,
                     DateOfJoiningTraining = TryParseDate(item.DOJInTraining),
                     DateOfJoiningFloor = TryParseDate(item.DOJOnFloor),
                     DateOfJoiningOJT = TryParseDate(item.DOJInOJTOnroll),
@@ -3371,7 +3397,8 @@ namespace HRMS.API.BusinessLayer
                     BackOnFloorDate = TryParseDate(item.BackOnFloor),
                     LeavingRemarks = item.LeavingRemarks,
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
-                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion)
+                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion),
+                    IsActive = item.Status == "1",
                 }).ToList();
                 var employeeDataTable = ConvertToDataTable(employeeList);
                 var parameters = new List<SqlParameter>
@@ -3395,10 +3422,11 @@ namespace HRMS.API.BusinessLayer
             {
                 return new Result
                 {
-                    Message = $"Error while importing employee data"
+                    Message = $"Error while importing employee data: {ex.Message}"
                 };
             }
         }
+     
         private DataTable ConvertToDataTable(List<ImportExcelDataTableType> employees)
         {
             var table = new DataTable();
@@ -3486,8 +3514,7 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("LeavingRemarks", typeof(string));
             table.Columns.Add("MailReceivedFromAndDate", typeof(string));
             table.Columns.Add("EmailSentToITDate", typeof(DateTime));
-
-            // Now populate rows
+            table.Columns.Add("IsActive", typeof(bool));          
             foreach (var emp in employees)
             {
                 table.Rows.Add(
@@ -3574,7 +3601,8 @@ namespace HRMS.API.BusinessLayer
                     emp.BackOnFloorDate,
                     emp.LeavingRemarks,
                     emp.MailReceivedFromAndDate,
-                    emp.EmailSentToITDate
+                    emp.EmailSentToITDate,
+                    emp.IsActive
                 );
             }
 

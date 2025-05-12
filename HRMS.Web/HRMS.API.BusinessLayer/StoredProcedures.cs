@@ -52,6 +52,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_EmploymentDetails = "usp_AddUpdate_EmploymentDetails";
         public const string usp_Get_EmployeeDetailsFormDetails = "usp_Get_EmployeeDetailsFormDetails";
         public const string usp_Get_FilterEmployeeDetailsFormDetails = "usp_Get_FilterEmployeeDetailsFormDetails";
+        public const string sp_GetManagerOfManager = "sp_GetManagerOfManager";
         public const string usp_AddUpdate_EmployeeBankDetails = "usp_AddUpdate_EmployeeBankDetails";
         public const string usp_Get_EmployeeBankDetails = "usp_Get_EmployeeBankDetails";
         public const string usp_AddUpdate_EmployeeSeparation = "usp_AddUpdate_EmployeeSeparation";

@@ -239,11 +239,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 PolicyModel.Id = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(PolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllPolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 PolicyModel = JsonConvert.DeserializeObject<Results>(data).PolicyCategoryModel;
+
             }
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = PolicyModel.CompanyID;
             var compay = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(compay);
+
             PolicyModel.Companies = results.Companies;
 
             return View(PolicyModel);

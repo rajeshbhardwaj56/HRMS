@@ -1006,7 +1006,82 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName dictionary is missing or empty.");
                                         hasError = true;
                                     }
-                                    break;                               
+                                    break;
+                                case "NoticeServed":
+                                    if (!string.IsNullOrEmpty(cellValue))  
+                                    {
+                                        var normalized = cellValue.Trim().ToLower();
+
+                                        if (normalized.Equals("yes", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            prop.SetValue(item, "1");
+                                        }
+                                        else if (normalized.Equals("no", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            prop.SetValue(item, "2");
+                                        }
+                                        else if (normalized.Equals("nr", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            prop.SetValue(item, "3");
+                                        }
+                                        else
+                                        {
+                                            prop.SetValue(item, "0");
+                                        }
+                                    }
+                                    else  
+                                    {
+                                        prop.SetValue(item, "0");  
+                                    }
+                                    break;
+                                case "Status":
+                                    if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        var normalized = cellValue.Trim().ToLower();
+
+                                        var activeValues = new HashSet<string> { "active", "1", "true", "yes" };
+                                        var inactiveValues = new HashSet<string> { "inactive", "0", "false", "no" };
+
+                                        if (activeValues.Contains(normalized))
+                                        {
+                                            prop.SetValue(item, "1");
+                                        }
+                                        else if (inactiveValues.Contains(normalized))
+                                        {
+                                            prop.SetValue(item, "0");
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: Status is invalid. Allowed values are Active or Inactive.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else
+                                    {                                                                   
+                                            AddError(errorDataTable, columnName, $"Row {row}: Status is required.");
+                                            hasError = true;
+
+                                    }
+                                    break;
+                                case "AON":
+                                    if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        if (int.TryParse(cellValue, out int aonValue))
+                                        {
+                                            prop.SetValue(item, aonValue.ToString());
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: AON must be a numeric (integer) value.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: AON is required.");
+                                        hasError = true;
+                                    }
+                                    break;
                                 case "Gender":
                                     if (!string.IsNullOrEmpty(cellValue))
                                     {
@@ -1020,10 +1095,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                             GenderId = 1;
                                             prop.SetValue(item, GenderId.ToString());
                                         }
-                                        else
+                                        else 
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: Gender  is invalid. Allowed values are 'Male' or 'Female'.");
-                                            hasError = true;
+                                            GenderId = 3;
+                                            prop.SetValue(item, GenderId.ToString());
                                         }
                                     }
                                     else
@@ -1135,6 +1210,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     ReportingToIDL1Name = HttpContext.Session.GetString(Constants.EmployeeID),
                     ReportingToIDL2Name = HttpContext.Session.GetString(Constants.EmployeeID),
                     InsertedByUserID = HttpContext.Session.GetString(Constants.UserID),
+                    Status=item.Status,
                 }).ToList();
                 var companyNameModel = new BulkEmployeeImportModel
                 {

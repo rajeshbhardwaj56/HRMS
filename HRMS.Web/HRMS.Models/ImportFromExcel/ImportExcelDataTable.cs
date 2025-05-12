@@ -87,6 +87,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? DateOfEmailSentToITForIDDeletion { get; set; }
         public string? AON { get; set; }
         public string? PreviousExperience { get; set; }
+        public string? Status { get; set; }
         public string? ExcelFile { get; set; }
         public string? InsertedByUserID { get; set; }
     }
@@ -177,6 +178,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? LeavingRemarks { get; set; }
         public string? MailReceivedFromAndDate { get; set; }
         public DateTime? EmailSentToITDate { get; set; }
+        public bool? IsActive { get; set; }
     }
 
     public class CompanyInfo

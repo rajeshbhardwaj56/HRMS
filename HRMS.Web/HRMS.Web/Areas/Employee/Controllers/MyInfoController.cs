@@ -1026,14 +1026,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpGet]
         public IActionResult PolicyCategoryDetails()
-        {
-            List<LeavePolicyDetailsModel>  Details = new List<LeavePolicyDetailsModel>();
+        {         
             PolicyCategoryInputParams model = new PolicyCategoryInputParams();
             model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.PolicyCategoryDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            Details = JsonConvert.DeserializeObject<List<LeavePolicyDetailsModel>>(data);
+            var detailsList = JsonConvert.DeserializeObject<List<LeavePolicyDetailsModel>>(data);
 
-            return View(Details);
+            
+            if (detailsList != null)
+            {
+                foreach (var item in detailsList)
+                {
+                    if (!string.IsNullOrEmpty(item.PolicyDocument))
+                    {
+                        item.PolicyDocument = _s3Service.GetFileUrl(item.PolicyDocument);
+                    }
+                }
+            }
+            return View(detailsList);
         }
         [HttpGet]
         [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + ","  + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]

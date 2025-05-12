@@ -163,7 +163,8 @@ namespace HRMS.Models.Common
         public const string DeleteLeavePolicyDetails = "DeleteLeavePolicyDetails";
         public const string GetLeavePolicyList = "GetLeavePolicyList";
         public const string GetAllLeavePolicyDetails = "GetAllLeavePolicyDetails";
-        public const string GetAllLeavePolicyDetailsByCompanyId = "GetAllLeavePolicyDetailsByCompanyId";   
+        public const string GetAllLeavePolicyDetailsByCompanyId = "GetAllLeavePolicyDetailsByCompanyId";
+
 
         public const string GetLeaveForApprovals = "GetLeaveForApprovals";
         public const string AddUpdateLeavePolicy = "AddUpdateLeavePolicy";
@@ -189,6 +190,7 @@ namespace HRMS.Models.Common
         public const string GetAllHolidayList = "GetAllHolidayList";
         public const string GetEmploymentDetailsByEmployee = "GetEmploymentDetailsByEmployee";
         public const string GetFilterEmploymentDetailsByEmployee = "GetFilterEmploymentDetailsByEmployee";
+        public const string GetL2ManagerDetails = "GetL2ManagerDetails";
         public const string AddUpdateEmploymentDetails = "AddUpdateEmploymentDetails";
         public const string GetEmploymentBankDetails = "GetEmploymentBankDetails";
         public const string AddUpdateEmploymentBankDetails = "AddUpdateEmploymentBankDetails";
