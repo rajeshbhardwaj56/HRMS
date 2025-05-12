@@ -880,7 +880,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                             .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
                                         RoleId = matchedPolicy.Value;
                                         prop.SetValue(item, RoleId.ToString());
-                                        if (LeavePolicyId == 0)
+                                        if (RoleId == 0)
                                         {
                                             AddError(errorDataTable, columnName, $"Row {row}: RoleName  not found in master data.");
                                             hasError = true;
