@@ -34,8 +34,26 @@ namespace HRMS.Web.Areas.Employee.Controllers
             dashBoardModelInputParams.RoleID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.RoleID));
             var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
-            model.EmployeeDetails.ForEach(x => x.EmployeePhoto = _s3Service.GetFileUrl(x.EmployeePhoto));
-            model.WhatsHappening.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
+            if (model?.EmployeeDetails != null)
+            {
+                model.EmployeeDetails.ForEach(x =>
+                {
+                    if (!string.IsNullOrEmpty(x.EmployeePhoto))
+                    {
+                        x.EmployeePhoto = _s3Service.GetFileUrl(x.EmployeePhoto);
+                    }
+                });
+            }
+            if (model?.WhatsHappening != null)
+            {
+                model.WhatsHappening.ForEach(x =>
+                {
+                    if (!string.IsNullOrEmpty(x.IconImage))
+                    {
+                        x.IconImage = _s3Service.GetFileUrl(x.IconImage);
+                    }
+                });
+            }          
             var leavePolicyModel = GetLeavePolicyData(CompanyID, model.LeavePolicyId??0);
             double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(model.JoiningDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
             double Totacarryforword = 0.0;

@@ -122,6 +122,13 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpPost]
+        public IActionResult GetL2ManagerDetails(L2ManagerInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetL2ManagerDetails(model));
+            return response;
+        }
+        [HttpPost]
         public IActionResult DeleteLeavesSummary(MyInfoInputParams model)
         {
             IActionResult response = Unauthorized();

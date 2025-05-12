@@ -1061,18 +1061,12 @@ namespace HRMS.API.BusinessLayer
 
         public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
         {
-
-
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@DepartmentID", model.DepartmentID));
             sqlParameter.Add(new SqlParameter("@DesignationID", model.DesignationID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
-
-
-
-
             EmploymentDetail employmentDetail = dataSet.Tables[8].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
@@ -1191,6 +1185,33 @@ namespace HRMS.API.BusinessLayer
             return employmentDetail;
         }
 
+        public L2ManagerDetail GetL2ManagerDetails(L2ManagerInputParams model)
+        {
+            // Prepare the SQL parameter for the stored procedure
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@L1EmployeeID", model.L1EmployeeID)
+    };
+
+            // Execute the stored procedure
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetManagerOfManager, sqlParameters);
+
+            L2ManagerDetail managerDetail = new L2ManagerDetail();
+
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {          
+                managerDetail = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new L2ManagerDetail()
+                    {
+                        ManagerID = dataRow.Field<long>("EmployeeID"),
+                        ManagerName = dataRow.Field<string>("ManagerName"),
+                        EmployeNumber = dataRow.Field<string>("EmployeNumber")
+                    })
+                    .FirstOrDefault() ?? new L2ManagerDetail(); 
+            }
+
+            return managerDetail;
+        }
 
         public Result AddUpdateEmploymentBankDetails(EmploymentBankDetail employmentBankDetails)
         {
@@ -1307,7 +1328,7 @@ namespace HRMS.API.BusinessLayer
                                 EmployeeSeparationID = dataRow.Field<long>("EmployeeSeparationID"),
                                 EmployeeID = dataRow.Field<long>("EmployeeID"),
                                 AgeOnNetwork = dataRow.Field<int?>("AgeOnNetwork"),
-                                PreviousExperience = dataRow.Field<int?>("PreviousExperience"),
+                                PreviousExperience = dataRow.Field<string>("PreviousExperience"),
                                 DateOfJoiningTraining = dataRow.Field<DateTime?>("DateOfJoiningTraining"),
                                 DateOfJoiningFloor = dataRow.Field<DateTime?>("DateOfJoiningFloor"),
                                 DateOfJoiningOJT = dataRow.Field<DateTime?>("DateOfJoiningOJT"),
@@ -3414,11 +3435,10 @@ namespace HRMS.API.BusinessLayer
                     BankAccountNumber = item.BankAccountNumber,
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
-                    //AgeOnNetwork = TryParseInt(item.AON),
                     AgeOnNetwork = Convert.ToInt32(item.AON),
-                    NoticeServed = 1,
-                    LeavingType = item.LeavingType,
-                    PreviousExperience = Convert.ToInt32(item.PreviousExperience),
+                    NoticeServed = Convert.ToInt32(item.NoticeServed),
+                    LeavingType = item.LeavingType,                 
+                    PreviousExperience = item.PreviousExperience,
                     DateOfJoiningTraining = TryParseDate(item.DOJInTraining),
                     DateOfJoiningFloor = TryParseDate(item.DOJOnFloor),
                     DateOfJoiningOJT = TryParseDate(item.DOJInOJTOnroll),
@@ -3427,7 +3447,8 @@ namespace HRMS.API.BusinessLayer
                     BackOnFloorDate = TryParseDate(item.BackOnFloor),
                     LeavingRemarks = item.LeavingRemarks,
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
-                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion)
+                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion),
+                    IsActive = item.Status == "1",
                 }).ToList();
                 var employeeDataTable = ConvertToDataTable(employeeList);
                 var parameters = new List<SqlParameter>
@@ -3455,6 +3476,7 @@ namespace HRMS.API.BusinessLayer
                 };
             }
         }
+     
         private DataTable ConvertToDataTable(List<ImportExcelDataTableType> employees)
         {
             var table = new DataTable();
@@ -3532,7 +3554,7 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("AgeOnNetwork", typeof(int));
             table.Columns.Add("NoticeServed", typeof(int));
             table.Columns.Add("LeavingType", typeof(string));
-            table.Columns.Add("PreviousExperience", typeof(int));
+            table.Columns.Add("PreviousExperience", typeof(string));
             table.Columns.Add("DateOfJoiningTraining", typeof(DateTime));
             table.Columns.Add("DateOfJoiningFloor", typeof(DateTime));
             table.Columns.Add("DateOfJoiningOJT", typeof(DateTime));
@@ -3542,8 +3564,7 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("LeavingRemarks", typeof(string));
             table.Columns.Add("MailReceivedFromAndDate", typeof(string));
             table.Columns.Add("EmailSentToITDate", typeof(DateTime));
-
-            // Now populate rows
+            table.Columns.Add("IsActive", typeof(bool));          
             foreach (var emp in employees)
             {
                 table.Rows.Add(
@@ -3630,7 +3651,8 @@ namespace HRMS.API.BusinessLayer
                     emp.BackOnFloorDate,
                     emp.LeavingRemarks,
                     emp.MailReceivedFromAndDate,
-                    emp.EmailSentToITDate
+                    emp.EmailSentToITDate,
+                    emp.IsActive
                 );
             }
 
