@@ -263,8 +263,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(employee);
         }
 
-
-
         public HRMS.Models.Common.Results GetAllResults(long CompanyID)
         {
             HRMS.Models.Common.Results result = null;
@@ -327,7 +325,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             return PartialView("_LanguageDetails", employee);
         }
 
-
         public IActionResult ActiveEmployeeListing()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
@@ -345,7 +342,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             return Json(new { data = results.Employees });
         }
         [HttpPost]
-     
         public JsonResult GetL2Manager(int l1EmployeeId)
         {
             try
@@ -525,8 +521,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(employmentDetail);
         }
 
-
-
         [HttpGet]
         public ActionResult EmploymentBankDetails(string id)
         {
@@ -546,7 +540,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             employmentBankDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentBankDetail.EmployeeID.ToString());
             return View(employmentBankDetail);
         }
-
 
         [HttpPost]
         public ActionResult EmploymentBankDetails(EmploymentBankDetail employmentBankDetail)
@@ -597,7 +590,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(employmentSeparationDetail);
         }
 
-
         [HttpPost]
         public ActionResult EmploymentSeparation(EmploymentSeparationDetail employmentSeparationDetail)
         {
@@ -626,7 +618,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             return View(employmentSeparationDetail);
         }
-
 
         public IActionResult Whatshappening()
         {

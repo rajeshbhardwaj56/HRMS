@@ -44,52 +44,68 @@ namespace HRMS.Web.Areas.Admin.Controllers
             _s3Service = s3Service;
 
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
-            DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
-            dashBoardModelInputParams.RoleID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.RoleID));
-            var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
-            if (model?.EmployeeDetails != null)
-            {
-                model.EmployeeDetails.ForEach(x =>
-                {
-                    if (!string.IsNullOrEmpty(x.EmployeePhoto))
-                    {
-                        x.EmployeePhoto = _s3Service.GetFileUrl(x.EmployeePhoto);
-                    }
-                });
-            }
-            if (model?.WhatsHappening != null)
-            {
-                model.WhatsHappening.ForEach(x =>
-                {
-                    if (!string.IsNullOrEmpty(x.IconImage))
-                    {
-                        x.IconImage = _s3Service.GetFileUrl(x.IconImage);
-                    }
-                });
-            }
-            var leavePolicyModel = GetLeavePolicyData(CompanyID, model.LeavePolicyId ?? 0);
-            double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(model.JoiningDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
-            double Totacarryforword = 0.0;
-            var Totaleavewithcarryforword = 0.0;
-            var accruedLeaves = accruedLeave1 - Convert.ToDouble(model.TotalLeave);
-            if (leavePolicyModel.Annual_IsCarryForward == true)
-            {
-                Totacarryforword = Convert.ToDouble(model.CarryForword);
-                Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
-            }
-            else
-            {
-                Totaleavewithcarryforword = accruedLeaves;
-            }
-            model.NoOfLeaves = Convert.ToInt64(Totaleavewithcarryforword);
+            var session = _context.HttpContext.Session;
 
-            //_context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+            var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID));
+            var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
+            var roleId = Convert.ToInt64(session.GetString(Constants.RoleID));
+            var token = session.GetString(Constants.SessionBearerToken);
+
+            var inputParams = new DashBoardModelInputParams
+            {
+                EmployeeID = employeeId,
+                RoleID = roleId
+            };
+
+            var apiUrl = _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.DashBoard,
+                APIApiActionConstants.GetDashBoardModel
+            );
+
+            var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
+            var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
+
+            if (model == null)
+                return View();
+
+            // Update employee photos if profile photo exists
+            if (!string.IsNullOrEmpty(model.ProfilePhoto) && model.EmployeeDetails != null)
+            {
+                foreach (var employee in model.EmployeeDetails.Where(e => !string.IsNullOrEmpty(e.EmployeePhoto)))
+                {
+                    employee.EmployeePhoto = _s3Service.GetFileUrl(employee.EmployeePhoto);
+                }
+            }
+
+            // Update WhatsHappening icons
+            if (model.WhatsHappening != null)
+            {
+                foreach (var item in model.WhatsHappening.Where(w => !string.IsNullOrEmpty(w.IconImage)))
+                {
+                    item.IconImage = _s3Service.GetFileUrl(item.IconImage);
+                }
+            }
+
+            // Leave calculation
+            var leavePolicy = GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
+            var joiningDate = model.JoiningDate.GetValueOrDefault();
+            var maxLeaves = leavePolicy.Annual_MaximumLeaveAllocationAllowed;
+
+            var accruedLeaves = CalculateAccruedLeaveForCurrentFiscalYear(joiningDate, maxLeaves);
+            var usedLeaves = Convert.ToDouble(model.TotalLeave);
+            var carryForward = leavePolicy.Annual_IsCarryForward ? Convert.ToDouble(model.CarryForword) : 0.0;
+
+            var totalAvailableLeaves = accruedLeaves - usedLeaves + carryForward;
+            model.NoOfLeaves = Convert.ToInt64(totalAvailableLeaves);
+
+            // Optionally store profile photo in session
+            // session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+
             return View(model);
         }
+
 
 
         private LeavePolicyModel GetLeavePolicyData(long companyId, long leavePolicyId)
@@ -508,7 +524,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     stream.Position = 0;
                     string htmlTable = ProcessExcelFile(stream, file.FileName);
 
-                     if (!string.IsNullOrEmpty(htmlTable) && !htmlTable.Contains("Employee data imported successfully."))
+                    if (!string.IsNullOrEmpty(htmlTable) && !htmlTable.Contains("Employee data imported successfully."))
                     {
                         return Json(new
                         {
@@ -637,7 +653,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             {
                                 case "EmployeeNumber":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
-                                    {                                     
+                                    {
                                         //if (!cellValue.StartsWith(abbr, StringComparison.OrdinalIgnoreCase))
                                         //{                                           
                                         //    var possibleAbbr = new string(cellValue.TakeWhile(char.IsLetter).ToArray());
@@ -780,22 +796,22 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     break;
                                 case "PermanentCountryName":
-                                   if (!string.IsNullOrEmpty(cellValue))
-                                   {
-                                       long countryId = countryDictionary.TryGetValue(cellValue.ToLower(), out long cid) ? cid : 0;
-                                      if (countryId != 0)
-                                           prop.SetValue(item, countryId.ToString());
-                                       else
-                                       {
-                                           AddErrorRow(errorDataTable, columnName, $"Row {row}: Country  not found.");
-                                           hasError = true;
-                                       }
-                                   }
+                                    if (!string.IsNullOrEmpty(cellValue))
+                                    {
+                                        long countryId = countryDictionary.TryGetValue(cellValue.ToLower(), out long cid) ? cid : 0;
+                                        if (countryId != 0)
+                                            prop.SetValue(item, countryId.ToString());
+                                        else
+                                        {
+                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Country  not found.");
+                                            hasError = true;
+                                        }
+                                    }
                                     else
-                                   {
-                                       AddErrorRow(errorDataTable, columnName, $"Row {row}: Country name is mandatory.");
-                                       hasError = true;
-                                   }
+                                    {
+                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: Country name is mandatory.");
+                                        hasError = true;
+                                    }
                                     break;
                                 case "JobLocationName":
                                     if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("JobLocations", out var JobLocationNameDict))
@@ -1008,7 +1024,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     break;
                                 case "NoticeServed":
-                                    if (!string.IsNullOrEmpty(cellValue))  
+                                    if (!string.IsNullOrEmpty(cellValue))
                                     {
                                         var normalized = cellValue.Trim().ToLower();
 
@@ -1029,9 +1045,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                             prop.SetValue(item, "0");
                                         }
                                     }
-                                    else  
+                                    else
                                     {
-                                        prop.SetValue(item, "0");  
+                                        prop.SetValue(item, "0");
                                     }
                                     break;
                                 case "Status":
@@ -1057,9 +1073,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         }
                                     }
                                     else
-                                    {                                                                   
-                                            AddError(errorDataTable, columnName, $"Row {row}: Status is required.");
-                                            hasError = true;
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: Status is required.");
+                                        hasError = true;
 
                                     }
                                     break;
@@ -1095,7 +1111,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                             GenderId = 1;
                                             prop.SetValue(item, GenderId.ToString());
                                         }
-                                        else 
+                                        else
                                         {
                                             GenderId = 3;
                                             prop.SetValue(item, GenderId.ToString());
@@ -1210,7 +1226,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     ReportingToIDL1Name = HttpContext.Session.GetString(Constants.EmployeeID),
                     ReportingToIDL2Name = HttpContext.Session.GetString(Constants.EmployeeID),
                     InsertedByUserID = HttpContext.Session.GetString(Constants.UserID),
-                    Status=item.Status,
+                    Status = item.Status,
                 }).ToList();
                 var companyNameModel = new BulkEmployeeImportModel
                 {

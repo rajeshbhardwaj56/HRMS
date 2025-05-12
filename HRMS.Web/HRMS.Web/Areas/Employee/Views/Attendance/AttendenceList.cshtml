@@ -95,13 +95,13 @@
             cursor: pointer;
         }
 
-        .fc-slats {
+      /*   .fc-slats {
             display: none;
         }
-
-        .fc-event-container {
+ */
+  /*       .fc-event-container {
             display: none;
-        }
+        } */
 
         .attendance-calenderlist {
             display: flex;
@@ -445,7 +445,7 @@
 <body>
     <div class="group-box anim">
         <section class="atendance-calender-section">
-            <h1>Attendance Calendar</h1>
+            <p class="attendance-calenderl">Attendance Calendar</>
         </section>
 
 
@@ -537,7 +537,7 @@
             function loadCalendar(year, month) {
                 // Make AJAX request to get data based on selected year and month
                 $.ajax({
-                    url: '/employee/AttendenceList/AttendenceCalendarList',
+                    url: '/employee/Attendance/AttendenceCalendarList',
                     method: 'GET',
                     data: {
                         Year: year,
@@ -613,19 +613,10 @@
                                             return false; // Exit the loop once a leave is identified
                                         }
                                     });
-                               
-
-                                // Skip further checks for future dates unless they are holidays
                                 if (formattedDate > currentDate && workStatus === '') {
-                                    return; // Do not display any labels for future dates unless already marked as "H"
+                                    return;  
                                 }
-
-                                // For past or current dates, continue checking other statuses
                                 if (formattedDate <= currentDate) {
-                                    // Check if it's a Sunday (special case: mark as "H" for Sundays)
-                                   
-
-                                    // Check for attendance data (display "P" for present)
                                     if (workStatus === '') {
                                         $.each(data.data.attendances, function (index, item) {
                                             var itemDate = moment(item.workDate).format("YYYY-MM-DD");
@@ -636,13 +627,10 @@
                                             }
                                         });
                                     }
-
-                                    // If no status found for past or current dates, mark as "A" (Absent)
                                     if (workStatus === '') {
                                         workStatus = 'A'; // Absent for past or current dates
                                     }
                                 }
-
                                 // Set label based on the final work status
                                 if (workStatus === 'P') {
                                     statusLabel = '<div class="status-label present">P</div>';
@@ -653,7 +641,6 @@
                                 } else if (workStatus === 'A') {
                                     statusLabel = '<div class="status-label absent">A</div>';
                                 }
-
                                 // Append the status label to the day cell
                                 if (statusLabel !== '') {
                                     cell.append(statusLabel);
@@ -676,7 +663,6 @@
                                     }
 
                                 });
-
                                 // Check if the clicked date matches any leave records
                                 $.each(data.data.leaves, function (index, leave) {
                                     var leaveStart = moment(leave.startDate).format("YYYY-MM-DD");
@@ -708,7 +694,7 @@
                                 $('#workDetails').html(popupContent);
                                 $('#popup').fadeIn();
                             }
-
+                               
                         });
 
                         $(document).ready(function () {
@@ -736,6 +722,9 @@
             $('#closePopup').click(function () {
                 $('#popup').fadeOut();
             });
+
+                      
+
         });
     </script>
 

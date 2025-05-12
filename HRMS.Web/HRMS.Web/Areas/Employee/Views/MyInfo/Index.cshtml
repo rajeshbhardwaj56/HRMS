@@ -94,7 +94,7 @@
                     }
                     else
                     {
-                        <span>Joining Date not available</span>
+                        <span class="Joiningnotavailable">Joining date not available. Please contact your administrator.</span>
                     }
                 </p>
 
@@ -114,9 +114,17 @@
                             </li>
                         }
 
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
-                        </li>
+                        @if (Model.employmentDetail.JoiningDate != null)
+                        {
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+                            </li>
+                            }
+                            else{
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
+                            </li>
+                            }
 
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>

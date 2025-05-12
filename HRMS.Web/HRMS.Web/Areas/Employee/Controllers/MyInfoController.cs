@@ -10,6 +10,7 @@ using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
+using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authorization;
@@ -74,27 +75,29 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leavePolicyModel = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
             //var joindate = employeeDetails.EmploymentDetail.Select(x => x.JoiningDate).FirstOrDefault();
             var joindate = results.employmentDetail.JoiningDate;
-            DateTime joinDate1 = joindate.Value;
-            //results.JoiningDate = joinDate1;
-            double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
-            var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
+            if (joindate != null)
+            {
+                DateTime joinDate1 = joindate.Value;
+                double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+                var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
 
-            double TotalApprove = Convert.ToDouble(TotalApproveLists);
-            double Totacarryforword = 0.0;
-            var Totaleavewithcarryforword = 0.0;
-            var accruedLeaves = accruedLeave1 - TotalApprove;
-            if (leavePolicyModel.Annual_IsCarryForward == true)
-            {
-                Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
-                Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
+                double TotalApprove = Convert.ToDouble(TotalApproveLists);
+                double Totacarryforword = 0.0;
+                var Totaleavewithcarryforword = 0.0;
+                var accruedLeaves = accruedLeave1 - TotalApprove;
+                if (leavePolicyModel.Annual_IsCarryForward == true)
+                {
+                    Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
+                    Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
+                }
+                else
+                {
+                    Totaleavewithcarryforword = accruedLeaves;
+                }
+                ViewBag.TotalLeave = TotalApprove;
+                ViewBag.TotalAnnualLeave = Totaleavewithcarryforword;
+                ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
             }
-            else
-            {
-                Totaleavewithcarryforword = accruedLeaves;
-            }
-            ViewBag.TotalLeave = TotalApprove;
-            ViewBag.TotalAnnualLeave = Totaleavewithcarryforword;
-            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
             return View(results);
 
         }
@@ -1072,6 +1075,22 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return Json(new { data = model });
         }
+        public IActionResult Whatshappening()
+        {
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            return View(results);
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult Whatshappening(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            WhatsHappeningModelParans WhatsHappeningModelParams = new WhatsHappeningModelParans();
+            WhatsHappeningModelParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            results.WhatsHappeningList.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
+            return Json(new { data = results.WhatsHappeningList });
 
+        }
     }
 }
