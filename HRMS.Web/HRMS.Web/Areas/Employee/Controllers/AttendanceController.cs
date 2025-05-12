@@ -407,12 +407,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public class AttendanceStatusRequest
         {
             public int AttendanceStatus { get; set; }
+            public int Year { get; set; }
+            public int Month { get; set; }
         }
         [HttpPost]
         public JsonResult GetApprovedAttendance([FromBody] AttendanceStatusRequest request)
         {
             AttendanceInputParams attendenceListParams = new AttendanceInputParams(); 
             attendenceListParams.AttendanceStatusId = request.AttendanceStatus;
+            attendenceListParams.Year = request.Year;
+            attendenceListParams.Month = request.Month;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,

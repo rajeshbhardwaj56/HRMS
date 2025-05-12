@@ -20,13 +20,35 @@
 				<div class="group-box anim">
 					<div class="tabsInfo" id="">
 						<h3>Attendance Info</h3>
+						<div class="d-flex  ">
+							<div>
+								<label for="yearDropdown">Year: </label>
+								<select id="yearDropdown" class="form-select" style="width: 150px;">
+								</select>
+							</div>
+							<div>
+								<label for="monthDropdown">Month: </label>
+								<select id="monthDropdown" class="form-select" style="width: 150px;">
+									<option value="1">January</option>
+									<option value="2">February</option>
+									<option value="3">March</option>
+									<option value="4">April</option>
+									<option value="5">May</option>
+									<option value="6">June</option>
+									<option value="7">July</option>
+									<option value="8">August</option>
+									<option value="9">September</option>
+									<option value="10">October</option>
+									<option value="11">November</option>
+									<option value="12">December</option>
+								</select>
+							</div>
+						</div>
 						<nav>
 							<div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
-								<button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
-									Attendance For Approval
-								</button>
-								<button class="nav-link  " id="attendance-approved-tab1" data-bs-toggle="tab" data-bs-target="#attendance-approved-tab" type="button" role="tab" aria-controls="attendance-approved-tab" aria-selected="false" onclick="AttendanceForApproved()">Approved Attendance</button>
-								<button class="nav-link  " id="Attendance-Reject-tab1" data-bs-toggle="tab" data-bs-target="#Attendance-Reject-tab" type="button" role="tab" aria-controls="Attendance-Reject-tab" aria-selected="false" onclick="AttendanceForReject()">Rejected Attendance</button>
+								<button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true" href="#pendingTab">Attendance For Approval </button>
+								<button class="nav-link  " id="attendance-approved-tab1" data-bs-toggle="tab" data-bs-target="#attendance-approved-tab" type="button" role="tab" aria-controls="attendance-approved-tab" aria-selected="false" href="#approvedTab" onclick="AttendanceForApproved()">Approved Attendance</button>
+								<button class="nav-link  " id="Attendance-Reject-tab1" data-bs-toggle="tab" data-bs-target="#Attendance-Reject-tab" type="button" role="tab" aria-controls="Attendance-Reject-tab" aria-selected="false" href="#rejectedTab" onclick="AttendanceForReject()">Rejected Attendance</button>
 							</div>
 						</nav>
 						<div class="tab-content" id="nav-tabContent1">
@@ -35,16 +57,6 @@
 									<div class="tabsInfo" id="myTabContent-timeoff">
 										<h3>Attendance For Approval</h3>
 									</div>
-								@* 	<div>
-
-										<label>
-											View As
-											<input type="radio" name="attendanceStatus" value="@(Convert.ToInt32(AttendanceStatusId.Pending))"> L1 Manager
-										</label>
-										<label>
-											<input type="radio" name="attendanceStatus" value="@(Convert.ToInt32(AttendanceStatusId.L1Approved))" checked> L2 Manager
-										</label>
-									</div> *@
 									<div role="tabpanel" aria-labelledby="apply-tab">
 										<div class="row">
 											<div class="col-lg-12 col-md-12 col-sm-12">
@@ -81,7 +93,7 @@
 										<h3>Approved Attendance</h3>
 
 									</div>
-									 
+
 
 									<div role="tabpanel" aria-labelledby="apply-tab">
 										<div class="row">
@@ -97,7 +109,7 @@
 																	<th>Work Date</th>
 																	<th>Total Hours</th>
 																	<th>Status</th>
-																	<th>Remark</th> 
+																	<th>Remark</th>
 																</tr>
 															</thead>
 
@@ -117,7 +129,7 @@
 										<h3>Rejected Attendance</h3>
 
 									</div>
-								 
+
 									<div role="tabpanel" aria-labelledby="apply-tab">
 										<div class="row">
 											<div class="col-lg-12 col-md-12 col-sm-12">
@@ -293,11 +305,13 @@
 	 //First Tab
 	 function ApprovalAttendanceAutoReload() {
 		 let tableId = '#tblAttendanceForApproval';
-		// let status = $("input[name='attendanceStatus']:checked").val();
 		 let status =1;
-
+		 const selectedYear = $("#yearDropdown").val();
+	const selectedMonth =$("#monthDropdown").val(); ;
+		 let  Year= selectedYear;
+		 let Month= selectedMonth;
 		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedAttendance';
-		 RefreshTable12(tableId, url, status);
+		 RefreshTable12(tableId, url, status,Year,Month);
 				 if (!$.fn.DataTable.isDataTable(tableId)) {
 					 InitAttendanceForApproval();
 				 }
@@ -342,12 +356,12 @@
 		 });
 	 }
 	 //First Tab Table load
-	function RefreshTable12(tableId, urlData, status) {
+	function RefreshTable12(tableId, urlData, status,Year,Month) {
 		 $.ajax({
 			 url: urlData,
 			 type: 'POST',
 			 contentType: 'application/json',
-			 data: JSON.stringify({ attendanceStatus: parseInt(status) }),
+			 data: JSON.stringify({ attendanceStatus: parseInt(status),Year:Year,Month:Month }),
 			 success: function (json) {
 				 let table = $(tableId).dataTable();
 				 let oSettings = table.fnSettings();
@@ -373,13 +387,16 @@
 
 				 let tableId = '#tblAttendanceForApproved';
 
-		// let status = $("input[name='approvedAttendanceStatus']:checked").val();
+			 const selectedYear = $("#yearDropdown").val();
+	const selectedMonth =$("#monthDropdown").val(); ;
+		 let  Year= selectedYear;
+		 let Month= selectedMonth;
 		 let status =2;
 		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedAttendance';
 		 if ($.fn.DataTable.isDataTable(tableId)) {
 		$(tableId).DataTable().clear().draw();
 	}
-		 RefreshTable12(tableId, url, status);
+			 RefreshTable12(tableId, url, status,Year,Month);
 				 if (!$.fn.DataTable.isDataTable(tableId)) {
 					 InittblAttendanceForApproved();
 				 }
@@ -391,9 +408,12 @@
 	 function AttendanceForReject() {
 		 let status =3;
 				 let tableId = '#tblAttendanceForReject';
-
+					 const selectedYear = $("#yearDropdown").val();
+	const selectedMonth =$("#monthDropdown").val(); ;
+		 let  Year= selectedYear;
+		 let Month= selectedMonth;
 		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedAttendance';
-		 RefreshTable12(tableId, url, status);
+			 RefreshTable12(tableId, url, status,Year,Month);
 				 if (!$.fn.DataTable.isDataTable(tableId)) {
 					 InittblAttendanceForReject();
 				 }
@@ -494,7 +514,7 @@
 			} else {
 				$("#approverejectrequire").text(json.message);
 				window.location.reload();
-				CloseApproveRejectModel(); 
+				CloseApproveRejectModel();
 			}
 		} else {
 			showToast("Attendance status updated.");
@@ -590,7 +610,7 @@
 				 { data: "attendanceStatus", autoWidth: true },
 								 { data: "comments", autoWidth: true },
 
-				 
+
 			 ]
 		 });
 	 }
@@ -604,5 +624,48 @@
 			 }
 		 });
 	 }
+	// Add years from 2020 to the current year dynamically
+	const yearDropdown = document.getElementById('yearDropdown');
+	const monthDropdown = document.getElementById('monthDropdown');
+	const currentYear = new Date().getFullYear();
+	const startYear = 2020;
+
+	// Add years from 2020 to the current year
+	for (let year = startYear; year <= currentYear; year++) {
+		const option = document.createElement('option');
+		option.value = year;
+		option.textContent = year;
+		yearDropdown.appendChild(option);
+	}
+
+	// Set the current year as the default selected value
+	yearDropdown.value = currentYear;
+
+	// Set the current month as the default selected value
+	const currentMonth = new Date().getMonth() + 1; // Get current month (1-based index)
+	monthDropdown.value = currentMonth;
+
+	// Add onChange event listeners for year and month dropdowns
+		function onChangeDropdown() {
+		const activeTab = $('.nav-tabs .active').attr('href'); // e.g. "#rejectedTab"
+
+		switch (activeTab) {
+			case "#pendingTab":
+				ApprovalAttendanceAutoReload();
+				break;
+			case "#approvedTab":
+				AttendanceForApproved();
+				break;
+			case "#rejectedTab":
+				AttendanceForReject();
+				break;
+		}
+	}
+
+
+	// Event listeners for year and month changes
+	document.getElementById('yearDropdown').addEventListener('change', onChangeDropdown);
+	document.getElementById('monthDropdown').addEventListener('change', onChangeDropdown);
+
 
 </script>
