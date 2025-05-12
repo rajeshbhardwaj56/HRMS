@@ -1603,3 +1603,13 @@ button.Previewtemplate {
     background-color: #05397b; /* optional highlight for li */
     color:white !important;
 }
+span.Joiningnotavailable {
+    background: #bf4545;
+    color: white;
+}
+p.attendance-calender { 
+    color: white;
+    font-size: 23px;
+    padding-left: 16px;
+    font-weight: 900;
+}
