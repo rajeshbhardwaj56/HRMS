@@ -23,6 +23,7 @@ namespace HRMS.Models.Common
         public List<TemplateModel> Template { get; set; } = new List<TemplateModel>();
         public TemplateModel templateModel { get; set; } = new TemplateModel();
         public CompanyModel companyModel { get; set; } = new CompanyModel();
+        public CompanyLoginModel companyLoginModel { get; set; } = new CompanyLoginModel();
         public List<CompanyModel> Companies { get; set; } = new List<CompanyModel>();
 
         public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();

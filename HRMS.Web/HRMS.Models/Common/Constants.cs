@@ -177,6 +177,7 @@ namespace HRMS.Models.Common
         public const string GetAllTemplates = "GetAllTemplates";
         public const string AddUpdateCompany = "AddUpdateCompany";
         public const string GetAllCompanies = "GetAllCompanies";
+        public const string GetCompaniesLogo = "GetCompaniesLogo";
         public const string GetAllCompaniesList = "GetAllCompaniesList";
         public const string GetAllLeavePolicys = "GetAllLeavePolicys";
         public const string GetlLeavesSummary = "GetlLeavesSummary";

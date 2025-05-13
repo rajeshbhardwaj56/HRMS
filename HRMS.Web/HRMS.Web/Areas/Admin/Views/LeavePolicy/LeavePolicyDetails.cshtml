@@ -55,15 +55,29 @@
                 </div>
 
 
-                <div class="col-md-4 form-group">
-                    <label>Image <span class="Mandetory">*</span></label>
-                    <div class="col-md-4">
-                        <img id="previewImage" src="@IconImage"
-                             onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
-                             style="width:100px; height:100px" />
-                    </div>
-                    <div class="col-md-8">
-                        <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Upload Document (Image/Pdf) <span class="Mandetory">*</span></label>
+                        <div class="col-md-4">
+                            <!-- Image Preview -->
+                            <img id="DocumentpreviewImage"
+                                 src="@IconImage"
+                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                 style="width:100px; height:100px; display:none;" />
+
+                            <!-- PDF Preview -->
+                            <iframe id="DocumentpreviewPDF"
+                                    src="@IconImage"
+                                    style="width:100px; height:100px; display:none;"
+                                    frameborder="0">
+                            </iframe>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file"
+                                   name="postedFiles"
+                                   accept="image/*,.pdf"
+                                   onchange="DocumentpreviewPDFPreview(event)" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -112,17 +126,59 @@
             .catch(error => {
                 console.error(error);
             });
-    function showPreview(event) {
+        window.onload = function () {
+        const fullPath = '@Html.Raw(IconImage)'; // Avoids &amp; encoding
+        const filePath = fullPath.toLowerCase();
+
+        const imagePreview = document.getElementById('DocumentpreviewImage');
+        const pdfPreview = document.getElementById('DocumentpreviewPDF'); 
+        if (filePath.includes('.pdf')) {
+            pdfPreview.src = fullPath;
+            pdfPreview.style.display = 'block';
+            imagePreview.style.display = 'none';
+        } else   {
+            imagePreview.src = fullPath;
+            imagePreview.style.display = 'block';
+            pdfPreview.style.display = 'none';
+        }
+
+
+         
+    };
+
+
+    // On file selection, preview image or PDF
+    function DocumentpreviewPDFPreview(event) {
         const file = event.target.files[0];
+        const imagePreview = document.getElementById('DocumentpreviewImage');
+        const pdfPreview = document.getElementById('DocumentpreviewPDF');
+
         if (file) {
+            const fileType = file.type;
             const reader = new FileReader();
+
             reader.onload = function (e) {
-                const previewImage = document.getElementById('previewImage');
-                previewImage.src = e.target.result;
+                const result = e.target.result;
+
+                if (fileType.startsWith('image/')) {
+                    imagePreview.src = result;
+                    imagePreview.style.display = 'block';
+                    pdfPreview.style.display = 'none';
+                } else if (fileType === 'application/pdf') {
+                    pdfPreview.src = result;
+                    pdfPreview.style.display = 'block';
+                    imagePreview.style.display = 'none';
+                } else {
+                    alert('Unsupported file type. Please upload an image or a PDF.');
+                    imagePreview.style.display = 'none';
+                    pdfPreview.style.display = 'none';
+                }
             };
-            reader.readAsDataURL(file);
+
+            reader.readAsDataURL(file); // Triggers preview
         }
     }
+
     </script>
 
      

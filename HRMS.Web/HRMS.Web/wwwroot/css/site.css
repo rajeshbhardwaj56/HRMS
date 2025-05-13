@@ -1613,3 +1613,7 @@ p.attendance-calender {
     padding-left: 16px;
     font-weight: 900;
 }
+.Month-year-dropdown {
+    margin-bottom: 5px;
+    gap: 12PX;
+}

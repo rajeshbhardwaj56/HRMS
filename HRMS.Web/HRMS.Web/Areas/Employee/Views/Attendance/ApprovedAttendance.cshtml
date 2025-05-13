@@ -20,7 +20,7 @@
 				<div class="group-box anim">
 					<div class="tabsInfo" id="">
 						<h3>Attendance Info</h3>
-						<div class="d-flex  ">
+						<div class="Month-year-dropdown d-flex">
 							<div>
 								<label for="yearDropdown">Year: </label>
 								<select id="yearDropdown" class="form-select" style="width: 150px;">
@@ -91,10 +91,7 @@
 								<div class="group-box anim">
 									<div class="tabsInfo" id="myTabContent-timeoff">
 										<h3>Approved Attendance</h3>
-
 									</div>
-
-
 									<div role="tabpanel" aria-labelledby="apply-tab">
 										<div class="row">
 											<div class="col-lg-12 col-md-12 col-sm-12">
@@ -112,7 +109,6 @@
 																	<th>Remark</th>
 																</tr>
 															</thead>
-
 														</table>
 													</div>
 												</div>
@@ -123,13 +119,10 @@
 							</div>
 
 							<div class="tab-pane fade" id="Attendance-Reject-tab" role="tabpanel" aria-labelledby="Attendance-Reject-tab1">
-
 								<div class="group-box anim">
 									<div class="tabsInfo" id="myTabContent-timeoff">
 										<h3>Rejected Attendance</h3>
-
 									</div>
-
 									<div role="tabpanel" aria-labelledby="apply-tab">
 										<div class="row">
 											<div class="col-lg-12 col-md-12 col-sm-12">
@@ -156,16 +149,9 @@
 									</div>
 								</div>
 							</div>
-
-
 						</div>
-
 					</div>
 				</div>
-
-
-
-
 			</div>
 		</div>
 	</div>
@@ -203,18 +189,14 @@
 																	<h6>Joinind Date</h6>
 																	<p id="EmployeeJoiningdate"></p>
 																</div>
-
 															</div>
-
 														</div>
 													</div>
 												</div>
 											</div>
 										</div>
-
 									</div>
 								</div>
-
 							</div>
 						</div>
 					</div>
@@ -235,17 +217,14 @@
 											<div class="col-lg-4 px-4">
 												<h6>Start Date</h6>
 												<p id="StartDate"> </p>
-
 											</div>
 											<div class="col-lg-4 px-4">
 												<h6>End Date</h6>
 												<p id="EndDate"> </p>
-
 											</div>
 											<div class="col-lg-4 px-4">
 												<h6>Work Date</h6>
 												<p id="WorkDate"> </p>
-
 											</div>
 										</div>
 										<p>Admin Comment</p>
@@ -257,20 +236,14 @@
 										</div>
 									</form>
 								</div>
-
 							</div>
-
 						</div>
-
 					</div>
 				</div>
 			</div>
-
 		</div>
 	</div>
 </div>
-
-
 <input type="hidden" id="AttWorkDate" />
 <input type="hidden" id="AttStartDate" />
 <input type="hidden" id="AttEndDate" />
@@ -482,48 +455,82 @@
 		 });
 	 }
 
-	 function ApproveRejectAttendance(isApproved) {
-		 const actionText = isApproved ? "approve" : "reject";
-		 if (confirm(`Are you sure you want to ${actionText} this attendance request?`)) {
-			 const employeeID = $("#employeeID").val();
-			 const ApproveRejectComment = $("#ApproveRejectComment").val();
-			 if (ApproveRejectComment === "") {
-				 $("#approverejectrequire").text('Comment required');
-				 return;
-			 }
+		 function ApproveRejectAttendance(isApproved) {
+		const approveButton = $("#approveButton");  // Approve button
+		const rejectButton = $(".btn-primary");    // Reject button (using class to select)
 
-			 const data = {
-				 attendanceId: $("#attendanceId").val(),
-				 employeeID,
-				 status: $("#status").val(),
-				 ApproveRejectComment,
-				 startDate: $("#AttStartDate").val(),
-				 endDate: $("#AttEndDate").val(),
-				 workDate: $("#AttWorkDate").val(),
-				 actionText:actionText
-			 };
+		const actionText = isApproved ? "approve" : "reject";
 
-				$.post('/Employee/Attendance/ApproveRejectAttendance/', data, function (json) {
-		console.log(json);
-		if (json && json.message) {
-			if (json.success) {
-				showToast(json.message);
-				CloseApproveRejectModel();
-				window.location.reload();
-				$("#ApproveRejectComment").val("");
-			} else {
-				$("#approverejectrequire").text(json.message);
-				window.location.reload();
-				CloseApproveRejectModel();
-			}
+		// Disable both buttons and change text of the clicked button
+		approveButton.prop('disabled', true);
+		rejectButton.prop('disabled', true);
+
+		// Change text to 'Processing...' for the clicked button
+		if (isApproved) {
+			approveButton.text('Processing...');
 		} else {
-			showToast("Attendance status updated.");
-			$("#ApproveRejectComment").val("");
+			rejectButton.text('Processing...');
 		}
-	});
 
-		 }
-	 }
+		// Show confirmation dialog
+		if (confirm(`Are you sure you want to ${actionText} this attendance request?`)) {
+			const employeeID = $("#employeeID").val();
+			const ApproveRejectComment = $("#ApproveRejectComment").val();
+
+			if (ApproveRejectComment === "") {
+				$("#approverejectrequire").text('Comment required');
+				// Re-enable both buttons and reset text
+				approveButton.prop('disabled', false);
+				rejectButton.prop('disabled', false);
+				approveButton.text('Approve');
+				rejectButton.text('Reject');
+				return;
+			}
+
+			const data = {
+				attendanceId: $("#attendanceId").val(),
+				employeeID,
+				status: $("#status").val(),
+				ApproveRejectComment,
+				startDate: $("#AttStartDate").val(),
+				endDate: $("#AttEndDate").val(),
+				workDate: $("#AttWorkDate").val(),
+				actionText: actionText
+			};
+
+			$.post('/Employee/Attendance/ApproveRejectAttendance/', data, function (json) {
+				console.log(json);
+				if (json && json.message) {
+					if (json.success) {
+						showToast(json.message);
+						CloseApproveRejectModel();
+						window.location.reload();
+						$("#ApproveRejectComment").val("");
+					} else {
+						$("#approverejectrequire").text(json.message);
+						window.location.reload();
+						CloseApproveRejectModel();
+					}
+				} else {
+					showToast("Attendance status updated.");
+					$("#ApproveRejectComment").val("");
+				}
+
+				// Re-enable both buttons and reset text after the request completes
+				approveButton.prop('disabled', false);
+				rejectButton.prop('disabled', false);
+				approveButton.text('Approve');
+				rejectButton.text('Reject');
+			});
+		} else {
+			// Re-enable both buttons and reset text if the user cancels
+			approveButton.prop('disabled', false);
+			rejectButton.prop('disabled', false);
+			approveButton.text('Approve');
+			rejectButton.text('Reject');
+		}
+	}
+
 
 	 function showToast(message) {
 		 $.toast({

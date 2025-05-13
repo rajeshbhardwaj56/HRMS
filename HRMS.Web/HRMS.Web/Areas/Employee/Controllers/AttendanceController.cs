@@ -332,7 +332,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                             emailBody = $"Hi, {managerFirstName} has sent a request for attendance approval.",
                             EmailToList = new List<string> { manager2Email }
                         };
-                      //  EmailSender.SendEmail(managerEmailProps);
+                        EmailSender.SendEmail(managerEmailProps);
                     }
 
                     // Email to employee
@@ -371,8 +371,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     emailBody = body,
                     EmailToList = emailList
                 };
-                //var emailResponse = EmailSender.SendEmail(emailProps);
-              //  isEmailSent = emailResponse.responseCode == "200";
+                 var emailResponse = EmailSender.SendEmail(emailProps);
+                isEmailSent = emailResponse.responseCode == "200";
                 emailMessage = isEmailSent ? " and email sent." : ", but email sending failed.";
             }
 

@@ -760,7 +760,21 @@ namespace HRMS.API.BusinessLayer
         #endregion
 
         #region Companies
-        public Results GetAllCompanies(EmployeeInputParams model)
+        public Results GetCompaniesLogo(CompanyLoginModel model)
+        {
+            Results result = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
+            result.companyLoginModel = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new CompanyLoginModel
+                              {
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  CompanyLogo = dataRow.Field<string>("CompanyLogo"),
+                              }).ToList().FirstOrDefault();
+            return result;
+        }
+        public Results GetAllCompanies(EmployeeInputParams model)   
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -2222,7 +2236,8 @@ namespace HRMS.API.BusinessLayer
                    .Select(dataRow =>
                         new Result()
                         {
-                            Message = dataRow.Field<string>("Result").ToString()
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = dataRow.Field<long>("PKNo")
                         }
                    ).ToList().FirstOrDefault();
             }

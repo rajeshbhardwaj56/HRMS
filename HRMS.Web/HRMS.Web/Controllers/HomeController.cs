@@ -12,6 +12,8 @@ using HRMS.Models.DashBoard;
 using HRMS.Models.User;
 using HRMS.Models.Employee;
 using HRMS.Web.BusinessLayer.S3;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using HRMS.Models.Company;
 
 namespace HRMS.Web.Controllers
 {
@@ -27,16 +29,30 @@ namespace HRMS.Web.Controllers
         {
             _logger = logger;
             _businessLayer = businessLayer;
-            _context = context;        
+            _context = context;
             _configuration = configuration;
-            _s3Service = s3Service; 
+            _s3Service = s3Service;
             EmailSender.configuration = _configuration;
-            
+
         }
 
         public IActionResult Index()
         {
-            return View();
+            LoginUser obj = new LoginUser();
+            CompanyLoginModel model = new CompanyLoginModel();
+            {
+                var companyId = _configuration["CommonyDetails:CompanyId"];
+                model.CompanyID = Convert.ToInt64(companyId);
+
+                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
+            }
+            if (!string.IsNullOrEmpty(model.CompanyLogo))
+            {
+                model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+            }
+            obj.CompanyLogo = model.CompanyLogo;
+            return View(obj);
         }
 
         public ActionResult ForgotPassword()
@@ -226,7 +242,7 @@ namespace HRMS.Web.Controllers
                 {
                     var ProfilePhoto = _s3Service.GetFileUrl(model.ProfilePhoto);
                     _context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
-                }                 
+                }
                 _context.HttpContext.Session.SetString(Constants.FirstName, model.FirstName);
                 _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName ?? string.Empty);
                 _context.HttpContext.Session.SetString(Constants.Surname, model.Surname ?? string.Empty);
@@ -234,8 +250,8 @@ namespace HRMS.Web.Controllers
                 var CompanyDatas = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas);
                 var CompanyData = results.companyModel;
-              //  var CompanyLogo = "/Uploads/CompanyLogo/" + CompanyData.CompanyID + "/"+ CompanyData.CompanyLogo;
-               var CompanyLogo = _s3Service.GetFileUrl(CompanyData.CompanyLogo);
+                //  var CompanyLogo = "/Uploads/CompanyLogo/" + CompanyData.CompanyID + "/"+ CompanyData.CompanyLogo;
+                var CompanyLogo = _s3Service.GetFileUrl(CompanyData.CompanyLogo);
                 _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
 
                 return RedirectToActionPermanent(

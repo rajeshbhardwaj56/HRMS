@@ -175,10 +175,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
 
-       
 
-            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-            TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
+            if (result != null && result.PKNo > 0)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
+            }
+            else
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try later.";
+            }
             return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyDetailsListing, WebControllarsConstants.LeavePolicy);
 
         }

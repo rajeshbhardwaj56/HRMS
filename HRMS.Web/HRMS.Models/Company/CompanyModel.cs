@@ -30,4 +30,10 @@ namespace HRMS.Models.Company
         public List<SelectListItem> Countries = new List<SelectListItem>();
         public List<SelectListItem> Currencies = new List<SelectListItem>();
     }
+    public class CompanyLoginModel
+    {
+        public long CompanyID { get; set; }
+        public string CompanyLogo { get; set; } = string.Empty;
+
+    }
 }
