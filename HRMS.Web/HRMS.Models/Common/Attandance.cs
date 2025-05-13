@@ -69,4 +69,10 @@ namespace HRMS.Models.Common
     {
         public List<AttendanceDeviceLog> AttendanceLogs { get; set; } = new List<AttendanceDeviceLog>();
     }
+    public class AttendanceStatusRequest
+    {
+        public int AttendanceStatus { get; set; }
+        public int Year { get; set; }
+        public int Month { get; set; }
+    }
 }

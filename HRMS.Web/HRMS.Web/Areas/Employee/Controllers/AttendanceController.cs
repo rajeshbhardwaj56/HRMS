@@ -404,12 +404,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             return View();
         }
-        public class AttendanceStatusRequest
-        {
-            public int AttendanceStatus { get; set; }
-            public int Year { get; set; }
-            public int Month { get; set; }
-        }
+       
         [HttpPost]
         public JsonResult GetApprovedAttendance([FromBody] AttendanceStatusRequest request)
         {

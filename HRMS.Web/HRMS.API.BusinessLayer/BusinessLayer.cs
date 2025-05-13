@@ -1908,7 +1908,7 @@ namespace HRMS.API.BusinessLayer
          EmployeeId = dataRow.Field<long>("EmployeeId"),
          FirstName = dataRow.Field<string>("EmployeeFirstName"),
          LastName = dataRow.Field<string>("EmployeeLastName"),
-         DOB = dataRow.Field<DateTime>("EmployeeDOB"),  // Nullable DateTime
+         DOB = dataRow.Field<DateTime?>("EmployeeDOB"),  // Nullable DateTime
          EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
      }).ToList();
 

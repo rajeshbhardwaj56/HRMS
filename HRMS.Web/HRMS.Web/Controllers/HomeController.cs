@@ -41,7 +41,7 @@ namespace HRMS.Web.Controllers
             LoginUser obj = new LoginUser();
             CompanyLoginModel model = new CompanyLoginModel();
             {
-                var companyId = _configuration["CommonyDetails:CompanyId"];
+                var companyId = _configuration["CompanyDetails:CompanyId"];
                 model.CompanyID = Convert.ToInt64(companyId);
 
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
