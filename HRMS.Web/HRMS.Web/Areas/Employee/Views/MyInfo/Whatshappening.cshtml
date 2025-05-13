@@ -1,7 +1,7 @@
 ﻿<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 
 @{
-    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", this.Context.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml",  "Employee");
     ViewData["Title"] = "Whats Happening";
 
     var success = TempData["Success"];

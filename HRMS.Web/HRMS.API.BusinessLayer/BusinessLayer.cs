@@ -2849,8 +2849,8 @@ namespace HRMS.API.BusinessLayer
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
         {
             new SqlParameter("@ReportingUserID", model.UserId),
-            new SqlParameter("@Year",2025),
-            new SqlParameter("@Month",05),
+            new SqlParameter("@Year",model.Year),
+            new SqlParameter("@Month",model.Month),
             new SqlParameter("@AttendanceStatusId",attStatus)
         };
 
