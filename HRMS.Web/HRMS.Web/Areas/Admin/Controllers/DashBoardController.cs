@@ -690,11 +690,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         {
                                             prop.SetValue(item, dob.ToString("yyyy-MM-dd"));
                                         }
-                                        else
-                                        {
-                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Invalid DateOfBirth format.");
-                                            hasError = true;
-                                        }
+                                        //else
+                                        //{
+                                        //    AddErrorRow(errorDataTable, columnName, $"Row {row}: Invalid DateOfBirth format.");
+                                        //    hasError = true;
+                                        //}
                                     }
                                     else
                                     {
@@ -938,7 +938,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     else if (SubDepartmentDictionaries != null)
                                     {
                                         var matchedSubDept = SubDepartmentDictionaries
-                                            .FirstOrDefault(kvp => kvp.Key.Equals(cellValue.Trim(), StringComparison.OrdinalIgnoreCase));
+                                            .FirstOrDefault(kvp => kvp.Key.Trim().Equals(cellValue.Trim(), StringComparison.OrdinalIgnoreCase));
                                         SubDepartmentNameId = matchedSubDept.Value;
                                         prop.SetValue(item, SubDepartmentNameId.ToString());
 
@@ -1094,8 +1094,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         }
                                         else
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: AON must be a numeric (integer) value.");
-                                            hasError = true;
+                                            prop.SetValue(item, "0");
                                         }
                                     }
                                     else
