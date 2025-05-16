@@ -18,7 +18,7 @@
     </div>
 
     <div class="row mb-4">
-        @if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.Manager)|| RoleName == Convert.ToInt64(Roles.SuperAdmin))
+        @if (RoleName != Convert.ToInt64(Roles.Employee) )
         {
             <div class="col-xl-3 col-sm-6 col-12">
                 <div class="card board1 fill1 " id="RedirectBtn">
@@ -79,7 +79,9 @@
                 </div>
             </div>
         </div>
-        @* <div class="col-xl-3 col-sm-6 col-12">
+        @if (RoleName == Convert.ToInt64(Roles.HR))
+        {
+        <div class="col-xl-3 col-sm-6 col-12">
         <div class="card board1 fill4 ">
         <div class="card-body">
         <div class="card_widget_header">
@@ -93,7 +95,8 @@
         </div>
         </div>
         </div>
-        </div> *@
+        </div>
+        }
     </div>
 
 
@@ -305,26 +308,7 @@
         </div>
     </div>
 </div>
-@* <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog modal-fullscreen">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="announcementModalLabel">Announcement Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="modalImage" src="" class="rounded mb-3" width="50" height="50" alt="Announcement Image">
-                <h5 id="modalTitle"></h5>
-                <p id="modalDescription"></p>
-                <p><b>From Date:</b> <span id="modalFromDate"></span></p>
-                <p><b>To Date:</b> <span id="modalToDate"></span></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div> *@
+ 
 <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -333,7 +317,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="" class="rounded mb-3" style="width: 20px; height: 20px;" alt="Announcement Image">
+                <img id="modalImage" src="" class="rounded mb-3"  alt="Announcement Image">
                 <h5 id="modalTitle"></h5>
                 <p id="modalDescription"></p>
                 <p><b>From Date:</b> <span id="modalFromDate"></span></p>
@@ -348,28 +332,26 @@
 
 
 <script>
-       document.addEventListener("DOMContentLoaded", function () {
-        const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
-        document.querySelectorAll(".view-announcement-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                const title = this.getAttribute("data-title");
-                const fromDate = this.getAttribute("data-fromdate");
-                const toDate = this.getAttribute("data-todate");
-                const image = this.getAttribute("data-image");
+         document.addEventListener("DOMContentLoaded", function () {
+            const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
+            document.querySelectorAll(".view-announcement-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const title = this.getAttribute("data-title");
+                    const fromDate = this.getAttribute("data-fromdate");
+                    const toDate = this.getAttribute("data-todate");
+                    const image = this.getAttribute("data-image");
+                    const description = this.getAttribute("data-description");  // Use data-description directly
 
-                const descId = this.getAttribute("data-description-id");
-                const descriptionHtml = document.getElementById(descId).innerHTML;
+                    document.getElementById("modalTitle").innerText = title;
+                    document.getElementById("modalDescription").innerHTML = description;  // Set description directly
+                    document.getElementById("modalFromDate").innerText = fromDate;
+                    document.getElementById("modalToDate").innerText = toDate;
+                    document.getElementById("modalImage").src = image;
 
-                document.getElementById("modalTitle").innerText = title;
-                document.getElementById("modalDescription").innerHTML = descriptionHtml;
-                document.getElementById("modalFromDate").innerText = fromDate;
-                document.getElementById("modalToDate").innerText = toDate;
-                document.getElementById("modalImage").src = image;
-
-                modal.show();
+                    modal.show();
+                });
             });
         });
-    });
 
     document.getElementById('RedirectBtn').addEventListener('click', function () {
         window.location.href = '/hr/employee/EmployeeListing';

@@ -39,17 +39,18 @@
                         @foreach (var item in group)
                         {
                             var filedata = @item.PolicyDocument;
-
+                                <a href="@filedata" target="_blank" class="text-decoration-none">
                             <div class="col-2">
                                 <div class="card" style="text-align:center;">
                                     <div class="card-body">
                                         <h6 class="card-title mb-3">@item.Title</h6>
-                                        <a href="@filedata" target="_blank" class="text-decoration-none">
+                                       
                                         <i class="bi bi-file-earmark-pdf-fill text-secondary fs-1"></i>
-                                        </a>
+                                        
                                     </div>
                                 </div>
                             </div>
+                                </a>
                         }
 
                         </div>

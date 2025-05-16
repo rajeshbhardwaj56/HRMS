@@ -16,6 +16,7 @@ namespace HRMS.Models.Leave
         public long EmployeeID { get; set; }
         public long CompanyID { get; set; }
         public long UserID { get; set; }
+        public long? RoleId { get; set; }
         public int GenderId { get; set; }
     }
     public class LeaveSummaryModel

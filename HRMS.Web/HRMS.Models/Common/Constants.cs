@@ -232,6 +232,7 @@ namespace HRMS.Models.Common
 
         public const string AddUpdateWhatsHappening = "AddUpdateWhatsHappening";
         public const string GetWhatsHappenings = "GetWhatsHappenings";
+        public const string CheckEmployeeReporting = "CheckEmployeeReporting";
 
 
     }

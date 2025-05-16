@@ -49,10 +49,11 @@ namespace HRMS.Models.Employee
         public long LeavePolicyID { get; set; }
         public long ReportingToIDL2 { get; set; }
         public string ClientName { get; set; } = string.Empty;
-        public string ESINumber { get; set; } = string.Empty;
+        public string? ESINumber { get; set; } = string.Empty;
         public DateTime? ESIRegistrationDate { get; set; } = DateTime.UtcNow;
         public int RoleId { get; set; }
         public string EmployeNumber { get; set; } = string.Empty;
+        public string CompanyAbbr { get; set; } = string.Empty;
         public long CompanyID { get; set; } = 0;
 
 

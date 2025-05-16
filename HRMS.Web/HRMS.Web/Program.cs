@@ -85,7 +85,30 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Home/Index"; // Default
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                // If not an API request, redirect to your error page
+                if (!context.Request.Path.StartsWithSegments("/api"))
+                {
+                    context.Response.Redirect("/Home/ErrorPage");
+                }
+                else
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+
 //builder.Services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -105,7 +128,8 @@ builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 builder.Services.TryAddTransient<AttendanceReminderJob>();
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(AttendanceReminderJob),
-cronExpression: "0 00 05 * * ?"));
+    cronExpression: "0 00 5 * * ?"));
+
 
 var app = builder.Build();
 

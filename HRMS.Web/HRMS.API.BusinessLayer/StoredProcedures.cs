@@ -97,5 +97,6 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_WhatsHappeningS = "usp_Get_WhatsHappeningS";
         public const string usp_AddUpdate_WhatsHappening = "usp_AddUpdate_WhatsHappening";
         public const string usp_Delete_WhatsHappening = "usp_Delete_WhatsHappening";
+        public const string usp_CheckEmployeeReporting = "usp_CheckEmployeeReporting";
     }
 }

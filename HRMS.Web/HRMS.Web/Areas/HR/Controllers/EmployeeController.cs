@@ -4,8 +4,10 @@ using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using HRMS.Models;
 using HRMS.Models.Common;
+using HRMS.Models.Company;
 using HRMS.Models.Employee;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
@@ -15,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using System;
 using System.Net.Mail;
 using System.Reflection;
@@ -352,14 +355,14 @@ namespace HRMS.Web.Areas.HR.Controllers
                     L1EmployeeID = l1EmployeeId
                 };
 
-               
+
                 var data = _businessLayer.SendPostAPIRequest(input,
                     _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee,
                     APIApiActionConstants.GetL2ManagerDetails),
                     HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
-              
-                L2ManagerDetail managerDetail = JsonConvert.DeserializeObject<L2ManagerDetail>(data);             
+
+                L2ManagerDetail managerDetail = JsonConvert.DeserializeObject<L2ManagerDetail>(data);
                 if (managerDetail != null)
                 {
                     return Json(new
@@ -376,7 +379,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             catch (Exception ex)
             {
-              
+
                 return Json(new { success = false, message = "An error occurred while fetching the L2 manager.", error = ex.Message });
             }
         }
@@ -384,15 +387,29 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpGet]
         public ActionResult EmploymentDetails(string id, string DegtId, string DeptId)
         {
-                EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
+            var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
             {
                 UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
             };
+            CompanyLoginModel model = new CompanyLoginModel();
+            {
+
+                model.CompanyID = Convert.ToInt64(CompanyID);
+
+                var Companydata = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(Companydata).companyLoginModel;
+            }
+            if (!string.IsNullOrEmpty(model.CompanyLogo))
+            {
+                model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+            }
             if (!string.IsNullOrEmpty(id))
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 employmentDetailInputParams.DesignationID = long.Parse(_businessLayer.DecodeStringBase64(DegtId));
-              employmentDetailInputParams.DepartmentID = long.Parse(_businessLayer.DecodeStringBase64(DeptId));
+                employmentDetailInputParams.DepartmentID = long.Parse(_businessLayer.DecodeStringBase64(DeptId));
                 employmentDetailInputParams.EmployeeID = long.Parse(id);
             }
             employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -400,6 +417,8 @@ namespace HRMS.Web.Areas.HR.Controllers
             var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(data);
             employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
+            employmentDetail.EmployeNumber = model.Abbr + employmentDetail.EmployeNumber;
+            employmentDetail.CompanyAbbr = model.Abbr;
             return View(employmentDetail);
         }
 
@@ -432,6 +451,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
                 employmentDetail.CompanyID = Convert.ToInt64(CompanyID);
+                employmentDetail.EmployeNumber = employmentDetail.EmployeNumber.Split(employmentDetail.CompanyAbbr)[1];
                 var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Result result = JsonConvert.DeserializeObject<Result>(data);
                 if (result != null && result.PKNo > 0 && result.Message.Contains("EmailID already Exists in System, please try again with another email.", StringComparison.OrdinalIgnoreCase))
@@ -632,5 +652,21 @@ namespace HRMS.Web.Areas.HR.Controllers
             return Json(new { data = results.WhatsHappeningList });
 
         }
+
+
+
+        [HttpGet]
+        public IActionResult InActiveEmployee(int employeeId , int isActive)
+        {
+            ReportingStatus obj = new ReportingStatus();
+            obj.EmployeeId = employeeId;
+            obj.Status = isActive;
+
+            var data = _businessLayer.SendPostAPIRequest(obj, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.CheckEmployeeReporting), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var ReportingData = JsonConvert.DeserializeObject<ReportingStatus>(data);
+
+            return Ok(new { success = true,data = ReportingData });
+        }
+
     }
 }

@@ -1,7 +1,10 @@
 ﻿<!DOCTYPE html>
+    @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 <html lang="en">
     @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
+@{
+    var Logo = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.CompanyLogo);
+}
 <head>
     <!-- Character encoding for UTF-8 -->
     <meta charset="UTF-8">
@@ -33,6 +36,7 @@
 
     @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer 
     @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using HRMS.Models.Common
     @using Microsoft.AspNetCore.Http
 </head>
 
@@ -42,49 +46,19 @@
 
     <div class="custome-container">
         <div class="sidebar">
-            <a class="logo" asp-area="HR" asp-controller="DashBoard" asp-action="Index"><img src="/assets/img/logo/logo-small.png" style="width:50px; height:50px;" /></a>
-            <a class="logo-expand" asp-area="HR" asp-controller="DashBoard" asp-action="Index"><img src="/assets/img/logo/Protalk_Logo-small.png" style="width:150px;" /></a>
-
+            <a class="logo" asp-area="employee" asp-controller="myinfo" asp-action="Index"><img src="@Logo" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:50px; height:50px;" /></a>
+            <a class="logo-expand" asp-area="employee" asp-controller="myinfo" asp-action="Index"><img src="@Logo" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="img-fluid" style="width:55px;" /></a>
 
             <div class="side-wrapper">
                 @* <div class="side-title">MENU</div> *@
                 <div class="side-menu">
-                    <a class="sidebar-link is-active" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="employee" asp-action="Index">
-                        <svg viewBox="0 0 512 512" fill="currentColor">
-                            <g>
-                                <path class="st0" d="M256.008,411.524c54.5,0,91.968-7.079,92.54-13.881c2.373-28.421-34.508-43.262-49.381-48.834
-		    c-7.976-2.984-19.588-11.69-19.588-17.103c0-3.587,0-8.071,0-14.214c4.611-5.119,8.095-15.532,10.183-27.317
-		    c4.857-1.738,7.627-4.524,11.095-16.65c3.69-12.93-5.548-12.5-5.548-12.5c7.468-24.715-2.357-47.944-18.825-46.246
-		    c-11.358-19.857-49.397,4.54-61.31,2.841c0,6.818,2.834,11.92,2.834,11.92c-4.143,7.882-2.548,23.564-1.389,31.485
-		    c-0.667,0-9.016,0.079-5.468,12.5c3.452,12.126,6.23,14.912,11.088,16.65c2.079,11.786,5.571,22.198,10.198,27.317
-		    c0,6.143,0,10.627,0,14.214c0,5.413-12.35,14.548-19.611,17.103c-14.953,5.262-51.746,20.413-49.373,48.834
-		    C164.024,404.444,201.491,411.524,256.008,411.524z" />
-                                <path class="st0" d="M404.976,56.889h-75.833v16.254c0,31.365-25.524,56.889-56.889,56.889h-32.508
-		    c-31.366,0-56.889-25.524-56.889-56.889V56.889h-75.834c-25.444,0-46.071,20.627-46.071,46.071v362.969
-		    c0,25.444,20.627,46.071,46.071,46.071h297.952c25.445,0,46.072-20.627,46.072-46.071V102.96
-		    C451.048,77.516,430.421,56.889,404.976,56.889z M402.286,463.238H109.714V150.349h292.572V463.238z" />
-                                <path class="st0" d="M239.746,113.778h32.508c22.405,0,40.635-18.23,40.635-40.635V40.635C312.889,18.23,294.659,0,272.254,0
-		    h-32.508c-22.406,0-40.635,18.23-40.635,40.635v32.508C199.111,95.547,217.341,113.778,239.746,113.778z M231.619,40.635
-		    c0-4.492,3.634-8.127,8.127-8.127h32.508c4.492,0,8.127,3.635,8.127,8.127v16.254c0,4.492-3.635,8.127-8.127,8.127h-32.508
-		    c-4.493,0-8.127-3.635-8.127-8.127V40.635z" />
-                            </g>
-                        </svg>
-                        <span>New Employee</span>
-                    </a>
                     <a class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="employee" asp-action="EmployeeListing">
                         <svg viewBox="0 0 17 17" fill="currentColor">
                             <path d="M15 5h-9v-1h9v1zM6 6v1h11v-1h-11zM0 8h5v-5h-5v5zM15 11h-9v1h9v-1zM6 14h11v-1h-11v1zM0 15h5v-5h-5v5z" />
                         </svg>
                         Employee Listing
                     </a>
-
-                    <a class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="employee" asp-action="ActiveEmployeeListing">
-                        <svg viewBox="0 0 17 17" fill="currentColor">
-                            <path d="M15 5h-9v-1h9v1zM6 6v1h11v-1h-11zM0 8h5v-5h-5v5zM15 11h-9v1h9v-1zM6 14h11v-1h-11v1zM0 15h5v-5h-5v5z" />
-                        </svg>
-                        Active Employee Listing
-                    </a>
-
+                     
                     <a class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="myinfo" asp-action="Index">
                         <svg viewBox="0 0 1920 1920" fill="currentColor">
                             <path d="M852.517 606.04C722.804 666.467 612.48 770.67 502.075 923.02c-15.746 21.725-16.38 34.927-.205 46.602 11.372 8.209 17.98 5.583 34.542-12.088 2.217-2.38 2.217-2.38 4.484-4.84 14.318-15.505 25.852-28.662 50.49-57.274 81.407-94.538 121.17-133.45 182.968-169.038 53.478-30.795 100.476 14.462 91.527 72.38-2.51 16.258-6.836 28.257-17.978 54.022-4.432 10.249-6.302 14.707-8.38 20.171-20.085 52.8-37.002 96.846-72.451 188.834l-1.696 4.4c-10.718 27.813-10.718 27.813-21.427 55.62-46.426 120.661-74.598 194.652-103.665 272.901l-1.705 4.587c-7.8 20.975-11.474 30.871-15.534 41.881-33.306 90.321-52.353 149.007-66.84 211.427-2.262 9.713-2.262 9.713-4.556 19.584-8.162 35.31-12.53 58.062-14.972 81.448-4.222 40.439-.827 73.553 11.881 101.382 14.38 31.493 45.278 54.021 80.532 59.138 58.727 8.525 115.393 7.92 163.927-3.123 27.314-6.21 54.338-14.34 80.853-24.306 76.773-28.866 150.735-73.905 222.371-133.442 62.681-52.236 121.988-115.875 184.165-194.965 5.42-6.849 5.42-6.849 10.823-13.686 18.78-23.947 27.981-39.501 31.416-55.93 3.736-17.836-11.342-35.912-23.394-29.864-5.956 2.989-12.187 9.176-21.68 21.15-6.791 8.714-10.483 13.37-14.178 17.555-14.745 16.695-30.315 33.783-47.184 51.837-27.812 29.752-56.07 58.865-97.055 100.308-20.874 21.107-47.126 39.56-75.351 53.435-45.176 22.197-85.929-5.782-81.034-55.857 3.229-33.058 11.238-67.234 23.212-100.275 26.157-72.22 47.544-130.604 94.86-259.27 20.52-55.803 29.38-79.91 40.446-110.086 32.81-89.425 59-161.415 83.919-230.875 30.784-85.803 48.175-149.762 56.227-215.81 6.08-49.817-7.78-97.46-39.389-130.216-35.047-36.312-84.896-53.039-146.979-52.305-68.692.817-148.82 23.261-222.548 57.608Zm470.186-592.224c-123.444-48.028-271.57 34.483-296.373 165.169-17.984 94.72 17.4 176.498 89.622 210.751 143.165 67.897 314.982-40.897 314.989-199.468.007-88.211-37.668-148.991-108.238-176.452Z" />
@@ -97,6 +71,41 @@
                         </svg>
                         <span>Manage Company</span>
                     </a>
+                    <a id="myteam-link" class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="Attendance" asp-action="AttendenceList">
+
+                        <svg viewBox="0 0 1920 1920" fill="currentColor">
+                            <path d="M852.517 606.04C722.804 666.467 612.48 770.67 502.075 923.02c-15.746 21.725-16.38 34.927-.205 46.602 11.372 8.209 17.98 5.583 34.542-12.088 2.217-2.38 2.217-2.38 4.484-4.84 14.318-15.505 25.852-28.662 50.49-57.274 81.407-94.538 121.17-133.45 182.968-169.038 53.478-30.795 100.476 14.462 91.527 72.38-2.51 16.258-6.836 28.257-17.978 54.022-4.432 10.249-6.302 14.707-8.38 20.171-20.085 52.8-37.002 96.846-72.451 188.834l-1.696 4.4c-10.718 27.813-10.718 27.813-21.427 55.62-46.426 120.661-74.598 194.652-103.665 272.901l-1.705 4.587c-7.8 20.975-11.474 30.871-15.534 41.881-33.306 90.321-52.353 149.007-66.84 211.427-2.262 9.713-2.262 9.713-4.556 19.584-8.162 35.31-12.53 58.062-14.972 81.448-4.222 40.439-.827 73.553 11.881 101.382 14.38 31.493 45.278 54.021 80.532 59.138 58.727 8.525 115.393 7.92 163.927-3.123 27.314-6.21 54.338-14.34 80.853-24.306 76.773-28.866 150.735-73.905 222.371-133.442 62.681-52.236 121.988-115.875 184.165-194.965 5.42-6.849 5.42-6.849 10.823-13.686 18.78-23.947 27.981-39.501 31.416-55.93 3.736-17.836-11.342-35.912-23.394-29.864-5.956 2.989-12.187 9.176-21.68 21.15-6.791 8.714-10.483 13.37-14.178 17.555-14.745 16.695-30.315 33.783-47.184 51.837-27.812 29.752-56.07 58.865-97.055 100.308-20.874 21.107-47.126 39.56-75.351 53.435-45.176 22.197-85.929-5.782-81.034-55.857 3.229-33.058 11.238-67.234 23.212-100.275 26.157-72.22 47.544-130.604 94.86-259.27 20.52-55.803 29.38-79.91 40.446-110.086 32.81-89.425 59-161.415 83.919-230.875 30.784-85.803 48.175-149.762 56.227-215.81 6.08-49.817-7.78-97.46-39.389-130.216-35.047-36.312-84.896-53.039-146.979-52.305-68.692.817-148.82 23.261-222.548 57.608Zm470.186-592.224c-123.444-48.028-271.57 34.483-296.373 165.169-17.984 94.72 17.4 176.498 89.622 210.751 143.165 67.897 314.982-40.897 314.989-199.468.007-88.211-37.668-148.991-108.238-176.452Z" />
+                        </svg>
+                        <span>My Attendance</span>
+                    </a>
+                    <a   class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="myinfo" asp-action="TeamAttendenceList">
+                        <svg viewBox="0 0 1920 1920" fill="currentColor">
+                            <path d="M852.517 606.04C722.804 666.467 612.48 770.67 502.075 923.02c-15.746 21.725-16.38 34.927-.205 46.602 11.372 8.209 17.98 5.583 34.542-12.088 2.217-2.38 2.217-2.38 4.484-4.84 14.318-15.505 25.852-28.662 50.49-57.274 81.407-94.538 121.17-133.45 182.968-169.038 53.478-30.795 100.476 14.462 91.527 72.38-2.51 16.258-6.836 28.257-17.978 54.022-4.432 10.249-6.302 14.707-8.38 20.171-20.085 52.8-37.002 96.846-72.451 188.834l-1.696 4.4c-10.718 27.813-10.718 27.813-21.427 55.62-46.426 120.661-74.598 194.652-103.665 272.901l-1.705 4.587c-7.8 20.975-11.474 30.871-15.534 41.881-33.306 90.321-52.353 149.007-66.84 211.427-2.262 9.713-2.262 9.713-4.556 19.584-8.162 35.31-12.53 58.062-14.972 81.448-4.222 40.439-.827 73.553 11.881 101.382 14.38 31.493 45.278 54.021 80.532 59.138 58.727 8.525 115.393 7.92 163.927-3.123 27.314-6.21 54.338-14.34 80.853-24.306 76.773-28.866 150.735-73.905 222.371-133.442 62.681-52.236 121.988-115.875 184.165-194.965 5.42-6.849 5.42-6.849 10.823-13.686 18.78-23.947 27.981-39.501 31.416-55.93 3.736-17.836-11.342-35.912-23.394-29.864-5.956 2.989-12.187 9.176-21.68 21.15-6.791 8.714-10.483 13.37-14.178 17.555-14.745 16.695-30.315 33.783-47.184 51.837-27.812 29.752-56.07 58.865-97.055 100.308-20.874 21.107-47.126 39.56-75.351 53.435-45.176 22.197-85.929-5.782-81.034-55.857 3.229-33.058 11.238-67.234 23.212-100.275 26.157-72.22 47.544-130.604 94.86-259.27 20.52-55.803 29.38-79.91 40.446-110.086 32.81-89.425 59-161.415 83.919-230.875 30.784-85.803 48.175-149.762 56.227-215.81 6.08-49.817-7.78-97.46-39.389-130.216-35.047-36.312-84.896-53.039-146.979-52.305-68.692.817-148.82 23.261-222.548 57.608Zm470.186-592.224c-123.444-48.028-271.57 34.483-296.373 165.169-17.984 94.72 17.4 176.498 89.622 210.751 143.165 67.897 314.982-40.897 314.989-199.468.007-88.211-37.668-148.991-108.238-176.452Z" />
+                        </svg>
+                        <span>Team Attendance</span>
+                    </a>
+                    <a id="myattendance-link" class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="Attendance" asp-action="MyAttendanceList">
+
+                        <svg viewBox="0 0 1920 1920" fill="currentColor">
+                            <path d="M852.517 606.04C722.804 666.467 612.48 770.67 502.075 923.02c-15.746 21.725-16.38 34.927-.205 46.602 11.372 8.209 17.98 5.583 34.542-12.088 2.217-2.38 2.217-2.38 4.484-4.84 14.318-15.505 25.852-28.662 50.49-57.274 81.407-94.538 121.17-133.45 182.968-169.038 53.478-30.795 100.476 14.462 91.527 72.38-2.51 16.258-6.836 28.257-17.978 54.022-4.432 10.249-6.302 14.707-8.38 20.171-20.085 52.8-37.002 96.846-72.451 188.834l-1.696 4.4c-10.718 27.813-10.718 27.813-21.427 55.62-46.426 120.661-74.598 194.652-103.665 272.901l-1.705 4.587c-7.8 20.975-11.474 30.871-15.534 41.881-33.306 90.321-52.353 149.007-66.84 211.427-2.262 9.713-2.262 9.713-4.556 19.584-8.162 35.31-12.53 58.062-14.972 81.448-4.222 40.439-.827 73.553 11.881 101.382 14.38 31.493 45.278 54.021 80.532 59.138 58.727 8.525 115.393 7.92 163.927-3.123 27.314-6.21 54.338-14.34 80.853-24.306 76.773-28.866 150.735-73.905 222.371-133.442 62.681-52.236 121.988-115.875 184.165-194.965 5.42-6.849 5.42-6.849 10.823-13.686 18.78-23.947 27.981-39.501 31.416-55.93 3.736-17.836-11.342-35.912-23.394-29.864-5.956 2.989-12.187 9.176-21.68 21.15-6.791 8.714-10.483 13.37-14.178 17.555-14.745 16.695-30.315 33.783-47.184 51.837-27.812 29.752-56.07 58.865-97.055 100.308-20.874 21.107-47.126 39.56-75.351 53.435-45.176 22.197-85.929-5.782-81.034-55.857 3.229-33.058 11.238-67.234 23.212-100.275 26.157-72.22 47.544-130.604 94.86-259.27 20.52-55.803 29.38-79.91 40.446-110.086 32.81-89.425 59-161.415 83.919-230.875 30.784-85.803 48.175-149.762 56.227-215.81 6.08-49.817-7.78-97.46-39.389-130.216-35.047-36.312-84.896-53.039-146.979-52.305-68.692.817-148.82 23.261-222.548 57.608Zm470.186-592.224c-123.444-48.028-271.57 34.483-296.373 165.169-17.984 94.72 17.4 176.498 89.622 210.751 143.165 67.897 314.982-40.897 314.989-199.468.007-88.211-37.668-148.991-108.238-176.452Z" />
+                        </svg>
+                        <span>Attendance correction</span>
+                    </a>
+                    <a class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageAdmin)" asp-controller="ShiftType" asp-action="ShiftTypeListing">
+                        <svg viewBox="0 0 17 17" fill="currentColor">
+                            <path d="M15 5h-9v-1h9v1zM6 6v1h11v-1h-11zM0 8h5v-5h-5v5zM15 11h-9v1h9v-1zM6 14h11v-1h-11v1zM0 15h5v-5h-5v5z" />
+                        </svg>
+                        <span>Shift Type</span>
+                    </a>
+
+                     <a class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="employee" asp-action="whatshappening">
+                        <svg viewBox="0 0 1920 1920" fill="currentColor">
+                            <path d="M852.517 606.04C722.804 666.467 612.48 770.67 502.075 923.02c-15.746 21.725-16.38 34.927-.205 46.602 11.372 8.209 17.98 5.583 34.542-12.088 2.217-2.38 2.217-2.38 4.484-4.84 14.318-15.505 25.852-28.662 50.49-57.274 81.407-94.538 121.17-133.45 182.968-169.038 53.478-30.795 100.476 14.462 91.527 72.38-2.51 16.258-6.836 28.257-17.978 54.022-4.432 10.249-6.302 14.707-8.38 20.171-20.085 52.8-37.002 96.846-72.451 188.834l-1.696 4.4c-10.718 27.813-10.718 27.813-21.427 55.62-46.426 120.661-74.598 194.652-103.665 272.901l-1.705 4.587c-7.8 20.975-11.474 30.871-15.534 41.881-33.306 90.321-52.353 149.007-66.84 211.427-2.262 9.713-2.262 9.713-4.556 19.584-8.162 35.31-12.53 58.062-14.972 81.448-4.222 40.439-.827 73.553 11.881 101.382 14.38 31.493 45.278 54.021 80.532 59.138 58.727 8.525 115.393 7.92 163.927-3.123 27.314-6.21 54.338-14.34 80.853-24.306 76.773-28.866 150.735-73.905 222.371-133.442 62.681-52.236 121.988-115.875 184.165-194.965 5.42-6.849 5.42-6.849 10.823-13.686 18.78-23.947 27.981-39.501 31.416-55.93 3.736-17.836-11.342-35.912-23.394-29.864-5.956 2.989-12.187 9.176-21.68 21.15-6.791 8.714-10.483 13.37-14.178 17.555-14.745 16.695-30.315 33.783-47.184 51.837-27.812 29.752-56.07 58.865-97.055 100.308-20.874 21.107-47.126 39.56-75.351 53.435-45.176 22.197-85.929-5.782-81.034-55.857 3.229-33.058 11.238-67.234 23.212-100.275 26.157-72.22 47.544-130.604 94.86-259.27 20.52-55.803 29.38-79.91 40.446-110.086 32.81-89.425 59-161.415 83.919-230.875 30.784-85.803 48.175-149.762 56.227-215.81 6.08-49.817-7.78-97.46-39.389-130.216-35.047-36.312-84.896-53.039-146.979-52.305-68.692.817-148.82 23.261-222.548 57.608Zm470.186-592.224c-123.444-48.028-271.57 34.483-296.373 165.169-17.984 94.72 17.4 176.498 89.622 210.751 143.165 67.897 314.982-40.897 314.989-199.468.007-88.211-37.668-148.991-108.238-176.452Z" />
+                        </svg>
+                        <span>What's Happening</span>
+                    </a>
+                   
+
                 </div>
             </div>
             <div class="sidebar-footer">
@@ -132,34 +141,23 @@
                 
                 <div class="nav-collapse" id="collapse">
                     <nav role="navigation" class="main-menu">
-                        <ul class="nav-list">
-                            <li class="nav-list__item"><a class='nav-link' href="#">Dashboard</a></li>
-                          @*   <li class="nav-list__item submenu--trigger">
-                                <a class='nav-link' href="#">My Info<i class="caret-down-icon"></i></a>
-                                <ul class="submenu">
-                                    <li class="nav-list__item"><a class='nav-link' href="#">First Sub Item</a></li>
-                                    <li class="nav-list__item third-submenu--trigger">
-                                        <a class='nav-link' href="#">Sub Item 2<i class="caret-down-icon"></i></a>
-                                        <ul class="third-submenu">
-                                            <li class="nav-list__item"><a class='nav-link' href="#">Second level sub 1</a></li>
-                                            <li class="nav-list__item"><a class='nav-link' href="#">Second level sub 2</a></li>
-                                            <li class="nav-list__item"><a class='nav-link' href="#">Second level sub 3</a></li>
-                                        </ul>
-                                    </li>
-                                    <li class="nav-list__item"><a class='nav-link' href="#">Sub 3</a></li>
-                                </ul>
-                            </li>
-                            <li class="nav-list__item"><a class='nav-link' href="#">Employees</a></li>
-                            <li class="nav-list__item"><a class='nav-link' href="#">Recruitment</a></li>
-                            <li class="nav-list__item"><a class='nav-link' href="#">Support</a></li> *@
-                            <li class="nav-list__item"><a class='nav-link' href="#">Policies</a></li>
-                        </ul>
+                        <nav role="navigation" class="main-menu">
+                            <ul class="nav-list">
+                                <li class="nav-list__item"><a class='nav-link' asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="DashBoard" asp-action="Index">Dashboard</a></li>
+                                <li class="nav-list__item submenu--triggers"><a class='nav-link' asp-area="admin" asp-controller="Template" asp-action="TemplateListing">Templates </a></li>
+                                <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyListing">Leave Policy</a></li>
+                                <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="Holiday" asp-action="HolidayListing">Holidays</a></li>
+                                <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyDetailsListing">Policies </a></li>
+                                <li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="WhatshappeningListing">What'sHappening</a></li>
+
+                            </ul>
+                        </nav>
                     </nav>
                 </div>
 
-                <div class="search-bar">
+               @*  <div class="search-bar">
                     <input type="text" placeholder="Search">
-                </div>
+                </div> *@
                 <div class="user-settings dropdown">
                     <a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
                         <img class="user-img" src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" alt="" style="width:40px; height:40px;">
@@ -226,12 +224,12 @@
                         </ul>
                     </div>
                 </div>
-                <div class="notify">
+                @* <div class="notify">
                     <div class="notification">10</div>
                     <svg viewBox="0 0 24 24" fill="currentColor">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M18.707 8.796c0 1.256.332 1.997 1.063 2.85.553.628.73 1.435.73 2.31 0 .874-.287 1.704-.863 2.378a4.537 4.537 0 01-2.9 1.413c-1.571.134-3.143.247-4.736.247-1.595 0-3.166-.068-4.737-.247a4.532 4.532 0 01-2.9-1.413 3.616 3.616 0 01-.864-2.378c0-.875.178-1.682.73-2.31.754-.854 1.064-1.594 1.064-2.85V8.37c0-1.682.42-2.781 1.283-3.858C7.861 2.942 9.919 2 11.956 2h.09c2.08 0 4.204.987 5.466 2.625.82 1.054 1.195 2.108 1.195 3.745v.426zM9.074 20.061c0-.504.462-.734.89-.833.5-.106 3.545-.106 4.045 0 .428.099.89.33.89.833-.025.48-.306.904-.695 1.174a3.635 3.635 0 01-1.713.731 3.795 3.795 0 01-1.008 0 3.618 3.618 0 01-1.714-.732c-.39-.269-.67-.694-.695-1.173z"></path>
                     </svg>
-                </div>
+                </div> *@
             </div>
 
             <div class="main-container">
@@ -239,32 +237,34 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const links = document.querySelectorAll('.sidebar-link');
+            const currentPath = window.location.pathname.toLowerCase();
 
-    @*
-    <section class="section mx-5">
-    <div class="row">
-    <div class="col-lg-12">
-    <div class="card">
-    <div class="card-body">
+            links.forEach(link => {
+                const href = link.getAttribute('href')?.toLowerCase();
 
+                if (href && href === currentPath) {
+                    link.classList.add('is-active');
+                }
+            });
+        });
 
+              document.addEventListener('DOMContentLoaded', function () {
+            const links = document.querySelectorAll('.nav-link');
+            const currentPath = window.location.pathname.toLowerCase();
 
-    @RenderBody()
-
-
-    </div>
-    </div>
-
-    </div>
-    </div>
-    </section> *@
-
-    @* <footer class="border-top footer text-muted">
-    <div class="container">
-    &copy; 2024 - HRMS.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-    </div>
-    </footer> *@
-
+            links.forEach(link => {
+                const href = link.getAttribute('href')?.toLowerCase();
+                if (href && href === currentPath) {
+                    link.classList.add('is-active');
+                    // Optional: add active class to parent <li> too
+                    link.closest('.nav-list__item')?.classList.add('is-active');
+                }
+            });
+        });
+    </script>
     <script>
         $(window)
             .resize(function () {

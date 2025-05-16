@@ -1617,3 +1617,92 @@ p.attendance-calender {
     margin-bottom: 5px;
     gap: 12PX;
 }
+span.employee-text-danger {
+    background: red;
+    color: white;
+    border-radius: 5px;
+    padding: 2px 6px 4px 8px;
+}
+span.employee-text-success {
+    background: #2b762b;
+    color: white;
+    border-radius: 5px;
+    padding: 2px 6px 4px 8px;
+}
+td.Edit-Button {
+    display: flex;
+    height: 40px;
+    align-items: center;
+}
+nav#paginationContainer {
+    display: flex;
+    gap: 12px;
+    float: right; 
+}
+.pagination-item-wrapper.page-button {
+    background: #05397b;
+    border-radius: 3px;
+    padding: 3px 9px 2px 9px;
+    color: white;
+    cursor:pointer;
+}
+p.Team-attendance-calender {
+    color: white;
+    font-size: 23px;
+    padding-left: 16px;
+    font-weight: 900;
+    background: #053471;
+}
+span.Attendance-status {
+    background: green;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 8px 2px 8px;
+}
+.employee-label.col-md-1 {
+    width: 7%;
+    font-weight: 900;
+}
+.congrats-title {
+    animation: popIn 0.6s ease forwards;
+    color: #28a745;
+    font-weight: 700;
+    text-shadow: 0 0 8px #28a745;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    70% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+.error-title {
+    animation: popIn 0.6s ease forwards;
+    color: #dc3545; /* Bootstrap red */
+    font-weight: 700; 
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    70% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

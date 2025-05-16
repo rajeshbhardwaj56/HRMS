@@ -210,6 +210,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.AddUpdateEmploymentSeparationDetails(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult CheckEmployeeReporting(ReportingStatus obj)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CheckEmployeeReporting(obj));
+            return response;
+        }
 
     }
 }
