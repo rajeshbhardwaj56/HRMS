@@ -15,10 +15,13 @@ namespace HRMS.Models.Common
         public int Year { get; set; } 
         public int Month { get; set; } 
         public int? Day { get; set; } 
+        public int? Page { get; set; } 
+        public int? PageSize { get; set; } 
         public long UserId { get; set; }
         public bool? IsSuccess { get; set; }
         public string? Message { get; set; }
         public string? Status { get; set; }
+        public long? RoleId { get; set; }
 
     }
     public class Attendance
@@ -37,6 +40,7 @@ namespace HRMS.Models.Common
         public string? Comments { get; set; }
         public long? ModifiedBy { get; set; }
         public long? CreatedBy { get; set; }
+        public long? EmployeeId { get; set; }
         public bool? IsDeleted { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? CreatedDate { get; set; }

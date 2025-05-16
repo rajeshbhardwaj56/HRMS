@@ -1,9 +1,13 @@
 ﻿@using HRMS.Models.Common;
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 
-@model Results
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
 @{
-    Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
     ViewData["Title"] = "Attendance List";
 
     var success = TempData["Success"];

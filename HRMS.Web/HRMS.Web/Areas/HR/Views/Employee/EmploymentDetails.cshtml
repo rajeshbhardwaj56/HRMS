@@ -27,6 +27,7 @@
                 @Html.HiddenFor(m => m.EmployeeID)
                 @Html.HiddenFor(m => m.EmploymentDetailID)
                 @Html.HiddenFor(m => m.UserID)
+                @Html.HiddenFor(m => m.CompanyAbbr)
             </div>
 
             <div class="row">
@@ -182,12 +183,12 @@
 
 
                 <div class="col-md-4 form-group">
-                    <label>ESI Number <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.ESINumber, new { @class = "form-control", @type = "text", @required = "required" })
+                    <label>ESI Number <span class="Mandetory"></span></label>
+                    @Html.TextBoxFor(a => a.ESINumber, new { @class = "form-control", @type = "text"  })
                 </div>
                 <div class="col-md-4 form-group">
-                    <label>Registration Date in ESIC <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.ESIRegistrationDate,"{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                    <label>Registration Date in ESIC <span class="Mandetory"></span></label>
+                    @Html.TextBoxFor(a => a.ESIRegistrationDate,"{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
                 </div>
                
 

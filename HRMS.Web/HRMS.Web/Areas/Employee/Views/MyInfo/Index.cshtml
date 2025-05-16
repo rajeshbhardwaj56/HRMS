@@ -92,8 +92,8 @@
                         <span>@(years)y - @(Days)d</span>
 
                     }
-                    else
-                    {
+
+                    else{
                         <span class="Joiningnotavailable">Joining date not available. Please contact your administrator.</span>
                     }
                 </p>
@@ -107,19 +107,28 @@
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Professional Info</a>
                         </li>
-                        @if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.Manager) || RoleName == Convert.ToInt64(Roles.SuperAdmin))
+                        @if (RoleName != Convert.ToInt64(Roles.Employee)  )
                         {
                             <li class="nav-item" role="presentation">
                                 <a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
                             </li>
                         }
 
-                        @if (Model.employmentDetail.JoiningDate != null)
+                        @if (Model.employmentDetail.JoiningDate != null  )
                         {
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
-                            </li>
+                            if (Model.employeeModel.LeavePolicyID > 0)
+                            {
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+                                </li>
                             }
+                            else
+                            {
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Leave Policy not available. Please contact your administrator.');">Leave Info</a>
+                                </li>
+                            }
+                        }
                             else{
                             <li class="nav-item" role="presentation">
                                 <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
@@ -531,7 +540,7 @@
                                 <div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
                                     <div class="group-box anim">
                                         <div class="tabsInfo" id="">
-                                            <h3>Leave Info</h3>
+                                            <h3>Leave Approval Info</h3>
                                             <nav>
                                                 <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
                                                     <button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
@@ -576,15 +585,11 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
-
                                                 </div>
                                                 <div class="tab-pane fade" id="leave-approved-tab" role="tabpanel" aria-labelledby="leave-approved-tab1">
-
                                                     <div class="group-box anim">
                                                         <div class="tabsInfo" id="myTabContent-timeoff">
                                                             <h3>Approved Leaves</h3>
-
                                                         </div>
                                                         <div role="tabpanel" aria-labelledby="apply-tab">
                                                             <div class="row">
@@ -605,7 +610,6 @@
                                                                                         <th>Reason</th>
                                                                                     </tr>
                                                                                 </thead>
-
                                                                             </table>
                                                                         </div>
                                                                     </div>
@@ -1104,13 +1108,6 @@
                                                     </div>
                                                     <div class="col-lg-6 col-md-12">
                                                         <label id="LabelUploadCertificate" style="display:none">Upload Certificate:</label>
-                                                        @* <div class="position-relative">
-                                                        <div class="input-group ">
-                                                        <input type="file" name="postedFiles" class="form-control body-text" />
-                                                        </div>
-
-                                                        </div> *@
-
                                                         <p id="downloaddocument" style="display:none"></p>
                                                     </div>
                                                     <div class="row py-3 mb-1">
@@ -1121,15 +1118,18 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
+                                                    @if (@RoleName != @Convert.ToInt64(Roles.HR))
+                                                    {
                                                     <p>Admin Comment</p>
                                                     <p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
                                                     <p id="approverejectrequire" style="color: red;"></p>
+                                                
                                                     <div class="modal-footer">
                                                         <button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-primary">Reject</button>
                                                         <button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-info">Approve</button>
 
                                                     </div>
+                                                    }
                                                 </form>
                                             </div>
                                         </div>
@@ -1567,7 +1567,7 @@
         }
     }
     $(document).ready(function () {
-        if (@RoleName == @Convert.ToInt64(Roles.Admin) || @RoleName == @Convert.ToInt64(Roles.Manager)|| @RoleName == @Convert.ToInt64(Roles.SuperAdmin)) {
+        if (@RoleName != @Convert.ToInt64(Roles.Employee)  ) {
             $('#applied-leave-tab1').click();
             $('#leave-approved-tab').css("display", "none");
             $('#leave-Reject-tab').css("display", "none");

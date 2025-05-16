@@ -207,11 +207,12 @@ namespace HRMS.API.BusinessLayer
                                       EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
                                       OfficialEmailID = dataRow.Field<string>("OfficialEmail"),
                                       ManagerName = dataRow.Field<string>("ManagerName"),
-                                      Shift = dataRow.Field<string>("Shift"),
                                       PayrollTypeName = dataRow.Field<string>("PayrollType"),
                                       PanCardImage = dataRow.Field<string>("PanCardImage"),
                                       AadhaarCardImage = dataRow.Field<string>("AadhaarCardImage"),
-
+                                      ShiftEndTime = dataRow.Field<string>("ShiftEndTime"),
+                                      ShiftStartTime = dataRow.Field<string>("ShiftStartTime"),
+                                      Shift = dataRow.Field<string>("Shift"),
 
                                   }).ToList();
 
@@ -771,6 +772,7 @@ namespace HRMS.API.BusinessLayer
                               {
                                   CompanyID = dataRow.Field<long>("CompanyID"),
                                   CompanyLogo = dataRow.Field<string>("CompanyLogo"),
+                                  Abbr = dataRow.Field<string>("Abbr"),
                               }).ToList().FirstOrDefault();
             return result;
         }
@@ -1633,6 +1635,7 @@ namespace HRMS.API.BusinessLayer
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@ReportingToEmployeeID", model.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@RoleId", model.RoleId));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveForApprovals, sqlParameter);
             result.leavesSummary = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeaveSummaryModel
@@ -1937,7 +1940,7 @@ namespace HRMS.API.BusinessLayer
 
                              }).ToList();
 
-                if (model.RoleID == (int)Roles.SuperAdmin)
+                if (model.RoleID == (int)Roles.SuperAdmin|| model.RoleID == (int)Roles.HR)
                 {
                     var CompanyDetails = dataSet.Tables[7].AsEnumerable()
                            .Select(dataRow => new DashBoardModel
@@ -2639,7 +2642,10 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameters = new List<SqlParameter>  {
             new SqlParameter("@Year", model.Year),
             new SqlParameter("@Month", model.Month),
-            new SqlParameter("@UserId", model.UserId)
+            new SqlParameter("@UserId", model.UserId),
+            new SqlParameter("@RoleId", model.RoleId),
+            new SqlParameter("@PageNumber", model.Page),
+            new SqlParameter("@PageSize", model.PageSize)
             };
             // Get the dataset from the stored procedure
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetTeamAttendanceDeviceLog, sqlParameters);
@@ -2651,6 +2657,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     ID = dataRow.Field<long?>("ID") ?? 0,
                     UserId = dataRow.Field<string>("UserId"),
+                    EmployeeId = dataRow.Field<long?>("EmployeeID"),
                     EmployeeName = dataRow.Field<string>("EmployeeName"),
                     WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date, // Handle WorkDate as nullable
                     FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"), // Handle FirstLogDate as nullable
@@ -3709,6 +3716,33 @@ namespace HRMS.API.BusinessLayer
 
             return model;
         }
+
+
+        #region CheckEmployeeReporting
+        public ReportingStatus CheckEmployeeReporting(ReportingStatus obj)
+        {
+            ReportingStatus result = new ReportingStatus();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeId", obj.EmployeeId),
+        new SqlParameter("@IsActive", obj.Status)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_CheckEmployeeReporting, sqlParameters);
+
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+                result = new ReportingStatus
+                {
+                    Status = Convert.ToInt32(row["Status"]),
+                    Message = Convert.ToString(row["Message"])
+                };
+            }
+
+            return result;
+        } 
+        #endregion CheckEmployeeReporting
 
     }
 }

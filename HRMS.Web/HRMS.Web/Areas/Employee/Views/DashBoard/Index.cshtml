@@ -313,7 +313,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="" class="rounded mb-3" style="width: 20px; height: 20px;" alt="Announcement Image">
+                <img id="modalImage" src="" class="rounded mb-3"  alt="Announcement Image">
                 <h5 id="modalTitle"></h5>
                 <p id="modalDescription"></p>
                 <p><b>From Date:</b> <span id="modalFromDate"></span></p>
@@ -327,29 +327,26 @@
 </div>
 
 <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
-        document.querySelectorAll(".view-announcement-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                const title = this.getAttribute("data-title");
-                const fromDate = this.getAttribute("data-fromdate");
-                const toDate = this.getAttribute("data-todate");
-                const image = this.getAttribute("data-image");
+       document.addEventListener("DOMContentLoaded", function () {
+            const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
+            document.querySelectorAll(".view-announcement-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const title = this.getAttribute("data-title");
+                    const fromDate = this.getAttribute("data-fromdate");
+                    const toDate = this.getAttribute("data-todate");
+                    const image = this.getAttribute("data-image");
+                    const description = this.getAttribute("data-description");  // Use data-description directly
 
-                const descId = this.getAttribute("data-description-id");
-                const descriptionHtml = document.getElementById(descId).innerHTML;
+                    document.getElementById("modalTitle").innerText = title;
+                    document.getElementById("modalDescription").innerHTML = description;  // Set description directly
+                    document.getElementById("modalFromDate").innerText = fromDate;
+                    document.getElementById("modalToDate").innerText = toDate;
+                    document.getElementById("modalImage").src = image;
 
-                document.getElementById("modalTitle").innerText = title;
-                document.getElementById("modalDescription").innerHTML = descriptionHtml;
-                document.getElementById("modalFromDate").innerText = fromDate;
-                document.getElementById("modalToDate").innerText = toDate;
-                document.getElementById("modalImage").src = image;
-
-                modal.show();
+                    modal.show();
+                });
             });
         });
-    });
-
 
 
 

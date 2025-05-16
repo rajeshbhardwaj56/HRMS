@@ -34,6 +34,6 @@ namespace HRMS.Models.Company
     {
         public long CompanyID { get; set; }
         public string CompanyLogo { get; set; } = string.Empty;
-
+        public string Abbr { get; set; } = string.Empty;
     }
 }

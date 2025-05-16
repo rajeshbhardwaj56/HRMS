@@ -96,5 +96,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<Attendance> GetManagerApprovedAttendance(AttendanceInputParams model);
         public EmployeePersonalDetails GetEmployeeDetails(EmployeePersonalDetailsById objmodel);
         public Results GetCompaniesLogo(CompanyLoginModel model);
+        public ReportingStatus CheckEmployeeReporting(ReportingStatus obj);
     }
 }
