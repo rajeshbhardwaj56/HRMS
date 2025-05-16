@@ -73,31 +73,35 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             var employeeDetails = GetEmployeeDetails(model.CompanyID, model.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
-            //var joindate = employeeDetails.EmploymentDetail.Select(x => x.JoiningDate).FirstOrDefault();
-            var joindate = results.employmentDetail.JoiningDate;
-            if (joindate != null)
+            if (leavePolicyModel != null)
             {
-                DateTime joinDate1 = joindate.Value;
-                double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
-                var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
+                //var joindate = employeeDetails.EmploymentDetail.Select(x => x.JoiningDate).FirstOrDefault();
+                var joindate = results.employmentDetail.JoiningDate;
+                if (joindate != null)
+                {
+                    DateTime joinDate1 = joindate.Value;
+                    double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+                    var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
 
-                double TotalApprove = Convert.ToDouble(TotalApproveLists);
-                double Totacarryforword = 0.0;
-                var Totaleavewithcarryforword = 0.0;
-                var accruedLeaves = accruedLeave1 - TotalApprove;
-                if (leavePolicyModel.Annual_IsCarryForward == true)
-                {
-                    Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
-                    Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
+                    double TotalApprove = Convert.ToDouble(TotalApproveLists);
+                    double Totacarryforword = 0.0;
+                    var Totaleavewithcarryforword = 0.0;
+                    var accruedLeaves = accruedLeave1 - TotalApprove;
+                    if (leavePolicyModel.Annual_IsCarryForward == true)
+                    {
+                        Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
+                        Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
+                    }
+                    else
+                    {
+                        Totaleavewithcarryforword = accruedLeaves;
+                    }
+                    ViewBag.TotalLeave = TotalApprove;
+                    ViewBag.TotalAnnualLeave = Totaleavewithcarryforword;
+                    ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
                 }
-                else
-                {
-                    Totaleavewithcarryforword = accruedLeaves;
-                }
-                ViewBag.TotalLeave = TotalApprove;
-                ViewBag.TotalAnnualLeave = Totaleavewithcarryforword;
-                ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
             }
+
             return View(results);
 
         }
@@ -136,6 +140,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public JsonResult GetLeaveForApprovals(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             MyInfoInputParams employee = new MyInfoInputParams();
+            var Approvals = new List<LeaveSummaryModel>();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
@@ -143,14 +148,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
             var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
-
-            var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID != (int)LeaveStatus.Approved && x.LeaveStatusID != (int)LeaveStatus.NotApproved).ToList();
-            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
-            if (leavePolicyModel.Paternity_medicalDocument == true)
+            if (leavePolicyModel != null)
             {
-                ViewBag.Paternity_medicalDocument = true;
+                Approvals = results.leavesSummary.Where(x => x.LeaveStatusID != (int)LeaveStatus.Approved && x.LeaveStatusID != (int)LeaveStatus.NotApproved).ToList();
+                ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
+                if (leavePolicyModel.Paternity_medicalDocument == true)
+                {
+                    ViewBag.Paternity_medicalDocument = true;
+                }
             }
-
             return Json(new { data = Approvals });
         }
 
@@ -380,7 +386,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index (MyInfoResults model, List<IFormFile> postedFiles)
+        public IActionResult Index(MyInfoResults model, List<IFormFile> postedFiles)
         {
 
 
@@ -790,7 +796,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 }
                 var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
-                var result = JsonConvert.DeserializeObject<Result>(data);         
+                var result = JsonConvert.DeserializeObject<Result>(data);
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 var messageData = "Leave applied successfully.";
                 //return RedirectToActionPermanent(
@@ -1007,13 +1013,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 else
                 {
                     employeeDetails.ForEach(x =>
-                    {                                          
+                    {
                         x.EmployeePhoto = string.IsNullOrEmpty(x.EmployeePhoto)
                             ? "/assets/img/No_image.png"   //Use default image if profile photo is missing
                             : _s3Service.GetFileUrl(x.EmployeePhoto);
                     });
                 }
-                    return Json(new { data = employeeDetails });
+                return Json(new { data = employeeDetails });
             }
             catch (Exception ex)
             {
@@ -1032,13 +1038,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpGet]
         public IActionResult PolicyCategoryDetails()
-        {         
+        {
             PolicyCategoryInputParams model = new PolicyCategoryInputParams();
             model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.PolicyCategoryDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var detailsList = JsonConvert.DeserializeObject<List<LeavePolicyDetailsModel>>(data);
 
-            
+
             if (detailsList != null)
             {
                 foreach (var item in detailsList)
@@ -1052,7 +1058,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View(detailsList);
         }
         [HttpGet]
-        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + ","  + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
+        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
         public IActionResult TeamAttendenceList()
         {
             var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
@@ -1062,11 +1068,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult TeamAttendenceCalendarList(int year, int month,int Page,int PageSize)
+        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-           
+
             AttendanceInputParams models = new AttendanceInputParams
             {
                 Year = year,

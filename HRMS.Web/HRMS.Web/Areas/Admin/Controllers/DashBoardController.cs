@@ -90,16 +90,19 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             // Leave calculation
             var leavePolicy = GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
-            var joiningDate = model.JoiningDate.GetValueOrDefault();
-            var maxLeaves = leavePolicy.Annual_MaximumLeaveAllocationAllowed;
+            if (leavePolicy != null)
+            {
+                var joiningDate = model.JoiningDate.GetValueOrDefault();
+                var maxLeaves = leavePolicy.Annual_MaximumLeaveAllocationAllowed;
 
-            var accruedLeaves = CalculateAccruedLeaveForCurrentFiscalYear(joiningDate, maxLeaves);
-            var usedLeaves = Convert.ToDouble(model.TotalLeave);
-            var carryForward = leavePolicy.Annual_IsCarryForward ? Convert.ToDouble(model.CarryForword) : 0.0;
+                var accruedLeaves = CalculateAccruedLeaveForCurrentFiscalYear(joiningDate, maxLeaves);
+                var usedLeaves = Convert.ToDouble(model.TotalLeave);
+                var carryForward = leavePolicy.Annual_IsCarryForward ? Convert.ToDouble(model.CarryForword) : 0.0;
 
-            var totalAvailableLeaves = accruedLeaves - usedLeaves + carryForward;
-            model.NoOfLeaves = Convert.ToInt64(totalAvailableLeaves);
+                var totalAvailableLeaves = accruedLeaves - usedLeaves + carryForward;
+                model.NoOfLeaves = Convert.ToInt64(totalAvailableLeaves);
 
+            }
             // Optionally store profile photo in session
             // session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
 

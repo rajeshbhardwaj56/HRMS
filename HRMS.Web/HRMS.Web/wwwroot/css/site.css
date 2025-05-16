@@ -1618,7 +1618,7 @@ p.attendance-calender {
     gap: 12PX;
 }
 span.employee-text-danger {
-    background: red;
+    background: #b52020;
     color: white;
     border-radius: 5px;
     padding: 2px 6px 4px 8px;
