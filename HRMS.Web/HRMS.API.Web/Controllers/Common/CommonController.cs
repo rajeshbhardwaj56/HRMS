@@ -36,8 +36,6 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(results);
             return response;
         }
-
-
         [HttpGet]
         [OutputCache(Duration = 999999)]
         public IActionResult GetAllCountries()

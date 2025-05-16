@@ -19,6 +19,7 @@ namespace HRMS.Models.Employee
         public long BankDetailID { get; set; }
         public long EmployeeID { get; set; }
         public string? BankAccountNumber { get; set; }
+        public string? UANNumber { get; set; }
         public string? IFSCCode { get; set; }
         public string? BankName { get; set; }       
        public long UserID { get; set; } 

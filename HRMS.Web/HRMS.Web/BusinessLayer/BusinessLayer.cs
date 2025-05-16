@@ -25,9 +25,7 @@ namespace HRMS.Web.BusinessLayer
         public Task<object> SendGetAPIRequest(string ActionUrl, string BearerToken, bool isTokenRequired = true);
         public string GetControllarNameByRole(int RoleID);
         public string GetAreaNameByRole(int RoleID);
-
         public string GetFormattedAPIUrl(string ApiControllarName, string APIActionName);
-
         public string ConvertIFormFileToBase64(IFormFile file);
         public string EncodeStringBase64(string plainText);
         public string DecodeStringBase64(string base64EncodedData);

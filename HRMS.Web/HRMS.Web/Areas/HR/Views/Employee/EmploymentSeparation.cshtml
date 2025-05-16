@@ -46,6 +46,11 @@
                     <label>Date of Resignation</label>
                     @Html.TextBoxFor(a => a.DateOfResignation, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
                 </div>
+                   <div class="col-md-4 form-group">
+                    <label>Date of Joining Onroll</label>
+                    @Html.TextBoxFor(a => a.DateOfJoiningOnroll, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div> 
+
             </div>
 
             <div class="row">
@@ -61,10 +66,7 @@
                     <label>Email Sent to IT Date</label>
                     @Html.TextBoxFor(a => a.EmailSentToITDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
                 </div>
-            </div>
-
-           
-
+            </div>           
             <div class="row">
                 <div class="col-md-4 form-group">
                     <label>Leaving Type</label>

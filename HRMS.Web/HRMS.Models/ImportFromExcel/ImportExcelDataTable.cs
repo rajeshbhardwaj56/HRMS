@@ -72,11 +72,13 @@ namespace HRMS.Models.ImportFromExcel
         public string? ESINumber { get; set; }
         public string? RegistrationDateInESIC { get; set; }
         public string? BankAccountNumber { get; set; }
+        public string? UANNumber { get; set; }
         public string? IFSCCode { get; set; }
         public string? BankName { get; set; }
         public string? DOJInTraining { get; set; }
         public string? DOJOnFloor { get; set; }
-        public string? DOJInOJTOnroll { get; set; }
+        public string? DOJInOJT { get; set; }
+        public string? DOJInOnroll { get; set; }
         public string? DateOfResignation { get; set; }
         public string? DateOfLeaving { get; set; }
         public string? BackOnFloor { get; set; }
@@ -163,6 +165,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? ESINumber { get; set; }
         public DateTime? ESIRegistrationDate { get; set; }
         public string? BankAccountNumber { get; set; }
+        public string? UANNumber { get; set; }
         public string? IFSCCode { get; set; }
         public string? BankName { get; set; }
         public int? AgeOnNetwork { get; set; }
@@ -172,6 +175,7 @@ namespace HRMS.Models.ImportFromExcel
         public DateTime? DateOfJoiningTraining { get; set; }
         public DateTime? DateOfJoiningFloor { get; set; }
         public DateTime? DateOfJoiningOJT { get; set; }
+        public DateTime? DateOfJoiningOnroll { get; set; }
         public DateTime? DateOfResignation { get; set; }
         public DateTime? DateOfLeaving { get; set; }
         public DateTime? BackOnFloorDate { get; set; }

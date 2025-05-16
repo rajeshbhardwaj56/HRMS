@@ -1236,6 +1236,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@BankAccountNumber", employmentBankDetails.BankAccountNumber));
             sqlParameter.Add(new SqlParameter("@IFSCCode", employmentBankDetails.IFSCCode));
             sqlParameter.Add(new SqlParameter("@BankName", employmentBankDetails.BankName));
+            sqlParameter.Add(new SqlParameter("@UANNumber", employmentBankDetails.UANNumber));
             sqlParameter.Add(new SqlParameter("@UserID", employmentBankDetails.UserID));
             SqlParameterCollection pOutputParams = null;
 
@@ -1272,6 +1273,7 @@ namespace HRMS.API.BusinessLayer
                                 BankAccountNumber = dataRow.Field<string>("BankAccountNumber"),
                                 IFSCCode = dataRow.Field<string>("IFSCCode"),
                                 BankName = dataRow.Field<string>("BankName"),
+                                UANNumber=dataRow.Field<string>("UANNumber"),
 
                             }).ToList().FirstOrDefault();
             if (employmentBankDetail == null)
@@ -1300,6 +1302,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@DateOfJoiningTraining", employmentSeparationDetails.DateOfJoiningTraining));
             sqlParameter.Add(new SqlParameter("@DateOfJoiningFloor", employmentSeparationDetails.DateOfJoiningFloor));
             sqlParameter.Add(new SqlParameter("@DateOfJoiningOJT", employmentSeparationDetails.DateOfJoiningOJT));
+            sqlParameter.Add(new SqlParameter("@DateOfJoiningOnroll", employmentSeparationDetails.DateOfJoiningOnroll));
             sqlParameter.Add(new SqlParameter("@DateOfResignation", employmentSeparationDetails.DateOfResignation));
             sqlParameter.Add(new SqlParameter("@DateOfLeaving", employmentSeparationDetails.DateOfLeaving));
             sqlParameter.Add(new SqlParameter("@BackOnFloorDate", employmentSeparationDetails.BackOnFloorDate));
@@ -1353,7 +1356,8 @@ namespace HRMS.API.BusinessLayer
                                 MailReceivedFromAndDate = dataRow.Field<string>("MailReceivedFromAndDate"),
                                 EmailSentToITDate = dataRow.Field<DateTime?>("EmailSentToITDate"),
                                 LeavingType = dataRow.Field<string>("LeavingType"),
-                                NoticeServed = dataRow.Field<int?>("NoticeServed")
+                                NoticeServed = dataRow.Field<int?>("NoticeServed"),
+                                DateOfJoiningOnroll = dataRow.Field<DateTime?>("DateOfJoiningOnroll"),
 
                             }).ToList().FirstOrDefault();
             if (employmentSeparationDetail == null)
@@ -3448,6 +3452,7 @@ namespace HRMS.API.BusinessLayer
                     ESINumber = item.ESINumber,
                     ESIRegistrationDate = TryParseDate(item.RegistrationDateInESIC),
                     BankAccountNumber = item.BankAccountNumber,
+                    UANNumber= item.UANNumber,
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
                     AgeOnNetwork = Convert.ToInt32(item.AON),
@@ -3456,7 +3461,8 @@ namespace HRMS.API.BusinessLayer
                     PreviousExperience = item.PreviousExperience,
                     DateOfJoiningTraining = TryParseDate(item.DOJInTraining),
                     DateOfJoiningFloor = TryParseDate(item.DOJOnFloor),
-                    DateOfJoiningOJT = TryParseDate(item.DOJInOJTOnroll),
+                    DateOfJoiningOJT = TryParseDate(item.DOJInOJT),
+                    DateOfJoiningOnroll = TryParseDate(item.DOJInOnroll),
                     DateOfResignation = TryParseDate(item.DateOfResignation),
                     DateOfLeaving = TryParseDate(item.DateOfLeaving),
                     BackOnFloorDate = TryParseDate(item.BackOnFloor),
@@ -3487,7 +3493,7 @@ namespace HRMS.API.BusinessLayer
             {
                 return new Result
                 {
-                    Message = $"Error while importing employee data"
+                    Message = $"Error while importing employee data:{ex}"
                 };
             }
         }
@@ -3564,6 +3570,7 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("ESINumber", typeof(string));
             table.Columns.Add("ESIRegistrationDate", typeof(DateTime));
             table.Columns.Add("BankAccountNumber", typeof(string));
+            table.Columns.Add("UANNumber", typeof(string));
             table.Columns.Add("IFSCCode", typeof(string));
             table.Columns.Add("BankName", typeof(string));
             table.Columns.Add("AgeOnNetwork", typeof(int));
@@ -3573,6 +3580,7 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("DateOfJoiningTraining", typeof(DateTime));
             table.Columns.Add("DateOfJoiningFloor", typeof(DateTime));
             table.Columns.Add("DateOfJoiningOJT", typeof(DateTime));
+            table.Columns.Add("DateOfJoiningOnroll", typeof(DateTime));
             table.Columns.Add("DateOfResignation", typeof(DateTime));
             table.Columns.Add("DateOfLeaving", typeof(DateTime));
             table.Columns.Add("BackOnFloorDate", typeof(DateTime));
@@ -3652,6 +3660,7 @@ namespace HRMS.API.BusinessLayer
                     emp.ESINumber,
                     emp.ESIRegistrationDate,
                     emp.BankAccountNumber,
+                    emp.UANNumber,
                     emp.IFSCCode,
                     emp.BankName,
                     emp.AgeOnNetwork,
@@ -3661,6 +3670,7 @@ namespace HRMS.API.BusinessLayer
                     emp.DateOfJoiningTraining,
                     emp.DateOfJoiningFloor,
                     emp.DateOfJoiningOJT,
+                    emp.DateOfJoiningOnroll,
                     emp.DateOfResignation,
                     emp.DateOfLeaving,
                     emp.BackOnFloorDate,

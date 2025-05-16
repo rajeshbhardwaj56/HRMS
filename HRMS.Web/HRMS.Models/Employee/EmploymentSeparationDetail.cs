@@ -22,6 +22,7 @@ namespace HRMS.Models.Employee
         public DateTime? DateOfJoiningTraining { get; set; }
         public DateTime? DateOfJoiningFloor { get; set; }
         public DateTime? DateOfJoiningOJT { get; set; }
+        public DateTime? DateOfJoiningOnroll { get; set; }
         public DateTime? DateOfResignation { get; set; }
         public DateTime? DateOfLeaving { get; set; }
         public DateTime? BackOnFloorDate { get; set; }

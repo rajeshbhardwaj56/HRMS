@@ -563,10 +563,6 @@ namespace HRMS.Web.Areas.HR.Controllers
                     TempData[HRMS.Models.Common.Constants.toastMessage] = "Failed to save bank details.";
                 }
             }
-
-
-
-
             return View(employmentBankDetail);
         }
 

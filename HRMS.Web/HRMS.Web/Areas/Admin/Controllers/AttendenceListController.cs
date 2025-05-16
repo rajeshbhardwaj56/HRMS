@@ -120,8 +120,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpGet]
         [AllowAnonymous] 
         public IActionResult AttendenceList()
-        {
-            
+        {            
             return View( );
         }
         [HttpGet]
