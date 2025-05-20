@@ -132,7 +132,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else if (employee.References.Count == 1)
                 {
-                    //employee.References.Add(new HRMS.Models.Employee.Reference());
+                   employee.References.Add(new HRMS.Models.Employee.Reference());
                 }
                 ;
             }

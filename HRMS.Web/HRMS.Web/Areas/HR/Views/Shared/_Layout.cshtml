@@ -4,6 +4,9 @@
     @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     var Logo = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.CompanyLogo);
+    var EmployeeNumber = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.EmployeeNumber);
+
+
 }
 <head>
     <!-- Character encoding for UTF-8 -->
@@ -161,7 +164,7 @@
                 <div class="user-settings dropdown">
                     <a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
                         <img class="user-img" src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" alt="" style="width:40px; height:40px;">
-                        <div class="user-name">@HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.FirstName) @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.Surname)</div>
+                        <div class="user-name">@HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.FirstName) @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.Surname) (@EmployeeNumber)</div>
                         <svg viewBox="0 0 492 492" fill="currentColor">
                             <path d="M484.13 124.99l-16.11-16.23a26.72 26.72 0 00-19.04-7.86c-7.2 0-13.96 2.79-19.03 7.86L246.1 292.6 62.06 108.55c-5.07-5.06-11.82-7.85-19.03-7.85s-13.97 2.79-19.04 7.85L7.87 124.68a26.94 26.94 0 000 38.06l219.14 219.93c5.06 5.06 11.81 8.63 19.08 8.63h.09c7.2 0 13.96-3.57 19.02-8.63l218.93-219.33A27.18 27.18 0 00492 144.1c0-7.2-2.8-14.06-7.87-19.12z"></path>
                         </svg>
@@ -175,7 +178,7 @@
                                          style="width:40px; height:40px;" class="rounded-circle">
                                 </div>
                                 <div class="ml-3 lh-1">
-                                    <h6 class="mb-0">@HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.FirstName) @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.Surname)</h6>
+                                    <h6 class="mb-0">@HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.FirstName) @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.Surname) (@EmployeeNumber)</h6>
                                     <p class="mb-0">@HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.OfficialEmailID)</p>
                                 </div>
                             </div>
@@ -195,7 +198,7 @@
                                         Profile
                                     </a>
                                 </li>
-                                <li>
+                              @*   <li>
                                     <a class="dropdown-item" href="#">
                                         <span class="mr-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings">
@@ -205,7 +208,7 @@
                                         </span>
                                         Settings
                                     </a>
-                                </li>
+                                </li> *@
                             </ul>
                         </div>
                         <div class="dropdown-divider"></div>

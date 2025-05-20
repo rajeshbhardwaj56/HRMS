@@ -14,6 +14,9 @@ namespace HRMS.Models.User
         public long CompanyID { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string ManagerName { get; set; } = string.Empty;
         public bool IsResetPasswordRequired { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }

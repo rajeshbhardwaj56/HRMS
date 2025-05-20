@@ -31,12 +31,26 @@
                 <div class="overlay-panel overlay-right">
                     <a class="app-brand-link gap-2">
                         <span class="app-brand-logo demo">
-                            <img src="@Model.CompanyLogo" class="img-fluid" />
+                            @if (Model != null)
+                            {
+                                if (Model.CompanyLogo != null)
+                                {
+                                    <img src="@Model.CompanyLogo" />
+                                }
+                                else
+                                {
+                                    <img src="~/assets/img/logo/PROTALKLOGO.png" />
+                                }
+                            }
+                            else
+                            {
+                                <img src="~/assets/img/logo/PROTALKLOGO.png" />
+                            }
                         </span>
                     </a>
                     <h1>
                         Welcome to <br />
-                        <span>HRMS!</span>
+                        <span>Protalk HRMS!</span>
                     </h1>
                 </div>
             </div>
@@ -44,7 +58,8 @@
 		<div class="form-container sign-in-container">
 			<!-- Login Form -->
 			<form id="formAuthentication" class="mb-3" novalidate method="post">
-				<h2 class="mb-4">Sign in</h2>
+                @Html.HiddenFor(x => x.CompanyLogo)
+ 				<h2 class="mb-4">Sign in</h2>
 				<input type="text" class="form-control" id="email" name="Email" required placeholder="Enter your Username" autofocus />
 				<input type="password" id="Password" class="form-control" name="Password" placeholder="Password" aria-describedby="password" />
 				<div class="form-group d-flex justify-content-between w-100">
@@ -57,7 +72,7 @@
 					</a>
 				</div>
 
-                <button type="submit" class="btn d-grid w-100 submitBtn" type="submit">Sign in</button>
+                <button type="submit" class="btn d-grid w-100 submitBtn">Sign in</button>
             </form>
         </div>
     </div>

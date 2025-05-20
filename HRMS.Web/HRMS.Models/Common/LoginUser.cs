@@ -22,6 +22,7 @@ namespace HRMS.Models.Common
         public string Manager2Name { get; set; } = "";
         public string Manager2Email { get; set; } = "";
         public string EmployeeNumber { get; set; } = "";
+        public string EmployeeNumberWithoutAbbr { get; set; } = "";
         public string CompanyLogo { get; set; } = "";
         public bool IsResetPasswordRequired { get; set; }
 
