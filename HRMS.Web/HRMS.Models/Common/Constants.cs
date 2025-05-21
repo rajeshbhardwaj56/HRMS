@@ -82,6 +82,7 @@ namespace HRMS.Models.Common
         public const string Manager2Name = "Manager2Name";
         public const string Manager2Email = "Manager2Email";
         public const string EmployeeNumber = "EmployeeNumber";
+        public const string EmployeeNumberWithoutAbbr = "EmployeeNumberWithoutAbbr";
         public const string Whatshappening = "Uploads/Whatshappening/";
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
     }

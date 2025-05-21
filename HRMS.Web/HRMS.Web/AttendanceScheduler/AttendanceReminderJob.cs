@@ -33,7 +33,7 @@ namespace HRMS.Web.AttendanceScheduler
                 sendEmailProperties sendEmailProperties = new sendEmailProperties();
                 sendEmailProperties.emailSubject = "Execption On attendance Scheduler";
                 sendEmailProperties.emailBody = ("Hii," + result.message);
-                sendEmailProperties.EmailToList.Add("rajesh@eternitylogistics.co");
+                sendEmailProperties.EmailToList.Add(_configuration["AppSettings:SchedulerEmail"].ToString());
                 emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
                 if (responses.responseCode == "200")
                 {

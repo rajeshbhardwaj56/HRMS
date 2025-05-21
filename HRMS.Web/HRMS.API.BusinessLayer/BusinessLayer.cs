@@ -76,6 +76,7 @@ namespace HRMS.API.BusinessLayer
                                    Manager2Email = dataRow.Field<string>("Manager2Email"),
                                    Manager2Name = dataRow.Field<string>("Manager2Name"),
                                    EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
+                                   EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                                    IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                }).ToList().FirstOrDefault();
             }
@@ -97,6 +98,7 @@ namespace HRMS.API.BusinessLayer
                    .Select(dataRow => new Result
                    {
                        Message = dataRow.Field<string>("Result").ToString(),
+                       UserID = dataRow.Field<long?>("EmployeeID"),
                    }).ToList().FirstOrDefault();
 
             }
@@ -119,6 +121,9 @@ namespace HRMS.API.BusinessLayer
                                       guid = dataRow.Field<Guid>("guid"),
                                       CompanyID = dataRow.Field<long>("CompanyID"),
                                       UserName = dataRow.Field<string>("UserName"),
+                                      FullName = dataRow.Field<string>("FullName"),
+                                      DepartmentName = dataRow.Field<string>("DepartmentName"),
+                                      ManagerName = dataRow.Field<string>("ManagerName"),
                                       IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                       IsActive = dataRow.Field<bool>("IsActive"),
                                   }).ToList().LastOrDefault();
@@ -2811,7 +2816,7 @@ namespace HRMS.API.BusinessLayer
                                  {
                                      ID = dataRow.Field<long>("ID"),
                                      UserId = dataRow.Field<string>("EmployeeId"),
-                                     AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
+                                     AttendanceStatusId = dataRow.Field<int?>("AttendanceStatusId"),
                                      WorkDate = dataRow.Field<DateTime>("WorkDate"),
                                      FirstLogDate = dataRow.Field<DateTime>("FirstLogDate"),
                                      LastLogDate = dataRow.Field<DateTime>("LastLogDate"),

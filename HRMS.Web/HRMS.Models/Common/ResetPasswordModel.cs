@@ -27,6 +27,8 @@ namespace HRMS.Models.Common
 		public bool IsResetPasswordExpired { get; set; }
 		public DateTime dt { get; set; }
         public string CompanyID { get; set; }
+        public string UserName { get; set; }
+        public string? CompanyLogo { get; set; }
 
     }
 
@@ -45,6 +47,7 @@ namespace HRMS.Models.Common
 		//[EmailAddress(ErrorMessage = "Invalid Email Address")]
 		//[Display(Name = "Email ID: ")]
 		public string EmailId { get; set; } = string.Empty;
+		public string? CompanyLogo { get; set; } = string.Empty;
 
 		//[Required(ErrorMessage = "Old Password is required")]
 		//[DataType(DataType.Password)]

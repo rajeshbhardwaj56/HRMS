@@ -119,8 +119,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var employeeName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
             var employeeMiddleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName));
             var employeeLastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname));
-            var EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumber));
-
+            var EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr)); 
             // Concatenate full name
             var employeeFullName = string.Join(" ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
 
@@ -181,6 +180,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public IActionResult MyAttendance(Attendance AttendenceListModel)
         {
+            // Check if FirstLogDate is Saturday or Sunday
+            if (AttendenceListModel.FirstLogDate.HasValue)
+            {
+                var selectedDate = AttendenceListModel.FirstLogDate.Value;
+                if (selectedDate.DayOfWeek == DayOfWeek.Saturday || selectedDate.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Attendance cannot be submitted for weekends (Saturday or Sunday).";
+                    return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
+                }
+            }
+
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
             var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             AttendenceListModel.UserId = UserId.ToString();
@@ -191,7 +202,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             AttendenceListModel.IsManual = true;
             AttendenceListModel.AttendanceStatus = AttendanceStatus.Submitted.ToString();
             AttendenceListModel.AttendanceStatusId = (int)AttendanceStatusId.Pending;
-            var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+
+            var data = _businessLayer.SendPostAPIRequest(
+                AttendenceListModel,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
             var result = JsonConvert.DeserializeObject<Result>(data);
             if (result != null && result.Message.Contains("Record for this user with the same date already exists!", StringComparison.OrdinalIgnoreCase))
             {
@@ -201,27 +219,71 @@ namespace HRMS.Web.Areas.Employee.Controllers
             else
             {
                 var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
-                if (Manager1Email != null && Manager1Email != "")
+                if (!string.IsNullOrEmpty(Manager1Email))
                 {
                     var ManagerName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
-                    sendEmailProperties sendEmailProperties = new sendEmailProperties();
-                    sendEmailProperties.emailSubject = "Send a request for attendance approval";
-                    sendEmailProperties.emailBody = "Hi, " + ManagerName + " has sent a request for attendance approval.";
-                    sendEmailProperties.EmailToList.Add(Manager1Email); 
+                    sendEmailProperties sendEmailProperties = new sendEmailProperties
+                    {
+                        emailSubject = "Send a request for attendance approval",
+                        emailBody = "Hi, " + ManagerName + " has sent a request for attendance approval."
+                    };
+                    sendEmailProperties.EmailToList.Add(Manager1Email);
                     emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
-                    if (responses.responseCode == "200")
-                    {
-                    }
-                    else
-                    {
-                    }
                 }
+
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
             }
-            return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
 
+            return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
         }
+
+
+
+
+        //public IActionResult MyAttendance(Attendance AttendenceListModel)
+        //{
+        //    AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
+        //    var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+        //    AttendenceListModel.UserId = UserId.ToString();
+        //    AttendenceListModel.CreatedDate = DateTime.Now;
+        //    AttendenceListModel.ModifiedBy = UserId;
+        //    AttendenceListModel.CreatedBy = UserId;
+        //    AttendenceListModel.IsDeleted = false;
+        //    AttendenceListModel.IsManual = true;
+        //    AttendenceListModel.AttendanceStatus = AttendanceStatus.Submitted.ToString();
+        //    AttendenceListModel.AttendanceStatusId = (int)AttendanceStatusId.Pending;
+        //    var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+        //    var result = JsonConvert.DeserializeObject<Result>(data);
+        //    if (result != null && result.Message.Contains("Record for this user with the same date already exists!", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+        //        TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+        //    }
+        //    else
+        //    {
+        //        var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
+        //        if (Manager1Email != null && Manager1Email != "")
+        //        {
+        //            var ManagerName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+        //            sendEmailProperties sendEmailProperties = new sendEmailProperties();
+        //            sendEmailProperties.emailSubject = "Send a request for attendance approval";
+        //            sendEmailProperties.emailBody = "Hi, " + ManagerName + " has sent a request for attendance approval.";
+        //            sendEmailProperties.EmailToList.Add(Manager1Email); 
+        //            emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
+        //            if (responses.responseCode == "200")
+        //            {
+        //            }
+        //            else
+        //            {
+        //            }
+        //        }
+        //        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+        //        TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+        //    }
+        //    return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
+
+        //}
         [HttpGet]
         public IActionResult DeleteAttendanceDetails(string id)
         {

@@ -132,7 +132,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else if (employee.References.Count == 1)
                 {
-                    //employee.References.Add(new HRMS.Models.Employee.Reference());
+                   employee.References.Add(new HRMS.Models.Employee.Reference());
                 }
                 ;
             }
@@ -488,7 +488,8 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     sendEmailProperties sendEmailProperties = new sendEmailProperties();
                     sendEmailProperties.emailSubject = "Reset Password Email";
-                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString()), _businessLayer.EncodeStringBase64(CompanyID.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
+                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> " +
+                        "<a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString()), _businessLayer.EncodeStringBase64(CompanyID.ToString()), _businessLayer.EncodeStringBase64(employmentDetail.CompanyAbbr + employmentDetail.EmployeNumber.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
                     sendEmailProperties.EmailToList.Add(employmentDetail.OfficialEmailID);
                     emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
                     if (response.responseCode == "200")
