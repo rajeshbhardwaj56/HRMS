@@ -512,10 +512,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             shiftTypeModel = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).shiftTypeModel;
             EmployeeAttendanceModel.FullName = employeeDetails.FirstName + ' ' + employeeDetails.MiddleName + ' ' + employeeDetails.Surname;
-            // EmployeeAttendanceModel.EmployeeNumber = employeeDetails.EmployeeNumber;
+           EmployeeAttendanceModel.EmployeeNumber = employeeDetails.EmployeeNumber;
             EmployeeAttendanceModel.EmployeeJoiningdate = employeeDetails.JoiningDate.Value.ToString("dd/MM/yyyy");
             //EmployeeAttendanceModel.EmployeeDesignation = employeeDetails.DesignationName;
-            //EmployeeAttendanceModel.EmployeeDepartment = employeeDetails.DepartmentName;
+           EmployeeAttendanceModel.EmployeeDepartment = employeeDetails.DepartmentName;
+           EmployeeAttendanceModel.ManagerName = employeeDetails.ManagerName;
             //EmployeeAttendanceModel.Employeeemail = employeeDetails.OfficialEmailID;
             EmployeeAttendanceModel.ShiftStartDate = shiftTypeModel.StartTime;
             EmployeeAttendanceModel.ShiftEndDate = shiftTypeModel.EndTime;

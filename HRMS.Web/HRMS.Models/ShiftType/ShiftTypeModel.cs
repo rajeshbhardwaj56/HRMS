@@ -54,6 +54,7 @@ namespace HRMS.Models.ShiftType
         public string? EmployeeJoiningdate { get; set; }
         public string? EmployeeDesignation { get; set; }
         public string? EmployeeDepartment { get; set; }
+        public string? ManagerName { get; set; }
         public string? Employeeemail { get; set; }
         public TimeSpan ShiftStartDate { get; set; }
         public TimeSpan ShiftEndDate { get; set; }

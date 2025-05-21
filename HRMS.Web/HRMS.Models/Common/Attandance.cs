@@ -44,6 +44,9 @@ namespace HRMS.Models.Common
         public bool? IsDeleted { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? CreatedDate { get; set; }
+
+
+
         public List<SelectListItem> Employeelist = new List<SelectListItem>();
 
     }

@@ -1124,7 +1124,7 @@
                                                     </div>
                                                     @if (@RoleName != @Convert.ToInt64(Roles.HR))
                                                     {
-                                                    <p>Admin Comment</p>
+                                                        <h3>Approval Comment</h3>
                                                     <p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
                                                     <p id="approverejectrequire" style="color: red;"></p>
                                                 
@@ -1242,15 +1242,16 @@
 
 
     function ApproveRejectLeave(isApproved) {
-        let actionText = isApproved ? "approve" : "reject";
-        if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
-            let leaveSummaryID = $("#leaveSummaryID").val();
-            var ApproveRejectComment = $("#ApproveRejectComment").val();
+         var ApproveRejectComment = $("#ApproveRejectComment").val();
             if (ApproveRejectComment == "") {
                 $("#approverejectrequire").text('');
                 $("#approverejectrequire").text('Comment required');
                 return;
             }
+        let actionText = isApproved ? "approve" : "reject";
+        if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
+            let leaveSummaryID = $("#leaveSummaryID").val();
+           
             let data = {
                 leaveSummaryID: leaveSummaryID,
                 isApproved: isApproved,

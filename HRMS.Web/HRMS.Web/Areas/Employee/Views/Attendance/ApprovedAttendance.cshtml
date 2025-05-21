@@ -186,7 +186,15 @@
 																</div>
 
 																<div class="col-lg-4 col-md-4 mb-2">
-																	<h6>Joinind Date</h6>
+																	<h6>Employee Number</h6>
+																	<p id="EmployeeNumber"></p>
+																</div>
+																<div class="col-lg-4 col-md-4 mb-2">
+																	<h6>Manager Name</h6>
+																	<p id="ManagerName"></p>
+																</div>
+																<div class="col-lg-4 col-md-4 mb-2">
+																	<h6>DOJ</h6>
 																	<p id="EmployeeJoiningdate"></p>
 																</div>
 															</div>
@@ -213,6 +221,7 @@
 										<input type="hidden" id="employeeID" name="employeeID">
 										<input type="hidden" id="attendanceId" name="attendanceId">
 										<input type="hidden" id="status" name="status">
+										
 										<div class="DateFormatDiv" style="display: flex;">
 											<div class="col-lg-4 px-4">
 												<h6>Start Date</h6>
@@ -227,7 +236,8 @@
 												<p id="WorkDate"> </p>
 											</div>
 										</div>
-										<p>Admin Comment</p>
+										<hr>
+										<h3>Approval Comment</h3>
 										<p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
 										<p id="approverejectrequire" style="color: red;"></p>
 										<div class="modal-footer">
@@ -456,6 +466,19 @@
 	 }
 
 		 function ApproveRejectAttendance(isApproved) {
+
+		const ApproveRejectComment = $("#ApproveRejectComment").val();
+
+			if (ApproveRejectComment === "") {
+				$("#approverejectrequire").text('Comment required');
+				// Re-enable both buttons and reset text
+				approveButton.prop('disabled', false);
+				rejectButton.prop('disabled', false);
+				approveButton.text('Approve');
+				rejectButton.text('Reject');
+				return;
+			}
+
 		const approveButton = $("#approveButton");  // Approve button
 		const rejectButton = $(".btn-primary");    // Reject button (using class to select)
 
@@ -475,18 +498,7 @@
 		// Show confirmation dialog
 		if (confirm(`Are you sure you want to ${actionText} this attendance request?`)) {
 			const employeeID = $("#employeeID").val();
-			const ApproveRejectComment = $("#ApproveRejectComment").val();
-
-			if (ApproveRejectComment === "") {
-				$("#approverejectrequire").text('Comment required');
-				// Re-enable both buttons and reset text
-				approveButton.prop('disabled', false);
-				rejectButton.prop('disabled', false);
-				approveButton.text('Approve');
-				rejectButton.text('Reject');
-				return;
-			}
-
+			
 			const data = {
 				attendanceId: $("#attendanceId").val(),
 				employeeID,
@@ -557,6 +569,8 @@
 			 data: { employeeID, Id },
 			 success: function (response) {
 				 $("#FullName").text(response.fullName);
+				 $("#EmployeeNumber").text(response.employeNumber);
+				 $("#ManagerName").text(response.managerName);
 				 $("#EmployeeJoiningdate").text(response.employeeJoiningdate);
 				 $("#StartDate").text(formatDate(firstLogDate));
 				 $("#EndDate").text(formatDate(lastLogDate));
