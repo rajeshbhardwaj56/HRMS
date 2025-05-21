@@ -483,11 +483,7 @@
 				<h6 id="sick-footer">Absent</h6>
 				<h6 class="sick-footer-right">A</h6>
 			</div>
-			@*  <div class="cardfooter-card" id="card-footer-card">
-
-                <h6 id="Unpaid-footer">Unpaid</h6>
-                <h6 class="Unpaid-footer-right">U</h6>
-            </div> *@
+			 
 			<div class="cardfooter-card" id="card-footer-card">
 
 				<h6 id="public-footer">Public holiday</h6>
@@ -557,62 +553,52 @@
 								description: 'Worked ' + item.hoursWorked + ' hours'
 							});
 						});
-
 						// Initialize or update FullCalendar
-						$('#calendar').fullCalendar('destroy'); // First destroy previous instance
+						$('#calendar').fullCalendar('destroy');  
 						$('#calendar').fullCalendar({
 								header: {
 								left: 'prev,next today',
 								center: 'title',
 								right: 'month,agendaWeek'
 							},
-							defaultView: 'month', // Ensure the calendar starts in month view
+							defaultView: 'month', 
 							events: events,
-							defaultDate: moment({ year: year, month: month - 1 }).format('YYYY-MM-DD'), // Set the date based on selected year and month
-
-							// Ensure buttons visibility when switching views
+							defaultDate: moment({ year: year, month: month - 1 }).format('YYYY-MM-DD'),  
 							viewRender: function (view, element) {
 								if (view.name === 'agendaWeek') {
-									// Show the left buttons (prev,next,today) in agendaWeek
 									$('.fc-left').show();
+									$('.fc-event-container').show();
 								} else if (view.name === 'month') {
-									// Hide the left buttons in month view
 									$('.fc-left').hide();
 								}
 							},
-
 							dayRender: function (date, cell) {
 								var formattedDate = date.format("YYYY-MM-DD");
 								var statusLabel = '';
 								var currentDate = moment().format("YYYY-MM-DD");
-								var workStatus = ''; // Default: No status for future dates
-
-								// Check for holidays (display "H" even for future dates)
+								var workStatus = '';  
 								$.each(data.data.holidays, function (index, holiday) {
 									var holidayStart = moment(holiday.fromDate).format("YYYY-MM-DD");
 									var holidayEnd = moment(holiday.toDate).format("YYYY-MM-DD");
 
 									if (formattedDate >= holidayStart && formattedDate <= holidayEnd) {
-										workStatus = 'H'; // Mark as Holiday
-										return false; // Exit the loop once a holiday is identified
+										workStatus = 'H'; 
+										return false;  
 									}
 								});
-									if ((date.day() === 0 || date.day() === 6) && workStatus === '') {  // Sunday (0 is Sunday)
-									workStatus = 'H'; // 'H' for Sunday (Holiday)
+									if ((date.day() === 0 || date.day() === 6) && workStatus === '') {  
+									workStatus = 'H'; 
 								}
-
-								// Check for leave data (display "L")
-
 									$.each(data.data.leaves, function (index, leave) {
 										var leaveStart = moment(leave.startDate).format("YYYY-MM-DD");
 										var leaveEnd = moment(leave.endDate).format("YYYY-MM-DD");
 
 										if (formattedDate >= leaveStart && formattedDate <= leaveEnd) {
 										  var dayOfWeek = date.day(); // 0 = Sunday, 6 = Saturday
-	if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-			workStatus = 'L'; // Only mark as Leave if not Sat/Sun
-			return false;
-		}
+	                                       if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+	                                       		workStatus = 'L';  
+	                                       		return false;
+	                                       	}
 										}
 									});
 								if (formattedDate > currentDate && workStatus === '') {
@@ -624,16 +610,15 @@
 											var itemDate = moment(item.workDate).format("YYYY-MM-DD");
 
 											if (itemDate === formattedDate) {
-												workStatus = 'P'; // Mark as Present
+												workStatus = 'P';  
 												return false;
 											}
 										});
 									}
 									if (workStatus === '') {
-										workStatus = 'A'; // Absent for past or current dates
+										workStatus = 'A'; 
 									}
 								}
-								// Set label based on the final work status
 								if (workStatus === 'P') {
 									statusLabel = '<div class="status-label present">P</div>';
 								} else if (workStatus === 'L') {
@@ -643,12 +628,12 @@
 								} else if (workStatus === 'A') {
 									statusLabel = '<div class="status-label absent">A</div>';
 								}
-								// Append the status label to the day cell
 								if (statusLabel !== '') {
 									cell.append(statusLabel);
 								}
 							},
 							dayClick: function (date, jsEvent, view) {
+
 								var formattedDate = date.format("YYYY-MM-DD");
 								var popupContent = '<span class="no-detailsfound"><i class="bi bi-exclamation-lg fs-4"></i>No details found for this date.</span>'; // Default message
 
