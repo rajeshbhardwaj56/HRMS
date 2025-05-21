@@ -173,7 +173,7 @@ namespace HRMS.Web.Controllers
                         if (response.responseCode == "200")
                         {
                             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent. Please reset your password to log in.";
+                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT Team.";
                         }
                         else
                         {
@@ -220,7 +220,7 @@ namespace HRMS.Web.Controllers
                 {
                     model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
                 }
-                objmodel.CompanyLogo = model.CompanyLogo; 
+                objmodel.CompanyLogo = model.CompanyLogo;
                 DateTime date = Convert.ToDateTime(_businessLayer.DecodeStringBase64(dt));
                 objmodel.EmployeeID = _businessLayer.DecodeStringBase64(Id);
                 objmodel.UserID = _businessLayer.DecodeStringBase64(Id);
@@ -244,6 +244,81 @@ namespace HRMS.Web.Controllers
             }
             return View(objmodel);
         }
+        public ActionResult ChangePassword()
+        {
+            ResetPasswordModel objmodel = new ResetPasswordModel();
+            try
+            {
+                var CompanyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+                var EmployeeNumber = HttpContext.Session.GetString(Constants.EmployeeNumber).ToString();
+
+                CompanyLoginModel model = new CompanyLoginModel();
+                {
+                    model.CompanyID = Convert.ToInt64(CompanyId);
+
+                    var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
+                    model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
+                }
+                if (!string.IsNullOrEmpty(model.CompanyLogo))
+                {
+                    model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+                }
+                objmodel.CompanyLogo = model.CompanyLogo;
+                objmodel.UserName = EmployeeNumber;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+            }
+            return View(objmodel);
+        }
+
+        [HttpPost]
+        public ActionResult ChangePassword(ResetPasswordModel model)
+        {
+            try
+            {
+                model.EmployeeID = HttpContext.Session.GetString(Constants.EmployeeID).ToString();
+                model.UserID = HttpContext.Session.GetString(Constants.EmployeeID).ToString();
+                model.CompanyID = HttpContext.Session.GetString(Constants.CompanyID).ToString();
+                string apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.ResetPassword);
+                string responseData = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Result>(responseData);
+
+                if (result?.UserID < 0)
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "An error occurred. Please try again later.";
+                }
+                else
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+                    return RedirectToAction("Successpage", "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "An unexpected error occurred. Please try again later.";
+            }
+
+            return View(model);
+        }
+
+
+        public ActionResult Successpage()
+        {
+            
+            return View( );
+        }
+
+
+
 
         [HttpPost]
         public ActionResult ResetPassword(ResetPasswordModel model)
