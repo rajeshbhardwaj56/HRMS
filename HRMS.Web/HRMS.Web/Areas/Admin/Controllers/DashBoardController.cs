@@ -1251,7 +1251,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     LeavingRemarks = item.LeavingRemarks,
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
                     DateOfEmailSentToITForIDDeletion = item.DateOfEmailSentToITForIDDeletion,
-                    ReportingToIDL1Name = HttpContext.Session.GetString(Constants.EmployeeID),
+                    ReportingToIDL1Name = item.ReportingToIDL1Name,
                     ReportingToIDL2Name = HttpContext.Session.GetString(Constants.EmployeeID),
                     InsertedByUserID = HttpContext.Session.GetString(Constants.UserID),
                     Status = item.Status,
