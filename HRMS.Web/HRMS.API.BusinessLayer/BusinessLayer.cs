@@ -3462,7 +3462,7 @@ namespace HRMS.API.BusinessLayer
                     OfficialContactNo = item.OfficialContactNo,
                     JoiningDate = TryParseDate(item.JoiningDate),
                     JobSeprationDate = TryParseDate(item.DateOfResignation),
-                    ReportingToIDL1 = Convert.ToInt64(item.ReportingToIDL1Name),
+                    ReportingToIDL1 = Convert.ToInt64(item.ReportingToIDL2Name),
                     PayrollTypeID = Convert.ToInt64(item.PayrollTypeName),
                     ReportingToIDL2 = Convert.ToInt64(item.ReportingToIDL2Name),
                     ClientName = item.ClientName,
@@ -3489,6 +3489,7 @@ namespace HRMS.API.BusinessLayer
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
                     EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion),
                     IsActive = item.Status == "1",
+                    ReportingToIDL1EmployeeNumber=item.ReportingToIDL1Name
                 }).ToList();
                 var employeeDataTable = ConvertToDataTable(employeeList);
                 var parameters = new List<SqlParameter>
@@ -3606,7 +3607,8 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("LeavingRemarks", typeof(string));
             table.Columns.Add("MailReceivedFromAndDate", typeof(string));
             table.Columns.Add("EmailSentToITDate", typeof(DateTime));
-            table.Columns.Add("IsActive", typeof(bool));          
+            table.Columns.Add("IsActive", typeof(bool));
+            table.Columns.Add("ReportingToIDL1EmployeeNumber", typeof(string));
             foreach (var emp in employees)
             {
                 table.Rows.Add(
@@ -3696,7 +3698,8 @@ namespace HRMS.API.BusinessLayer
                     emp.LeavingRemarks,
                     emp.MailReceivedFromAndDate,
                     emp.EmailSentToITDate,
-                    emp.IsActive
+                    emp.IsActive,
+                    emp.ReportingToIDL1EmployeeNumber
                 );
             }
 

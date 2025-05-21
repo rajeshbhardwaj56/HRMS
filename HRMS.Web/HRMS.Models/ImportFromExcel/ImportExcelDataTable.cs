@@ -183,6 +183,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? MailReceivedFromAndDate { get; set; }
         public DateTime? EmailSentToITDate { get; set; }
         public bool? IsActive { get; set; }
+        public  string? ReportingToIDL1EmployeeNumber { get; set; }
     }
 
     public class CompanyInfo
