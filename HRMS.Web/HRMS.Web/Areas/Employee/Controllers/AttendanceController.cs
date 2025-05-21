@@ -133,7 +133,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
-
             return Json(new { data = model, employeeFullName = employeeFullName });
         }
         [HttpGet]
@@ -143,9 +142,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var ManagerL2 = HttpContext.Session.GetString(Constants.Manager2Name).ToString();
             ViewBag.ManagerL1 = ManagerL1;
             ViewBag.ManagerL2 = ManagerL2;
-
             return View();
-
         }
         [HttpPost]
         public JsonResult GetMyAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)

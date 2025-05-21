@@ -2091,6 +2091,11 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameters.Add(new SqlParameter("@ShiftTypeID", model.ShiftTypeID));
+            sqlParameters.Add(new SqlParameter("@SortCol", "ShiftTypeID")); 
+            sqlParameters.Add(new SqlParameter("@SortDir", "DESC")); 
+            sqlParameters.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
+            sqlParameters.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
+            sqlParameters.Add(new SqlParameter("@DisplayLength", model.DisplayLength));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ShiftTypeDetails, sqlParameters);
             result.ShiftType = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new ShiftTypeModel
@@ -2113,7 +2118,9 @@ namespace HRMS.API.BusinessLayer
                                   LastEntryGracePeriod = dataRow.Field<long>("LastEntryGracePeriod"),
                                   EarlyExitGracePeriod = dataRow.Field<long>("EarlyExitGracePeriod"),
                                   Comments = dataRow.Field<string>("Comments"),
-                                  CompanyID = dataRow.Field<long>("CompanyID")
+                                  CompanyID = dataRow.Field<long>("CompanyID"),
+                                  TotalRecords = dataRow.Field<int>("TotalRecords"),
+                                  FilteredRecords = dataRow.Field<int>("TotalRecords"),
                               }).ToList();
 
             if (model.ShiftTypeID > 0)
@@ -2995,7 +3002,7 @@ namespace HRMS.API.BusinessLayer
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
                 return dataSet.Tables[0].AsEnumerable()
-                            .ToDictionary(row => row.Field<string>("Name").ToLower(), // Convert Name to lowercase
+                            .ToDictionary(row => row.Field<string>("DepartmentName_SubDepartment").ToLower(), // Convert Name to lowercase
                                           row => row.Field<long>("ID"));
             }
 
@@ -3500,7 +3507,7 @@ namespace HRMS.API.BusinessLayer
             {
                 return new Result
                 {
-                    Message = $"Error while importing employee data"
+                    Message = $"Error while importing employee data {ex}"
                 };
             }
         }

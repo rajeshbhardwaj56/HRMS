@@ -915,12 +915,24 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     else if (employmentDetailsDictionaries.TryGetValue("Departments", out var departmentDict))
                                     {
-                                        var DepartmentName = departmentDict
-                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                        DepartmentId = DepartmentName.Value;
-                                        prop.SetValue(item, DepartmentId.ToString());
+                                        // Step 1: Try exact match
+                                        var departmentMatch = departmentDict
+                                            .FirstOrDefault(kvp => kvp.Key.Equals(cellValue, StringComparison.OrdinalIgnoreCase));
 
-                                        if (DepartmentId == 0)
+                                        // Step 2: If no exact match, try partial match
+                                        if (departmentMatch.Equals(default(KeyValuePair<string, int>)))
+                                        {
+                                            departmentMatch = departmentDict
+                                                .FirstOrDefault(kvp => kvp.Key.IndexOf(cellValue, StringComparison.OrdinalIgnoreCase) >= 0);
+                                        }
+
+                                        // Step 3: Use value if found
+                                        if (!departmentMatch.Equals(default(KeyValuePair<string, int>)) && departmentMatch.Value != 0)
+                                        {
+                                            DepartmentId = departmentMatch.Value;
+                                            prop.SetValue(item, DepartmentId.ToString());
+                                        }
+                                        else
                                         {
                                             AddError(errorDataTable, columnName, $"Row {row}: DepartmentName  not found in master data.");
                                             hasError = true;
@@ -933,21 +945,26 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     break;
                                 case "SubDepartmentName":
-                                    if (string.IsNullOrWhiteSpace(cellValue))
+                                    string departmentNameValue = worksheet.Cells[row, columnIndexMap["DepartmentName"]].Text?.Trim();
+
+                                    if (string.IsNullOrWhiteSpace(cellValue) || string.IsNullOrWhiteSpace(departmentNameValue))
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: SubDepartmentName is required.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: Both DepartmentName and SubDepartmentName are required.");
                                         hasError = true;
                                     }
                                     else if (SubDepartmentDictionaries != null)
                                     {
+                                        string combinedKey = $"{departmentNameValue}_{cellValue}";
+
                                         var matchedSubDept = SubDepartmentDictionaries
-                                            .FirstOrDefault(kvp => kvp.Key.Trim().Equals(cellValue.Trim(), StringComparison.OrdinalIgnoreCase));
+                                            .FirstOrDefault(kvp => kvp.Key.Trim().Equals(combinedKey, StringComparison.OrdinalIgnoreCase));
+
                                         SubDepartmentNameId = matchedSubDept.Value;
                                         prop.SetValue(item, SubDepartmentNameId.ToString());
 
                                         if (SubDepartmentNameId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: SubDepartmentName  not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: SubDepartment  not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -957,6 +974,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
+
                                 case "DesignationName":
                                     if (string.IsNullOrWhiteSpace(cellValue))
                                     {

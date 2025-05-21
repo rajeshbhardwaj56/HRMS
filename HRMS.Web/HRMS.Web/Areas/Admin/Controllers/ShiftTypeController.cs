@@ -26,21 +26,23 @@ namespace HRMS.Web.Areas.Admin.Controllers
             Results results = new Results();
             return View(results);
         }
-
         [HttpPost]
         [AllowAnonymous]
         public JsonResult ShiftTypeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            ShiftTypeInputParans shiftTypeParams = new ShiftTypeInputParans();
+          ShiftTypeInputParans shiftTypeParams = new ShiftTypeInputParans();
             shiftTypeParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
+            shiftTypeParams.DisplayStart = iDisplayStart;
+            shiftTypeParams.DisplayLength = iDisplayLength;
+            shiftTypeParams.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
             var data = _businessLayer.SendPostAPIRequest(shiftTypeParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
-
-            return Json(new { data = results.ShiftType });
-
+            return Json(new {
+                draw = sEcho,
+                recordsTotal = results.ShiftType.Select(x => x.TotalRecords).FirstOrDefault() ?? 0,
+                recordsFiltered = results.ShiftType.Select(x => x.FilteredRecords).FirstOrDefault() ?? 0,
+                data = results.ShiftType });
         }
-
         public IActionResult Index(string id)
         {
             ShiftTypeModel shiftTypeModel = new ShiftTypeModel();
@@ -65,7 +67,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return View(shiftTypeModel);
         }
-
         [HttpPost]
         public IActionResult Index(ShiftTypeModel shiftTypeModel)
         {
