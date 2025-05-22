@@ -19,7 +19,7 @@
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
     {
-        ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.employeeModel.EmployeeID + "/" + Model.employeeModel.ProfilePhoto;
+        ProfilePhoto = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto) ;
     }
     else
     {
@@ -28,7 +28,7 @@
     var UploadCertificate = "";
     if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
     {
-        UploadCertificate = "/" + HRMS.Models.Common.Constants.UploadCertificate + Model.employeeModel.EmployeeID + "/" + Model.leaveResults.leaveSummaryModel.UploadCertificate;
+        UploadCertificate =Model.leaveResults.leaveSummaryModel.UploadCertificate;
     }
     else
     {
@@ -59,8 +59,8 @@
 }
 <style>
     .fade:not(.show) {
-        opacity: 0;
-        display: none !important;
+    opacity: 0;
+    display: none !important;
     }
 </style>
 @* <div class="main-header anim" style="--delay: 0s">My Info</div> *@
@@ -76,23 +76,28 @@
             <div class="profile-header-small-info">
                 <h2>@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
                 <p class="joiningDate">
-                    <b>Joining Date:</b> &nbsp;@Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyy") &nbsp;
-                    @{
+                    <b>Joining Date:</b> &nbsp;
+                    @if (Model.employmentDetail.JoiningDate != null)
+                    {
+                        @Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyyy");
 
-                        if (Model.employmentDetail.JoiningDate != null)
-                        {
 
-                            DateTime zeroTime = new DateTime(1, 1, 1);
-                            DateTime TodayDate = DateTime.Now;
-                            DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
-                            TimeSpan span = TodayDate - JoiningDate;
-                            int years = (zeroTime + span).Year - 1;
-                            var Month = (TodayDate - JoiningDate.AddYears(years));
-                            var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
-                                    <span>@(years)y - @(Days)d</span>
-                        }
+                        DateTime zeroTime = new DateTime(1, 1, 1);
+                        DateTime TodayDate = DateTime.Now;
+                        DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
+                        TimeSpan span = TodayDate - JoiningDate.Date;
+                        int years = (zeroTime + span).Year - 1;
+                        var Month = (TodayDate - JoiningDate.AddYears(years));
+                        var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
+                        <span>@(years)y - @(Days)d</span>
+
+                    }
+
+                    else{
+                        <span class="Joiningnotavailable">Joining date not available. Please contact your administrator.</span>
                     }
                 </p>
+
 
                 <div class="myinfo-menu">
                     <ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
@@ -102,17 +107,38 @@
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Professional Info</a>
                         </li>
-                        @if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.Manager) || RoleName == Convert.ToInt64(Roles.SuperAdmin))
+                        @if (RoleName != Convert.ToInt64(Roles.Employee)  )
                         {
                             <li class="nav-item" role="presentation">
                                 <a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
                             </li>
                         }
-                        
+
+                        @if (Model.employmentDetail.JoiningDate != null  )
+                        {
+                            if (Model.employeeModel.LeavePolicyID > 0)
+                            {
+                                 @if (RoleName != Convert.ToInt64(Roles.Admin)  )
+                        {
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+                                </li>
+                        }
+
+                            }
+                            else
+                            {
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Leave Policy not available. Please contact your administrator.');">Leave Info</a>
+                                </li>
+                            }
+                        }
+                            else{
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+                                <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
                             </li>
-                       
+                            }
+
                         <li class="nav-item" role="presentation" style="display: none;">
                             <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
                         </li>
@@ -160,8 +186,6 @@
                                             <form class="body-text" method="post" enctype="multipart/form-data">
                                                 <h3>Personal Info</h3>
                                                 <div class="row">
-
-
                                                     <div class="col-lg-4 col-md-4 mb-2">
                                                         <h6>Name</h6>
                                                         @Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
@@ -309,200 +333,200 @@
                                                 {
                                                     foreach (var familyDetail in Model.employmentHistory)
                                                     {
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="row">
+                                                                    <div class="col-md-10">
+                                                                        <b> Employer-@(index)</b>
+                                                                    </div>
+                                                                </div>
                                                                 <div class="row">
                                                                     <div class="col-md-12">
+
                                                                         <div class="row">
-                                                                            <div class="col-md-10">
-                                                                                <b> Employer-@(index)</b>
+                                                                            <div class="col-md-3">
+                                                                                <h6>Company Name</h6>
+                                                                                @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
+                                                                                @Model.employmentHistory[Index].CompanyName
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <h6>Employee ID</h6>
+                                                                                @Model.employmentHistory[Index].EmploymentID
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                <h6>From</h6>
+                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
+                                                                            </div>
+
+                                                                            <div class="col-md-3">
+                                                                                <h6>To</h6>
+                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
                                                                             </div>
                                                                         </div>
+
                                                                         <div class="row">
-                                                                            <div class="col-md-12">
+                                                                            <div class="col-md-6">
+                                                                                Address/Branch
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                Phone
+                                                                            </div>
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-3">
-                                                                                        <h6>Company Name</h6>
-                                                                                        @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
-                                                                                        @Model.employmentHistory[Index].CompanyName
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        <h6>Employee ID</h6>
-                                                                                        @Model.employmentHistory[Index].EmploymentID
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        <h6>From</h6>
-                                                                                        @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
-                                                                                    </div>
+                                                                        </div>
 
-                                                                                    <div class="col-md-3">
-                                                                                        <h6>To</h6>
-                                                                                        @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6">
-                                                                                        Address/Branch
-                                                                                    </div>
-                                                                                    <div class="col-md-6">
-                                                                                        Phone
-                                                                                    </div>
-
-                                                                                </div>
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6">
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
 
 
-                                                                                        @Model.employmentHistory[Index].Address
-                                                                                    </div>
-                                                                                    <div class="col-md-6">
-                                                                                        @Model.employmentHistory[Index].Phone
-                                                                                    </div>
+                                                                                @Model.employmentHistory[Index].Address
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].Phone
+                                                                            </div>
 
-                                                                                </div>
+                                                                        </div>
 
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-3">
-                                                                                        City
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        State
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        Country
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        Postal Code
-                                                                                    </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-3">
+                                                                                City
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                State
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                Country
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                Postal Code
+                                                                            </div>
 
-                                                                                </div>
+                                                                        </div>
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-3">
-                                                                                        @Model.employmentHistory[Index].City
+                                                                        <div class="row">
+                                                                            <div class="col-md-3">
+                                                                                @Model.employmentHistory[Index].City
 
-                                                                                    </div>
-                                                                                    <div class="col-md-3">
-                                                                                        @Model.employmentHistory[Index].State
-                                                                                    </div>
+                                                                            </div>
+                                                                            <div class="col-md-3">
+                                                                                @Model.employmentHistory[Index].State
+                                                                            </div>
 
-                                                                                    <div class="col-md-3">
-                                                                                        @{
+                                                                            <div class="col-md-3">
+                                                                                @{
                                                                                     employmentHistoryCountry = @CountryData.Where(x => x.Value == Model.employmentHistory[Index].CountryID.ToString()).FirstOrDefault();
                                                                                     if (employmentHistoryCountry != null)
                                                                                     {
                                                                                         employmentHistoryCountry.Value.ToString();
                                                                                     }
-                                                                                        }
-                                                                                    </div>
+                                                                                }
+                                                                            </div>
 
-                                                                                    <div class="col-md-3">
+                                                                            <div class="col-md-3">
 
-                                                                                        @Model.employmentHistory[Index].PostalCode
-                                                                                    </div>
-                                                                                </div>
+                                                                                @Model.employmentHistory[Index].PostalCode
+                                                                            </div>
+                                                                        </div>
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-12">
-                                                                                        Reasion for Leaving
-                                                                                    </div>
-                                                                                    <div class="col-md-12">
-                                                                                        @Model.employmentHistory[Index].ReasionFoLeaving
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                Reasion for Leaving
+                                                                            </div>
+                                                                            <div class="col-md-12">
+                                                                                @Model.employmentHistory[Index].ReasionFoLeaving
 
-                                                                                    </div>
+                                                                            </div>
 
-                                                                                </div>
-
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6">
-                                                                                        Designition (As per document)
-                                                                                    </div>
-                                                                                    <div class="col-md-6">
-                                                                                        Final Gross Salary(as per Company Letter)
-                                                                                    </div>
-
-                                                                                </div>
+                                                                        </div>
 
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6">
-                                                                                        @Model.employmentHistory[Index].Designition
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                Designition (As per document)
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                Final Gross Salary(as per Company Letter)
+                                                                            </div>
 
-                                                                                    </div>
-                                                                                    <div class="col-md-6">
-                                                                                        @Model.employmentHistory[Index].GrossSalary
+                                                                        </div>
 
-                                                                                    </div>
 
-                                                                                </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].Designition
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-4">
-                                                                                        Supervisor Name
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        Supervisor's Designition
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        Supervisor's ContactNo
-                                                                                    </div>
-                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                @Model.employmentHistory[Index].GrossSalary
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].SupervisorName
+                                                                            </div>
 
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].SupervisorDesignition
+                                                                        </div>
 
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].SupervisorContactNo
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                Supervisor Name
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                Supervisor's Designition
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                Supervisor's ContactNo
+                                                                            </div>
+                                                                        </div>
 
-                                                                                    </div>
-                                                                                </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorName
 
-                                                                                <div class="row">
-                                                                                    <div class="col-md-4">
-                                                                                        HR Manager Name
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        HR Manager's ContactNo
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        HR Manager's Email
-                                                                                    </div>
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorDesignition
 
-                                                                                </div>
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].HRName
-
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].HRContactNo
-
-                                                                                    </div>
-                                                                                    <div class="col-md-4">
-                                                                                        @Model.employmentHistory[Index].HRContactNo
-
-                                                                                    </div>
-                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].SupervisorContactNo
 
                                                                             </div>
                                                                         </div>
 
                                                                         <div class="row">
-                                                                            &nbsp;
-                                                                            <hr style="width:100%" />
+                                                                            <div class="col-md-4">
+                                                                                HR Manager Name
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                HR Manager's ContactNo
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                HR Manager's Email
+                                                                            </div>
+
                                                                         </div>
+
+                                                                        <div class="row">
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRName
+
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRContactNo
+
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                @Model.employmentHistory[Index].HRContactNo
+
+                                                                            </div>
+                                                                        </div>
+
                                                                     </div>
                                                                 </div>
+
+                                                                <div class="row">
+                                                                    &nbsp;
+                                                                    <hr style="width:100%" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                         Index++;
                                                         index++;
@@ -518,9 +542,9 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
-                                      <div class="group-box anim">
+                                    <div class="group-box anim">
                                         <div class="tabsInfo" id="">
-                                            <h3>Leave Info</h3>
+                                            <h3>Leave Approval Info</h3>
                                             <nav>
                                                 <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
                                                     <button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
@@ -565,15 +589,11 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
-
                                                 </div>
                                                 <div class="tab-pane fade" id="leave-approved-tab" role="tabpanel" aria-labelledby="leave-approved-tab1">
-
                                                     <div class="group-box anim">
                                                         <div class="tabsInfo" id="myTabContent-timeoff">
                                                             <h3>Approved Leaves</h3>
-
                                                         </div>
                                                         <div role="tabpanel" aria-labelledby="apply-tab">
                                                             <div class="row">
@@ -594,7 +614,6 @@
                                                                                         <th>Reason</th>
                                                                                     </tr>
                                                                                 </thead>
-
                                                                             </table>
                                                                         </div>
                                                                     </div>
@@ -680,7 +699,7 @@
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
                                                                                 @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
                                                                                 @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" })
-                                                                                
+
                                                                             </div>
                                                                             <div class="col-lg-6 col-md-12" id="leaveDurationContainer">
                                                                                 <label for="leavetype" class="">Leave Duration:</label>
@@ -740,7 +759,7 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="col-lg-6 col-md-12">
+                                                                             <div class="col-lg-6 col-md-12">
                                                                                 <label>Upload Certificate:</label>
                                                                                 <div class="position-relative">
                                                                                     <div class="input-group ">
@@ -754,7 +773,8 @@
 
                                                                                     </div>
                                                                                 </div>
-                                                                            </div>
+                                                                            </div> 
+                                                                            
                                                                         </div>
 
                                                                         <div class="row py-3 mb-1">
@@ -836,7 +856,7 @@
                                                                         @foreach (var item in Model.leaveResults.leavesSummary)
                                                                         {
                                                                             <tr>
-                                                                                <td>@item.RequestDate</td>
+                                                                                <td>@item.RequestDate.ToString("MM/dd/yyyy hh:mm tt")</td>
                                                                                 <td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
                                                                                 <td>@item.EndDate.ToString("dd/M/yyyy")</td>
                                                                                 <td>@item.LeaveTypeName</td>
@@ -895,6 +915,10 @@
 
 
                                                                                     </td>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <td> </td>
                                                                                 }
 
                                                                             </tr>
@@ -1088,13 +1112,6 @@
                                                     </div>
                                                     <div class="col-lg-6 col-md-12">
                                                         <label id="LabelUploadCertificate" style="display:none">Upload Certificate:</label>
-                                                        @* <div class="position-relative">
-                                                        <div class="input-group ">
-                                                        <input type="file" name="postedFiles" class="form-control body-text" />
-                                                        </div>
-
-                                                        </div> *@
-
                                                         <p id="downloaddocument" style="display:none"></p>
                                                     </div>
                                                     <div class="row py-3 mb-1">
@@ -1105,15 +1122,18 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
-                                                    <p>Admin Comment</p>
+                                                    @if (@RoleName != @Convert.ToInt64(Roles.HR))
+                                                    {
+                                                        <h3>Approval Comment</h3>
                                                     <p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
                                                     <p id="approverejectrequire" style="color: red;"></p>
+                                                
                                                     <div class="modal-footer">
                                                         <button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-primary">Reject</button>
                                                         <button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-info">Approve</button>
 
                                                     </div>
+                                                    }
                                                 </form>
                                             </div>
                                         </div>
@@ -1174,19 +1194,64 @@
 </div>
 <input type="hidden" id="leaveSummaryID" value="" />
 <script type="text/javascript">
-
     var leaveSummaryID;
+     function UploadCertificatePreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const previewImage = document.getElementById('UploadCertificatePreviewImage');
+            const previewPDF = document.getElementById('UploadCertificatePreviewPDF');
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const result = e.target.result;
+
+                if (file.type.startsWith('image/')) {
+                    previewImage.src = result;
+                    previewImage.style.display = 'block';
+                    previewPDF.style.display = 'none';
+                } else if (file.type === 'application/pdf') {
+                    previewPDF.src = result;
+                    previewPDF.style.display = 'block';
+                    previewImage.style.display = 'none';
+                } else {
+                    alert('Unsupported file type. Please upload an image or PDF.');
+                    previewImage.style.display = 'none';
+                    previewPDF.style.display = 'none';
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+    window.onload = function () {
+        const certPath = '@Html.Raw(Model.leaveResults.leaveSummaryModel.UploadCertificate)';
+        const certFilePath = certPath.toLowerCase();
+        const certImg = document.getElementById('UploadCertificatePreviewImage');
+        const certPdf = document.getElementById('UploadCertificatePreviewPDF');
+
+        if (certFilePath.includes('.pdf')) {
+            certPdf.src = certPath;
+            certPdf.style.display = 'block';
+            certImg.style.display = 'none';
+        } else if (certPath) {
+            certImg.src = certPath;
+            certImg.style.display = 'block';
+            certPdf.style.display = 'none';
+        }
+    };
+
 
     function ApproveRejectLeave(isApproved) {
-        let actionText = isApproved ? "approve" : "reject";
-        if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
-            let leaveSummaryID = $("#leaveSummaryID").val();
-            var ApproveRejectComment = $("#ApproveRejectComment").val();
+         var ApproveRejectComment = $("#ApproveRejectComment").val();
             if (ApproveRejectComment == "") {
                 $("#approverejectrequire").text('');
                 $("#approverejectrequire").text('Comment required');
                 return;
             }
+        let actionText = isApproved ? "approve" : "reject";
+        if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
+            let leaveSummaryID = $("#leaveSummaryID").val();
+           
             let data = {
                 leaveSummaryID: leaveSummaryID,
                 isApproved: isApproved,
@@ -1236,7 +1301,6 @@
             });
         }
     }
-
     function OpenApproveRejectModel(employeeID, leaveSummaryID) {
         $("#leaveSummaryID").val(leaveSummaryID);
         $.ajax({
@@ -1247,7 +1311,8 @@
                 console.log(response);
                 const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
                 if (response.employeeModel && response.employmentDetail) {
-                    $("#EmplyoeeName").text(response.employeeModel.firstName + ' ' + response.employeeModel.middleName + ' ' + response.employeeModel.surname);
+                    const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
+                    $("#EmplyoeeName").text(names.join(' '));
                     $("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
                     $("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
                     $("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
@@ -1262,20 +1327,16 @@
                 } else {
                     console.warn("Employee details not found in response.");
                 }
-
                 let leavesSummary = response.leaveResults?.leavesSummary || [];
                 $("#adminleaveTypeDropdown").css("display", "none");
                 $("#adminChildDOBDateContainer").css("display", "none");
                 $("#adminexpectedDeliveryDateContainer").css("display", "none");
-
                 if (Array.isArray(leavesSummary)) {
                     let leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
                     console.log(leaveSummary);
                     if (leaveSummary) {
                         $("#showalert").text('');
                         $("#showDocumentalert").text('');
-
-
                         $('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
                         if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)|| leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
 
@@ -1314,7 +1375,7 @@
                             $('#downloaddocument').html('');
                             if (leaveSummary.uploadCertificate != "") {
                                 $("#downloaddocument").css("display", "block");
-                                var filedata = "/uploads/uploadCertificate/0/" + leaveSummary.uploadCertificate;
+                                var filedata =leaveSummary.uploadCertificate;
                                 $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
                             }
                         }
@@ -1369,7 +1430,7 @@
                             if (leaveSummary.uploadCertificate != "") {
                                 $("#downloaddocument").css("display", "block");
                                 $("#LabelUploadCertificate").css("display", "block");
-                                var filedata = "/uploads/uploadCertificate/0/" + leaveSummary.uploadCertificate;
+                                var filedata = leaveSummary.uploadCertificate;
                                 $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
                             }
                         }
@@ -1406,8 +1467,6 @@
                                     $("#showDocumentalert").text(`Document required for paternity leave`);
                                 }
                             }
-
-
                             $("#adminfullDayContainer").css("display", "flex");
                             $("#admintodatetime").css("display", "block");
                             $("#adminChildDOBDateContainer").css("display", "block");
@@ -1421,7 +1480,7 @@
                             $('#adminReason').val(leaveSummary.reason);
                             if (leaveSummary.uploadCertificate != "") {
                                 $("#downloaddocument").css("display", "block");
-                                var filedata = "/uploads/uploadCertificate/0/" + leaveSummary.uploadCertificate;
+                                var filedata =leaveSummary.uploadCertificate;
                                 $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
                             }
                         }
@@ -1432,11 +1491,6 @@
                 } else {
                     $('#responseMessage').text('Error: Leave Summary data not found.');
                 }
-
-
-
-
-
             },
             error: function (xhr, status, error) {
                 $('#responseMessage').text('Error: ' + xhr.responseText);
@@ -1446,13 +1500,9 @@
 
         $('#ApproveRejectModel').modal('show');
     }
-
     function CloseApproveRejectModel() {
         $('#ApproveRejectModel').modal('hide');
     }
-
-
-
     function RefreshTable(tableId, urlData) {
         $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
@@ -1468,7 +1518,6 @@
             table.fnDraw();
         });
     }
-
     function RefreshTable1(tableId, urlData) {
         $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
@@ -1484,7 +1533,6 @@
             table.fnDraw();
         });
     }
-
     function RefreshTable2(tableId, urlData) {
         $.post(urlData, null, function (json) {
             table = $(tableId).dataTable();
@@ -1500,7 +1548,6 @@
             table.fnDraw();
         });
     }
-    // Edited by Prasad
     function AutoReload() {
         RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
         if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
@@ -1524,10 +1571,8 @@
             InittblLeavesForReject();
         }
     }
-
-
     $(document).ready(function () {
-        if (@RoleName == @Convert.ToInt64(Roles.Admin) || @RoleName == @Convert.ToInt64(Roles.Manager)|| @RoleName == @Convert.ToInt64(Roles.SuperAdmin)) {
+        if (@RoleName != @Convert.ToInt64(Roles.Employee)  ) {
             $('#applied-leave-tab1').click();
             $('#leave-approved-tab').css("display", "none");
             $('#leave-Reject-tab').css("display", "none");
@@ -1609,7 +1654,6 @@
 
         });
     }
-
     function InittblLeavesForApproved() {
         const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 
@@ -1674,7 +1718,6 @@
             }
         });
     }
-
     function InittblLeavesForReject() {
         const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 
@@ -1738,11 +1781,7 @@
                 }
             }
         });
-    }
-
-
-
-    // Initialize Bootstrap tooltip
+    }   
     $(document).ready(function () {
         $('[data-bs-toggle="tooltip"]').tooltip();
     });
@@ -1817,34 +1856,18 @@
 
 
     });
-
-
-
-
-
-
     document.getElementById("myForm").onsubmit = async function (event) {
-        event.preventDefault(); // Prevent default form submission
-
-        // Clear any previous messages
+        event.preventDefault();       
         const responseMessage = document.getElementById("responseMessage");
         responseMessage.textContent = "";
-        responseMessage.className = "";
-
-        // Collect form data
-        const formData = new FormData(this);
-
-        // Send form data to the server using fetch API
+        responseMessage.className = "";      
+        const formData = new FormData(this);      
         const response = await fetch(this.action, {
             method: 'POST',
             body: formData
         });
-
-        const result = await response.json();
-
-        // Handle the server response
-        if (result.isValid) {
-            // Display success message and reset form
+        const result = await response.json();      
+        if (result.isValid) {           
             $.toast({
                 heading: 'Success',
                 text: result.message,
@@ -1864,14 +1887,6 @@
             responseMessage.className = "error-message";
         }
     };
-
-
-
-
-
-
-
-
 </script>
 
 
@@ -1979,6 +1994,37 @@
 
 
 <script>
+    function PanPostedFilePreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const previewImage = document.getElementById('PanpreviewImage');
+            const pdfPreview = document.getElementById('PanpreviewPDF');
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const result = e.target.result;
+
+                if (file.type.startsWith('image/')) {
+                    previewImage.src = result;
+                    previewImage.style.display = 'block';
+                    pdfPreview.style.display = 'none';
+                } else if (file.type === 'application/pdf') {
+                    pdfPreview.src = result;
+                    pdfPreview.style.display = 'block';
+                    previewImage.style.display = 'none';
+                } else {
+                    alert('Unsupported file type. Please upload an image or a PDF.');
+                    previewImage.style.display = 'none';
+                    pdfPreview.style.display = 'none';
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+  
+
+
     document.addEventListener("DOMContentLoaded", function () {
         // Define Standard User Elements
         var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
@@ -1991,7 +2037,6 @@
         var fromdatetime = document.getElementById("fromdatetime");
         var ChildDOBDateContainer = document.getElementById("ChildDOBDateContainer");
         var expectedDeliveryDateContainer = document.getElementById("expectedDeliveryDateContainer");
-
         // Placeholder values
         var fullDayValue = "1";
         var halfDayValue = "2";
@@ -2064,6 +2109,8 @@
             var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
             expectedDeliveryDateContainer.style.display = selectedLeaveType === 'Maternity Leave' ? "block" : "none";
         }
+
+
 
         function toggleLeaveDurationVisibility() {
             var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;

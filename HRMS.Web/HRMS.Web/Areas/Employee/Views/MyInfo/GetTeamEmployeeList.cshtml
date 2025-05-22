@@ -51,9 +51,8 @@
                 {
 
                     "data": "employeePhoto",
-                    "render": function (data, type, row) {
-                        var imagePath = data ? "/Uploads/ProfilePhoto/" + row.employeeId + "/" + data : "/assets/img/No_image.png";
-                        return '<img src="' + imagePath + '" class="img-thumbnail" style="width: 50px; height: 50px;" />';
+                    "render": function (data, type, row) {                   
+                        return '<img src="' + data + '" class="img-thumbnail" style="width: 50px; height: 50px;" />';
 
                     }
                 },

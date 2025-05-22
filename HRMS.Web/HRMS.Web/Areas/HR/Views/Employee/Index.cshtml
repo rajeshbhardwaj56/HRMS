@@ -8,7 +8,7 @@
     var ProfilePhoto = "";
     if (!string.IsNullOrEmpty(Model.ProfilePhoto))
     {
-        ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + Model.EmployeeID + "/" + Model.ProfilePhoto;
+        ProfilePhoto = Model.ProfilePhoto;
     }
     else
     {
@@ -17,7 +17,7 @@
     var PancardPhoto = "";
     if (!string.IsNullOrEmpty(Model.PanCardImage))
     {
-        PancardPhoto = "/" + HRMS.Models.Common.Constants.EmployeePanCardPath + Model.EmployeeID + "/" + Model.PanCardImage;
+        PancardPhoto = @Model.PanCardImage;
     }
     else
     {
@@ -27,7 +27,7 @@
     var AddharCardPhoto = "";
     if (!string.IsNullOrEmpty(Model.AadhaarCardImage))
     {
-        AddharCardPhoto = "/" + HRMS.Models.Common.Constants.EmployeeAadharCardPath + Model.EmployeeID + "/" + Model.AadhaarCardImage;
+        AddharCardPhoto = @Model.AadhaarCardImage;
     }
     else
     {
@@ -46,7 +46,9 @@
             <div class="small-header">Personal Details</div>
             @Html.HiddenFor(m => m.EmployeeID)
             @Html.HiddenFor(m => m.CompanyID)
-
+            @Html.HiddenFor(m => m.ProfilePhoto)
+            @Html.HiddenFor(m => m.PanCardImage)
+            @Html.HiddenFor(m => m.AadhaarCardImage)
             @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
             <label for="validationDefault01" class="form-label">Personal Details </label>
             @Html.HiddenFor(m => m.EmployeeID)
@@ -299,20 +301,29 @@
                         @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
                     </div>
                 </div>
+
                 <div class="col-md-6">
                     <div class="form-group">
                         <label> Pan Card No <span class="Mandetory">*</span></label>
                         <div class="col-md-4">
-                            <img id="PanpreviewImage" src="@PancardPhoto"
-                                 style="width:100px; height:100px" />
+                            <!-- Image Preview -->
+                            <img id="PanpreviewImage" src="@Html.Raw(PancardPhoto)"
+                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                 style="width:100px; height:100px; display:none;" />
+                            <!-- PDF Preview -->
+                            <iframe id="PanpreviewPDF" style="width:100px; height:100px; display:none;" frameborder="0"></iframe>
                         </div>
                         <div class="col-md-8">
-                            <input type="file" name="PanPostedFile" accept="image/*" onchange="PanPostedFilePreview(event)" />
+                            <input type="file" name="PanPostedFile" accept="image/*,application/pdf" onchange="PanPostedFilePreview(event)" />
                         </div>
                     </div>
                 </div>
-               
             </div>
+           
+              
+
+               
+             
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -320,18 +331,31 @@
                         @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @required = "required" })
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label> Aadhaar Card No <span class="Mandetory">*</span></label>
-                        <div class="col-md-4">
-                            <img id="AadhaarpreviewImage" src="@AddharCardPhoto"
-                                 style="width:100px; height:100px" />
-                        </div>
-                        <div class="col-md-8">
-                            <input type="file" name="AadhaarPostedFile" accept="image/*" onchange="AadhaarPreview(event)" />
-                        </div>
-                    </div>
-                </div>
+               <div class="col-md-6">
+    <div class="form-group">
+        <label> Aadhaar Card No <span class="Mandetory">*</span></label>
+        <div class="col-md-4">
+            <!-- Image Preview -->
+            <img id="AadhaarpreviewImage"
+                 src="@AddharCardPhoto"
+                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                 style="width:100px; height:100px; display:none;" />
+
+            <!-- PDF Preview -->
+            <iframe id="AadhaarpreviewPDF"
+                    src="@AddharCardPhoto"
+                    style="width:100px; height:100px; display:none;"
+                    frameborder="0">
+            </iframe>
+        </div>
+        <div class="col-md-8">
+            <input type="file"
+                   name="AadhaarPostedFile"
+                   accept="image/*,.pdf"
+                   onchange="AadhaarPreview(event)" />
+        </div>
+    </div>
+</div>
             </div>
 
         </div>
@@ -442,14 +466,17 @@
                 </div>
             </div>
         </div>
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="small-header">Employee Status  (Active/In-active)</div>
         <div class="col-md-4 form-group">
-            <label>Is Active</label>
+            <label>Status</label>
             @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+        </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <input type="submit" value="Submit" class="btn btn-success" />
-                <button class="btn btn-danger" type="reset">Cancel</button>
+                <a href="/hr/employee/EmployeeListing" class="btn btn-danger" type="reset">Cancel</a>
             </div>
         </div>
 
@@ -619,26 +646,102 @@
         // Apply the phone number mask
         $('.mobile-mask').mask('(000) 000-0000');
     });
-    function PanPostedFilePreview(event) {
+         function PanPostedFilePreview(event) {
         const file = event.target.files[0];
         if (file) {
+            const previewImage = document.getElementById('PanpreviewImage');
+            const pdfPreview = document.getElementById('PanpreviewPDF');
             const reader = new FileReader();
+
             reader.onload = function (e) {
-                const previewImage = document.getElementById('PanpreviewImage');
-                previewImage.src = e.target.result;
+                const result = e.target.result;
+
+                if (file.type.startsWith('image/')) {
+                    previewImage.src = result;
+                    previewImage.style.display = 'block';
+                    pdfPreview.style.display = 'none';
+                } else if (file.type === 'application/pdf') {
+                    pdfPreview.src = result;
+                    pdfPreview.style.display = 'block';
+                    previewImage.style.display = 'none';
+                } else {
+                    alert('Unsupported file type. Please upload an image or a PDF.');
+                    previewImage.style.display = 'none';
+                    pdfPreview.style.display = 'none';
+                }
             };
+
             reader.readAsDataURL(file);
         }
     }
+      window.onload = function () {
+        const fullPath = '@Html.Raw(AddharCardPhoto)'; // Avoids &amp; encoding
+        const filePath = fullPath.toLowerCase();
+
+        const imagePreview = document.getElementById('AadhaarpreviewImage');
+        const pdfPreview = document.getElementById('AadhaarpreviewPDF');
+
+
+        if (filePath.includes('.pdf')) {
+            pdfPreview.src = fullPath;
+            pdfPreview.style.display = 'block';
+            imagePreview.style.display = 'none';
+        } else   {
+            imagePreview.src = fullPath;
+            imagePreview.style.display = 'block';
+            pdfPreview.style.display = 'none';
+        }  
+
+
+         const panFullPath = '@Html.Raw(PancardPhoto)';
+    const panFilePath = panFullPath.toLowerCase();
+    const panImagePreview = document.getElementById('PanpreviewImage');
+    const panPdfPreview = document.getElementById('PanpreviewPDF');
+
+    if (panFilePath.includes('.pdf')) {
+        panPdfPreview.src = panFullPath;
+        panPdfPreview.style.display = 'block';
+        panImagePreview.style.display = 'none';
+    } else {
+        panImagePreview.src = panFullPath;
+        panImagePreview.style.display = 'block';
+        panPdfPreview.style.display = 'none';
+    }
+    };
+
+
+    // On file selection, preview image or PDF
     function AadhaarPreview(event) {
         const file = event.target.files[0];
+        const imagePreview = document.getElementById('AadhaarpreviewImage');
+        const pdfPreview = document.getElementById('AadhaarpreviewPDF');
+
         if (file) {
+            const fileType = file.type;
             const reader = new FileReader();
+
             reader.onload = function (e) {
-                const previewImage = document.getElementById('AadhaarpreviewImage');
-                previewImage.src = e.target.result;
+                const result = e.target.result;
+
+                if (fileType.startsWith('image/')) {
+                    imagePreview.src = result;
+                    imagePreview.style.display = 'block';
+                    pdfPreview.style.display = 'none';
+                } else if (fileType === 'application/pdf') {
+                    pdfPreview.src = result;
+                    pdfPreview.style.display = 'block';
+                    imagePreview.style.display = 'none';
+                } else {
+                    alert('Unsupported file type. Please upload an image or a PDF.');
+                    imagePreview.style.display = 'none';
+                    pdfPreview.style.display = 'none';
+                }
             };
-            reader.readAsDataURL(file);
+
+            reader.readAsDataURL(file); // Triggers preview
         }
     }
+
+
+
 </script>

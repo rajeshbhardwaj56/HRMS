@@ -11,6 +11,7 @@ using Quartz.Spi;
 using Quartz;
 using System.Globalization;
 using WebMarkupMin.AspNetCore8;
+using HRMS.Web.BusinessLayer.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,10 +75,9 @@ builder.Services.AddMvcCore()
     .SetCompatibilityVersion(CompatibilityVersion.Latest)
         .AddDataAnnotations()
         .AddCors();
-
+builder.Services.AddSingleton<IS3Service, S3Service>();
 builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
 builder.Services.AddHttpContextAccessor();
-
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     // This lambda determines whether user consent for non-essential cookies is needed for a given request.  
@@ -85,7 +85,30 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Home/Index"; // Default
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                // If not an API request, redirect to your error page
+                if (!context.Request.Path.StartsWithSegments("/api"))
+                {
+                    context.Response.Redirect("/Home/ErrorPage");
+                }
+                else
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+
 //builder.Services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -105,7 +128,8 @@ builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 builder.Services.TryAddTransient<AttendanceReminderJob>();
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(AttendanceReminderJob),
-cronExpression: "0 00 06 * * ?"));
+    cronExpression: "0 00 01 * * ?"));
+
 
 var app = builder.Build();
 

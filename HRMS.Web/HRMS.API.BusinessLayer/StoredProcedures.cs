@@ -16,6 +16,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_Currencies = "usp_Get_Currencies";
         public const string usp_Get_Languages = "usp_Get_Languages";
         public const string usp_AddUpdate_Employee = "usp_AddUpdate_Employee";
+        public const string usp_AddUpdateExcelImport = "usp_AddUpdateExcelImport";
         public const string usp_Get_FogotPasswordDetails = "usp_Get_FogotPasswordDetails";
         public const string usp_Get_Celebrations = "usp_Get_Celebrations";
         public const string usp_Get_CompanyDepartments = "usp_Get_CompanyDepartments";
@@ -51,6 +52,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_EmploymentDetails = "usp_AddUpdate_EmploymentDetails";
         public const string usp_Get_EmployeeDetailsFormDetails = "usp_Get_EmployeeDetailsFormDetails";
         public const string usp_Get_FilterEmployeeDetailsFormDetails = "usp_Get_FilterEmployeeDetailsFormDetails";
+        public const string sp_GetManagerOfManager = "sp_GetManagerOfManager";
         public const string usp_AddUpdate_EmployeeBankDetails = "usp_AddUpdate_EmployeeBankDetails";
         public const string usp_Get_EmployeeBankDetails = "usp_Get_EmployeeBankDetails";
         public const string usp_AddUpdate_EmployeeSeparation = "usp_AddUpdate_EmployeeSeparation";
@@ -85,6 +87,7 @@ namespace HRMS.API.BusinessLayer
         public const string sp_GetMyAttendanceLog = "sp_GetMyAttendanceLog";
         public const string usp_Get_AttendanceForApprovals = "usp_Get_AttendanceForApprovals";
         public const string usp_Get_ApprovedAttendance = "usp_Get_ApprovedAttendance";
+        public const string usp_Get_Manager_ApprovedAttendance = "usp_Get_Manager_ApprovedAttendance";
 
 
         public const string sp_SaveAttendanceDeviceLog = "sp_SaveAttendanceDeviceLog";
@@ -94,6 +97,6 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_WhatsHappeningS = "usp_Get_WhatsHappeningS";
         public const string usp_AddUpdate_WhatsHappening = "usp_AddUpdate_WhatsHappening";
         public const string usp_Delete_WhatsHappening = "usp_Delete_WhatsHappening";
-
+        public const string usp_CheckEmployeeReporting = "usp_CheckEmployeeReporting";
     }
 }

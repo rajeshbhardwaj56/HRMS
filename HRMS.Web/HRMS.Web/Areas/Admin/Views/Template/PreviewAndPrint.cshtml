@@ -6,44 +6,39 @@
     ViewData["Title"] = "Template";
 
     var HeaderImage = !string.IsNullOrEmpty(Model.HeaderImage) 
-        ? "/" + HRMS.Models.Common.Constants.TemplatePath + Model.HeaderImage 
+        ?  Model.HeaderImage 
         : HRMS.Models.Common.Constants.NoImagePath;
 
     var FooterImage = !string.IsNullOrEmpty(Model.FooterImage) 
-        ? "/" + HRMS.Models.Common.Constants.TemplatePath + Model.FooterImage 
+        ? Model.FooterImage 
         : HRMS.Models.Common.Constants.NoImagePath;
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company Letterhead</title>
+<style>
+    @@page {
+        margin: 0; /* Removes default margins */
+    }
 
-    <!-- CSS to Remove Print Headers & Footers -->
-    <style>
-        @@page {
-            margin: 0; /* Removes default margins */
-        }
-        body {
-            margin: 1cm; /* Adjust margins for content */
-        } 
-        button#printbtn {
-            background: #053879;
-            color: white;
-            width: 200px;
-            border-radius: 12px;
-            border: none;
-            padding: 12px;
-        }
-    </style>
-</head>
+    body {
+        margin: 1cm; /* Adjust margins for content */
+    }
+
+    button#printbtn {
+        background: #053879;
+        color: white;
+        width: 200px;
+        border-radius: 12px;
+        border: none;
+        padding: 12px;
+    }
+</style>
 <body>
 
-<h2>Company Letterhead</h2>
+    <div class="main-header anim" style="--delay: 0s">Company Letterhead</div>
 
 <!-- Letterhead Content -->
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
 <div id="printArea">
     <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
         <img src="@HeaderImage" alt="Company Logo" style="width: 120px; height: auto;">
@@ -54,9 +49,11 @@
         <img src="@FooterImage" alt="Company Logo" style="width: 120px; height: auto;">
     </div>
 </div>
+</div>
+</div>
 
 <!-- Print Button -->
-<button id="printbtn" onclick="printLetterhead()">Print Letterhead</button>
+<button id="printbtn" onclick="printLetterhead()">Print</button>
 
 <script>
     function printLetterhead() {
@@ -75,5 +72,4 @@
         }, 500);
     }
 </script>
-</body>
-</html>
+</body> 

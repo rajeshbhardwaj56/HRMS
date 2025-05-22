@@ -35,11 +35,22 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
+   
         $('#tblShiftTypeListing').DataTable({
+            "processing": true,
+            "serverSide": true,
             "ajax": {
                 "url": "ShiftTypeListings/",
                 "type": "POST",
-                "datatype": "json"
+                "datatype": "json",
+                 "data": function (d) {
+                     return {
+                         sEcho: d.draw,
+                         iDisplayStart: d.start,
+                         iDisplayLength: d.length,
+                         sSearch: d.search.value     
+                     };
+                 }
             },
             "ordering": true,
             "paging": true,

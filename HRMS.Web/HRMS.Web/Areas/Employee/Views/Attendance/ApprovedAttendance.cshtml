@@ -1,0 +1,692 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@using HRMS.Models.Common
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@{
+	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+
+}
+<style>
+	.fade:not(.show) {
+		opacity: 1;
+	}
+</style>
+
+<section class="lower-section">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="tab-pane fade" id="attendance1" role="tabpanel" aria-labelledby="attendance1-tab">
+				<div class="group-box anim">
+					<div class="tabsInfo" id="">
+						<h3>Attendance Info</h3>
+						<div class="Month-year-dropdown d-flex">
+							<div>
+								<label for="yearDropdown">Year: </label>
+								<select id="yearDropdown" class="form-select" style="width: 150px;">
+								</select>
+							</div>
+							<div>
+								<label for="monthDropdown">Month: </label>
+								<select id="monthDropdown" class="form-select" style="width: 150px;">
+									<option value="1">January</option>
+									<option value="2">February</option>
+									<option value="3">March</option>
+									<option value="4">April</option>
+									<option value="5">May</option>
+									<option value="6">June</option>
+									<option value="7">July</option>
+									<option value="8">August</option>
+									<option value="9">September</option>
+									<option value="10">October</option>
+									<option value="11">November</option>
+									<option value="12">December</option>
+								</select>
+							</div>
+						</div>
+						<nav>
+							<div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
+								<button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true" href="#pendingTab">Attendance For Approval </button>
+								<button class="nav-link  " id="attendance-approved-tab1" data-bs-toggle="tab" data-bs-target="#attendance-approved-tab" type="button" role="tab" aria-controls="attendance-approved-tab" aria-selected="false" href="#approvedTab" onclick="AttendanceForApproved()">Approved Attendance</button>
+								<button class="nav-link  " id="Attendance-Reject-tab1" data-bs-toggle="tab" data-bs-target="#Attendance-Reject-tab" type="button" role="tab" aria-controls="Attendance-Reject-tab" aria-selected="false" href="#rejectedTab" onclick="AttendanceForReject()">Rejected Attendance</button>
+							</div>
+						</nav>
+						<div class="tab-content" id="nav-tabContent1">
+							<div class="tab-pane fade show active" id="applied-leave-tab" role="tabpanel" aria-labelledby="applied-leave-tab1">
+								<div class="group-box anim">
+									<div class="tabsInfo" id="myTabContent-timeoff">
+										<h3>Attendance For Approval</h3>
+									</div>
+									<div role="tabpanel" aria-labelledby="apply-tab">
+										<div class="row">
+											<div class="col-lg-12 col-md-12 col-sm-12">
+												<div class="card">
+													<div class="card-body">
+														<table id="tblAttendanceForApproval" class="table table-striped body-text" style="width:100%">
+															<thead>
+																<tr>
+																	<th>Employee Name</th>
+																	<th>From Date</th>
+																	<th>To Date</th>
+																	<th>Work Date</th>
+																	<th>Total Hours</th>
+																	<th>Status</th>
+																	<th>Remark</th>
+																	<th>Action</th>
+																</tr>
+															</thead>
+
+														</table>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+							</div>
+							<div class="tab-pane fade" id="attendance-approved-tab" role="tabpanel" aria-labelledby="attendance-approved-tab1">
+
+								<div class="group-box anim">
+									<div class="tabsInfo" id="myTabContent-timeoff">
+										<h3>Approved Attendance</h3>
+									</div>
+									<div role="tabpanel" aria-labelledby="apply-tab">
+										<div class="row">
+											<div class="col-lg-12 col-md-12 col-sm-12">
+												<div class="card">
+													<div class="card-body">
+														<table id="tblAttendanceForApproved" class="table table-striped body-text" style="width:100%">
+															<thead>
+																<tr>
+																	<th>Employee Name</th>
+																	<th>From Date</th>
+																	<th>To Date</th>
+																	<th>Work Date</th>
+																	<th>Total Hours</th>
+																	<th>Status</th>
+																	<th>Remark</th>
+																</tr>
+															</thead>
+														</table>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="Attendance-Reject-tab" role="tabpanel" aria-labelledby="Attendance-Reject-tab1">
+								<div class="group-box anim">
+									<div class="tabsInfo" id="myTabContent-timeoff">
+										<h3>Rejected Attendance</h3>
+									</div>
+									<div role="tabpanel" aria-labelledby="apply-tab">
+										<div class="row">
+											<div class="col-lg-12 col-md-12 col-sm-12">
+												<div class="card">
+													<div class="card-body">
+														<table id="tblAttendanceForReject" class="table table-striped body-text" style="width:100%">
+															<thead>
+																<tr>
+																	<th>Employee Name</th>
+																	<th>From Date</th>
+																	<th>To Date</th>
+																	<th>Work Date</th>
+																	<th>Total Hours</th>
+																	<th>Status</th>
+																	<th>Remark</th>
+																</tr>
+															</thead>
+
+														</table>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<div class="modal" tabindex="-1" role="dialog" id="ApproveRejectModel">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Attendance Request Details</h5>
+				<button type="button" class="close" data-dismiss="modal" onclick="CloseApproveRejectModel();" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<section>
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-md-12 py-4">
+								<div class="tab-content" id="myTabContentSection">
+									<div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
+										<div class="row">
+											<div class="col-lg-12">
+
+												<div class="tab-pane fade active show">
+													<div class="group-box anim">
+														<div class="tabsInfo">
+															<h3>Employee Info</h3>
+															<div class="row">
+																<div class="col-lg-4 col-md-4 mb-2">
+																	<h6>Name</h6>
+																	<p id="FullName"></p>
+																</div>
+
+																<div class="col-lg-4 col-md-4 mb-2">
+																	<h6>Employee Number</h6>
+																	<p id="EmployeeNumber"></p>
+																</div>
+																<div class="col-lg-4 col-md-4 mb-2">
+																	<h6>Manager Name</h6>
+																	<p id="ManagerName"></p>
+																</div>
+																<div class="col-lg-4 col-md-4 mb-2">
+																	<h6>DOJ</h6>
+																	<p id="EmployeeJoiningdate"></p>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+				<div class="group-box anim">
+					<div class="tabsInfo" id="">
+						<h3>Attendance Info</h3>
+						<div class="tab-content" id="nav-tabContent">
+							<div class="tab-pane fade active show" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
+								<div class="row">
+									<p class="showalert" style="color: red;font-size: 16px;" id="showalert"></p>
+									<p class="showDocumentalert" style="color: red;font-size: 16px;" id="responseMessage"></p>
+									<form class="body-text" method="post" enctype="multipart/form-data">
+										<input type="hidden" id="employeeID" name="employeeID">
+										<input type="hidden" id="attendanceId" name="attendanceId">
+										<input type="hidden" id="status" name="status">
+										
+										<div class="DateFormatDiv" style="display: flex;">
+											<div class="col-lg-4 px-4">
+												<h6>Start Date</h6>
+												<p id="StartDate"> </p>
+											</div>
+											<div class="col-lg-4 px-4">
+												<h6>End Date</h6>
+												<p id="EndDate"> </p>
+											</div>
+											<div class="col-lg-4 px-4">
+												<h6>Work Date</h6>
+												<p id="WorkDate"> </p>
+											</div>
+										</div>
+										<hr>
+										<h3>Approval Comment</h3>
+										<p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
+										<p id="approverejectrequire" style="color: red;"></p>
+										<div class="modal-footer">
+											<button type="button" onclick="ApproveRejectAttendance(false)" class="btn btn-primary">Reject</button>
+											<button type="button" id="approveButton" onclick="ApproveRejectAttendance(true)" class="btn btn-info">Approve</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<input type="hidden" id="AttWorkDate" />
+<input type="hidden" id="AttStartDate" />
+<input type="hidden" id="AttEndDate" />
+<script>
+	 $(document).ready(function () {
+		 ApprovalAttendanceAutoReload();
+		 //ApprovedAttendanceAutoReload();
+
+		 $("input[name='attendanceStatus']").change(function () {
+			 ApprovalAttendanceAutoReload();
+		 });
+
+		 $("input[name='approvedAttendanceStatus']").change(function () {
+			 ApprovedAttendanceAutoReload();
+		 });
+	 });
+
+	 function ApprovedAttendanceAutoReload() {
+			 let tableId = '#tblAttendanceForApproved';
+
+		 let status = $("input[name='approvedAttendanceStatus']:checked").val();
+		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetManagerApprovedAttendance';
+		 if ($.fn.DataTable.isDataTable(tableId)) {
+		$(tableId).DataTable().clear().draw();
+	}
+		 RefreshTable12(tableId, url, status);
+				 if (!$.fn.DataTable.isDataTable(tableId)) {
+					 InittblAttendanceForApproved();
+				 }
+	 }
+
+	 //First Tab
+	 function ApprovalAttendanceAutoReload() {
+		 let tableId = '#tblAttendanceForApproval';
+		 let status =1;
+		 const selectedYear = $("#yearDropdown").val();
+	const selectedMonth =$("#monthDropdown").val(); ;
+		 let  Year= selectedYear;
+		 let Month= selectedMonth;
+		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedAttendance';
+		 RefreshTable12(tableId, url, status,Year,Month);
+				 if (!$.fn.DataTable.isDataTable(tableId)) {
+					 InitAttendanceForApproval();
+				 }
+	 }
+	 //First Tab load
+	 function InitAttendanceForApproval() {
+		 $('#tblAttendanceForApproval').DataTable({
+			 ordering: true,
+			 paging: true,
+			 searching: true,
+			 info: true,
+			 responsive: true,
+			 columns: [
+				 { data: "employeeName", autoWidth: true },
+				 {
+					 data: "firstLogDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 {
+					 data: "lastLogDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 {
+					 data: "workDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 { data: "hoursWorked", autoWidth: true },
+				 { data: "attendanceStatus", autoWidth: true },
+								 { data: "comments", autoWidth: true },
+
+				 {
+					 render: function (data, type, row) {
+						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}')" href="#" title="Approve">
+									 <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
+								 </a>`;
+					 }
+				 }
+			 ]
+		 });
+	 }
+	 //First Tab Table load
+	function RefreshTable12(tableId, urlData, status,Year,Month) {
+		 $.ajax({
+			 url: urlData,
+			 type: 'POST',
+			 contentType: 'application/json',
+			 data: JSON.stringify({ attendanceStatus: parseInt(status),Year:Year,Month:Month }),
+			 success: function (json) {
+				 let table = $(tableId).dataTable();
+				 let oSettings = table.fnSettings();
+
+				 table.fnClearTable();
+
+				 for (var i = 0; i < json.data.length; i++) {
+					 table.oApi._fnAddData(oSettings, json.data[i]);
+				 }
+
+				 oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+				 table.fnDraw();
+			 },
+			 error: function (xhr, status, error) {
+				 console.error("Error in RefreshTable12:", error);
+			 }
+		 });
+	 }
+
+	 //second tab
+
+	 function AttendanceForApproved() {
+
+				 let tableId = '#tblAttendanceForApproved';
+
+			 const selectedYear = $("#yearDropdown").val();
+	const selectedMonth =$("#monthDropdown").val(); ;
+		 let  Year= selectedYear;
+		 let Month= selectedMonth;
+		 let status =2;
+		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedAttendance';
+		 if ($.fn.DataTable.isDataTable(tableId)) {
+		$(tableId).DataTable().clear().draw();
+	}
+			 RefreshTable12(tableId, url, status,Year,Month);
+				 if (!$.fn.DataTable.isDataTable(tableId)) {
+					 InittblAttendanceForApproved();
+				 }
+	 }
+
+
+		 //Third  tab reject Attendance
+
+	 function AttendanceForReject() {
+		 let status =3;
+				 let tableId = '#tblAttendanceForReject';
+					 const selectedYear = $("#yearDropdown").val();
+	const selectedMonth =$("#monthDropdown").val(); ;
+		 let  Year= selectedYear;
+		 let Month= selectedMonth;
+		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedAttendance';
+			 RefreshTable12(tableId, url, status,Year,Month);
+				 if (!$.fn.DataTable.isDataTable(tableId)) {
+					 InittblAttendanceForReject();
+				 }
+	 }
+	  $("input[name='attendanceRejectStatus']").change(function () {
+			 AttendanceForReject();
+		 });
+	 function InittblAttendanceForReject() {
+		 $('#tblAttendanceForReject').DataTable({
+			 ordering: true,
+			 paging: true,
+			 searching: true,
+			 info: true,
+			 responsive: true,
+			 columns: [
+				 { data: "employeeName", autoWidth: true },
+				 {
+					 data: "firstLogDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 {
+					 data: "lastLogDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 {
+					 data: "workDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 { data: "hoursWorked", autoWidth: true },
+				 { data: "attendanceStatus", autoWidth: true },
+				 { data: "comments", autoWidth: true },
+
+			 ]
+		 });
+	 }
+
+
+	 function formatDate(dateString) {
+		 const date = new Date(dateString);
+		 const monthNames = [
+			 "January", "February", "March", "April", "May", "June",
+			 "July", "August", "September", "October", "November", "December"
+		 ];
+		 const day = date.getDate();
+		 const month = monthNames[date.getMonth()];
+		 const year = date.getFullYear();
+		 let hours = date.getHours();
+		 let minutes = date.getMinutes();
+		 const ampm = hours >= 12 ? 'PM' : 'AM';
+		 hours = hours % 12 || 12;
+		 minutes = minutes < 10 ? '0' + minutes : minutes;
+		 return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+	 }
+
+	 function RefreshTable(tableId, url) {
+
+		 $.post(url, function (json) {
+			 if (json.data && json.data) {
+				 const table = $(tableId).DataTable();
+				 table.clear();
+				 table.rows.add(json.data).draw();
+			 }
+		 });
+	 }
+
+		 function ApproveRejectAttendance(isApproved) {
+
+		const ApproveRejectComment = $("#ApproveRejectComment").val();
+
+			if (ApproveRejectComment === "") {
+				$("#approverejectrequire").text('Comment required');
+				// Re-enable both buttons and reset text
+				approveButton.prop('disabled', false);
+				rejectButton.prop('disabled', false);
+				approveButton.text('Approve');
+				rejectButton.text('Reject');
+				return;
+			}
+
+		const approveButton = $("#approveButton");  // Approve button
+		const rejectButton = $(".btn-primary");    // Reject button (using class to select)
+
+		const actionText = isApproved ? "approve" : "reject";
+
+		// Disable both buttons and change text of the clicked button
+		approveButton.prop('disabled', true);
+		rejectButton.prop('disabled', true);
+
+		// Change text to 'Processing...' for the clicked button
+		if (isApproved) {
+			approveButton.text('Processing...');
+		} else {
+			rejectButton.text('Processing...');
+		}
+
+		// Show confirmation dialog
+		if (confirm(`Are you sure you want to ${actionText} this attendance request?`)) {
+			const employeeID = $("#employeeID").val();
+			
+			const data = {
+				attendanceId: $("#attendanceId").val(),
+				employeeID,
+				status: $("#status").val(),
+				ApproveRejectComment,
+				startDate: $("#AttStartDate").val(),
+				endDate: $("#AttEndDate").val(),
+				workDate: $("#AttWorkDate").val(),
+				actionText: actionText
+			};
+
+			$.post('/Employee/Attendance/ApproveRejectAttendance/', data, function (json) {
+				console.log(json);
+				if (json && json.message) {
+					if (json.success) {
+						showToast(json.message);
+						CloseApproveRejectModel();
+						window.location.reload();
+						$("#ApproveRejectComment").val("");
+					} else {
+						$("#approverejectrequire").text(json.message);
+						window.location.reload();
+						CloseApproveRejectModel();
+					}
+				} else {
+					showToast("Attendance status updated.");
+					$("#ApproveRejectComment").val("");
+				}
+
+				// Re-enable both buttons and reset text after the request completes
+				approveButton.prop('disabled', false);
+				rejectButton.prop('disabled', false);
+				approveButton.text('Approve');
+				rejectButton.text('Reject');
+			});
+		} else {
+			// Re-enable both buttons and reset text if the user cancels
+			approveButton.prop('disabled', false);
+			rejectButton.prop('disabled', false);
+			approveButton.text('Approve');
+			rejectButton.text('Reject');
+		}
+	}
+
+
+	 function showToast(message) {
+		 $.toast({
+			 heading: 'Success',
+			 text: message,
+			 showHideTransition: 'slide',
+			 icon: 'success',
+			 position: 'top-right',
+		 });
+	 }
+
+	 function OpenApproveRejectModel(employeeID, Id, firstLogDate, lastLogDate, comments, workDate) {
+		 $("#employeeID").val(employeeID);
+		 $("#attendanceId").val(Id);
+		 $("#status").val(comments);
+		 $("#AttWorkDate").val(workDate);
+		 $("#AttStartDate").val(firstLogDate);
+		 $("#AttEndDate").val(lastLogDate);
+		 $("#WorkDate").text(formatDate(workDate));
+
+		 $.ajax({
+			 url: '/employee/Attendance/GetEmployeeAttendanceShiftDetails',
+			 type: 'GET',
+			 data: { employeeID, Id },
+			 success: function (response) {
+				 $("#FullName").text(response.fullName);
+				 $("#EmployeeNumber").text(response.employeeNumber);
+				 $("#ManagerName").text(response.managerName);
+				 $("#EmployeeJoiningdate").text(response.employeeJoiningdate);
+				 $("#StartDate").text(formatDate(firstLogDate));
+				 $("#EndDate").text(formatDate(lastLogDate));
+
+				 const logFirstTime = new Date(firstLogDate);
+				 const logLastTime = new Date(lastLogDate);
+				 const shiftStartTime = new Date(logFirstTime.toDateString() + ' ' + response.shiftStartDate);
+				 const shiftEndTime = new Date(logLastTime.toDateString() + ' ' + response.shiftEndDate);
+
+				 if (shiftStartTime.getTime() !== logFirstTime.getTime() ||
+					 shiftEndTime.getTime() !== logLastTime.getTime()) {
+					 $('#responseMessage').text('The provided times do not match the shift times.').css('color', 'red');
+					// $('#approveButton').prop('disabled', true);
+				 } else {
+					 $('#responseMessage').text('The times match.').css('color', 'green');
+					// $('#approveButton').prop('disabled', false);
+				 }
+			 },
+			 error: function (xhr) {
+				 $('#responseMessage').text('Error: ' + xhr.responseText);
+			 }
+		 });
+
+		 $('#ApproveRejectModel').modal('show');
+	 }
+
+	 function CloseApproveRejectModel() {
+		 $('#ApproveRejectModel').modal('hide');
+	 }
+
+
+
+	 function InittblAttendanceForApproved() {
+	 $('#tblAttendanceForApproved').DataTable({
+			 ordering: true,
+			 paging: true,
+			 searching: true,
+			 info: true,
+			 responsive: true,
+			 columns: [
+				 { data: "employeeName", autoWidth: true },
+				 {
+					 data: "firstLogDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 {
+					 data: "lastLogDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 {
+					 data: "workDate",
+					 autoWidth: true,
+					 render: formatDate
+				 },
+				 { data: "hoursWorked", autoWidth: true },
+				 { data: "attendanceStatus", autoWidth: true },
+								 { data: "comments", autoWidth: true },
+
+
+			 ]
+		 });
+	 }
+
+	 function RefreshTable2(tableId, url) {
+		 $.post(url, function (json) {
+			 if (json.data && json.data.leaves) {
+				 const table = $(tableId).DataTable();
+				 table.clear();
+				 table.rows.add(json.data.leaves).draw();
+			 }
+		 });
+	 }
+	// Add years from 2020 to the current year dynamically
+	const yearDropdown = document.getElementById('yearDropdown');
+	const monthDropdown = document.getElementById('monthDropdown');
+	const currentYear = new Date().getFullYear();
+	const startYear = 2020;
+
+	// Add years from 2020 to the current year
+	for (let year = startYear; year <= currentYear; year++) {
+		const option = document.createElement('option');
+		option.value = year;
+		option.textContent = year;
+		yearDropdown.appendChild(option);
+	}
+
+	// Set the current year as the default selected value
+	yearDropdown.value = currentYear;
+
+	// Set the current month as the default selected value
+	const currentMonth = new Date().getMonth() + 1; // Get current month (1-based index)
+	monthDropdown.value = currentMonth;
+
+	// Add onChange event listeners for year and month dropdowns
+		function onChangeDropdown() {
+		const activeTab = $('.nav-tabs .active').attr('href'); // e.g. "#rejectedTab"
+
+		switch (activeTab) {
+			case "#pendingTab":
+				ApprovalAttendanceAutoReload();
+				break;
+			case "#approvedTab":
+				AttendanceForApproved();
+				break;
+			case "#rejectedTab":
+				AttendanceForReject();
+				break;
+		}
+	}
+
+
+	// Event listeners for year and month changes
+	document.getElementById('yearDropdown').addEventListener('change', onChangeDropdown);
+	document.getElementById('monthDropdown').addEventListener('change', onChangeDropdown);
+
+
+</script>

@@ -7,6 +7,9 @@ namespace HRMS.Models.ShiftType
     {
         public long CompanyID { get; set; }
         public long ShiftTypeID { get; set; }
+        public int? DisplayStart { get; set; } = 0;
+        public int? DisplayLength { get; set; } = 0;
+        public string? Searching { get; set; }
     }
 
 
@@ -37,6 +40,8 @@ namespace HRMS.Models.ShiftType
         public DateTime UpdatedDate { get; set; }
         public long CreatedByID { get; set; }
         public long ModifiedByID { get; set; }
+        public int? TotalRecords { get; set; } = 0;
+        public int? FilteredRecords { get; set; } = 0;
 
         public List<SelectListItem> HolidayList = new List<SelectListItem>();
         public List<SelectListItem> WorkingHoursCalculationTypeList = new List<SelectListItem>();
@@ -49,6 +54,7 @@ namespace HRMS.Models.ShiftType
         public string? EmployeeJoiningdate { get; set; }
         public string? EmployeeDesignation { get; set; }
         public string? EmployeeDepartment { get; set; }
+        public string? ManagerName { get; set; }
         public string? Employeeemail { get; set; }
         public TimeSpan ShiftStartDate { get; set; }
         public TimeSpan ShiftEndDate { get; set; }

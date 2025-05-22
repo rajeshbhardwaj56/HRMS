@@ -20,9 +20,10 @@ namespace HRMS.Web.AttendanceScheduler
         public async Task Execute(IJobExecutionContext context)
         {
             AttendanceInputParams models = new AttendanceInputParams();
-            models.Year = DateTime.Now.Year;
-            models.Month = DateTime.Now.Month;
-            models.Day = DateTime.Now.Day;
+            DateTime previousDay = DateTime.Now.AddDays(-1);
+            models.Year = previousDay.Year;
+            models.Month = previousDay.Month;
+            models.Day = previousDay.Day;
             var response = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendance), "", true).Result.ToString();
             var result = JsonConvert.DeserializeObject<dynamic>(response.ToString());
 
@@ -32,7 +33,7 @@ namespace HRMS.Web.AttendanceScheduler
                 sendEmailProperties sendEmailProperties = new sendEmailProperties();
                 sendEmailProperties.emailSubject = "Execption On attendance Scheduler";
                 sendEmailProperties.emailBody = ("Hii," + result.message);
-                sendEmailProperties.EmailToList.Add("rajesh@eternitylogistics.co");
+                sendEmailProperties.EmailToList.Add(_configuration["AppSettings:SchedulerEmail"].ToString());
                 emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
                 if (responses.responseCode == "200")
                 {

@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Employee;
+﻿using HRMS.Models.DashBoard;
+using HRMS.Models.Employee;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,6 +12,7 @@ namespace HRMS.Models.ImportFromExcel
     public class ImportEmployeeDetail
     {
         public long? EmployeeID { get; set; }
+        public string? InsertedBy { get; set; }
         public string? EmployeeNumber { get; set; }
         public string? CompanyName { get; set; }
         public string? FirstName { get; set; }
@@ -36,13 +38,13 @@ namespace HRMS.Models.ImportFromExcel
         public string? VerificationContactPersonContactNo { get; set; }
         public string? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
-        public bool ? IsReferredByExistingEmployee { get; set; }
+        public bool? IsReferredByExistingEmployee { get; set; }
         public string? ReferredByEmployeeName { get; set; }
         public string? BloodGroup { get; set; }
         public string? AadharCardNo { get; set; }
         public string? PANNo { get; set; }
         public string? Allergies { get; set; }
-        public bool  ? IsRelativesWorkingWithCompany { get; set; }
+        public bool? IsRelativesWorkingWithCompany { get; set; }
         public string? RelativesDetails { get; set; }
         public string? MajorIllnessOrDisability { get; set; }
         public string? AwardsAchievements { get; set; }
@@ -72,7 +74,8 @@ namespace HRMS.Models.ImportFromExcel
         public string? ForiegnCountryVisits { get; set; }
         public string? ExtraCuricuarActivities { get; set; }
         public string? Gender { get; set; }
-        public string ESINumber { get; set; } = string.Empty;
+        public string? ESINumber { get; set; }
+        // public string ESINumber { get; set; } = string.Empty;
         public string? RegistrationDateInESIC { get; set; }
         public string? BankAccountNumber { get; set; }
         public string? IFSCCode { get; set; }
@@ -88,8 +91,10 @@ namespace HRMS.Models.ImportFromExcel
         public string? NoticeServed { get; set; }
         public string? MailReceivedFromAndDate { get; set; }
         public string? DateOfEmailSentToITForIDDeletion { get; set; }
-        public string? AON  { get; set; }
-        public string? PreviousExperience  { get; set; }
+        public string? AON { get; set; }
+        public string? PreviousExperience { get; set; }
+
+
     }
 
     public class ImportEducationalDetail
@@ -158,4 +163,6 @@ namespace HRMS.Models.ImportFromExcel
         public string HRContactNo { get; set; } = string.Empty;
     }
 }
+
+
 

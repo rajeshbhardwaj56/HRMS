@@ -1,0 +1,95 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>HRMS - Success</title>
+
+    <link href="@Url.Content("~/assets/css/bootstrap.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/assets/css/font-awesome.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/assets/css/jquery.notifyBar.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/css/login.css")" rel="stylesheet" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&display=swap" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+
+    <style>
+        body.success-bg {
+            background: linear-gradient(135deg, #05397b 0%, #053675 100%);
+            font-family: 'Montserrat', sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .success-container {
+            text-align: center;
+            background: #fff;
+            padding: 50px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+            .success-container img {
+                height: 80px;
+            }
+
+        .success-icon {
+            font-size: 60px;
+            color: #094fa7;
+        }
+
+        .success-container h1 {
+            font-weight: 600;
+            margin-top: 20px;
+            color: #094fa7;
+        }
+
+        .success-container p {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+
+        .btn-home {
+            background-color: #094fa7;
+            color: #fff;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+            .btn-home:hover {
+                background-color: #218838;
+            }
+    </style>
+</head>
+<body class="success-bg">
+    <div class="success-container">
+        <img src="~/assets/img/logo/PROTALKLOGO.png" alt="Logo" />
+       @*  <div class="success-icon mt-3">
+            <i class="fa fa-check-circle"></i>
+        </div> *@
+        <h1>Success!</h1>
+        <p>Your request has been completed successfully, and you will be redirected to the login page shortly.</p>
+
+        <a href="~/Home/Index" class="btn-home mt-3">Go to Home</a>
+    </div>
+
+    <script src="~/assets/js/jquery-3.2.1.min.js"></script>
+    @Html.Partial("_Toast")
+    <script>
+        // Redirect to login page after 5 seconds (5000 milliseconds)
+        setTimeout(function () {
+            window.location.href = '@Url.Action("Index", "Home")';
+        }, 5000);
+    </script>
+
+</body>
+</html>

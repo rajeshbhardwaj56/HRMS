@@ -112,10 +112,10 @@ namespace HRMS.Models.Employee
         public int? FilteredRecords { get; set; } = 0;
         public string? PanCardImage { get; set; } = string.Empty;
         public string? AadhaarCardImage { get; set; } = string.Empty;
+        public string? ShiftEndTime { get; set; } = string.Empty;
+        public string? ShiftStartTime { get; set; } = string.Empty;
         public string? ManagerName { get; set; } = string.Empty;
         public string? Shift { get; set; } = string.Empty;
-
-        public string? ReportingToName { get; set; } = string.Empty;
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
@@ -133,4 +133,11 @@ namespace HRMS.Models.Employee
         public List<SelectListItem> Departments = new List<SelectListItem>();
 
     }
+    public class ReportingStatus
+    {
+        public long? EmployeeId { get; set; }
+        public int? Status { get; set; }
+        public string? Message { get; set; }
+    }
+
 }

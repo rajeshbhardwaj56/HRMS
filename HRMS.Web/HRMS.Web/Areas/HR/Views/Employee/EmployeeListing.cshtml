@@ -5,128 +5,211 @@
 
 @model HRMS.Models.Common.Results
 @{
-    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 
-    ViewData["Title"] = "Employee";
+	ViewData["Title"] = "Employee";
 
-    var success = TempData["Success"];
-    var Err = TempData["Error"];
+	var success = TempData["Success"];
+	var Err = TempData["Error"];
 }
 
 <div class="main-header anim" style="--delay: 0s">
-    Employee List
-    <section class="right-button-employee" />
-    <a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a>
-    <a href="~/Admin/Dashboard/ImportExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees</button></a>
-    </section>
+	Employee List
+	<section class="right-button-employee" />
+	<a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a>
+	<a href="~/Admin/Dashboard/ImportExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees</button></a>
+	</section>
 </div>
 <div class="table-responsive py-3">
 
-    <table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
-        <thead>
-            <tr>
-                <th class="first" style="visibility:hidden"> </th>
+	<table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
+		<thead>
+			<tr>
+				<th class="first" style="visibility:hidden"> </th>
 
-                <th>Image</th>
-                <th>Employee Number</th>
-                <th>First Name</th>
-                <th>Middle Name</th>
-                <th>Surname</th>
-                <th>Email Address</th>
-                <th>Designation  </th>
-                <th>Department  </th>
-                <th>Manager Name</th>
-                <th>Shift</th>
-                <th>Payroll</th>
-                <th>Mobile</th>
-                <th>Action</th>
-            </tr>
-        </thead>
+				<th>Image</th>
+				<th>Employee Number</th>
+				<th>First Name</th>
+				<th>Middle Name</th>
+				<th>Surname</th>
+				<th>Email Address</th>
+				<th>Designation  </th>
+				<th>Department  </th>
+				<th>Manager Name</th>
+				<th>Shift</th>
+				<th>Payroll</th>
+				<th>Mobile</th>
+				<th>Employee Status</th>
+				<th>Action</th>
+			</tr>
+		</thead>
 
-    </table>
+	</table>
+</div>
+
+<!-- Status Message Modal -->
+<!-- Congratulations Modal -->
+<div class="modal fade" id="congratsModal" tabindex="-1" aria-labelledby="congratsModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content text-center p-4" style="border-radius: 1rem; background: #e0f7e9;">
+			<div class="modal-body">
+				<h2 class="congrats-title mb-3">🎉 Congratulations! 🎉</h2>
+				<p id="congratsMessage" class="lead"></p>
+				<button type="button" class="btn btn-success mt-3" data-bs-dismiss="modal">Awesome!</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content text-center p-4" style="border-radius: 1rem; background: #fdecea;">
+			<div class="modal-body">
+				<h2 class="error-title mb-3">⚠️ Oops! Something went wrong.</h2>
+				<p id="errorMessage" class="lead text-danger"></p>
+				<button type="button" class="btn btn-danger mt-3" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 
 
 <script type="text/javascript">
+	$(document).ready(function () {
+		$('#tblEmployeeListing').DataTable({
+			"processing": true,
+			"serverSide": true,
+			"ajax": {
+				"url": "EmployeeListings/",
+				"type": "POST",
+				"datatype": "json",
+				"data": function (d) {
+					return {
+						sEcho: d.draw,
+						iDisplayStart: d.start,
+						iDisplayLength: d.length,
+						sSearch: d.search.value
+					};
+				}
+			},
+			"ordering": true,
+			"paging": true,
+			"searching": true,
+			"info": true,
+			"columns": [
+				{ "data": "employeeID", "autoWidth": true, "visible": false },
+				{
+					"data": "profilePhoto",
+					"render": function (data, type, row) {
+						return '<img src="' + data + '" class="profile-photo" width="40" height="40" style="border-radius: 50%;" />';
+					},
+					"orderable": false
+				},
+				{ "data": "employeeNumber", "autoWidth": true },
+				{ "data": "firstName", "autoWidth": true },
+				{ "data": "middleName", "autoWidth": true },
+				{ "data": "surname", "autoWidth": true },
+				{ "data": "personalEmailAddress", "autoWidth": true },
+				{ "data": "designationName", "autoWidth": true },
+				{ "data": "departmentName", "autoWidth": true },
+				{ "data": "managerName", "autoWidth": true },
+			   {
+	  "data": null,
+	  "autoWidth": true,
+	  "render": function (data, type, row) {
+		return `${row.shift} (${row.shiftStartTime} - ${row.shiftEndTime})`;
+	  }
+	},
 
-    $(document).ready(function () {
-        $('#tblEmployeeListing').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": {
-                "url": "EmployeeListings/",
-                "type": "POST",
-                "datatype": "json",
-                "data": function (d) {
-                    return {
-                        sEcho: d.draw,
-                        iDisplayStart: d.start,
-                        iDisplayLength: d.length,
-                        sSearch: d.search.value // 🔹 Sending search term
-                    };
-                }
-            },
-            "ordering": true,
-            "paging": true,
-            "searching": true,
-            "info": true,
-            "columns": [
-                { "data": "employeeID", "autoWidth": true, "visible": false }, // Hidden column
-                {
-                    "data": "profilePhoto",
-                    "render": function (data, type, row) {
-                        if (data == "/assets/img/avatars/m.png") {
-                            return '<img src="' + data + '" class="profile-photo" width="40" height="40" style="border-radius: 50%;" />';
-                        }
-                        else {
-                            var filedata = "/uploads/ProfilePhoto/" + row.employeeID + "/" + data;
-                            return '<img src="' + filedata + '" class="profile-photo" width="40" height="40" style="border-radius: 50%;" />';
+				{ "data": "payrollTypeName", "autoWidth": true },
+				{ "data": "mobile", "autoWidth": true },
+						{
+		"data": "isActive",
+		"autoWidth": true,
+		"render": function (data, type, row) {
+			var statusClass = data ? 'employee-text-success' : 'employee-text-danger';
+			var statusText = data ? 'Active' : 'Inactive';
+			return '<span class="toggle-status ' + statusClass + '" data-employeeid="' + row.employeeID + '">' + statusText + '</span>';
+		}
+	},
 
-                        }
-                    },
-                    "orderable": false
-                },
-                { "data": "employeeNumber", "autoWidth": true },
-                { "data": "firstName", "autoWidth": true },
-                { "data": "middleName", "autoWidth": true },
-                { "data": "surname", "autoWidth": true },
-                { "data": "personalEmailAddress", "autoWidth": true },
-                { "data": "designationName", "autoWidth": true }, // Removed duplicate
-                { "data": "departmentName", "autoWidth": true }, // Removed duplicate
-                { "data": "managerName", "autoWidth": true },
-                { "data": "shift", "autoWidth": true },
-                { "data": "payrollTypeName", "autoWidth": true },
-                { "data": "mobile", "autoWidth": true },
-                {
-                    // 🔹 Actions Column
-                    "data": null,
-                    "render": function (data, type, row) {
-                        var linkEdit = '<div class="table-data-feature">' +
-                            '<a data-toggle="tooltip" data-placement="top" class="item" href="Index?id=' + row.encryptedIdentity + '&CId=' + row.encodedCompanyID + '" title="Edit">' +
-                            '<img src="/assets/img/edit.png" width="20" height="20" />' +
-                            '</a>' +
-                            '</div>';
+					{
+		"data": null,
+		"render": function (data, type, row) {
+			var linkEdit = '<div class="table-data-feature">' +
+				'<a data-toggle="tooltip" data-placement="top" class="item" href="Index?id=' + row.encryptedIdentity + '&CId=' + row.encodedCompanyID + '" title="Edit">' +
+				'<img src="/assets/img/edit.png" width="20" height="20" />' +
+				'</a>' +
+				'</div>';
 
-                        var moveToActiveEmployee = '<div class="table-data-feature">' +
-                            '<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Edit">' +
-                            '<img src="/assets/img/ReadyStatus.svg" width="20" height="20" />' +
-                            '</a>' +
-                            '</div>';
+			var moveToActiveEmployee = '<div class="table-data-feature">' +
+				'<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Edit">' +
+				'<img src="/assets/img/ReadyStatus.svg" width="20" height="20" />' +
+				'</a>' +
+				'</div>';
 
-                        return linkEdit + moveToActiveEmployee;
-                    },
-                    "orderable": false
-                }
-            ],
-            "columnDefs": [
-                { "targets": [0], "orderable": false, "visible": false }, // EmployeeID is hidden
-                { "targets": [1], "orderable": false } // ProfilePhoto column is not sortable
-            ],
-            "responsive": true
-        });
-    });
+			return linkEdit + moveToActiveEmployee;
+		},
+		"orderable": false,
+		"className": "Edit-Button" // <-- Add your custom class here
+	}
 
+			],
+			"columnDefs": [
+				{ "targets": [0], "orderable": false, "visible": false },
+				{ "targets": [1], "orderable": false }
+			],
+			"responsive": true
+		});
+	});
+
+
+		$(document).on('click', '.toggle-status', function () {
+		var employeeId = $(this).data('employeeid');
+		var currentStatus = $(this).hasClass('employee-text-success') ? 1 : 0;
+		var newStatus = currentStatus === 1 ? 0 : 1;
+		if (!confirm('Are you sure you want to change the employee status?')) {
+			return;
+		}
+		$.ajax({
+			url: '/HR/employee/InActiveEmployee',
+			type: 'GET',
+			data: {
+				employeeId: employeeId,
+				isActive: newStatus
+			},
+			success: function (response) {
+				console.log(response);
+				if (response.success) {
+				var reportingData = response.data;
+				if(reportingData.status ==0)
+				{
+					
+				  $('#congratsMessage').text(reportingData.message);
+		var congratsModal = new bootstrap.Modal(document.getElementById('congratsModal'));
+		congratsModal.show();
+		setTimeout(() => congratsModal.hide(), 4000);
+
+					// Refresh DataTable without resetting pagination
+					$('#tblEmployeeListing').DataTable().ajax.reload(null, false);
+				}
+				else{
+						var reportingData = response.data;
+				  $('#errorMessage').text(reportingData.message);
+		var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+		errorModal.show();
+				}
+
+
+				} else {
+					alert('Operation was not successful.');
+				}
+			},
+			error: function () {
+				alert('Failed to toggle status.');
+			}
+		});
+	});
 
 
 

@@ -65,7 +65,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.WhatsHappeningID.ToString());
                 x.StringFromDate = Convert.ToDateTime(x.FromDate).ToString("dd/MM/yyyy");
-                x.StringToDate = Convert.ToDateTime(x.ToDate).ToString("dd/MM/yyyy");
+                x.StringToDate = Convert.ToDateTime(x.ToDate).ToString("dd/MM/yyyy");   
             });
             return Json(new { data = results._WhatsHappenings });
         }

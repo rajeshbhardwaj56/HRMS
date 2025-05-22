@@ -146,8 +146,8 @@
                             <thead>
                                 <tr>
                                     <th>Day</th>
-                                    <th>present</th>
-                                    <th>absent</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -208,7 +208,7 @@
                                 int index = 0;
                                 foreach (var item in Model.EmployeeDetails)
                                 {
-                                    var UserPhoto = "/Uploads/ProfilePhoto/" + item.EmployeeId + "/" + @item.EmployeePhoto;
+                                    var UserPhoto =  @item.EmployeePhoto;
                                     var isActive = index == 0 ? "active" : "";
 
                                     <div class="carousel-item h-100 @isActive">
@@ -226,7 +226,11 @@
                                                 </div>
                                             </div>
                                             <h5 class="card-title">@item.FirstName @item.LastName</h5>
-                                            <p class="card-text">@item.DOB.ToString("MMMM d") - Happy Birthday!</p>
+                                            @if (item.DOB.HasValue)
+                                            {
+                                                <p class="card-text">@item.DOB.Value.ToString("MMMM d") - Happy Birthday!</p>
+                                            }
+
                                         </div>
                                     </div>
                                     index++;
@@ -270,7 +274,7 @@
                             <li class="list-group-item py-3">
                                 <div class="d-flex justify-content-between align-items-center">                                                                    
                                     <div>
-                                            <img src="/Uploads/Whatshappening/@item.IconImage" width="30" height="30">
+                                            <img src="@item.IconImage" width="30" height="30">
                                             <a href="javascript:void(0)" class="font-weight-bold text-decoration-none" style="color:#05397b;">@item.Title   <b>&nbsp;&nbsp;|  @item.FromDate?.ToString("dd-MMM-yyyy") </b></a>
                                     </div>
                                      <div>
@@ -279,7 +283,7 @@
                                                     data-description="@item.Description"
                                                     data-fromdate="@item.FromDate?.ToString("dd-MMM-yyyy")"
                                                     data-todate="@item.ToDate?.ToString("dd-MMM-yyyy")"
-                                                    data-image="/Uploads/Whatshappening/@item.IconImage">
+                                                    data-image="@item.IconImage">
                                                 View Announcement
                                             </button>
                                             <a href="javascript:void(0)" class="px-2">
@@ -309,7 +313,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="" class="rounded mb-3" width="50" height="50" alt="Announcement Image">
+                <img id="modalImage" src="" class="rounded mb-3"  alt="Announcement Image">
                 <h5 id="modalTitle"></h5>
                 <p id="modalDescription"></p>
                 <p><b>From Date:</b> <span id="modalFromDate"></span></p>
@@ -323,27 +327,26 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
-        document.querySelectorAll(".view-announcement-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                const title = this.getAttribute("data-title");
-                const description = this.getAttribute("data-description");
-                const fromDate = this.getAttribute("data-fromdate");
-                const toDate = this.getAttribute("data-todate");
-                const image = this.getAttribute("data-image");
-                document.getElementById("modalTitle").innerText = title;
-                document.getElementById("modalDescription").innerText = description;
-                document.getElementById("modalFromDate").innerText = fromDate;
-                document.getElementById("modalToDate").innerText = toDate;
-                document.getElementById("modalImage").src = image;
+       document.addEventListener("DOMContentLoaded", function () {
+            const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
+            document.querySelectorAll(".view-announcement-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const title = this.getAttribute("data-title");
+                    const fromDate = this.getAttribute("data-fromdate");
+                    const toDate = this.getAttribute("data-todate");
+                    const image = this.getAttribute("data-image");
+                    const description = this.getAttribute("data-description");  // Use data-description directly
 
-                modal.show();
+                    document.getElementById("modalTitle").innerText = title;
+                    document.getElementById("modalDescription").innerHTML = description;  // Set description directly
+                    document.getElementById("modalFromDate").innerText = fromDate;
+                    document.getElementById("modalToDate").innerText = toDate;
+                    document.getElementById("modalImage").src = image;
+
+                    modal.show();
+                });
             });
         });
-    });
-
-
 
 
 

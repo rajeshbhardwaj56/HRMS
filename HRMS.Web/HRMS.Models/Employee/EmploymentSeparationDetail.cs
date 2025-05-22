@@ -18,10 +18,11 @@ namespace HRMS.Models.Employee
         public long EmployeeSeparationID { get; set; }
         public long EmployeeID { get; set; }
         public int? AgeOnNetwork { get; set; }
-        public int? PreviousExperience { get; set; }
+        public string? PreviousExperience { get; set; }
         public DateTime? DateOfJoiningTraining { get; set; }
         public DateTime? DateOfJoiningFloor { get; set; }
         public DateTime? DateOfJoiningOJT { get; set; }
+        public DateTime? DateOfJoiningOnroll { get; set; }
         public DateTime? DateOfResignation { get; set; }
         public DateTime? DateOfLeaving { get; set; }
         public DateTime? BackOnFloorDate { get; set; }

@@ -22,13 +22,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
-
         public AttendenceListController(IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
-
         public IActionResult AttendenceListing()
         {
             Results results = new Results();
@@ -66,9 +64,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             model.Employeelist = results.Employee;
             return View(model);
         }
-
-
-
         [HttpPost]
         public IActionResult Index(Attendance AttendenceListModel)
         {
@@ -84,14 +79,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
                 else
                 {
-                    return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.AttendenceList);
+                    return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.Attendance);
 
-                }
-
-           
-
-
-
+                }        
         }
         public HRMS.Models.Common.Results GetAllEmployees(long EmployeeID)
         {
@@ -123,15 +113,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = data;
             }
-            return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.AttendenceList);
+            return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.Attendance);
         }
 
 
         [HttpGet]
         [AllowAnonymous] 
         public IActionResult AttendenceList()
-        {
-            
+        {            
             return View( );
         }
         [HttpGet]

@@ -32,6 +32,10 @@
                     <label>Bank Name <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.BankName, new { @class = "form-control", @type = "text", @required = "required" })
                 </div>
+                <div class="col-md-4 form-group">
+                    <label>UAN </label>
+                    @Html.TextBoxFor(a => a.UANNumber, new { @class = "form-control", @type = "text" })
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <input type="submit" value="Submit" class="btn btn-success" />

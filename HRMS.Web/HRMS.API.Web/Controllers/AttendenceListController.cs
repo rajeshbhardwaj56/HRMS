@@ -2,6 +2,7 @@
 using HRMS.Models;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
+using HRMS.Models.Employee;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -99,6 +100,13 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpPost]
+        public IActionResult GetManagerApprovedAttendance(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetManagerApprovedAttendance(model));
+            return response;
+        }
+        [HttpPost]
         public IActionResult GetAttendanceForApproval(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
@@ -111,6 +119,13 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAttendanceDeviceLogs(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetEmployeeDetails(EmployeePersonalDetailsById objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeeDetails(objmodel));
             return response;
         }
     }

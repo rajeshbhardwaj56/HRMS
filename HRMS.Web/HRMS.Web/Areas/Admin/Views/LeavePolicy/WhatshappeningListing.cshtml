@@ -4,14 +4,14 @@
 @model Results
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Whats Happening";
+    ViewData["Title"] = "What's Happening";
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
 <div class="main-header anim" style="--delay: 0s">
-    Whats Happening
-    <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Whats Happening</button>
+    What's Happening
+    <button type="button" class="btn btn-addBtn" id="openFormBtn">Add What's Happening</button>
 </div>
 
 <div class="table-responsive py-3">
@@ -57,7 +57,7 @@
                     "autoWidth": true,
                     "render": function (data, type, row) {
                         // Check if the image URL exists and render the image tag
-                        return data ? `<img src="/Uploads/Whatshappening/${data}" alt="${row.title}" style="width: 50px; height: 50px;"/>` : 'No Image'; // If no image, show 'No Image'
+                        return data ? `<img src="${data}" alt="${row.title}" style="width: 50px; height: 50px;"/>` : 'No Image'; // If no image, show 'No Image'
                     }
                 },
                 {

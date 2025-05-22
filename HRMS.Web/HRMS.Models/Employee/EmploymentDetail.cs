@@ -39,7 +39,7 @@ namespace HRMS.Models.Employee
         public string OfficeLocation { get; set; } = string.Empty;
         public string EmployeeType { get; set; } = string.Empty;
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
-        public DateTime? JobSeprationDate { get; set; } 
+        public DateTime? JobSeprationDate { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public long UserID { get; set; }
@@ -49,11 +49,14 @@ namespace HRMS.Models.Employee
         public long LeavePolicyID { get; set; }
         public long ReportingToIDL2 { get; set; }
         public string ClientName { get; set; } = string.Empty;
-        public string ESINumber { get; set; } = string.Empty;
+        public string? ESINumber { get; set; } = string.Empty;
         public DateTime? ESIRegistrationDate { get; set; } = DateTime.UtcNow;
         public int RoleId { get; set; }
         public string EmployeNumber { get; set; } = string.Empty;
-        public long CompanyID { get; set; } =0;
+        public string CompanyAbbr { get; set; } = string.Empty;
+        public long CompanyID { get; set; } = 0;
+
+
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> PayrollTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
@@ -67,12 +70,22 @@ namespace HRMS.Models.Employee
         public List<SelectListItem> ShiftTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> SubDepartments { get; set; } = new List<SelectListItem>();
 
-
     }
 
     public class EmployeeListModel
     {
         public long EmployeeID { get; set; }
         public string Name { get; set; }
+    }
+
+    public class L2ManagerInputParams
+    {
+        public int L1EmployeeID { get; set; }
+    }
+    public class L2ManagerDetail
+    {
+        public long ManagerID { get; set; }
+        public string? ManagerName { get; set; }
+        public string? EmployeNumber { get; set; }
     }
 }

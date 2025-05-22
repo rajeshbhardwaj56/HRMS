@@ -8,7 +8,7 @@
     var IconImage = "";
     if (!string.IsNullOrEmpty(Model.PolicyDocument))
     {
-        IconImage = "/" + HRMS.Models.Common.Constants.UploadCertificate + Model.PolicyDocument;
+        IconImage =Model.PolicyDocument;
     }
     else
     {
@@ -16,7 +16,14 @@
     }
 } 
 
-<div class="main-header anim" style="--delay: 0s">Leave Policy Details </div>
+<div class="main-header anim" style="--delay: 0s">Leave Policy Details
+    <a href="/admin/LeavePolicy/PolicyCategoryListing"
+       class="btn btn-sm btn-primary addpolicycategory"
+       style="font-size: 12px;">
+        Add Policy Category
+    </a>
+
+</div>
 <form id="leaveForm" method="post" enctype="multipart/form-data">
 
     <div class="Container">
@@ -25,7 +32,7 @@
             @Html.HiddenFor(x => x.Companies)
             @Html.HiddenFor(x => x.PolicyList)
             @Html.HiddenFor(x => x.PolicyDocument)
-            @Html.HiddenFor(x => x.Id)
+            <input type="hidden" name="Id" value="@Model.Id">
 
             <div class="row">
                 <div class="col-md-4 form-group">
@@ -36,20 +43,41 @@
                     <label>Title <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.Title, new { @class = "form-control", @required = "required" })
                 </div>
-                <div class="col-md-4 form-group">
-                    <label>Policy Category <span class="Mandetory">*</span></label>  <a class='nav-link' href="/admin/LeavePolicy/PolicyCategoryListing">Add Policy Category </a>
-                    @Html.DropDownList("PolicyCategoryId", new SelectList(Model.PolicyList, "Id", "Name"), " -- Select Category -- ", new { @class = "form-control", placeholder = "", required = true })
-                </div>
 
                 <div class="col-md-4 form-group">
-                    <label>Image <span class="Mandetory">*</span></label>
-                    <div class="col-md-4">
-                        <img id="previewImage" src="@IconImage"
-                             onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
-                             style="width:100px; height:100px" />
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="PolicyCategoryId" class="mb-0">
+                            Policy Category <span class="text-danger">*</span>
+                        </label>
+                      
                     </div>
-                    <div class="col-md-8">
-                        <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
+                    @Html.DropDownList("PolicyCategoryId", new SelectList(Model.PolicyList, "Id", "Name"), "-- Select Category --", new { @class = "form-control", required = "required" })
+                </div>
+
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Upload Document (Image/Pdf) <span class="Mandetory">*</span></label>
+                        <div class="col-md-4">
+                            <!-- Image Preview -->
+                            <img id="DocumentpreviewImage"
+                                 src="@IconImage"
+                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                 style="width:100px; height:100px; display:none;" />
+
+                            <!-- PDF Preview -->
+                            <iframe id="DocumentpreviewPDF"
+                                    src="@IconImage"
+                                    style="width:100px; height:100px; display:none;"
+                                    frameborder="0">
+                            </iframe>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file"
+                                   name="postedFiles"
+                                   accept="image/*,.pdf"
+                                   onchange="DocumentpreviewPDFPreview(event)" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -98,17 +126,59 @@
             .catch(error => {
                 console.error(error);
             });
-    function showPreview(event) {
+        window.onload = function () {
+        const fullPath = '@Html.Raw(IconImage)'; // Avoids &amp; encoding
+        const filePath = fullPath.toLowerCase();
+
+        const imagePreview = document.getElementById('DocumentpreviewImage');
+        const pdfPreview = document.getElementById('DocumentpreviewPDF'); 
+        if (filePath.includes('.pdf')) {
+            pdfPreview.src = fullPath;
+            pdfPreview.style.display = 'block';
+            imagePreview.style.display = 'none';
+        } else   {
+            imagePreview.src = fullPath;
+            imagePreview.style.display = 'block';
+            pdfPreview.style.display = 'none';
+        }
+
+
+         
+    };
+
+
+    // On file selection, preview image or PDF
+    function DocumentpreviewPDFPreview(event) {
         const file = event.target.files[0];
+        const imagePreview = document.getElementById('DocumentpreviewImage');
+        const pdfPreview = document.getElementById('DocumentpreviewPDF');
+
         if (file) {
+            const fileType = file.type;
             const reader = new FileReader();
+
             reader.onload = function (e) {
-                const previewImage = document.getElementById('previewImage');
-                previewImage.src = e.target.result;
+                const result = e.target.result;
+
+                if (fileType.startsWith('image/')) {
+                    imagePreview.src = result;
+                    imagePreview.style.display = 'block';
+                    pdfPreview.style.display = 'none';
+                } else if (fileType === 'application/pdf') {
+                    pdfPreview.src = result;
+                    pdfPreview.style.display = 'block';
+                    imagePreview.style.display = 'none';
+                } else {
+                    alert('Unsupported file type. Please upload an image or a PDF.');
+                    imagePreview.style.display = 'none';
+                    pdfPreview.style.display = 'none';
+                }
             };
-            reader.readAsDataURL(file);
+
+            reader.readAsDataURL(file); // Triggers preview
         }
     }
+
     </script>
 
      

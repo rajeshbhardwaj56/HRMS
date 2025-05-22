@@ -9,8 +9,8 @@
     ViewData["Title"] = "Manage Employee";
     var CompanyLogo = "";
     if (!string.IsNullOrEmpty(Model.CompanyLogo))
-    {
-        CompanyLogo = "/" + HRMS.Models.Common.Constants.CompanyLogoPath + Model.CompanyID + "/" + Model.CompanyLogo;
+    {      
+         CompanyLogo = Model.CompanyLogo;
     }
     else
     {
@@ -21,7 +21,6 @@
 <div class="main-header anim" style="--delay: 0s">Manage Company</div>
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
-
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Company Details</div>
             @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
@@ -32,34 +31,31 @@
                 <div class="col-md-4 form-group">
                     <label>Company Name <span class="Mandetory">*</span></label>
                     @Html.HiddenFor(x => x.CompanyID)
+                    @Html.HiddenFor(model => model.CompanyLogo)
                     @Html.TextBoxFor(a => a.Name, new { @class = "form-control", @required = "required" })
                 </div>
-
                 <div class="col-md-4 form-group">
                     <label>Default Letter Head <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.DefaultLetterHead, new { @class = "form-control", @required = "required" })
                 </div>
-
-
                 <div class="col-md-4 form-group">
                     <label>Company Abbreviation Name <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.Abbr, new { @class = "form-control", @required = "required" })
                 </div>
-
                 <div class="col-md-4 form-group">
                     <label>Company Logo</label>
                     <div class="row d-flex align-items-center">
-                        <div class="col-md-4">
-                            <img  id="previewImage"  src="@CompanyLogo" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
+                        <div class="col-md-4">  
+@*                             <img id="previewImage" src="@Url.Action("ViewImage", "Company", new { key = @CompanyLogo })" alt="Company Logo" style="width:100px; height:100px" />
+ *@                           
+ <img id="previewImage" src="@CompanyLogo" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />
                         </div>
                         <div class="col-md-8">
                             <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
                         </div>
                     </div>
-                </div>
+                </div>  
             </div>
-
-
             <div class="row">
                 <div class="col-md-4 form-group">
                     <label>GSTIN<span class="Mandetory">*</span></label>
@@ -83,21 +79,14 @@
                     <label>Date of establishment<span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.DateOfEstablished, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
                 </div>
-
-
-
-
                 <div class="col-md-4 form-group">
                     <label>Currency<span class="Mandetory">*</span></label>
                     @Html.DropDownListFor(x => x.DefaultCurrencyID, Model.Currencies, HRMS.Models.Common.Constants.SelectCurrency, new { @class = "form-control", @required = "required" })
                 </div>
-
-
                 <div class="col-md-4 form-group">
                     <label>IsGroup<span class="Mandetory">*</span></label>
                     @Html.CheckBoxFor(a => a.IsGroup)
                 </div>
-
                 <div class="col-md-4 form-group">
                     <label>Parent Company<span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.ParentCompany, new { @class = "form-control", @required = "required" })

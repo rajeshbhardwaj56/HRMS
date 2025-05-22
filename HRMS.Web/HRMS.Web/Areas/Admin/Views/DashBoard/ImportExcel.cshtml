@@ -1,61 +1,99 @@
-﻿﻿@using HRMS.Models.Employee;
+﻿@using HRMS.Models.Employee;
 @using Microsoft.AspNetCore.Http
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @model EmployeeModel
-@{
-    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-    ViewData["Title"] = "Upload Excel";
-    var ProfilePhoto = "";
-  
-}
-<div class="main-header anim" style="--delay: 0s">Import Employee</div>
-<div  >
-    <div class="Container">
 
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Upload Excel";
+}
+
+<style>
+    .alert {
+        margin-top: 15px;
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+    }
+
+    .alert-danger {
+        background-color: #fdecea;
+        color: #b71c1c;
+        border-color: #f5c6cb;
+    }
+
+    .alert-success {
+        background-color: #e6f4ea;
+        color: #2e7d32;
+        border-color: #c3e6cb;
+    }
+
+    .custom-alert {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .small-text {
+        font-size: 0.875rem;
+    }
+
+    #upload-messages h5 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="main-header anim" style="--delay: 0s">Import Employee</div>
+<div>
+    <div class="Container">
         <div class="group-box anim" style="--delay: .3s">
-           
-    <div class="importemployee-section">
+
+            <div class="importemployee-section">
                 <div class="small-header">Import Employee</div>
-                <span>  <a class="UploadExcel" href="/assets/downloadexcel/employee_details.xlsx" download>Download Sample File</a></span>
+                <span>
+                    <a class="UploadExcel" href="/assets/downloadexcel/employee_details.xlsx" download>
+                        Download Sample File
+                    </a>
+                </span>
+            </div>
+
+            <div>
+                <input type="file" name="file" id="file" />
+                <input type="submit" value="Import" id="btnfileupload" class="btn btn-success" />
+            </div>
+
+            <!-- Message container (invisible at start) -->
+            <div id="upload-messages"></div>
+
+        </div>
     </div>
-    <div>
-        <input type="file" name="file" id="file" />
-        <input type="submit" value="Import" id="btnfileupload" class="btn btn-success" />
-    </div>
-</div>
-</div>
 </div>
 
 <script>
     $('#btnfileupload').on('click', function (e) {
-        e.preventDefault(); // stop the standard form submission
+        e.preventDefault();
 
-        var formData = new FormData();
-        var files = $("#file").get(0).files;
+        const formData = new FormData();
+        const files = $("#file").get(0).files;
 
-        // Check if a file is selected
         if (files.length === 0) {
             alert('Please select a file for upload');
-            return false; // Stop further execution
+            return;
         }
 
-        // Check if the file extension is either XLS, XLSX, or CSV
-        var extension = $("#file").val().split('.').pop().toUpperCase();
-        if (extension !== "XLS" && extension !== "XLSX" && extension !== "CSV") {
+        const extension = $("#file").val().split('.').pop().toUpperCase();
+        if (!["XLS", "XLSX", "CSV"].includes(extension)) {
             alert('Invalid file format. Please upload an XLS, XLSX, or CSV file');
-            $("#file").val(''); // Clear the file input
-            return false; // Stop further execution
+            $("#file").val('');
+            return;
         }
 
-        // Change button text to "Please wait, file uploading..."
         $("#btnfileupload").val("Please wait, file uploading...").prop('disabled', true);
-
-        // Append the selected file to formData
         formData.append("file", files[0]);
 
-        // Perform the AJAX file upload
         $.ajax({
-            url: '/admin/Dashboard/ImportExcel/',
+            url: '/admin/Dashboard/ImportExcelBulk/',
             type: 'POST',
             dataType: 'json',
             data: formData,
@@ -63,14 +101,36 @@
             contentType: false,
             processData: false,
             success: function (data) {
-                console.log(data);
-                alert('File uploaded successfully');
-                $("#file").val(''); // Clear the file input after upload
-                $("#btnfileupload").val("Import  ").prop('disabled', false); // Reset button text and enable
+                $("#file").val('');
+                $("#btnfileupload").val("Import").prop('disabled', false);
+                $("#upload-messages").empty(); // Clear previous messages
+
+                if (data.success && !data.hasErrors) {
+                    $("#upload-messages").append(
+                        `<div class="alert alert-success custom-alert">✔️ ${data.message}</div>`
+                    );
+                }
+
+                if (data.hasErrors && data.errorTable) {
+                    $("#upload-messages").append(`
+                        <div class="alert alert-danger custom-alert small-text">
+                            <h5>⚠️ Errors in Uploaded File</h5>
+                            ${data.errorTable}
+                        </div>
+                    `);
+                }
+
+                if (!data.success && !data.hasErrors) {
+                    $("#upload-messages").append(
+                        `<div class="alert alert-danger custom-alert">❌ ${data.message}</div>`
+                    );
+                }
             },
             error: function (xhr, error, status) {
-                alert(error);
-                $("#btnfileupload").val("Import ").prop('disabled', false); // Reset button text and enable
+                $("#btnfileupload").val("Import").prop('disabled', false);
+                $("#upload-messages").html(
+                    `<div class="alert alert-danger custom-alert small-text">❌ Upload failed: ${error}</div>`
+                );
             }
         });
     });

@@ -9,6 +9,7 @@ namespace HRMS.Models
     public class HolidayModel
     {
         public long HolidayID { get; set; }
+        public string? EncodedId { get; set; }
         public long CompanyID { get; set; }
         public string HolidayName { get; set; }
         public DateTime ToDate { get; set; }

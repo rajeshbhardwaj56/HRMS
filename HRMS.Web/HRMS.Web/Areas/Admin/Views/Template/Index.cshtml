@@ -10,21 +10,14 @@
     var FooterImage = "";
     if (!string.IsNullOrEmpty(Model.HeaderImage))
     {
-        HeaderImage = "/" + HRMS.Models.Common.Constants.TemplatePath + Model.HeaderImage;
+        HeaderImage = Model.HeaderImage;
     }
-    else
-    {
-        HeaderImage = HRMS.Models.Common.Constants.NoImagePath;
-    }
+   
 
     if (!string.IsNullOrEmpty(Model.FooterImage))
     {
-        FooterImage = "/" + HRMS.Models.Common.Constants.TemplatePath + Model.FooterImage;
-    }
-    else
-    {
-        FooterImage = HRMS.Models.Common.Constants.NoImagePath;
-    }
+        FooterImage = Model.FooterImage;
+    }   
 }
 
 
@@ -32,19 +25,15 @@
 
 
 <form method="post" id="submitForm" enctype="multipart/form-data">
-    <div class="Container">
-
-        @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label class="form-label"> </label>
-        </div> *@
-
+    <div class="Container"> 
         <div class="group-box anim" style="--delay: .3s">
             <div class="row">
-
 
                 <div class="col-md-6 form-group">
                     <label>Template Name <span class="Mandetory">*</span></label>
                     @Html.HiddenFor(x => x.TemplateID)
+                    @Html.HiddenFor(x => x.HeaderImage)
+                    @Html.HiddenFor(x => x.FooterImage)
                     @Html.TextBoxFor(a => a.TemplateName, new { @class = "form-control", @required = "required" })
                 </div>
 
@@ -54,7 +43,7 @@
                 </div>
 
 
-                <div class="col-md-6 form-group">
+               @*  <div class="col-md-6 form-group">
                     <label>Header Image <span class="Mandetory">*</span></label>
                     <div class="row d-flex align-items-center">
                         <div class="col-md-4">
@@ -65,22 +54,38 @@
                             @Html.HiddenFor(x => x.HeaderImage)
                         </div>
                     </div>
-                </div>
-
-
-                <div class="col-md-6 form-group">
-                    <label>Footer Image <span class="Mandetory">*</span></label>
+                </div> *@
+                <div class="col-md-4 form-group">
+                    <label>Header Image</label>
                     <div class="row d-flex align-items-center">
                         <div class="col-md-4">
-                            <img src="@FooterImage" style="width:100px; height:100px" />
+                            <img id="previewImage" src="@HeaderImage"
+                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                 style="width:100px; height:100px" />
                         </div>
                         <div class="col-md-8">
-                            <input type="file" name="FooterImageFile" accept="image/*" />
-                            @Html.HiddenFor(x => x.FooterImage)
+                            <input type="file" name="HeaderImageFile" accept="image/*" onchange="showPreview(event)" />
                         </div>
                     </div>
                 </div>
-                
+
+                <div class="col-md-4 form-group">
+                    <label>Footer Image</label>
+                    <div class="row d-flex align-items-center">
+                        <div class="col-md-4">
+                            <img id="FooterpreviewImage" src="@FooterImage"
+                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                 style="width:100px; height:100px" />
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" name="FooterImageFile" accept="image/*" onchange="FooterPreview(event)" />
+                        </div>
+                    </div>
+                </div>
+
+
+
+
                 
             </div>
             
@@ -90,42 +95,25 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <!-- Set column width to full width -->
                     <div class="col-md-12">
                         Description <label class="Mandetory">*</label>
                     </div>
                     <div class="col-md-12">
-
-                        <!-- The toolbar will be rendered in this container. -->
                         <div id="toolbar-container"></div>
-
-                        <!-- This container will become the editable. -->
                         @Html.TextAreaFor(a => a.Description, new { @class = "form-control", id = "editor" })
                     </div>
                 </div>
             </div>
 
 
-            <div class="row">
-                &nbsp;
+            <div class="row"> 
             </div>
-
-
-           @*  <div class="row">
-                <div class="col-md-12">
-                    <input style="float:right" id="submitBtn" type="submit" value="Submit" class="btn btn-success" />
-                    <input id="cancelButton" style="float:right; margin:0 16px;" type="button" value="Cancel" class="btn btn-success" />
-                </div>
-
-            </div> *@
-
             <div class="row">
                 <div class="col-md-12">
                     <input id="submitBtn" type="submit" value="Submit" class="btn btn-success" />
                     <button id="cancelButton" class="btn btn-danger"  type="button" value="Cancel">Cancel</button>
                 </div>
             </div>
-
         </div>
     </div>
 </form>
@@ -176,4 +164,32 @@
         //     return false;
         // }
     })
+
+
+
+
+    function showPreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const previewImage = document.getElementById('previewImage');
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    function FooterPreview(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const FooterpreviewImage = document.getElementById('FooterpreviewImage');
+                FooterpreviewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
 </script>

@@ -1,7 +1,17 @@
 html {
     font-size: 14px;
 }
+button#DeleteButton {
+    width: 25px;
+    height: 25px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center; 
+    border: none;
 
+
+}
 @media (min-width: 768px) {
     html {
         font-size: 16px;
@@ -302,7 +312,10 @@ textarea.form-control {
 
 
 .sidebar-link:hover, .sidebar-link.is-active {
-    color: var(--secondry-color);
+    color: white;
+    background: #05397b;
+    font-weight: bold;
+    border-radius: 5px;
 }
 
 
@@ -367,7 +380,7 @@ textarea.form-control {
 
         .side-menu svg:hover, .sidebar-link:hover svg, .sidebar-link.is-active svg {
             color: var(--white-text-color);
-            background-color: var(--secondry-color);
+            /*background-color: var(--secondry-color);*/
         }
 
 
@@ -1365,7 +1378,7 @@ section.upper-section {
 }
 
 span.badge.holiday-list-text.bg-primary.rounded-pill {
-    background: #0088cc !important;
+    background: #044c8e !important
 }
 
 .ck-editor__editable {
@@ -1572,10 +1585,126 @@ span.badge.holiday-list-text.bg-primary.rounded-pill {
     align-items: center;
 }
 .sidebar-link.active {
-    background-color: #026eb1;
+    background-color: #05397b;
     color: white;
     font-weight: bold;
     border-radius: 5px;
-
+}
+button.Previewtemplate {
+    background: #05397b;
+    color: white;
+    border-radius: 7px;
+    gap: 12px;
+}
+.nav-link.is-active {
+    font-weight: bold;
+    color: white;
 }
 
+.nav-list__item.is-active {
+    background-color: #05397b; /* optional highlight for li */
+    color:white !important;
+}
+span.Joiningnotavailable {
+    background: #bf4545;
+    color: white;
+}
+p.attendance-calender { 
+    color: white;
+    font-size: 23px;
+    padding-left: 16px;
+    font-weight: 900;
+}
+.Month-year-dropdown {
+    margin-bottom: 5px;
+    gap: 12PX;
+}
+span.employee-text-danger {
+    background: #b52020;
+    color: white;
+    border-radius: 5px;
+    padding: 2px 6px 4px 8px;
+}
+span.employee-text-success {
+    background: #2b762b;
+    color: white;
+    border-radius: 5px;
+    padding: 2px 6px 4px 8px;
+}
+td.Edit-Button {
+    display: flex;
+    height: 40px;
+    align-items: center;
+}
+nav#paginationContainer {
+    display: flex;
+    gap: 12px;
+    float: right; 
+}
+.pagination-item-wrapper.page-button {
+    background: #05397b;
+    border-radius: 3px;
+    padding: 3px 9px 2px 9px;
+    color: white;
+    cursor:pointer;
+}
+p.Team-attendance-calender {
+    color: white;
+    font-size: 23px;
+    padding-left: 16px;
+    font-weight: 900;
+    background: #053471;
+}
+span.Attendance-status {
+    background: green;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 8px 2px 8px;
+}
+.employee-label.col-md-1 {
+    width: 7%;
+    font-weight: 900;
+}
+.congrats-title {
+    animation: popIn 0.6s ease forwards;
+    color: #28a745;
+    font-weight: 700;
+    text-shadow: 0 0 8px #28a745;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    70% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+.error-title {
+    animation: popIn 0.6s ease forwards;
+    color: #dc3545; /* Bootstrap red */
+    font-weight: 700; 
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    70% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

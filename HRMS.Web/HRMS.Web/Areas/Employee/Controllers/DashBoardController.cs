@@ -2,6 +2,7 @@
 using HRMS.Models.DashBoard;
 using HRMS.Models.LeavePolicy;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -16,41 +17,63 @@ namespace HRMS.Web.Areas.Employee.Controllers
         IBusinessLayer _businessLayer;
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
         IHttpContextAccessor _context;
-        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context)
+        private readonly IS3Service _s3Service;
+        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
             _context = context;
             _businessLayer = businessLayer;
+            _s3Service = s3Service;
+         
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
+            var session = HttpContext.Session;
+            var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID));
+            var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
+            var roleId = Convert.ToInt64(session.GetString(Constants.RoleID));
+            var token = session.GetString(Constants.SessionBearerToken);
 
-            DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
-            dashBoardModelInputParams.RoleID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.RoleID));
-
-            var data = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var model = JsonConvert.DeserializeObject<DashBoardModel>(data);
-             var leavePolicyModel = GetLeavePolicyData(CompanyID, model.LeavePolicyId??0);
-            double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(model.JoiningDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
-            double Totacarryforword = 0.0;
-            var Totaleavewithcarryforword = 0.0;
-            var accruedLeaves = accruedLeave1 - Convert.ToDouble(model.TotalLeave);
-            if (leavePolicyModel.Annual_IsCarryForward == true)
+            var inputParams = new DashBoardModelInputParams
             {
-                Totacarryforword = Convert.ToDouble(model.CarryForword);
-                Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
-            }
-            else
-            {
-                Totaleavewithcarryforword = accruedLeaves;
-            }
-            model.NoOfLeaves = Convert.ToInt64(Totaleavewithcarryforword);
+                EmployeeID = employeeId,
+                RoleID = roleId
+            };
 
-            _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+            var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
+            var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
+
+            if (model?.EmployeeDetails != null && !string.IsNullOrEmpty(model.ProfilePhoto))
+            {
+                foreach (var employee in model.EmployeeDetails.Where(x => !string.IsNullOrEmpty(x.EmployeePhoto)))
+                {
+                    employee.EmployeePhoto = _s3Service.GetFileUrl(employee.EmployeePhoto);
+                }
+            }
+
+            if (model?.WhatsHappening != null)
+            {
+                foreach (var item in model.WhatsHappening.Where(x => !string.IsNullOrEmpty(x.IconImage)))
+                {
+                    item.IconImage = _s3Service.GetFileUrl(item.IconImage);
+                }
+            }
+
+            if (model != null)
+            {
+                var leavePolicy = GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
+                var accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(model.JoiningDate.GetValueOrDefault(), leavePolicy.Annual_MaximumLeaveAllocationAllowed);
+                var usedLeave = Convert.ToDouble(model.TotalLeave);
+                var carryForward = leavePolicy.Annual_IsCarryForward ? Convert.ToDouble(model.CarryForword) : 0.0;
+
+                model.NoOfLeaves = Convert.ToInt64(accruedLeave - usedLeave + carryForward);
+            }
+
             return View(model);
         }
+
         private LeavePolicyModel GetLeavePolicyData(long companyId, long leavePolicyId)
         {
             var leavePolicyModel = new LeavePolicyModel { CompanyID = companyId, LeavePolicyID = leavePolicyId };

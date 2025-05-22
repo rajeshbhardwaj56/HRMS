@@ -13,7 +13,7 @@
     var Err = TempData["Error"];
 }
 
-<div class="main-header anim" style="--delay: 0s">Company List <a href="~/HR/Company"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a></div>
+<div class="main-header anim" style="--delay: 0s">Company List <a href="~/HR/Company"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Company</button></a></div>
 @* <div class="addcomp px-4">
     <h4>Company List</h4>
     <a href="~/HR/Company"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Company</button></a>
@@ -24,26 +24,21 @@
     <table id="tblCompanyListing" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
-                <th class="first" style="visibility:hidden"> /th>
+                <th class="first" style="visibility:hidden"></th>
                 <th>Company Name</th>
                 <th>Abbreviation Name</th>
-                <th>TaxID</th>
                 <th>Domain</th>
                 <th>Parent Company</th>
                 @* <th>Company Logo</th> *@
                 <th>Action</th>
             </tr>
         </thead>
-
     </table>
 </div>
 
 
-
 <script type="text/javascript">
-
     $(document).ready(function () {
-
         $('#tblCompanyListing').DataTable({
             "ajax": {
                 "url": "CompanyListings/",
@@ -55,47 +50,39 @@
             "searching": true,
             "info": true,
             "columns": [
-                { "data": "companyID", "autoWidth": true, },
-                { "data": "name", "autoWidth": true, },
+                { "data": "companyID", "autoWidth": true },
+                { "data": "name", "autoWidth": true },
                 { "data": "abbr", "autoWidth": true },
-                { "data": "taxID", "autoWidth": true },
                 { "data": "domain", "autoWidth": true },
                 { "data": "parentCompany", "autoWidth": true },
-                // { "data": "companyLogo", "autoWidth": true },
                 {
-                    // this is Actions Column
-                    mRender: function (data, type, row) {
-                        // alert(JSON.stringify(row))
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.companyID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                        return linkEdit;
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<div class="table-data-feature">' +
+                               '<a data-toggle="tooltip" data-placement="top" class="item" href="Index?id=' + row.companyID + '" title="Edit">' +
+                               '<img src="/assets/img/edit.png" width="20" height="20" />' +
+                               '</a></div>';
                     }
-                }              
+                }
             ],
             "columnDefs": [
                 {
-                    target: 2,
-                    visible: false,
-                    searchable: false
-                },
-
-                {
-
-                    "targets": [0], //first and last not sortable
+                    "targets": 0,
                     "orderable": false,
                     "visible": false
                 },
-
                 {
-
-                    "targets": [1], //first and last not sortable
+                    "targets": 2, // Hide Abbreviation Name if needed
+                    "visible": true,  // Change to false if you want to hide it
+                    "searchable": true
+                },
+                {
+                    "targets": [1],
                     "orderable": true,
                     "defaultContent": " "
                 }
-
-            ]
-            , "responsive": true
-
+            ],
+            "responsive": true
         });
     });
-
 </script>

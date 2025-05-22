@@ -12,6 +12,7 @@ namespace HRMS.Models.Template
     public class TemplateModel
     {
         public long CompanyID { get; set; }
+        public string? EncodedId { get; set; }  
         public string Description { get; set; } = string.Empty;
         public string HeaderImage { get; set; } = string.Empty;
         public string FooterImage { get; set; } = string.Empty;

@@ -10,7 +10,9 @@ using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
+using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -27,12 +29,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
         private IHostingEnvironment Environment;
-        public MyInfoController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context)
+        private readonly IS3Service _s3Service;
+        public MyInfoController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
             _context = context;
+            _s3Service = s3Service;
         }
         [HttpGet]
         public IActionResult Index(string id)
@@ -49,7 +53,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetMyInfo), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
             var results = JsonConvert.DeserializeObject<MyInfoResults>(data);
+
             results.leaveResults.leavesSummary.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.LeaveSummaryID.ToString()));
+            if (results?.leaveResults?.leavesSummary != null)
+            {
+                foreach (var leave in results.leaveResults.leavesSummary)
+                {
+                    if (!string.IsNullOrEmpty(leave.UploadCertificate))
+                    {
+                        leave.UploadCertificate = _s3Service.GetFileUrl(leave.UploadCertificate);
+                    }
+                }
+            }
             DateTime today = DateTime.Today;
 
             DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
@@ -58,32 +73,35 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             var employeeDetails = GetEmployeeDetails(model.CompanyID, model.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
-            //var joindate = employeeDetails.EmploymentDetail.Select(x => x.JoiningDate).FirstOrDefault();
-            var joindate = results.employmentDetail.JoiningDate;
-            DateTime joinDate1 = joindate.Value;
-            //results.JoiningDate = joinDate1;
-            double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
-            var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
-
-            double TotalApprove = Convert.ToDouble(TotalApproveLists);
-            double Totacarryforword = 0.0;
-            var Totaleavewithcarryforword = 0.0;
-            var accruedLeaves = accruedLeave1 - TotalApprove;
-
-            if (leavePolicyModel.Annual_IsCarryForward == true)
+            if (leavePolicyModel != null)
             {
-                Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
-                Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
-            }
-            else
-            {
-                Totaleavewithcarryforword = accruedLeaves;
+                //var joindate = employeeDetails.EmploymentDetail.Select(x => x.JoiningDate).FirstOrDefault();
+                var joindate = results.employmentDetail.JoiningDate;
+                if (joindate != null)
+                {
+                    DateTime joinDate1 = joindate.Value;
+                    double accruedLeave1 = CalculateAccruedLeaveForCurrentFiscalYear(joinDate1, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+                    var TotalApproveLists = TotalApproveList.Sum(x => x.NoOfDays);
+
+                    double TotalApprove = Convert.ToDouble(TotalApproveLists);
+                    double Totacarryforword = 0.0;
+                    var Totaleavewithcarryforword = 0.0;
+                    var accruedLeaves = accruedLeave1 - TotalApprove;
+                    if (leavePolicyModel.Annual_IsCarryForward == true)
+                    {
+                        Totacarryforword = Convert.ToDouble(employeeDetails.CarryForword);
+                        Totaleavewithcarryforword = Totacarryforword + accruedLeaves;
+                    }
+                    else
+                    {
+                        Totaleavewithcarryforword = accruedLeaves;
+                    }
+                    ViewBag.TotalLeave = TotalApprove;
+                    ViewBag.TotalAnnualLeave = Totaleavewithcarryforword;
+                    ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
+                }
             }
 
-            ViewBag.TotalLeave = TotalApprove;
-            ViewBag.TotalAnnualLeave = Totaleavewithcarryforword;
-
-            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
             return View(results);
 
         }
@@ -99,6 +117,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
             model.GenderId = Convert.ToInt32(employeeDetails.Gender);
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetMyInfo), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<MyInfoResults>(data);
+            if (results?.leaveResults?.leavesSummary != null)
+            {
+                foreach (var leave in results.leaveResults.leavesSummary)
+                {
+                    if (!string.IsNullOrEmpty(leave.UploadCertificate))
+                    {
+                        leave.UploadCertificate = _s3Service.GetFileUrl(leave.UploadCertificate);
+                    }
+                }
+            }
             DateTime today = DateTime.Today;
             DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
             var leavePolicyModel = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
@@ -112,20 +140,23 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public JsonResult GetLeaveForApprovals(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             MyInfoInputParams employee = new MyInfoInputParams();
+            var Approvals = new List<LeaveSummaryModel>();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
             var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
-
-            var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID != (int)LeaveStatus.Approved && x.LeaveStatusID != (int)LeaveStatus.NotApproved).ToList();
-            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
-            if (leavePolicyModel.Paternity_medicalDocument == true)
+            if (leavePolicyModel != null)
             {
-                ViewBag.Paternity_medicalDocument = true;
+                Approvals = results.leavesSummary.Where(x => x.LeaveStatusID != (int)LeaveStatus.Approved && x.LeaveStatusID != (int)LeaveStatus.NotApproved).ToList();
+                ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
+                if (leavePolicyModel.Paternity_medicalDocument == true)
+                {
+                    ViewBag.Paternity_medicalDocument = true;
+                }
             }
-
             return Json(new { data = Approvals });
         }
 
@@ -139,6 +170,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             MyInfoInputParams employee = new MyInfoInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved).ToList();
@@ -157,6 +189,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             MyInfoInputParams employee = new MyInfoInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
 
@@ -314,13 +347,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     //    obj.message = Message;
                     //    return Json(new { data = obj });
                     //}
-
-
-
-
-
-
-
                 }
 
 
@@ -371,8 +397,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 endDate = startDate;
             }
-
-
             //get current year date
             var currentYearDate = GetAprilFirstDate();
             //validation for fromdate should not greater than todate
@@ -756,56 +780,23 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 //        return View();
                 //    }
                 //}
-                string fileName = null;
+                _s3Service.ProcessFileUpload(postedFiles, model.leaveResults.leaveSummaryModel.UploadCertificate, out string newCertificateKey);
 
-                if (postedFiles.Count > 0)
+                if (!string.IsNullOrEmpty(newCertificateKey))
                 {
-                    string wwwPath = Environment.WebRootPath;
-                    string contentPath = this.Environment.ContentRootPath;
-
-                    foreach (IFormFile postedFile in postedFiles)
+                    if (!string.IsNullOrEmpty(model.leaveResults.leaveSummaryModel.UploadCertificate))
                     {
-                        fileName = postedFile.FileName.Replace(" ", "");
+                        _s3Service.DeleteFile(model.leaveResults.leaveSummaryModel.UploadCertificate);
                     }
-                    if (fileName != null)
-                    {
-                        model.leaveResults.leaveSummaryModel.UploadCertificate = fileName;
-                    }
-                    else
-                    {
-                        model.leaveResults.leaveSummaryModel.UploadCertificate = "";
-
-                    }
+                    model.leaveResults.leaveSummaryModel.UploadCertificate = newCertificateKey;
                 }
-                if (model.leaveResults.leaveSummaryModel.UploadCertificate == null)
+                else
                 {
-                    model.leaveResults.leaveSummaryModel.UploadCertificate = "";
+                    model.leaveResults.leaveSummaryModel.UploadCertificate = _s3Service.ExtractKeyFromUrl(model.leaveResults.leaveSummaryModel.UploadCertificate);
                 }
                 var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(data);
-
-                if (postedFiles.Count > 0)
-                {
-                    string path = Path.Combine(this.Environment.WebRootPath, Constants.UploadCertificate + result.PKNo.ToString());
-
-                    if (!Directory.Exists(path))
-                    {
-                        Directory.CreateDirectory(path);
-                    }
-                    foreach (IFormFile postedFile in postedFiles)
-                    {
-                        using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-                        {
-                            postedFile.CopyTo(stream);
-                        }
-                    }
-                }
-
-
-
-
-
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 var messageData = "Leave applied successfully.";
                 //return RedirectToActionPermanent(
@@ -992,6 +983,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View(leavePolicyModel);
         }
 
+        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
 
         public IActionResult GetTeamEmployeeList()
         {
@@ -1012,12 +1004,21 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
-               
-              
+
+
                 if (employeeDetails == null || employeeDetails.Count == 0)
                 {
                     return Json(new { data = new List<object>(), message = "No employees found" });
-                };
+                }
+                else
+                {
+                    employeeDetails.ForEach(x =>
+                    {
+                        x.EmployeePhoto = string.IsNullOrEmpty(x.EmployeePhoto)
+                            ? "/assets/img/No_image.png"   //Use default image if profile photo is missing
+                            : _s3Service.GetFileUrl(x.EmployeePhoto);
+                    });
+                }
                 return Json(new { data = employeeDetails });
             }
             catch (Exception ex)
@@ -1038,15 +1039,26 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpGet]
         public IActionResult PolicyCategoryDetails()
         {
-            List<LeavePolicyDetailsModel>  Details = new List<LeavePolicyDetailsModel>();
             PolicyCategoryInputParams model = new PolicyCategoryInputParams();
             model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.PolicyCategoryDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            Details = JsonConvert.DeserializeObject<List<LeavePolicyDetailsModel>>(data);
+            var detailsList = JsonConvert.DeserializeObject<List<LeavePolicyDetailsModel>>(data);
 
-            return View(Details);
+
+            if (detailsList != null)
+            {
+                foreach (var item in detailsList)
+                {
+                    if (!string.IsNullOrEmpty(item.PolicyDocument))
+                    {
+                        item.PolicyDocument = _s3Service.GetFileUrl(item.PolicyDocument);
+                    }
+                }
+            }
+            return View(detailsList);
         }
         [HttpGet]
+        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
         public IActionResult TeamAttendenceList()
         {
             var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
@@ -1056,15 +1068,19 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult TeamAttendenceCalendarList(int year, int month)
+        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-           
+            var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+
             AttendanceInputParams models = new AttendanceInputParams
             {
                 Year = year,
                 Month = month,
                 UserId = employeeId,
+                RoleId = RoleID,
+                PageSize = PageSize,
+                Page = Page,
             };
 
             var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -1072,6 +1088,22 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return Json(new { data = model });
         }
+        public IActionResult Whatshappening()
+        {
+            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            return View(results);
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult Whatshappening(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            WhatsHappeningModelParans WhatsHappeningModelParams = new WhatsHappeningModelParans();
+            WhatsHappeningModelParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            results.WhatsHappeningList.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
+            return Json(new { data = results.WhatsHappeningList });
 
+        }
     }
 }

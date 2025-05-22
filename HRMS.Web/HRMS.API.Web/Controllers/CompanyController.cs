@@ -28,6 +28,14 @@ namespace HRMS.API.Web.Controllers
             response = Ok(result);
             return response;
         }
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult GetCompaniesLogo(CompanyLoginModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetCompaniesLogo(model));
+            return response;
+        }
 
         [HttpPost]
         public IActionResult GetAllCompanies(EmployeeInputParams model)

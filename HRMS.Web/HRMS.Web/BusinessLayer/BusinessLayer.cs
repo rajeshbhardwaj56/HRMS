@@ -7,6 +7,12 @@ using Newtonsoft.Json;
 using System.Buffers.Text;
 using System.Data;
 using System.Text;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+using System.Drawing;
+using System.Net;
+
 
 namespace HRMS.Web.BusinessLayer
 {
@@ -15,18 +21,17 @@ namespace HRMS.Web.BusinessLayer
     {
         public string bearerToken { get; set; }
         public IConfiguration _configuration { get; set; }
-        public Task<object> SendPostAPIRequest(object body, string ActionUrl, string BearerToken, bool isTokenRequired = true);
+        public Task<object> SendPostAPIRequest(object body, string ActionUrl, string BearerToken, bool isTokenRequired = true);      
         public Task<object> SendGetAPIRequest(string ActionUrl, string BearerToken, bool isTokenRequired = true);
         public string GetControllarNameByRole(int RoleID);
         public string GetAreaNameByRole(int RoleID);
-
         public string GetFormattedAPIUrl(string ApiControllarName, string APIActionName);
-
         public string ConvertIFormFileToBase64(IFormFile file);
         public string EncodeStringBase64(string plainText);
         public string DecodeStringBase64(string base64EncodedData);
         public string GetSatutation();
         public string GetProfilePhoto();
+   
     }
 
 
@@ -64,9 +69,7 @@ namespace HRMS.Web.BusinessLayer
                 }
             }
             var requestContent = new StringContent(requestData, Encoding.UTF8, "application/json");
-
             var response = await _httpClient.PostAsync(apiUrl, requestContent);
-
             response.EnsureSuccessStatusCode();
             _httpClient.DefaultRequestHeaders.Clear();
             return await response.Content.ReadAsStringAsync();
@@ -83,7 +86,6 @@ namespace HRMS.Web.BusinessLayer
                     _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + BearerToken);
                 }
             }
-
             string apiUrl = GetFullAPIUrl(ActionUrl);
             var response = await _httpClient.GetAsync(apiUrl);
             response.EnsureSuccessStatusCode();
@@ -152,7 +154,7 @@ namespace HRMS.Web.BusinessLayer
                 }
             }
 
-            return null; 
+            return null;
         }
 
 
@@ -196,7 +198,7 @@ namespace HRMS.Web.BusinessLayer
             var ProfilePhoto = "";
             if (!string.IsNullOrEmpty(httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto)))
             {
-                ProfilePhoto = "/" + HRMS.Models.Common.Constants.EmployeePhotoPath + httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeID) + "/" + httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto);
+                ProfilePhoto =httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto);
             }
             else
             {
@@ -204,5 +206,10 @@ namespace HRMS.Web.BusinessLayer
             }
             return ProfilePhoto;
         }
+     
+
     }
+
+
+
 }

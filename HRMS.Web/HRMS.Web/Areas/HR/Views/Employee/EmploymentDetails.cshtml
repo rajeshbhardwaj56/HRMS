@@ -27,6 +27,7 @@
                 @Html.HiddenFor(m => m.EmployeeID)
                 @Html.HiddenFor(m => m.EmploymentDetailID)
                 @Html.HiddenFor(m => m.UserID)
+                @Html.HiddenFor(m => m.CompanyAbbr)
             </div>
 
             <div class="row">
@@ -114,14 +115,8 @@
                 <div class="col-md-4 form-group position-relative" id="ReportingManagerDropdownId">
                     <label>Reporting Manager(L2) <span class="Mandetory">*</span></label>
                     <div class="position-relative">
-                    @Html.DropDownListFor(x => x.ReportingToIDL2, Model.EmployeeList, HRMS.Models.Common.Constants.SelectReportingManager, new
-                        {
-                            @class = "form-control",
-                            @required = "required",
-                            @id = "ReportingManagerDropdown"
-                        })
-                        <i class="fa fa-chevron-down position-absolute"
-                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                        <input type="text" id="ReportingManagerL2" class="form-control" readonly="readonly" />
+                        <input type="hidden" id="ReportingManagerL2Id" name="ReportingToIDL2" />
                 </div>
                 </div>
                 <div class="col-md-4 form-group position-relative">
@@ -188,12 +183,12 @@
 
 
                 <div class="col-md-4 form-group">
-                    <label>ESI Number <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.ESINumber, new { @class = "form-control", @type = "text", @required = "required" })
+                    <label>ESI Number <span class="Mandetory"></span></label>
+                    @Html.TextBoxFor(a => a.ESINumber, new { @class = "form-control", @type = "text"  })
                 </div>
                 <div class="col-md-4 form-group">
-                    <label>Registration Date in ESIC <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.ESIRegistrationDate,"{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+                    <label>Registration Date in ESIC <span class="Mandetory"></span></label>
+                    @Html.TextBoxFor(a => a.ESIRegistrationDate,"{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
                 </div>
                
 
@@ -237,63 +232,38 @@
             $('#SubDepartmentID').empty().append('<option value="">Select Sub Department</option>');
         }
     }
-
-    $(document).ready(function () {
-
-        // if ($('#subDepartmentId option').length > 1) {
-        //     $('#divsubDepartment').show();
-        // }
+        $(document).ready(function () {
+        function fetchL2Manager(l1EmployeeId) {
+            if (l1EmployeeId) {
+                $.ajax({
+                    url: '/Hr/Employee/GetL2Manager',
+                    type: 'POST',
+                    data: { l1EmployeeId: l1EmployeeId },
+                    success: function (response) {
+                        if (response.success && response.managerId) {
+                            $('#ReportingManagerL2').val(response.managerName); // Display name
+                            $('#ReportingManagerL2Id').val(response.managerId); // Hidden ID
+                        } else {
+                            $('#ReportingManagerL2').val('');
+                            $('#ReportingManagerL2Id').val('');
+                        }
+                    },
+                    error: function () {
+                        alert('Error fetching L2 manager.');
+                    }
+                });
+            }
+        }
+        $('#ReportingManagerDropdown').change(function () {
+            const l1EmployeeId = $(this).val();
+            fetchL2Manager(l1EmployeeId);
+        });
+    setTimeout(function () {
+         const preselectedL1 = $('#ReportingManagerDropdown').val();
+          console.log("Preselected L1 value on load:", preselectedL1);
+         if (preselectedL1) {
+             fetchL2Manager(preselectedL1);
+         }
+     }, 200);
     });
-    // function fetchDesignations(departmentID) {
-    //
-    //     $("#ReportingManagerDropdownId").hide();
-    //     if (departmentID) {
-    //         $.ajax({
-    //             url: '/Hr/Employee/FilterEmploymentDetails', // Adjust URL to your controller action
-    //             type: 'GET',
-    //             data: { departmentID: departmentID },
-    //             success: function (response) {
-    //                 console.log(response);
-    //                 // Clear the Designation dropdown
-    //                 $('#DesignationDropdown').empty();
-
-    //                 // Add default option
-    //                 $('#DesignationDropdown').append('<option value="">Select Designation</option>');
-
-    //                 // Populate Designations from the response
-    //                 $.each(response.designations, function (index, item) {
-    //                     $('#DesignationDropdown').append('<option value="' + item.value + '">' + item.text + '</option>');
-    //                 });
-    //             },
-    //             error: function () {
-    //                 alert('Failed to retrieve designations. Please try again.');
-    //             }
-    //         });
-    //     }
-    // }
-    // function fetchReportingManagers(designationID) {
-    //     $("#ReportingManagerDropdownId").show();
-    //     if (designationID) {
-    //         $.ajax({
-    //             url: '/Hr/Employee/FilterEmploymentDetails', // Adjust URL to your controller action
-    //             type: 'GET',
-    //             data: { designationID: designationID },
-    //             success: function (response) {
-    //                 // Clear the Reporting Manager dropdown
-    //                 $('#ReportingManagerDropdown').empty();
-
-    //                 // Add default option
-    //                 $('#ReportingManagerDropdown').append('<option value="">Select Reporting Manager</option>');
-
-    //                 // Populate Reporting Managers from the response
-    //                 $.each(response.employeeList, function (index, item) {
-    //                     $('#ReportingManagerDropdown').append('<option value="' + item.value + '">' + item.text + '</option>');
-    //                 });
-    //             },
-    //             error: function () {
-    //                 alert('Failed to retrieve reporting managers. Please try again.');
-    //             }
-    //         });
-    //     }
-    // }
 </script>

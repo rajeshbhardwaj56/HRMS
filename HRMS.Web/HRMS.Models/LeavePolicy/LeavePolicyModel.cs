@@ -21,7 +21,9 @@ namespace HRMS.Models.LeavePolicy
     public class LeavePolicyModel
     {
         public long LeavePolicyID { get; set; }
+
         public long CompanyID { get; set; }
+        public string? EncodedId { get; set; } 
         public string LeavePolicyName { get; set; } = string.Empty;
         //Annual
         public int Annual_MaximumLeaveAllocationAllowed { get; set; }

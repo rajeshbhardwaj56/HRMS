@@ -17,6 +17,7 @@ namespace HRMS.Models.AttendenceList
     public class AttendenceListModel
     {
         public long ID { get; set; }
+        public string? EncodedId { get; set; }
         public string Series { get; set; }
         public DateTime? AttendenceDate { get; set; }
         public long EmployeeID { get; set; }
