@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
@@ -47,7 +48,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return Json(new { data = results.AttendenceList });
 
-        } 
+        }
         public IActionResult Index(string id)
         {
             Attendance model = new Attendance();
@@ -112,26 +113,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             return View();
         }
-        [HttpGet]
-        public IActionResult AttendenceCalendarList(int year, int month)
+        [HttpPost]
+        public IActionResult AttendenceCalendarList(AttendanceInputParams objmodel)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var employeeName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
             var employeeMiddleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName));
             var employeeLastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname));
-            var EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr)); 
+            var EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr));
             // Concatenate full name
             var employeeFullName = string.Join(" ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
+            ViewBag.employeeFullName = employeeFullName;
+            AttendanceInputParams models = new AttendanceInputParams();
+            models.Year = objmodel.Year;
+            models.Month = objmodel.Month;
+            models.UserId = Convert.ToInt64(EmployeeNumber);
 
-            AttendanceInputParams models = new AttendanceInputParams
-            {
-                Year = year,
-                Month = month,
-                UserId = Convert.ToInt64(EmployeeNumber),
-            };
-
-            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
+            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForMonthlyViewCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model = JsonConvert.DeserializeObject<MonthlyViewAttendance>(data);
             return Json(new { data = model, employeeFullName = employeeFullName });
         }
         [HttpGet]
@@ -308,7 +307,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpPost]
-        public JsonResult ApproveRejectAttendance( long attendanceId,long employeeId,string status,string approveRejectComment,DateTime startDate,DateTime endDate, DateTime workDate,int attendanceStatusId, string actionText)
+        public JsonResult ApproveRejectAttendance(long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
             // Get session values
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -430,7 +429,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     emailBody = body,
                     EmailToList = emailList
                 };
-                 var emailResponse = EmailSender.SendEmail(emailProps);
+                var emailResponse = EmailSender.SendEmail(emailProps);
                 isEmailSent = emailResponse.responseCode == "200";
                 emailMessage = isEmailSent ? " and email sent." : ", but email sending failed.";
             }
@@ -464,11 +463,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             return View();
         }
-       
+
         [HttpPost]
         public JsonResult GetApprovedAttendance([FromBody] AttendanceStatusRequest request)
         {
-            AttendanceInputParams attendenceListParams = new AttendanceInputParams(); 
+            AttendanceInputParams attendenceListParams = new AttendanceInputParams();
             attendenceListParams.AttendanceStatusId = request.AttendanceStatus;
             attendenceListParams.Year = request.Year;
             attendenceListParams.Month = request.Month;
@@ -478,7 +477,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
-            var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList(); 
+            var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList();
             return Json(new { data = model });
         }
         [HttpPost]
@@ -512,11 +511,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             shiftTypeModel = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).shiftTypeModel;
             EmployeeAttendanceModel.FullName = employeeDetails.FirstName + ' ' + employeeDetails.MiddleName + ' ' + employeeDetails.Surname;
-           EmployeeAttendanceModel.EmployeeNumber = employeeDetails.EmployeeNumber;
+            EmployeeAttendanceModel.EmployeeNumber = employeeDetails.EmployeeNumber;
             EmployeeAttendanceModel.EmployeeJoiningdate = employeeDetails.JoiningDate.Value.ToString("dd/MM/yyyy");
             //EmployeeAttendanceModel.EmployeeDesignation = employeeDetails.DesignationName;
-           EmployeeAttendanceModel.EmployeeDepartment = employeeDetails.DepartmentName;
-           EmployeeAttendanceModel.ManagerName = employeeDetails.ManagerName;
+            EmployeeAttendanceModel.EmployeeDepartment = employeeDetails.DepartmentName;
+            EmployeeAttendanceModel.ManagerName = employeeDetails.ManagerName;
             //EmployeeAttendanceModel.Employeeemail = employeeDetails.OfficialEmailID;
             EmployeeAttendanceModel.ShiftStartDate = shiftTypeModel.StartTime;
             EmployeeAttendanceModel.ShiftEndDate = shiftTypeModel.EndTime;

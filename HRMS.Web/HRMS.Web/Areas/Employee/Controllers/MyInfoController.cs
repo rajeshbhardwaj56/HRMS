@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
+﻿using System.Text;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.Employee.Controllers
@@ -1084,10 +1086,140 @@ namespace HRMS.Web.Areas.Employee.Controllers
             };
 
             var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
-
+            var model = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(data);
+            model.Attendances.ForEach(x =>
+            {
+                x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeId.ToString());
+                x.EmployeeNumberWithoutAbbr = _businessLayer.EncodeStringBase64(x.EmployeeNumberWithoutAbbr.ToString());
+            });
             return Json(new { data = model });
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAttendanceDetails(string date, string employeeId, string employeeNo)
+        {
+            AttendanceDetailsInputParams objmodel = new AttendanceDetailsInputParams();
+            if (string.IsNullOrEmpty(date))
+            {
+                return BadRequest("Invalid parameters.");
+            }
+            if (employeeId == null)
+            {
+                objmodel.EmployeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                objmodel.EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr));
+            }
+            else
+            {
+                objmodel.EmployeeNumber = _businessLayer.DecodeStringBase64(employeeNo);
+                objmodel.EmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(employeeId));
+            }
+
+            objmodel.SelectedDate = Convert.ToDateTime(date);
+
+            if (!DateTime.TryParse(date, out DateTime parsedDate))
+            {
+                return BadRequest("Invalid date format.");
+            }
+
+            var data = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.FetchAttendanceHolidayAndLeaveInfo), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model = JsonConvert.DeserializeObject<AttendanceDetailsVM>(data);
+
+            // Return JSON (you can return a PartialView if you want HTML)
+            return Json(model);
+        }
+
+
+        [HttpGet]
+        public IActionResult ExportAttendance(int Year, int Month)
+        {
+            try
+            {
+                var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                var roleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+
+                var models = new AttendanceInputParams
+                {
+                    Year = Year,
+                    Month = Month,
+                    UserId = employeeId,
+                    RoleId = roleId,
+                    PageSize = 100000,
+                    Page = 1
+                };
+
+                var response = _businessLayer.SendPostAPIRequest(
+                    models,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var model = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(response);
+                if (model == null || model.Attendances == null || model.Attendances.Count == 0)
+                {
+                    return NotFound("No attendance data found.");
+                }
+
+                var csvBuilder = new StringBuilder();
+
+                // Build header row dynamically (Day 01 to Day 31)
+                var header = new List<string>
+        {
+            "EmployeeID",
+            "EmployeNumber",
+            "EmployeeName"
+        };
+
+                int daysInMonth = DateTime.DaysInMonth(Year, Month);
+                var dayKeys = new List<string>(); // Save day keys to reuse in rows
+
+                for (int day = 1; day <= daysInMonth; day++)
+                {
+                    var date = new DateTime(Year, Month, day);
+                    var dayKey = date.ToString("dd_ddd"); // Example: 01_Thu
+                    header.Add(dayKey.Replace("_", " "));
+                    dayKeys.Add(dayKey);
+                }
+
+                header.Add("TotalWorkingDays");
+                header.Add("PresentDays");
+
+                csvBuilder.AppendLine(string.Join(",", header));
+
+                // Build data rows
+                foreach (var record in model.Attendances)
+                {
+                    var row = new List<string>
+            {
+                record.EmployeeId.ToString(),
+                record.EmployeNumber,
+                record.EmployeeName
+            };
+
+                    foreach (var key in dayKeys)
+                    {
+                        row.Add(record.AttendanceByDay.ContainsKey(key) ? record.AttendanceByDay[key] : "");
+                    }
+
+                    row.Add(record.TotalWorkingDays.ToString() ?? "-");
+                    row.Add(record.PresentDays.ToString() ?? "-");
+
+                    csvBuilder.AppendLine(string.Join(",", row));
+                }
+
+                var csvBytes = Encoding.UTF8.GetBytes(csvBuilder.ToString());
+                return File(csvBytes, "text/csv", $"Attendance_{Year}_{Month}.csv");
+            }
+            catch (Exception ex)
+            {
+                // Optionally log ex.Message
+                return StatusCode(500, "An error occurred while exporting attendance.");
+            }
+        }
+
+
+
+
         public IActionResult Whatshappening()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();

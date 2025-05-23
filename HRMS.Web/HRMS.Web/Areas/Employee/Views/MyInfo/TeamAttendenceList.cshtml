@@ -6,760 +6,494 @@
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 
 }
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Team Attendance Calendar</title>
-	<style>
-		body {
-			font-family: Arial, sans-serif;
+<style>
+	body {
+		background-color: #f8f9fa;
+		font-family: Arial, sans-serif;
+	}
+
+	.status-badge {
+		display: inline-block;
+		padding: 2px 8px;
+		border-radius: 12px;
+		font-weight: 600;
+		color: white;
+		font-size: 0.9rem;
+		min-width: 22px;
+		text-align: center;
+	}
+
+	.P {
+		background-color: #28a745;
+		cursor: pointer;
+	}
+
+	.A {
+		background-color: #dc3545;
+		cursor: pointer;
+	}
+
+	.H {
+		background-color: black;
+		cursor: pointer;
+	}
+
+	.table-warning {
+		background-color: #fff3cd;
+		color: #856404;
+		font-weight: 700;
+		cursor: pointer;
+	}
+
+	#pagination {
+		justify-content: center;
+	}
+
+	#total-records-info {
+		font-weight: 500;
+	}
+
+	.table-warning {
+		background-color: #fff3cd !important;
+		color: #856404 !important;
+	}
+
+	div#record-range-info {
+		float: left;
+	}
+
+	div#pagination-container {
+		float: right;
+	}
+
+	.filter-class {
+		background-color: #ffffff;
+		border-radius: 8px;
+		padding: 12px 20px;
+		box-shadow: 0 0 8px rgba(0,0,0,0.1);
+		margin: 0 auto; /* center horizontally */
+		float: right;
+	}
+
+	.filter-label {
+		font-weight: 600;
+		color: #444;
+		font-size: 14px;
+		white-space: nowrap;
+	}
+
+	.form-select {
+		border: 1.5px solid #ced4da;
+		border-radius: 6px;
+		font-size: 14px;
+		padding: 5px 10px;
+		transition: border-color 0.3s ease;
+	}
+
+		.form-select:focus {
+			border-color: #0d6efd;
+			box-shadow: 0 0 4px rgba(13, 110, 253, 0.5);
+			outline: none;
 		}
 
-		span.absent.sunday {
-			background: black;
-		}
+	button#export-btn {
+		background: #05397b;
+		color: white;
+		padding: 6px;
+		margin-left: 14px;
+	}
 
-		.calendar-container {
-			display: flex;
-			/* flex-direction: column; */
-			padding: 20px;
-			border: 1px solid #aea6a6;
-			margin: 20px;
-			border-radius: 13px;
-			overflow-x: scroll;
-		}
-
-		.attendance-header {
-			display: flex;
-			justify-content: space-between;
-			border-bottom: 2px solid #ccc;
-			padding-bottom: 5px;
-			background-color: #edf3ff;
-			margin-inline: 5px;
-		}
-
-		div.calendar {
-			/*             padding-left: 146px; */
-			border-bottom: 1px solid #ccc;
-		}
-
-		.calendar {
-			display: flex;
-			/*      overflow-x: auto;
-							padding: 10px 0;
-							justify-content: flex-end; */
-		}
-
-		.day {
-			/*     width: 40px; */
-			min-width: 35px;
-			font-size: 14px;
-			height: 60px;
-			text-align: center;
-			position: relative;
-			border: 1px solid #ccc;
-			border-radius: 5px;
-		}
-
-			.day span {
-				display: block;
-				margin-top: 5px;
-				font-weight: bold;
-			}
-
-		.present {
-			background-color: green;
-			color: white;
-			padding: 3px;
-			border-radius: 28px;
-			font-size: 12px;
-			height: 25px;
-			width: 25px;
-			text-align: center;
-			justify-content: center;
-			margin-left: auto;
-			margin-right: auto;
-			cursor: pointer;
-		}
-
-		.absent {
-			background-color: #db5757;
-			color: white;
-			padding: 3px;
-			border-radius: 28px;
-			font-size: 12px;
-			height: 25px;
-			width: 25px;
-			text-align: center;
-			justify-content: center;
-			margin-left: auto;
-			margin-right: auto;
-			cursor: pointer;
-		}
-
-		.leave {
-			background-color: red;
-			color: white;
-			padding: 3px;
-			border-radius: 28px;
-			font-size: 12px;
-			height: 25px;
-			width: 25px;
-			text-align: center;
-			justify-content: center;
-			margin-left: auto;
-			margin-right: auto;
-			cursor: pointer;
-		}
-
-		.attendance-row {
-			display: flex;
-			align-items: center;
-			margin-bottom: 10px;
-		}
-
-		.employee-name {
-			/*   width: 150px;
-							padding: 10px; */
-			text-align: left;
-			font-weight: bold;
-		}
-
-		.day-cell {
-			min-width: 31.1px;
-			font-size: 14px;
-			height: 60px;
-			margin: 0 5px;
-			text-align: center;
-			border: 1px solid #ccc;
-			cursor: pointer;
-		}
-
-			.day-cell span {
-				display: block;
-				margin-top: 5px;
-			}
-
-		#popup {
-			display: none;
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			background-color: #fff;
-			padding: 20px;
-			border: 1px solid #ccc;
-			border-radius: 5px;
-			z-index: 9999;
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-			width: 380px;
-			Height: 265px;
-		}
-
-			#popup h3 {
-				margin-top: 0;
-				text-align: center;
-			}
-
-			#popup button {
-				margin-top: 3px;
-				padding: 5px 10px;
-				cursor: pointer;
-				transform: translate(270%, 90%);
-			}
+	 
+</style>
 
 
-		select {
-			padding: 5px;
-			font-size: 14px;
-			margin-right: 10px;
-		}
+<div class=" ">
+	<div class="main-header anim" style="--delay: 0s">Team Attendance Report</div>
+	<div class="d-flex   mb-4 mt-4 filter-class">
+		<label for="year-select" class="filter-label me-2">Year:</label>
+		<select id="year-select" class="form-select me-4" style="width: 120px;">
+			<!-- Years populated dynamically -->
+		</select>
 
-		.Emp-attendance h1 {
-			background: #053572;
-			color: White;
-			padding: 5px;
-		}
+		<label for="month-select" class="filter-label me-2">Month:</label>
+		<select id="month-select" class="form-select" style="width: 140px;">
+			<option value="1">January</option>
+			<option value="2">February</option>
+			<option value="3">March</option>
+			<option value="4">April</option>
+			<option value="5">May</option>
+			<option value="6">June</option>
+			<option value="7">July</option>
+			<option value="8">August</option>
+			<option value="9">September</option>
+			<option value="10">October</option>
+			<option value="11">November</option>
+			<option value="12">December</option>
+		</select>
+		<button id="export-btn" class="btn btn-primary1" style="height:38px;">Export Attendance  </button>
 
-		.card #employeeTeamName {
-			font-size: 14px;
-			font-weight: 600;
-			background: white;
-			padding-block: 7px;
-			padding-inline: 51px;
-			border: none;
-			border: 2px solid #ffffff;
-		}
-
-		.card {
-			position: relative;
-			display: flex;
-			flex-direction: column;
-			min-width: 0;
-			word-wrap: break-word;
-			background-color: #fff;
-			background-clip: border-box;
-			border: 1px solid rgba(0, 0, 0, .125);
-			border-radius: .25rem;
-			margin-block: 5px !important;
-		}
-
-		.attendance.year-months {
-			text-align: center;
-			margin-top: auto;
-			margin-bottom: auto;
-		}
-
-		.attendance-years {
-			padding-inline: 12px;
-			font-size: 14px;
-			font-weight: 600;
-		}
-
-		.attendance-months {
-			padding-inline: 12px;
-			font-size: 14px;
-			font-weight: 600;
-		}
-
-		#attendanceRows {
-			display: flex;
-			flex-direction: column;
-			justify-content: flex-end;
-			margin-top: 16px;
-		}
-
-		#workDetails {
-			box-shadow: rgb(236, 241, 248) 0px 2px 8px 0px;
-			padding: 25px 20px;
-			margin: 15px 20px;
-		}
-
-		.cross {
-			position: absolute;
-			top: 0px;
-			right: 5px;
-			font-size: 22px;
-			cursor: pointer;
-			color: #05397b;
-			font-weight: 800;
-		}
-
-		#popup h3 {
-			margin-top: 0;
-			text-align: center;
-			font-size: 18px;
-			text-align: center;
-		}
-
-		.holiday {
-			background-color: black;
-			color: white;
-			padding: 3px;
-			border-radius: 28px;
-			font-size: 12px;
-			height: 25px;
-			width: 25px;
-			text-align: center;
-			justify-content: center;
-			margin-left: auto;
-			margin-right: auto;
-		}
-
-
-		@@media screen and (max-width:1399px) {
-			.employee-label.col-md-1 {
-				font-size: 12px;
-				font-weight: 900;
-			}
-		}
-	</style>
-</head>
-<body>
-	<div class="Emp-attendance">
-		<p class="Team-attendance-calender">Team Attendance for the Month</p>
-
-		<!-- Month and Year Filter -->
-		<div class="attendance-header">
-			<div class="card">
-				<h6 id="employeeTeamName">@ViewBag.EmployeeName</h6>
-			</div>
-			<div class="attendance year-months">
-				<label class="attendance-months">Months:</label>
-				<select id="monthSelect"></select>
-				<label class="attendance-years">Year:</label>
-				<select id="yearSelect"></select>
-			</div>
-		</div>
-		<div class="calendar-container">
-			<div class="col-12">
-				<div id="calendar" class="calendar">    </div>
-				<div id="attendanceRows"></div>
-				<nav id="paginationContainer" class="mt-3">
-					<ul class="pagination justify-content-center"></ul>
-				</nav>
-			</div>
-
-		</div>
-	</div>
-
-	<!-- Popup for detailed attendance -->
-
-	<div id="popup" class="popup">
-		<div class="row" id="poup-workdetail">
-			<div class="col-md-12">
-				<h3 class="detail-poup">Attendance Details</h3>
-			</div>
-			<div class="col-md-2">
-				<h1 class="cross" id="closePopup"> x </h1>
-			</div>
-
-		</div>
-
-		<p id="workDetails">No work session found for this date.</p>
-		<!-- <button id="closePopup">Close</button> -->
-	</div>
-
-	<!-- Attendance Detail Modal -->
-	<div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-labelledby="attendanceModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="attendanceModalLabel">Attendance Details</h5>
-					<button type="button" class="close"   onclick="CloseAttendanceModel();" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body" id="attendanceModalBody">
-					<!-- Dynamic content injected by JS -->
-				</div>
-			</div>
-		</div>
 	</div>
 
 
+	<div class="table-container">
+		<table class="table table-bordered table-hover">
+			<thead class="table-dark">
+				<tr id="header-row">
+					<th>Employee ID</th>
+					<th>Employee Number</th>
+					<th>Employee Name</th>
+				</tr>
+			</thead>
+			<tbody id="attendance-data">
+			</tbody>
+		</table>
+	</div>
+</div>
+<div id="total-records-info" class="text-center text-muted"></div>
+
+<div class="Footerbar">
+	<div id="record-range-info" class="text-center text-muted mb-2"></div>
+
+	<div id="pagination-container" class="d-flex justify-content-center mb-2"></div>
+</div>
+
+<!-- Attendance Detail Modal -->
+<div class="modal fade" id="attendanceDetailModal" tabindex="-1" aria-labelledby="attendanceDetailModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="attendanceDetailModalLabel">Attendance Details</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" id="attendanceDetailBody">
+				Loading details...
+			</div>
+		</div>
+	</div>
+</div>
 
 
-	<script>
-		const calendarContainer = document.getElementById('calendar');
-		const attendanceRows = document.getElementById('attendanceRows');
-		const paginationContainer = document.getElementById('paginationContainer');
-		let employeeData = [];
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+			function populateYearDropdown(startYear = 2024) {
+		const currentYear = new Date().getFullYear();
+		const $yearSelect = $("#year-select");
+
+		$yearSelect.empty(); // Clear any existing options
+
+		for (let year = currentYear; year >= startYear; year--) {
+			const selected = year === currentYear ? 'selected' : '';
+			$yearSelect.append(`<option value="${year}" ${selected}>${year}</option>`);
+		}
+	}
+
+	function selectCurrentMonth() {
+		const currentMonth = new Date().getMonth() + 1; // Month is 0-indexed
+		$("#month-select").val(currentMonth);
+	}
+	$(document).ready(function () {
+		populateYearDropdown();  // Populate years
+	selectCurrentMonth();
 		let currentPage = 1;
-		const pageSize = 100; // Number of rows per page
-		let  EmployeInCreasementId=0;
-		// Function to fetch employee data for the specific page
-		async function fetchEmployeeData(year, month, page, pageSize) {
-			try {
-						attendanceRows.innerHTML = '';
+		const pageSize = 20;
+		let totalPages = 1;
+		let isLoading = false;
 
-				const response = await fetch(`/employee/myinfo/TeamAttendenceCalendarList?Year=${year}&Month=${month + 1}&Page=${page}&PageSize=${pageSize}`);
-				if (response.ok) {
-					const responseData = await response.json();
-					if (responseData.data) {
-						employeeData = responseData.data;
-						renderCalendar(month, year);  // Re-render the calendar with new data
-						renderPagination(responseData.totalPages);  // Re-render pagination buttons
-					} else {
-						console.error("Fetched data is not an array:", responseData);
-					}
-				} else {
-					console.error(`Failed to fetch data: ${response.status}`);
-				}
-			} catch (error) {
-				console.error('Error fetching employee data:', error);
-			}
+		function showLoading() {
+			$("#attendance-data").html(`<tr><td colspan="50" class="text-center">Loading...</td></tr>`);
 		}
 
-		function generateMonthOptions() {
-			const monthSelect = document.getElementById('monthSelect');
-			for (let month = 0; month < 12; month++) {
-				const option = document.createElement('option');
-				option.value = month;
-				option.textContent = new Date(0, month).toLocaleString('default', { month: 'long' });
-				monthSelect.appendChild(option);
-			}
-		}
+		function fetchAttendanceData(year, month, page) {
+			if (isLoading) return;
+			isLoading = true;
+			showLoading();
 
-		function generateYearOptions() {
-			const yearSelect = document.getElementById('yearSelect');
-			const currentYear = new Date().getFullYear();
-			for (let year = currentYear - 1; year <= currentYear; year++) {
-				const option = document.createElement('option');
-				option.value = year;
-				option.textContent = year;
-				yearSelect.appendChild(option);
-			}
-		}
+			$.ajax({
+				url: '/employee/MyInfo/TeamAttendenceCalendarList',
+				type: 'GET',
+				data: { Year: year, Month: month, Page: page, PageSize: pageSize },
+				dataType: 'json',
+				success: function (response) {
+					console.log(response);
+					var totalRecords = response.data.totalRecords || 0;
 
-								function renderCalendar(month, year) {
-			const calendarDays = [];
-			const currentDate = new Date();
-			currentDate.setHours(0, 0, 0, 0); // Reset time to 00:00:00 for comparison
+					totalPages = Math.ceil(totalRecords / pageSize);
+					renderAttendanceTable(response);
+					renderPagination(page, totalPages);
+		const startRecord = (page - 1) * pageSize + 1;
+		const endRecord = Math.min(page * pageSize, totalRecords);
+		$("#record-range-info").text(`Showing ${startRecord} to ${endRecord} of ${totalRecords.toLocaleString()} entries`);
 
-			// Get the number of days in the month
-			const daysInMonth = new Date(year, month + 1, 0).getDate();
-					let workingDaysCount = 0;
-
-		// Step 1: Build a Set of holiday dates that fall on weekdays in the current month
-		const weekdayHolidays = new Set();
-
-		employeeData.holidays.forEach(holiday => {
-			const start = new Date(holiday.fromDate);
-			const end = new Date(holiday.toDate);
-			start.setHours(0, 0, 0, 0);
-			end.setHours(0, 0, 0, 0);
-
-			const tempDate = new Date(start);
-			while (tempDate <= end) {
-				tempDate.setHours(0, 0, 0, 0);
-				if (tempDate.getFullYear() === year && tempDate.getMonth() === month) {
-					const dayOfWeek = tempDate.getDay();
-					if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Only weekdays (Mon-Fri)
-						const dateStr = tempDate.toISOString().split('T')[0];
-						weekdayHolidays.add(dateStr);
-					}
+					isLoading = false;
+				},
+				error: function (xhr, status, error) {
+					console.error("Error fetching attendance data:", error);
+					isLoading = false;
 				}
-				tempDate.setDate(tempDate.getDate() + 1);
-			}
-		});
-
-		// Step 2: Loop through days of the month and count only working days excluding weekday holidays
-		for (let day = 1; day <= daysInMonth; day++) {
-			const dateObj = new Date(year, month, day);
-			const dayOfWeek = dateObj.getDay();
-			const dateStr = dateObj.toISOString().split('T')[0];
-
-			if (dayOfWeek >= 1 && dayOfWeek <= 5 && !weekdayHolidays.has(dateStr)) {
-				workingDaysCount++;
-			}
-		}
-
-
-			calendarContainer.innerHTML = ''; // Clear existing calendar
-
-				// Create a row container to hold the header labels
-		const headerRow = document.createElement('div');
-		headerRow.classList.add('row', 'calendar-header'); // add any needed styling classes
-
-		// Create and append the first employee label (left)
-		const employeeLabelColumn = document.createElement('div');
-		employeeLabelColumn.classList.add('employee-label', 'col-md-1');
-		employeeLabelColumn.textContent = 'Employee Name';
-		headerRow.appendChild(employeeLabelColumn);
-
-		// Create day elements for each day in the month and append to header row
-		for (let day = 1; day <= daysInMonth; day++) {
-			const dateObj = new Date(year, month, day);
-			const weekDayName = dateObj.toLocaleString('default', { weekday: 'short' });
-
-			const dayElement = document.createElement('div');
-			dayElement.classList.add('day', 'col');  // add bootstrap col for layout
-			dayElement.setAttribute('data-day', day);
-			dayElement.style.marginLeft = '6px';
-
-			const weekDayLabel = document.createElement('span');
-			weekDayLabel.classList.add('week-day');
-			weekDayLabel.textContent = weekDayName;
-
-			const dayLabel = document.createElement('span');
-			dayLabel.classList.add('day-number');
-			dayLabel.textContent = day;
-
-			dayElement.appendChild(weekDayLabel);
-			dayElement.appendChild(dayLabel);
-
-			headerRow.appendChild(dayElement);
-		}
-
-		// Create and append the last employee label (right)
-		const employeeLabelColumn1 = document.createElement('div');
-		employeeLabelColumn1.classList.add('employee-label', 'col-md-1');
-		employeeLabelColumn1.textContent = 'Total Attendnace';
-		headerRow.appendChild(employeeLabelColumn1);
-
-		// Finally append the whole header row to calendar container
-		calendarContainer.appendChild(headerRow);
-
-
-			calendarDays.forEach(dayElement => calendarContainer.appendChild(dayElement));
-
-			// Function to get attendance for a specific employee on a specific day
-			function getAttendanceForEmployeeOnDay(employeeId, dayFormatted) {
-				return employeeData.attendances
-					.filter(item => item.userId === employeeId && item.workDate?.split('T')[0] === dayFormatted)
-					.reduce((prev, current) => {
-						return (prev.hoursWorked || 0) > (current.hoursWorked || 0) ? prev : current;
-					}, {});
-			}
-
-			// Function to check if the employee is on leave for the given day
-			function getLeaveForEmployeeOnDay(employeeId, dayFormatted) {
-				const leaveDataForEmployee = employeeData.leaves.filter(item => String(item.employeeID) === String(EmployeInCreasementId));
-				if (leaveDataForEmployee.length === 0) {
-					return false; // No leave data found
-				}
-
-				const [year, month, day] = dayFormatted.split('-').map(Number);
-				const dayDate = new Date(year, month - 1, day);
-				dayDate.setHours(0, 0, 0, 0);
-				return leaveDataForEmployee.some(current => {
-					const leaveStartDate = new Date(current.startDate);
-					const leaveEndDate = new Date(current.endDate);
-					leaveStartDate.setHours(0, 0, 0, 0);
-					leaveEndDate.setHours(0, 0, 0, 0);
-					return dayDate >= leaveStartDate && dayDate <= leaveEndDate;
-				});
-			}
-
-			function getHolidayForEmployeeOnDay(dayFormatted) {
-				const [year, month, day] = dayFormatted.split('-').map(Number);
-				const dayDate = new Date(year, month - 1, day);
-				dayDate.setHours(0, 0, 0, 0);
-				const holiday = employeeData.holidays.find(holiday => {
-					const holidayStart = new Date(holiday.fromDate);
-					const holidayEnd = new Date(holiday.toDate);
-					holidayStart.setHours(0, 0, 0, 0);
-					holidayEnd.setHours(0, 0, 0, 0);
-					return dayDate >= holidayStart && dayDate <= holidayEnd;
-				});
-				return holiday ? { fromDate: holiday.fromDate, toDate: holiday.toDate, name: holiday.holidayName } : null;
-			}
-
-			// Updated getAttendanceStatus to include holiday logic
-			function getAttendanceStatus(attendance, dateObj, currentDate, employeeId) {
-				let status = '';
-				const dayFormatted = dateObj.toISOString().split('T')[0];
-				const isHoliday = getHolidayForEmployeeOnDay(dayFormatted);
-				if (isHoliday) {
-					return 'holiday'; // Return "holiday" for holidays
-				}
-				const dayOfWeek = dateObj.getDay(); // Get the day of the week (0 = Sunday, 6 = Saturday)
-				if (dayOfWeek === 0||dayOfWeek === 6) {
-					return 'holiday'; // Sunday is always a holiday (H)
-				}
-
-				// If the date is in the future, only allow leave status to be shown
-				if (dateObj > currentDate) {
-					const isOnLeave = getLeaveForEmployeeOnDay(employeeId, dayFormatted);
-					if (isOnLeave) {
-						status = 'leave'; // Only show leave status for future dates
-					}
-				} else {
-					// For past or current dates, check attendance
-					if (Object.keys(attendance).length > 0) {
-						status = 'present'; // Show "P" for present if attendance exists
-					} else {
-						const isOnLeave = getLeaveForEmployeeOnDay(employeeId, dayFormatted);
-						if (isOnLeave) {
-							status = 'leave'; // Show "L" for leave if the employee is on leave
-						} else {
-							status = 'absent'; // Otherwise show "A" for absent
-						}
-					}
-				}
-
-				return status;
-			}
-
-			// Updated createStatusLabel to handle holiday status
-			function createStatusLabel(status, dayOfWeek, leaveStatus) {
-				const statusLabel = document.createElement('span');
-
-				// If the status is leave, display it above the current date
-				if (leaveStatus) {
-					statusLabel.classList.add('leave-above');
-					statusLabel.textContent = 'Leave'; // You can show the actual leave date here if needed
-				} else {
-					// Handle the status for present, absent, and holiday
-					if (status === 'present') {
-						statusLabel.classList.add('present');
-						statusLabel.textContent = 'P'; // Show 'P' for present
-					} else if (status === 'absent') {
-						statusLabel.classList.add('absent');
-						statusLabel.textContent = 'A'; // Show 'A' for absent
-					} else if (status === 'leave') {
-						statusLabel.classList.add('leave');
-						statusLabel.textContent = 'L'; // Show 'L' for leave
-					} else if (status === 'holiday') {
-						statusLabel.classList.add('holiday');
-						statusLabel.textContent = 'H'; // Show 'H' for holiday
-					}
-
-					// Check if it's a Sunday and not already marked as holiday
-					if (dayOfWeek === 0 && status !== 'holiday') {
-						statusLabel.textContent = 'H'; // Set "H" for Sunday
-						statusLabel.classList.add('sunday'); // Optional: Add specific styling for Sundays
-					}
-				}
-
-				return statusLabel;
-			}
-
-			// Create a list of unique employeeIds
-			const employeeIds = [...new Set(employeeData.attendances.map(item => item.userId))];
-
-			employeeIds.forEach(employeeId => {
-				const employee = employeeData.attendances.find(item => item.userId === employeeId);
-				const employeeName = employee.employeeName;
-				  EmployeInCreasementId =employee.employeeId;
-				const row = document.createElement('div');
-				row.classList.add('attendance-row');
-				row.setAttribute('data-employee-id', employeeId);
-
-				const employeeNameCell = document.createElement('div');
-				employeeNameCell.classList.add('employee-name', 'col-md-1');
-				employeeNameCell.textContent = employeeName;
-				row.appendChild(employeeNameCell);
-
-				let presentCount = 0; // Track present count for the employee
-
-				for (let day = 1; day <= daysInMonth; day++) {
-					const dayCell = document.createElement('div');
-					dayCell.classList.add('day-cell');
-					dayCell.setAttribute('data-day', day);
-
-					const dateObj = new Date(year, month, day);
-					const dayOfWeek = dateObj.getDay();
-					const dayFormatted = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-
-					const attendance = getAttendanceForEmployeeOnDay(employeeId, dayFormatted);
-					let status = getAttendanceStatus(attendance, dateObj, currentDate, employeeId);
-
-					if (status !== '') {
-						const statusLabel = createStatusLabel(status, dayOfWeek);
-						dayCell.appendChild(statusLabel);
-
-						// Increment present count if status is present
-						if (status === 'present') {
-							presentCount++;
-						}
-					}
-
-					// Popup logic based on status clicked
-					dayCell.addEventListener('click', () => {
-						let modalBody = '';
-						if (status === 'absent') {
-							modalBody = '<p>No details found .</p>';
-						} else if (dayOfWeek === 6 || dayOfWeek === 0) { // Saturday or Sunday
-							modalBody = '<p>You clicked on a holiday date..</p>';
-						} else if (status === 'leave') {
-							modalBody = '<p>Employee is on leave.</p>';
-						} else if (status === 'holiday') {
-							const holiday = getHolidayForEmployeeOnDay(dayFormatted);
-							const holidayStart = new Date(holiday.fromDate);
-							const holidayEnd = new Date(holiday.toDate);
-							modalBody = `<p>Holiday: ${holiday.name}</p> <p> Start: ${holidayStart.toLocaleString()}</p><p> End: ${holidayEnd.toLocaleString() }</p>`;
-						}
-
-						// Add the attendance details to the modal
-						if (status !== ""  && status !== 'absent' && status !== 'leave' && status !== 'holiday') {
-							const logDate = new Date(attendance.firstLogDate);
-							const lastlogDate = new Date(attendance.lastLogDate);
-							const weekdayName = logDate.toLocaleDateString('default', { weekday: 'long' });
-							modalBody = '';
-							modalBody += `
-								<p><strong>Employee:</strong> ${attendance.employeeName}</p>
-								<p><strong>Start Date:</strong> ${logDate.toLocaleString()}</p>
-								<p><strong>End Date:</strong> ${lastlogDate.toLocaleString()}</p>
-								<p><strong>Day:</strong> ${weekdayName}</p>
-								<p><strong>Total Hours:</strong> ${attendance.hoursWorked || 'N/A'}</p>
-								<p class="Status-attendance"><strong>Status:</strong> <span class="Attendance-status">${attendance.status || 'Present'}</span></p>
-							`;
-						}
-						if (status !== "")
-						{
-						document.getElementById('attendanceModalBody').innerHTML = modalBody;
-						$('#attendanceModal').modal('show');
-						}
-					});
-
-					row.appendChild(dayCell);
-				}
-
-				// Add a cell showing the present count out of the working days (excluding holidays)
-				const presentCountCell = document.createElement('div');
-				presentCountCell.classList.add('present-count');
-				presentCountCell.textContent = `${presentCount} / ${workingDaysCount}`; // Display present count out of working days
-				row.appendChild(presentCountCell);
-
-				attendanceRows.appendChild(row);
 			});
 		}
 
+				function renderAttendanceTable(response) {
+		if (!response?.data?.attendances || response.data.attendances.length === 0) return;
+
+		const attendanceData = response.data.attendances;
+		const tbody = $("#attendance-data");
+		const thead = $("#header-row");
+
+		tbody.empty();
+		thead.empty();
+		// Static headers
+		let headerHtml = `
+						  <th>Employee Number</th>
+						  <th>Employee Name</th>`;
+
+		// Use the first record to get all dynamic day headers
+		const firstRecord = attendanceData[0];
+		const dayKeys = Object.keys(firstRecord.attendanceByDay);
+
+		dayKeys.forEach(day => {
+			headerHtml += `<th>${day.replace("_", " ")}</th>`;
+		});
+		// Optionally add summary columns
+		headerHtml += `<th>Total Working Days</th><th>Present Days</th>`;
+		thead.html(headerHtml);
+		// Now build body rows
+		attendanceData.forEach(record => {
+			let row = `<tr>
+				<td>${record.employeNumber}</td>
+				<td>${record.employeeName}</td>`;
+					 dayKeys.forEach(day => {
+		const status = record.attendanceByDay[day];
+		const className = status === "P" ? "P"
+			: status === "A" ? "A"
+			: status === "H" ? "H"
+			: status === "L" ? "table-warning text-dark"
+			: "";
+
+		const dateStr = day.replace("_", "-");
+		row += `<td class="${className}" data-date="${dateStr}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}">
+					<span class="${className} status-badge">${status}</span>
+				</td>`;
+	});
 
 
+			row += `<td>${record.totalWorkingDays ?? '-'}</td>
+					<td>${record.presentDays ?? '-'}</td></tr>`;
 
+			tbody.append(row);
+		});
+	}
+			function renderPagination(current, total) {
+		const $paginationContainer = $("#pagination-container");
+		$paginationContainer.empty();
 
+		const maxVisiblePages = 3;
+		let startPage = Math.max(1, current - Math.floor(maxVisiblePages / 2));
+		let endPage = startPage + maxVisiblePages - 1;
 
-			   function renderPagination(totalPages) {
-			paginationContainer.innerHTML = '';
-
-			// Create Previous button
-			const prevButton = document.createElement('div');
-			prevButton.classList.add('pagination-item-wrapper', 'page-button');
-			prevButton.textContent = 'Previous';
-			prevButton.addEventListener('click', () => changePage(currentPage - 1));
-			paginationContainer.appendChild(prevButton);
-
-			// Create numbered page buttons
-			for (let page = 1; page <= totalPages; page++) {
-				const pageButton = document.createElement('div');
-				pageButton.classList.add('pagination-item-wrapper', 'page-button');
-				if (page === currentPage) {
-					pageButton.classList.add('active');
-				}
-				pageButton.textContent = page;
-				pageButton.addEventListener('click', () => changePage(page));
-				paginationContainer.appendChild(pageButton);
-			}
-
-			// Create Next button
-			const nextButton = document.createElement('div');
-			nextButton.classList.add('pagination-item-wrapper', 'page-button');
-			nextButton.textContent = 'Next';
-			nextButton.addEventListener('click', () => changePage(currentPage + 1));
-			paginationContainer.appendChild(nextButton);
+		if (endPage > total) {
+			endPage = total;
+			startPage = Math.max(1, endPage - maxVisiblePages + 1);
 		}
 
+		let html = '<nav aria-label="Page navigation example"><ul class="pagination justify-content-center">';
 
+		html += `
+			<li class="page-item ${current === 1 ? "disabled" : ""}">
+				<a class="page-link" href="#" aria-label="Previous" data-page="${current - 1}">Previous</a>
+			</li>
+		`;
 
-		function changePage(page) {
-			const totalPages = Math.ceil(employeeData.totalRecords / pageSize);
-			if (page < 1 || page > totalPages) return;
+		for (let i = startPage; i <= endPage; i++) {
+			html += `
+				<li class="page-item ${i === current ? "active" : ""}">
+					<a class="page-link" href="#" data-page="${i}" >${i}</a>
+				</li>
+			`;
+		}
+
+		html += `
+			<li class="page-item ${current === total ? "disabled" : ""}">
+				<a class="page-link" href="#" aria-label="Next" data-page="${current + 1}">Next</a>
+			</li>
+		`;
+
+		html += '</ul></nav>';
+
+		$paginationContainer.html(html);
+
+		// $("#total-records-info").html(`<span class="text-muted">Total Records: ${total}</span>`);
+	}
+
+	// click handler
+	$("#pagination-container").off("click").on("click", "a.page-link", function (e) {
+		e.preventDefault();
+		const page = $(this).data("page");
+		if (page && page !== currentPage && page >= 1 && page <= totalPages) {
 			currentPage = page;
-			const year = parseInt(document.getElementById('yearSelect').value);
-			const month = parseInt(document.getElementById('monthSelect').value);
-			fetchEmployeeData(year, month, currentPage, pageSize);
+			const year = parseInt($("#year-select").val()) || new Date().getFullYear();
+			const month = parseInt($("#month-select").val()) || (new Date().getMonth() + 1);
+			fetchAttendanceData(year, month, currentPage);
+		}
+	});
+		function getSelectedYear() {
+		return parseInt($("#year-select").val());
+	}
+
+	function getSelectedMonth() {
+		return parseInt($("#month-select").val());
+	}
+	$("#year-select, #month-select").on("change", function () {
+		currentPage = 1;
+		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
+	});
+		// Initial page load
+		fetchAttendanceData(new Date().getFullYear(), new Date().getMonth() + 1, currentPage);
+	});
+
+	//Attendance Popup
+	 $(document).on("click", "#attendance-data td", function () {
+		const $td = $(this);
+
+		const rawDateKey = $td.data("date");
+		if (!rawDateKey) return;
+
+		const dayPart = rawDateKey.substr(0, 2);
+		const paddedDay = dayPart.padStart(2, '0');
+
+		const year = parseInt($("#year-select").val());
+		const month = parseInt($("#month-select").val());
+		const paddedMonth = String(month).padStart(2, '0');
+		const fullDate = `${year}-${paddedMonth}-${paddedDay}`;
+		const employeeId = $td.data("empid");
+		const employeeNo = $td.data("empno");
+		if (!employeeId || !employeeNo) return;
+		$("#attendanceDetailModal").modal("show");
+		$("#attendanceDetailBody").html("Loading...");
+
+		$.ajax({
+			url: '/employee/MyInfo/GetAttendanceDetails',
+			type: 'GET',
+			data: {
+				date: fullDate,
+				employeeId: employeeId,
+				employeeNo: employeeNo
+			},
+				success: function (data) {
+		let html = "";
+
+		switch (data.recordType) {
+			case "Attendance":
+				html = `
+					<div class="card shadow-sm border-0">
+						<div class="card-body">
+							<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
+							<div class="row mb-2">
+								<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
+								<div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">${data.attendanceStatus ?? '-'}</span></div>
+							</div>
+							<div class="row mb-2">
+								<div class="col-md-6"><strong>Check-in:</strong> ${formatDateTime(data.firstLogDate)}</div>
+								<div class="col-md-6"><strong>Check-out:</strong> ${formatDateTime(data.lastLogDate)}</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6"><strong>Hours Worked:</strong> ${data.hoursWorked ?? '-'}</div>
+							</div>
+						</div>
+					</div>`;
+				break;
+
+			case "Holiday":
+				html = `
+					<div class="card shadow-sm border-0">
+						<div class="card-body">
+							<h5 class="card-title mb-3 text-success">🎉 Holiday</h5>
+							<div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div>
+							<div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div>
+							<div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>
+						</div>
+					</div>`;
+				break;
+
+			case "Leave":
+				html = `
+					<div class="card shadow-sm border-0">
+						<div class="card-body">
+							<h5 class="card-title mb-3 text-warning">📅 Leave Details</h5>
+							<div class="mb-2"><strong>Reason:</strong> ${data.reason}</div>
+							<div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div>
+							<div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div>
+							<div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div>
+						</div>
+					</div>`;
+				break;
+
+			case "No Record Found":
+			default:
+				html = `<div class="alert alert-warning text-center">
+							<i class="bi bi-info-circle-fill"></i> No attendance  record found for this day.
+						</div>`;
+				break;
 		}
 
-		generateMonthOptions();
-		generateYearOptions();
-
-		const currentDate = new Date();
-		const currentMonth = currentDate.getMonth();
-		const currentYear = currentDate.getFullYear();
-
-		document.getElementById('monthSelect').value = currentMonth;
-		document.getElementById('yearSelect').value = currentYear;
-
-		fetchEmployeeData(currentYear, currentMonth, currentPage, pageSize);
-
-		document.getElementById('monthSelect').addEventListener('change', function () {
-			const month = parseInt(this.value);
-			const year = parseInt(document.getElementById('yearSelect').value);
-			fetchEmployeeData(year, month, currentPage, pageSize);
+		$("#attendanceDetailBody").html(html);
+	}
 		});
+	});
+		function formatDate(dateStr) {
+		if (!dateStr) return "-";
+		const date = new Date(dateStr);
+		const day = String(date.getDate()).padStart(2, '0');
+		const month = date.toLocaleString('default', { month: 'short' });
+		const year = date.getFullYear();
+		return `${day}-${month}-${year}`;
+	}
 
-		document.getElementById('yearSelect').addEventListener('change', function () {
-			const year = parseInt(this.value);
-			const month = parseInt(document.getElementById('monthSelect').value);
-			fetchEmployeeData(year, month, currentPage, pageSize);
-		});
-			  function CloseAttendanceModel() {
-			$('#attendanceModal').modal('hide');
-		}
-	</script>
+	function formatDateTime(dateStr) {
+		if (!dateStr) return "-";
+		const date = new Date(dateStr);
 
-</body>
+		const day = String(date.getDate()).padStart(2, '0');
+		const month = date.toLocaleString('default', { month: 'short' });
+		const year = date.getFullYear();
+
+		let hours = date.getHours();
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+		const ampm = hours >= 12 ? 'PM' : 'AM';
+
+		hours = hours % 12;
+		hours = hours ? hours : 12; // Convert 0 to 12
+		const strTime = `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+
+		return `${day}-${month}-${year} ${strTime}`;
+	}
+
+
+	$("#export-btn").on("click", function () {
+		const year = $("#year-select").val();
+		const month = $("#month-select").val();
+		const $btn = $(this);
+
+		const url = `/employee/MyInfo/ExportAttendance?Year=${year}&Month=${month}`;
+
+		// Change button text and disable it
+		$btn.prop("disabled", true).text("Please wait...");
+
+		// Create a hidden iframe to trigger download without navigating away
+		const $iframe = $("<iframe>")
+			.hide()
+			.attr("src", url)
+			.appendTo("body");
+
+		// Optional: Re-enable button after some delay (e.g., 5 seconds)
+		setTimeout(() => {
+			$btn.prop("disabled", false).text("Export Attendance");
+			$iframe.remove(); // Clean up
+		}, 5000); // Adjust as needed
+	});
+
+
+
+</script>
 
