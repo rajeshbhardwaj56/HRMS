@@ -79,10 +79,10 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpPost]
-        public IActionResult GetAttendanceForCalendar(AttendanceInputParams model)
+        public IActionResult GetAttendanceForMonthlyViewCalendar(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendanceForCalendar(model));
+            response = Ok(_businessLayer.GetAttendanceForMonthlyViewCalendar(model));
             return response;
         }
         [HttpPost]
@@ -126,6 +126,14 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetEmployeeDetails(objmodel));
+            return response;
+        }
+        
+        [HttpPost]
+        public IActionResult FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.FetchAttendanceHolidayAndLeaveInfo(model));
             return response;
         }
     }

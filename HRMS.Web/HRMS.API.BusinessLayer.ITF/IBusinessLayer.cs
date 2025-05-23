@@ -75,8 +75,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
         public L2ManagerDetail GetL2ManagerDetails(L2ManagerInputParams model);
         public AttendanceInputParams GetAttendance(AttendanceInputParams model);
-        public AttendanceWithHolidays GetAttendanceForCalendar(AttendanceInputParams model);
-        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttendanceInputParams model);
+        public MonthlyViewAttendance GetAttendanceForMonthlyViewCalendar(AttendanceInputParams model);
+        public AttendanceWithHolidaysVM GetTeamAttendanceForCalendar(AttendanceInputParams model);
         public Result AddUpdateAttendace(Attendance att);
         public Results GetAttendenceListID(Attendance model);
         public AttendanceLogResponse GetAttendanceDeviceLogs(AttendanceDeviceLog model);
@@ -97,5 +97,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public EmployeePersonalDetails GetEmployeeDetails(EmployeePersonalDetailsById objmodel);
         public Results GetCompaniesLogo(CompanyLoginModel model);
         public ReportingStatus CheckEmployeeReporting(ReportingStatus obj);
+        public AttendanceDetailsVM FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model);
     }
 }

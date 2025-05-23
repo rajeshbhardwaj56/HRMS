@@ -207,7 +207,7 @@ namespace HRMS.Models.Common
         public const string GetAllShiftTypes = "GetAllShiftTypes";
         public const string DeleteLeavesSummary = "DeleteLeavesSummary";
         public const string GetAttendance = "GetAttendance";
-        public const string GetAttendanceForCalendar = "GetAttendanceForCalendar";
+        public const string GetAttendanceForMonthlyViewCalendar = "GetAttendanceForMonthlyViewCalendar";
         public const string GetTeamAttendanceForCalendar = "GetTeamAttendanceForCalendar";
         public const string AddUpdateAttendace = "AddUpdateAttendace";
         public const string GetAttendenceListID = "GetAttendenceListID";
@@ -224,6 +224,7 @@ namespace HRMS.Models.Common
         public const string AddUpdateEmployeeFromExecelBulk = "AddUpdateEmployeeFromExecelBulk";
         public const string GetSubDepartmentDictionary = "GetSubDepartmentDictionary";
         public const string GetEmployeeDetails = "GetEmployeeDetails";
+        public const string FetchAttendanceHolidayAndLeaveInfo = "FetchAttendanceHolidayAndLeaveInfo";
         
         
         public const string GetAllWhatsHappeningDetails = "GetAllWhatsHappeningDetails";
