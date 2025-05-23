@@ -242,6 +242,7 @@ namespace HRMS.Models.Common
     {
         public const string TabPersonalInfo = "TabPersonalInfo";
         public const string TabProfessionalInfo = "TabProfessionalInfo";
+        public const string TabBankInfo = "TabBankInfo";
         public const string TabLeavesForApproval = "TabLeavesForApproval";
         public const string TabTimeOff = "TabTimeOff";
         public const string TabLeaveInfo = "TabLeaveInfo";

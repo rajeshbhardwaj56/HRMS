@@ -9,7 +9,7 @@ namespace HRMS.Models.ImportFromExcel
     public class ImportExcelDataTable
     {
         public string? EmployeeNumber { get; set; }
-        public string? CompanyName { get; set; }
+      
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
         public string? Surname { get; set; }
@@ -46,28 +46,25 @@ namespace HRMS.Models.ImportFromExcel
         public string? EducationGap { get; set; }
         public string? ExtraCurricularActivities { get; set; }
         public string? ForeignCountryVisits { get; set; }
-        public string? ContactPersonName { get; set; }
-        public string? ContactPersonMobile { get; set; }
-        public string? ContactPersonTelephone { get; set; }
-        public string? ContactPersonRelationship { get; set; }
+        public string? EmergencyContactPersonName { get; set; }
+        public string? EmergencyContactPersonMobile { get; set; }
+        public string? EmergencyContactPersonTelephone { get; set; }
+        public string? EmergencyContactPersonRelationship { get; set; }
         public string? ITSkillsKnowledge { get; set; }
         public string? JoiningDate { get; set; }
         public string? DesignationName { get; set; }
-        public string? EmployeeType { get; set; }
+        public string? EmploymentType { get; set; }
         public string? DepartmentName { get; set; }
         public string? SubDepartmentName { get; set; }
         public string? ShiftTypeName { get; set; }
         public string? JobLocationName { get; set; }
-        public string? ReportingToIDL1Name { get; set; }
-        public string? ReportingToIDL2Name { get; set; }
-        public string? OfficialEmailID { get; set; }
+        public string? ReportingToManagerEmployeeNumber { get; set; }
+        public string? OfficialEmail { get; set; }
         public string? OfficialContactNo { get; set; }
         public string? PayrollTypeName { get; set; }
         public string? LeavePolicyName { get; set; }
         public string? ClientName { get; set; }
-        public string? RoleName { get; set; }
-        public string? ForiegnCountryVisits { get; set; }
-        public string? ExtraCuricuarActivities { get; set; }
+        public string? RoleName { get; set; }      
         public string? Gender { get; set; }
         public string? ESINumber { get; set; }
         public string? RegistrationDateInESIC { get; set; }
@@ -86,12 +83,16 @@ namespace HRMS.Models.ImportFromExcel
         public string? LeavingRemarks { get; set; }
         public string? NoticeServed { get; set; }
         public string? MailReceivedFromAndDate { get; set; }
-        public string? DateOfEmailSentToITForIDDeletion { get; set; }
-        public string? AON { get; set; }
+        public string? DateOfEmailSentToITForDeletion { get; set; }
+        public string? AgeOnNetwork { get; set; }
         public string? PreviousExperience { get; set; }
         public string? Status { get; set; }
         public string? ExcelFile { get; set; }
         public string? InsertedByUserID { get; set; }
+        public string? CompanyName { get; set; }
+        public string? ReportingToIDL2Name { get; set; }
+
+
     }
     public class ImportExcelDataTableType
     {

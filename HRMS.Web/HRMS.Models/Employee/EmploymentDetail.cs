@@ -31,9 +31,9 @@ namespace HRMS.Models.Employee
         public long ReportingToIDL1 { get; set; }
         public string OfficialEmailID { get; set; } = string.Empty;
         public string OfficialContactNo { get; set; } = string.Empty;
-
         public string DesignationName { get; set; } = string.Empty;
         public string DepartmentName { get; set; } = string.Empty;
+        public string SubDepartmentName { get; set; } = string.Empty;
         public string ManagerName { get; set; } = string.Empty;
         public string ManagerEmail { get; set; } = string.Empty;
         public string OfficeLocation { get; set; } = string.Empty;

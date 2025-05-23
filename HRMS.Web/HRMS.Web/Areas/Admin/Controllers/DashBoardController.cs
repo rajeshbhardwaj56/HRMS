@@ -561,15 +561,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var countryDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(
                 _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()
             );
-
-            var companiesDictionary = JsonConvert.DeserializeObject<Dictionary<string, CompanyInfo>>(
-     _businessLayer.SendGetAPIRequest(
-         _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCompaniesDictionary),
-         HttpContext.Session.GetString(Constants.SessionBearerToken),
-         true
-     ).Result.ToString()
- );
-
             List<ImportExcelDataTable> importList = new List<ImportExcelDataTable>();
             DataTable errorDataTable = new DataTable();
             foreach (var prop in typeof(ImportExcelDataTable).GetProperties())
@@ -608,43 +599,30 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 long SubDepartmentNameId = 0;
                 long ShiftTypeId = 0;
                 long JobLocationId = 0;
-                long ReportingToIDL1Id = 0;
-                long ReportingToIDL2Id = 0;
                 long RoleId = 0;
                 long PayrollTypeId = 0;
                 long LeavePolicyId = 0;
                 long GenderId = 0;
                 HashSet<string> uniqueEmployeeNumber = new HashSet<string>();
-               
+                long? companyId = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
+                EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
+                {
+                    CompanyID = companyId ?? 0,
+                    EmployeeID = 0
+                };
+                var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var employmentDetailsDictionaries = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long>>>(EmploymentDetailsDictionaries);
+                EmployeeInputParams employmentSubDepartmentInputParams = new EmployeeInputParams()
+                {
+                    CompanyID = companyId ?? 0,
+                };
+                var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var SubDepartmentDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment);
                 for (int row = 2; row <= totalRows; row++)
                 {
                     if (IsRowEmpty(worksheet, row))
                         continue;
-                    bool hasError = false;
-                    string companyName = worksheet.Cells[row, columnIndexMap["CompanyName"]].Text.Trim();
-                    CompanyInfo? companyInfo = companiesDictionary.TryGetValue(companyName.ToLower(), out var info)
-    ? info
-    : null;
-                    long? companyId = companyInfo?.CompanyID ?? 0L;
-                    string abbr = companyInfo?.Abbr ?? string.Empty;
-                    if (string.IsNullOrEmpty(companyName) || companyId == 0)
-                    {
-                        AddErrorRow(errorDataTable, "CompanyName", $"Row {row}: Company '{companyName}' not found.");
-                        continue;
-                    }
-                    EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
-                    {
-                        CompanyID = companyId ?? 0,
-                        EmployeeID = 0
-                    };
-                    var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                    var employmentDetailsDictionaries = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long>>>(EmploymentDetailsDictionaries);
-                    EmployeeInputParams employmentSubDepartmentInputParams = new EmployeeInputParams()
-                    {
-                        CompanyID = companyId ?? 0,
-                    };
-                    var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                    var SubDepartmentDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment);
+                    bool hasError = false;      
                     var item = new ImportExcelDataTable();
                     foreach (var prop in typeof(ImportExcelDataTable).GetProperties())
                     {
@@ -656,20 +634,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             {
                                 case "EmployeeNumber":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
-                                    {
-                                        //if (!cellValue.StartsWith(abbr, StringComparison.OrdinalIgnoreCase))
-                                        //{                                           
-                                        //    var possibleAbbr = new string(cellValue.TakeWhile(char.IsLetter).ToArray());
-                                        //    if (!string.IsNullOrWhiteSpace(possibleAbbr) && !possibleAbbr.Equals(abbr, StringComparison.OrdinalIgnoreCase))
-                                        //    {
-                                        //        AddErrorRow(errorDataTable, columnName, $"Row {row}: EmployeeNumber  has incorrect company abbreviation. Expected prefix: '{abbr}'.");
-                                        //        hasError = true;
-                                        //    }
-                                        //    else
-                                        //    {
-                                        //        cellValue = $"{abbr}{cellValue}";
-                                        //    }
-                                        //}
+                                    {                                     
                                         if (!uniqueEmployeeNumber.Add(cellValue))
                                         {
                                             AddErrorRow(errorDataTable, columnName, $"Row {row}: Duplicate EmployeeNumber found.");
@@ -692,12 +657,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         if (DateTime.TryParse(cellValue, out DateTime dob))
                                         {
                                             prop.SetValue(item, dob.ToString("yyyy-MM-dd"));
-                                        }
-                                        //else
-                                        //{
-                                        //    AddErrorRow(errorDataTable, columnName, $"Row {row}: Invalid DateOfBirth format.");
-                                        //    hasError = true;
-                                        //}
+                                        }                                       
                                     }
                                     else
                                     {
@@ -914,19 +874,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     else if (employmentDetailsDictionaries.TryGetValue("Departments", out var departmentDict))
-                                    {
-                                        // Step 1: Try exact match
+                                    {                                      
                                         var departmentMatch = departmentDict
-                                            .FirstOrDefault(kvp => kvp.Key.Equals(cellValue, StringComparison.OrdinalIgnoreCase));
-
-                                        // Step 2: If no exact match, try partial match
+                                            .FirstOrDefault(kvp => kvp.Key.Equals(cellValue, StringComparison.OrdinalIgnoreCase));                                        
                                         if (departmentMatch.Equals(default(KeyValuePair<string, int>)))
                                         {
                                             departmentMatch = departmentDict
                                                 .FirstOrDefault(kvp => kvp.Key.IndexOf(cellValue, StringComparison.OrdinalIgnoreCase) >= 0);
-                                        }
-
-                                        // Step 3: Use value if found
+                                        }                                     
                                         if (!departmentMatch.Equals(default(KeyValuePair<string, int>)) && departmentMatch.Value != 0)
                                         {
                                             DepartmentId = departmentMatch.Value;
@@ -974,7 +929,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-
                                 case "DesignationName":
                                     if (string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -1000,10 +954,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-                                case "EmployeeType":
+                                case "EmploymentType":
                                     if (string.IsNullOrWhiteSpace(cellValue))
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: EmployeeType is required.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: EmploymentType is required.");
                                         hasError = true;
                                     }
                                     else if (employmentDetailsDictionaries.TryGetValue("EmploymentTypes", out var EmploymentTypesDict))
@@ -1016,13 +970,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                                         if (EmploymentTypesId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: EmployeeType not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: EmploymentType not found in master data.");
                                             hasError = true;
                                         }
                                     }
                                     else
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: EmployeeType dictionary is missing or empty.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: EmploymentType dictionary is missing or empty.");
                                         hasError = true;
                                     }
                                     break;
@@ -1106,7 +1060,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                                     }
                                     break;
-                                case "AON":
+                                case "AgeOnNetwork":
                                     if (!string.IsNullOrEmpty(cellValue))
                                     {
                                         if (int.TryParse(cellValue, out int aonValue))
@@ -1207,28 +1161,27 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     MajorIllnessOrDisability = item.MajorIllnessOrDisability,
                     AwardsAchievements = item.AwardsAchievements,
                     EducationGap = item.EducationGap,
-                    ExtraCuricuarActivities = item.ExtraCuricuarActivities,
-                    ForiegnCountryVisits = item.ForiegnCountryVisits,
-                    ContactPersonName = item.ContactPersonName,
-                    ContactPersonMobile = item.ContactPersonMobile,
-                    ContactPersonTelephone = item.ContactPersonTelephone,
-                    ContactPersonRelationship = item.ContactPersonRelationship,
+                    ExtraCurricularActivities = item.ExtraCurricularActivities,
+                    ForeignCountryVisits = item.ForeignCountryVisits,
+                    EmergencyContactPersonName = item.EmergencyContactPersonName,
+                    EmergencyContactPersonMobile = item.EmergencyContactPersonMobile,
+                    EmergencyContactPersonTelephone = item.EmergencyContactPersonTelephone,
+                    EmergencyContactPersonRelationship = item.EmergencyContactPersonRelationship,
                     ITSkillsKnowledge = item.ITSkillsKnowledge,
                     LeavePolicyName = item.LeavePolicyName,
                     Gender = item.Gender,
                     RoleName = item.RoleName,
                     EmployeeNumber = item.EmployeeNumber,
                     DesignationName = item.DesignationName,
-                    EmployeeType = item.EmployeeType,
+                    EmploymentType = item.EmploymentType,
                     DepartmentName = item.DepartmentName,
                     JobLocationName = item.JobLocationName,
-                    OfficialEmailID = item.OfficialEmailID,
+                    OfficialEmail = item.OfficialEmail,
                     OfficialContactNo = item.OfficialContactNo,
                     JoiningDate = item.JoiningDate,
                     DateOfResignation = item.DateOfResignation,
                     ReferredByEmployeeName = item.ReferredByEmployeeName,
-                    PayrollTypeName = item.PayrollTypeName,
-                    ExtraCurricularActivities = item.ExtraCurricularActivities,
+                    PayrollTypeName = item.PayrollTypeName,                   
                     ClientName = item.ClientName,
                     SubDepartmentName = item.SubDepartmentName,
                     ShiftTypeName = item.ShiftTypeName,
@@ -1238,7 +1191,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     UANNumber=item.UANNumber,
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
-                    AON = item.AON,
+                    AgeOnNetwork = item.AgeOnNetwork,
                     NoticeServed = item.NoticeServed,
                     LeavingType = item.LeavingType,
                     PreviousExperience = item.PreviousExperience,
@@ -1250,8 +1203,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     BackOnFloor = item.BackOnFloor,
                     LeavingRemarks = item.LeavingRemarks,
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
-                    DateOfEmailSentToITForIDDeletion = item.DateOfEmailSentToITForIDDeletion,
-                    ReportingToIDL1Name = item.ReportingToIDL1Name,
+                    DateOfEmailSentToITForDeletion = item.DateOfEmailSentToITForDeletion,
+                    ReportingToManagerEmployeeNumber = item.ReportingToManagerEmployeeNumber,
                     ReportingToIDL2Name = HttpContext.Session.GetString(Constants.EmployeeID),
                     InsertedByUserID = HttpContext.Session.GetString(Constants.UserID),
                     Status = item.Status,
@@ -1297,21 +1250,25 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         private (bool isHeaderValid, string mismatchedColumn) ValidateHeaderRow(ExcelWorksheet worksheet, Type targetType)
         {
-            var excludeHeaders = new List<string> { "InsertedByUserID", "ExcelFile" };
-
+            var excludeHeaders = new List<string> {  "InsertedByUserID",
+        "ExcelFile",
+        "CompanyName",
+        "ReportingToIDL2Name" };        
+            string Normalize(string input) =>
+                string.Concat(input.Where(c => !char.IsWhiteSpace(c))).ToLowerInvariant();
             var expectedProperties = targetType.GetProperties()
                 .Where(p => !excludeHeaders.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
-                .Select(p => p.Name)
+                .Select(p => Normalize(p.Name))
                 .ToList();
             for (int i = 0; i < expectedProperties.Count; i++)
             {
-                string excelHeader = worksheet.Cells[1, i + 1].Text?.Trim();
-                if (!string.Equals(expectedProperties[i], excelHeader, StringComparison.OrdinalIgnoreCase))
+                string excelHeader = worksheet.Cells[1, i + 1].Text?.Trim() ?? string.Empty;
+                string normalizedExcelHeader = Normalize(excelHeader);
+                if (!string.Equals(expectedProperties[i], normalizedExcelHeader, StringComparison.OrdinalIgnoreCase))
                 {
                     return (false, $"Expected '{expectedProperties[i]}', Found '{excelHeader}' at Column {i + 1}");
                 }
             }
-
             return (true, "");
         }
         private static string ConvertDataTableToHTML(DataTable dt)

@@ -989,6 +989,7 @@ namespace HRMS.API.BusinessLayer
                                 OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
                                 DesignationName = dataRow.Field<string>("DesignationName"),
                                 DepartmentName = dataRow.Field<string>("DepartmentName"),
+                                SubDepartmentName = dataRow.Field<string>("SubDepartmentName"),
                                 JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
                                 JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
                                 ManagerEmail = dataRow.Field<string>("ManagerEmail"),
@@ -2220,6 +2221,16 @@ namespace HRMS.API.BusinessLayer
             models.CompanyID = model.CompanyID;
             models.LeavePolicyID = data.employeeModel.LeavePolicyID ?? 0;
             myInfoResults.LeavePolicyDetails = GetSelectLeavePolicies(models);
+            myInfoResults.employeeBankDetail = GetEmploymentBankDetails(new EmploymentBankDetailInputParams
+            {
+                EmployeeID = model.EmployeeID,
+                UserID = model.UserID
+            });
+            myInfoResults.employeeSeparationDetail = GetEmploymentSeparationDetails(new EmploymentSeparationInputParams
+            {
+                EmployeeID = model.EmployeeID,
+                UserID = model.UserID
+            });
             myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
             return myInfoResults;
         }
@@ -2998,7 +3009,7 @@ namespace HRMS.API.BusinessLayer
             }
             return new Dictionary<string, CompanyInfo>();
         }
-        public Dictionary<string, long> GetSubDepartmentDictionary(EmployeeInputParams model)
+        public Dictionary<string, long> GetSubDepartmentDictionary  (EmployeeInputParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
@@ -3440,12 +3451,12 @@ namespace HRMS.API.BusinessLayer
                     MajorIllnessOrDisability = item.MajorIllnessOrDisability,
                     AwardsAchievements = item.AwardsAchievements,
                     EducationGap = item.EducationGap,
-                    ExtraCuricuarActivities = item.ExtraCuricuarActivities,
-                    ForiegnCountryVisits = item.ForiegnCountryVisits,
-                    ContactPersonName = item.ContactPersonName,
-                    ContactPersonMobile = item.ContactPersonMobile,
-                    ContactPersonTelephone = item.ContactPersonTelephone,
-                    ContactPersonRelationship = item.ContactPersonRelationship,
+                    ExtraCuricuarActivities = item.ExtraCurricularActivities,
+                    ForiegnCountryVisits = item.ForeignCountryVisits,
+                    ContactPersonName = item.EmergencyContactPersonName,
+                    ContactPersonMobile = item.EmergencyContactPersonMobile,
+                    ContactPersonTelephone = item.EmergencyContactPersonTelephone,
+                    ContactPersonRelationship = item.EmergencyContactPersonRelationship,
                     ITSkillsKnowledge = item.ITSkillsKnowledge,
                     InsertedByUserID = Convert.ToInt64(item.InsertedByUserID),
                     LeavePolicyID = Convert.ToInt64(item.LeavePolicyName),
@@ -3455,10 +3466,10 @@ namespace HRMS.API.BusinessLayer
                     RoleID = TryParseInt(item.RoleName) ?? 0,
                     EmployeNumber = item.EmployeeNumber,
                     DesignationID = Convert.ToInt64(item.DesignationName),
-                    EmployeeTypeID = Convert.ToInt64(item.EmployeeType),
+                    EmployeeTypeID = Convert.ToInt64(item.EmploymentType),
                     DepartmentID = Convert.ToInt64(item.DepartmentName),
                     JobLocationID = Convert.ToInt64(item.JobLocationName),
-                    OfficialEmailID = item.OfficialEmailID,
+                    OfficialEmailID = item.OfficialEmail,
                     OfficialContactNo = item.OfficialContactNo,
                     JoiningDate = TryParseDate(item.JoiningDate),
                     JobSeprationDate = TryParseDate(item.DateOfResignation),
@@ -3474,7 +3485,7 @@ namespace HRMS.API.BusinessLayer
                     UANNumber= item.UANNumber,
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
-                    AgeOnNetwork = Convert.ToInt32(item.AON),
+                    AgeOnNetwork = Convert.ToInt32(item.AgeOnNetwork),
                     NoticeServed = Convert.ToInt32(item.NoticeServed),
                     LeavingType = item.LeavingType,                 
                     PreviousExperience = item.PreviousExperience,
@@ -3487,9 +3498,9 @@ namespace HRMS.API.BusinessLayer
                     BackOnFloorDate = TryParseDate(item.BackOnFloor),
                     LeavingRemarks = item.LeavingRemarks,
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
-                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion),
+                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForDeletion),
                     IsActive = item.Status == "1",
-                    ReportingToIDL1EmployeeNumber=item.ReportingToIDL1Name
+                    ReportingToIDL1EmployeeNumber=item.ReportingToManagerEmployeeNumber
                 }).ToList();
                 var employeeDataTable = ConvertToDataTable(employeeList);
                 var parameters = new List<SqlParameter>
@@ -3504,9 +3515,7 @@ namespace HRMS.API.BusinessLayer
 
                 return new Result
                 {
-
                     Message = "Employee data imported successfully.",
-
                 };
             }
             catch (Exception ex)
