@@ -29,15 +29,24 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult HolidayListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public JsonResult HolidayListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long? locationId)
         {
             HolidayInputParams HolidayParams = new HolidayInputParams();
+            HolidayParams.LocationID = locationId;
             HolidayParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(HolidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.Holiday.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.HolidayID.ToString()));
+            return  Json(new { data = results.Holiday ,
+                locations = results.JobLocationList.Select(j => new
+                {
+                    jobLocationID = j.Value,   // Assuming j.Value is string, may convert to long if needed
+                    jobLocationName = j.Text
+                })
+                });
 
-            return Json(new { data = results.Holiday });
+
+
 
         }
 
@@ -49,10 +58,27 @@ namespace HRMS.Web.Areas.Admin.Controllers
             HolidayModel.ToDate = DateTime.Now;
             if (!string.IsNullOrEmpty(id))
             {
-                id = _businessLayer.DecodeStringBase64(id); 
+                id = _businessLayer.DecodeStringBase64(id);
                 HolidayModel.HolidayID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(HolidayModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 HolidayModel = JsonConvert.DeserializeObject<Results>(data).holidayModel;
+                var holidayResult = JsonConvert.DeserializeObject<Results>(data);
+                HolidayModel = holidayResult.holidayModel ?? new HolidayModel();
+                HolidayModel.JobLocationList = holidayResult.JobLocationList;
+
+            }
+            else
+            {
+                
+                var data = _businessLayer.SendPostAPIRequest(
+                    HolidayModel,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                var holidayResult = JsonConvert.DeserializeObject<Results>(data);
+                HolidayModel.JobLocationList = holidayResult.JobLocationList;
             }
             return View(HolidayModel);
         }

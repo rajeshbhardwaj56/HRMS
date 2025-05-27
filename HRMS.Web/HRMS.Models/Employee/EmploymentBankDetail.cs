@@ -21,7 +21,11 @@ namespace HRMS.Models.Employee
         public string? BankAccountNumber { get; set; }
         public string? UANNumber { get; set; }
         public string? IFSCCode { get; set; }
-        public string? BankName { get; set; }       
-       public long UserID { get; set; } 
+        public string? BankName { get; set; }
+        public string? PANNo { get; set; } = string.Empty;
+        public string? AadharCardNo { get; set; } = string.Empty;
+        public string? PanCardImage { get; set; } = string.Empty;
+        public string? AadhaarCardImage { get; set; } = string.Empty;
+        public long UserID { get; set; } 
     }
 }

@@ -843,7 +843,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             HolidayInputParams myInfoInputParams = new HolidayInputParams
             {
-                CompanyID = companyID
+                CompanyID = companyID,
+                EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID))
             };
 
             var holidayData = _businessLayer.SendPostAPIRequest(myInfoInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();

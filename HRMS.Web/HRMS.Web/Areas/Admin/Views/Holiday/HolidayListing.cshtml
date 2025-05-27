@@ -10,7 +10,19 @@
 	var Err = TempData["Error"];
 }
 
-<div class="main-header anim" style="--delay: 0s">Holiday List  <a href="~/Admin/Holiday"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Holiday</button></a></div>
+<div class="main-header anim" style="--delay: 0s">Holiday List
+	<div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+		<div class="d-flex align-items-center">
+			<label for="locationDropdown" class="mr-2 mb-0" style="font-size: 12px; white-space: nowrap;">Select Location: </label>
+			<select id="locationDropdown" class="form-control form-control-sm">
+				<option value="">All Locations</option>				
+			</select>
+		</div>
+	</div>
+	<a href="~/Admin/Holiday">
+	<button type="button" class="btn btn-addBtn" id="openFormBtn">Add Holiday</button></a>
+	
+</div>
 @* <div class="addcomp px-4">
     <h4>Holiday List</h4>
     <a href="~/Admin/Holiday"> <button type="button" class="btn btn-addcompany" id="openFormBtn">Add Holiday</button></a>
@@ -18,15 +30,18 @@
 
 
 <div class="table-responsive py-3">
+	
 	<table id="tblHolidayListing" class="table table-striped body-text" style="width:100%">
 		<thead>
+			
 			<tr>
 				<th class="first" style="visibility:hidden"> /th>
 				<th>Holiday Name</th>
 				<th>From Date</th>
 				<th>To Date</th>
 				<th>Description</th>
-				<th>Status</th>
+				<th>Location</th>
+				<th>Status</th>	
 				<th>Action</th>
 			</tr>
 		</thead>
@@ -37,13 +52,36 @@
 
 
 <script type="text/javascript">
-	debugger
+		$('#locationDropdown').change(function () {
+		$('#tblHolidayListing').DataTable().ajax.reload();
+	});
 	$(document).ready(function () {
 		$('#tblHolidayListing').DataTable({
 			"ajax": {
 				"url": "HolidayListings/",
 				"type": "POST",
-				"datatype": "json"
+				"datatype" :"json",
+				 "data": function (d) {
+				
+				d.locationId = $('#locationDropdown').val();
+			},
+			"dataSrc": function (json) {
+				var dropdown = $('#locationDropdown');
+				 var selectedVal = dropdown.val();
+				dropdown.empty();
+				dropdown.append('<option value="">All Locations</option>');
+
+				if (json.locations && json.locations.length) {
+					$.each(json.locations, function (index, location) {
+						dropdown.append(
+							$('<option></option>').val(location.jobLocationID).text(location.jobLocationName)
+						);
+					});
+				}
+				dropdown.val(selectedVal);
+
+				return json.data;
+			}
 			},
 			"ordering": true,
 			"paging": true,
@@ -67,6 +105,7 @@
 					}
 				},
 				{ "data": "description", "autoWidth": true },
+				{ "data": "location", "autoWidth": true },
 				{  "data": "status",
 	"autoWidth": true,
 	"render": function (data, type, row) {

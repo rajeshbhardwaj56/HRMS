@@ -32,7 +32,6 @@ namespace HRMS.Web.Areas.HR.Controllers
     [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
     public class EmployeeController : Controller
     {
-
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
         private IHostingEnvironment Environment;
@@ -132,7 +131,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else if (employee.References.Count == 1)
                 {
-                   employee.References.Add(new HRMS.Models.Employee.Reference());
+                    employee.References.Add(new HRMS.Models.Employee.Reference());
                 }
                 ;
             }
@@ -559,15 +558,52 @@ namespace HRMS.Web.Areas.HR.Controllers
             var data = _businessLayer.SendPostAPIRequest(employmentBankInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentBankDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             employmentBankDetail = JsonConvert.DeserializeObject<EmploymentBankDetail>(data);
             employmentBankDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentBankDetail.EmployeeID.ToString());
+            if (!string.IsNullOrEmpty(employmentBankDetail.AadhaarCardImage))
+            {
+                employmentBankDetail.AadhaarCardImage = _s3Service.GetFileUrl(employmentBankDetail.AadhaarCardImage);
+            }
+            if (!string.IsNullOrEmpty(employmentBankDetail.PanCardImage))
+            {
+                employmentBankDetail.PanCardImage = _s3Service.GetFileUrl(employmentBankDetail.PanCardImage);
+            }
+
             return View(employmentBankDetail);
         }
 
         [HttpPost]
-        public ActionResult EmploymentBankDetails(EmploymentBankDetail employmentBankDetail)
+        public ActionResult EmploymentBankDetails(EmploymentBankDetail employmentBankDetail, List<IFormFile> PanPostedFile, List<IFormFile> AadhaarPostedFile)
         {
             if (ModelState.IsValid)
             {
                 employmentBankDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                ProcessFileUpload(PanPostedFile, employmentBankDetail.PanCardImage, out string newPanKey);
+                if (!string.IsNullOrEmpty(newPanKey))
+                {
+                    if (!string.IsNullOrEmpty(employmentBankDetail.PanCardImage))
+                    {
+                        _s3Service.DeleteFile(employmentBankDetail.PanCardImage);
+                    }
+                    employmentBankDetail.PanCardImage = newPanKey;
+                }
+                else
+                {
+                    employmentBankDetail.PanCardImage = ExtractKeyFromUrl(employmentBankDetail.PanCardImage);
+                }
+
+                ProcessFileUpload(AadhaarPostedFile, employmentBankDetail.AadhaarCardImage, out string newAadhaarKey);
+                if (!string.IsNullOrEmpty(newAadhaarKey))
+                {
+                    if (!string.IsNullOrEmpty(employmentBankDetail.AadhaarCardImage))
+                    {
+                        _s3Service.DeleteFile(employmentBankDetail.AadhaarCardImage);
+                    }
+                    employmentBankDetail.AadhaarCardImage = newAadhaarKey;
+                }
+                else
+                {
+                    employmentBankDetail.AadhaarCardImage = ExtractKeyFromUrl(employmentBankDetail.AadhaarCardImage);
+                }
+
                 var data = _businessLayer.SendPostAPIRequest(employmentBankDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentBankDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
                 Result result = JsonConvert.DeserializeObject<Result>(data);
@@ -657,7 +693,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 
         [HttpGet]
-        public IActionResult InActiveEmployee(int employeeId , int isActive)
+        public IActionResult InActiveEmployee(int employeeId, int isActive)
         {
             ReportingStatus obj = new ReportingStatus();
             obj.EmployeeId = employeeId;
@@ -666,7 +702,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             var data = _businessLayer.SendPostAPIRequest(obj, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.CheckEmployeeReporting), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var ReportingData = JsonConvert.DeserializeObject<ReportingStatus>(data);
 
-            return Ok(new { success = true,data = ReportingData });
+            return Ok(new { success = true, data = ReportingData });
         }
 
     }

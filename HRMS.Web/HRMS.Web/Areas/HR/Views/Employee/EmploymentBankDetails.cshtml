@@ -5,28 +5,49 @@
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
     ViewData["Title"] = "Official Bank Details";
+    var PancardPhoto = "";
+    if (!string.IsNullOrEmpty(Model.PanCardImage))
+    {
+        PancardPhoto = @Model.PanCardImage;
+    }
+    else
+    {
+        PancardPhoto = HRMS.Models.Common.Constants.NoImagePath;
+    }
+
+    var AddharCardPhoto = "";
+    if (!string.IsNullOrEmpty(Model.AadhaarCardImage))
+    {
+        AddharCardPhoto = @Model.AadhaarCardImage;
+    }
+    else
+    {
+        AddharCardPhoto = HRMS.Models.Common.Constants.NoImagePath;
+    }
 }
 
 <div class="main-header anim" style="--delay: 0s">
-    Add Bank Details  
+    Add Bank Details
 </div>
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
-        <div class="group-box anim" style="--delay: .3s">         
+        <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">
-                @Html.HiddenFor(m => m.EmployeeID)               
+                @Html.HiddenFor(m => m.EmployeeID)
                 @Html.HiddenFor(m => m.UserID)
                 @Html.HiddenFor(m => m.BankDetailID)
+                @Html.HiddenFor(m => m.PanCardImage)
+                @Html.HiddenFor(m => m.AadhaarCardImage)
             </div>
-            <div class="row">            
+            <div class="row">
                 <div class="col-md-4 form-group">
                     <label>Bank Account Number <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.BankAccountNumber, new { @class = "form-control", @type = "text", @required = "required" })
-                    
+
                 </div>
                 <div class="col-md-4 form-group">
                     <label>IFSC Code<span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.IFSCCode, new { @class = "form-control", @type = "text", @required = "required" })             
+                    @Html.TextBoxFor(a => a.IFSCCode, new { @class = "form-control", @type = "text", @required = "required" })
                 </div>
                 <div class="col-md-4 form-group">
                     <label>Bank Name <span class="Mandetory">*</span></label>
@@ -36,6 +57,45 @@
                     <label>UAN </label>
                     @Html.TextBoxFor(a => a.UANNumber, new { @class = "form-control", @type = "text" })
                 </div>
+                <div class="col-md-4 form-group">
+                    <label>PAN Number <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @type = "text", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Aadhar Card Number<span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @type = "text", @required = "required" })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label> Pan Card Document</label>
+                    <div class="col-md-4">
+                        <img id="PanpreviewImage" src="@Html.Raw(PancardPhoto)"
+                             onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                             style="width:100px; height:100px; display:none;" />
+                        <iframe id="PanpreviewPDF" style="width:100px; height:100px; display:none;" frameborder="0"></iframe>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="file" name="PanPostedFile" accept="image/*,application/pdf" onchange="PanPostedFilePreview(event)" />
+                    </div>
+                </div>
+                <div class="col-md-4 form-group">
+                    <label> Aadhaar Card Document </label>
+                    <div class="col-md-4">
+                        <img id="AadhaarpreviewImage"
+                             src="@Html.Raw(AddharCardPhoto)"
+                             onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                             style="width:100px; height:100px; display:none;" />
+                        <iframe id="AadhaarpreviewPDF"
+                                style="width:100px; height:100px; display:none;"
+                                frameborder="0">
+                        </iframe>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="file"
+                               name="AadhaarPostedFile"
+                               accept="image/*,.pdf"
+                               onchange="AadhaarPreview(event)" />
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <input type="submit" value="Submit" class="btn btn-success" />
@@ -44,12 +104,105 @@
                 </div>
             </div>
         </div>
-        </div>
+    </div>
 </form>
 
 <script>
-  document.getElementById('cancelButton').addEventListener('click', function () {
+    document.getElementById('cancelButton').addEventListener('click', function () {
 
-        window.location.href = '@Url.Action("EmployeeListing", "employee")';
-    });
-    </script>
+          window.location.href = '@Url.Action("EmployeeListing", "employee")';
+      });
+         function AadhaarPreview(event) {
+            const file = event.target.files[0];
+            const imagePreview = document.getElementById('AadhaarpreviewImage');
+            const pdfPreview = document.getElementById('AadhaarpreviewPDF');
+
+            if (file) {
+                const fileType = file.type;
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const result = e.target.result;
+
+                    if (fileType.startsWith('image/')) {
+                        imagePreview.src = result;
+                        imagePreview.style.display = 'block';
+                        pdfPreview.style.display = 'none';
+                    } else if (fileType === 'application/pdf') {
+                        pdfPreview.src = result;
+                        pdfPreview.style.display = 'block';
+                        imagePreview.style.display = 'none';
+                    } else {
+                        alert('Unsupported file type. Please upload an image or a PDF.');
+                        imagePreview.style.display = 'none';
+                        pdfPreview.style.display = 'none';
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+          function PanPostedFilePreview(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const previewImage = document.getElementById('PanpreviewImage');
+                const pdfPreview = document.getElementById('PanpreviewPDF');
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const result = e.target.result;
+
+                    if (file.type.startsWith('image/')) {
+                        previewImage.src = result;
+                        previewImage.style.display = 'block';
+                        pdfPreview.style.display = 'none';
+                    } else if (file.type === 'application/pdf') {
+                        pdfPreview.src = result;
+                        pdfPreview.style.display = 'block';
+                        previewImage.style.display = 'none';
+                    } else {
+                        alert('Unsupported file type. Please upload an image or a PDF.');
+                        previewImage.style.display = 'none';
+                        pdfPreview.style.display = 'none';
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+           window.onload = function () {
+            const fullPath = '@Html.Raw(AddharCardPhoto)';
+            const filePath = fullPath.toLowerCase();
+
+            const imagePreview = document.getElementById('AadhaarpreviewImage');
+            const pdfPreview = document.getElementById('AadhaarpreviewPDF');
+
+
+            if (filePath.includes('.pdf')) {
+                pdfPreview.src = fullPath;
+                pdfPreview.style.display = 'block';
+                imagePreview.style.display = 'none';
+            } else   {
+                imagePreview.src = fullPath;
+                imagePreview.style.display = 'block';
+                pdfPreview.style.display = 'none';
+            }
+
+
+         const panFullPath = '@Html.Raw(PancardPhoto)';
+        const panFilePath = panFullPath.toLowerCase();
+        const panImagePreview = document.getElementById('PanpreviewImage');
+        const panPdfPreview = document.getElementById('PanpreviewPDF');
+
+        if (panFilePath.includes('.pdf')) {
+            panPdfPreview.src = panFullPath;
+            panPdfPreview.style.display = 'block';
+            panImagePreview.style.display = 'none';
+        } else {
+            panImagePreview.src = panFullPath;
+            panImagePreview.style.display = 'block';
+            panPdfPreview.style.display = 'none';
+        }
+        };
+</script>

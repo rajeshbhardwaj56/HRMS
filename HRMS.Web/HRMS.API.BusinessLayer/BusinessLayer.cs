@@ -82,7 +82,6 @@ namespace HRMS.API.BusinessLayer
             }
             return loginUser;
         }
-
         public Result ResetPassword(ResetPasswordModel model)
         {
             Result results = new Result();
@@ -104,8 +103,6 @@ namespace HRMS.API.BusinessLayer
             }
             return results;
         }
-
-
         public Result GetFogotPasswordDetails(ChangePasswordModel model)
         {
             Result results = new Result();
@@ -130,7 +127,6 @@ namespace HRMS.API.BusinessLayer
             results.Data = JsonConvert.SerializeObject(data);
             return results;
         }
-
         public Results GetAllEmployees(EmployeeInputParams model)
         {
             Results result = new Results();
@@ -343,8 +339,6 @@ namespace HRMS.API.BusinessLayer
 
             return result;
         }
-
-
         public Results GetAllActiveEmployees(EmployeeInputParams model)
         {
             Results result = new Results();
@@ -441,8 +435,6 @@ namespace HRMS.API.BusinessLayer
             }
             return RootName;
         }
-
-
         public Results GetAllCountries()
         {
             Results model = new Results();
@@ -473,7 +465,6 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-
         public Results GetAllCurrencies(long companyID)
         {
             Results model = new Results();
@@ -534,7 +525,6 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-
         public Results GetAllCompanyLanguages(long companyID)
         {
             Results model = new Results();
@@ -564,7 +554,6 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-
         public Results GetAllCompanyDepartments(long companyID)
         {
             Results model = new Results();
@@ -781,7 +770,7 @@ namespace HRMS.API.BusinessLayer
                               }).ToList().FirstOrDefault();
             return result;
         }
-        public Results GetAllCompanies(EmployeeInputParams model)   
+        public Results GetAllCompanies(EmployeeInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -892,7 +881,6 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
         #endregion
-
 
         #region EmploymentDetails
         public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails)
@@ -1221,7 +1209,7 @@ namespace HRMS.API.BusinessLayer
             L2ManagerDetail managerDetail = new L2ManagerDetail();
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
-            {          
+            {
                 managerDetail = dataSet.Tables[0].AsEnumerable()
                     .Select(dataRow => new L2ManagerDetail()
                     {
@@ -1229,7 +1217,7 @@ namespace HRMS.API.BusinessLayer
                         ManagerName = dataRow.Field<string>("ManagerName"),
                         EmployeNumber = dataRow.Field<string>("EmployeNumber")
                     })
-                    .FirstOrDefault() ?? new L2ManagerDetail(); 
+                    .FirstOrDefault() ?? new L2ManagerDetail();
             }
 
             return managerDetail;
@@ -1245,6 +1233,10 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@IFSCCode", employmentBankDetails.IFSCCode));
             sqlParameter.Add(new SqlParameter("@BankName", employmentBankDetails.BankName));
             sqlParameter.Add(new SqlParameter("@UANNumber", employmentBankDetails.UANNumber));
+            sqlParameter.Add(new SqlParameter("@PANNo", employmentBankDetails.PANNo));
+            sqlParameter.Add(new SqlParameter("@PanCardImage", employmentBankDetails.PanCardImage));
+            sqlParameter.Add(new SqlParameter("@AadharCardNo", employmentBankDetails.AadharCardNo));
+            sqlParameter.Add(new SqlParameter("@AadhaarCardImage", employmentBankDetails.AadhaarCardImage));
             sqlParameter.Add(new SqlParameter("@UserID", employmentBankDetails.UserID));
             SqlParameterCollection pOutputParams = null;
 
@@ -1281,7 +1273,11 @@ namespace HRMS.API.BusinessLayer
                                 BankAccountNumber = dataRow.Field<string>("BankAccountNumber"),
                                 IFSCCode = dataRow.Field<string>("IFSCCode"),
                                 BankName = dataRow.Field<string>("BankName"),
-                                UANNumber=dataRow.Field<string>("UANNumber"),
+                                UANNumber = dataRow.Field<string>("UANNumber"),
+                                AadharCardNo = dataRow.Field<string>("AadharCardNo"),
+                                AadhaarCardImage = dataRow.Field<string>("AadhaarCardImage"),
+                                PANNo = dataRow.Field<string>("PANNo"),
+                                PanCardImage = dataRow.Field<string>("PanCardImage"),
 
                             }).ToList().FirstOrDefault();
             if (employmentBankDetail == null)
@@ -1385,7 +1381,6 @@ namespace HRMS.API.BusinessLayer
 
 
         #endregion
-
 
         #region Leave Policies
 
@@ -1556,21 +1551,27 @@ namespace HRMS.API.BusinessLayer
                                   ToDate = dataRow.Field<DateTime>("ToDate"),
                                   Description = dataRow.Field<string>("Description"),
                                   Status = dataRow.Field<bool>("Status"),
+                                  JobLocationTypeID = dataRow.Field<long>("JobLocationTypeID")                                  
                               }).ToList();
 
             if (model.HolidayID > 0)
             {
                 result.holidayModel = result.Holiday.FirstOrDefault();
             }
-
+            result.JobLocationList = dataSet.Tables[1].AsEnumerable()
+                            .Select(dataRow => new SelectListItem
+                            {
+                                Value = dataRow.Field<long>("ID").ToString(),
+                                Text = dataRow.Field<string>("Name")
+                            }).ToList();
             return result;
         }
 
         public Result AddUpdateHoliday(HolidayModel HolidayModel)
         {
             Result model = new Result();
+          
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-
             sqlParameter.Add(new SqlParameter("@HolidayID", HolidayModel.HolidayID));
             sqlParameter.Add(new SqlParameter("@HolidayName", HolidayModel.HolidayName));
             sqlParameter.Add(new SqlParameter("@FromDate", HolidayModel.FromDate));
@@ -1578,7 +1579,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@CompanyID", HolidayModel.CompanyID));
             sqlParameter.Add(new SqlParameter("@Status", HolidayModel.Status));
             sqlParameter.Add(new SqlParameter("@Description", HolidayModel.Description));
-
+            sqlParameter.Add(new SqlParameter("@JobLocationTypeID", HolidayModel.JobLocationTypeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Holiday, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
@@ -1614,6 +1615,11 @@ namespace HRMS.API.BusinessLayer
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            if (model.LocationID.HasValue && model.LocationID.Value > 0)
+            {
+                sqlParameter.Add(new SqlParameter("@JobLocationID", model.LocationID.Value));
+            }
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayList, sqlParameter);
 
             result.Holiday = dataSet.Tables[0].AsEnumerable()
@@ -1625,8 +1631,15 @@ namespace HRMS.API.BusinessLayer
                                    FromDate = dataRow.Field<DateTime>("FromDate"),
                                    ToDate = dataRow.Field<DateTime>("ToDate"),
                                    Description = dataRow.Field<string>("Description"),
+                                   Location = dataRow.Field<string>("JobLocationName"),
                                    Status = dataRow.Field<bool>("Status"),
                                }).ToList();
+            result.JobLocationList = dataSet.Tables[1].AsEnumerable()
+                           .Select(dataRow => new SelectListItem
+                           {
+                               Value = dataRow.Field<long>("JobLocationID").ToString(),
+                               Text = dataRow.Field<string>("JobLocationName")
+                           }).ToList();
 
             if (model.CompanyID > 0)
             {
@@ -1950,7 +1963,7 @@ namespace HRMS.API.BusinessLayer
 
                              }).ToList();
 
-                if (model.RoleID == (int)Roles.SuperAdmin|| model.RoleID == (int)Roles.HR)
+                if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.HR)
                 {
                     var CompanyDetails = dataSet.Tables[7].AsEnumerable()
                            .Select(dataRow => new DashBoardModel
@@ -2097,8 +2110,8 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameters.Add(new SqlParameter("@ShiftTypeID", model.ShiftTypeID));
-            sqlParameters.Add(new SqlParameter("@SortCol", "ShiftTypeID")); 
-            sqlParameters.Add(new SqlParameter("@SortDir", "DESC")); 
+            sqlParameters.Add(new SqlParameter("@SortCol", "ShiftTypeID"));
+            sqlParameters.Add(new SqlParameter("@SortDir", "DESC"));
             sqlParameters.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
             sqlParameters.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
             sqlParameters.Add(new SqlParameter("@DisplayLength", model.DisplayLength));
@@ -2199,7 +2212,6 @@ namespace HRMS.API.BusinessLayer
                 return stream.ToString();
             }
         }
-
         public MyInfoResults GetMyInfo(MyInfoInputParams model)
         {
             MyInfoResults myInfoResults = new MyInfoResults();
@@ -2209,13 +2221,11 @@ namespace HRMS.API.BusinessLayer
             employeeInputParams.EmployeeID = model.EmployeeID;
             employeeInputParams.CompanyID = model.CompanyID;
             holidayobj.CompanyID = model.CompanyID;
-
+            holidayobj.EmployeeID = model.EmployeeID;
             var data = GetAllEmployees(employeeInputParams);
             myInfoResults.employeeModel = data.employeeModel;
-
             var holiday = GetAllHolidayList(holidayobj);
             myInfoResults.HolidayModel = holiday.Holiday;
-
             myInfoResults.employmentHistory = data.employeeModel.EmploymentHistory;
             LeavePolicyModel models = new LeavePolicyModel();
             models.CompanyID = model.CompanyID;
@@ -2235,12 +2245,7 @@ namespace HRMS.API.BusinessLayer
             return myInfoResults;
         }
 
-
-
-
         #endregion
-
-
 
         #region LeavePolicyDetails
 
@@ -3009,7 +3014,7 @@ namespace HRMS.API.BusinessLayer
             }
             return new Dictionary<string, CompanyInfo>();
         }
-        public Dictionary<string, long> GetSubDepartmentDictionary  (EmployeeInputParams model)
+        public Dictionary<string, long> GetSubDepartmentDictionary(EmployeeInputParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
@@ -3482,12 +3487,12 @@ namespace HRMS.API.BusinessLayer
                     ESINumber = item.ESINumber,
                     ESIRegistrationDate = TryParseDate(item.RegistrationDateInESIC),
                     BankAccountNumber = item.BankAccountNumber,
-                    UANNumber= item.UANNumber,
+                    UANNumber = item.UANNumber,
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
                     AgeOnNetwork = Convert.ToInt32(item.AgeOnNetwork),
                     NoticeServed = Convert.ToInt32(item.NoticeServed),
-                    LeavingType = item.LeavingType,                 
+                    LeavingType = item.LeavingType,
                     PreviousExperience = item.PreviousExperience,
                     DateOfJoiningTraining = TryParseDate(item.DOJInTraining),
                     DateOfJoiningFloor = TryParseDate(item.DOJOnFloor),
@@ -3500,7 +3505,7 @@ namespace HRMS.API.BusinessLayer
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
                     EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForDeletion),
                     IsActive = item.Status == "1",
-                    ReportingToIDL1EmployeeNumber=item.ReportingToManagerEmployeeNumber
+                    ReportingToIDL1EmployeeNumber = item.ReportingToManagerEmployeeNumber
                 }).ToList();
                 var employeeDataTable = ConvertToDataTable(employeeList);
                 var parameters = new List<SqlParameter>
@@ -3526,7 +3531,7 @@ namespace HRMS.API.BusinessLayer
                 };
             }
         }
-     
+
         private DataTable ConvertToDataTable(List<ImportExcelDataTableType> employees)
         {
             var table = new DataTable();
@@ -3775,7 +3780,7 @@ namespace HRMS.API.BusinessLayer
             }
 
             return result;
-        } 
+        }
         #endregion CheckEmployeeReporting
 
     }

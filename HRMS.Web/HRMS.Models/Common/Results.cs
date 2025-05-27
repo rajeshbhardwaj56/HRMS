@@ -25,7 +25,7 @@ namespace HRMS.Models.Common
         public CompanyModel companyModel { get; set; } = new CompanyModel();
         public CompanyLoginModel companyLoginModel { get; set; } = new CompanyLoginModel();
         public List<CompanyModel> Companies { get; set; } = new List<CompanyModel>();
-
+        public List<SelectListItem> JobLocationList { get; set; } = new List<SelectListItem>();
         public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();
         public LeavePolicyModel leavePolicyModel { get; set; } = new LeavePolicyModel();
         // public WhatsHappeningModel leavePolicyModel { get; set; } = new WhatsHappeningModel();
