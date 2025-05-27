@@ -82,6 +82,8 @@ namespace HRMS.Models.Common
     {
         public string DayLabel { get; set; }       // e.g., "Thu_1"
         public DateTime Date { get; set; }         // e.g., "2025-05-01"
+        public DateTime? FirstLogDate { get; set; }         // e.g., "2025-05-01"
+        public DateTime? LastLogDate { get; set; }         // e.g., "2025-05-01"
         public string Status { get; set; }         // e.g., "P", "A", "H", "L", or NULL
     }
     public class MyAttendanceList
@@ -131,7 +133,7 @@ namespace HRMS.Models.Common
         public DateTime? WorkDate { get; set; }
         public DateTime? FirstLogDate { get; set; }
         public DateTime? LastLogDate { get; set; }
-        public int? HoursWorked { get; set; }
+        public TimeSpan? HoursWorked { get; set; }
         public string AttendanceStatus { get; set; }
 
         // Holiday fields

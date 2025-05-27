@@ -62,7 +62,7 @@
 		a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-absent { 
 			top: 50%;
 			left: 50%; 
-			background-color: #bf1f1f;
+			background-color: #dc3545;
 			color: white;
 			border-radius: 50%;
 			font-weight: bold;
@@ -78,7 +78,7 @@
 		a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-present{ 
 			top: 50%;
 			left: 50%; 
-			background-color: green;
+			background-color: #28a745;
 			color: white;
 			border-radius: 50%;
 			font-weight: bold;
@@ -222,7 +222,7 @@
 		}
 
 		#card-footer-card #attendance-footer {
-			background: green;
+			background: #28a745;
 			color: white;
 			padding: 12px 7px;
 			font-size: 16px;
@@ -231,7 +231,7 @@
 		}
 
 		#card-footer-card #sick-footer {
-			background: #bf1f1f;
+			background: #dc3545;
 			color: white;
 			padding: 12px 7px;
 			font-size: 16px;
@@ -292,7 +292,7 @@
 		}
 
 		h6.sick-footer-right {
-			background: #bf1f1f;
+			background: #dc3545;
 			padding: 15px;
 			color: white;
 			font-size: 16px;
@@ -317,7 +317,7 @@
 		}
 
 		h6.attendance-footer-right {
-			background: green;
+			background: #28a745;
 			padding: 15px;
 			color: white;
 			font-size: 16px;
@@ -567,21 +567,22 @@
         </div>
     </div>
 	<!-- Modal -->
-	<div class="modal fade" id="dateModal" tabindex="-1" role="dialog" aria-labelledby="dateModalLabel" aria-hidden="true">
-		<div class="modal-dialog" role="document">
+	 
+
+	<div class="modal fade" id="dateModal" tabindex="-1" aria-labelledby="dateModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="dateModalLabel">Attendance Details</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body" id="modalDateText">
-					<!-- Dynamic content will be loaded here -->
+					Loading details...
 				</div>
 			</div>
 		</div>
 	</div>
+
 
     <script>
 				// Hide the modal when clicking the close button
@@ -619,31 +620,54 @@
           }
 
           // AJAX fetch attendance events for given year/month
-				  function fetchEvents(year, month, start, end, callback) {
+		 function fetchEvents(year, month, callback) {
+		  const currentView = $('#calendar').fullCalendar('getView').name;
 		  $.ajax({
 			url: '/employee/Attendance/AttendenceCalendarList',
 			type: 'POST',
 			data: { Year: year, Month: month },
 			success: function(response) {
-				$("#employeeFullName").text(response.employeeFullName);
+			  $("#employeeFullName").text(response.employeeFullName);
 			  let events = [];
-			  if(response && response.data && Array.isArray(response.data.dailyStatuses)) {
-				events = response.data.dailyStatuses.map(item => {
-				  let statusClass;
-				  switch(item.status) {
-					case 'P': statusClass = 'status-present'; break;
-					case 'A': statusClass = 'status-absent'; break;
-					case 'L': statusClass = 'status-leave'; break;
-					case 'H': statusClass = 'status-holiday'; break;
-					default: statusClass = 'status-unknown';
-				  }
-				  return {
-					title: item.status,
-					start: item.date,
-					allDay: true,
-					className: statusClass  // Use className here
-				  };
-				});
+			  if (response && response.data && Array.isArray(response.data.dailyStatuses)) {
+						events = response.data.dailyStatuses.map(item => {
+		  let statusClass;
+		  switch (item.status) {
+			case 'P': statusClass = 'status-present'; break;
+			case 'A': statusClass = 'status-absent'; break;
+			case 'L': statusClass = 'status-leave'; break;
+			case 'H': statusClass = 'status-holiday'; break;
+			default: statusClass = 'status-unknown';
+		  }
+
+		  if (currentView === 'agendaWeek') {
+			if (item.firstLogDate) {
+			  // Time-bound event for week view
+			  return { 
+				start: item.firstLogDate.replace(' ', 'T'),
+				end: item.lastLogDate ? item.lastLogDate.replace(' ', 'T') : null,
+			   className: statusClass + ' time-bound-event',
+				allDay: false
+			  };
+			} else {
+			  // Fallback: use all-day event on the date when no firstLogDate
+			  return { 
+				start: item.date, // date only, e.g. "2025-05-03"
+			   className: statusClass + ' time-bound-event',
+				allDay: false
+			  };
+			}
+		  } else {
+			// Month view: all-day event
+			return {
+			  title: item.status,
+			  start: item.date,
+			  className: statusClass,
+			  allDay: true
+			};
+		  }
+		}).filter(e => e !== null);
+
 			  }
 			  callback(events);
 			},
@@ -655,115 +679,67 @@
 		}
 
 
+
           populateYearDropdown();
           populateMonthDropdown();
 
           // Initialize FullCalendar
-		$('#calendar').fullCalendar({
+				$('#calendar').fullCalendar({
 		  header: {
 			left: 'prev,next today',
 			center: 'title',
 			right: 'month,agendaWeek'
 		  },
 		  defaultView: 'month',
-		  height: 600,
+		  height: 800,
+		  minTime: "08:00:00",  // Start at 5 AM
+		  maxTime: "24:00:00",
 		  editable: false,
-
+		  selectable: true,
+		  views: {
+		  agendaWeek: {
+			timeFormat: 'h:mm A'  // 12-hour format with AM/PM
+		  }
+		},
 		  // Load events via AJAX
 		  events: function(start, end, timezone, callback) {
 			const year = $('#yearDropdown').val();
 			const month = $('#monthDropdown').val();
-			fetchEvents(year, month, start, end, callback);
+			fetchEvents(year, month, callback);
 		  },
 
-			dayClick: function(date, jsEvent, view) {
-		  const selectedDate = date.format('YYYY-MM-DD');
-
-		  // Show loading text or spinner in the modal
-		 $('#modalDateText').html('Loading details for: ' + selectedDate + '...');
-
-		  // Open the modal immediately
-		 $('#dateModal').modal('show');
-
-		  // Make the AJAX call to get detailed data for that date
-		  $.ajax({
-			url: '/employee/MyInfo/GetAttendanceDetails', // Replace with your actual endpoint
-			type: 'GET',
-			data: { date: selectedDate },
-			success: function(data) {
-			  // Example: assume response has .employeeName, .status, .hoursWorked
-			let html = "";
-
-		switch (data.recordType) {
-			case "Attendance":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
-							<div class="row mb-2">
-								<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
-								<div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">${data.attendanceStatus ?? '-'}</span></div>
-							</div>
-							<div class="row mb-2">
-								<div class="col-md-6"><strong>Check-in:</strong> ${formatDateTime(data.firstLogDate)}</div>
-								<div class="col-md-6"><strong>Check-out:</strong> ${formatDateTime(data.lastLogDate)}</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6"><strong>Hours Worked:</strong> ${data.hoursWorked ?? '-'}</div>
-							</div>
-						</div>
-					</div>`;
-				break;
-
-			case "Holiday":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-success">🎉 Holiday</h5>
-							<div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div>
-							<div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div>
-							<div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>
-						</div>
-					</div>`;
-				break;
-
-			case "Leave":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-warning">📅 Leave Details</h5>
-							<div class="mb-2"><strong>Reason:</strong> ${data.reason}</div>
-							<div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div>
-							<div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div>
-							
-							<div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div>
-						</div>
-					</div>`;
-				break;
-
-			case "No Record Found":
-			default:
-				html = `<div class="alert alert-warning text-center">
-							<i class="bi bi-info-circle-fill"></i> No attendance  record found for this day.
-						</div>`;
-				break;
-		}
-			  $('#modalDateText').html(html);
-			},
-			error: function() {
-			  $('#modalDateText').html('<span style="color:red;">Failed to load attendance details.</span>');
-			}
-		  });
+				  // Handle time slot or date click
+			 eventClick: function(calEvent, jsEvent, view) {
+		  const selectedDate = moment(calEvent.start).format('YYYY-MM-DD');
+		  showAttendanceDetails(selectedDate); // This will open your modal and load details
 		},
 
 
-		  // Toggle UI based on view
+
+
+
+		   // If you   want dayClick for month view:
+		  dayClick: function(date, jsEvent, view) {
+			const selectedDate = date.format('YYYY-MM-DD');
+			// Show loading text or spinner in the modal
+			 
+
+			// AJAX call to get detailed data for that date
+		showAttendanceDetails(selectedDate);
+		  },
+
+		  // Toggle UI based on view and reload events for agendaWeek
 		  viewRender: function(view, element) {
-			if (view.name === 'agendaWeek') {
+			if (view.name === 'agendaWeek') { 
+
+			  // Refetch events to get time slots for agendaWeek
+			  $('#calendar').fullCalendar('refetchEvents');
+
 			  $('.fc-left').show();
 			  $('.fc-event-container').show();
 			} else if (view.name === 'month') {
-			  $('.fc-left').hide(); // Example logic – you can adjust based on your layout
+				  $('#calendar').fullCalendar('refetchEvents');
+			  $('.fc-left').hide();
 			}
 		  }
 		});
@@ -775,7 +751,7 @@
             const year = $('#yearDropdown').val();
             const month = $('#monthDropdown').val();
             $('#calendar').fullCalendar('gotoDate', moment(`${year}-${month}-01`));
-            $('#calendar').fullCalendar('refetchEvents');
+            $('#calendar').fullCalendar('refetchEvents'); //calander refresh
           });
         });
 			function formatDate(dateStr) {
@@ -806,6 +782,93 @@
 			return `${day}-${month}-${year} ${strTime}`;
 		}
 
+				 function showAttendanceDetails(selectedDate) {
+		  $('#modalDateText').html('Loading details for: ' + selectedDate + '...');
+		  $('#dateModal').modal('show');
+
+			$.ajax({
+			  url: '/employee/MyInfo/GetAttendanceDetails', // Replace with your actual endpoint
+			  type: 'GET',
+			  data: { date: selectedDate },
+			  success: function(data) {
+				let html = "";
+
+					switch (data.recordType) {
+			case "Attendance":
+				html = `
+					<div class="card shadow-sm border-0">
+						<div class="card-body">
+							<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
+							<div class="row mb-2">
+								<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
+								<div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">${data.attendanceStatus ?? '-'}</span></div>
+							</div>
+							<div class="row mb-2">
+								<div class="col-md-6"><strong>Check-in:</strong> ${formatDateTime(data.firstLogDate)}</div>
+								<div class="col-md-6"><strong>Check-out:</strong> ${formatDateTime(data.lastLogDate)}</div>
+							</div>
+							<div class="row">
+							<div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
+
+							</div>
+						</div>
+					</div>`;
+				break;
+
+			case "Holiday":
+				html = `
+					<div class="card shadow-sm border-0">
+						<div class="card-body">
+							<h5 class="card-title mb-3 text-success">🎉 Holiday</h5>
+							<div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div>
+							<div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div>
+							<div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>
+						</div>
+					</div>`;
+				break;
+
+			case "Leave":
+				html = `
+					<div class="card shadow-sm border-0">
+						<div class="card-body">
+							<h5 class="card-title mb-3 text-warning">📅 Leave Details</h5>
+							<div class="mb-2"><strong>Reason:</strong> ${data.reason}</div>
+							<div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div>
+							<div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div>
+							<div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div>
+						</div>
+					</div>`;
+				break;
+
+			case "No Record Found":
+			default:
+				html = `<div class="alert alert-warning text-center">
+							<i class="bi bi-info-circle-fill"></i> No attendance  record found for this day.
+						</div>`;
+				break;
+		}
+				$('#modalDateText').html(html);
+			  },
+			  error: function() {
+				$('#modalDateText').html('<span style="color:red;">Failed to load attendance details.</span>');
+			  }
+			});
+		}
+							function formatSqlTimeToHoursMinutes(timeStr) {
+			if (!timeStr || typeof timeStr !== 'string') return '-';
+
+			const parts = timeStr.split(':');
+			if (parts.length < 2) return '-';
+
+			const hours = parseInt(parts[0], 10);
+			const minutes = parseInt(parts[1], 10);
+
+			let result = '';
+			if (hours > 0) result += `${hours}h `;
+			if (minutes > 0) result += `${minutes}m`;
+
+			return result.trim() || '0m';
+		}
 
 
     </script>

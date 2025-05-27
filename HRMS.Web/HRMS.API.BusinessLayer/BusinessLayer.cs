@@ -2610,9 +2610,11 @@ namespace HRMS.API.BusinessLayer
                 dailyStatuses = table.AsEnumerable()
                     .Select(row => new DailyAttendanceStatus
                     {
-                        DayLabel = row.Field<string>(0),       // assuming "Thu_1"
-                        Date = row.Field<DateTime>(1),         // assuming "2025-05-01"
-                        Status = row.IsNull(2) ? null : row.Field<string>(2)  // assuming "P", "L", etc.
+                        DayLabel = row.Field<string>(0),     
+                        Date = row.Field<DateTime>(1),
+                        FirstLogDate = row.Field<DateTime?>(2),
+                        LastLogDate = row.Field<DateTime?>(3),         
+                        Status = row.IsNull(4) ? null : row.Field<string>(4)   
                     }).ToList();
             }
 
@@ -2717,7 +2719,7 @@ namespace HRMS.API.BusinessLayer
                     attendanceStatus.WorkDate = row.Field<DateTime?>("WorkDate");
                     attendanceStatus.FirstLogDate = row.Field<DateTime?>("FirstLogDate");
                     attendanceStatus.LastLogDate = row.Field<DateTime?>("LastLogDate");
-                    attendanceStatus.HoursWorked = row.Field<int?>("HoursWorked");
+                    attendanceStatus.HoursWorked = row.Field<TimeSpan?>("HoursWorked");
                     attendanceStatus.AttendanceStatus = row.Field<string>("AttendanceStatus");
                     break;
 

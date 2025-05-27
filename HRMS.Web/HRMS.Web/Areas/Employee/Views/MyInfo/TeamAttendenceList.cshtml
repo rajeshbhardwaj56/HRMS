@@ -398,7 +398,7 @@
 								<div class="col-md-6"><strong>Check-out:</strong> ${formatDateTime(data.lastLogDate)}</div>
 							</div>
 							<div class="row">
-								<div class="col-md-6"><strong>Hours Worked:</strong> ${data.hoursWorked ?? '-'}</div>
+								<div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
 							</div>
 						</div>
 					</div>`;
@@ -494,6 +494,21 @@
 	});
 
 
+	function formatSqlTimeToHoursMinutes(timeStr) {
+			if (!timeStr || typeof timeStr !== 'string') return '-';
+
+			const parts = timeStr.split(':');
+			if (parts.length < 2) return '-';
+
+			const hours = parseInt(parts[0], 10);
+			const minutes = parseInt(parts[1], 10);
+
+			let result = '';
+			if (hours > 0) result += `${hours}h `;
+			if (minutes > 0) result += `${minutes}m`;
+
+			return result.trim() || '0m';
+		}
 
 </script>
 

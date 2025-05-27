@@ -83,10 +83,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
         private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
         {
+            // Define financial year start and end based on the current date
             DateTime today = DateTime.Today;
             //DateTime today = new DateTime(2024, 6, 14);
+            // DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1); // Start from April 1st of current financial year
             DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1); // Start from April 1st of current financial year
-            DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // March 31st of the next year
+            DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-11); // March 31st of the next year
 
             // Annual entitlement and accrual per month
 
@@ -108,7 +110,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 // Get the last day of the current month
                 int daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
-                DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth);
+                DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth).AddDays(-11);
 
                 // Adjust the comparison in the current month
                 if (current.Month == today.Month && current.Year == today.Year)
@@ -116,11 +118,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     // Special case: Compare the days worked in the current month up to today
                     int daysWorkedInMonth = (today - joinDate).Days + 1;
 
-                    // Accrue leave if more than 15 days worked
-                    if (daysWorkedInMonth > 15)
+                    // Accrue leave if more than 10 days worked
+                    if (daysWorkedInMonth > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
                     {
                         totalAccruedLeave += monthlyAccrual;
                     }
+
+
                 }
                 else
                 {
@@ -128,12 +132,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     if (joinDate <= lastDayOfMonth)
                     {
                         int daysWorkedInMonth = (lastDayOfMonth - joinDate).Days + 1;
-                        if (daysWorkedInMonth > 15)
+                        if (daysWorkedInMonth > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
                         {
                             totalAccruedLeave += monthlyAccrual;
                         }
                     }
                 }
+
                 // Move to the next month
                 current = current.AddMonths(1);
 
@@ -146,7 +151,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return totalAccruedLeave;
         }
-
 
     }
 }

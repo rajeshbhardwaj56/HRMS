@@ -665,13 +665,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 {
 
                     // Validation to prevent applying for leave on April 1, 2, and 3 of any year
-                    if ((startDate.Month == 4 && (startDate.Day == 1 || startDate.Day == 2 || startDate.Day == 3)) ||
-                        (endDate.Month == 4 && (endDate.Day == 1 || endDate.Day == 2 || endDate.Day == 3)))
-                    {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        var message = "You cannot apply for leave on April 1, 2, or 3.";
-                        return Json(new { isValid = false, message = message });
-                    }
+                    
+                    //if ((startDate.Month == 4 && (startDate.Day == 1 || startDate.Day == 2 || startDate.Day == 3)) ||
+                    //    (endDate.Month == 4 && (endDate.Day == 1 || endDate.Day == 2 || endDate.Day == 3)))
+                    //{
+                    //    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    //    var message = "You cannot apply for leave on April 1, 2, or 3.";
+                    //    return Json(new { isValid = false, message = message });
+                    //}
 
                     // Validation for not including Weekend Days and Holidays
                     for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
@@ -724,12 +725,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                         return Json(new { isValid = false, message = message });
                     }
-
-
-
-
-
-
+                     
                 }
                 //   Medical Leave
                 if (model.leaveResults.leaveSummaryModel.LeaveTypeID == (int)LeaveType.MedicalLeave)
@@ -889,8 +885,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
             // Define financial year start and end based on the current date
             DateTime today = DateTime.Today;
             //DateTime today = new DateTime(2024, 6, 14);
-            DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1); // Start from April 1st of current financial year
-            DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // March 31st of the next year
+           // DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1); // Start from April 1st of current financial year
+            DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 3, 31); // Start from 20th march of current financial year
+            DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-11); // March 31st of the next year
 
             // Annual entitlement and accrual per month
 
@@ -912,7 +909,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 // Get the last day of the current month
                 int daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
-                DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth);
+                DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth).AddDays(-11);
 
                 // Adjust the comparison in the current month
                 if (current.Month == today.Month && current.Year == today.Year)
@@ -920,8 +917,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     // Special case: Compare the days worked in the current month up to today
                     int daysWorkedInMonth = (today - joinDate).Days + 1;
 
-                    // Accrue leave if more than 15 days worked
-                    if (daysWorkedInMonth > 15)
+                    // Accrue leave if more than 10 days worked
+                    if (daysWorkedInMonth > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
                     {
                         totalAccruedLeave += monthlyAccrual;
                     }
@@ -934,7 +931,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     if (joinDate <= lastDayOfMonth)
                     {
                         int daysWorkedInMonth = (lastDayOfMonth - joinDate).Days + 1;
-                        if (daysWorkedInMonth > 15)
+                        if (daysWorkedInMonth > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
                         {
                             totalAccruedLeave += monthlyAccrual;
                         }
