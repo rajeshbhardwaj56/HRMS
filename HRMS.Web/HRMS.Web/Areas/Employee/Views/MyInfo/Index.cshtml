@@ -205,7 +205,30 @@
 														<h6>EmployeNumber</h6>
 														@($"PTK {Model.employmentDetail.EmployeNumber}")
 														
-													</div>													
+													</div>
+													@{
+														string genderText = "";
+														switch (Model.employeeModel.Gender)
+														{
+															case 1:
+																genderText = "Male";
+																break;
+															case 2:
+																genderText = "Female";
+																break;
+															case 3:
+																genderText = "Other";
+																break;
+														}
+													}
+
+													@if (!string.IsNullOrEmpty(genderText))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Gender</h6>
+															@genderText
+														</div>
+													}
 													@if (Model.employeeModel.DateOfBirth.HasValue)
 													{
 														<div class="col-lg-4 col-md-4 mb-2">

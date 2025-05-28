@@ -41,7 +41,6 @@
                     @Html.TextBoxFor(a => a.JoiningDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
                     @* @Html.ValidationMessageFor(m => m.JoiningDate) *@
                 </div>
-
                 <div class="col-md-4 form-group">
                     <label>Official Email <span class="Mandetory">*</span></label>
                                         @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "text", @required = "required" })                 
@@ -83,7 +82,6 @@
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
                        </div>
                 </div>
-
                 <div class="col-md-4 form-group position-relative">
                     <label>Designation <span class="Mandetory">*</span></label>
                     <div class="position-relative">
@@ -97,8 +95,7 @@
                     <i class="fa fa-chevron-down position-absolute"
                        style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
                 </div>
-                </div>
-
+                </div>              
                 <div class="col-md-4 form-group position-relative" id="ReportingManagerDropdownId">
                     <label>Reporting Manager(L1) <span class="Mandetory">*</span></label>
                     <div class="position-relative">
@@ -106,7 +103,7 @@
                         {
                             @class = "form-control",
                             @required = "required",
-                            @id = "ReportingManagerDropdown"
+                            @id = "ReportingManagerDropdown"                             
                         })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
@@ -122,12 +119,11 @@
                 <div class="col-md-4 form-group position-relative">
                     <label>Job Location <span class="Mandetory">*</span></label>
                     <div class="position-relative">
-                    @Html.DropDownListFor(x => x.JobLocationID, Model.JobLocations, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
+                        @Html.DropDownListFor(x => x.JobLocationID, Model.JobLocations, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                    </div>
                 </div>
-                </div>
-
                 <div class="col-md-4 form-group position-relative">
                     <label>Employment Type <span class="Mandetory">*</span></label>
                     <div class="position-relative">
@@ -233,6 +229,7 @@
         }
     }
         $(document).ready(function () {
+
         function fetchL2Manager(l1EmployeeId) {
             if (l1EmployeeId) {
                 $.ajax({
