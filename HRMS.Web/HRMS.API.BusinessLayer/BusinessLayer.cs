@@ -2534,7 +2534,7 @@ namespace HRMS.API.BusinessLayer
 
         public AttendanceInputParams GetAttendance(AttendanceInputParams model)
         {
-            string connectionString = _configuration["ConnectionStrings:conStr"].ToString();
+            string connectionString = model.conStr.ToString();
 
             try
             {

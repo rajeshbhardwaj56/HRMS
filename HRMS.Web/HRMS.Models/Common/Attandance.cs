@@ -22,6 +22,7 @@ namespace HRMS.Models.Common
         public string? Message { get; set; }
         public string? Status { get; set; }
         public long? RoleId { get; set; }
+        public string? conStr { get; set; }
 
     }
     public class Attendance
