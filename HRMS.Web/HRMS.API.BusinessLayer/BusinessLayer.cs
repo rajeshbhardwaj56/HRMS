@@ -1767,7 +1767,13 @@ namespace HRMS.API.BusinessLayer
             {
                 result.leaveSummaryModel = result.leavesSummary.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
             }
+            int totalRecords = 0;
 
+            if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
+            {
+                int.TryParse(dataSet.Tables[1].Rows[0]["CompOff"].ToString(), out totalRecords);
+            }
+            totalRecords = totalRecords;
             return result;
         }
 
