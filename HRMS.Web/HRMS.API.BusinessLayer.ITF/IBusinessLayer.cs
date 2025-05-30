@@ -97,5 +97,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public EmployeePersonalDetails GetEmployeeDetails(EmployeePersonalDetailsById objmodel);
         public Results GetCompaniesLogo(CompanyLoginModel model);
         public ReportingStatus CheckEmployeeReporting(ReportingStatus obj);
+        public List<EducationalDetail> GetEducationDetails(EducationDetailParams model);
+        public Result AddUpdateEducationDetail(EducationalDetail model);
+        public string DeleteEducationDetail(EducationDetailParams model);
     }
 }

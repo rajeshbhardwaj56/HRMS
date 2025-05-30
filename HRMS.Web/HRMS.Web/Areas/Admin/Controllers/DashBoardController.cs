@@ -47,39 +47,30 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var session = _context.HttpContext.Session;
-
             var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID));
             var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
             var roleId = Convert.ToInt64(session.GetString(Constants.RoleID));
             var token = session.GetString(Constants.SessionBearerToken);
-
             var inputParams = new DashBoardModelInputParams
             {
                 EmployeeID = employeeId,
                 RoleID = roleId
             };
-
             var apiUrl = _businessLayer.GetFormattedAPIUrl(
                 APIControllarsConstants.DashBoard,
                 APIApiActionConstants.GetDashBoardModel
             );
-
             var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
             var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
-
             if (model == null)
-                return View();
-
-            // Update employee photos if profile photo exists
+                return View();         
             if (!string.IsNullOrEmpty(model.ProfilePhoto) && model.EmployeeDetails != null)
             {
                 foreach (var employee in model.EmployeeDetails.Where(e => !string.IsNullOrEmpty(e.EmployeePhoto)))
                 {
                     employee.EmployeePhoto = _s3Service.GetFileUrl(employee.EmployeePhoto);
                 }
-            }
-
-            // Update WhatsHappening icons
+            }          
             if (model.WhatsHappening != null)
             {
                 foreach (var item in model.WhatsHappening.Where(w => !string.IsNullOrEmpty(w.IconImage)))

@@ -218,5 +218,26 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
+        [HttpPost]
+        public IActionResult GetEducationDetails(EducationDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEducationDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateEducationDetail(EducationalDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEducationDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteEducationDetail(EducationDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteEducationDetail(model));
+            return response;
+        }
     }
 }

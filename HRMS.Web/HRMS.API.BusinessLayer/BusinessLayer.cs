@@ -1551,7 +1551,7 @@ namespace HRMS.API.BusinessLayer
                                   ToDate = dataRow.Field<DateTime>("ToDate"),
                                   Description = dataRow.Field<string>("Description"),
                                   Status = dataRow.Field<bool>("Status"),
-                                  JobLocationTypeID = dataRow.Field<long>("JobLocationTypeID")                                  
+                                  JobLocationTypeID = dataRow.Field<long>("JobLocationTypeID")
                               }).ToList();
 
             if (model.HolidayID > 0)
@@ -1570,7 +1570,7 @@ namespace HRMS.API.BusinessLayer
         public Result AddUpdateHoliday(HolidayModel HolidayModel)
         {
             Result model = new Result();
-          
+
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@HolidayID", HolidayModel.HolidayID));
             sqlParameter.Add(new SqlParameter("@HolidayName", HolidayModel.HolidayName));
@@ -3783,5 +3783,82 @@ namespace HRMS.API.BusinessLayer
         }
         #endregion CheckEmployeeReporting
 
+        #region EmployeeAdditonalDetails
+
+        public List<EducationalDetail> GetEducationDetails(EducationDetailParams model)
+        {
+            List<SqlParameter> parameters = new()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EducationDetailsByEmployee, parameters);
+            if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
+                return new List<EducationalDetail>();
+
+            return dataSet.Tables[0].AsEnumerable()
+                .Select(row => new EducationalDetail
+                {
+                    EducationDetailID = row.Field<long>("EducationDetailID"),
+                    EmployeeID = row.Field<long>("EmployeeID"),
+                    School_University = row.Field<string>("School_University"),
+                    Qualification = row.Field<string>("Qualification"),
+                    YearOfPassing = row.Field<string>("YearOfPassing"),
+                    Percentage = row.Field<string>("Percentage"),
+                    Major_OptionalSubjects = row.Field<string>("Major_OptionalSubjects"),
+                    CertificateImage = row.Field<string>("CertificateImage")
+                }).ToList();
+        }
+
+        public Result AddUpdateEducationDetail(EducationalDetail eduDetail)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@EducationDetailID", eduDetail.EducationDetailID),
+        new SqlParameter("@EmployeeID", eduDetail.EmployeeID),
+        new SqlParameter("@School_University", eduDetail.School_University),
+        new SqlParameter("@Qualification", eduDetail.Qualification),
+        new SqlParameter("@YearOfPassing", eduDetail.YearOfPassing),
+        new SqlParameter("@Percentage", eduDetail.Percentage),
+        new SqlParameter("@Major_OptionalSubjects", eduDetail.Major_OptionalSubjects),
+        new SqlParameter("@CertificateImage", eduDetail.CertificateImage),
+        new SqlParameter("@IsActive", true),
+        new SqlParameter("@IsDeleted", false),
+        new SqlParameter("@UserID", eduDetail.UserID)
+    };
+
+            SqlParameterCollection pOutputParams = null;
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EducationDetails, sqlParameter, ref pOutputParams);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new Result
+                    {
+                        Message = dataRow.Field<string>("Result"),
+                        PKNo = dataRow.Field<long?>("RetEducationDetailID") ?? 0
+                    })
+                    .FirstOrDefault();
+            }
+
+            return model;
+        }
+
+        public string DeleteEducationDetail(EducationDetailParams model)
+        {       
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@EducationDetailID", model.EducationDetailID));
+            SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
+            {
+                Direction = ParameterDirection.Output
+            };
+            sqlParameter.Add(outputMessage);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EducationDetails, sqlParameter);
+            string message = outputMessage.Value.ToString();
+            return message;
+        }
+
+        #endregion EmployeeAdditonalDetails
     }
 }

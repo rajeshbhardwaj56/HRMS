@@ -36,13 +36,11 @@
     bool isEdit = Model != null && Model.EmployeeID > 0;
     var headerText = isEdit ? "Edit Employee" : "New Employee";
 }
-
-
-
 <div class="main-header anim" style="--delay: 0s">
     @headerText
     @if (isEdit)
     {
+      
         <div class="user-settings dropdown">
             <div class="user-name">Additional Details</div>
             <a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
@@ -53,57 +51,31 @@
             </a>
 
             <div class="dropdown-menu" aria-labelledby="navbarDropdown" data-bs-popper="none">
-               @*  <div class="dropdown-item">
-                </div>
-                <div class="dropdown-divider"></div> *@
-                <div class="">
-                    <ul class="list-unstyled">
-                        <li>
-                            <a class="dropdown-item" href="/employee/myinfo/index">
-                                <span class="mr-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
-                                </span>
-                                Profile
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="/Home/ChangePassword">
-                                <span class="mr-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings">
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                                    </svg>
-                                </span>
-                                ChangePassword
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="dropdown-divider"></div>
-                <ul class="list-unstyled">
+                <ul class="list-unstyled mb-1">
                     <li>
-                        <a class="dropdown-item" href="/">
+                        <a class="dropdown-item" href="~/HR/Employee/FamilyDetail/@Model.EncryptedIdentity">
                             <span class="mr-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-power">
-                                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                                    <line x1="12" y1="2" x2="12" y2="12"></line>
-                                </svg>
+                                <i class="fa fa-users"></i>
                             </span>
-                            Sign Out
+                            Family Details
                         </a>
                     </li>
-                </ul>
+                    <li>
+                        <a class="dropdown-item" href="~/HR/Employee/EducationalDetail/@Model.EncryptedIdentity">
+                            <span class="mr-2">
+                                <i class="fa fa-graduation-cap"></i>
+                            </span>
+                            Education Details
+                        </a>
+                    </li>
+                    </ul>
+                
             </div>
         </div>
     }
 </div>
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
-
-
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Personal Details</div>
             @Html.HiddenFor(m => m.EmployeeID)
@@ -111,21 +83,12 @@
             @Html.HiddenFor(m => m.ProfilePhoto)
             @Html.HiddenFor(m => m.PanCardImage)
             @Html.HiddenFor(m => m.AadhaarCardImage)
-            @* <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Personal Details </label>
-            @Html.HiddenFor(m => m.EmployeeID)
-            @Html.HiddenFor(m => m.CompanyID)
-
-            </div> *@
             <div class="row">
-
-
                 <div class="col-md-4 form-group">
                     <label>First Name <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
                     @*  @Html.ValidationMessageFor(m => m.FirstName) *@
                 </div>
-
                 <div class="col-md-4 form-group">
                     <label>Middle Name <span class="Mandetory"> </span></label>
                     @Html.TextBoxFor(a => a.MiddleName, new { @class = "form-control" })
@@ -794,7 +757,7 @@
                 }
             };
 
-            reader.readAsDataURL(file); // Triggers preview
+            reader.readAsDataURL(file); 
         }
     }
 </script>

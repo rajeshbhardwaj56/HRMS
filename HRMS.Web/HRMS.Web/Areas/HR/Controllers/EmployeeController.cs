@@ -105,6 +105,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             else
             {
+                var encrpt = id;
                 id = _businessLayer.DecodeStringBase64(id);
                 employee.EmployeeID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -121,7 +122,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     employee.PanCardImage = _s3Service.GetFileUrl(employee.PanCardImage);
                 }
-
+                employee.EncryptedIdentity = encrpt;
                 if (employee.References == null || employee.References.Count == 0)
                 {
                     employee.References = new List<HRMS.Models.Employee.Reference>() {
@@ -141,6 +142,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
             employee.Departments = results.Departments;
+
             return View(employee);
         }
 
@@ -348,7 +350,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             try
             {
-                // Prepare the input parameters for L2 manager retrieval
+
                 L2ManagerInputParams input = new L2ManagerInputParams
                 {
                     L1EmployeeID = l1EmployeeId
@@ -698,12 +700,125 @@ namespace HRMS.Web.Areas.HR.Controllers
             ReportingStatus obj = new ReportingStatus();
             obj.EmployeeId = employeeId;
             obj.Status = isActive;
-
             var data = _businessLayer.SendPostAPIRequest(obj, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.CheckEmployeeReporting), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var ReportingData = JsonConvert.DeserializeObject<ReportingStatus>(data);
-
             return Ok(new { success = true, data = ReportingData });
         }
 
+
+        [HttpGet]
+        public IActionResult FamilyDetail(string id)
+        {
+            id = _businessLayer.DecodeStringBase64(id);
+            var employee = Convert.ToInt64(id);
+            return View(employee);
+        }
+
+        [HttpGet]
+        public IActionResult EducationalDetail(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var model = new EducationalDetail
+            {
+                EmployeeID = decodedEmployeeId
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public JsonResult GetEducationDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            EducationDetailParams educationDetailParams = new EducationDetailParams();
+            educationDetailParams.EmployeeID = EmployeeID;
+            var data = _businessLayer.SendPostAPIRequest(educationDetailParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEducationDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<List<EducationalDetail>>(data);
+          
+            if (results != null)
+            {
+                results.ForEach(x =>
+                {
+                    if (!string.IsNullOrEmpty(x.CertificateImage))
+                    {
+                        x.CertificateImage = _s3Service.GetFileUrl(x.CertificateImage);
+                    }
+                });
+            }
+            return Json(new
+            {
+                data = results
+            });
+        }
+
+        [HttpPost]
+        public ActionResult EducationalDetail(EducationalDetail eduDetail, List<IFormFile> CertificateFile)
+        {
+            if (ModelState.IsValid)
+            {
+                eduDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+                ProcessFileUpload(CertificateFile, eduDetail.CertificateImage, out string newPanKey);
+                if (!string.IsNullOrEmpty(newPanKey))
+                {
+                    if (!string.IsNullOrEmpty(eduDetail.CertificateImage))
+                    {
+                        _s3Service.DeleteFile(eduDetail.CertificateImage);
+                    }
+                    eduDetail.CertificateImage = newPanKey;
+                }
+                else
+                {
+                    eduDetail.CertificateImage = ExtractKeyFromUrl(eduDetail.CertificateImage);
+                }
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    eduDetail,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEducationDetail),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Education details saved successfully.";
+                    return RedirectToActionPermanent(WebControllarsConstants.EducationalDetail, WebControllarsConstants.Employee);
+                }
+                else
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Failed to save education details.";
+                }
+            }
+
+            return View(eduDetail);
+        }
+
+       
+        [HttpPost]
+        public IActionResult DeleteEducationDetail(long encodedId)
+        {
+                         
+                EducationDetailParams model = new EducationDetailParams
+                {
+                    EducationDetailID = encodedId
+                };
+           
+                var response = _businessLayer.SendPostAPIRequest(
+                    model,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEducationDetail),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                if (!string.IsNullOrEmpty(response))
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = response;
+
+                    return Json(new { success = true, message = response });
+                }
+
+                return StatusCode(500, "Failed to delete the record.");
+        }
     }
 }

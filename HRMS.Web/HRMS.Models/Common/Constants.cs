@@ -147,6 +147,8 @@ namespace HRMS.Models.Common
         public const string MyAttendanceList = "MyAttendanceList";
         public const string MyAttendance = "MyAttendance";
         public const string WhatshappeningListing = "WhatshappeningListing";
+
+        public const string EducationalDetail = "EducationalDetail";
     }
 
     public class APIApiActionConstants
@@ -235,6 +237,9 @@ namespace HRMS.Models.Common
         public const string GetWhatsHappenings = "GetWhatsHappenings";
         public const string CheckEmployeeReporting = "CheckEmployeeReporting";
 
+        public const string AddUpdateEducationDetail = "AddUpdateEducationDetail";
+        public const string GetEducationDetails = "GetEducationDetails";
+        public const string DeleteEducationDetail = "DeleteEducationDetail";
 
     }
 

@@ -30,7 +30,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="announcementModalLabel">Announcement Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
                 <img id="modalImage" src="" class="rounded mb-3"   alt="Announcement Image">
@@ -124,7 +124,7 @@ $('#modalDescription').html(description.replace(/<\/?p>/g, ''));
             if (!dateStr) return "";
 
             let date = new Date(dateStr);
-            let day = date.getDate(); // No leading zero for single-digit days
+            let day = date.getDate(); 
             let monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             let month = monthNames[date.getMonth()];
             let year = date.getFullYear();
