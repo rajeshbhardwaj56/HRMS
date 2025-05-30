@@ -18,6 +18,7 @@ namespace HRMS.Models.MyInfo
         public LeavePolicyModel LeavePolicyDetails { get; set; } = new LeavePolicyModel();
         public List<EmploymentHistory> employmentHistory { get; set; }
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
+        public int? CampOffLeaveCount { get; set; }
 
 
     }

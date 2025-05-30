@@ -236,6 +236,11 @@ namespace HRMS.Models.Common
         public const string GetWhatsHappenings = "GetWhatsHappenings";
         public const string CheckEmployeeReporting = "CheckEmployeeReporting";
 
+       // Export Employee
+        public const string FetchExportEmployeeExcelSheet = "FetchExportEmployeeExcelSheet";
+        public const string GetValidateCompOffLeave = "GetValidateCompOffLeave";
+        public const string UpdateLeaveStatus = "UpdateLeaveStatus";
+
 
     }
 

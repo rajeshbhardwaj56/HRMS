@@ -627,6 +627,7 @@
 			type: 'POST',
 			data: { Year: year, Month: month },
 			success: function(response) {
+				console.log(response);
 			  $("#employeeFullName").text(response.employeeFullName);
 			  let events = [];
 			  if (response && response.data && Array.isArray(response.data.dailyStatuses)) {

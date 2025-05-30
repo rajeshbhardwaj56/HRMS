@@ -1,11 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-
+@using HRMS.Models;
+@using HRMS.Models.Common;
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 
 @model HRMS.Models.Common.Results
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
 
 	ViewData["Title"] = "Employee";
 
@@ -15,9 +17,13 @@
 
 <div class="main-header anim" style="--delay: 0s">
 	Employee List
-	<section class="right-button-employee" />
+	<section class="right-button-employee" >
 	<a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a>
 	<a href="~/Admin/Dashboard/ImportExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees</button></a>
+		@if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.HR))
+                        {
+	 <button id="export-employee-btn" class="btn btn-addBtn" >Export Employees  </button> 
+						}
 	</section>
 </div>
 <div class="table-responsive py-3">
@@ -211,6 +217,25 @@
 		});
 	});
 
+	$("#export-employee-btn").on("click", function () {
+		const $btn = $(this);
 
+		const url = `/HR/Employee/ExportEmployeeSheet`;
+
+		// Change button text and disable it
+		$btn.prop("disabled", true).text("Please wait...");
+
+		// Create a hidden iframe to trigger download without navigating away
+		const $iframe = $("<iframe>")
+			.hide()
+			.attr("src", url)
+			.appendTo("body");
+
+		// Optional: Re-enable button after some delay (e.g., 5 seconds)
+		setTimeout(() => {
+			$btn.prop("disabled", false).text("Export Employees");
+			$iframe.remove(); // Clean up
+		}, 5000);  
+	});
 
 </script>

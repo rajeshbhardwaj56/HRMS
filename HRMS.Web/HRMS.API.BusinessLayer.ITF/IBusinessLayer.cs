@@ -12,6 +12,8 @@ using HRMS.Models.ShiftType;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.WhatsHappeningModel;
+using HRMS.Models.ExportEmployeeExcel;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -98,5 +100,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetCompaniesLogo(CompanyLoginModel model);
         public ReportingStatus CheckEmployeeReporting(ReportingStatus obj);
         public AttendanceDetailsVM FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model);
+        public List<ExportEmployeeDetailsExcel> FetchExportEmployeeExcelSheet(EmployeeInputParams model);
+        public CompOffValidationResult GetValidateCompOffLeave(CampOffEligible model);
+        public UpdateLeaveStatus UpdateLeaveStatus(UpdateLeaveStatus model);
     }
 }

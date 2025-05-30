@@ -217,6 +217,32 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.CheckEmployeeReporting(obj));
             return response;
         }
+        
+        [HttpPost]
+        public IActionResult FetchExportEmployeeExcelSheet(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.FetchExportEmployeeExcelSheet(model));
+            return response;
+        }
+        
+        
+        [HttpPost]
+        public IActionResult GetValidateCompOffLeave(CampOffEligible model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetValidateCompOffLeave(model));
+            return response;
+        }
+        
+        [HttpPost]
+        public IActionResult UpdateLeaveStatus(UpdateLeaveStatus model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.UpdateLeaveStatus(model));
+            return response;
+        }
+        
 
     }
 }

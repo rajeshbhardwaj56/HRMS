@@ -264,12 +264,19 @@
 				<td>${record.employeNumber}</td>
 				<td>${record.employeeName}</td>`;
 					 dayKeys.forEach(day => {
-		const status = record.attendanceByDay[day];
-		const className = status === "P" ? "P"
-			: status === "A" ? "A"
-			: status === "H" ? "H"
-			: status === "L" ? "table-warning text-dark"
-			: "";
+		let status = record.attendanceByDay[day];
+
+	if (status === "Sa" || status === "S") {
+		status = "H";  // assign 'H' to status if it's Sa or S
+	}
+
+	const className = status === "P" ? "P"
+		: status === "A" ? "A"
+		: status === "H" ? "H"
+		: status === "L" ? "table-warning text-dark"
+		: "";
+
+			
 
 		const dateStr = day.replace("_", "-");
 		row += `<td class="${className}" data-date="${dateStr}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}">
