@@ -66,53 +66,7 @@
     }
 
 }
-	SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
-	SelectListItem employmentHistoryCountry;
-	var CountryData = @Model.employeeModel.Countries;
-	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
-	ViewData["Title"] = "Employee";
-	var ProfilePhoto = "";
-	if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
-	{
-		ProfilePhoto = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto);
-	}
-	else
-	{
-		ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
-	}
-	var UploadCertificate = "";
-	if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
-	{
-		UploadCertificate = Model.leaveResults.leaveSummaryModel.UploadCertificate;
-	}
-	else
-	{
-		UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
-	}
-	if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
-	}
-	if (Model.leaveResults.leaveSummaryModel.EndDate == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.EndDate = DateTime.Now;
-	}
-	if (Model.leaveResults.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
-	}
-	if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
-	}
-	if (Model.leaveResults.leaveSummaryModel.ChildDOB == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.ChildDOB = DateTime.Now;
-	}
-	var fullDayValue = (int)LeaveDay.FullDay;
-	var halfDayValue = (int)LeaveDay.HalfDay;
-}
+	 
 @functions {
 	public string DisplayValue(string value)
 	{
