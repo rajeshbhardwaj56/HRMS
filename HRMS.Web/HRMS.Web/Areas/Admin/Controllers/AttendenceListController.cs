@@ -142,7 +142,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 UserId = employeeId,
             };
 
-            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForMonthlyViewCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
 
             return Json(new { data = model, employeeFullName = employeeFullName });

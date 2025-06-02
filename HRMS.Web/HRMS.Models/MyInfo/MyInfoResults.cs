@@ -20,6 +20,7 @@ namespace HRMS.Models.MyInfo
         public EmploymentSeparationDetail employeeSeparationDetail { get; set; } = new EmploymentSeparationDetail();
         public List<EmploymentHistory> employmentHistory { get; set; }
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
+        public int? CampOffLeaveCount { get; set; }
 
 
     }

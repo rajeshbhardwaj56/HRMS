@@ -24,6 +24,7 @@ namespace HRMS.Web.AttendanceScheduler
             models.Year = previousDay.Year;
             models.Month = previousDay.Month;
             models.Day = previousDay.Day;
+            models.conStr = _configuration["AttendanceConnectionStrings:conStr"].ToString(); 
             var response = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendance), "", true).Result.ToString();
             var result = JsonConvert.DeserializeObject<dynamic>(response.ToString());
 

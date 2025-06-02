@@ -244,6 +244,109 @@ namespace HRMS.Web.Controllers
             }
             return View(objmodel);
         }
+      
+        [HttpPost]
+        public ActionResult ResetPassword(ResetPasswordModel model)
+        {
+            try
+            {
+                string apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.ResetPassword);
+                string responseData = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Result>(responseData);
+
+                if (result?.UserID < 0)
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = "An error occurred. Please try again later.";
+                }
+                else
+                {
+                    ChangePasswordModel objmodel = new ChangePasswordModel();
+                    objmodel.EmailId = model.UserName;
+                    var ForgetapiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
+                    var data = _businessLayer.SendPostAPIRequest(objmodel, ForgetapiUrl, null, false).Result.ToString();
+                    var Forgeresult = JsonConvert.DeserializeObject<Result>(data);
+
+                    if (Forgeresult == null || Forgeresult.Data == null)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid response from server.";
+                        return View(model);
+                    }
+                    UserModel userModel = JsonConvert.DeserializeObject<UserModel>((string)Forgeresult.Data);
+                    if (userModel != null)
+                    {
+                        if (userModel.EmployeeID > 0)
+                        {
+                            // Prepare email content
+                            sendEmailProperties sendEmailProperties = new sendEmailProperties
+                            {
+                                emailSubject = "Updated Password",
+                                emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+            Please Find below the updated password.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Employee No</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Employee Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Manager Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Updated Password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.UserName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.FullName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.ManagerName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.DepartmentName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{model.Password}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+            </a><br/><br/>
+
+            <p style='color: #000; font-size: 13px;'>
+                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
+
+                If you are happy with our services or want to share any feedback, do email us at 
+                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+                All email correspondence is sent only through our official domain: 
+                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+                Your cooperation is greatly appreciated.
+            </p>
+        </div>"
+                            };
+                            // Add recipient email
+                            sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
+
+                            // Send email
+                            emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
+                        }
+                    }
+
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "An unexpected error occurred. Please try again later.";
+            }
+
+            return View(model);
+        }
         public ActionResult ChangePassword()
         {
             ResetPasswordModel objmodel = new ResetPasswordModel();
@@ -313,124 +416,9 @@ namespace HRMS.Web.Controllers
 
         public ActionResult Successpage()
         {
-            
-            return View( );
+
+            return View();
         }
-
-
-
-
-        [HttpPost]
-        public ActionResult ResetPassword(ResetPasswordModel model)
-        {
-            try
-            {
-                string apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.ResetPassword);
-                string responseData = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
-
-                var result = JsonConvert.DeserializeObject<Result>(responseData);
-
-                if (result?.UserID < 0)
-                {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "An error occurred. Please try again later.";
-                }
-                else
-                {
-                    ChangePasswordModel objmodel = new ChangePasswordModel();
-                    objmodel.EmailId = model.UserName;
-                    var ForgetapiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
-                    var data = _businessLayer.SendPostAPIRequest(objmodel, ForgetapiUrl, null, false).Result.ToString();
-                    var Forgeresult = JsonConvert.DeserializeObject<Result>(data);
-
-                    if (Forgeresult == null || Forgeresult.Data == null)
-                    {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid response from server.";
-                        return View(model);
-                    }
-
-                    UserModel userModel = JsonConvert.DeserializeObject<UserModel>((string)Forgeresult.Data);
-
-                    if (userModel != null)
-                    {
-                        if (userModel.EmployeeID > 0)
-                        {
-
-
-
-                            // Prepare email content
-                            sendEmailProperties sendEmailProperties = new sendEmailProperties
-                            {
-                                emailSubject = "Updated Password",
-                                emailBody = $@"
-        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
-            Hi,<br/><br/>
-            Please Find below the updated password.<br/><br/>
-
-            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
-                <thead style='background-color: #f2f2f2;'>
-                    <tr>
-                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Employee No</th>
-                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Employee Name</th>
-                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Manager Name</th>
-                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
-                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Updated Password</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.UserName}</td>
-                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.FullName}</td>
-                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.ManagerName}</td>
-                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.DepartmentName}</td>
-                        <td style='border: 1px solid #000; padding: 8px;'>{model.Password}</td>
-                    </tr>
-                </tbody>
-            </table><br/>
-            </a><br/><br/>
-
-            <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
-            </p>
-        </div>"
-                            };
-
-
-
-                            // Add recipient email
-                            sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
-
-                            // Send email
-                            emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
-                        }
-                    }
-
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "An unexpected error occurred. Please try again later.";
-            }
-
-            return View(model);
-        }
-
 
         [HttpPost]
         [AllowAnonymous]
