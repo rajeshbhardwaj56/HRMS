@@ -267,9 +267,9 @@
                 <div class="p-3">
                     <ul class="list-group body-text">
                      
-                        @if (Model?.WhatsHappening != null && Model.WhatsHappening.Any(x => x.FromDate >= DateTime.Today))
+                        @if (Model?.WhatsHappening != null && Model.WhatsHappening.Any(x => x.ToDate >= DateTime.Today))
                         {
-                            foreach (var item in Model.WhatsHappening.Where(x => x.FromDate >= DateTime.Today))
+                            foreach (var item in Model.WhatsHappening.Where(x => x.ToDate >= DateTime.Today))
                             {
                             <li class="list-group-item py-3">
                                 <div class="d-flex justify-content-between align-items-center">                                                                    

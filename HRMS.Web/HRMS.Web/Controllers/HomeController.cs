@@ -489,6 +489,7 @@ namespace HRMS.Web.Controllers
                 _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName ?? string.Empty);
                 _context.HttpContext.Session.SetString(Constants.Surname, model.Surname ?? string.Empty);
                 _context.HttpContext.Session.SetString(Constants.OfficialEmailID, model.OfficialEmailID ?? string.Empty);
+                _context.HttpContext.Session.SetString(Constants.JobLocationID,model.JobLocationID.ToString());
                 var CompanyDatas = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas);
                 var CompanyData = results.companyModel;

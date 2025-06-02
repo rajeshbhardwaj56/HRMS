@@ -85,6 +85,7 @@ namespace HRMS.Models.Common
         public const string EmployeeNumberWithoutAbbr = "EmployeeNumberWithoutAbbr";
         public const string Whatshappening = "Uploads/Whatshappening/";
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
+        public const string JobLocationID = "JobLocationID";
     }
     public class RoleConstants
     {

@@ -103,7 +103,14 @@
 		margin-left: 14px;
 	}
 
-	 
+	.Show-filter-class {
+		background-color: #ffffff;
+		border-radius: 8px;
+		padding: 12px 20px;
+		box-shadow: 0 0 8px rgba(0,0,0,0.1);
+		margin: 0 auto; /* center horizontally */
+		float: left;
+	}
 </style>
 
 
@@ -135,8 +142,23 @@
 	</div>
 
 
+	<div class="d-flex   mb-4 mt-4 Show-filter-class">
+		<label for="page-size-select" class="filter-label me-2">Show:</label>
+		<select id="page-size-select" class="form-select me-4" style="width: 100px;">
+			<option value="10">10</option>
+			<option value="20" selected>20</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+		</select>
+	</div>
+
+
+
 	<div class="table-container">
+
 		<table class="table table-bordered table-hover">
+		
+
 			<thead class="table-dark">
 				<tr id="header-row">
 					<th>Employee ID</th>
@@ -196,7 +218,7 @@
 		populateYearDropdown();  // Populate years
 	selectCurrentMonth();
 		let currentPage = 1;
-		const pageSize = 20;
+		let pageSize = 20;
 		let totalPages = 1;
 		let isLoading = false;
 
@@ -332,7 +354,11 @@
 
 		// $("#total-records-info").html(`<span class="text-muted">Total Records: ${total}</span>`);
 	}
-
+		$("#page-size-select").on("change", function () {
+		pageSize = parseInt($(this).val());
+		currentPage = 1;
+		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
+	});
 	// click handler
 	$("#pagination-container").off("click").on("click", "a.page-link", function (e) {
 		e.preventDefault();
@@ -516,6 +542,7 @@
 
 			return result.trim() || '0m';
 		}
+		
 
 </script>
 
