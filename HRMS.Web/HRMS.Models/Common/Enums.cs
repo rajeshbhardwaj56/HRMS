@@ -40,7 +40,15 @@ namespace HRMS.Models.Common
         CompOff = 4,
         Miscarriage = 5,
         MedicalLeave = 6,
-        Paternity = 7
+        Paternity = 7,
+        LeaveWithOutPay = 8
+
+    }
+    public enum CompOff
+    {
+        CompOff = 1,
+        OtherLeaves =2,
+        
 
     }
 

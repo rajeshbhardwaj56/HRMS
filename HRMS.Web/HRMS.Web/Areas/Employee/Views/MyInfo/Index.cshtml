@@ -10,53 +10,63 @@
 @{
 	SelectListItem selectCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.CorrespondenceCountryID.ToString()).FirstOrDefault();
 
-	SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
-	SelectListItem employmentHistoryCountry;
-	var CountryData = @Model.employeeModel.Countries;
-	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
-	ViewData["Title"] = "Employee";
-	var ProfilePhoto = "";
-	if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
-	{
-		ProfilePhoto = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto);
-	}
-	else
-	{
-		ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
-	}
-	var UploadCertificate = "";
-	if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
-	{
-		UploadCertificate = Model.leaveResults.leaveSummaryModel.UploadCertificate;
-	}
-	else
-	{
-		UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
-	}
-	if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
-	}
-	if (Model.leaveResults.leaveSummaryModel.EndDate == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.EndDate = DateTime.Now;
-	}
-	if (Model.leaveResults.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
-	}
-	if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
-	}
-	if (Model.leaveResults.leaveSummaryModel.ChildDOB == DateTime.MinValue)
-	{
-		Model.leaveResults.leaveSummaryModel.ChildDOB = DateTime.Now;
-	}
-	var fullDayValue = (int)LeaveDay.FullDay;
-	var halfDayValue = (int)LeaveDay.HalfDay;
+    SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
+    SelectListItem employmentHistoryCountry;
+    var CountryData = @Model.employeeModel.Countries;
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+    ViewData["Title"] = "Employee";
+    var ProfilePhoto = "";
+    if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
+    {
+        ProfilePhoto = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto) ;
+    }
+    else
+    {
+        ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+    }
+    var UploadCertificate = "";
+    if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
+    {
+        UploadCertificate =Model.leaveResults.leaveSummaryModel.UploadCertificate;
+    }
+    else
+    {
+        UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
+    }
+    if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.EndDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.EndDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.ChildDOB == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.ChildDOB = DateTime.Now;
+    }
+    var fullDayValue = (int)LeaveDay.FullDay;
+    var halfDayValue = (int)LeaveDay.HalfDay;
+    var filteredLeaveTypes = Model.leaveResults.leaveTypes;
+
+    if (Model.CampOffLeaveCount <= 0)
+    {
+        filteredLeaveTypes = filteredLeaveTypes
+            .Where(lt => !lt.Text.Equals("Compensatory Off", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
 }
+	 
 @functions {
 	public string DisplayValue(string value)
 	{
@@ -125,31 +135,30 @@
 							</li>
 						}
 
-						@if (Model.employmentDetail.JoiningDate != null)
-						{
-							if (Model.employeeModel.LeavePolicyID > 0)
-							{
-								@if (RoleName != Convert.ToInt64(Roles.Admin))
-								{
-									<li class="nav-item" role="presentation">
-										<a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
-									</li>
-								}
+                        @if (Model.employmentDetail.JoiningDate != null  )
+                        {
+                            if (Model.employeeModel.LeavePolicyID > 0)
+                            {
+                                @*         @if (RoleName != Convert.ToInt64(Roles.Admin)  )
+                        { *@
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+                                </li>
+                                @*   } *@
 
-							}
-							else
-							{
-								<li class="nav-item" role="presentation">
-									<a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Leave Policy not available. Please contact your administrator.');">Leave Info</a>
-								</li>
-							}
-						}
-						else
-						{
-							<li class="nav-item" role="presentation">
-								<a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
-							</li>
-						}
+                            }
+                            else
+                            {
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Leave Policy not available. Please contact your administrator.');">Leave Info</a>
+                                </li>
+                            }
+                        }
+                        else{
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
+                            </li>
+                        }
 
 						<li class="nav-item" role="presentation" style="display: none;">
 							<a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
@@ -636,45 +645,56 @@
 													<div class="row">
 														<div class="col-lg-8">
 
-															<div class="">
-																<div class="">
-																	@*  <form class="body-text" method="post" enctype="multipart/form-data"> *@
-																	<form id="myForm" method="post" enctype="multipart/form-data" action="/employee/myinfo/Index/">
-																		<div id="responseMessage" class="error-message" style=" color: red;font-size: 15px;font-weight: 700;">                                                                        </div>                                                                        <div class="row py-2">
-																			<div class="col-lg-6 col-md-12">
-																				<label for="leavetype" class="">Leave Type:</label>
-																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
-																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
-																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
-																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
-																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
-																				@Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" })
+                                                            <div class="">
+                                                                <div class="">
+                                                                    @*  <form class="body-text" method="post" enctype="multipart/form-data"> *@
+                                                                    <form id="myForm" method="post" enctype="multipart/form-data" action="/employee/myinfo/Index/">
 
-																			</div>
-																			<div class="col-lg-6 col-md-12" id="leaveDurationContainer">
-																				<label for="leavetype" class="">Leave Duration:</label>
-																				@Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "leaveDurationDropdown" })
-																			</div>
-																			<div class="col-lg-6 col-md-12" id="ChildDOBDateContainer">
-																				<!-- New ID for toggling -->
-																				<label for="datepicker2" class="">Child DOB:</label>
-																				<i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
-																				<div class="position-relative">
-																					<div class="input-group date" id="datepickerdiv3">
-																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), })
-																					</div>
-																				</div>
-																			</div>
-																		</div>
-																		<div class="row py-2 fullDayContainer" id="fullDayContainer">
-																			<div class="col-lg-6 col-md-12" id="fromdatetime">
-																				<label for="datepicker1" class="">From:</label>
-																				<div class="position-relative">
-																					<div class="input-group date" id="datepickerdiv1">
-																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
-																					</div>
-																				</div>
-																			</div>
+
+
+                                                                        <div id="responseMessage" class="error-message" style=" color: red;font-size: 15px;font-weight: 700;">                                                                        </div>                                                                        <div class="row py-2">
+
+
+
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label for="leavetype" class="">Leave Type:</label>
+                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
+                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
+                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
+                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
+                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
+                                                                                @Html.HiddenFor(x => x.CampOffLeaveCount)
+                                                                                @Html.DropDownListFor(
+                                                                                                  x => x.leaveResults.leaveSummaryModel.LeaveTypeID,
+                                                                                                  filteredLeaveTypes,
+                                                                                                  HRMS.Models.Common.Constants.SelectLeaveType,
+                                                                                                  new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" }
+                                                                                                  )
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12" id="leaveDurationContainer">
+                                                                                <label for="leavetype" class="">Leave Duration:</label>
+                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "leaveDurationDropdown" })
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12" id="ChildDOBDateContainer">
+                                                                                <!-- New ID for toggling -->
+                                                                                <label for="datepicker2" class="">Child DOB:</label>
+                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv3">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
+                                                                            <div class="col-lg-6 col-md-12" id="fromdatetime">
+                                                                                <label for="datepicker1" class="">From:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv1">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
 
 																			<div class="col-lg-6 col-md-12" id="todatetime">
 																				<label for="datepicker2" class="">To:</label>
@@ -703,17 +723,17 @@
 																				<label for="datepicker2" class="">Expected Delivery Date:</label>
 																				<i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
 
-																				<div class="position-relative">
-																					<div class="input-group date" id="datepickerdiv3">
-																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
-																					</div>
-																				</div>
-																			</div>
-																			<div class="col-lg-6 col-md-12">
-																				<label>Upload Certificate:</label>
-																				<div class="position-relative">
-																					<div class="input-group ">
-																						@* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv3">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label>Upload Certificate:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group ">
+                                                                                        @* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
 
 																						<input type="file" name="postedFiles" class="form-control body-text" />
 																						@if (Model.leaveResults.leaveSummaryModel.UploadCertificate != null && Model.leaveResults.leaveSummaryModel.UploadCertificate != "")
@@ -721,11 +741,11 @@
 																							<p> <i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></p>
 																						}
 
-																					</div>
-																				</div>
-																			</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div> 
 
-																		</div>
+                                                                        </div>
 
 																		<div class="row py-3 mb-1">
 																			<div class="col-lg-12">
@@ -737,23 +757,28 @@
 																			</div>
 																		</div>
 
-																		<button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
-																		<a href="~/employee/MyInfo/Index/" class="btn btn-danger" type="reset">Cancel</a>
-																	</form>
-																</div>
-															</div>
-														</div>
-														<div class="col-lg-4 px-4">
-															<div class="card mb-3" style="height:60px;">
-																<div class="card-body">
-																	<ul class="list-group" style="width:100%;">
-																		<li class="d-flex justify-content-between align-items-center ">
-																			<b>Annual Leave Balance</b>
-																			<span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.TotalLeave/@ViewBag.TotalAnnualLeave</span>
-																		</li>
-																	</ul>
-																</div>
-															</div>
+                                                                        <button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
+                                                                        <a href="~/employee/MyInfo/Index/" class="btn btn-danger" type="reset">Cancel</a>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4 px-4">
+                                                            <div class="card mb-3" style="height:86px;">
+                                                                <div class="card-body">
+                                                                    <ul class="list-group" style="width:100%;">
+                                                                        <li class="d-flex justify-content-between align-items-center ">
+                                                                            <b>Annual Leave Balance</b>
+                                                                            <span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.TotalLeave/@ViewBag.TotalAnnualLeave</span>
+                                                                        </li>
+                                                                        <li class="d-flex justify-content-between align-items-center "style="margin-top: 9px;
+                                                                        ">
+                                                                            <b>Comp off Leave Balance</b>
+                                                                            <span class="badge rounded-pill" style="background-color: #05397b">@Model.CampOffLeaveCount</span>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
 
 
 															<div class="card p-3">
@@ -825,45 +850,45 @@
                                                                                 @item.NoOfDays
                                                                                 </span> *@
 
-																					@if (@item.LeaveTypeID == (int)LeaveType.AnnualLeavel && @item.NoOfDays > @ViewBag.ConsecutiveAllowedDays)
-																					{
-																						<span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Exceeding maximum consecutive allowed @ViewBag.ConsecutiveAllowedDays days limit" style="cursor: pointer; background: red; color: white !important;">
-																							@item.NoOfDays
-																						</span>
-																					}
-																					else if (@item.LeaveTypeID == (int)LeaveType.MedicalLeave && @item.NoOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))
-																					{
-																						<span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Document required for more than @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) days medical leave" style="cursor: pointer; background: red; color: white !important;">
-																							@item.NoOfDays
-																						</span>
-																					}
-																					else
-																					{
-																						<span class="fw-bold text-primary">
-																							@item.NoOfDays
-																						</span>
-																					}
-																				</td>
-																				@switch (item.LeaveStatusID)
-																				{
-																					case (int)LeaveStatus.Approved:
-																						<td><span class="fw-bold text-success">@item.LeaveStatusName</span></td>
-																						break;
-																					case (int)LeaveStatus.PendingApproval:
-																						<td><span class="fw-bold text-primary">@item.LeaveStatusName</span></td>
-																						break;
-																					case (int)LeaveStatus.NotApproved:
-																						<td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
-																						break;
-																					case (int)LeaveStatus.Cancelled:
-																						<td><span class="fw-bold text-secondary">@item.LeaveStatusName</span></td>
-																						break;
-																				}
+                                                                                    @if (@item.LeaveTypeID == (int)LeaveType.AnnualLeavel && @item.NoOfDays > @ViewBag.ConsecutiveAllowedDays)
+                                                                                    {
+                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Exceeding maximum consecutive allowed @ViewBag.ConsecutiveAllowedDays days limit" style="cursor: pointer; background: red; color: white !important;">
+                                                                                            @item.NoOfDays
+                                                                                        </span>
+                                                                                    }
+                                                                                    else if (@item.LeaveTypeID == (int)LeaveType.MedicalLeave && @item.NoOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))
+                                                                                    {
+                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Document required for more than @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) days medical leave" style="cursor: pointer; background: red; color: white !important;">
+                                                                                            @item.NoOfDays
+                                                                                        </span>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <span class="fw-bold text-primary">
+                                                                                            @item.NoOfDays
+                                                                                        </span>
+                                                                                    }
+                                                                                </td>
+                                                                                @switch (item.LeaveStatusID)
+                                                                                {
+                                                                                    case (int)LeaveStatus.Approved:
+                                                                                        <td><span class="fw-bold text-success">@item.LeaveStatusName</span></td>
+                                                                                        break;
+                                                                                    case (int)LeaveStatus.PendingApproval:
+                                                                                        <td><span class="fw-bold text-primary">@item.LeaveStatusName</span></td>
+                                                                                        break;
+                                                                                    case (int)LeaveStatus.NotApproved:
+                                                                                        <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
+                                                                                        break;
+                                                                                    case (int)LeaveStatus.Cancelled:
+                                                                                        <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
+                                                                                        break;
+                                                                                }
 
-																				@if (item.LeaveStatusID != (int)LeaveStatus.Approved)
-																				{
-																					<td>
-																						<a href="~/employee/MyInfo/Index/?id=@(item.EncryptedIdentity)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+                                                                                @if (item.LeaveStatusID != (int)LeaveStatus.Approved && item.LeaveStatusID != (int)LeaveStatus.Cancelled)
+                                                                                {
+                                                                                    <td>
+                                                                                        <a href="~/employee/MyInfo/Index/?id=@(item.EncryptedIdentity)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
 
 																						<form action="/employee/MyInfo/DeleteLeavesSummary" method="post" style="display:inline;">
 																							<input type="hidden" name="id" value="@item.EncryptedIdentity" />
@@ -873,12 +898,23 @@
 																						</form>
 
 
-																					</td>
-																				}
-																				else
-																				{
-																					<td> </td>
-																				}
+                                                                                    </td>
+                                                                                }
+                                                                                else if (item.LeaveStatusID == (int)LeaveStatus.Approved)
+                                                                                {
+                                                                                    <td>
+                                                                                        <form action="/employee/MyInfo/UpdateLeaveStatus" method="post" style="display:inline;">
+                                                                                            <input type="hidden" name="id" value="@item.EncryptedIdentity" />
+                                                                                            <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to cancel this leave?');">
+                                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
+                                                                                            </button>
+                                                                                        </form>
+                                                                                    </td>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <td>  </td>
+                                                                                }
 
 																			</tr>
 																		}
@@ -1152,6 +1188,7 @@
 	</div>
 </div>
 <input type="hidden" id="leaveSummaryID" value="" />
+<input type="hidden" id="leaveTypeID" value="" />
 <script type="text/javascript">
 	var leaveSummaryID;
 	 function UploadCertificatePreview(event) {
@@ -1200,26 +1237,26 @@
 	};
 
 
-	function ApproveRejectLeave(isApproved) {
-		 var ApproveRejectComment = $("#ApproveRejectComment").val();
-			if (ApproveRejectComment == "") {
-				$("#approverejectrequire").text('');
-				$("#approverejectrequire").text('Comment required');
-				return;
-			}
-		let actionText = isApproved ? "approve" : "reject";
-		if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
-			let leaveSummaryID = $("#leaveSummaryID").val();
-
-			let data = {
-				leaveSummaryID: leaveSummaryID,
-				isApproved: isApproved,
-				ApproveRejectComment: ApproveRejectComment
-			};
-			var urlData = '/employee/myinfo/ApproveRejectLeave/';
-			$.post(urlData, data, function (json) {
-				console.log(json.data);
-				if (json.data && json.data.message) {
+    function ApproveRejectLeave(isApproved) {
+         var ApproveRejectComment = $("#ApproveRejectComment").val();
+            if (ApproveRejectComment == "") {
+                $("#approverejectrequire").text('');
+                $("#approverejectrequire").text('Comment required');
+                return;
+            }
+        let actionText = isApproved ? "approve" : "reject";
+        if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
+            let leaveSummaryID = $("#leaveSummaryID").val();
+        var leaveTypeID =   $('#leaveTypeID').val(); 
+            let data = {
+                leaveSummaryID: leaveSummaryID,
+                isApproved: isApproved,
+                ApproveRejectComment: ApproveRejectComment,
+                leaveTypeID:leaveTypeID
+            };
+            var urlData = '/employee/myinfo/ApproveRejectLeave/';
+            $.post(urlData, data, function (json) { 
+                if (json.data && json.data.message) {
 
 					if (json.data.status == 1) {
 						$("#approverejectrequire").text('');
@@ -1257,215 +1294,158 @@
 
 				}
 
-			});
-		}
-	}
-	function OpenApproveRejectModel(employeeID, leaveSummaryID) {
-		$("#leaveSummaryID").val(leaveSummaryID);
-		$.ajax({
-			url: '/employee/myinfo/GetEmployeeLeaveDetails',
-			type: 'GET',
-			data: { employeeID: employeeID },
-			success: function (response) {
-				console.log(response);
-				const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
-				if (response.employeeModel && response.employmentDetail) {
-					const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
-					$("#EmplyoeeName").text(names.join(' '));
-					$("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
-					$("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
-					$("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
-					$("#Employeeemail").text(response.employeeModel.emailAddress);
-					let joiningDate = new Date(response.employmentDetail.joiningDate);
-					let day = ("0" + joiningDate.getDate()).slice(-2);
-					let month = ("0" + (joiningDate.getMonth() + 1)).slice(-2);
-					let year = joiningDate.getFullYear();
-					let formattedDate = `${day}-${month}-${year}`;
-					$("#EmplyoeeJoiningdate").text(formattedDate);
+            });
+        }
+    }
+        function OpenApproveRejectModel(employeeID, leaveSummaryID) {
+        $("#leaveSummaryID").val(leaveSummaryID);
 
-				} else {
-					console.warn("Employee details not found in response.");
-				}
-				let leavesSummary = response.leaveResults?.leavesSummary || [];
-				$("#adminleaveTypeDropdown").css("display", "none");
-				$("#adminChildDOBDateContainer").css("display", "none");
-				$("#adminexpectedDeliveryDateContainer").css("display", "none");
-				if (Array.isArray(leavesSummary)) {
-					let leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
-					console.log(leaveSummary);
-					if (leaveSummary) {
-						$("#showalert").text('');
-						$("#showDocumentalert").text('');
-						$('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
-						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)|| leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
+        $.ajax({
+            url: '/employee/myinfo/GetEmployeeLeaveDetails',
+            type: 'GET',
+            data: { employeeID },
+            success: function (response) {
+                const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 
-							if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage)) {
-								if (response.leavePolicyDetails.miscarriage_MedicalDocument == true) {
-									if (leaveSummary.uploadCertificate == "") {
-										$("#showDocumentalert").text(`Document required for miscarriage leave`);
-									}
-								}
-							}
+                if (response.employeeModel && response.employmentDetail) {
+                    const fullName = [response.employeeModel.firstName, response.employeeModel.middleName, response.employeeModel.surname].filter(Boolean).join(' ');
+                    $("#EmplyoeeName").text(fullName);
+                    $("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
+                    $("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
+                    $("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
+                    $("#Employeeemail").text(response.employeeModel.emailAddress);
 
-							if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)) {
-								if (response.leavePolicyDetails.adoption_MedicalDocument == true) {
-									if (leaveSummary.uploadCertificate == "") {
-										$("#showDocumentalert").text(`Document required for adoption leave`);
-									}
-								}
-							}
-							if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
+                    const joiningDate = new Date(response.employmentDetail.joiningDate);
+                    $("#EmplyoeeJoiningdate").text(joiningDate.toLocaleDateString('en-GB'));
+                }
 
+                const leavesSummary = response.leaveResults?.leavesSummary || [];
+                const leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
 
-								if (leaveSummary.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && leaveSummary.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)) {
-									$("#showalert").text(`Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`);
-								}
-							}
+                if (!leaveSummary) return $('#responseMessage').text('Error: Leave Summary not found.');
 
-							$("#adminfullDayContainer").css("display", "flex");
-							$("#admintodatetime").css("display", "block");
-							let endDate = new Date(leaveSummary.endDate);
-							let formattedEndDate = endDate.toISOString().split('T')[0];
-							$('#admintodates').val(formattedEndDate);
-							let startDate = new Date(leaveSummary.startDate);
-							let formattedstartDate = startDate.toISOString().split('T')[0];
-							$('#adminfromdates').val(formattedstartDate);
-							$('#adminReason').val(leaveSummary.reason);
-							$('#downloaddocument').html('');
-							if (leaveSummary.uploadCertificate != "") {
-								$("#downloaddocument").css("display", "block");
-								var filedata =leaveSummary.uploadCertificate;
-								$('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
-							}
-						}
-						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MaternityLeave)) {
+                resetLeaveModal(); // Hide all optional fields before showing relevant ones
 
-							if (response.leavePolicyDetails.maternity_MedicalDocument == true) {
-								if (leaveSummary.uploadCertificate == "") {
-									$("#showDocumentalert").text(`Document required for maternity leave`);
-								}
-							}
-							// Assuming `response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays` is in weeks
-							var weeksBefore = response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays;
-							var daysBefore = weeksBefore * 7;
+                $("#adminleaveTypeDropdown1").text(leaveSummary.leaveTypeName);
+                $("#leaveTypeID").val(leaveSummary.leaveTypeID);
+                $("#adminReason").val(leaveSummary.reason);
+                setDateField('#adminfromdates', leaveSummary.startDate);
+                setDateField('#admintodates', leaveSummary.endDate);
 
-							// Function to remove the time part and keep only the date
-							function normalizeDate(date) {
-								var normalizedDate = new Date(date);
-								normalizedDate.setHours(0, 0, 0, 0); // Set time to midnight (00:00:00)
-								return normalizedDate;
-							}
+                const showDocumentIcon = cert => {
+                    $('#downloaddocument').html(`<a href="${cert}" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>`);
+                    $("#downloaddocument").show();
+                };
 
-							// Normalize both dates to remove time part
-							var startDateNormalized = normalizeDate(leaveSummary.startDate);
-							var expectedDeliveryDateNormalized = normalizeDate(leaveSummary.expectedDeliveryDate);
+                const leaveType = leaveSummary.leaveTypeID;
+                const policy = response.leavePolicyDetails;
 
-							// Calculate the difference in days
-							var totalDeliveryDays = (expectedDeliveryDateNormalized - startDateNormalized) / (1000 * 60 * 60 * 24) + 1; // Convert milliseconds to days and add 1 to include both dates
-							if (totalDeliveryDays > daysBefore) {
-								$("#showalert").text(`Maternity leave cannot start more than ${daysBefore} days before the expected delivery date`);
-							}
+                switch (leaveType) {
+                    case @Convert.ToInt32(LeaveType.Miscarriage):
+                        if (policy.miscarriage_MedicalDocument && !leaveSummary.uploadCertificate) {
+                            $("#showDocumentalert").text("Document required for miscarriage leave");
+                        }
+                        break;
 
-							$("#adminfullDayContainer").css("display", "flex");
-							$("#adminMaternityAdoptionMiscarrageContainer").css("display", "block");
-							$("#adminexpectedDeliveryDateContainer").css("display", "block");
-							$("#admintodatetime").css("display", "block");
-							$("#adminExpectedDeliveryDate").css("display", "block");
-							let endDate = new Date(leaveSummary.endDate);
-							let formattedEndDate = endDate.toISOString().split('T')[0];
-							$('#admintodates').val(formattedEndDate);
+                    case @Convert.ToInt32(LeaveType.Adoption):
+                        if (policy.adoption_MedicalDocument && !leaveSummary.uploadCertificate) {
+                            $("#showDocumentalert").text("Document required for adoption leave");
+                        }
+                        break;
 
-							let startDate = new Date(leaveSummary.startDate);
-							let formattedstartDate = startDate.toISOString().split('T')[0];
-							$('#adminfromdates').val(formattedstartDate);
+                    case @Convert.ToInt32(LeaveType.MedicalLeave):
+                        if (leaveSummary.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)) {
+                            $("#showalert").text(`Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`);
+                        }
+                        break;
 
+                    case @Convert.ToInt32(LeaveType.MaternityLeave):
+                        if (policy.maternity_MedicalDocument && !leaveSummary.uploadCertificate) {
+                            $("#showDocumentalert").text("Document required for maternity leave");
+                        }
 
-							let ExpectedDeliveryDate = new Date(leaveSummary.expectedDeliveryDate);
-							let formattedExpectedDeliveryDate = ExpectedDeliveryDate.toISOString().split('T')[0];
-							$('#adminExpectedDeliveryDate').val(formattedExpectedDeliveryDate);
+                        const weeksBefore = policy.maternity_ApplyBeforeHowManyDays;
+                        const daysBefore = weeksBefore * 7;
 
+                        const startDate = normalizeDate(leaveSummary.startDate);
+                        const expectedDelivery = normalizeDate(leaveSummary.expectedDeliveryDate);
+                        const totalDeliveryDays = (expectedDelivery - startDate) / (1000 * 60 * 60 * 24) + 1;
 
-							$('#adminReason').val(leaveSummary.reason);
-							if (leaveSummary.uploadCertificate != "") {
-								$("#downloaddocument").css("display", "block");
-								$("#LabelUploadCertificate").css("display", "block");
-								var filedata = leaveSummary.uploadCertificate;
-								$('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
-							}
-						}
-						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.AnnualLeavel)) {
+                        if (totalDeliveryDays > daysBefore) {
+                            $("#showalert").text(`Maternity leave cannot start more than ${daysBefore} days before the expected delivery date`);
+                        }
 
-							if (leaveSummary.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && leaveSummary.noOfDays > maxConsecutiveDaysAllowed) {
-								$("#showalert").text(`Employee exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`);
-							}
+                        $("#adminMaternityAdoptionMiscarrageContainer, #adminexpectedDeliveryDateContainer, #adminExpectedDeliveryDate").show();
+                        setDateField('#adminExpectedDeliveryDate', leaveSummary.expectedDeliveryDate);
+                        break;
 
+                    case @Convert.ToInt32(LeaveType.AnnualLeavel):
+                        if (leaveSummary.noOfDays > maxConsecutiveDaysAllowed) {
+                            $("#showalert").text(`Employee exceeds maximum allowed ${maxConsecutiveDaysAllowed} consecutive leave days`);
+                        }
+                        if (policy.annual_MaximumConsecutiveLeavesAllowed && !leaveSummary.uploadCertificate) {
+                            $("#showalert").text(`You can't approve leave(s) more than ${policy.annual_MaximumConsecutiveLeavesAllowed} consecutive days`);
+                        }
+                        $("#adminleaveDurationDropdown").val(leaveSummary.leaveDurationTypeID);
+                        break;
 
-							if (response.leavePolicyDetails.annual_MaximumConsecutiveLeavesAllowed == true) {
-								if (leaveSummary.uploadCertificate == "") {
-									$("#showalert").text(`You can't approve leave(s) more than  ${response.leavePolicyDetails.annual_MaximumConsecutiveLeavesAllowed} consecutive leave`);
-								}
-							}
-							$("#adminfullDayContainer").css("display", "flex");
-							//$("#AnnualLeaveBalance").css("display", "block");
-							$("#admintodatetime").css("display", "block");
-							$("#downloaddocument").css("display", "none");
-							$("#adminChildDOBDateContainer").css("display", "none");
-							let endDate = new Date(leaveSummary.endDate);
-							let formattedEndDate = endDate.toISOString().split('T')[0];
-							$('#admintodates').val(formattedEndDate);
-							let startDate = new Date(leaveSummary.startDate);
-							let formattedstartDate = startDate.toISOString().split('T')[0];
-							$('#adminfromdates').val(formattedstartDate);
-							$('#adminReason').val(leaveSummary.reason);
-						}
-						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Paternity)) {
+                    case @Convert.ToInt32(LeaveType.Paternity):
+                        if (policy.paternity_medicalDocument && !leaveSummary.uploadCertificate) {
+                            $("#showDocumentalert").text("Document required for paternity leave");
+                        }
+                        $("#adminChildDOBDateContainer").show();
+                        break;
 
-							if (response.leavePolicyDetails.paternity_medicalDocument == true) {
-								if (leaveSummary.uploadCertificate == "") {
-									//  $("#showalert").text(`Document required for more than ${response.leavePolicyDetails.paternity_maximumLeaveAllocationAllowed} days paternity leave`);
-									$("#showDocumentalert").text(`Document required for paternity leave`);
-								}
-							}
-							$("#adminfullDayContainer").css("display", "flex");
-							$("#admintodatetime").css("display", "block");
-							$("#adminChildDOBDateContainer").css("display", "block");
-							$("#downloaddocument").css("display", "none");
-							let endDate = new Date(leaveSummary.endDate);
-							let formattedEndDate = endDate.toISOString().split('T')[0];
-							$('#admintodates').val(formattedEndDate);
-							let startDate = new Date(leaveSummary.startDate);
-							let formattedstartDate = startDate.toISOString().split('T')[0];
-							$('#adminfromdates').val(formattedstartDate);
-							$('#adminReason').val(leaveSummary.reason);
-							if (leaveSummary.uploadCertificate != "") {
-								$("#downloaddocument").css("display", "block");
-								var filedata =leaveSummary.uploadCertificate;
-								$('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
-							}
-						}
+                    case @Convert.ToInt32(LeaveType.CompOff):
+                    case @Convert.ToInt32(LeaveType.LeaveWithOutPay):
+                        $("#adminleaveDurationContainer, #adminhalfDayContainer, #adminChildDOBDateContainer").hide();
+                        break;
+                }
 
-					} else {
-						$('#responseMessage').text('Error: Leave Summary not found.');
-					}
-				} else {
-					$('#responseMessage').text('Error: Leave Summary data not found.');
-				}
-			},
-			error: function (xhr, status, error) {
-				$('#responseMessage').text('Error: ' + xhr.responseText);
-			}
-		});
+                // Show full-day and time controls for applicable types
+                $("#adminfullDayContainer").show();
+                $("#admintodatetime").show();
+
+                if (leaveSummary.uploadCertificate) {
+                    showDocumentIcon(leaveSummary.uploadCertificate);
+                }
+            },
+            error: function (xhr) {
+                $('#responseMessage').text('Error: ' + xhr.responseText);
+            }
+        });
+
+        $('#ApproveRejectModel').modal('show');
+
+        // Helper functions
+        function resetLeaveModal() {
+            $("#adminleaveTypeDropdown, #adminChildDOBDateContainer, #adminexpectedDeliveryDateContainer, #adminMaternityAdoptionMiscarrageContainer, #adminExpectedDeliveryDate").hide();
+            $("#downloaddocument").hide();
+            $("#showalert, #showDocumentalert").text('');
+        }
+
+        function setDateField(selector, date) {
+            if (!date) return;
+            const formattedDate = new Date(date).toISOString().split('T')[0];
+            $(selector).val(formattedDate);
+        }
+
+        function normalizeDate(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        }
+    }
 
 
-		$('#ApproveRejectModel').modal('show');
-	}
-	function CloseApproveRejectModel() {
-		$('#ApproveRejectModel').modal('hide');
-	}
-	function RefreshTable(tableId, urlData) {
-		$.post(urlData, null, function (json) {
-			table = $(tableId).dataTable();
-			oSettings = table.fnSettings();
+
+    function CloseApproveRejectModel() {
+        $('#ApproveRejectModel').modal('hide');
+    }
+    function RefreshTable(tableId, urlData) {
+        $.post(urlData, null, function (json) {
+            table = $(tableId).dataTable();
+            oSettings = table.fnSettings();
 
 			table.fnClearTable(this);
 
@@ -1873,44 +1853,44 @@
 		function admintoggleContainers() {
 			var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
 
-			if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave'].includes(adminselectedLeaveType)) {
-				adminfullDayContainer.style.display = "flex";
-				adminhalfDayContainer.style.display = "none";
-				adminChildDOBDateContainer.style.display = "none";
-				admintodatetime.style.display = "block";
-			} else if (adminleaveDurationDropdown.value === fullDayValue) {
-				adminfullDayContainer.style.display = "flex";
-				admintodatetime.style.display = fullDayValue === "1" ? "block" : "none";
-				adminfromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
-				adminhalfDayContainer.style.display = "none";
-				adminChildDOBDateContainer.style.display = "none";
-			} else if (adminleaveDurationDropdown.value === halfDayValue) {
-				adminfullDayContainer.style.display = "flex";
-				adminhalfDayContainer.style.display = "none";
-				adminChildDOBDateContainer.style.display = "none";
-				admintodatetime.style.display = "none";
-				adminfromdatetime.style.display = "block";
-			} else if (adminselectedLeaveType === 'Paternity Leave') {
-				//adminfullDayContainer.style.display = "flex";
-				adminhalfDayContainer.style.display = "none";
-				adminMaternityAdoptionMiscarrageContainer.style.display = "none";
-				adminChildDOBDateContainer.style.display = "block";
-			} else {
-				adminfullDayContainer.style.display = "none";
-				adminhalfDayContainer.style.display = "none";
-				adminChildDOBDateContainer.style.display = "none";
-			}
-		}
+            if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave','Comp Off'].includes(adminselectedLeaveType)) {
+                adminfullDayContainer.style.display = "flex";
+                adminhalfDayContainer.style.display = "none";
+                adminChildDOBDateContainer.style.display = "none";
+                admintodatetime.style.display = "block";
+            } else if (adminleaveDurationDropdown.value === fullDayValue) {
+                adminfullDayContainer.style.display = "flex";
+                admintodatetime.style.display = fullDayValue === "1" ? "block" : "none";
+                adminfromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
+                adminhalfDayContainer.style.display = "none";
+                adminChildDOBDateContainer.style.display = "none";
+            } else if (adminleaveDurationDropdown.value === halfDayValue) {
+                adminfullDayContainer.style.display = "flex";
+                adminhalfDayContainer.style.display = "none";
+                adminChildDOBDateContainer.style.display = "none";
+                admintodatetime.style.display = "none";
+                adminfromdatetime.style.display = "block";
+            } else if (adminselectedLeaveType === 'Paternity Leave') {
+                //adminfullDayContainer.style.display = "flex";
+                adminhalfDayContainer.style.display = "none";
+                adminMaternityAdoptionMiscarrageContainer.style.display = "none";
+                adminChildDOBDateContainer.style.display = "block";
+            } else {
+                adminfullDayContainer.style.display = "none";
+                adminhalfDayContainer.style.display = "none";
+                adminChildDOBDateContainer.style.display = "none";
+            }
+        }
 
-		// Toggle the maternity/adoption/miscarriage container based on admin leave type
-		function admintoggleMaternityAdoptionMiscarrageContainer() {
-			var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
-			if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave'].includes(adminselectedLeaveType)) {
-				adminmaternityAdoptionMiscarrageContainer.style.display = "flex";
-			} else {
-				adminmaternityAdoptionMiscarrageContainer.style.display = "none";
-			}
-		}
+        // Toggle the maternity/adoption/miscarriage container based on admin leave type
+        function admintoggleMaternityAdoptionMiscarrageContainer() {
+            var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
+            if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave','Compensatory Off'].includes(adminselectedLeaveType)) {
+                adminmaternityAdoptionMiscarrageContainer.style.display = "flex";
+            } else {
+                adminmaternityAdoptionMiscarrageContainer.style.display = "none";
+            }
+        }
 
 		// Toggle expected delivery date based on admin leave type
 		function admintoggleExpectedDeliveryDate() {
@@ -1918,27 +1898,28 @@
 			adminexpectedDeliveryDateContainer.style.display = adminselectedLeaveType === 'Maternity Leave' ? "block" : "none";
 		}
 
-		// Toggle leave duration container visibility
-		function admintoggleLeaveDurationVisibility() {
-			var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
-			if (['Annual Leave', 'Comp Off', 'Medical Leave'].includes(adminselectedLeaveType)) {
-				adminleaveDurationContainer.style.display = "block";
-				$('#adminleaveDurationDropdown').attr('required', true);
-			} else {
-				adminleaveDurationContainer.style.display = "none";
-				adminleaveDurationDropdown.selectedIndex = 0;
-				$('#adminleaveDurationDropdown').attr('required', false);
-			}
-		}
+        // Toggle leave duration container visibility
+        function admintoggleLeaveDurationVisibility() {
+            var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
+            if (['Privilege Leave','Leave Without Pay', 'Compensatory Off', 'Medical Leave' ].includes(adminselectedLeaveType)) {
+                adminleaveDurationContainer.style.display = "block";
+                $('#adminleaveDurationDropdown').attr('required', true);
+            } else {
+                adminleaveDurationContainer.style.display = "none";
+                adminleaveDurationDropdown.selectedIndex = 0;
+                $('#adminleaveDurationDropdown').attr('required', false);
+            }
+        }
 
-		// Event listeners for admin functionality
-		adminleaveDurationDropdown.addEventListener("change", admintoggleContainers);
-		adminleaveTypeDropdown.addEventListener("change", function () {
-			admintoggleMaternityAdoptionMiscarrageContainer();
-			admintoggleExpectedDeliveryDate();
-			admintoggleLeaveDurationVisibility();
-			admintoggleContainers();
-		});
+        // Event listeners for admin functionality
+        adminleaveDurationDropdown.addEventListener("change", admintoggleContainers);
+        adminleaveTypeDropdown.addEventListener("change", function () {
+           
+            admintoggleMaternityAdoptionMiscarrageContainer();
+            admintoggleExpectedDeliveryDate();
+            admintoggleLeaveDurationVisibility();
+            admintoggleContainers();
+        });
 
 		// Initial calls
 		admintoggleContainers();
@@ -2000,69 +1981,78 @@
 		var fullDayValue = "1";
 		var halfDayValue = "2";
 
-		function toggleContainers() {
-			var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-			if (['Maternity Leave', 'Adoption', 'Miscarriage'].includes(selectedLeaveType)) {
-				fullDayContainer.style.display = "flex";
-				halfDayContainer.style.display = "none";
-				leaveDurationContainer.style.display = "none";
-				leaveDurationDropdown.style.display = "none";
-				ChildDOBDateContainer.style.display = "none";
-				todatetime.style.display = "block";
-				$('#leaveDurationDropdown').attr('required', false);
-			}
+        function toggleContainers() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            if (['Maternity Leave', 'Adoption', 'Miscarriage' ].includes(selectedLeaveType)) {
+                fullDayContainer.style.display = "flex";
+                halfDayContainer.style.display = "none";
+                leaveDurationContainer.style.display = "none";
+                leaveDurationDropdown.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+                todatetime.style.display = "block";
+                $('#leaveDurationDropdown').attr('required', false);
+            }
 
-			else if (selectedLeaveType === 'Paternity Leave') {
-				fullDayContainer.style.display = "flex";
-				halfDayContainer.style.display = "none";
-				ChildDOBDateContainer.style.display = "block";
-			}
-			else if (selectedLeaveType === 'Medical Leave') {
-				leaveDurationContainer.style.display = "none";
-				ChildDOBDateContainer.style.display = "none";
-				halfDayContainer.style.display = "none";
-				leaveDurationDropdown.selectedIndex = 0;
-				fullDayContainer.style.display = "flex";
-				$('#leaveDurationDropdown').attr('required', false);
-			}
-			else if (selectedLeaveType === 'Annual Leave') {
-				if (leaveDurationDropdown.value === fullDayValue) {
-					fullDayContainer.style.display = "flex";
-					todatetime.style.display = fullDayValue === "1" ? "block" : "none";
-					fromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
-					halfDayContainer.style.display = "none";
-					ChildDOBDateContainer.style.display = "none";
-					return;
-				}
-				else if (leaveDurationDropdown.value === halfDayValue) {
-					fullDayContainer.style.display = "flex";
-					halfDayContainer.style.display = "none";
-					ChildDOBDateContainer.style.display = "none";
-					todatetime.style.display = "none";
-					fromdatetime.style.display = "block";
-					return;
-				}
-				fullDayContainer.style.display = "none";
-				leaveDurationContainer.style.display = "block";
-				leaveDurationDropdown.style.display = "flex";
-				ChildDOBDateContainer.style.display = "none";
-				leaveDurationDropdown.selectedIndex = 0;
-				$('#leaveDurationDropdown').attr('required', true);
-			}
-			else {
-				fullDayContainer.style.display = "none";
-				halfDayContainer.style.display = "none";
-				ChildDOBDateContainer.style.display = "none";
-				leaveDurationContainer.style.display = "none";
-				leaveDurationDropdown.selectedIndex = 0;
-			}
-		}
+            else if (selectedLeaveType === 'Paternity Leave') {
+                fullDayContainer.style.display = "flex";
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "block";
+            }
+            else if (selectedLeaveType === 'Medical Leave') {
+                leaveDurationContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+                halfDayContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
+                fullDayContainer.style.display = "flex";
+                $('#leaveDurationDropdown').attr('required', false);
+            }
+            else if (selectedLeaveType === 'Compensatory Off') {
+                leaveDurationContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+                MaternityAdoptionMiscarrageContainer.style.display = "none";
+                halfDayContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
+                fullDayContainer.style.display = "flex";
+                $('#leaveDurationDropdown').attr('required', false);
+            }
+            else if (selectedLeaveType === 'Privilege Leave'||selectedLeaveType === 'Leave Without Pay') {
+                if (leaveDurationDropdown.value === fullDayValue) {
+                    fullDayContainer.style.display = "flex";
+                    todatetime.style.display = fullDayValue === "1" ? "block" : "none";
+                    fromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
+                    halfDayContainer.style.display = "none";
+                    ChildDOBDateContainer.style.display = "none";
+                    return;
+                }
+                else if (leaveDurationDropdown.value === halfDayValue) {
+                    fullDayContainer.style.display = "flex";
+                    halfDayContainer.style.display = "none";
+                    ChildDOBDateContainer.style.display = "none";
+                    todatetime.style.display = "none";
+                    fromdatetime.style.display = "block";
+                    return;
+                }
+                fullDayContainer.style.display = "none";
+                leaveDurationContainer.style.display = "block";
+                leaveDurationDropdown.style.display = "flex";
+                ChildDOBDateContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
+                $('#leaveDurationDropdown').attr('required', true);
+            }
+            else {
+                fullDayContainer.style.display = "none";
+                halfDayContainer.style.display = "none";
+                ChildDOBDateContainer.style.display = "none";
+                leaveDurationContainer.style.display = "none";
+                leaveDurationDropdown.selectedIndex = 0;
+            }
+        }
 
-		function toggleMaternityAdoptionMiscarrageContainer() {
-			var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-			maternityAdoptionMiscarrageContainer.style.display =
-				['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave'].includes(selectedLeaveType) ? "flex" : "none";
-		}
+        function toggleMaternityAdoptionMiscarrageContainer() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            maternityAdoptionMiscarrageContainer.style.display =
+                ['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave','Compensatory Off'].includes(selectedLeaveType) ? "flex" : "none";
+        }
 
 		function toggleExpectedDeliveryDate() {
 			var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
@@ -2071,13 +2061,13 @@
 
 
 
-		function toggleLeaveDurationVisibility() {
-			var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-			if (['Comp Off'].includes(selectedLeaveType)) {
-				leaveDurationContainer.style.display = "block";
-				fullDayContainer.style.display = "none";
-				$('#leaveDurationDropdown').attr('required', true);
-			}
+        function toggleLeaveDurationVisibility() {
+            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
+            if (['Compensatory Off'].includes(selectedLeaveType)) {
+                leaveDurationContainer.style.display = "block";
+                fullDayContainer.style.display = "none";
+                $('#leaveDurationDropdown').attr('required', true);
+            }
 
 			else {
 			   // leaveDurationContainer.style.display = "none";
@@ -2087,14 +2077,27 @@
 			}
 		}
 
-		// Event listeners for standard user functionality
-		leaveDurationDropdown.addEventListener("change", toggleContainers);
-		leaveTypeDropdown.addEventListener("change", function () {
-			toggleMaternityAdoptionMiscarrageContainer();
-			toggleExpectedDeliveryDate();
-			toggleLeaveDurationVisibility();
-			toggleContainers();
-		});
+        // Event listeners for standard user functionality
+        leaveDurationDropdown.addEventListener("change", toggleContainers);
+        leaveTypeDropdown.addEventListener("change", function () {
+               const selectedLeaveTypeId = parseInt(this.value);
+               if(selectedLeaveTypeId == @Convert.ToInt32(LeaveType.LeaveWithOutPay))
+               {
+                   $("#leaveDurationContainer").css("display","none");
+                   $("#todatetime").css("display","block");
+                   $("#fullDayContainer").css("display","flex");
+               }
+               else{
+                      $("#fullDayContainer").css("display","none");
+                         $("#todatetime").css("display","none");
+                       $("#leaveDurationContainer").css("display","block");
+               toggleMaternityAdoptionMiscarrageContainer();
+            toggleExpectedDeliveryDate();
+            toggleLeaveDurationVisibility();
+            toggleContainers();
+               }
+                
+        });
 
 		// Initial calls
 		toggleContainers();

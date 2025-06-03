@@ -85,6 +85,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_AttendanceForApprovals = "usp_Get_AttendanceForApprovals";
         public const string usp_Get_ApprovedAttendance = "usp_Get_ApprovedAttendance";
         public const string usp_Get_Manager_ApprovedAttendance = "usp_Get_Manager_ApprovedAttendance";
+        public const string usp_GetDailyAttendanceDetails = "usp_GetDailyAttendanceDetails";
 
 
         public const string sp_SaveAttendanceDeviceLog = "sp_SaveAttendanceDeviceLog";
@@ -95,6 +96,12 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_WhatsHappening = "usp_AddUpdate_WhatsHappening";
         public const string usp_Delete_WhatsHappening = "usp_Delete_WhatsHappening";
         public const string usp_CheckEmployeeReporting = "usp_CheckEmployeeReporting";
+
+        //export employees
+        public const string usp_ExportEmployeeFullDetails = "usp_ExportEmployeeFullDetails";
+        public const string usp_Get_CampOffLeaves = "usp_Get_CampOffLeaves";
+        public const string usp_Is_CampOff_Eligible = "usp_Is_CampOff_Eligible";
+        public const string usp_UpdateLeaveStatus = "usp_UpdateLeaveStatus";
 
         public const string usp_Get_EducationDetailsByEmployee = "usp_Get_EducationDetailsByEmployee";
         public const string usp_AddUpdate_EducationDetails = "usp_AddUpdate_EducationDetails";

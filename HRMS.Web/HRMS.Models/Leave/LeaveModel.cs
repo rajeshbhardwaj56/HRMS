@@ -18,6 +18,7 @@ namespace HRMS.Models.Leave
         public long UserID { get; set; }
         public long? RoleId { get; set; }
         public int GenderId { get; set; }
+        public long JobLocationTypeID { get; set; }
     }
     public class LeaveSummaryModel
     {
@@ -41,7 +42,7 @@ namespace HRMS.Models.Leave
         public bool IsDeleted { get; set; } = false;
         public long UserID { get; set; }
         public long EmployeeID { get; set; }
-        public string EmployeeName { get; set; } = string.Empty;        
+        public string EmployeeName { get; set; } = string.Empty;
         public long CompanyID { get; set; }
         public long LeavePolicyID { get; set; }
         public string EmployeeNumber { get; set; } = string.Empty;
@@ -56,6 +57,7 @@ namespace HRMS.Models.Leave
         public DateTime ExpectedDeliveryDate { get; set; } = DateTime.Now;
         public DateTime ChildDOB { get; set; }
         public DateTime? JoiningDate { get; set; }
+        public int? CampOff { get; set; }
 
     }
 
@@ -70,7 +72,32 @@ namespace HRMS.Models.Leave
 
     public class ErrorLeaveResults
     {
-        public int status { get;set; }
+        public int status { get; set; }
         public string message { get; set; }
+    }
+
+    public class CampOffEligible
+    {
+        public long EmployeeID { get; set; }
+        public long JobLocationTypeID { get; set; }
+        public string StartDate { get; set; }
+        public string EndDate { get; set; }
+        public string EmployeeNumber { get; set; }
+    }
+    public class CompOffValidationResult
+    {
+        public int IsEligible { get; set; }
+        public string Message { get; set; }
+        public int EligibleDays { get; set; }
+        public int RequestedDays { get; set; }
+        public int AvailableCompOffDays { get; set; }
+    }
+
+    public class UpdateLeaveStatus
+    {
+        public long EmployeeID { get; set; }
+        public long NewLeaveStatusID { get; set; }
+        public long LeaveSummaryID { get; set; }
+        public string? Message { get; set; }
     }
 }
