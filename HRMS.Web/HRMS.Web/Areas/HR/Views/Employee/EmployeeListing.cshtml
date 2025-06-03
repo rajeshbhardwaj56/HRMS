@@ -20,7 +20,7 @@
 	<section class="right-button-employee" >
 	<a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a>
 	<a href="~/Admin/Dashboard/ImportExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees</button></a>
-		@if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.HR))
+		@if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.HR)|| RoleName == Convert.ToInt64(Roles.SuperAdmin))
                         {
 	 <button id="export-employee-btn" class="btn btn-addBtn" >Export Employees  </button> 
 						}

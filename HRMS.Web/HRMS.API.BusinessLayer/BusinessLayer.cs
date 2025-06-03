@@ -198,7 +198,7 @@ namespace HRMS.API.BusinessLayer
                                       ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
                                       InsertedDate = dataRow.Field<DateTime>("InsertedDate"),
                                       Gender = dataRow.Field<int>("Gender"),
-                                      CarryForword = dataRow.Field<double>("CarryForword"),
+                                      CarryForword = dataRow.Field<double?>("CarryForword"),
                                       DepartmentID = dataRow["DepartmentID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DepartmentID"]),
                                       DesignationID = dataRow["DesignationID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DesignationID"]),
                                       LeavePolicyID = dataRow.Field<long?>("LeavePolicyID"),

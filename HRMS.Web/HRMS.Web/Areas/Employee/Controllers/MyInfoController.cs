@@ -120,7 +120,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     // Add carry forward if applicable
                     if (leavePolicy.Annual_IsCarryForward == true)
                     {
-                        double carryForward = employeeDetails.CarryForword;
+                        double carryForward = employeeDetails.CarryForword??0.0;
                         // Add carry forward but ensure total stays capped
                         accruedLeave = Math.Min(accruedLeave + carryForward, maxAvailable);
                     }
