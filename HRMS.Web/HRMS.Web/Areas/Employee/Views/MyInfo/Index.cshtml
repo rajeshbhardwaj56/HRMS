@@ -1200,7 +1200,16 @@
 																@foreach (var item in Model.HolidayModel)
 																{
 																	<li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-																		@item.FromDate.ToString("dd-MM-yyyy") -  @item.ToDate.ToString("dd-MM-yyyy")
+																		<span class="small">
+																			@if (item.FromDate.Date == item.ToDate.Date)
+																			{
+																				@item.FromDate.ToString("dd-MMM-yyyy")
+																			}
+																			else
+																			{
+																				@($"{item.FromDate:dd-MMM-yyyy} to {item.ToDate:dd-MMM-yyyy}")
+																			}
+																		</span>
 																		<span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
 																	</li>
 																}

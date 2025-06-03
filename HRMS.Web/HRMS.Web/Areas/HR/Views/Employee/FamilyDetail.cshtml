@@ -153,6 +153,10 @@
                     alert('Invalid ID');
                     return;
                 }
+                           const isConfirmed = confirm("Are you sure you want to delete this family detail?");
+        if (!isConfirmed) {
+            return;
+        }
                 $.ajax({
                     url: '/HR/Employee/DeleteFamilyDetail',
                     type: 'POST',

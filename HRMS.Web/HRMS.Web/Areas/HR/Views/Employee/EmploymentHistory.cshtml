@@ -157,7 +157,7 @@
     <script>
         $('#employmentHistoryForm').on('submit', function (e) {
             e.preventDefault();
-
+debugger;
             var form = $(this);
             var formData = form.serialize();
 
@@ -229,6 +229,8 @@
             $(document).on('click', '.delete-entry', function (e) {
                 e.preventDefault();
                 const id = $(this).data('id');
+                    const confirmed = confirm("Are you sure you want to delete this employment history?");
+        if (!confirmed) return;
                 $.post('/HR/Employee/DeleteEmploymentHistory', { encodedId: id }, function (response) {
                     if (response.success) {
                         $('#employmentGrid').DataTable().ajax.reload();

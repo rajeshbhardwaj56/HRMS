@@ -180,6 +180,7 @@ namespace HRMS.API.BusinessLayer
                                       DateOfBirth = dataRow.Field<DateTime?>("DateOfBirth"),
                                       PlaceOfBirth = dataRow.Field<string>("PlaceOfBirth"),
                                       IsReferredByExistingEmployee = dataRow.Field<bool>("IsReferredByExistingEmployee"),
+                                      IsRelativesWorkingWithCompany = dataRow.Field<bool>("IsRelativesWorkingWithCompany"),
                                       ReferredByEmployeeID = dataRow.Field<string>("ReferredByEmployeeID"),
                                       BloodGroup = dataRow.Field<string>("BloodGroup"),
                                       PANNo = dataRow.Field<string>("PANNo"),
@@ -914,6 +915,10 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@EmployeeNumber", employmentDetails.EmployeNumber));
             sqlParameter.Add(new SqlParameter("@ESINumber", employmentDetails.ESINumber));
             sqlParameter.Add(new SqlParameter("@ESIRegistrationDate", employmentDetails.ESIRegistrationDate));
+            sqlParameter.Add(new SqlParameter("@DateOfJoiningOnroll", employmentDetails.DateOfJoiningOnroll));
+            sqlParameter.Add(new SqlParameter("@DateOfJoiningTraining", employmentDetails.DateOfJoiningTraining));
+            sqlParameter.Add(new SqlParameter("@DateOfJoiningFloor", employmentDetails.DateOfJoiningFloor));
+            sqlParameter.Add(new SqlParameter("@DateOfJoiningOJT", employmentDetails.DateOfJoiningOJT));
             sqlParameter.Add(new SqlParameter("@RoleID", employmentDetails.RoleId));
             sqlParameter.Add(new SqlParameter("@CompnayID", employmentDetails.CompanyID));
 
@@ -994,7 +999,11 @@ namespace HRMS.API.BusinessLayer
                                 SubDepartmentID = dataRow.Field<long>("SubDepartmentID"),
                                 ShiftTypeID = dataRow.Field<long>("ShiftTypeID"),
                                 ESINumber = dataRow.Field<string>("ESINumber"),
-                                ESIRegistrationDate = dataRow.Field<DateTime?>("ESIRegistrationDate")
+                                ESIRegistrationDate = dataRow.Field<DateTime?>("ESIRegistrationDate"),
+                                DateOfJoiningOnroll = dataRow.Field<DateTime?>("DateOfJoiningOnroll"),
+                                DateOfJoiningTraining = dataRow.Field<DateTime?>("DateOfJoiningTraining"),
+                                DateOfJoiningFloor = dataRow.Field<DateTime?>("DateOfJoiningFloor"),
+                                DateOfJoiningOJT = dataRow.Field<DateTime?>("DateOfJoiningOJT")
                             }).ToList().FirstOrDefault();
 
             if (employmentDetail == null)
@@ -1110,7 +1119,11 @@ namespace HRMS.API.BusinessLayer
                                 SubDepartmentID = dataRow.Field<long>("SubDepartmentID"),
                                 ShiftTypeID = dataRow.Field<long>("ShiftTypeID"),
                                 ESINumber = dataRow.Field<string>("ESINumber"),
-                                ESIRegistrationDate = dataRow.Field<DateTime?>("ESIRegistrationDate")
+                                ESIRegistrationDate = dataRow.Field<DateTime?>("ESIRegistrationDate"),
+                                DateOfJoiningOnroll = dataRow.Field<DateTime?>("DateOfJoiningOnroll"),
+                                DateOfJoiningTraining = dataRow.Field<DateTime?>("DateOfJoiningTraining"),
+                                DateOfJoiningFloor = dataRow.Field<DateTime?>("DateOfJoiningFloor"),
+                                DateOfJoiningOJT = dataRow.Field<DateTime?>("DateOfJoiningOJT")
                             }).ToList().FirstOrDefault();
             if (employmentDetail == null)
             {

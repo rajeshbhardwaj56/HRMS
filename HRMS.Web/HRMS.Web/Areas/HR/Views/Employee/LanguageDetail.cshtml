@@ -139,21 +139,30 @@
             $(document).on('click', '.delete-entry', function (e) {
                 e.preventDefault();
                 const id = $(this).data('id');
+                               const isConfirmed = confirm("Are you sure you want to delete this language detail?");
+        if (!isConfirmed) {
+            return;
+        }
                 $.post('/HR/Employee/DeleteLanguageDetail', { encodedId: id }, function (response) {
                     if (response.success) {
                         $('#languageGrid').DataTable().ajax.reload();
                         toastr.success(response.message);
                     } else {
                         toastr.error('Failed to delete record');
-                    }
+                    }   
                 });
             });
+        });
+               $('#cancelButton').on('click', function () {
+            $('#languageForm')[0].reset();
+            $('#LanguageDetailID').val('');
+
         });
 
         function editLanguageDetail(id) {
             var table = $('#languageGrid').DataTable();
             var rowData = table.rows().data().toArray().find(row => row.languageDetailID === id);
-
+        
             if (!rowData) {
                 alert('Record not found!');
                 return;
