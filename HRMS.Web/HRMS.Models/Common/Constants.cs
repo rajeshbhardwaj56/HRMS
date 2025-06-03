@@ -102,7 +102,7 @@ namespace HRMS.Models.Common
         Admin,
         Employee,
         Manager,
-        SuperAdmin=5
+        SuperAdmin = 5
     }
 
 
@@ -118,7 +118,7 @@ namespace HRMS.Models.Common
         public const string AttendenceList = "AttendenceList";
         public const string Common = "Common";
         public const string ShiftType = "ShiftType";
-       
+
 
     }
 
@@ -149,6 +149,9 @@ namespace HRMS.Models.Common
         public const string WhatshappeningListing = "WhatshappeningListing";
 
         public const string EducationalDetail = "EducationalDetail";
+        public const string FamilyDetail = "FamilyDetail";
+        public const string ReferenceDetail = "ReferenceDetail";
+        public const string EmploymentHistory = "EmploymentHistory";
     }
 
     public class APIApiActionConstants
@@ -226,12 +229,12 @@ namespace HRMS.Models.Common
         public const string AddUpdateEmployeeFromExecelBulk = "AddUpdateEmployeeFromExecelBulk";
         public const string GetSubDepartmentDictionary = "GetSubDepartmentDictionary";
         public const string GetEmployeeDetails = "GetEmployeeDetails";
-        
-        
+
+
         public const string GetAllWhatsHappeningDetails = "GetAllWhatsHappeningDetails";
         public const string AddUpdateWhatsHappeningDetails = "AddUpdateWhatsHappeningDetails";
         public const string DeleteWhatsHappening = "DeleteWhatsHappening";
-       
+
 
         public const string AddUpdateWhatsHappening = "AddUpdateWhatsHappening";
         public const string GetWhatsHappenings = "GetWhatsHappenings";
@@ -240,6 +243,22 @@ namespace HRMS.Models.Common
         public const string AddUpdateEducationDetail = "AddUpdateEducationDetail";
         public const string GetEducationDetails = "GetEducationDetails";
         public const string DeleteEducationDetail = "DeleteEducationDetail";
+
+        public const string GetReferenceDetails = "GetReferenceDetails";
+        public const string AddUpdateReferenceDetail = "AddUpdateReferenceDetail";
+        public const string DeleteReferenceDetail = "DeleteReferenceDetail";
+
+        public const string GetFamilyDetails = "GetFamilyDetails";
+        public const string AddUpdateFamilyDetail = "AddUpdateFamilyDetail";
+        public const string DeleteFamilyDetail = "DeleteFamilyDetail";
+
+        public const string GetEmploymentHistory = "GetEmploymentHistory";
+        public const string AddUpdateEmploymentHistory = "AddUpdateEmploymentHistory";
+        public const string DeleteEmploymentHistory = "DeleteEmploymentHistory";
+
+        public const string GetLanguageDetails = "GetLanguageDetails";
+        public const string AddUpdateLanguageDetail = "AddUpdateLanguageDetail";
+        public const string DeleteLanguageDetail = "DeleteLanguageDetail";
 
     }
 

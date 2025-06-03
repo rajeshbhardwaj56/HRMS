@@ -19,53 +19,49 @@
     Add / Edit Education Detail
 </div>
 
-    <form method="post" enctype="multipart/form-data">
-        <div class="Container">                
+<form id="educationForm" method="post" enctype="multipart/form-data">
+    <div class="Container">
         @Html.HiddenFor(m => m.EmployeeID)
         @Html.HiddenFor(m => m.EducationDetailID)
 
         <div class="row mb-3">
-                    <div class="col-md-4 form-group">
-                        <label>School/University <span class="Mandetory">*</span></label>
-                        @Html.TextBoxFor(a => a.School_University, new { @class = "form-control", @type = "text", @required = "required" })
+            <div class="col-md-4 form-group">
+                <label>School/University <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.School_University, new { @class = "form-control", @type = "text", @required = "required" })
 
-                    </div>
-                    <div class="col-md-4 form-group">
-                        <label>Qualification (Degree/Diploma)<span class="Mandetory">*</span></label>
-                        @Html.TextBoxFor(a => a.Qualification, new { @class = "form-control", @type = "text", @required = "required" })
-                    </div>
-                    <div class="col-md-4 form-group">
-                        <label>Year of Passing <span class="Mandetory">*</span></label>
-                        @Html.TextBoxFor(a => a.YearOfPassing, new { @class = "form-control", @type = "text", @required = "required" })
-                    </div>
-                    <div class="col-md-4 form-group">
-                        <label>Class/ Percentage </label>
-                        @Html.TextBoxFor(a => a.Percentage, new { @class = "form-control", @type = "text" })
-                    </div>
-                    <div class="col-md-4 form-group">
-                        <label>Major/Optional Subject <span class="Mandetory">*</span></label>
-                        @Html.TextBoxFor(a => a.Major_OptionalSubjects, new { @class = "form-control", @type = "text", @required = "required" })
-                    </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Qualification (Degree/Diploma)<span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.Qualification, new { @class = "form-control", @type = "text", @required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Year of Passing <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.YearOfPassing, new { @class = "form-control", @type = "text", @required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Class/ Percentage </label>
+                @Html.TextBoxFor(a => a.Percentage, new { @class = "form-control", @type = "text" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Major/Optional Subject <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.Major_OptionalSubjects, new { @class = "form-control", @type = "text", @required = "required" })
+            </div>
 
             <div class="col-md-4 form-group ">
-                <label > Certificate</label>                                         
-                      <input type="file" name="CertificateFile" accept="application/pdf"  />
-                    <span id="fileError" class="text-danger" style="display:none;"></span>
-              @*   <div class="col-md-4">
-                    <iframe id="CertificatepreviewPDF" style="width:100px; height:100px; display:none;" frameborder="0"></iframe>
-                </div> *@
+                <label> Certificate <span class="text-danger">*</span></label>
+                <input type="file" name="CertificateFile" accept="application/pdf" class="form-control" required />
+                <span id="fileError" class="text-danger" style="display:none;"></span>
             </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12">
-                            <input type="submit" value="Submit" class="btn btn-success" />
-                            <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
-                        </div>
-                    </div> 
-              
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                </div>
             </div>
         </div>
-    </form>
+    </div>
+</form>
 <div class="main-header anim" style="--delay: 0s">
     Employee Academic Summary
 </div>
@@ -73,7 +69,7 @@
     <table id="educationGrid" class="table table-striped body-text" style="width:100%">
         <thead>
             <tr>
-                <th style="display:none;"></th> 
+                <th style="display:none;"></th>
                 <th style="display:none;"></th>
                 <th>School</th>
                 <th>Qualification</th>
@@ -94,182 +90,197 @@
                 <h5 class="modal-title">Document Preview</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center p-2" id="documentContent" style="max-height: 300px; overflow-y: auto;">           
+            <div class="modal-body text-center p-2" id="documentContent" style="max-height: 300px; overflow-y: auto;">
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-   
+
 
     <script>
-        //     window.onload = function () {
-        //     const panFullPath = '@Html.Raw(Certificate)';
-        //     const panPdfPreview = document.getElementById('CertificatepreviewPDF');
 
-        //     if (panFullPath.toLowerCase().includes('.pdf')) {
-        //         panPdfPreview.src = panFullPath;
-        //         panPdfPreview.style.display = 'block';
-        //     } else {
-        //         panPdfPreview.style.display = 'none';
-        //     }
-        // };
-        $(document).ready(function () {
-            var employeeId = '@Model.EmployeeID';
-            $('#educationGrid').DataTable({
-                ajax: {
-                    url: "/HR/Employee/GetEducationDetails",
-                    type: "POST",
-                    datatype: "json",
-                    data: { EmployeeID: employeeId },
-                    dataSrc: function (json) {
-                        return json.data || json;
-                    }
-                },
-                ordering: true,
-                paging: true,
-                searching: true,
-                info: true,
-                responsive: true,
-                columns: [
-                    { data: "educationDetailID", "autoWidth": true, },
-                    { data: "employeeID", "autoWidth": true, },                 
-                    { data: "school_University", autoWidth: true },
-                    { data: "qualification", autoWidth: true },
-                    { data: "yearOfPassing", autoWidth: true },
-                    { data: "percentage", autoWidth: true },
-                    { data: "major_OptionalSubjects", autoWidth: true },
-                            {
-            data: "certificateImage",
-            autoWidth: true,
-            render: function (data, type, row, meta) {
-                if (!data) return '';
-                return `<button class="btn btn-sm btn-info view-document" data-url="${data}">View</button>`;
-            }
-        },
-                    {
-                        data: "educationDetailID",
-                        autoWidth: true,
-                        orderable: false,
-                        searchable: false,
-                        render: function (data, type, row) {
-                            return `
-                                <div class="table-data-feature">
-                                    <a class="item" href="#" onclick="editEntry(${data})" title="Edit">
-                                        <img src="/assets/img/edit.png" width="20" height="20" />
-                                    </a>
-                                    <a class="item delete-entry" href="#"  data-id="${data}" title="Delete">
-                                        <img src="/assets/img/delete.png" width="20" height="20" />
-                                    </a>
-                                </div>
-                            `;
-                        }
-                    }
-                ],
-                columnDefs: [
+                  $('#educationForm').on('submit', function (e) {
+              e.preventDefault();
+
+               var form = $(this)[0];
+                var formData = new FormData(form);
+         $.ajax({
+                 url: form.action || window.location.pathname,
+                 type: 'POST',
+                 data: formData,
+                 processData: false,
+                 contentType: false,
+                 success: function (result) {
+                     if (result && result.success) {
+                         $('#educationGrid').DataTable().ajax.reload();
+                         form.reset();
+                         toastr.success(result.message || 'Saved successfully');
+                     } else {
+                         toastr.error(result.message || 'Failed to save');
+                     }
+                 },
+                 error: function () {
+                     toastr.error('Error submitting form');
+                 }
+             });
+         });
+         $(document).ready(function () {
+             var employeeId = '@Model.EmployeeID';
+             $('#educationGrid').DataTable({
+                 ajax: {
+                     url: "/HR/Employee/GetEducationDetails",
+                     type: "POST",
+                     datatype: "json",
+                     data: { EmployeeID: employeeId },
+                     dataSrc: function (json) {
+                         return json.data || json;
+                     }
+                 },
+                 ordering: true,
+                 paging: true,
+                 searching: true,
+                 info: true,
+                 responsive: true,
+                 columns: [
+                     { data: "educationDetailID", "autoWidth": true, },
+                     { data: "employeeID", "autoWidth": true, },
+                     { data: "school_University", autoWidth: true },
+                     { data: "qualification", autoWidth: true },
+                     { data: "yearOfPassing", autoWidth: true },
+                     { data: "percentage", autoWidth: true },
+                     { data: "major_OptionalSubjects", autoWidth: true },
+                             {
+             data: "certificateImage",
+             autoWidth: true,
+             render: function (data, type, row, meta) {
+                 if (!data) return '';
+                 return `<button class="btn btn-sm btn-info view-document" data-url="${data}">View</button>`;
+             }
+         },
                      {
-                targets: [0, 1], 
-                visible: false,
-                searchable: false
-            },
-                    {
-                        targets: [6],
-                        orderable: false
-                    }
-                ]
-            });
-        });
-       // function CertificatePostedFilePreview(event) {
-       //      const file = event.target.files[0];
-       //      const pdfPreview = document.getElementById('CertificatepreviewPDF');
-       //      const errorSpan = document.getElementById('fileError');
-       //      if (file) {
-       //          if (file.type !== 'application/pdf') {
-       //              errorSpan.innerText = 'Only PDF file allowed. Please upload a valid PDF document.';
-       //              errorSpan.style.display = 'block';
-       //              event.target.value = '';
-       //              pdfPreview.style.display = 'none';
-       //              return;
-       //          }
+                         data: "educationDetailID",
+                         autoWidth: true,
+                         orderable: false,
+                         searchable: false,
+                         render: function (data, type, row) {
+                             return `
+                                 <div class="table-data-feature">
+                                     <a class="item" href="#" onclick="editEntry(${data})" title="Edit">
+                                         <img src="/assets/img/edit.png" width="20" height="20" />
+                                     </a>
+                                     <a class="item delete-entry" href="#"  data-id="${data}" title="Delete">
+                                         <img src="/assets/img/delete.png" width="20" height="20" />
+                                     </a>
+                                 </div>
+                             `;
+                         }
+                     }
+                 ],
+                 columnDefs: [
+                      {
+                 targets: [0, 1],
+                 visible: false,
+                 searchable: false
+             },
+                     {
+                         targets: [6],
+                         orderable: false
+                     }
+                 ]
+             });
+         });
+        // function CertificatePostedFilePreview(event) {
+        //      const file = event.target.files[0];
+        //      const pdfPreview = document.getElementById('CertificatepreviewPDF');
+        //      const errorSpan = document.getElementById('fileError');
+        //      if (file) {
+        //          if (file.type !== 'application/pdf') {
+        //              errorSpan.innerText = 'Only PDF file allowed. Please upload a valid PDF document.';
+        //              errorSpan.style.display = 'block';
+        //              event.target.value = '';
+        //              pdfPreview.style.display = 'none';
+        //              return;
+        //          }
 
-       //          errorSpan.innerText = '';
-       //          errorSpan.style.display = 'none';
+        //          errorSpan.innerText = '';
+        //          errorSpan.style.display = 'none';
 
-       //          const reader = new FileReader();
-       //          reader.onload = function (e) {
-       //              pdfPreview.src = e.target.result;
-       //              pdfPreview.style.display = 'block';
-       //          };
-       //          reader.readAsDataURL(file);
-       //      }
-       //  }  
-         $(document).on('click', '.view-document', function () {
-            const url = $(this).data('url');
-            if (!url) return;
+        //          const reader = new FileReader();
+        //          reader.onload = function (e) {
+        //              pdfPreview.src = e.target.result;
+        //              pdfPreview.style.display = 'block';
+        //          };
+        //          reader.readAsDataURL(file);
+        //      }
+        //  }
+          $(document).on('click', '.view-document', function () {
+             const url = $(this).data('url');
+             if (!url) return;
 
-            const previewHtml = `
-                <embed src="${url}" type="application/pdf" style="width:100%; height:600px;" />
-                <img src="${url}" onerror="this.style.display='none'" style="max-width:100%; max-height:600px;" />
-            `;
+             const previewHtml = `
+                 <embed src="${url}" type="application/pdf" style="width:100%; height:600px;" />
+                 <img src="${url}" onerror="this.style.display='none'" style="max-width:100%; max-height:600px;" />
+             `;
 
-            $('#documentContent').html(previewHtml);
-            $('#documentModal').modal('show');
-        });
-         function editEntry(educationDetailId) {         
-            var table = $('#educationGrid').DataTable();
-            var rowData = table
-                .rows()
-                .data()
-                .toArray()
-                .find(row => row.educationDetailID === educationDetailId);
+             $('#documentContent').html(previewHtml);
+             $('#documentModal').modal('show');
+         });
+          function editEntry(educationDetailId) {
+             var table = $('#educationGrid').DataTable();
+             var rowData = table
+                 .rows()
+                 .data()
+                 .toArray()
+                 .find(row => row.educationDetailID === educationDetailId);
 
-            if (!rowData) {
-                alert('Record not found!');
-                return;
-            }         
-            $('#EmployeeID').val(rowData.employeeID);
-            $('#EducationDetailID').val(rowData.educationDetailID);
-            $('#School_University').val(rowData.school_University);
-            $('#Qualification').val(rowData.qualification);
-            $('#YearOfPassing').val(rowData.yearOfPassing);
-            $('#Percentage').val(rowData.percentage);
-            $('#Major_OptionalSubjects').val(rowData.major_OptionalSubjects);
-            const pdfPreview = document.getElementById('CertificatepreviewPDF');
-            if (rowData.certificateImage && rowData.certificateImage.toLowerCase().includes('.pdf')) {
-                pdfPreview.src = rowData.certificateImage;
-                pdfPreview.style.display = 'block';
-            } else {
-                pdfPreview.src = '';
-                pdfPreview.style.display = 'none';
-            }
-        
-            $('input[name="CertificateFile"]').val('');
-            $('#fileError').hide();
+             if (!rowData) {
+                 alert('Record not found!');
+                 return;
+             }
+             $('#EmployeeID').val(rowData.employeeID);
+             $('#EducationDetailID').val(rowData.educationDetailID);
+             $('#School_University').val(rowData.school_University);
+             $('#Qualification').val(rowData.qualification);
+             $('#YearOfPassing').val(rowData.yearOfPassing);
+             $('#Percentage').val(rowData.percentage);
+             $('#Major_OptionalSubjects').val(rowData.major_OptionalSubjects);
+             const pdfPreview = document.getElementById('CertificatepreviewPDF');
+             if (rowData.certificateImage && rowData.certificateImage.toLowerCase().includes('.pdf')) {
+                 pdfPreview.src = rowData.certificateImage;
+                 pdfPreview.style.display = 'block';
+             } else {
+                 pdfPreview.src = '';
+                 pdfPreview.style.display = 'none';
+             }
 
-          
-          //  $('html, body').animate({ scrollTop: $("form").offset().top }, 500);
-        }
-         $(document).on('click', '.delete-entry', function (e) {
-            e.preventDefault();
-            const encodedId = $(this).data('id');
-            if (!encodedId) {
-                alert('Invalid ID');
-                return;
-            }
-                $.ajax({
-                    url: '/HR/Employee/DeleteEducationDetail',
-                    type: 'POST',
-                    data: { encodedId: encodedId },
-                    success: function (response) {                        
-                        $('#educationGrid').DataTable().ajax.reload();
-                         toastr.success('Deleted successfully');
-                    },
-                    error: function () {
-                        toastr.error('Failed to delete record');
-                    }
-                });
-            
-        });
+             $('input[name="CertificateFile"]').val('');
+             $('#fileError').hide();
+
+
+           //  $('html, body').animate({ scrollTop: $("form").offset().top }, 500);
+         }
+          $(document).on('click', '.delete-entry', function (e) {
+             e.preventDefault();
+             const encodedId = $(this).data('id');
+             if (!encodedId) {
+                 alert('Invalid ID');
+                 return;
+             }
+                 $.ajax({
+                     url: '/HR/Employee/DeleteEducationDetail',
+                     type: 'POST',
+                     data: { encodedId: encodedId },
+                     success: function (response) {
+                         $('#educationGrid').DataTable().ajax.reload();
+                          toastr.success('Deleted successfully');
+                     },
+                     error: function () {
+                         toastr.error('Failed to delete record');
+                     }
+                 });
+
+         });
     </script>
 }

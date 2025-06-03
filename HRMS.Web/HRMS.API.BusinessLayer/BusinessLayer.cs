@@ -3846,7 +3846,7 @@ namespace HRMS.API.BusinessLayer
         }
 
         public string DeleteEducationDetail(EducationDetailParams model)
-        {       
+        {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EducationDetailID", model.EducationDetailID));
             SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
@@ -3859,6 +3859,333 @@ namespace HRMS.API.BusinessLayer
             return message;
         }
 
+        public List<EmploymentHistory> GetEmploymentHistory(EmploymentHistoryParams model)
+        {
+            List<SqlParameter> parameters = new()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmploymentHistoryByEmployee, parameters);
+            if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
+                return new List<EmploymentHistory>();
+
+            return dataSet.Tables[0].AsEnumerable()
+                .Select(row => new EmploymentHistory
+                {
+                    EmploymentHistoryID = row.Field<long>("EmploymentHistoryID"),
+                    EmployeeID = row.Field<long>("EmployeeID"),
+                    CountryID = row.Field<long>("CountryID"),
+                    EmploymentID = row.Field<string>("EmploymentID"),
+                    CompanyName = row.Field<string>("CompanyName"),
+                    From = row.Field<DateTime?>("From"),
+                    To = row.Field<DateTime?>("To"),
+                    Address = row.Field<string>("Address"),
+                    Phone = row.Field<string>("Phone"),
+                    City = row.Field<string>("City"),
+                    State = row.Field<string>("State"),
+                    PostalCode = row.Field<string>("PostalCode"),
+                    ReasionFoLeaving = row.Field<string>("ReasionFoLeaving"),
+                    Designition = row.Field<string>("Designition"),
+                    GrossSalary = row.Field<string>("GrossSalary"),
+                    SupervisorName = row.Field<string>("SupervisorName"),
+                    SupervisorDesignition = row.Field<string>("SupervisorDesignition"),
+                    SupervisorContactNo = row.Field<string>("SupervisorContactNo"),
+                    HRName = row.Field<string>("HRName"),
+                    HREmail = row.Field<string>("HREmail"),
+                    HRContactNo = row.Field<string>("HRContactNo")
+                }).ToList();
+        }
+
+        public Result AddUpdateEmploymentHistory(EmploymentHistory emp)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@EmploymentHistoryID", emp.EmploymentHistoryID),
+        new SqlParameter("@EmployeeID", emp.EmployeeID),
+        new SqlParameter("@CountryID", emp.CountryID),
+        new SqlParameter("@EmploymentID", emp.EmploymentID),
+        new SqlParameter("@CompanyName", emp.CompanyName),
+        new SqlParameter("@From", (object?)emp.From ?? DBNull.Value),
+        new SqlParameter("@To", (object?)emp.To ?? DBNull.Value),
+        new SqlParameter("@Address", emp.Address),
+        new SqlParameter("@Phone", emp.Phone),
+        new SqlParameter("@City", emp.City),
+        new SqlParameter("@State", emp.State),
+        new SqlParameter("@PostalCode", emp.PostalCode),
+        new SqlParameter("@ReasionFoLeaving", emp.ReasionFoLeaving),
+        new SqlParameter("@Designition", emp.Designition),
+        new SqlParameter("@GrossSalary", emp.GrossSalary),
+        new SqlParameter("@SupervisorName", emp.SupervisorName),
+        new SqlParameter("@SupervisorDesignition", emp.SupervisorDesignition),
+        new SqlParameter("@SupervisorContactNo", emp.SupervisorContactNo),
+        new SqlParameter("@HRName", emp.HRName),
+        new SqlParameter("@HREmail", emp.HREmail),
+        new SqlParameter("@HRContactNo", emp.HRContactNo),
+        new SqlParameter("@IsActive", true),
+        new SqlParameter("@IsDeleted", false),
+        new SqlParameter("@UserID", emp.UserID)
+    };
+
+            SqlParameterCollection pOutputParams = null;
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmploymentHistory, sqlParameter, ref pOutputParams);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new Result
+                    {
+                        Message = dataRow.Field<string>("Result"),
+                        PKNo = dataRow.Field<long?>("RetEmploymentHistoryID") ?? 0
+                    })
+                    .FirstOrDefault();
+            }
+
+            return model;
+        }
+        public string DeleteEmploymentHistory(EmploymentHistoryParams model)
+        {
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@EmploymentHistoryID", model.EmploymentHistoryID)
+    };
+
+            SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            sqlParameter.Add(outputMessage);
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EmploymentHistory, sqlParameter);
+
+            return outputMessage.Value.ToString();
+        }
+
+        public List<Reference> GetReferenceDetails(ReferenceParams model)
+        {
+            List<SqlParameter> parameters = new()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ReferenceDetailsByEmployee, parameters);
+            if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
+                return new List<Reference>();
+
+            return dataSet.Tables[0].AsEnumerable()
+                .Select(row => new Reference
+                {
+                    ReferenceDetailID = row.Field<long>("ReferenceDetailID"),
+                    EmployeeID = row.Field<long>("EmployeeID"),
+                    Name = row.Field<string>("Name"),
+                    Contact = row.Field<string>("Contact"),
+                    OrgnizationName = row.Field<string>("OrgnizationName"),
+                    RelationWithCandidate = row.Field<string>("RelationWithCandidate")
+                }).ToList();
+        }
+
+        public Result AddUpdateReferenceDetail(Reference reference)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@ReferenceDetailID", reference.ReferenceDetailID),
+        new SqlParameter("@EmployeeID", reference.EmployeeID),
+        new SqlParameter("@Name", reference.Name),
+        new SqlParameter("@Contact", reference.Contact),
+        new SqlParameter("@OrgnizationName", reference.OrgnizationName),
+        new SqlParameter("@RelationWithCandidate", reference.RelationWithCandidate),
+        new SqlParameter("@IsActive", true),
+        new SqlParameter("@IsDeleted", false),
+        new SqlParameter("@UserID", reference.UserID) // Replace with actual UserID if available
+    };
+
+            SqlParameterCollection pOutputParams = null;
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ReferenceDetails, sqlParameter, ref pOutputParams);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new Result
+                    {
+                        Message = dataRow.Field<string>("Result"),
+                        PKNo = dataRow.Field<long?>("RetReferenceDetailID") ?? 0
+                    })
+                    .FirstOrDefault();
+            }
+
+            return model;
+        }
+
+        public string DeleteReferenceDetail(ReferenceParams model)
+        {
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@ReferenceDetailID", model.ReferenceDetailID)
+    };
+
+            SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            sqlParameter.Add(outputMessage);
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_ReferenceDetails, sqlParameter);
+            return outputMessage.Value.ToString();
+        }
+
+        public List<FamilyDetail> GetFamilyDetails(FamilyDetailParams model)
+        {
+            List<SqlParameter> parameters = new()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeesFamilyDetailsByEmployee, parameters);
+            if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
+                return new List<FamilyDetail>();
+
+            return dataSet.Tables[0].AsEnumerable()
+                .Select(row => new FamilyDetail
+                {
+                    EmployeesFamilyDetailID = row.Field<long>("EmployeesFamilyDetailID"),
+                    EmployeeID = row.Field<long>("EmployeeID"),
+                    FamilyName = row.Field<string>("FamilyName"),
+                    Relationship = row.Field<string>("Relationship"),
+                    Age = row.Field<string>("Age"),
+                    Details = row.Field<string>("Details")
+                }).ToList();
+        }
+
+        public Result AddUpdateFamilyDetail(FamilyDetail familyDetail)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeesFamilyDetailID", familyDetail.EmployeesFamilyDetailID),
+        new SqlParameter("@EmployeeID", familyDetail.EmployeeID),
+        new SqlParameter("@FamilyName", familyDetail.FamilyName),
+        new SqlParameter("@Relationship", familyDetail.Relationship),
+        new SqlParameter("@Age", familyDetail.Age),
+        new SqlParameter("@Details", familyDetail.Details),
+        new SqlParameter("@IsActive", true),
+        new SqlParameter("@IsDeleted", false),
+        new SqlParameter("@UserID", familyDetail.UserID)
+    };
+
+            SqlParameterCollection pOutputParams = null;
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_FamilyDetails, sqlParameter, ref pOutputParams);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new Result
+                    {
+                        Message = dataRow.Field<string>("Result"),
+                        PKNo = dataRow.Field<long?>("RetEmployeesFamilyDetailID") ?? 0
+                    })
+                    .FirstOrDefault();
+            }
+
+            return model;
+        }
+
+        public string DeleteFamilyDetail(FamilyDetailParams model)
+        {
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeesFamilyDetailID", model.EmployeesFamilyDetailID)
+    };
+
+            SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            sqlParameter.Add(outputMessage);
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EmployeesFamilyDetails, sqlParameter);
+            return outputMessage.Value.ToString();
+        }
+
+        public List<LanguageDetail> GetLanguageDetails(LanguageDetailParams model)
+        {
+            List<SqlParameter> parameters = new()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LanguageDetailsByEmployee, parameters);
+            if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
+                return new List<LanguageDetail>();
+
+            return dataSet.Tables[0].AsEnumerable()
+                .Select(row => new LanguageDetail
+                {
+                    LanguageDetailID = row.Field<long>("LanguageDetailID"),
+                    EmployeeID = row.Field<long>("EmployeeID"),
+                    LanguageID = row.Field<long>("LanguageID"),
+                    LanguageName = row.Field<string>("LanguageName"), // Assuming you joined this in SP
+                    IsSpeak = row.Field<bool>("IsSpeak"),
+                    IsRead = row.Field<bool>("IsRead"),
+                    IsWrite = row.Field<bool>("IsWrite")
+                }).ToList();
+        }
+        public Result AddUpdateLanguageDetail(LanguageDetail languageDetail)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new()
+    {
+        new SqlParameter("@LanguageDetailID", languageDetail.LanguageDetailID),
+        new SqlParameter("@EmployeeID", languageDetail.EmployeeID),
+        new SqlParameter("@LanguageID", languageDetail.LanguageID),
+        new SqlParameter("@IsSpeak", languageDetail.IsSpeak),
+        new SqlParameter("@IsRead", languageDetail.IsRead),
+        new SqlParameter("@IsWrite", languageDetail.IsWrite),
+        new SqlParameter("@UserID", languageDetail.UserID)
+    };
+
+            SqlParameterCollection pOutputParams = null;
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LanguageDetails, sqlParameter, ref pOutputParams);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new Result
+                    {
+                        Message = dataRow.Field<string>("Result"),
+                        PKNo = dataRow.Field<long?>("RetLanguageDetailID") ?? 0
+                    })
+                    .FirstOrDefault();
+            }
+
+            return model;
+        }
+        public string DeleteLanguageDetail(LanguageDetailParams model)
+        {
+            List<SqlParameter> sqlParameter = new()
+    {
+        new SqlParameter("@LanguageDetailID", model.EmployeesFamilyDetailID)
+    };
+
+            SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            sqlParameter.Add(outputMessage);
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_LanguageDetails, sqlParameter);
+            return outputMessage.Value.ToString();
+        }
+
+
+
         #endregion EmployeeAdditonalDetails
+
+
     }
 }

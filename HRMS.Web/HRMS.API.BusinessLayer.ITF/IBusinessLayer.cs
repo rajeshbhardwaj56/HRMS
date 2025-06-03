@@ -100,5 +100,19 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<EducationalDetail> GetEducationDetails(EducationDetailParams model);
         public Result AddUpdateEducationDetail(EducationalDetail model);
         public string DeleteEducationDetail(EducationDetailParams model);
+
+        public List<EmploymentHistory> GetEmploymentHistory(EmploymentHistoryParams model);
+        public Result AddUpdateEmploymentHistory(EmploymentHistory model);
+        public string DeleteEmploymentHistory(EmploymentHistoryParams model);
+        public List<Reference> GetReferenceDetails(ReferenceParams model);
+        public Result AddUpdateReferenceDetail(Reference model);
+        public string DeleteReferenceDetail(ReferenceParams model);
+        public List<FamilyDetail> GetFamilyDetails(FamilyDetailParams model);
+        public Result AddUpdateFamilyDetail(FamilyDetail model);
+        public string DeleteFamilyDetail(FamilyDetailParams model);
+        public List<LanguageDetail> GetLanguageDetails(LanguageDetailParams model);
+        public Result AddUpdateLanguageDetail(LanguageDetail model);
+        public string DeleteLanguageDetail(LanguageDetailParams model);
+
     }
 }

@@ -14,25 +14,7 @@
     {
         ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
     }
-    var PancardPhoto = "";
-    if (!string.IsNullOrEmpty(Model.PanCardImage))
-    {
-        PancardPhoto = @Model.PanCardImage;
-    }
-    else
-    {
-        PancardPhoto = HRMS.Models.Common.Constants.NoImagePath;
-    }
-
-    var AddharCardPhoto = "";
-    if (!string.IsNullOrEmpty(Model.AadhaarCardImage))
-    {
-        AddharCardPhoto = @Model.AadhaarCardImage;
-    }
-    else
-    {
-        AddharCardPhoto = HRMS.Models.Common.Constants.NoImagePath;
-    }
+   
     bool isEdit = Model != null && Model.EmployeeID > 0;
     var headerText = isEdit ? "Edit Employee" : "New Employee";
 }
@@ -40,11 +22,11 @@
     @headerText
     @if (isEdit)
     {
-      
+
         <div class="user-settings dropdown">
             <div class="user-name">Additional Details</div>
             <a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
-              
+
                 <svg viewBox="0 0 492 492" fill="currentColor">
                     <path d="M484.13 124.99l-16.11-16.23a26.72 26.72 0 00-19.04-7.86c-7.2 0-13.96 2.79-19.03 7.86L246.1 292.6 62.06 108.55c-5.07-5.06-11.82-7.85-19.03-7.85s-13.97 2.79-19.04 7.85L7.87 124.68a26.94 26.94 0 000 38.06l219.14 219.93c5.06 5.06 11.81 8.63 19.08 8.63h.09c7.2 0 13.96-3.57 19.02-8.63l218.93-219.33A27.18 27.18 0 00492 144.1c0-7.2-2.8-14.06-7.87-19.12z"></path>
                 </svg>
@@ -68,8 +50,32 @@
                             Education Details
                         </a>
                     </li>
-                    </ul>
-                
+                    <li>
+                        <a class="dropdown-item" href="~/HR/Employee/ReferenceDetail/@Model.EncryptedIdentity">
+                            <span class="mr-2">
+                                <i class="fa fa-address-book"></i>
+                            </span>
+                            Reference Details
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="~/HR/Employee/EmploymentHistory/@Model.EncryptedIdentity">
+                            <span class="mr-2">
+                                <i class="fa fa-briefcase"></i>
+                            </span>
+                            Employment History Details
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="~/HR/Employee/LanguageDetail/@Model.EncryptedIdentity">
+                            <span class="mr-2">
+                                <i class="fa fa-briefcase"></i>
+                            </span>
+                            Language Details
+                        </a>
+                    </li>
+                </ul>
+
             </div>
         </div>
     }
@@ -80,9 +86,7 @@
             <div class="small-header">Personal Details</div>
             @Html.HiddenFor(m => m.EmployeeID)
             @Html.HiddenFor(m => m.CompanyID)
-            @Html.HiddenFor(m => m.ProfilePhoto)
-            @Html.HiddenFor(m => m.PanCardImage)
-            @Html.HiddenFor(m => m.AadhaarCardImage)
+           
             <div class="row">
                 <div class="col-md-4 form-group">
                     <label>First Name <span class="Mandetory">*</span></label>
@@ -241,18 +245,6 @@
 
 
         <div class="group-box anim" style="--delay: .3s">
-            <div class="small-header">Family Details <input type="button" style="float:right;" class="btn btn-info" id="AddNewFamily" value="Add New Family" /></div>
-            @*  <div class="row">
-            <div class="col-md-12" style="background-color: #a7b5ce; padding: 5px;padding-left: 10px;">
-            <label for="validationDefault01" class="form-label">Family Details </label>   <input type="button" style="float:right;" class="btn btn-info" id="AddNewFamily" value="Add New Family" />
-            </div>
-            </div> *@
-
-            <div class="row">
-                <div class="col-md-12" id="FamilyDetails">
-                    @Html.Partial("_FamilyDetails", Model)
-                </div>
-            </div>
 
             <div class="row mt-4">
                 <div class="col-md-6 form-group">
@@ -317,136 +309,29 @@
             </div>
 
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Pan No <span class="Mandetory">*</span></label>
-                        @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label> Pan Card No <span class="Mandetory">*</span></label>
-                        <div class="col-md-4">
-                            <img id="PanpreviewImage" src="@Html.Raw(PancardPhoto)"
-                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
-                                 style="width:100px; height:100px; display:none;" />
-                            <iframe id="PanpreviewPDF" style="width:100px; height:100px; display:none;" frameborder="0"></iframe>
-                        </div>
-                        <div class="col-md-8">
-                            <input type="file" name="PanPostedFile" accept="image/*,application/pdf" onchange="PanPostedFilePreview(event)" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label> Aadhar Card No <span class="Mandetory">*</span></label>
-                        @Html.TextBoxFor(a => a.AadharCardNo, new { @class = "form-control", @required = "required" })
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label> Aadhaar Card No <span class="Mandetory">*</span></label>
-                        <div class="col-md-4">
-                            <!-- Image Preview -->
-                            <img id="AadhaarpreviewImage"
-                                 src="@AddharCardPhoto"
-                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
-                                 style="width:100px; height:100px; display:none;" />
-
-                            <!-- PDF Preview -->
-                            <iframe id="AadhaarpreviewPDF"
-                                    src="@AddharCardPhoto"
-                                    style="width:100px; height:100px; display:none;"
-                                    frameborder="0">
-                            </iframe>
-                        </div>
-                        <div class="col-md-8">
-                            <input type="file"
-                                   name="AadhaarPostedFile"
-                                   accept="image/*,.pdf"
-                                   onchange="AadhaarPreview(event)" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
 
 
 
 
 
 
-        <div class="group-box anim" style="--delay: .3s">
-            <div class="small-header">Educational/Professional Trainnings <input type="button" style="float:right;" class="btn btn-info" id="AddNewEducation" value="Add New Education" /></div>
-            <div class="row">
-                <div class="col-md-12" id="EducationalDetails">
-                    @Html.Partial("_EducationalDetails", Model)
-                </div>
-
-
-            </div>
-
-
-            <div class="form-group">
-                <label>Pan No <span class="Mandetory">*</span></label>
-                @Html.TextBoxFor(a => a.PANNo, new { @class = "form-control", @required = "required" })
-            </div>
-
-            <div class="form-group">
-                <label>Mention any Awards/Achievements/Scholarship recieved in you educational career <span class="Mandetory">*</span></label>
-                @Html.TextAreaFor(x => x.AwardsAchievements, new { @class = "form-control", @required = "required" })
-            </div>
-
-            <div class="form-group">
-                <label>State gaps in education, if any <span class="Mandetory">*</span></label>
-                @Html.TextAreaFor(x => x.EducationGap, new { @class = "form-control", @required = "required" })
-            </div>
 
 
         </div>
 
-        <div class="group-box anim" style="--delay: .3s">
-            <div class="small-header">Language Proficiency <input type="button" style="float:right;" class="btn btn-info" id="AddNewLanguage" value="Add New Language" /></div>
-            <div class="row">
-                <div class="col-md-12" id="LanguageDetails">
-                    @Html.Partial("_LanguageDetails", Model)
-                </div>
-            </div>
-            <div class="form-group mt-3">
-                <label>IT Skills/Knowledge (Indicate your level of Proficiency)</label>
-                @Html.TextAreaFor(x => x.ITSkillsKnowledge, new { @class = "form-control" })
-            </div>
-        </div>
-        <div class="group-box anim" style="--delay: .3s">
-            <div class="small-header">Employment Record <input type="button" style="float:right;" class="btn btn-info" id="AddNewEmployment" value="Add New Employment" /></div>
-
-            <div class="row">
-                <div class="col-md-12" id="EmploymentDetails">
-                    @Html.Partial("_EmploymentHistory", Model)
-                </div>
-            </div>
-        </div>
 
 
 
-        <div class="group-box anim" style="--delay: .3s">
-            <div class="small-header">References</div>
-            <div class="row">
-                <div class="col-md-12" id="ReferenceDetails">
-                    @Html.Partial("_ReferenceDetails", Model)
-                </div>
-            </div>
-        </div>
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -667,97 +552,8 @@
         // Apply the phone number mask
         $('.mobile-mask').mask('(000) 000-0000');
     });
-         function PanPostedFilePreview(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const previewImage = document.getElementById('PanpreviewImage');
-            const pdfPreview = document.getElementById('PanpreviewPDF');
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                const result = e.target.result;
-
-                if (file.type.startsWith('image/')) {
-                    previewImage.src = result;
-                    previewImage.style.display = 'block';
-                    pdfPreview.style.display = 'none';
-                } else if (file.type === 'application/pdf') {
-                    pdfPreview.src = result;
-                    pdfPreview.style.display = 'block';
-                    previewImage.style.display = 'none';
-                } else {
-                    alert('Unsupported file type. Please upload an image or a PDF.');
-                    previewImage.style.display = 'none';
-                    pdfPreview.style.display = 'none';
-                }
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
-      window.onload = function () {
-        const fullPath = '@Html.Raw(AddharCardPhoto)'; // Avoids &amp; encoding
-        const filePath = fullPath.toLowerCase();
-
-        const imagePreview = document.getElementById('AadhaarpreviewImage');
-        const pdfPreview = document.getElementById('AadhaarpreviewPDF');
-
-
-        if (filePath.includes('.pdf')) {
-            pdfPreview.src = fullPath;
-            pdfPreview.style.display = 'block';
-            imagePreview.style.display = 'none';
-        } else   {
-            imagePreview.src = fullPath;
-            imagePreview.style.display = 'block';
-            pdfPreview.style.display = 'none';
-        }
-
-
-         const panFullPath = '@Html.Raw(PancardPhoto)';
-    const panFilePath = panFullPath.toLowerCase();
-    const panImagePreview = document.getElementById('PanpreviewImage');
-    const panPdfPreview = document.getElementById('PanpreviewPDF');
-
-    if (panFilePath.includes('.pdf')) {
-        panPdfPreview.src = panFullPath;
-        panPdfPreview.style.display = 'block';
-        panImagePreview.style.display = 'none';
-    } else {
-        panImagePreview.src = panFullPath;
-        panImagePreview.style.display = 'block';
-        panPdfPreview.style.display = 'none';
-    }
-    };
-    // On file selection, preview image or PDF
-    function AadhaarPreview(event) {
-        const file = event.target.files[0];
-        const imagePreview = document.getElementById('AadhaarpreviewImage');
-        const pdfPreview = document.getElementById('AadhaarpreviewPDF');
-
-        if (file) {
-            const fileType = file.type;
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                const result = e.target.result;
-
-                if (fileType.startsWith('image/')) {
-                    imagePreview.src = result;
-                    imagePreview.style.display = 'block';
-                    pdfPreview.style.display = 'none';
-                } else if (fileType === 'application/pdf') {
-                    pdfPreview.src = result;
-                    pdfPreview.style.display = 'block';
-                    imagePreview.style.display = 'none';
-                } else {
-                    alert('Unsupported file type. Please upload an image or a PDF.');
-                    imagePreview.style.display = 'none';
-                    pdfPreview.style.display = 'none';
-                }
-            };
-
-            reader.readAsDataURL(file); 
-        }
-    }
+         
+   
+    
+ 
 </script>

@@ -217,7 +217,6 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.CheckEmployeeReporting(obj));
             return response;
         }
-
         [HttpPost]
         public IActionResult GetEducationDetails(EducationDetailParams model)
         {
@@ -237,6 +236,90 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.DeleteEducationDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetEmploymentHistory(EmploymentHistoryParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmploymentHistory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateEmploymentHistory(EmploymentHistory model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmploymentHistory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteEmploymentHistory(EmploymentHistoryParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteEmploymentHistory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetReferenceDetails(ReferenceParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetReferenceDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateReferenceDetail(Reference model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateReferenceDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteReferenceDetail(ReferenceParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteReferenceDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetFamilyDetails(FamilyDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetFamilyDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateFamilyDetail(FamilyDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateFamilyDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteFamilyDetail(FamilyDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteFamilyDetail(model));
+            return response;
+        }
+
+        public IActionResult GetLanguageDetails(LanguageDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLanguageDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateLanguageDetail(LanguageDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateLanguageDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteLanguageDetail(LanguageDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteLanguageDetail(model));
             return response;
         }
     }

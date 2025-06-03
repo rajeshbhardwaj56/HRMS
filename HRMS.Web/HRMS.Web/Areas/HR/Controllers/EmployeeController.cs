@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using System;
@@ -705,15 +706,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             return Ok(new { success = true, data = ReportingData });
         }
 
-
-        [HttpGet]
-        public IActionResult FamilyDetail(string id)
-        {
-            id = _businessLayer.DecodeStringBase64(id);
-            var employee = Convert.ToInt64(id);
-            return View(employee);
-        }
-
         [HttpGet]
         public IActionResult EducationalDetail(string id)
         {
@@ -731,7 +723,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             educationDetailParams.EmployeeID = EmployeeID;
             var data = _businessLayer.SendPostAPIRequest(educationDetailParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEducationDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<List<EducationalDetail>>(data);
-          
+
             if (results != null)
             {
                 results.ForEach(x =>
@@ -749,7 +741,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public ActionResult EducationalDetail(EducationalDetail eduDetail, List<IFormFile> CertificateFile)
+        public JsonResult EducationalDetail(EducationalDetail eduDetail, List<IFormFile> CertificateFile)
         {
             if (ModelState.IsValid)
             {
@@ -779,46 +771,372 @@ namespace HRMS.Web.Areas.HR.Controllers
 
                 if (result != null && result.PKNo > 0)
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Education details saved successfully.";
-                    return RedirectToActionPermanent(WebControllarsConstants.EducationalDetail, WebControllarsConstants.Employee);
+                    return Json(new { success = true, message = "Education details saved successfully." });
                 }
-                else
-                {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Failed to save education details.";
-                }
+                return Json(new { success = false, message = "Failed to save family details." });
             }
 
-            return View(eduDetail);
+            return Json(new { success = false, message = "Validation failed." });
         }
-
-       
         [HttpPost]
         public IActionResult DeleteEducationDetail(long encodedId)
         {
-                         
-                EducationDetailParams model = new EducationDetailParams
-                {
-                    EducationDetailID = encodedId
-                };
-           
-                var response = _businessLayer.SendPostAPIRequest(
-                    model,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEducationDetail),
+
+            EducationDetailParams model = new EducationDetailParams
+            {
+                EducationDetailID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEducationDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = response;
+
+                return Json(new { success = true, message = response });
+            }
+
+            return StatusCode(500, "Failed to delete the record.");
+        }
+
+
+        [HttpGet]
+        public IActionResult FamilyDetail(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var model = new FamilyDetail
+            {
+                EmployeeID = decodedEmployeeId
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public JsonResult GetFamilyDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            FamilyDetailParams familyDetailParams = new FamilyDetailParams();
+            familyDetailParams.EmployeeID = EmployeeID;
+            var data = _businessLayer.SendPostAPIRequest(familyDetailParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFamilyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<List<FamilyDetail>>(data);
+            return Json(new
+            {
+                data = results
+            });
+        }
+
+        [HttpPost]
+        public JsonResult FamilyDetail(FamilyDetail famDetail)
+        {
+            if (ModelState.IsValid)
+            {
+                famDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    famDetail,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateFamilyDetail),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true
                 ).Result.ToString();
 
-                if (!string.IsNullOrEmpty(response))
-                {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = response;
+                Result result = JsonConvert.DeserializeObject<Result>(data);
 
-                    return Json(new { success = true, message = response });
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "Family details saved successfully." });
                 }
 
-                return StatusCode(500, "Failed to delete the record.");
+                return Json(new { success = false, message = "Failed to save family details." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+        [HttpPost]
+        public IActionResult DeleteFamilyDetail(long encodedId)
+        {
+
+            FamilyDetailParams model = new FamilyDetailParams
+            {
+                EmployeesFamilyDetailID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteFamilyDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = response;
+
+                return Json(new { success = true, message = response });
+            }
+
+            return StatusCode(500, "Failed to delete the record.");
+        }
+
+        [HttpGet]
+        public IActionResult ReferenceDetail(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var model = new HRMS.Models.Employee.Reference
+            {
+                EmployeeID = decodedEmployeeId
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult GetReferenceDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            ReferenceParams referenceParams = new ReferenceParams
+            {
+                EmployeeID = EmployeeID
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                referenceParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetReferenceDetails),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.Reference>>(data);
+
+            return Json(new { data = results });
+        }
+
+        [HttpPost]
+        public JsonResult ReferenceDetail(HRMS.Models.Employee.Reference reference)
+        {
+            if (ModelState.IsValid)
+            {
+                reference.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    reference,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateReferenceDetail),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "ReferenceDetail details saved successfully." });
+                }
+                return Json(new { success = false, message = "Failed to save reference details." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteReferenceDetail(long encodedId)
+        {
+            ReferenceParams model = new ReferenceParams
+            {
+                ReferenceDetailID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteReferenceDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                TempData[Constants.toastMessage] = response;
+                return Json(new { success = true, message = response });
+            }
+
+            return StatusCode(500, "Failed to delete the record.");
+        }
+
+
+        [HttpGet]
+        public IActionResult EmploymentHistory(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var results = GetAllResults(companyId);
+            var model = new HRMS.Models.Employee.EmploymentHistory
+            {
+                EmployeeID = decodedEmployeeId,
+                Countries = results.Countries
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult GetEmploymentHistoryDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            var requestParams = new EmploymentHistoryParams
+            {
+                EmployeeID = EmployeeID
+
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                requestParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentHistory),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.EmploymentHistory>>(data);
+
+            return Json(new { data = results });
+        }
+
+        [HttpPost]
+        public JsonResult EmploymentHistory(HRMS.Models.Employee.EmploymentHistory history)
+        {
+            if (ModelState.IsValid)
+            {
+                history.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    history,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentHistory),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "Employment history saved successfully." });
+                }
+                return Json(new { success = false, message = "Failed to save employment history." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteEmploymentHistory(long encodedId)
+        {
+            EmploymentHistoryParams model = new EmploymentHistoryParams
+            {
+                EmploymentHistoryID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEmploymentHistory),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                TempData[Constants.toastMessage] = response;
+                return Json(new { success = true, message = response });
+            }
+
+            return StatusCode(500, "Failed to delete the record.");
+        }
+
+        [HttpGet]
+        public IActionResult LanguageDetail(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var results = GetAllResults(companyId);
+
+            var model = new HRMS.Models.Employee.LanguageDetail
+            {
+                EmployeeID = decodedEmployeeId,
+                Languages = results.Languages,
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult GetLanguageDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            var requestParams = new HRMS.Models.Employee.LanguageDetailParams
+            {
+                EmployeeID = EmployeeID
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                requestParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLanguageDetails),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.LanguageDetail>>(data);
+
+            return Json(new { data = results });
+        }
+
+        [HttpPost]
+        public JsonResult LanguageDetail(HRMS.Models.Employee.LanguageDetail language)
+        {
+            if (ModelState.IsValid)
+            {
+                language.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    language,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLanguageDetail),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "Language detail saved successfully." });
+                }
+
+                return Json(new { success = false, message = "Failed to save language detail." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteLanguageDetail(long encodedId)
+        {
+            var model = new HRMS.Models.Employee.LanguageDetailParams
+            {
+                EmployeesFamilyDetailID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteLanguageDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                TempData[Constants.toastMessage] = response;
+                return Json(new { success = true, message = response });
+            }
+
+            return StatusCode(500, "Failed to delete the record.");
         }
     }
 }

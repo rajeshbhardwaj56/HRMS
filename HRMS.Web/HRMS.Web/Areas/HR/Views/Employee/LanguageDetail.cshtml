@@ -1,0 +1,170 @@
+﻿@using HRMS.Models.Employee
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model LanguageDetail
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Language Detail";
+
+}
+<div class="main-header anim" style="--delay: 0s">
+    Add / Edit Language Detail
+</div>
+
+<form id="languageForm" method="post" enctype="multipart/form-data">
+    <div class="Container">
+        @Html.HiddenFor(m => m.EmployeeID)
+        @Html.HiddenFor(m => m.LanguageDetailID)
+
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                <label>Language <span class="Mandetory">*</span></label>
+                @Html.DropDownListFor(x => x.LanguageID, Model.Languages, HRMS.Models.Common.Constants.SelectLanguage, new { @class = "form-control", @required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Can Read</label>
+                @Html.CheckBoxFor(x => x.IsRead, new { @class = "form-check-input" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Can Write</label>
+                @Html.CheckBoxFor(x => x.IsWrite, new { @class = "form-check-input" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Can Speak</label>
+                @Html.CheckBoxFor(x => x.IsSpeak, new { @class = "form-check-input" })
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+<div class="main-header anim" style="--delay: 0s">
+    Employee Language Details
+</div>
+<div class="table-responsive py-3">
+    <table id="languageGrid" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th style="display:none;"></th>
+                <th style="display:none;"></th>
+                <th>Language</th>
+                <th>Read</th>
+                <th>Write</th>
+                <th>Speak</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        $('#languageForm').on('submit', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var formData = form.serialize();
+
+            $.ajax({
+                url: form.attr('action') || window.location.pathname,
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result && result.success) {
+                        $('#languageGrid').DataTable().ajax.reload();
+                        form[0].reset();
+                        toastr.success(result.message || 'Saved successfully');
+                    } else {
+                        toastr.error(result.message || 'Failed to save');
+                    }
+                },
+                error: function () {
+                    toastr.error('Error submitting form');
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            var employeeId = '@Model.EmployeeID';
+
+            $('#languageGrid').DataTable({
+                ajax: {
+                    url: "/HR/Employee/GetLanguageDetails",
+                    type: "POST",
+                    datatype: "json",
+                    data: { EmployeeID: employeeId },
+                    dataSrc: function (json) {
+                        return json.data || json;
+                    }
+                },
+                ordering: true,
+                paging: true,
+                searching: true,
+                info: true,
+                responsive: true,
+                columns: [
+                    { data: "languageDetailID", visible: false },
+                    { data: "employeeID", visible: false },
+                    { data: "languageName" },
+                    { data: "isRead", render: function (data) { return data ? '✔️' : '❌'; } },
+                    { data: "isWrite", render: function (data) { return data ? '✔️' : '❌'; } },
+                    { data: "isSpeak", render: function (data) { return data ? '✔️' : '❌'; } },
+                    {
+                        data: "languageDetailID",
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <div class="table-data-feature">
+                                    <a class="item" href="#" onclick="editLanguageDetail(${data})" title="Edit">
+                                        <img src="/assets/img/edit.png" width="20" height="20" />
+                                    </a>
+                                    <a class="item delete-entry" href="#" data-id="${data}" title="Delete">
+                                        <img src="/assets/img/delete.png" width="20" height="20" />
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            $(document).on('click', '.delete-entry', function (e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                $.post('/HR/Employee/DeleteLanguageDetail', { encodedId: id }, function (response) {
+                    if (response.success) {
+                        $('#languageGrid').DataTable().ajax.reload();
+                        toastr.success(response.message);
+                    } else {
+                        toastr.error('Failed to delete record');
+                    }
+                });
+            });
+        });
+
+        function editLanguageDetail(id) {
+            var table = $('#languageGrid').DataTable();
+            var rowData = table.rows().data().toArray().find(row => row.languageDetailID === id);
+
+            if (!rowData) {
+                alert('Record not found!');
+                return;
+            }
+
+            $('#LanguageDetailID').val(rowData.languageDetailID);
+            $('#EmployeeID').val(rowData.employeeID);
+            $('#LanguageID').val(rowData.languageID);
+            $('#IsRead').prop('checked', rowData.isRead);
+            $('#IsWrite').prop('checked', rowData.isWrite);
+            $('#IsSpeak').prop('checked', rowData.isSpeak);
+        }
+    </script>
+}
