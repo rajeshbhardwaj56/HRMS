@@ -1,0 +1,277 @@
+﻿@using HRMS.Models.Employee
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmploymentHistory
+
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Employment History";
+}
+<style>
+    .page-split-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 100px); /* Adjust for header/footer if needed */
+    }
+
+    .form-section, .table-section {
+        flex: 1; /* Each takes 50% height */
+        overflow-y: auto;
+        padding: 15px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .table-section {
+        background-color: #f9f9f9;
+    }
+
+    .main-header.anim {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1;
+        padding-top: 10px;
+    }
+</style>
+<div class="main-header anim">Add / Edit Employment History</div>
+<div class="page-split-container">
+    <div class="form-section">
+        <form id="employmentHistoryForm" method="post">
+            <div class="Container">
+                @Html.HiddenFor(m => m.EmployeeID)
+                @Html.HiddenFor(m => m.EmploymentHistoryID)
+
+                <div class="row mb-3">
+                    <div class="col-md-4 form-group">
+                        <label>Company Name<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control", required = "required" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Employment ID</label>
+                        @Html.TextBoxFor(m => m.EmploymentID, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>From Date</label>
+                        @Html.TextBoxFor(m => m.From, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>To Date</label>
+                        @Html.TextBoxFor(m => m.To, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Address</label>
+                        @Html.TextBoxFor(m => m.Address, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>City</label>
+                        @Html.TextBoxFor(m => m.City, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>State</label>
+                        @Html.TextBoxFor(m => m.State, new { @class = "form-control" })
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Country <span class="Mandetory">*</span></label>
+                        @Html.DropDownListFor(x => x.CountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Postal Code</label>
+                        @Html.TextBoxFor(m => m.PostalCode, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Phone</label>
+                        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Designation</label>
+                        @Html.TextBoxFor(m => m.Designition, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Gross Salary</label>
+                        @Html.TextBoxFor(m => m.GrossSalary, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Reason For Leaving</label>
+                        @Html.TextBoxFor(m => m.ReasionFoLeaving, new { @class = "form-control" })
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>Supervisor Name</label>
+                        @Html.TextBoxFor(m => m.SupervisorName, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Supervisor Designation</label>
+                        @Html.TextBoxFor(m => m.SupervisorDesignition, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Supervisor Contact No</label>
+                        @Html.TextBoxFor(m => m.SupervisorContactNo, new { @class = "form-control" })
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>HR Name</label>
+                        @Html.TextBoxFor(m => m.HRName, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>HR Email</label>
+                        @Html.TextBoxFor(m => m.HREmail, new { @class = "form-control", type = "email" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>HR Contact No</label>
+                        @Html.TextBoxFor(m => m.HRContactNo, new { @class = "form-control" })
+                    </div>
+
+                    <div class="col-md-12">
+                        <input type="submit" value="Submit" class="btn btn-success" />
+                        <button type="reset" class="btn btn-danger">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div class="table-section">
+        <div class="main-header anim">Employee Employment History</div>
+
+        <div class="table-responsive py-3">
+            <table id="employmentGrid" class="table table-striped body-text" style="width:100%">
+                <thead>
+                    <tr>
+                        <th style="display:none;"></th>
+                        <th style="display:none;"></th>
+                        <th>Company Name</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Designation</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $('#employmentHistoryForm').on('submit', function (e) {
+            e.preventDefault();
+debugger;
+            var form = $(this);
+            var formData = form.serialize();
+
+            $.ajax({
+                url: form.attr('action') || window.location.pathname,
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result && result.success) {
+                        $('#employmentGrid').DataTable().ajax.reload();
+                        form[0].reset();
+                        toastr.success(result.message || 'Saved successfully');
+                    } else {
+                        toastr.error(result.message || 'Failed to save');
+                    }
+                },
+                error: function () {
+                    toastr.error('Error submitting form');
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            var employeeId = '@Model.EmployeeID';
+
+            $('#employmentGrid').DataTable({
+                ajax: {
+                    url: "/HR/Employee/GetEmploymentHistoryDetails",
+                    type: "POST",
+                    datatype: "json",
+                    data: { EmployeeID: employeeId },
+                    dataSrc: function (json) {
+                        return json.data || json;
+                    }
+                },
+                ordering: true,
+                paging: true,
+                searching: true,
+                info: true,
+                responsive: true,
+                columns: [
+                    { data: "employmentHistoryID", visible: false },
+                    { data: "employeeID", visible: false },
+                    { data: "companyName" },
+                    { data: "from", render: function (data) { return data ? new Date(data).toLocaleDateString() : ''; } },
+                    { data: "to", render: function (data) { return data ? new Date(data).toLocaleDateString() : ''; } },
+                    { data: "designition" },
+                    { data: "phone" },
+                    {
+                        data: "employmentHistoryID",
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <div class="table-data-feature">
+                                    <a class="item" href="#" onclick="editEmploymentHistory(${data})" title="Edit">
+                                        <img src="/assets/img/edit.png" width="20" height="20" />
+                                    </a>
+                                    <a class="item delete-entry" href="#" data-id="${data}" title="Delete">
+                                        <img src="/assets/img/delete.png" width="20" height="20" />
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            $(document).on('click', '.delete-entry', function (e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                    const confirmed = confirm("Are you sure you want to delete this employment history?");
+        if (!confirmed) return;
+                $.post('/HR/Employee/DeleteEmploymentHistory', { encodedId: id }, function (response) {
+                    if (response.success) {
+                        $('#employmentGrid').DataTable().ajax.reload();
+                        toastr.success(response.message);
+                    } else {
+                        toastr.error('Failed to delete record');
+                    }
+                });
+            });
+        });
+
+        function editEmploymentHistory(id) {
+            var table = $('#employmentGrid').DataTable();
+            var rowData = table.rows().data().toArray().find(row => row.employmentHistoryID === id);
+
+            if (!rowData) {
+                alert('Record not found!');
+                return;
+            }
+
+            $('#EmployeeID').val(rowData.employeeID);
+            $('#EmploymentHistoryID').val(rowData.employmentHistoryID);
+            $('#CompanyName').val(rowData.companyName);
+            $('#EmploymentID').val(rowData.employmentID);
+            $('#From').val(rowData.from ? new Date(rowData.from).toISOString().split('T')[0] : '');
+            $('#To').val(rowData.to ? new Date(rowData.to).toISOString().split('T')[0] : '');
+            $('#Address').val(rowData.address);
+            $('#Phone').val(rowData.phone);
+            $('#City').val(rowData.city);
+            $('#State').val(rowData.state);
+            $('#CountryID').val(rowData.countryID);
+            $('#PostalCode').val(rowData.postalCode);
+            $('#ReasionFoLeaving').val(rowData.reasionFoLeaving);
+            $('#Designition').val(rowData.designition);
+            $('#GrossSalary').val(rowData.grossSalary);
+            $('#SupervisorName').val(rowData.supervisorName);
+            $('#SupervisorDesignition').val(rowData.supervisorDesignition);
+            $('#SupervisorContactNo').val(rowData.supervisorContactNo);
+            $('#HRName').val(rowData.hrName);
+            $('#HREmail').val(rowData.hrEmail);
+            $('#HRContactNo').val(rowData.hrContactNo);
+        }
+    </script>
+}

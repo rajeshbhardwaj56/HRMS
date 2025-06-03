@@ -213,7 +213,7 @@
 													<div class="col-lg-4 col-md-4 mb-2">
 														<h6>EmployeNumber</h6>
 														@($"PTK {Model.employmentDetail.EmployeNumber}")
-														
+
 													</div>
 													@{
 														string genderText = "";
@@ -276,7 +276,10 @@
 														</div>
 													}
 												</div>
-												<hr />
+												@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceAddress))
+												{
+													<hr />
+												}
 												<div class="row">
 													@if(!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceAddress))
 													{
@@ -320,7 +323,10 @@
 
 													
 												</div>
-												<hr />
+												@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
+												{
+													<hr />
+												}
 
 												<div class="row">
 													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
@@ -364,19 +370,29 @@
 												</div>
 												<hr />
 												<div class="row">
-													<div class="col-lg-4 col-md-4 mb-2">
-														<h6>Emergency Contact Person Name</h6>
-														@Model.employeeModel.ContactPersonName
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonName))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Emergency Contact Person Name</h6>
+															@Model.employeeModel.ContactPersonName
+														</div>
+													}
 
-													</div>
-													<div class="col-lg-4 col-md-4 mb-2">
-														<h6>Contact No</h6>
-														@Model.employeeModel.ContactPersonMobile
-													</div>
-													<div class="col-lg-4 col-md-4 mb-2">
-														<h6>Telephone No</h6>
-														@Model.employeeModel.ContactPersonTelephone
-													</div>
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonMobile))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Emergency Contact No</h6>
+															@Model.employeeModel.ContactPersonMobile
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonTelephone))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Emergency Telephone No</h6>
+															@Model.employeeModel.ContactPersonTelephone
+														</div>
+													}
 												</div>
 
 											</form>
@@ -1184,7 +1200,16 @@
 																@foreach (var item in Model.HolidayModel)
 																{
 																	<li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-																		@item.FromDate.ToString("dd-MM-yyyy") -  @item.ToDate.ToString("dd-MM-yyyy")
+																		<span class="small">
+																			@if (item.FromDate.Date == item.ToDate.Date)
+																			{
+																				@item.FromDate.ToString("dd-MMM-yyyy")
+																			}
+																			else
+																			{
+																				@($"{item.FromDate:dd-MMM-yyyy} to {item.ToDate:dd-MMM-yyyy}")
+																			}
+																		</span>
 																		<span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
 																	</li>
 																}

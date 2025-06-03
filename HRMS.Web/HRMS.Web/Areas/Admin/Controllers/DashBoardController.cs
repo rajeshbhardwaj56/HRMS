@@ -52,7 +52,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var roleId = Convert.ToInt64(session.GetString(Constants.RoleID));
             var jobLocationId = Convert.ToInt64(session.GetString(Constants.JobLocationID));
             var token = session.GetString(Constants.SessionBearerToken);
-
             var inputParams = new DashBoardModelInputParams
             {
                 EmployeeID = employeeId,

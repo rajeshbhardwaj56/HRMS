@@ -65,9 +65,6 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_ShiftTypeDetails = "usp_Get_ShiftTypeDetails";
         public const string usp_AddUpdate_ShiftType = "usp_AddUpdate_ShiftType";
 
-
-
-
         public const string usp_AddUpdate_LeavePolicyDetails = "usp_AddUpdate_LeavePolicyDetails";
         public const string usp_Get_LeavePrivacyPolicyDetails = "usp_Get_LeavePrivacyPolicyDetails ";
         public const string usp_Get_LeavePolicyDetailsList = "usp_Get_LeavePolicyDetailsList";
@@ -80,7 +77,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_PolicyCategory = "usp_Get_PolicyCategory ";
         public const string usp_Get_PolicyCategoryList = "usp_Get_PolicyCategoryList";
         public const string usp_Delete_PolicyCategory = "usp_Delete_PolicyCategory";
-      
+
         public const string usp_Get_DistinctPolicyCategoryDetails = "usp_Get_DistinctPolicyCategoryDetails";
         public const string sp_GetAttendanceDeviceLog = "sp_GetAttendanceDeviceLog";
         public const string sp_GetTeamAttendanceDeviceLog = "sp_GetTeamAttendanceDeviceLog";
@@ -105,5 +102,25 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_CampOffLeaves = "usp_Get_CampOffLeaves";
         public const string usp_Is_CampOff_Eligible = "usp_Is_CampOff_Eligible";
         public const string usp_UpdateLeaveStatus = "usp_UpdateLeaveStatus";
+
+        public const string usp_Get_EducationDetailsByEmployee = "usp_Get_EducationDetailsByEmployee";
+        public const string usp_AddUpdate_EducationDetails = "usp_AddUpdate_EducationDetails";
+        public const string usp_Delete_EducationDetails = "usp_Delete_EducationDetails";
+
+        public const string usp_Get_EmploymentHistoryByEmployee = "usp_Get_EmploymentHistoryByEmployee";
+        public const string usp_AddUpdate_EmploymentHistory = "usp_AddUpdate_EmploymentHistory";
+        public const string usp_Delete_EmploymentHistory = "usp_Delete_EmploymentHistory";
+
+        public const string usp_Get_EmployeesFamilyDetailsByEmployee = "usp_Get_EmployeesFamilyDetailsByEmployee";
+        public const string usp_AddUpdate_FamilyDetails = "usp_AddUpdate_FamilyDetails";
+        public const string usp_Delete_EmployeesFamilyDetails = "usp_Delete_EmployeesFamilyDetails";
+
+        public const string usp_Get_ReferenceDetailsByEmployee = "usp_Get_ReferenceDetailsByEmployee";
+        public const string usp_AddUpdate_ReferenceDetails = "usp_AddUpdate_ReferenceDetails";
+        public const string usp_Delete_ReferenceDetails = "usp_Delete_ReferenceDetails";
+
+        public const string usp_Get_LanguageDetailsByEmployee = "usp_Get_LanguageDetailsByEmployee";
+        public const string usp_AddUpdate_LanguageDetails = "usp_AddUpdate_LanguageDetails";
+        public const string usp_Delete_LanguageDetails = "usp_Delete_LanguageDetails";
     }
 }

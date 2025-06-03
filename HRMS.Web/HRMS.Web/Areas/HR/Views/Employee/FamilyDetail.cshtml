@@ -1,0 +1,195 @@
+﻿@using HRMS.Models.Employee
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model FamilyDetail
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Family Detail";
+
+}
+<div class="main-header anim" style="--delay: 0s">
+    Add / Edit Family Detail
+</div>
+
+<form id="familyForm" method="post" enctype="multipart/form-data">
+    <div class="Container">
+        @Html.HiddenFor(m => m.EmployeeID)
+        @Html.HiddenFor(m => m.EmployeesFamilyDetailID)
+
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                <label> Name<span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.FamilyName, new { @class = "form-control", @type = "text", @required = "required" })
+
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Relationship<span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.Relationship, new { @class = "form-control", @type = "text", @required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Age <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.Age, new { @class = "form-control", @type = "text", @required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>	if employed, particulars </label>
+                @Html.TextBoxFor(a => a.Details, new { @class = "form-control", @type = "text" })
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+<div class="main-header anim" style="--delay: 0s">
+    Employee Family Details
+</div>
+<div class="table-responsive py-3">
+    <table id="familyGrid" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th style="display:none;"></th>
+                <th style="display:none;"></th>
+                <th>Name</th>
+                <th>Relationship</th>
+                <th>Age</th>
+                <th>Details</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+
+@section Scripts {
+    <script>
+                $('#familyForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var formData = form.serialize();
+
+            $.ajax({
+                url: form.attr('action') || window.location.pathname,
+                type: 'POST',
+                data: formData,
+                success: function (result) {
+                    if (result && result.success) {
+                        $('#familyGrid').DataTable().ajax.reload();
+                        form[0].reset(); // reset form fields
+                        toastr.success(result.message || 'Saved successfully');
+                    } else {
+                        toastr.error(result.message || 'Failed to save');
+                    }
+                },
+                error: function () {
+                    toastr.error('Error submitting form');
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            var employeeId = '@Model.EmployeeID';
+
+            $('#familyGrid').DataTable({
+                ajax: {
+                    url: "/HR/Employee/GetFamilyDetails",
+                    type: "POST",
+                    datatype: "json",
+                    data: { EmployeeID: employeeId },
+                    dataSrc: function (json) {
+                        return json.data || json;
+                    }
+                },
+                ordering: true,
+                paging: true,
+                searching: true,
+                info: true,
+                responsive: true,
+                columns: [
+                    { data: "employeesFamilyDetailID", autoWidth: true },
+                    { data: "employeeID", autoWidth: true },
+                    { data: "familyName", autoWidth: true },
+                    { data: "relationship", autoWidth: true },
+                    { data: "age", autoWidth: true },
+                    { data: "details", autoWidth: true },
+                    {
+                        data: "employeesFamilyDetailID",
+                        autoWidth: true,
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <div class="table-data-feature">
+                                    <a class="item" href="#" onclick="editFamilyDetail(${data})" title="Edit">
+                                        <img src="/assets/img/edit.png" width="20" height="20" />
+                                    </a>
+                                    <a class="item delete-entry" href="#" data-id="${data}" title="Delete">
+                                        <img src="/assets/img/delete.png" width="20" height="20" />
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    }
+                ],
+                columnDefs: [
+                    {
+                        targets: [0, 1],
+                        visible: false,
+                        searchable: false
+                    }
+                ]
+            });
+
+
+            $(document).on('click', '.delete-entry', function (e) {
+                e.preventDefault();
+                const encodedId = $(this).data('id');
+                if (!encodedId) {
+                    alert('Invalid ID');
+                    return;
+                }
+                           const isConfirmed = confirm("Are you sure you want to delete this family detail?");
+        if (!isConfirmed) {
+            return;
+        }
+                $.ajax({
+                    url: '/HR/Employee/DeleteFamilyDetail',
+                    type: 'POST',
+                    data: { encodedId: encodedId },
+                    success: function (response) {
+                        $('#familyGrid').DataTable().ajax.reload();
+                        toastr.success('Deleted successfully');
+                    },
+                    error: function () {
+                        toastr.error('Failed to delete record');
+                    }
+                });
+            });
+        });
+        function editFamilyDetail(familyDetailId) {
+            var table = $('#familyGrid').DataTable();
+            var rowData = table
+                .rows()
+                .data()
+                .toArray()
+                .find(row => row.employeesFamilyDetailID === familyDetailId);
+
+            if (!rowData) {
+                alert('Record not found!');
+                return;
+            }
+
+            $('#EmployeeID').val(rowData.employeeID);
+            $('#EmployeesFamilyDetailID').val(rowData.employeesFamilyDetailID);
+            $('#FamilyName').val(rowData.familyName);
+            $('#Relationship').val(rowData.relationship);
+            $('#Age').val(rowData.age);
+            $('#Details').val(rowData.details);
+        }
+    </script>
+}

@@ -119,13 +119,18 @@
 				{ "data": "designationName", "autoWidth": true },
 				{ "data": "departmentName", "autoWidth": true },
 				{ "data": "managerName", "autoWidth": true },
-			   {
+				{
 	  "data": null,
 	  "autoWidth": true,
 	  "render": function (data, type, row) {
-		return `${row.shift} (${row.shiftStartTime} - ${row.shiftEndTime})`;
+		if (row.shiftStartTime) {
+		  return `${row.shift} (${row.shiftStartTime} - ${row.shiftEndTime})`;
+		} else {
+		  return `${row.shift}`;
+		}
 	  }
-	},
+	}
+	,
 
 				{ "data": "payrollTypeName", "autoWidth": true },
 				{ "data": "mobile", "autoWidth": true },
