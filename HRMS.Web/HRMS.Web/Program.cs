@@ -12,6 +12,8 @@ using Quartz;
 using System.Globalization;
 using WebMarkupMin.AspNetCore8;
 using HRMS.Web.BusinessLayer.S3;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,7 +66,7 @@ builder.Services.AddWebMarkupMin(
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddAuthentication();
-
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(999999);

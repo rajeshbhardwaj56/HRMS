@@ -1,4 +1,6 @@
-﻿using DocumentFormat.OpenXml.EMMA;
+﻿using DinkToPdf;
+using DinkToPdf.Contracts;
+using DocumentFormat.OpenXml.EMMA;
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
@@ -20,16 +22,18 @@ namespace HRMS.Web.Areas.Admin.Controllers
     [Authorize(Roles = (RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin))]
     public class TemplateController : Controller
     {
+        private readonly IConverter _pdfConverter;
         IConfiguration _configuration;
         IBusinessLayer _businessLayer; private IHostingEnvironment Environment;
         private readonly IS3Service _s3Service;
 
-        public TemplateController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service)
+        public TemplateController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IConverter pdfConverter)
         {
             Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
-            _s3Service = s3Service;           
+            _s3Service = s3Service;
+            _pdfConverter = pdfConverter;
         }
 
         public IActionResult TemplateListing()
@@ -168,7 +172,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             // Check the file content type to determine if it's an image
             return file.ContentType.StartsWith("image/");
         }
-        public IActionResult PreviewAndPrint(string id)
+        public IActionResult PreviewAndPrintq(string id)
         {
             TemplateModel Template = new TemplateModel();
             Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -192,6 +196,112 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return View(Template);
         }
-      
+
+
+
+
+
+        public IActionResult PreviewAndPrint(string id)
+        {
+            TemplateModel Template = new TemplateModel();
+            Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                id = _businessLayer.DecodeStringBase64(id);
+                Template.TemplateID = Convert.ToInt64(id);
+                var data = _businessLayer.SendPostAPIRequest(
+                    Template,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+
+                Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
+
+                if (!string.IsNullOrEmpty(Template.HeaderImage))
+                {
+                    Template.HeaderImage = _s3Service.GetFileUrl(Template.HeaderImage);
+                }
+                if (!string.IsNullOrEmpty(Template.FooterImage))
+                {
+                    Template.FooterImage = _s3Service.GetFileUrl(Template.FooterImage);
+                }
+            }
+
+            return View(Template);
+        }
+
+        public IActionResult PrintTemplate(string id)
+        {
+            var templateModel = GetTemplateData(id); // Fetch template data
+
+            string htmlContent = $@"
+        <html>
+        <head><style>
+            @page {{
+                size: A4;
+                margin: 10mm;
+            }}
+            .header, .footer {{
+                width: 100%;
+                position: fixed;
+            }}
+            .header {{
+                top: 0;
+            }}
+            .footer {{
+                bottom: 0;
+            }}
+            .content {{
+                margin-top: 120px;
+                margin-bottom: 50px;
+            }}
+        </style></head>
+        <body>
+            <div class='header'>
+                <img src='{templateModel.HeaderImage}' width='100%' />
+            </div>
+            <div class='content'>
+                {templateModel.Description}
+            </div>
+            <div class='footer'>
+                <img src='{templateModel.FooterImage}' width='100%' />
+            </div>
+        </body>
+        </html>";
+
+            var globalSettings = new GlobalSettings
+            {
+                ColorMode = ColorMode.Color,
+                Orientation = Orientation.Portrait,
+                PaperSize = PaperKind.A4,
+                Margins = new MarginSettings { Top = 10, Bottom = 10, Left = 10, Right = 10 }
+            };
+
+            var objectSettings = new ObjectSettings
+            {
+                HtmlContent = htmlContent,
+                WebSettings = { DefaultEncoding = "utf-8" }
+            };
+
+            var pdfDoc = new HtmlToPdfDocument
+            {
+                GlobalSettings = globalSettings,
+                Objects = { objectSettings }
+            };
+
+            byte[] pdfBytes = _pdfConverter.Convert(pdfDoc);
+            return File(pdfBytes, "application/pdf", "Template.pdf");
+        }
+
+        private TemplateModel GetTemplateData(string id)
+        {
+            // Fetch and return template data (similar to PreviewAndPrint)
+            return new TemplateModel
+            {
+                HeaderImage = "https://yourcdn.com/header.png",
+                FooterImage = "https://yourcdn.com/footer.png",
+                Description = "<h2>Employee Report</h2><p>Here is the generated report...</p>"
+            };
+        }
     }
 }
