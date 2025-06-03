@@ -70,7 +70,7 @@
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content text-center p-4" style="border-radius: 1rem; background: #fdecea;">
 			<div class="modal-body">
-				<h2 class="error-title mb-3">⚠️ Oops! Something went wrong.</h2>
+				<h2 class="error-title mb-3">⚠️ Oops! Alert.</h2>
 				<p id="errorMessage" class="lead text-danger"></p>
 				<button type="button" class="btn btn-danger mt-3" data-bs-dismiss="modal">Close</button>
 			</div>
@@ -119,13 +119,18 @@
 				{ "data": "designationName", "autoWidth": true },
 				{ "data": "departmentName", "autoWidth": true },
 				{ "data": "managerName", "autoWidth": true },
-			   {
+				{
 	  "data": null,
 	  "autoWidth": true,
 	  "render": function (data, type, row) {
-		return `${row.shift} (${row.shiftStartTime} - ${row.shiftEndTime})`;
+		if (row.shiftStartTime) {
+		  return `${row.shift} (${row.shiftStartTime} - ${row.shiftEndTime})`;
+		} else {
+		  return `${row.shift}`;
+		}
 	  }
-	},
+	}
+	,
 
 				{ "data": "payrollTypeName", "autoWidth": true },
 				{ "data": "mobile", "autoWidth": true },

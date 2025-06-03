@@ -81,6 +81,7 @@ namespace HRMS.API.BusinessLayer
                                    EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
                                    EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                                    IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
+                                   JobLocationID = dataRow.Field<long>("JobLocationID"),
                                }).ToList().FirstOrDefault();
             }
             return loginUser;
@@ -197,7 +198,7 @@ namespace HRMS.API.BusinessLayer
                                       ITSkillsKnowledge = dataRow.Field<string>("ITSkillsKnowledge"),
                                       InsertedDate = dataRow.Field<DateTime>("InsertedDate"),
                                       Gender = dataRow.Field<int>("Gender"),
-                                      CarryForword = dataRow.Field<long?>("CarryForword"),
+                                      CarryForword = dataRow.Field<double?>("CarryForword"),
                                       DepartmentID = dataRow["DepartmentID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DepartmentID"]),
                                       DesignationID = dataRow["DesignationID"] == DBNull.Value ? 0 : Convert.ToInt64(dataRow["DesignationID"]),
                                       LeavePolicyID = dataRow.Field<long?>("LeavePolicyID"),
@@ -1753,7 +1754,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@JobLocationTypeID", 12));
+            sqlParameter.Add(new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavesSummary, sqlParameter);
             result.leavesSummary = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeaveSummaryModel
@@ -1909,7 +1910,7 @@ namespace HRMS.API.BusinessLayer
                                       OfficialContactNo = dataRow.Field<string>("OfficialContactNo"),
                                       JoiningDate = dataRow.Field<DateTime?>("JoiningDate"),
                                       JobSeprationDate = dataRow.Field<DateTime?>("JobSeprationDate"),
-                                      CarryForword = dataRow.Field<long>("CarryForword"),
+                                      CarryForword = dataRow.Field<double>("CarryForword"),
                                       LeavePolicyId = dataRow.Field<long>("LeavePolicyId"),
                                       PayrollTypeID = dataRow.Field<long>("PayrollTypeID"),
                                       ReportingToIDL2 = dataRow.Field<long>("ReportingToIDL2"),
@@ -1993,6 +1994,12 @@ namespace HRMS.API.BusinessLayer
             {
 
             }
+
+
+            MyInfoInputParams objmodel = new MyInfoInputParams();
+            objmodel.EmployeeID = model.EmployeeID;
+            objmodel.JobLocationTypeID = model.JobLocationId;
+            dashBoardModel.leaveResults = GetlLeavesSummary(objmodel);
             return dashBoardModel;
         }
         #endregion
@@ -3916,7 +3923,7 @@ namespace HRMS.API.BusinessLayer
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID",  EmployeeID));
-            sqlParameter.Add(new SqlParameter("@JobLocationTypeID", 12));
+            sqlParameter.Add(new SqlParameter("@JobLocationTypeID", JobLocationTypeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameter);
             int totalRecords = 0;
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
@@ -3931,7 +3938,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
-        new SqlParameter("@JobLocationTypeID", 12),
+        new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID),
         new SqlParameter("@StartDate", model.StartDate),
         new SqlParameter("@EndDate", model.EndDate),
         new SqlParameter("@EmployeeNumber", model.EmployeeNumber)

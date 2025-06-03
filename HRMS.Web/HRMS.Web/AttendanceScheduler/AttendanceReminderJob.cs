@@ -23,8 +23,7 @@ namespace HRMS.Web.AttendanceScheduler
             DateTime previousDay = DateTime.Now.AddDays(-1);
             models.Year = previousDay.Year;
             models.Month = previousDay.Month;
-            models.Day = previousDay.Day;
-            models.conStr = _configuration["AttendanceConnectionStrings:conStr"].ToString(); 
+            models.Day = previousDay.Day;  
             var response = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendance), "", true).Result.ToString();
             var result = JsonConvert.DeserializeObject<dynamic>(response.ToString());
 
@@ -44,6 +43,14 @@ namespace HRMS.Web.AttendanceScheduler
                 {
 
                 }
+            }
+            else
+            {
+                sendEmailProperties sendEmailProperties = new sendEmailProperties();
+                sendEmailProperties.emailSubject = "Done On attendance Scheduler";
+                sendEmailProperties.emailBody = ("Hii," + result.message);
+                sendEmailProperties.EmailToList.Add(_configuration["AppSettings:SchedulerEmail"].ToString());
+                emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
             }
         }
     }

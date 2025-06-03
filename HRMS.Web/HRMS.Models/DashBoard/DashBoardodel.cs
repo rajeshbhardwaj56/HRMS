@@ -12,6 +12,7 @@ namespace HRMS.Models.DashBoard
     {
         public long EmployeeID { get; set; }
         public long RoleID { get; set; }
+        public long JobLocationId { get; set; }
     }
     public class DashBoardModel
     {
@@ -86,13 +87,13 @@ namespace HRMS.Models.DashBoard
         public int HolidayCount { get; set; }
         public decimal TotalLeave { get; set; } 
         public long? LeavePolicyId { get; set; } 
-        public long? CarryForword { get; set; } 
+        public double CarryForword { get; set; } 
 
         public List<EmployeeDetails> EmployeeDetails { get; set; }
         public List<HolidayModel> HolidayList { get; set; }
         public List<LeaveSummaryModel> leavesSummary { get; set; } = new List<LeaveSummaryModel>();
         public List<AttendanceModel> AttendanceModel { get; set; } = new List<AttendanceModel>();
-
+        public LeaveResults leaveResults { get; set; } = new LeaveResults();
         public List<WhatsHappening> WhatsHappening { get; set; }
 
     }

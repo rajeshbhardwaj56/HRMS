@@ -139,12 +139,12 @@
                         {
                             if (Model.employeeModel.LeavePolicyID > 0)
                             {
-                                @*         @if (RoleName != Convert.ToInt64(Roles.Admin)  )
-                        { *@
+                                        @if (RoleName != Convert.ToInt64(Roles.Admin) &&  RoleName != Convert.ToInt64(Roles.SuperAdmin) )
+                        {
                                 <li class="nav-item" role="presentation">
                                     <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
                                 </li>
-                                @*   } *@
+                                  }
 
                             }
                             else
@@ -511,6 +511,7 @@
 													</button>
 													<button class="nav-link  " id="leave-approved-tab1" data-bs-toggle="tab" data-bs-target="#leave-approved-tab" type="button" role="tab" aria-controls="leave-approved-tab" aria-selected="false" onclick="LeavesForApproved()">Approved Leaves</button>
 													<button class="nav-link  " id="leave-Reject-tab1" data-bs-toggle="tab" data-bs-target="#leave-Reject-tab" type="button" role="tab" aria-controls="leave-Reject-tab" aria-selected="false" onclick="LeavesForReject()">Rejected Leaves</button>
+													<button class="nav-link  " id="leave-Cancelled-tab1" data-bs-toggle="tab" data-bs-target="#leave-Cancelled-tab" type="button" role="tab" aria-controls="leave-Cancelled-tab" aria-selected="false" onclick="LeavesForCancelled()">Employees Cancelled Leaves</button>
 												</div>
 											</nav>
 											<div class="tab-content" id="nav-tabContent1">
@@ -617,6 +618,45 @@
 														</div>
 													</div>
 												</div>
+
+												@* User Cancelled Approved Leave *@
+
+												<div class="tab-pane fade" id="leave-Cancelled-tab" role="tabpanel" aria-labelledby="leave-Cancelled-tab1">
+
+													<div class="group-box anim">
+														<div class="tabsInfo" id="myTabContent-timeoff">
+															<h3>User Cancelled Leaves</h3>
+
+														</div>
+														<div role="tabpanel" aria-labelledby="apply-tab">
+															<div class="row">
+																<div class="col-lg-12 col-md-12 col-sm-12">
+																	<div class="card">
+																		<div class="card-body">
+																			<table id="tblLeavesForCancelled" class="table table-striped body-text" style="width:100%">
+																				<thead>
+																					<tr>
+																						<th class="first" style="visibility:hidden"> </th>
+																						<th>Employee Number</th>
+																						<th>Employee Name</th>
+																						<th>From Date</th>
+																						<th>To Date</th>
+																						<th>Type</th>
+																						<th>Days</th>
+																						<th>Status</th>
+																						<th>Reason</th>
+																					</tr>
+																				</thead>
+
+																			</table>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+
 
 
 											</div>
@@ -1237,66 +1277,59 @@
 	};
 
 
-    function ApproveRejectLeave(isApproved) {
-         var ApproveRejectComment = $("#ApproveRejectComment").val();
-            if (ApproveRejectComment == "") {
-                $("#approverejectrequire").text('');
-                $("#approverejectrequire").text('Comment required');
-                return;
-            }
-        let actionText = isApproved ? "approve" : "reject";
-        if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
-            let leaveSummaryID = $("#leaveSummaryID").val();
-        var leaveTypeID =   $('#leaveTypeID').val(); 
-            let data = {
-                leaveSummaryID: leaveSummaryID,
-                isApproved: isApproved,
-                ApproveRejectComment: ApproveRejectComment,
-                leaveTypeID:leaveTypeID
-            };
-            var urlData = '/employee/myinfo/ApproveRejectLeave/';
-            $.post(urlData, data, function (json) { 
-                if (json.data && json.data.message) {
+	   function ApproveRejectLeave(isApproved) {
+		const approveRejectComment = $("#ApproveRejectComment").val().trim();
+		const messageContainer = $("#approverejectrequire");
 
-					if (json.data.status == 1) {
-						$("#approverejectrequire").text('');
-						$("#approverejectrequire").text(json.data.message);
+		messageContainer.text(''); // Clear previous message
 
-					}
-					else {
-						$.toast({
-							heading: 'Success',
-							text: "Leave status updated successfully.",
-							showHideTransition: 'slide',
-							icon: 'success',
-							position: 'top-right',
-						});
-						CloseApproveRejectModel();
-						AutoReload();
-						$("#ApproveRejectComment").val("");
-					}
-					// $.toast({
-					//     heading: 'Information',
-					//     text: ,
-					//     showHideTransition: 'slide',
-					//     icon: 'info',
-					//     position: 'top-right',
-					// });
-				} else {
-					$.toast({
-						heading: 'Success',
-						text: "Leave status updated successfully.",
-						showHideTransition: 'slide',
-						icon: 'success',
-						position: 'top-right',
-					});
-					$("#ApproveRejectComment").val("");
+		if (!approveRejectComment) {
+			messageContainer.text('Comment required');
+			return;
+		}
 
-				}
+		const actionText = isApproved ? "approve" : "reject";
 
-            });
-        }
-    }
+		if (!confirm(`Are you sure you want to ${actionText} this leave request?`)) {
+			return;
+		}
+
+		const leaveSummaryID = $("#leaveSummaryID").val();
+		const leaveTypeID = $('#leaveTypeID').val();
+
+		const postData = {
+			leaveSummaryID: leaveSummaryID,
+			isApproved: isApproved,
+			ApproveRejectComment: approveRejectComment,
+			leaveTypeID: leaveTypeID
+		};
+
+		const urlData = '/employee/myinfo/ApproveRejectLeave/';
+
+		$.post(urlData, postData, function (response) {
+			console.log(response);
+
+			const data = response.data || {};
+			const message = response.message || "Leave status updated successfully.";
+
+			if (data.status === 1) {
+				messageContainer.text(message);
+			} else {
+				$.toast({
+					heading: 'Success',
+					text: message,
+					showHideTransition: 'slide',
+					icon: 'success',
+					position: 'top-right',
+				});
+
+				CloseApproveRejectModel();
+				AutoReload();
+				$("#ApproveRejectComment").val('');
+			}
+		});
+	}
+
         function OpenApproveRejectModel(employeeID, leaveSummaryID) {
         $("#leaveSummaryID").val(leaveSummaryID);
 
@@ -1492,8 +1525,6 @@
 		if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
 			InitOverviewDataTable();
 		}
-
-
 	}
 	function LeavesForApproved() {
 		$('#leave-approved-tab').css("display", "block");
@@ -1510,6 +1541,20 @@
 			InittblLeavesForReject();
 		}
 	}
+
+
+
+	function LeavesForCancelled() {
+		$('#leave-Cancelled-tab').css("display", "block");
+		RefreshTable2('#tblLeavesForCancelled', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForUserCancelled`);//User Cancelled
+		if (!$.fn.DataTable.isDataTable('#tblLeavesForCancelled')) {
+			InittblLeavesForCancelled();
+		}
+	}
+
+
+
+
 	$(document).ready(function () {
 		if (@RoleName != @Convert.ToInt64(Roles.Employee)  ) {
 			$('#applied-leave-tab1').click();
@@ -1721,6 +1766,78 @@
 			}
 		});
 	}
+
+
+
+		function InittblLeavesForCancelled() {
+		const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+		oOverviewTable = $('#tblLeavesForCancelled').DataTable({
+			"ordering": true,
+			"paging": true,
+			"searching": true,
+			"info": true,
+			"columns": [
+				{ "data": "leaveSummaryID", "autoWidth": true, },
+				{ "data": "employeeNumber", "autoWidth": true },
+				{ "data": "employeeName", "autoWidth": true },
+				{ "data": "startDateFormatted", "autoWidth": true },
+				{ "data": "endDateFormatted", "autoWidth": true },
+				{ "data": "leaveTypeName", "autoWidth": true },
+				{ "data": "noOfDays", "autoWidth": true },
+				{ "data": "leaveStatusName", "autoWidth": true },
+				{ "data": "reason", "autoWidth": true }
+			],
+			"columnDefs": [
+				{
+					target: 2,
+					visible: false,
+					searchable: false
+				},
+
+				{
+
+					"targets": [0], //first and last not sortable
+					"orderable": false,
+					"visible": false
+				},
+
+				{
+
+					"targets": [1], //first and last not sortable
+					"orderable": true,
+					"defaultContent": " "
+				}
+
+			]
+			, "responsive": true,
+
+			"createdRow": function (row, data, dataIndex) {
+				if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
+					(data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
+
+					const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
+										? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
+						: `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+
+					const styledSpan = `
+			<span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
+				${data.noOfDays}
+			</span>`;
+
+					$('td:eq(5)', row)
+						.html(styledSpan) // Replace the cell content with the styled span
+						.attr('title', tooltipMessage)
+						.tooltip(); // Initialize tooltip
+				}
+			}
+		});
+	}
+
+
+
+
+
+
 	$(document).ready(function () {
 		$('[data-bs-toggle="tooltip"]').tooltip();
 	});
@@ -2013,6 +2130,7 @@
                 halfDayContainer.style.display = "none";
                 leaveDurationDropdown.selectedIndex = 0;
                 fullDayContainer.style.display = "flex";
+				   $("#todatetime").css("display","block");
                 $('#leaveDurationDropdown').attr('required', false);
             }
             else if (selectedLeaveType === 'Privilege Leave'||selectedLeaveType === 'Leave Without Pay') {

@@ -104,7 +104,7 @@ namespace HRMS.Models.Employee
         public string? ClientName { get; set; } = string.Empty;
 
         public long? LeavePolicyID { get; set; }
-        public long? CarryForword { get; set; }
+        public double? CarryForword { get; set; }
         public int Gender { get; set; }
         public bool IsActive { get; set; }
         public long ShiftTypeID { get; set; }

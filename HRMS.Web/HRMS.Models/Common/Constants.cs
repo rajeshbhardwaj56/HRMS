@@ -85,6 +85,7 @@ namespace HRMS.Models.Common
         public const string EmployeeNumberWithoutAbbr = "EmployeeNumberWithoutAbbr";
         public const string Whatshappening = "Uploads/Whatshappening/";
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
+        public const string JobLocationID = "JobLocationID";
     }
     public class RoleConstants
     {
@@ -260,6 +261,9 @@ namespace HRMS.Models.Common
         public const string GetLanguageDetails = "GetLanguageDetails";
         public const string AddUpdateLanguageDetail = "AddUpdateLanguageDetail";
         public const string DeleteLanguageDetail = "DeleteLanguageDetail";
+        public const string FetchExportEmployeeExcelSheet = "FetchExportEmployeeExcelSheet";
+        public const string GetValidateCompOffLeave = "GetValidateCompOffLeave";
+        public const string UpdateLeaveStatus = "UpdateLeaveStatus";
 
     }
 
