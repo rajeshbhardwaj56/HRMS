@@ -328,7 +328,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.DeleteFamilyDetail(model));
             return response;
         }
-
+        [HttpPost]
         public IActionResult GetLanguageDetails(LanguageDetailParams model)
         {
             IActionResult response = Unauthorized();

@@ -14,7 +14,7 @@ namespace HRMS.Models.Employee
     }
     public class LanguageDetail
     {
-        public long LanguageDetailID { get; set; }
+        public long? LanguageDetailID { get; set; }
         public long EmployeeID { get; set; }
         public long LanguageID { get; set; }
         public string LanguageName { get; set; } = string.Empty;

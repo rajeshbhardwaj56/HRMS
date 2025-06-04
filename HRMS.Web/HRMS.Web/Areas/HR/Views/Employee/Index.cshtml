@@ -147,7 +147,11 @@
 
                 <div class="col-md-4 form-group">
                     <label>Country <span class="Mandetory">*</span></label>
-                    @Html.DropDownListFor(x => x.CorrespondenceCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                    <div class="position-relative">
+                        @Html.DropDownListFor(x => x.CorrespondenceCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control ", @required = "required" })
+                        <i class="fa fa-chevron-down position-absolute"
+                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                          </div>
                 </div>
 
                 <div class="col-md-4 form-group">
@@ -170,18 +174,23 @@
                 </div>
                 <div class="col-md-4 form-group">
                     <label>Gender <span class="Mandetory">*</span></label>
+                    <div class="position-relative">
                     @Html.DropDownListFor(a => a.Gender, new List<SelectListItem>
                     {
-                    new SelectListItem { Text = "Select Gender", Value = "" },
+                    new SelectListItem { Text = "--Select Gender--", Value = "" },
                     new SelectListItem { Text = "Male", Value = "1" },
                     new SelectListItem { Text = "Female", Value = "2" },
                     new SelectListItem { Text = "Other", Value = "3" }
-                    }, new { @class = "form-control", @required = "required" })
+                    }, new { @class = "form-control ", @required = "required" })
+                        <i class="fa fa-chevron-down position-absolute"
+                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                   
+                    </div>
                 </div>
                 <div class="col-md-12 form-group">
                     <label>Permanent Address <span class="Mandetory">*</span></label>
                     @Html.TextAreaFor(a => a.PermanentAddress, new { @class = "form-control", @required = "required" })
-                    @*     @Html.ValidationMessageFor(m => m.PermanentAddress) *@
+                    
                 </div>
 
 
@@ -205,7 +214,11 @@
 
                 <div class="col-md-4 form-group">
                     <label>Country <span class="Mandetory">*</span></label>
+                    <div class="position-relative">
                     @Html.DropDownListFor(x => x.PermanentCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                        <i class="fa fa-chevron-down position-absolute"
+                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                </div>
                 </div>
 
                 <div class="col-md-4 form-group">

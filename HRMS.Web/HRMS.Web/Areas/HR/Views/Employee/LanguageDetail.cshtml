@@ -7,7 +7,8 @@
     ViewData["Title"] = "Language Detail";
 
 }
-<div class="main-header anim" style="--delay: 0s">
+
+<div class="main-header anim fs-6" style="--delay: 0s">
     Add / Edit Language Detail
 </div>
 
@@ -19,7 +20,11 @@
         <div class="row mb-3">
             <div class="col-md-4 form-group">
                 <label>Language <span class="Mandetory">*</span></label>
+                <div class="position-relative">
                 @Html.DropDownListFor(x => x.LanguageID, Model.Languages, HRMS.Models.Common.Constants.SelectLanguage, new { @class = "form-control", @required = "required" })
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
             </div>
             <div class="col-md-4 form-group">
                 <label>Can Read</label>
@@ -33,6 +38,9 @@
                 <label>Can Speak</label>
                 @Html.CheckBoxFor(x => x.IsSpeak, new { @class = "form-check-input" })
             </div>
+            <div id="checkboxError" class="text-danger" style="display: none;">
+                Please select at least one of: Can Read, Can Write, or Can Speak.
+            </div>
             <div class="row">
                 <div class="col-md-12">
                     <input type="submit" value="Submit" class="btn btn-success" />
@@ -43,7 +51,7 @@
         </div>
     </div>
 </form>
-<div class="main-header anim" style="--delay: 0s">
+<div class="main-header anim fs-6" style="--delay: 0s">
     Employee Language Details
 </div>
 <div class="table-responsive py-3">
@@ -64,25 +72,54 @@
 </div>
 
 
-
+<script src="~/assets/js/jquery.toast.js"></script>
 @section Scripts {
     <script>
         $('#languageForm').on('submit', function (e) {
             e.preventDefault();
+                  const selectedLanguageId = $('#LanguageID').val();
+        const currentDetailId = $('#LanguageDetailID').val();
+        let isDuplicate = false;
+
+        const table = $('#languageGrid').DataTable();
+        const allRows = table.rows().data().toArray();
+
+        for (let row of allRows) {
+            if (
+                row.languageID == selectedLanguageId &&  
+                row.languageDetailID != currentDetailId  
+            ) {
+                isDuplicate = true;
+                break;
+            }
+        }
+
+        if (isDuplicate) {
+            alert('This language is already added for this employee.');
+            return;
+        }
+                 const isAnyChecked = $('#IsRead').is(':checked') || $('#IsWrite').is(':checked') || $('#IsSpeak').is(':checked');
+             if (!isAnyChecked) {
+            $('#checkboxError').show();  
+            return;
+        }
             var form = $(this);
             var formData = form.serialize();
-
+            
             $.ajax({
                 url: form.attr('action') || window.location.pathname,
                 type: 'POST',
                 data: formData,
-                success: function (result) {
+                success: function (result) {                  
                     if (result && result.success) {
                         $('#languageGrid').DataTable().ajax.reload();
                         form[0].reset();
-                        toastr.success(result.message || 'Saved successfully');
+                        toastMessage('Success' , result.message);
+                        
+                      
                     } else {
-                        toastr.error(result.message || 'Failed to save');
+                        toastMessage('Error' , result.message);
+                       
                     }
                 },
                 error: function () {
@@ -90,7 +127,12 @@
                 }
             });
         });
-
+                $('.form-check-input').on('change', function () {
+            const isAnyChecked = $('#IsRead').is(':checked') || $('#IsWrite').is(':checked') || $('#IsSpeak').is(':checked');
+            if (isAnyChecked) {
+                $('#checkboxError').hide();
+            }
+        });
         $(document).ready(function () {
             var employeeId = '@Model.EmployeeID';
 
@@ -146,9 +188,9 @@
                 $.post('/HR/Employee/DeleteLanguageDetail', { encodedId: id }, function (response) {
                     if (response.success) {
                         $('#languageGrid').DataTable().ajax.reload();
-                        toastr.success(response.message);
+                        toastMessage('Success' , response.message);                                           
                     } else {
-                        toastr.error('Failed to delete record');
+                        toastMessage('Error' , response.message);
                     }   
                 });
             });
@@ -156,8 +198,21 @@
                $('#cancelButton').on('click', function () {
             $('#languageForm')[0].reset();
             $('#LanguageDetailID').val('');
+            $('#checkboxError').hide();
 
         });
+
+        function toastMessage(type , message)
+            {
+
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
 
         function editLanguageDetail(id) {
             var table = $('#languageGrid').DataTable();

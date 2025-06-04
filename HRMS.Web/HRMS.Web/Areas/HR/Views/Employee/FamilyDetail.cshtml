@@ -7,7 +7,7 @@
     ViewData["Title"] = "Family Detail";
 
 }
-<div class="main-header anim" style="--delay: 0s">
+<div class="main-header anim fs-6" style="--delay: 0s">
     Add / Edit Family Detail
 </div>
 
@@ -44,7 +44,7 @@
         </div>
     </div>
 </form>
-<div class="main-header anim" style="--delay: 0s">
+<div class="main-header anim fs-6" style="--delay: 0s">
     Employee Family Details
 </div>
 <div class="table-responsive py-3">
@@ -67,6 +67,17 @@
 
 @section Scripts {
     <script>
+          function toastMessage(type , message)
+            {
+
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
                 $('#familyForm').on('submit', function (e) {
             e.preventDefault();
 
@@ -80,10 +91,10 @@
                 success: function (result) {
                     if (result && result.success) {
                         $('#familyGrid').DataTable().ajax.reload();
-                        form[0].reset(); // reset form fields
-                        toastr.success(result.message || 'Saved successfully');
+                        form[0].reset(); 
+                       toastMessage('Success' , result.message);
                     } else {
-                        toastr.error(result.message || 'Failed to save');
+                        toastMessage('Error' , result.message);
                     }
                 },
                 error: function () {
@@ -144,8 +155,11 @@
                     }
                 ]
             });
+              $('#cancelButton').on('click', function () {
+            $('#familyForm')[0].reset();
+            $('#EmployeesFamilyDetailID').val('');
 
-
+        });
             $(document).on('click', '.delete-entry', function (e) {
                 e.preventDefault();
                 const encodedId = $(this).data('id');
@@ -163,10 +177,10 @@
                     data: { encodedId: encodedId },
                     success: function (response) {
                         $('#familyGrid').DataTable().ajax.reload();
-                        toastr.success('Deleted successfully');
+                      toastMessage('Success', 'Deleted successfully');
                     },
                     error: function () {
-                        toastr.error('Failed to delete record');
+                       toastMessage('Error', 'Failed to delete record');
                     }
                 });
             });

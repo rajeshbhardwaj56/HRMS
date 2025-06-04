@@ -947,13 +947,12 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = response;
+                
 
                 return Json(new { success = true, message = response });
             }
 
-            return StatusCode(500, "Failed to delete the record.");
+            return Json(new { success = false, message = "Failed to delete the record." });
         }
 
 
@@ -1024,13 +1023,12 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = response;
+                
 
                 return Json(new { success = true, message = response });
             }
 
-            return StatusCode(500, "Failed to delete the record.");
+            return Json(new { success = false, message = "Failed to delete the record." });
         }
 
         [HttpGet]
@@ -1107,12 +1105,11 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-                TempData[Constants.toastType] = Constants.toastTypeSuccess;
-                TempData[Constants.toastMessage] = response;
+               
                 return Json(new { success = true, message = response });
             }
 
-            return StatusCode(500, "Failed to delete the record.");
+            return Json(new { success = false, message = "Failed to delete the record." });
         }
 
 
@@ -1195,12 +1192,11 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-                TempData[Constants.toastType] = Constants.toastTypeSuccess;
-                TempData[Constants.toastMessage] = response;
+              
                 return Json(new { success = true, message = response });
             }
 
-            return StatusCode(500, "Failed to delete the record.");
+            return Json(new { success = false, message = "Failed to delete the record." });
         }
 
         [HttpGet]
@@ -1282,12 +1278,11 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-                TempData[Constants.toastType] = Constants.toastTypeSuccess;
-                TempData[Constants.toastMessage] = response;
+              
                 return Json(new { success = true, message = response });
             }
 
-            return StatusCode(500, "Failed to delete the record.");
+            return Json(new { success = false, message = "Failed to delete the record." });
         }
     }
 }

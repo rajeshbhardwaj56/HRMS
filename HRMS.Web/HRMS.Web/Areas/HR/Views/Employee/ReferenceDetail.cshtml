@@ -8,7 +8,7 @@
     ViewData["Title"] = "Reference Detail";
 }
 
-<div class="main-header anim">Add / Edit Reference Detail</div>
+<div class="main-header anim fs-6">Add / Edit Reference Detail</div>
 
 <form id="referenceForm" method="post">
     <div class="Container">
@@ -25,11 +25,11 @@
                 @Html.TextBoxFor(m => m.Contact, new { @class = "form-control", required = "required" })
             </div>
             <div class="col-md-4 form-group">
-                <label>Organization Name</label>
+                <label>Organization Name <span class="Mandetory">*</span></label>
                 @Html.TextBoxFor(m => m.OrgnizationName, new { @class = "form-control", required = "required" })
             </div>
             <div class="col-md-4 form-group">
-                <label>Relation With Candidate</label>
+                <label>Relation With Candidate<span class="Mandetory">*</span></label>
                 @Html.TextBoxFor(m => m.RelationWithCandidate, new { @class = "form-control", required = "required" })
             </div>
         </div>
@@ -41,7 +41,7 @@
     </div>
 </form>
 
-<div class="main-header anim">Employee Reference Details</div>
+<div class="main-header anim fs-6">Employee Reference Details</div>
 
 <div class="table-responsive py-3">
     <table id="referenceGrid" class="table table-striped body-text" style="width:100%">
@@ -62,6 +62,17 @@
 
 @section Scripts {
     <script>
+          function toastMessage(type , message)
+            {
+
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
         $('#referenceForm').on('submit', function (e) {
             e.preventDefault();    
             var form = $(this);
@@ -75,9 +86,11 @@
                     if (result && result.success) {
                         $('#referenceGrid').DataTable().ajax.reload();
                         form[0].reset();
-                        toastr.success(result.message || 'Saved successfully');
+                       toastMessage('Success' , result.message);
+
+
                     } else {
-                        toastr.error(result.message || 'Failed to save');
+                        toastMessage('Error' , result.message);
                     }
                 },
                 error: function () {
@@ -128,14 +141,11 @@
                     }
                 ]
             });
-
                   $('#cancelButton').on('click', function () {
             $('#referenceForm')[0].reset(); 
             $('#ReferenceDetailID').val(''); 
             
         });
-
-
         $(document).on('click', '.delete-entry', function (e) {
                 e.preventDefault();
                 var id = $(this).data('id');
@@ -146,9 +156,9 @@
                 $.post('/HR/Employee/DeleteReferenceDetail', { encodedId: id }, function (response) {
                     if (response.success) {
                         $('#referenceGrid').DataTable().ajax.reload();
-                        toastr.success(response.message || 'Deleted successfully');
+                       toastMessage('Success' , response.message);
                     } else {
-                        toastr.error(response.message || 'Failed to delete');
+                        toastMessage('Error' , response.message);
                     }
                 });
             });

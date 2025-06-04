@@ -33,7 +33,7 @@
         padding-top: 10px;
     }
 </style>
-<div class="main-header anim">Add / Edit Employment History</div>
+<div class="main-header anim fs-6">Add / Edit Employment History</div>
 <div class="page-split-container">
     <div class="form-section">
         <form id="employmentHistoryForm" method="post">
@@ -47,79 +47,83 @@
                         @Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>Employment ID</label>
-                        @Html.TextBoxFor(m => m.EmploymentID, new { @class = "form-control" })
+                        <label>Employment ID<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.EmploymentID, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>From Date</label>
-                        @Html.TextBoxFor(m => m.From, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                        <label>From Date<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.From, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>To Date</label>
-                        @Html.TextBoxFor(m => m.To, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                        <label>To Date<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.To, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>Address</label>
-                        @Html.TextBoxFor(m => m.Address, new { @class = "form-control" })
+                        <label>Address<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.Address, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>City</label>
-                        @Html.TextBoxFor(m => m.City, new { @class = "form-control" })
+                        <label>City<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.City, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>State</label>
-                        @Html.TextBoxFor(m => m.State, new { @class = "form-control" })
+                        <label>State<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.State, new { @class = "form-control", required = "required" })
                     </div>
 
                     <div class="col-md-4 form-group">
-                        <label>Country <span class="Mandetory">*</span></label>
+                        <label>Country<span class="Mandetory">*</span> <span class="Mandetory">*</span></label>
+                        <div class="position-relative">
                         @Html.DropDownListFor(x => x.CountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+                        <i class="fa fa-chevron-down position-absolute"
+                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                       </div>
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>Postal Code</label>
-                        @Html.TextBoxFor(m => m.PostalCode, new { @class = "form-control" })
+                        <label>Postal Code<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.PostalCode, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>Phone</label>
-                        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+                        <label>Phone<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>Designation</label>
-                        @Html.TextBoxFor(m => m.Designition, new { @class = "form-control" })
+                        <label>Designation<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.Designition, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>Gross Salary</label>
-                        @Html.TextBoxFor(m => m.GrossSalary, new { @class = "form-control" })
+                        <label>Gross Salary<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.GrossSalary, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>Reason For Leaving</label>
-                        @Html.TextBoxFor(m => m.ReasionFoLeaving, new { @class = "form-control" })
-                    </div>
-
-                    <div class="col-md-4 form-group">
-                        <label>Supervisor Name</label>
-                        @Html.TextBoxFor(m => m.SupervisorName, new { @class = "form-control" })
-                    </div>
-                    <div class="col-md-4 form-group">
-                        <label>Supervisor Designation</label>
-                        @Html.TextBoxFor(m => m.SupervisorDesignition, new { @class = "form-control" })
-                    </div>
-                    <div class="col-md-4 form-group">
-                        <label>Supervisor Contact No</label>
-                        @Html.TextBoxFor(m => m.SupervisorContactNo, new { @class = "form-control" })
+                        <label>Reason For Leaving<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.ReasionFoLeaving, new { @class = "form-control", required = "required" })
                     </div>
 
                     <div class="col-md-4 form-group">
-                        <label>HR Name</label>
-                        @Html.TextBoxFor(m => m.HRName, new { @class = "form-control" })
+                        <label>Supervisor Name<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.SupervisorName, new { @class = "form-control", required = "required" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Supervisor Designation<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.SupervisorDesignition, new { @class = "form-control", required = "required" })
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Supervisor Contact No<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.SupervisorContactNo, new { @class = "form-control", required = "required" })
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label>HR Name<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.HRName, new { @class = "form-control", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
                         <label>HR Email</label>
-                        @Html.TextBoxFor(m => m.HREmail, new { @class = "form-control", type = "email" })
+                        @Html.TextBoxFor(m => m.HREmail, new { @class = "form-control", type = "email", required = "required" })
                     </div>
                     <div class="col-md-4 form-group">
-                        <label>HR Contact No</label>
-                        @Html.TextBoxFor(m => m.HRContactNo, new { @class = "form-control" })
+                        <label>HR Contact No<span class="Mandetory">*</span></label>
+                        @Html.TextBoxFor(m => m.HRContactNo, new { @class = "form-control", required = "required" })
                     </div>
 
                     <div class="col-md-12">
@@ -132,7 +136,7 @@
 
     </div>
     <div class="table-section">
-        <div class="main-header anim">Employee Employment History</div>
+        <div class="main-header anim fs-6">Employee Employment History</div>
 
         <div class="table-responsive py-3">
             <table id="employmentGrid" class="table table-striped body-text" style="width:100%">
@@ -155,9 +159,20 @@
 </div>
 @section Scripts {
     <script>
+          function toastMessage(type , message)
+            {
+
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
         $('#employmentHistoryForm').on('submit', function (e) {
             e.preventDefault();
-debugger;
+
             var form = $(this);
             var formData = form.serialize();
 
@@ -169,9 +184,11 @@ debugger;
                     if (result && result.success) {
                         $('#employmentGrid').DataTable().ajax.reload();
                         form[0].reset();
-                        toastr.success(result.message || 'Saved successfully');
+                       toastMessage('Success' , result.message);
+
+
                     } else {
-                        toastr.error(result.message || 'Failed to save');
+                        toastMessage('Error' , result.message);
                     }
                 },
                 error: function () {
@@ -225,7 +242,11 @@ debugger;
                     }
                 ]
             });
+                       $('#cancelButton').on('click', function () {
+                            $('#employmentHistoryForm')[0].reset();
+                            $('#EmploymentHistoryID').val('');
 
+                });
             $(document).on('click', '.delete-entry', function (e) {
                 e.preventDefault();
                 const id = $(this).data('id');
@@ -234,9 +255,9 @@ debugger;
                 $.post('/HR/Employee/DeleteEmploymentHistory', { encodedId: id }, function (response) {
                     if (response.success) {
                         $('#employmentGrid').DataTable().ajax.reload();
-                        toastr.success(response.message);
+                       toastMessage('Success' , response.message);
                     } else {
-                        toastr.error('Failed to delete record');
+                        toastMessage('Error' , response.message);
                     }
                 });
             });

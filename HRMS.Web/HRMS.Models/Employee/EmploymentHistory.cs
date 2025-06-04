@@ -17,7 +17,7 @@ namespace HRMS.Models.Employee
 
     public class EmploymentHistory
     {
-        public long EmploymentHistoryID { get; set; }
+        public long? EmploymentHistoryID { get; set; }
         public long EmployeeID { get; set; }
         public string CompanyName { get; set; } = string.Empty;
         public string EmploymentID { get; set; } = string.Empty;

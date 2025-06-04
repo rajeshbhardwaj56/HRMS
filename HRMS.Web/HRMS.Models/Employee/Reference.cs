@@ -14,7 +14,7 @@ namespace HRMS.Models.Employee
     }
     public class Reference
     {
-        public long ReferenceDetailID { get; set; }
+        public long? ReferenceDetailID { get; set; }
         public long EmployeeID { get; set; }
         public string Name { get; set; } = string.Empty;
 
