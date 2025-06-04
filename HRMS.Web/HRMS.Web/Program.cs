@@ -130,7 +130,7 @@ builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 builder.Services.TryAddTransient<AttendanceReminderJob>();
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(AttendanceReminderJob),
-    cronExpression: "0 00 05 * * ?"));
+    cronExpression: "0 32 02 * * ?"));
 
 
 var app = builder.Build();

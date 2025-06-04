@@ -135,9 +135,22 @@ namespace HRMS.Web.Areas.Employee.Controllers
             DateTime today = DateTime.Today;
 
             // Fiscal year starts from March 21st of current or previous year
-            DateTime fiscalYearStart = new DateTime(today.Month > 3 || (today.Month == 3 && today.Day >= 21)
-                                                    ? today.Year : today.Year - 1, 3, 21);
-            DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // Ends on March 20th next year
+            DateTime fiscalYearStart;
+            DateTime fiscalYearEnd;
+
+            if (today.Year == 2025)
+            {
+                // ✅ Special case: 2025 fiscal year is from 21 May 2025 to 20 March 2026
+                fiscalYearStart = new DateTime(2025, 5, 21);
+                fiscalYearEnd = new DateTime(2026, 3, 20);
+            }
+            else
+            {
+                // ✅ Default logic: Fiscal year from 21 March current/previous year to 20 March next year
+                fiscalYearStart = new DateTime(today.Month > 3 || (today.Month == 3 && today.Day >= 21)
+                                               ? today.Year : today.Year - 1, 3, 21);
+                fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // Ends on 20 March next year
+            }
 
             double annualLeaveEntitlement = Annual_MaximumLeaveAllocationAllowed;
             double monthlyAccrual = annualLeaveEntitlement / 12;

@@ -106,7 +106,6 @@ namespace HRMS.Web.Controllers
                         // Encode required parameters
                         var encodedTimestamp = _businessLayer.EncodeStringBase64(DateTime.Now.ToString());
                         var encodedCompany = _businessLayer.EncodeStringBase64("YourCompanyValue"); // Replace with actual company ID
-
                         // Format the Reset Password URL correctly
                         var formattedResetUrl = string.Format(resetPasswordUrl, _businessLayer.EncodeStringBase64(userModel.EmployeeID == null ? "" : userModel.EmployeeID.ToString()), encodedTimestamp, _businessLayer.EncodeStringBase64(userModel.CompanyID.ToString()), _businessLayer.EncodeStringBase64(userModel.UserName.ToString()));
 
@@ -122,9 +121,9 @@ namespace HRMS.Web.Controllers
             <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
                 <thead style='background-color: #f2f2f2;'>
                     <tr>
-                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Employee No</th>
-                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Employee Name</th>
-                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Manager Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Manager</th>
                         <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
                     </tr>
                 </thead>
@@ -161,11 +160,22 @@ namespace HRMS.Web.Controllers
             </p>
         </div>"
                         };
-
-
-
                         // Add recipient email
-                        sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
+                        if ((userModel.RoleID == (int)Roles.Employee) && string.IsNullOrEmpty(userModel.Email))
+                        {
+                            sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(userModel.Email))
+                            {
+                                sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
+                            }
+                            else
+                            {
+                                sendEmailProperties.EmailToList.Add(userModel.Email);
+                            }
+                        }
 
                         // Send email
                         emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
@@ -173,7 +183,24 @@ namespace HRMS.Web.Controllers
                         if (response.responseCode == "200")
                         {
                             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT Team.";
+
+                            if ((userModel.RoleID == (int)Roles.Employee))
+                            {
+                                TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT Team.";
+                            }
+                            else
+                            {
+                                if (string.IsNullOrEmpty(userModel.Email))
+                                {
+                                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT Team.";
+
+                                }
+                                else
+                                {
+                                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to your email.";
+
+                                }
+                            }
                         }
                         else
                         {
@@ -244,7 +271,7 @@ namespace HRMS.Web.Controllers
             }
             return View(objmodel);
         }
-      
+
         [HttpPost]
         public ActionResult ResetPassword(ResetPasswordModel model)
         {
@@ -489,7 +516,7 @@ namespace HRMS.Web.Controllers
                 _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName ?? string.Empty);
                 _context.HttpContext.Session.SetString(Constants.Surname, model.Surname ?? string.Empty);
                 _context.HttpContext.Session.SetString(Constants.OfficialEmailID, model.OfficialEmailID ?? string.Empty);
-                _context.HttpContext.Session.SetString(Constants.JobLocationID,model.JobLocationID.ToString());
+                _context.HttpContext.Session.SetString(Constants.JobLocationID, model.JobLocationID.ToString());
                 var CompanyDatas = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas);
                 var CompanyData = results.companyModel;
