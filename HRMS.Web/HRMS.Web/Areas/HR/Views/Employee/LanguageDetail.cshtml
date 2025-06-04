@@ -77,7 +77,7 @@
     <script>
         $('#languageForm').on('submit', function (e) {
             e.preventDefault();
-                  const selectedLanguageId = $('#LanguageID').val();
+        const selectedLanguageId = $('#LanguageID').val();
         const currentDetailId = $('#LanguageDetailID').val();
         let isDuplicate = false;
 
@@ -118,7 +118,7 @@
                         
                       
                     } else {
-                        toastMessage('Error' , result.message);
+                        toastEMessage('Error' , result.message);
                        
                     }
                 },
@@ -135,7 +135,6 @@
         });
         $(document).ready(function () {
             var employeeId = '@Model.EmployeeID';
-
             $('#languageGrid').DataTable({
                 ajax: {
                     url: "/HR/Employee/GetLanguageDetails",
@@ -187,10 +186,16 @@
         }
                 $.post('/HR/Employee/DeleteLanguageDetail', { encodedId: id }, function (response) {
                     if (response.success) {
+                  
+                          const currentFormLangId = $('#LanguageDetailID').val();
+            if (currentFormLangId == id) {
+                $('#LanguageDetailID').val('');
+            }
+
                         $('#languageGrid').DataTable().ajax.reload();
                         toastMessage('Success' , response.message);                                           
                     } else {
-                        toastMessage('Error' , response.message);
+                        toastEMessage('Error' , response.message);
                     }   
                 });
             });
@@ -201,7 +206,15 @@
             $('#checkboxError').hide();
 
         });
-
+        function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
         function toastMessage(type , message)
             {
 

@@ -184,7 +184,7 @@
 
 
                     } else {
-                        toastMessage('Error' , result.message);
+                        toastEMessage('Error' , result.message);
                         }
                     },
                     error: function () {
@@ -203,7 +203,6 @@
                 $('#CertificateFileInput').attr('required', 'required');
             });
 
-            // View certificate modal
             $(document).on('click', '.view-document', function () {
                 const url = $(this).data('url');
                 const previewHtml = `<embed src="${url}" type="application/pdf" style="width:100%; height:600px;" />`;
@@ -211,7 +210,7 @@
                 $('#documentModal').modal('show');
             });
 
-            // Delete education record
+        
             $(document).on('click', '.delete-entry', function (e) {
                 e.preventDefault();
                 const encodedId = $(this).data('id');
@@ -222,17 +221,31 @@
                     type: 'POST',
                     data: { encodedId },
                     success: function () {
+
+                          const currentFormLangId = $('#EducationDetailID').val();
+            if (currentFormLangId == id) {
+                $('#EducationDetailID').val('');
+            }
+
                         $('#educationGrid').DataTable().ajax.reload();
                          toastMessage('Success', 'Deleted successfully');
                     },
                     error: function () {
-                       toastMessage('Error', 'Failed to delete record');
+                       toastEMessage('Error', 'Failed to delete record');
                     }
                 });
             });
         });
 
-        
+         function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
         function editEntry(educationDetailId) {
             const table = $('#educationGrid').DataTable();
             const rowData = table.rows().data().toArray().find(r => r.educationDetailID === educationDetailId);

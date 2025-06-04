@@ -90,15 +90,19 @@
                 data: formData,
                 success: function (result) {
                     if (result && result.success) {
+                         const currentFormLangId = $('#EmployeesFamilyDetailID').val();
+            if (currentFormLangId == id) {
+                $('#EmployeesFamilyDetailID').val('');
+            }
                         $('#familyGrid').DataTable().ajax.reload();
                         form[0].reset(); 
                        toastMessage('Success' , result.message);
                     } else {
-                        toastMessage('Error' , result.message);
+                        toastEMessage('Error' , result.message);
                     }
                 },
                 error: function () {
-                    toastr.error('Error submitting form');
+                    toastEMessage('Error' , 'Error');   
                 }
             });
         });
@@ -180,11 +184,20 @@
                       toastMessage('Success', 'Deleted successfully');
                     },
                     error: function () {
-                       toastMessage('Error', 'Failed to delete record');
+                       toastEMessage('Error', 'Failed to delete record');
                     }
                 });
             });
         });
+         function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
         function editFamilyDetail(familyDetailId) {
             var table = $('#familyGrid').DataTable();
             var rowData = table

@@ -84,13 +84,17 @@
                 success: function (result) {
                        console.log('Response:', result);
                     if (result && result.success) {
+                         const currentFormLangId = $('#ReferenceDetailID').val();
+            if (currentFormLangId == id) {
+                $('#ReferenceDetailID').val('');
+            }
                         $('#referenceGrid').DataTable().ajax.reload();
                         form[0].reset();
                        toastMessage('Success' , result.message);
 
 
                     } else {
-                        toastMessage('Error' , result.message);
+                        toastEMessage('Error' , result.message);
                     }
                 },
                 error: function () {
@@ -158,12 +162,20 @@
                         $('#referenceGrid').DataTable().ajax.reload();
                        toastMessage('Success' , response.message);
                     } else {
-                        toastMessage('Error' , response.message);
+                        toastEMessage('Error' , response.message);
                     }
                 });
             });
         });
-            
+             function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
         function editReference(id) {
             var table = $('#referenceGrid').DataTable();
             var rowData = table.rows().data().toArray().find(row => row.referenceDetailID === id);
