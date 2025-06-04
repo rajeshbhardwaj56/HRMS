@@ -14,6 +14,7 @@
 
 <form id="educationForm" method="post" enctype="multipart/form-data">
     <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
         @Html.HiddenFor(m => m.EmployeeID)
         @Html.HiddenFor(m => m.EducationDetailID)
         @Html.HiddenFor(m => m.CertificateImage)
@@ -42,7 +43,7 @@
 
             <div class="col-md-4 form-group">
                 <label> Certificate <span class="text-danger" id="fileRequiredStar">*</span></label>
-                <input type="file" name="CertificateFile" id="CertificateFileInput" accept="application/pdf" class="form-control" />
+                    <input type="file" name="CertificateFile" id="CertificateFileInput" accept="application/pdf" class="form-control" required  />
                 <span id="fileError" class="text-danger" style="display:none;"></span>
                 <div id="existingCertificateContainer" class="mt-2" style="display: none;">
                     <i class="bi bi-file-earmark-pdf fs-2 text-danger" title="Existing Certificate"></i>
@@ -62,6 +63,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </form>
 

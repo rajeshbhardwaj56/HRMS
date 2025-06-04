@@ -13,6 +13,7 @@
 
 <form id="familyForm" method="post" enctype="multipart/form-data">
     <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
         @Html.HiddenFor(m => m.EmployeeID)
         @Html.HiddenFor(m => m.EmployeesFamilyDetailID)
 
@@ -42,6 +43,7 @@
             </div>
 
         </div>
+    </div>
     </div>
 </form>
 <div class="main-header anim fs-6" style="--delay: 0s">

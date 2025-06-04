@@ -38,6 +38,8 @@
     <div class="form-section">
         <form id="employmentHistoryForm" method="post">
             <div class="Container">
+
+                <div class="group-box anim" style="--delay: .3s">
                 @Html.HiddenFor(m => m.EmployeeID)
                 @Html.HiddenFor(m => m.EmploymentHistoryID)
 
@@ -132,30 +134,32 @@
                     </div>
                 </div>
             </div>
+            </div>
         </form>
+        <div class="table-section">
+            <div class="main-header anim fs-6">Employee Employment History</div>
 
-    </div>
-    <div class="table-section">
-        <div class="main-header anim fs-6">Employee Employment History</div>
-
-        <div class="table-responsive py-3">
-            <table id="employmentGrid" class="table table-striped body-text" style="width:100%">
-                <thead>
-                    <tr>
-                        <th style="display:none;"></th>
-                        <th style="display:none;"></th>
-                        <th>Company Name</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Designation</th>
-                        <th>Phone</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div class="table-responsive py-3">
+                <table id="employmentGrid" class="table table-striped body-text" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th style="display:none;"></th>
+                            <th style="display:none;"></th>
+                            <th>Company Name</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Designation</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
+
     </div>
+    
 </div>
 @section Scripts {
     <script>

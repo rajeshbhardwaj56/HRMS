@@ -12,6 +12,7 @@
 
 <form id="referenceForm" method="post">
     <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
         @Html.HiddenFor(m => m.EmployeeID)
         @Html.HiddenFor(m => m.ReferenceDetailID)
 
@@ -37,6 +38,7 @@
         <div class="col-md-12">
             <input type="submit" value="Submit" class="btn btn-success" />
             <button type="button" id="cancelButton" class="btn btn-danger">Cancel</button>
+        </div>
         </div>
     </div>
 </form>
