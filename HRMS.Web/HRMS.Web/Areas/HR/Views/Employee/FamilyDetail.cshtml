@@ -90,10 +90,7 @@
                 data: formData,
                 success: function (result) {
                     if (result && result.success) {
-                         const currentFormLangId = $('#EmployeesFamilyDetailID').val();
-            if (currentFormLangId == id) {
-                $('#EmployeesFamilyDetailID').val('');
-            }
+              
                         $('#familyGrid').DataTable().ajax.reload();
                         form[0].reset(); 
                        toastMessage('Success' , result.message);
@@ -180,6 +177,10 @@
                     type: 'POST',
                     data: { encodedId: encodedId },
                     success: function (response) {
+            //                        const currentFormLangId = $('#EmployeesFamilyDetailID').val();
+            // if (currentFormLangId == id) {
+            //     $('#EmployeesFamilyDetailID').val('');
+            // }
                         $('#familyGrid').DataTable().ajax.reload();
                       toastMessage('Success', 'Deleted successfully');
                     },

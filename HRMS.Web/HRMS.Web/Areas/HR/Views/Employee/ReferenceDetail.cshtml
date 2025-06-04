@@ -84,10 +84,7 @@
                 success: function (result) {
                        console.log('Response:', result);
                     if (result && result.success) {
-                         const currentFormLangId = $('#ReferenceDetailID').val();
-            if (currentFormLangId == id) {
-                $('#ReferenceDetailID').val('');
-            }
+                   
                         $('#referenceGrid').DataTable().ajax.reload();
                         form[0].reset();
                        toastMessage('Success' , result.message);
