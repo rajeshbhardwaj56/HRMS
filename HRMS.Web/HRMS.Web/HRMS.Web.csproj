@@ -283,8 +283,10 @@
 
 	<ItemGroup>
 		<PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
+		<PackageReference Include="AWSSDK.S3" Version="4.0.1.1" />
 		<PackageReference Include="CKEditor" Version="3.6.4" />
 		<PackageReference Include="ClosedXML" Version="0.102.2" />
+		<PackageReference Include="DinkToPdf" Version="1.0.8" />
 		<PackageReference Include="EPPlus-UDI-Fork" Version="4.5.29" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.1.21" />

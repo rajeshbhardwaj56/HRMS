@@ -12,6 +12,8 @@ using Quartz;
 using System.Globalization;
 using WebMarkupMin.AspNetCore8;
 using HRMS.Web.BusinessLayer.S3;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,7 +66,7 @@ builder.Services.AddWebMarkupMin(
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddAuthentication();
-
+builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(999999);
@@ -128,7 +130,7 @@ builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 builder.Services.TryAddTransient<AttendanceReminderJob>();
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(AttendanceReminderJob),
-    cronExpression: "0 00 05 * * ?"));
+    cronExpression: "0 32 02 * * ?"));
 
 
 var app = builder.Build();

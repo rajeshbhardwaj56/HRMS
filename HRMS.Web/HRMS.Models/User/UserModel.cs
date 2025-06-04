@@ -20,5 +20,6 @@ namespace HRMS.Models.User
         public bool IsResetPasswordRequired { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
+        public int RoleID { get; set; }
     }
 }

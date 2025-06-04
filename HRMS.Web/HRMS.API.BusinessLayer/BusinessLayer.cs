@@ -127,6 +127,8 @@ namespace HRMS.API.BusinessLayer
                                       ManagerName = dataRow.Field<string>("ManagerName"),
                                       IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                       IsActive = dataRow.Field<bool>("IsActive"),
+                                      RoleID = dataRow.Field<int>("RoleID"),
+                                      Email = dataRow.Field<string>("OfficialEmailID"),
                                   }).ToList().LastOrDefault();
             results.Data = JsonConvert.SerializeObject(data);
             return results;

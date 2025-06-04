@@ -110,41 +110,60 @@
 		box-shadow: 0 0 8px rgba(0,0,0,0.1);
 		margin: 0 auto; /* center horizontally */
 		float: left;
+		margin-top: 23px;
 	}
 </style>
 
 
 <div class=" ">
 	<div class="main-header anim" style="--delay: 0s">Team Attendance Report</div>
-	<div class="d-flex   mb-4 mt-4 filter-class">
-		<label for="year-select" class="filter-label me-2">Year:</label>
-		<select id="year-select" class="form-select me-4" style="width: 120px;">
-			<!-- Years populated dynamically -->
-		</select>
+	<!-- Filters Row -->
+	<div class="d-flex flex-wrap align-items-end gap-3 mb-4 mt-4 filter-class">
 
-		<label for="month-select" class="filter-label me-2">Month:</label>
-		<select id="month-select" class="form-select" style="width: 140px;">
-			<option value="1">January</option>
-			<option value="2">February</option>
-			<option value="3">March</option>
-			<option value="4">April</option>
-			<option value="5">May</option>
-			<option value="6">June</option>
-			<option value="7">July</option>
-			<option value="8">August</option>
-			<option value="9">September</option>
-			<option value="10">October</option>
-			<option value="11">November</option>
-			<option value="12">December</option>
-		</select>
-		<button id="export-btn" class="btn btn-primary1" style="height:38px;">Export Attendance  </button>
+		<!-- Search Input -->
+		<div class="d-flex align-items-center" style="min-width: 300px;">
+			<label for="search-box" class="me-2 filter-label mb-0">Search:</label>
+			<input type="text" id="search-box" class="form-control" placeholder="Search by name or employee no..." style="max-width: 300px;">
+		</div>
+
+		<!-- Year Selector -->
+		<div class="d-flex align-items-center">
+			<label for="year-select" class="me-2 filter-label mb-0">Year:</label>
+			<select id="year-select" class="form-select" style="width: 120px;">
+				<!-- Populated dynamically -->
+			</select>
+		</div>
+
+		<!-- Month Selector -->
+		<div class="d-flex align-items-center">
+			<label for="month-select" class="me-2 filter-label mb-0">Month:</label>
+			<select id="month-select" class="form-select" style="width: 120px;">
+				<option value="1">January</option>
+				<option value="2">February</option>
+				<option value="3">March</option>
+				<option value="4">April</option>
+				<option value="5">May</option>
+				<option value="6">June</option>
+				<option value="7">July</option>
+				<option value="8">August</option>
+				<option value="9">September</option>
+				<option value="10">October</option>
+				<option value="11">November</option>
+				<option value="12">December</option>
+			</select>
+		</div>
+
+		<!-- Export Button -->
+		<div>
+			<button id="export-btn" class="btn btn-primary" style="height: 38px;">Export Attendance</button>
+		</div>
 
 	</div>
 
-
-	<div class="d-flex   mb-4 mt-4 Show-filter-class">
-		<label for="page-size-select" class="filter-label me-2">Show:</label>
-		<select id="page-size-select" class="form-select me-4" style="width: 100px;">
+	<!-- Show Records Per Page -->
+	<div class="d-flex align-items-center  Show-filter-class" style="gap: 12px;">
+		<label for="page-size-select" class="filter-label mb-0">Show:</label>
+		<select id="page-size-select" class="form-select" style="width: 100px;">
 			<option value="10">10</option>
 			<option value="20" selected>20</option>
 			<option value="50">50</option>
@@ -157,7 +176,7 @@
 	<div class="table-container">
 
 		<table class="table table-bordered table-hover">
-		
+
 
 			<thead class="table-dark">
 				<tr id="header-row">
@@ -298,7 +317,7 @@
 		: status === "L" ? "table-warning text-dark"
 		: "";
 
-			
+
 
 		const dateStr = day.replace("_", "-");
 		row += `<td class="${className}" data-date="${dateStr}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}">
@@ -542,7 +561,33 @@
 
 			return result.trim() || '0m';
 		}
-		
+
+			$("#search-box").on("keyup", function () {
+		const searchText = $(this).val().toLowerCase();
+		let visibleCount = 0;
+
+		$("#attendance-data tr").each(function () {
+			const rowText = $(this).text().toLowerCase();
+			const isMatch = rowText.includes(searchText);
+			$(this).toggle(isMatch);
+			if (isMatch) visibleCount++;
+		});
+
+		updateRecordInfo(visibleCount);
+	});
+		function updateRecordInfo(visibleCount) {
+		const total = $("#attendance-data tr").length;
+		const showing = visibleCount;
+
+		$("#record-range-info").text(`Displaying 1 – ${showing} of ${total}`);
+
+		if (showing < 20) {
+			$("#pagination-container").addClass("d-none");
+		} else {
+			$("#pagination-container").removeClass("d-none").css("display", "block");
+		}
+	}
+
 
 </script>
 
