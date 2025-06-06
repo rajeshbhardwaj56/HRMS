@@ -122,5 +122,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_LanguageDetailsByEmployee = "usp_Get_LanguageDetailsByEmployee";
         public const string usp_AddUpdate_LanguageDetails = "usp_AddUpdate_LanguageDetails";
         public const string usp_Delete_LanguageDetails = "usp_Delete_LanguageDetails";
+        public const string usp_Get_CompanyForms = "usp_Get_CompanyForms";
+        public const string ups_InsupdGroupFormPermission = "ups_InsupdGroupFormPermission";
     }
 }

@@ -46,6 +46,7 @@ namespace HRMS.Models.Common
         public PolicyCategoryModel PolicyCategoryModel { get; set; } = new PolicyCategoryModel();
         public List<Attendance> AttandanceList { get; set; } = new List<Attendance>();
         public Attendance AttendanceModel { get; set; } = new Attendance();
+        public List<SelectListItem> FormsPermission { get; set; } = new List<SelectListItem>();
 
     }
 

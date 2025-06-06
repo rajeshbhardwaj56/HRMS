@@ -1,0 +1,62 @@
+﻿@using HRMS.Models.Company;
+@using HRMS.Models.FormPermission
+@using Microsoft.AspNetCore.Http
+
+@model FormPermissionViewModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Form Permission";
+}
+<div class="main-header anim" style="--delay: 0s">  Add Form Permissions</div>
+
+<div class="group-box anim"  >
+    <div class="Container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card commonForm">
+                    <div class="card-header hideMobile">Add Form Permissions</div>
+                    <div class="card-body">
+
+                        @using (Html.BeginForm("FormPermission", "FormPermission", FormMethod.Post, new { id = "FormPermission", enctype = "multipart/form-data", @onsubmit = "showLoader(this);" }))
+                        {
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="control-label mb-1">User Group</label>
+                                        <div class="position-relative">
+                                            @Html.DropDownListFor(x => x.SelectedDepartment, Model.Departments, "-- Select Department --", new { @class = "form-control", @required = "required" })
+                                            <i class="fa fa-chevron-down position-absolute"
+                                               style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-group">
+                                        <label class="control-label mb-1">Form Permission<span style="color:red;">*</span></label>
+                                        <div>
+                                            @if (Model.FormsPermission?.Count() > 0)
+                                            {
+                                                foreach (var item in Model.FormsPermission)
+                                                {
+                                                    var permissionId = "perm_" + item.Value;
+                                                    <div class="form-check form-check-inline">
+                                                        <input type="checkbox" name="SelectedFormIds" class="form-check-input chkboxes" value="@item.Value" id="@permissionId" />
+                                                        <label class="form-check-label" for="@permissionId">@item.Text</label>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-info commonBtn">Save</button>
+                        }
+
+
+                    </div>
+                </div>
+            </div>
+            </div>
+    </div>
+
+</div>

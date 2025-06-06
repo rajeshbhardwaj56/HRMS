@@ -1,6 +1,7 @@
 ﻿using HRMS.API.BusinessLayer;
 using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
+using HRMS.Models.FormPermission;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +43,32 @@ namespace HRMS.API.Web.Controllers.Common
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetAllCountries());
+            return response;
+        }
+        [HttpGet]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetAllCompanyDepartments(long CompanyID)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllCompanyDepartments(CompanyID));
+            return response;
+        }
+        
+        [HttpGet]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetAllCompanyFormsPermission(long CompanyID)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllCompanyFormsPermission(CompanyID));
+            return response;
+        }
+        
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public IActionResult AddFormPermissions(FormPermissionViewModel objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddFormPermissions(objmodel));
             return response;
         }
 

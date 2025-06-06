@@ -153,6 +153,7 @@ namespace HRMS.Models.Common
         public const string FamilyDetail = "FamilyDetail";
         public const string ReferenceDetail = "ReferenceDetail";
         public const string EmploymentHistory = "EmploymentHistory";
+        public const string FormPermission = "FormPermission";
     }
 
     public class APIApiActionConstants
@@ -264,6 +265,9 @@ namespace HRMS.Models.Common
         public const string FetchExportEmployeeExcelSheet = "FetchExportEmployeeExcelSheet";
         public const string GetValidateCompOffLeave = "GetValidateCompOffLeave";
         public const string UpdateLeaveStatus = "UpdateLeaveStatus";
+        public const string GetAllCompanyDepartments = "GetAllCompanyDepartments";
+        public const string AddFormPermissions = "AddFormPermissions";
+
 
     }
 
