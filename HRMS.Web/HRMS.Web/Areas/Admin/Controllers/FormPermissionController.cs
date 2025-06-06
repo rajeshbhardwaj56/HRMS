@@ -4,6 +4,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.FormPermission;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -55,7 +56,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true).Result.ToString();
                 insertedId = JsonConvert.DeserializeObject<long>(data);
-                if(insertedId==1)
+                if (insertedId == 1)
                 {
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                     TempData[HRMS.Models.Common.Constants.toastMessage] = "Forms Permission saved successfully.";
@@ -66,7 +67,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     TempData[HRMS.Models.Common.Constants.toastMessage] = "something went wrong try later!.";
                 }
                 return RedirectToActionPermanent(WebControllarsConstants.FormPermission, WebControllarsConstants.FormPermission);
-                 
+
             }
             catch (Exception ex)
             {
@@ -75,5 +76,40 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
 
         }
+
+
+
+        [HttpGet]
+        public JsonResult loadForms(int DepartmentId)
+        {
+            try
+            {
+                List<FormPermissionViewModel> objmodel = new List<FormPermissionViewModel>();
+
+                var response = _businessLayer.SendGetAPIRequest(
+                    "Common/GetFormByDepartmentID?DepartmentId=" + DepartmentId,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
+
+                if (response != null)
+                {
+                    objmodel = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(response.Result.ToString());
+                }
+
+                return Json(objmodel);
+            }
+            catch (Exception ex)
+            { 
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while loading form permissions.",
+                    error = ex.Message
+                });
+            }
+        }
+
+       
     }
 }

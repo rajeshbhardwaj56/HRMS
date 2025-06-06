@@ -4426,7 +4426,6 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-
         public long AddFormPermissions(FormPermissionViewModel objmodel)
         {
             long retVal = 0;
@@ -4452,6 +4451,124 @@ namespace HRMS.API.BusinessLayer
                 }
             }
             return -1;
+        }
+
+        public List<FormPermissionViewModel> GetFormByDepartmentID(long DepartmentId)
+        {
+            List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@DepartmentID", DepartmentId));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetFormByDepartmentID, sqlParameter);
+
+
+            model = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new FormPermissionViewModel
+                           {
+                               FormName = dataRow.Field<string>("FormName"),
+                               FormID = dataRow.Field<long>("FormID"),
+                               SelectedDepartment = dataRow.Field<long>("FormID"),
+                               GroupFormID = dataRow.Field<long?>("GroupFormID"),
+                           }).ToList();
+
+            return model;
+        }
+        public List<FormPermissionViewModel> GetUserFormByDepartmentID(FormPermissionVM obj)
+        {
+            List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@DepartmentID", obj.DepartmentId));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", obj.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormByDepartmentID, sqlParameter);
+
+
+            model = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new FormPermissionViewModel
+                           {
+                               FormName = dataRow.Field<string>("FormName"),
+                               FormID = dataRow.Field<long>("FormID"),
+                               SelectedDepartment = dataRow.Field<long>("FormID"),
+                               GroupFormID = dataRow.Field<long?>("GroupFormID"),
+                               IsSelected = dataRow.Field<int?>("IsSelected"),
+                           }).ToList();
+
+            return model;
+        }
+
+
+        public List<FormPermissionViewModel> GetUserFormPermissions(FormPermissionVM objmodel)
+        {
+            List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@DepartmentID", objmodel.DepartmentId));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", objmodel.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormPermissions, sqlParameter);
+
+
+            model = dataSet.Tables[0].AsEnumerable()
+       .Select(dataRow =>
+       {
+           var modelItem = new FormPermissionViewModel();
+           try { modelItem.FormName = dataRow.Field<string>("FormName"); } catch { Console.WriteLine("FormName error"); }
+           try { modelItem.FormID = dataRow.Field<long>("FormID"); } catch { Console.WriteLine("FormID error"); }
+           try { modelItem.FormLevel = dataRow.Field<long>("FormLevel"); } catch { Console.WriteLine("FormLevel error"); }
+           try { modelItem.ParentId = dataRow.Field<long>("ParentId"); } catch { Console.WriteLine("ParentId error"); }
+           try { modelItem.Status = dataRow.Field<bool>("Status"); } catch { Console.WriteLine("Status error"); }
+           try { modelItem.SelectedDepartment = dataRow.Field<long>("SelectedDepartment"); } catch { Console.WriteLine("SelectedDepartment error"); }
+           try { modelItem.GroupFormID = dataRow.Field<long?>("GroupFormID"); } catch { Console.WriteLine("GroupFormID error"); }
+           try { modelItem.IsFormPermissions = dataRow["IsFormPermission"] != DBNull.Value && Convert.ToBoolean(dataRow["IsFormPermission"]); }
+           catch { Console.WriteLine("IsFormPermission error"); }
+
+           return modelItem;
+       }).ToList();
+
+            return model;
+        }
+
+
+
+
+        public long AddUserFormPermissions(FormPermissionVM objmodel)
+        {
+            long retVal = 0;
+
+            // Convert selected form IDs to comma-separated string
+            string formIdsCsv = string.Join(",", objmodel.SelectedFormIds);
+
+            // Prepare SQL parameters
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeID", objmodel.EmployeeID),  // Adjust to match your SP
+        new SqlParameter("@FormIDs", formIdsCsv)
+    };
+            // Call the SP
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertFormPermissions, sqlParameter);
+
+            // Optional: You can still return 1 or true if execution was successful
+            if (dataSet != null)
+            {
+                retVal = 1; // Or parse return value from SP if it returns anything
+            }
+
+            return retVal;
+        }
+
+
+        public EmployeePermissionVM CheckUserFormPermissionByEmployeeID(FormPermissionVM obj)
+        {
+            EmployeePermissionVM model = new EmployeePermissionVM();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@EmployeeID", obj.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@FormId", obj.FormId));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_CheckUserFormPermissionByEmployeeID, sqlParameter);
+
+
+            model = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new EmployeePermissionVM
+                           {
+                               HasPermission = dataRow.Field<int>("HasPermission"),
+                              
+                           }).FirstOrDefault();
+            return model;
         }
 
 

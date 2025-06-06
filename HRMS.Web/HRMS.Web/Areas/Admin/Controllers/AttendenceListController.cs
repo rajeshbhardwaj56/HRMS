@@ -17,7 +17,7 @@ using HRMS.Models;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin+ "," + RoleConstants.Manager)]
+
     public class AttendenceListController : Controller
     {
         private readonly IConfiguration _configuration;

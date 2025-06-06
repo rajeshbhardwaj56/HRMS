@@ -45,32 +45,7 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.GetAllCountries());
             return response;
         }
-        [HttpGet]
-        [OutputCache(Duration = 999999)]
-        public IActionResult GetAllCompanyDepartments(long CompanyID)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllCompanyDepartments(CompanyID));
-            return response;
-        }
-        
-        [HttpGet]
-        [OutputCache(Duration = 999999)]
-        public IActionResult GetAllCompanyFormsPermission(long CompanyID)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllCompanyFormsPermission(CompanyID));
-            return response;
-        }
-        
-        [HttpPost]
-        [OutputCache(Duration = 999999)]
-        public IActionResult AddFormPermissions(FormPermissionViewModel objmodel)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddFormPermissions(objmodel));
-            return response;
-        }
+   
 
 
         [HttpGet]
@@ -108,6 +83,83 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.GetFogotPasswordDetails(model));
             return response;
         }
+
+        #region Page Permission
+
+        [HttpGet]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetAllCompanyDepartments(long CompanyID)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllCompanyDepartments(CompanyID));
+            return response;
+        }
+
+        [HttpGet]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetAllCompanyFormsPermission(long CompanyID)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllCompanyFormsPermission(CompanyID));
+            return response;
+        }
+
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public IActionResult AddFormPermissions(FormPermissionViewModel objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddFormPermissions(objmodel));
+            return response;
+        }
+        [HttpGet]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetFormByDepartmentID(long DepartmentId)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetFormByDepartmentID(DepartmentId));
+            return response;
+        }
+        
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetUserFormPermissions(FormPermissionVM objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetUserFormPermissions(objmodel));
+            return response;
+        }
+        
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public IActionResult AddUserFormPermissions(FormPermissionVM objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUserFormPermissions(objmodel));
+            return response;
+        }
+        
+
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public IActionResult GetUserFormByDepartmentID(FormPermissionVM objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetUserFormByDepartmentID(objmodel));
+            return response;
+        }
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public IActionResult   CheckUserFormPermissionByEmployeeID(FormPermissionVM objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CheckUserFormPermissionByEmployeeID(objmodel));
+            return response;
+        }
+
+        #endregion Page Permission
+
+
 
     }
 }

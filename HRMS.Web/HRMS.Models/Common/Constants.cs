@@ -267,6 +267,10 @@ namespace HRMS.Models.Common
         public const string UpdateLeaveStatus = "UpdateLeaveStatus";
         public const string GetAllCompanyDepartments = "GetAllCompanyDepartments";
         public const string AddFormPermissions = "AddFormPermissions";
+        public const string GetUserFormPermissions = "GetUserFormPermissions";
+        public const string AddUserFormPermissions = "AddUserFormPermissions";
+        public const string GetUserFormByDepartmentID = "GetUserFormByDepartmentID";
+        public const string CheckUserFormPermissionByEmployeeID = "CheckUserFormPermissionByEmployeeID";
 
 
     }

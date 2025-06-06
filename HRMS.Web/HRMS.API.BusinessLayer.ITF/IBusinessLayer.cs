@@ -120,7 +120,14 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<LanguageDetail> GetLanguageDetails(LanguageDetailParams model);
         public Result AddUpdateLanguageDetail(LanguageDetail model);
         public string DeleteLanguageDetail(LanguageDetailParams model);
+        #region Page Permission
         public Results GetAllCompanyFormsPermission(long companyID);
         public long AddFormPermissions(FormPermissionViewModel objmodel);
+        public List<FormPermissionViewModel> GetFormByDepartmentID(long DepartmentId);
+        public List<FormPermissionViewModel> GetUserFormPermissions(FormPermissionVM objmodel);
+        public long AddUserFormPermissions(FormPermissionVM objmodel);
+        public List<FormPermissionViewModel> GetUserFormByDepartmentID(FormPermissionVM obj);
+        public EmployeePermissionVM CheckUserFormPermissionByEmployeeID(FormPermissionVM obj);
+        #endregion Page Permission
     }
 }

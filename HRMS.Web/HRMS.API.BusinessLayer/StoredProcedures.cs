@@ -124,5 +124,10 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Delete_LanguageDetails = "usp_Delete_LanguageDetails";
         public const string usp_Get_CompanyForms = "usp_Get_CompanyForms";
         public const string ups_InsupdGroupFormPermission = "ups_InsupdGroupFormPermission";
+        public const string usp_GetFormByDepartmentID = "usp_GetFormByDepartmentID";
+        public const string usp_GetUserFormPermissions = "usp_GetUserFormPermissions";
+        public const string usp_InsertFormPermissions = "usp_InsertFormPermissions";
+        public const string usp_GetUserFormByDepartmentID = "usp_GetUserFormByDepartmentID";
+        public const string usp_CheckUserFormPermissionByEmployeeID = "usp_CheckUserFormPermissionByEmployeeID";
     }
 }

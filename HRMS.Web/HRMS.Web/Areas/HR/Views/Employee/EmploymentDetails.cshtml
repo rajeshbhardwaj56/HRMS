@@ -67,6 +67,16 @@
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
                     </div>
                 </div>
+                <div class="col-md-4 form-group">
+                    <label>User Permission <span class="Mandetory">*</span></label>
+                    <div id="form-permission-list" class="mt-3"></div>
+
+
+                </div>
+
+
+
+
                 <div id="divsubDepartment" class="col-md-4 form-group position-relative" style="display: @(Model.SubDepartmentID != null && Model.SubDepartmentID != 0 ? "block" : "none")">
                     <label>Sub Department <span class="Mandetory">*</span></label>
                     <div class="position-relative">
@@ -276,5 +286,58 @@
              fetchL2Manager(preselectedL1);
          }
      }, 200);
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        function loadFormPermissions(departmentId) {
+            if (departmentId) {
+                $.ajax({
+                    url: '@Url.Action("loadForms", "Employee")',
+                    type: 'GET',
+                    data: { DepartmentId: departmentId,EmployeeId :'@Model.EmployeeID' },
+                    success: function (response) {
+                        var html = '';
+                        if (Array.isArray(response)) {
+                            response.forEach(function (item) {
+                               if (item.formID && item.formName) {
+                html += `
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox"
+                               name="SelectedFormIds"
+                               class="form-check-input chkboxes"
+                               value="${item.formID}"
+                               id="perm_${item.formID}" ${item.isSelected ? 'checked' : ''} />
+                        <label class="form-check-label" for="perm_${item.formID}">
+                            ${item.formName}
+                        </label>
+                    </div>
+                `;
+            }
+                            });
+                        }
+                        $('#form-permission-list').html(html);
+                    },
+                    error: function () {
+                        alert("Failed to load form permissions.");
+                        $('#form-permission-list').empty();
+                    }
+                });
+            } else {
+                $('#form-permission-list').empty();
+            }
+        }
+
+        // On change
+        $('#DepartmentID').on('change', function () {
+            var departmentId = $(this).val();
+            loadFormPermissions(departmentId);
+        });
+
+        // On load (edit scenario)
+        var initialDepartmentId = $('#DepartmentID').val();
+        if (initialDepartmentId) {
+            loadFormPermissions(initialDepartmentId);
+        }
     });
 </script>

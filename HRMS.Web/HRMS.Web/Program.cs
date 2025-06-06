@@ -78,6 +78,7 @@ builder.Services.AddMvcCore()
         .AddDataAnnotations()
         .AddCors();
 builder.Services.AddSingleton<IS3Service, S3Service>();
+builder.Services.AddSingleton<ICheckUserFormPermission, CheckUserFormPermission>();
 builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<CookiePolicyOptions>(options =>

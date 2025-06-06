@@ -22,7 +22,7 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <label class="control-label mb-1">User Group</label>
+                                        <label class="control-label mb-1">Select Department</label>
                                         <div class="position-relative">
                                             @Html.DropDownListFor(x => x.SelectedDepartment, Model.Departments, "-- Select Department --", new { @class = "form-control", @required = "required" })
                                             <i class="fa fa-chevron-down position-absolute"
@@ -39,12 +39,20 @@
                                                 foreach (var item in Model.FormsPermission)
                                                 {
                                                     var permissionId = "perm_" + item.Value;
+                                                    var isChecked = Model.SelectedFormIds != null && Model.SelectedFormIds.Contains(item.Value);
+
                                                     <div class="form-check form-check-inline">
-                                                        <input type="checkbox" name="SelectedFormIds" class="form-check-input chkboxes" value="@item.Value" id="@permissionId" />
-                                                        <label class="form-check-label" for="@permissionId">@item.Text</label>
+                                                        <input type="checkbox"
+                                                               name="SelectedFormIds"
+                                                               class="form-check-input chkboxes"
+                                                               value="@item.Value"
+                                                               id="@permissionId"
+                                                        @(isChecked ? "checked" : "") /> 
+                                                        <label class="form-check-label" for="@permissionId">@item.Text  </label> 
                                                     </div>
                                                 }
                                             }
+
                                         </div>
                                     </div>
                                 </div>
@@ -60,3 +68,33 @@
     </div>
 
 </div>
+<script>
+    $(document).ready(function () {
+        $('#SelectedDepartment').on('change', function () {
+            var departmentId = $(this).val();
+
+            if (departmentId) {
+                $.ajax({
+                    url: '@Url.Action("loadForms", "FormPermission")',
+                    type: 'GET',
+                    data: { departmentId: departmentId },
+                    success: function (response) {
+                        $('.chkboxes').prop('checked', false);
+                        if (Array.isArray(response)) {
+                            response.forEach(function (item) {
+                                if (item.formID) {
+                                    $('#perm_' + item.formID).prop('checked', true);
+                                }
+                            });
+                        }
+                    },
+                    error: function () {
+                        alert("Failed to load permissions.");
+                    }
+                });
+            } else {
+                $('.chkboxes').prop('checked', false);
+            }
+        });
+    });
+</script>

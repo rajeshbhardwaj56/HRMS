@@ -9,6 +9,7 @@ using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
+using HRMS.Models.FormPermission;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
@@ -34,13 +35,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
         IBusinessLayer _businessLayer;
         private IHostingEnvironment Environment;
         private readonly IS3Service _s3Service;
-        public MyInfoController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public MyInfoController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
             _context = context;
             _s3Service = s3Service;
+            _CheckUserFormPermission = CheckUserFormPermission;
         } 
     
         [HttpGet]
@@ -56,6 +59,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 UserID = GetSessionLong(Constants.UserID),
                 CompanyID = GetSessionLong(Constants.CompanyID)
             };
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID,3);
+            if(FormPermission.HasPermission==0)
+            {
+                var RoleId = GetSessionInt(Constants.RoleID);
+                return RedirectToActionPermanent(
+                  Constants.Index,
+                 _businessLayer.GetControllarNameByRole(RoleId),
+                 new { area = _businessLayer.GetAreaNameByRole(RoleId) }
+              );
+            }
 
             // Call API
             var jsonData = _businessLayer.SendPostAPIRequest(
@@ -153,9 +166,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
 
-       
 
-        [HttpGet]
+
+        
+            [HttpGet]
         public IActionResult GetEmployeeLeaveDetails(string employeeID)
         {
             MyInfoInputParams model = new MyInfoInputParams();
