@@ -34,6 +34,7 @@ namespace HRMS.Models.Common
         public const string Role = "Role";
         public const string Alias = "Alias";
         public const string Index = "index";
+        public const string InfoIndex = "InfoIndex";
         public const string EmployeeListing = "EmployeeListing";
         public const string RootUrlFormat = "{0}/{1}";
         public const string ManageAdmin = "admin";
@@ -86,6 +87,7 @@ namespace HRMS.Models.Common
         public const string Whatshappening = "Uploads/Whatshappening/";
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
         public const string JobLocationID = "JobLocationID";
+        public const string DepartmentID = "DepartmentID";
     }
     public class RoleConstants
     {

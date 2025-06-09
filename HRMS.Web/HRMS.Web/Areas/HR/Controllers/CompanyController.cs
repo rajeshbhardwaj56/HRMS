@@ -14,7 +14,7 @@ using HRMS.Web.BusinessLayer.S3;
 namespace HRMS.Web.Areas.HR.Controllers
 {
 	[Area(Constants.ManageHR)]
-	[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+	//[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
 	public class CompanyController : Controller
 	{
 		IConfiguration _configuration;

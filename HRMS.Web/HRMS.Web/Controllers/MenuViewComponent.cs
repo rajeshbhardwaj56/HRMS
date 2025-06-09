@@ -18,8 +18,8 @@ namespace HRMS.Web.Controllers
         public async Task<IViewComponentResult> InvokeAsync()
         {
             FormPermissionVM objmodel = new FormPermissionVM();
-            //objmodel.DepartmentId = Convert.ToInt64(HttpContext.Session.GetString(Constants.Departments));
-            objmodel.DepartmentId = 9;
+          objmodel.DepartmentId = Convert.ToInt64(HttpContext.Session.GetString(Constants.DepartmentID));
+           
             objmodel.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             FormPermissionListViewModel obj = new FormPermissionListViewModel();
             var response = _businessLayer.SendPostAPIRequest(objmodel,

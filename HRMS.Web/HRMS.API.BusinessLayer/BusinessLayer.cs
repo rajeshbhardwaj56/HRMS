@@ -84,6 +84,7 @@ namespace HRMS.API.BusinessLayer
                                    EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                                    IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                    JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                   DepartmentID = dataRow.Field<long>("DepartmentID"),
                                }).ToList().FirstOrDefault();
             }
             return loginUser;
@@ -4513,8 +4514,6 @@ namespace HRMS.API.BusinessLayer
            try { modelItem.FormLevel = dataRow.Field<long>("FormLevel"); } catch { Console.WriteLine("FormLevel error"); }
            try { modelItem.ParentId = dataRow.Field<long>("ParentId"); } catch { Console.WriteLine("ParentId error"); }
            try { modelItem.Status = dataRow.Field<bool>("Status"); } catch { Console.WriteLine("Status error"); }
-           try { modelItem.SelectedDepartment = dataRow.Field<long>("SelectedDepartment"); } catch { Console.WriteLine("SelectedDepartment error"); }
-           try { modelItem.GroupFormID = dataRow.Field<long?>("GroupFormID"); } catch { Console.WriteLine("GroupFormID error"); }
            try { modelItem.IsFormPermissions = dataRow["IsFormPermission"] != DBNull.Value && Convert.ToBoolean(dataRow["IsFormPermission"]); }
            catch { Console.WriteLine("IsFormPermission error"); }
 

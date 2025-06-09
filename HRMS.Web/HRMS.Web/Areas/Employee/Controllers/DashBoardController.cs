@@ -10,17 +10,15 @@ using Newtonsoft.Json;
 namespace HRMS.Web.Areas.Employee.Controllers
 {
     [Area(Constants.ManageEmployee )]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager))]
+  //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager))]
     public class DashBoardController : Controller
     {
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-        private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
         IHttpContextAccessor _context;
         private readonly IS3Service _s3Service;
-        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer,   IHttpContextAccessor context, IS3Service s3Service)
         {
-            Environment = _environment;
             _configuration = configuration;
             _context = context;
             _businessLayer = businessLayer;

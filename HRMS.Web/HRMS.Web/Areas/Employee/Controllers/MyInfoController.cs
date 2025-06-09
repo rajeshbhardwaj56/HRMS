@@ -27,18 +27,16 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.Employee.Controllers
 {
     [Area(Constants.ManageEmployee)]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
+  //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class MyInfoController : Controller
     {
         IHttpContextAccessor _context;
         IConfiguration _configuration;
-        IBusinessLayer _businessLayer;
-        private IHostingEnvironment Environment;
+        IBusinessLayer _businessLayer; 
         private readonly IS3Service _s3Service;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public MyInfoController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
-        {
-            Environment = _environment;
+        public MyInfoController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer,   IHttpContextAccessor context, IS3Service s3Service)
+        { 
             _configuration = configuration;
             _businessLayer = businessLayer;
             _context = context;
@@ -59,10 +57,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 UserID = GetSessionLong(Constants.UserID),
                 CompanyID = GetSessionLong(Constants.CompanyID)
             };
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID,3);
-            if(FormPermission.HasPermission==0)
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, 3);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
             {
-                var RoleId = GetSessionInt(Constants.RoleID);
                 return RedirectToActionPermanent(
                   Constants.Index,
                  _businessLayer.GetControllarNameByRole(RoleId),
