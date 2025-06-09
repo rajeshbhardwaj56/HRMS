@@ -19,7 +19,7 @@ namespace HRMS.Web.Controllers
         {
             FormPermissionVM objmodel = new FormPermissionVM();
             objmodel.DepartmentId = Convert.ToInt64(HttpContext.Session.GetString(Constants.DepartmentID));
-
+            objmodel.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             objmodel.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             FormPermissionListViewModel obj = new FormPermissionListViewModel();
             var response = _businessLayer.SendPostAPIRequest(objmodel,

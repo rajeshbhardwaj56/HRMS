@@ -107,6 +107,29 @@ namespace HRMS.Models.Common
         Manager,
         SuperAdmin = 5
     }
+       public enum PageName
+    {
+        EmployeeListing = 2,
+        MyInfo=3,
+        company = 4,
+        Templates = 11,
+        AttendenceList = 5,
+        ApprovedAttendance = 6,
+        TeamAttendenceList = 7,
+        ShiftTypeListing = 8,
+        Whatshappening = 9,
+        Dashboard=10,
+        LeavePolicyListing = 12,
+        HolidayListing = 13,
+        LeavePolicyDetailsListing = 14,
+        WhatshappeningListing = 15,
+        CompanyListing = 16,
+        MyAttendanceList = 17,
+        Support = 18,
+        MyTeam = 19,
+        FormPermission = 20,
+      
+    }
 
 
     public class APIControllarsConstants
@@ -133,7 +156,7 @@ namespace HRMS.Models.Common
         public const string LeavePolicyListing = "LeavePolicyListing";
         public const string LeavePolicy = "LeavePolicy";
         public const string Employee = "Employee";
-        public const string EmployeeListing = "EmployeeListing";
+        public const string EmployeeListing = "EmployeeListing"; 
 
         public const string Candidate = "Candidate";
         public const string MyInfo = "MyInfo";

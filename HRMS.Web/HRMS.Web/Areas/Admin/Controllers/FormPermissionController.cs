@@ -5,6 +5,7 @@ using HRMS.Models.Company;
 using HRMS.Models.FormPermission;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,23 +14,35 @@ using Newtonsoft.Json;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class FormPermissionController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
-        public FormPermissionController(IConfiguration configuration, IBusinessLayer businessLayer)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public FormPermissionController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
+            _CheckUserFormPermission = CheckUserFormPermission;
         }
         public IActionResult Index()
         {
             return View();
         }
+
         [HttpGet]
         public ActionResult FormPermission()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.FormPermission);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             FormPermissionViewModel objmodel = new FormPermissionViewModel();
 
             var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -109,7 +122,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 });
             }
         }
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
 
-       
     }
 }

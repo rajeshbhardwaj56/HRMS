@@ -54,6 +54,13 @@ namespace HRMS.Web.Controllers
             obj.CompanyLogo = model.CompanyLogo;
             return View(obj);
         }
+        public async Task<IActionResult> Logout()
+        {
+            HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(); // important for authentication cookies
+
+            return RedirectToAction("Index", "Home");
+        }
 
         public ActionResult ForgotPassword()
         {

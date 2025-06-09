@@ -30,6 +30,7 @@ namespace HRMS.Models.FormPermission
     public class FormPermissionVM
     {
         public long DepartmentId { get; set; }
+        public long RoleID { get; set; }
         public long EmployeeID { get; set; }
         public long FormId { get; set; }
         public List<string>? SelectedFormIds { get; set; }

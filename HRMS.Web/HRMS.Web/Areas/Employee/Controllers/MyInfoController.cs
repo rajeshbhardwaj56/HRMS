@@ -16,6 +16,7 @@ using HRMS.Models.MyInfo;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -59,14 +60,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
             };
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, 3);
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, (int)PageName.MyInfo);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
             {
-                return RedirectToActionPermanent(
-                  Constants.Index,
-                 _businessLayer.GetControllarNameByRole(RoleId),
-                 new { area = _businessLayer.GetAreaNameByRole(RoleId) }
-              );
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
             }
 
             // Call API
@@ -1018,11 +1017,20 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View(leavePolicyModel);
         }
 
-        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
 
         public IActionResult GetTeamEmployeeList()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            var RoleId = GetSessionInt(Constants.RoleID);
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.MyTeam);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -1068,6 +1076,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpGet]
         public IActionResult Support()
         {
+            var RoleId = GetSessionInt(Constants.RoleID);
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.Support);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View();
         }
 
@@ -1093,9 +1111,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View(detailsList);
         }
         [HttpGet]
-        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
         public IActionResult TeamAttendenceList()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.TeamAttendenceList);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
             var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); // Assuming this exists
             var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
@@ -1282,5 +1309,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(new { data = results.WhatsHappeningList });
 
         }
+
+       
     }
 }

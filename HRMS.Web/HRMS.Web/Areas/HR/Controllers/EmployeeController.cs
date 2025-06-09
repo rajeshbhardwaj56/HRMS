@@ -14,6 +14,7 @@ using HRMS.Models.ImportFromExcel;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -42,7 +43,8 @@ namespace HRMS.Web.Areas.HR.Controllers
         private IHostingEnvironment Environment;
         private readonly IS3Service _s3Service;
         private readonly IHttpContextAccessor _context;
-        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public EmployeeController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
         {
             Environment = _environment;
             _configuration = configuration;
@@ -50,10 +52,25 @@ namespace HRMS.Web.Areas.HR.Controllers
             EmailSender.configuration = _configuration;
             _s3Service = s3Service;
             _context = context;
+            _CheckUserFormPermission = CheckUserFormPermission;
+        }
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
         public IActionResult EmployeeListing()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.EmployeeListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
         [HttpPost]
@@ -569,10 +586,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
             }
 
+            //return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee );
 
 
-
-            return View(employmentDetail);
+           return View(employmentDetail);
         }
 
         [HttpGet]
@@ -708,6 +725,16 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         public IActionResult Whatshappening()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.Whatshappening);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
@@ -1312,5 +1339,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             return Json(new { success = false, message = "Failed to delete the record." });
         }
+       
     }
 }

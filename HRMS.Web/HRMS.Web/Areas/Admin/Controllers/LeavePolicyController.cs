@@ -7,6 +7,7 @@ using HRMS.Models.LeavePolicy;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,17 +23,32 @@ namespace HRMS.Web.Areas.Admin.Controllers
         private readonly IS3Service _s3Service;
         private readonly IBusinessLayer _businessLayer;
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
-        public LeavePolicyController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, IS3Service s3Service)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public LeavePolicyController(ICheckUserFormPermission CheckUserFormPermission , IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, IS3Service s3Service)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
             Environment = environment;
-            _s3Service = s3Service;        
+            _s3Service = s3Service;
+            _CheckUserFormPermission = CheckUserFormPermission;
         }
-
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
         public IActionResult LeavePolicyListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -97,6 +113,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult LeavePolicyDetailsListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyDetailsListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -299,6 +325,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult WhatshappeningListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.WhatshappeningListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -397,7 +433,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);
         }
         #endregion Whatshappening Details
-
+        
 
     }
 }

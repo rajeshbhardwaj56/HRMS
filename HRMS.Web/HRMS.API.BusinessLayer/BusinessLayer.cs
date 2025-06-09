@@ -4502,6 +4502,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@DepartmentID", objmodel.DepartmentId));
             sqlParameter.Add(new SqlParameter("@EmployeeID", objmodel.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@RoleID", objmodel.RoleID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormPermissions, sqlParameter);
 
 
@@ -4528,27 +4529,27 @@ namespace HRMS.API.BusinessLayer
 
         public long AddUserFormPermissions(FormPermissionVM objmodel)
         {
-            long retVal = 0;
+            if (objmodel == null || objmodel.SelectedFormIds == null || !objmodel.SelectedFormIds.Any())
+                return 0;
 
-            // Convert selected form IDs to comma-separated string
             string formIdsCsv = string.Join(",", objmodel.SelectedFormIds);
 
-            // Prepare SQL parameters
-            List<SqlParameter> sqlParameter = new List<SqlParameter>
+            // If formIdsCsv is null or empty, return without calling the SP
+            if (string.IsNullOrWhiteSpace(formIdsCsv))
+                return 0;
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
-        new SqlParameter("@EmployeeID", objmodel.EmployeeID),  // Adjust to match your SP
+        new SqlParameter("@EmployeeID", objmodel.EmployeeID),
         new SqlParameter("@FormIDs", formIdsCsv)
     };
-            // Call the SP
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertFormPermissions, sqlParameter);
 
-            // Optional: You can still return 1 or true if execution was successful
-            if (dataSet != null)
-            {
-                retVal = 1; // Or parse return value from SP if it returns anything
-            }
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_InsertFormPermissions,
+                sqlParameters
+            );
 
-            return retVal;
+            return (dataSet != null && dataSet.Tables.Count > 0) ? 1 : 0;
         }
 
 

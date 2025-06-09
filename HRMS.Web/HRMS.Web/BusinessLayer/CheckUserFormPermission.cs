@@ -1,6 +1,7 @@
 ﻿using HRMS.Models.Common;
 using HRMS.Models.FormPermission;
 using HRMS.Models.MyInfo;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace HRMS.Web.BusinessLayer
@@ -34,5 +35,7 @@ namespace HRMS.Web.BusinessLayer
             var response = _businessLayer.SendPostAPIRequest(model, apiUrl, token, true).Result.ToString();
             return JsonConvert.DeserializeObject<EmployeePermissionVM>(response);
         }
+        
     }
+
 }
