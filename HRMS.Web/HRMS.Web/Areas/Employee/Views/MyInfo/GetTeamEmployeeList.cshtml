@@ -23,9 +23,9 @@
             <tr>
                 <th class="first" style="visibility:hidden" > </th>
                 <th>Image</th>
-                <th>First Name</th>
-                <th>Middel Name</th>
-                <th>Surname</th>
+                <th>Employee Number</th>
+                <th> Name</th>                          
+                <th>Manager Name</th>
                 <th>DOB</th>
                 <th>Designation</th>
                 <th>Department</th>
@@ -56,9 +56,20 @@
 
                     }
                 },
-                { "data": "firstName", "autoWidth": true },
-                { "data": "middelName", "autoWidth": true },
-                { "data": "lastName", "autoWidth": true },
+                 { "data": "employeeNumber", "autoWidth": true },
+                    {
+        "data": null,
+        "render": function (data, type, row) {
+          
+            let fullName = [data.firstName, data.middelName, data.lastName]
+                            .filter(Boolean) 
+                            .join(' ');
+            return fullName;
+        },
+        "title": "Name", 
+        "autoWidth": true
+    },
+                { "data": "managerName", "autoWidth": true },
                 {
                     "data": "dob",
                     "render": function (data, type, row) {
@@ -69,6 +80,7 @@
                     },
                     "autoWidth": true
                 },
+                    
                 { "data": "designationName", "autoWidth": true },
                 { "data": "departmentName", "autoWidth": true }
             ],

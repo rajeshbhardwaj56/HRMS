@@ -37,13 +37,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(HolidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.Holiday.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.HolidayID.ToString()));
-            return  Json(new { data = results.Holiday ,
+            return Json(new
+            {
+                data = results.Holiday,
                 locations = results.JobLocationList.Select(j => new
                 {
-                    jobLocationID = j.Value,   // Assuming j.Value is string, may convert to long if needed
+                    jobLocationID = j.Value,   
                     jobLocationName = j.Text
                 })
-                });
+            });
 
 
 
@@ -69,7 +71,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             else
             {
-                
+
                 var data = _businessLayer.SendPostAPIRequest(
                     HolidayModel,
                     _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays),
@@ -95,17 +97,32 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 if (HolidayModel.HolidayID > 0)
                 {
+                    SetSuccessToast("Holiday data Modified successfully.");
                     return RedirectToActionPermanent(WebControllarsConstants.HolidayListing, WebControllarsConstants.Holiday);
                 }
                 else
                 {
+                    SetSuccessToast("Holiday details Added successfully");
                     return RedirectToActionPermanent(WebControllarsConstants.HolidayListing, WebControllarsConstants.Holiday);
                 }
             }
             else
             {
+                SetWarningToast("Please check all data and try again.");
                 return View(HolidayModel);
             }
+        }
+
+        private void SetSuccessToast(string message)
+        {
+            TempData[Constants.toastType] = Constants.toastTypeSuccess;
+            TempData[Constants.toastMessage] = message;
+        }
+
+        private void SetWarningToast(string message)
+        {
+            TempData[Constants.toastType] = Constants.toastTypetWarning;
+            TempData[Constants.toastMessage] = message;
         }
     }
 }

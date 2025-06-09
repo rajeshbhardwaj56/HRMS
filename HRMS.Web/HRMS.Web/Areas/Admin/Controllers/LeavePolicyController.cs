@@ -345,10 +345,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         public IActionResult AddWhatshappening(WhatsHappeningModels objModel, List<IFormFile> postedFiles)
-        {
-            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
-           
-
+        {                     
             if (objModel.Description == null)
             {
                 objModel.Description = string.Empty;

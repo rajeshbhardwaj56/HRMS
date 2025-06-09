@@ -104,13 +104,24 @@
         .catch(error => {
             console.error(error);
         });
-    function showPreview(event) {
+       function showPreview(event) {
         const file = event.target.files[0];
+        const maxSizeInMB = 4;
         if (file) {
+            const maxSizeInBytes = maxSizeInMB * 1024 * 1024;        
+            if (!file.type.startsWith('image/')) {
+                alert("Only image files are allowed.");
+                event.target.value = "";
+                return; 
+            }          
+            if (file.size > maxSizeInBytes) {
+                alert("Image size should not exceed 4MB.");
+                event.target.value = "";
+                return;
+            }         
             const reader = new FileReader();
             reader.onload = function (e) {
-                const previewImage = document.getElementById('previewImage');
-                previewImage.src = e.target.result;
+                document.getElementById('previewImage').src = e.target.result;
             };
             reader.readAsDataURL(file);
         }

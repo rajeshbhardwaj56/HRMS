@@ -83,8 +83,7 @@
                 url: form.attr('action') || window.location.pathname,
                 type: 'POST',
                 data: formData,
-                success: function (result) {
-                       console.log('Response:', result);
+                success: function (result) {                       
                     if (result && result.success) {
                    
                         $('#referenceGrid').DataTable().ajax.reload();
@@ -158,6 +157,11 @@
         }
                 $.post('/HR/Employee/DeleteReferenceDetail', { encodedId: id }, function (response) {
                     if (response.success) {
+                        debugger;
+                          const currentReferenceId = $('#ReferenceDetailID').val();
+            if (currentReferenceId == id) {
+                $('#ReferenceDetailID').val('');
+            }
                         $('#referenceGrid').DataTable().ajax.reload();
                        toastMessage('Success' , response.message);
                     } else {

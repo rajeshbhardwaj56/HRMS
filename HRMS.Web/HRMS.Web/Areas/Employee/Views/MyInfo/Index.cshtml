@@ -211,7 +211,7 @@
 														@Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
 													</div>
 													<div class="col-lg-4 col-md-4 mb-2">
-														<h6>EmployeNumber</h6>
+														<h6>Employee Number</h6>
 														@($"PTK {Model.employmentDetail.EmployeNumber}")
 
 													</div>
@@ -319,9 +319,7 @@
 															<h6>Country</h6>
 															@selectCountry.Value.ToString()
 														</div>
-													}
-
-													
+													}													
 												</div>
 												@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
 												{
@@ -407,7 +405,7 @@
 											<h3>Official Details</h3>
 											<div class="row">
 												<div class="col-lg-4 col-md-4 mb-2">
-													<h6>EmployeeNumber</h6>
+													<h6>Employee Number</h6>
 													@($"PTK {Model.employmentDetail.EmployeNumber}")
 												</div>
 												<div class="col-lg-4 col-md-4 mb-2">
@@ -493,9 +491,12 @@
 												<div class="col-lg-4 col-md-4 mb-2">
 													<h6>Aadhaar Number</h6>
 													@Model.employeeModel.AadharCardNo
+												</div>	
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>ESI Number</h6>
+													@DisplayValue(Model.employmentDetail.ESINumber)
 												</div>
 											</div>
-
 										</div>
 									</div>
 								</div>

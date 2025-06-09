@@ -108,6 +108,10 @@ namespace HRMS.Models.DashBoard
         public string EmployeePhoto { get; set; }
         public string? DesignationName { get; set; }
         public string? DepartmentName { get; set; }
+
+        public string? ManagerName { get; set; }
+        public string? EmployeeNumber { get; set; }
+
     }
 
     public class WhatsHappening

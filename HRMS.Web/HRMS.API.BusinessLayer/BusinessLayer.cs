@@ -2405,13 +2405,15 @@ namespace HRMS.API.BusinessLayer
                 List<SqlParameter> sqlParameter = new List<SqlParameter>();
                 sqlParameter.Add(new SqlParameter("@ReportingUserID", model.EmployeeID));
                 sqlParameter.Add(new SqlParameter("@RoleID", model.RoleID));
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerID, sqlParameter);
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerIDs, sqlParameter);
 
 
                 dashBoardModel = dataSet.Tables[0].AsEnumerable()
                                   .Select(dataRow => new EmployeeDetails
-                                  {
+                                  {  
                                       EmployeeId = dataRow.Field<long>("EmployeeId"),
+                                      EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
+                                      ManagerName = dataRow.Field<string>("ManagerName"),
                                       FirstName = dataRow.Field<string>("EmployeeFirstName"),
                                       MiddelName = dataRow.Field<string>("EmployeeMiddelName"),
                                       LastName = dataRow.Field<string>("EmployeeLastName"),

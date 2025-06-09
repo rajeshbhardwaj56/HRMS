@@ -179,10 +179,10 @@
                     type: 'POST',
                     data: { encodedId: encodedId },
                     success: function (response) {
-            //                        const currentFormLangId = $('#EmployeesFamilyDetailID').val();
-            // if (currentFormLangId == id) {
-            //     $('#EmployeesFamilyDetailID').val('');
-            // }
+                                  const currentFormLangId = $('#EmployeesFamilyDetailID').val();
+             if (currentFormLangId == encodedId) {
+                 $('#EmployeesFamilyDetailID').val('');
+             }
                         $('#familyGrid').DataTable().ajax.reload();
                       toastMessage('Success', 'Deleted successfully');
                     },

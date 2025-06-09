@@ -90,8 +90,7 @@
             <div class="row">
                 <div class="col-md-4 form-group">
                     <label>First Name <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.FirstName) *@
+                    @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })                  
                 </div>
                 <div class="col-md-4 form-group">
                     <label>Middle Name <span class="Mandetory"> </span></label>
@@ -100,8 +99,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Surname <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })
-                    @*   @Html.ValidationMessageFor(m => m.Surname) *@
+                    @Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })                
                 </div>
 
 
@@ -550,19 +548,29 @@
         });
 
     });
-      function showPreview(event) {
+     function showPreview(event) {
         const file = event.target.files[0];
+        const maxSizeInMB = 4;
         if (file) {
+            const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+            if (!file.type.startsWith('image/')) {
+                alert("Only image files are allowed.");
+                event.target.value = "";
+                return;
+            }
+            if (file.size > maxSizeInBytes) {
+                alert("Image size should not exceed 4MB.");
+                event.target.value = "";
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function (e) {
-                const previewImage = document.getElementById('previewImage');
-                previewImage.src = e.target.result;
+                document.getElementById('previewImage').src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
     }
-    $(document).ready(function () {
-        // Apply the phone number mask
+    $(document).ready(function () {   
         $('.mobile-mask').mask('(000) 000-0000');
     });
          

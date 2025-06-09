@@ -78,11 +78,9 @@ namespace HRMS.Web.Areas.HR.Controllers
                 x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString());
                 x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString());
                 x.ProfilePhoto = string.IsNullOrEmpty(x.ProfilePhoto)
-                    ? "/assets/img/No_image.png"   //Use default image if profile photo is missing
+                    ? "/assets/img/No_image.png"   
                     : _s3Service.GetFileUrl(x.ProfilePhoto);
-            });
-
-            //return Json(new { data = results.Employees });
+            });           
             return Json(new
             {
                 draw = sEcho,
@@ -153,9 +151,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpPost]
         public IActionResult Index(EmployeeModel employee, List<IFormFile> postedFiles, List<IFormFile> PanPostedFile, List<IFormFile> AadhaarPostedFile)
         {
-            string s3UploadUrl = _configuration["AWS:S3UploadUrl"];
             var results = GetAllResults(employee.CompanyID);
-
             try
             {
                 if (!ModelState.IsValid)
@@ -163,7 +159,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     SetWarningToast("Please check all data and try again.");
                     return ReturnEmployeeViewWithData(employee, results);
                 }
-                ProcessFileUpload(postedFiles, employee.ProfilePhoto, out string newProfileKey);
+                _s3Service.ProcessFileUpload(postedFiles, employee.ProfilePhoto, out string newProfileKey);
                 if (!string.IsNullOrEmpty(newProfileKey))
                 {
                     if (!string.IsNullOrEmpty(employee.ProfilePhoto))
@@ -174,37 +170,8 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else
                 {
-                    employee.ProfilePhoto = ExtractKeyFromUrl(employee.ProfilePhoto);
+                    employee.ProfilePhoto = _s3Service.ExtractKeyFromUrl(employee.ProfilePhoto);
                 }
-
-                ProcessFileUpload(PanPostedFile, employee.PanCardImage, out string newPanKey);
-                if (!string.IsNullOrEmpty(newPanKey))
-                {
-                    if (!string.IsNullOrEmpty(employee.PanCardImage))
-                    {
-                        _s3Service.DeleteFile(employee.PanCardImage);
-                    }
-                    employee.PanCardImage = newPanKey;
-                }
-                else
-                {
-                    employee.PanCardImage = ExtractKeyFromUrl(employee.PanCardImage);
-                }
-
-                ProcessFileUpload(AadhaarPostedFile, employee.AadhaarCardImage, out string newAadhaarKey);
-                if (!string.IsNullOrEmpty(newAadhaarKey))
-                {
-                    if (!string.IsNullOrEmpty(employee.AadhaarCardImage))
-                    {
-                        _s3Service.DeleteFile(employee.AadhaarCardImage);
-                    }
-                    employee.AadhaarCardImage = newAadhaarKey;
-                }
-                else
-                {
-                    employee.AadhaarCardImage = ExtractKeyFromUrl(employee.AadhaarCardImage);
-                }
-
                 var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee);
                 var apiResult = _businessLayer.SendPostAPIRequest(employee, apiUrl, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(apiResult);
@@ -223,32 +190,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
 
             return ReturnEmployeeViewWithData(employee, results);
-        }
-
-        private void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey)
-        {
-            uploadedKey = string.Empty;
-
-            if (files != null && files.Count > 0)
-            {
-                foreach (var file in files)
-                {
-                    if (file?.Length > 0)
-                    {
-                        uploadedKey = _s3Service.UploadFile(file, file.FileName);
-                        if (!string.IsNullOrEmpty(uploadedKey)) break;
-                    }
-                }
-            }
-        }
-        private string ExtractKeyFromUrl(string fileUrl)
-        {
-            if (string.IsNullOrEmpty(fileUrl)) return string.Empty;
-
-            var fileName = fileUrl.Substring(fileUrl.LastIndexOf('/') + 1);
-            return fileName.Split('?')[0];
-        }
-
+        }      
         private void SetSuccessToast(string message)
         {
             TempData[Constants.toastType] = Constants.toastTypeSuccess;
@@ -582,7 +524,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             if (ModelState.IsValid)
             {
                 employmentBankDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-                ProcessFileUpload(PanPostedFile, employmentBankDetail.PanCardImage, out string newPanKey);
+                _s3Service.ProcessFileUpload(PanPostedFile, employmentBankDetail.PanCardImage, out string newPanKey);
                 if (!string.IsNullOrEmpty(newPanKey))
                 {
                     if (!string.IsNullOrEmpty(employmentBankDetail.PanCardImage))
@@ -593,10 +535,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else
                 {
-                    employmentBankDetail.PanCardImage = ExtractKeyFromUrl(employmentBankDetail.PanCardImage);
+                    employmentBankDetail.PanCardImage = _s3Service.ExtractKeyFromUrl(employmentBankDetail.PanCardImage);
                 }
 
-                ProcessFileUpload(AadhaarPostedFile, employmentBankDetail.AadhaarCardImage, out string newAadhaarKey);
+                _s3Service.ProcessFileUpload(AadhaarPostedFile, employmentBankDetail.AadhaarCardImage, out string newAadhaarKey);
                 if (!string.IsNullOrEmpty(newAadhaarKey))
                 {
                     if (!string.IsNullOrEmpty(employmentBankDetail.AadhaarCardImage))
@@ -607,7 +549,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else
                 {
-                    employmentBankDetail.AadhaarCardImage = ExtractKeyFromUrl(employmentBankDetail.AadhaarCardImage);
+                    employmentBankDetail.AadhaarCardImage = _s3Service.ExtractKeyFromUrl(employmentBankDetail.AadhaarCardImage);
                 }
 
                 var data = _businessLayer.SendPostAPIRequest(employmentBankDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentBankDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -897,7 +839,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             if (ModelState.IsValid)
             {
                 eduDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-                ProcessFileUpload(CertificateFile, eduDetail.CertificateImage, out string newPanKey);
+                _s3Service.ProcessFileUpload(CertificateFile, eduDetail.CertificateImage, out string newPanKey);
                 if (!string.IsNullOrEmpty(newPanKey))
                 {
                     if (!string.IsNullOrEmpty(eduDetail.CertificateImage))
@@ -908,7 +850,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else
                 {
-                    eduDetail.CertificateImage = ExtractKeyFromUrl(eduDetail.CertificateImage);
+                    eduDetail.CertificateImage = _s3Service.ExtractKeyFromUrl(eduDetail.CertificateImage);
                 }
 
                 var data = _businessLayer.SendPostAPIRequest(

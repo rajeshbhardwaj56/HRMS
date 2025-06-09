@@ -48,12 +48,7 @@
                 <div id="existingCertificateContainer" class="mt-2" style="display: none;">
                     <i class="bi bi-file-earmark-pdf fs-2 text-danger" title="Existing Certificate"></i>
 </div>
-               @*  <div id="existingCertificateContainer" class="mt-2" style="display: none;">
-                    <a id="existingCertificateLink" href="#" target="_blank">
-                        <img src="/images/pdf-icon.png" alt="PDF" width="32" />
-                        View Certificate
-                    </a>
-                </div> *@
+       
             </div>
 
             <div class="row">
@@ -106,7 +101,6 @@
     <script>
           function toastMessage(type , message)
             {
-
                     $.toast({
                     heading: type,
                     text: message,
@@ -223,11 +217,11 @@
                     type: 'POST',
                     data: { encodedId },
                     success: function () {
-
-            //               const currentFormLangId = $('#EducationDetailID').val();
-            // if (currentFormLangId == id) {
-            //     $('#EducationDetailID').val('');
-            // }
+                        debugger;
+                          const currentFormLangId = $('#EducationDetailID').val();
+             if (currentFormLangId == encodedId) {
+                 $('#EducationDetailID').val('');
+             }
 
                         $('#educationGrid').DataTable().ajax.reload();
                          toastMessage('Success', 'Deleted successfully');

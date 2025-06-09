@@ -1,7 +1,7 @@
 ﻿using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
-
+using ImageMagick;
 namespace HRMS.Web.BusinessLayer.S3
 {
     public interface IS3Service
@@ -87,18 +87,65 @@ namespace HRMS.Web.BusinessLayer.S3
         public void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey)
         {
             uploadedKey = string.Empty;
-
             if (files != null && files.Count > 0)
             {
                 foreach (var file in files)
                 {
                     if (file?.Length > 0)
                     {
-                        uploadedKey = UploadFile(file, file.FileName);
+                        var extension = Path.GetExtension(file.FileName)?.ToLower();
+                        var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff", ".tif", ".heic", ".heif" };
+                        if (imageExtensions.Contains(extension))
+                        {                          
+                            var compressedFile = CompressImage(file);
+                            uploadedKey = UploadFile(compressedFile, compressedFile.FileName);
+                        }
+                        else
+                        {                            
+                            uploadedKey = UploadFile(file, file.FileName);
+                        }
                         if (!string.IsNullOrEmpty(uploadedKey)) break;
                     }
                 }
             }
+        }
+        public static IFormFile CompressImage(IFormFile originalFile)
+        {
+           
+            using var inputStream = originalFile.OpenReadStream();
+            using var image = new MagickImage(inputStream);
+
+          
+            if (image.Width > 1200)
+            {
+                int newHeight = (int)(image.Height * (1200.0 / image.Width));
+                image.Resize(1200, (uint)newHeight);
+            }
+
+            
+            byte[] compressedBytes;
+            using (var ms = new MemoryStream())
+            {
+                image.Format = MagickFormat.WebP;
+                image.Settings.SetDefine("webp:lossless", "true");
+                image.Write(ms);
+                compressedBytes = ms.ToArray();
+            }
+
+            var outputStream = new MemoryStream(compressedBytes);
+            var compressedFile = new FormFile(
+                outputStream,
+                0,
+                outputStream.Length,
+                originalFile.Name,
+                Path.GetFileNameWithoutExtension(originalFile.FileName) + ".webp")
+            {
+                Headers = originalFile.Headers,
+                ContentType = "image/webp"
+            };
+
+            outputStream.Position = 0;
+            return compressedFile;
         }
     }
 }

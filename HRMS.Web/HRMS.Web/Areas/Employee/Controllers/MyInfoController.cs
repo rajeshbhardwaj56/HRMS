@@ -697,11 +697,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     break;
 
                 default:
-                    // Handle other leave types if necessary or no validation
+         
                     break;
             }
 
-            // Process file upload
+            
             _s3Service.ProcessFileUpload(postedFiles, leaveSummary.UploadCertificate, out string newCertificateKey);
 
             if (!string.IsNullOrEmpty(newCertificateKey))
@@ -712,8 +712,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 }
                 leaveSummary.UploadCertificate = newCertificateKey;
             }
-
-            // Finalize leave application
+            else
+            {
+                leaveSummary.UploadCertificate = _s3Service.ExtractKeyFromUrl(leaveSummary.UploadCertificate);
+            }
+        
             var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
             var result = JsonConvert.DeserializeObject<Result>(data);
