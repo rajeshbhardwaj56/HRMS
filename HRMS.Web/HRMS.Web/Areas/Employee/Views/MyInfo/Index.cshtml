@@ -1340,145 +1340,204 @@
 		});
 	}
 
-        function OpenApproveRejectModel(employeeID, leaveSummaryID) {
-        $("#leaveSummaryID").val(leaveSummaryID);
+	   function OpenApproveRejectModel(employeeID, leaveSummaryID) {
+		$("#leaveSummaryID").val(leaveSummaryID);
+		$.ajax({
+			url: '/employee/myinfo/GetEmployeeLeaveDetails',
+			type: 'GET',
+			data: { employeeID: employeeID },
+			success: function (response) {
+				console.log(response);
+				const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+				if (response.employeeModel && response.employmentDetail) {
+					const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
+					$("#EmplyoeeName").text(names.join(' '));
+					$("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
+					$("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
+					$("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
+					$("#Employeeemail").text(response.employeeModel.emailAddress);
+					let joiningDate = new Date(response.employmentDetail.joiningDate);
+					let day = ("0" + joiningDate.getDate()).slice(-2);
+					let month = ("0" + (joiningDate.getMonth() + 1)).slice(-2);
+					let year = joiningDate.getFullYear();
+					let formattedDate = `${day}-${month}-${year}`;
+					$("#EmplyoeeJoiningdate").text(formattedDate);
 
-        $.ajax({
-            url: '/employee/myinfo/GetEmployeeLeaveDetails',
-            type: 'GET',
-            data: { employeeID },
-            success: function (response) {
-                const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+				} else {
+					console.warn("Employee details not found in response.");
+				}
+				let leavesSummary = response.leaveResults?.leavesSummary || [];
+				$("#adminleaveTypeDropdown").css("display", "none");
+				$("#adminChildDOBDateContainer").css("display", "none");
+				$("#adminexpectedDeliveryDateContainer").css("display", "none");
+				if (Array.isArray(leavesSummary)) {
+					let leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
+					console.log(leaveSummary);
+					if (leaveSummary) {
+						$("#showalert").text('');
+						$("#showDocumentalert").text('');
+						$('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
+						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)|| leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
 
-                if (response.employeeModel && response.employmentDetail) {
-                    const fullName = [response.employeeModel.firstName, response.employeeModel.middleName, response.employeeModel.surname].filter(Boolean).join(' ');
-                    $("#EmplyoeeName").text(fullName);
-                    $("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
-                    $("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
-                    $("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
-                    $("#Employeeemail").text(response.employeeModel.emailAddress);
+							if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage)) {
+								if (response.leavePolicyDetails.miscarriage_MedicalDocument == true) {
+									if (leaveSummary.uploadCertificate == "") {
+										$("#showDocumentalert").text(`Document required for miscarriage leave`);
+									}
+								}
+							}
 
-                    const joiningDate = new Date(response.employmentDetail.joiningDate);
-                    $("#EmplyoeeJoiningdate").text(joiningDate.toLocaleDateString('en-GB'));
-                }
+							if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)) {
+								if (response.leavePolicyDetails.adoption_MedicalDocument == true) {
+									if (leaveSummary.uploadCertificate == "") {
+										$("#showDocumentalert").text(`Document required for adoption leave`);
+									}
+								}
+							}
+							if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
 
-                const leavesSummary = response.leaveResults?.leavesSummary || [];
-                const leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
 
-                if (!leaveSummary) return $('#responseMessage').text('Error: Leave Summary not found.');
+								if (leaveSummary.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && leaveSummary.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)) {
+									$("#showalert").text(`Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`);
+								}
+							}
 
-                resetLeaveModal(); // Hide all optional fields before showing relevant ones
+							$("#adminfullDayContainer").css("display", "flex");
+							$("#admintodatetime").css("display", "block");
+							let endDate = new Date(leaveSummary.endDate);
+							let formattedEndDate = endDate.toISOString().split('T')[0];
+							$('#admintodates').val(formattedEndDate);
+							let startDate = new Date(leaveSummary.startDate);
+							let formattedstartDate = startDate.toISOString().split('T')[0];
+							$('#adminfromdates').val(formattedstartDate);
+							$('#adminReason').val(leaveSummary.reason);
+							$('#downloaddocument').html('');
+							if (leaveSummary.uploadCertificate != "") {
+								$("#downloaddocument").css("display", "block");
+								var filedata =leaveSummary.uploadCertificate;
+								$('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
+							}
+						}
+						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MaternityLeave)) {
 
-                $("#adminleaveTypeDropdown1").text(leaveSummary.leaveTypeName);
-                $("#leaveTypeID").val(leaveSummary.leaveTypeID);
-                $("#adminReason").val(leaveSummary.reason);
-                setDateField('#adminfromdates', leaveSummary.startDate);
-                setDateField('#admintodates', leaveSummary.endDate);
+							if (response.leavePolicyDetails.maternity_MedicalDocument == true) {
+								if (leaveSummary.uploadCertificate == "") {
+									$("#showDocumentalert").text(`Document required for maternity leave`);
+								}
+							}
+							// Assuming `response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays` is in weeks
+							var weeksBefore = response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays;
+							var daysBefore = weeksBefore * 7;
 
-                const showDocumentIcon = cert => {
-                    $('#downloaddocument').html(`<a href="${cert}" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>`);
-                    $("#downloaddocument").show();
-                };
+							// Function to remove the time part and keep only the date
+							function normalizeDate(date) {
+								var normalizedDate = new Date(date);
+								normalizedDate.setHours(0, 0, 0, 0); // Set time to midnight (00:00:00)
+								return normalizedDate;
+							}
 
-                const leaveType = leaveSummary.leaveTypeID;
-                const policy = response.leavePolicyDetails;
+							// Normalize both dates to remove time part
+							var startDateNormalized = normalizeDate(leaveSummary.startDate);
+							var expectedDeliveryDateNormalized = normalizeDate(leaveSummary.expectedDeliveryDate);
 
-                switch (leaveType) {
-                    case @Convert.ToInt32(LeaveType.Miscarriage):
-                        if (policy.miscarriage_MedicalDocument && !leaveSummary.uploadCertificate) {
-                            $("#showDocumentalert").text("Document required for miscarriage leave");
-                        }
-                        break;
+							// Calculate the difference in days
+							var totalDeliveryDays = (expectedDeliveryDateNormalized - startDateNormalized) / (1000 * 60 * 60 * 24) + 1; // Convert milliseconds to days and add 1 to include both dates
+							if (totalDeliveryDays > daysBefore) {
+								$("#showalert").text(`Maternity leave cannot start more than ${daysBefore} days before the expected delivery date`);
+							}
 
-                    case @Convert.ToInt32(LeaveType.Adoption):
-                        if (policy.adoption_MedicalDocument && !leaveSummary.uploadCertificate) {
-                            $("#showDocumentalert").text("Document required for adoption leave");
-                        }
-                        break;
+							$("#adminfullDayContainer").css("display", "flex");
+							$("#adminMaternityAdoptionMiscarrageContainer").css("display", "block");
+							$("#adminexpectedDeliveryDateContainer").css("display", "block");
+							$("#admintodatetime").css("display", "block");
+							$("#adminExpectedDeliveryDate").css("display", "block");
+							let endDate = new Date(leaveSummary.endDate);
+							let formattedEndDate = endDate.toISOString().split('T')[0];
+							$('#admintodates').val(formattedEndDate);
 
-                    case @Convert.ToInt32(LeaveType.MedicalLeave):
-                        if (leaveSummary.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)) {
-                            $("#showalert").text(`Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`);
-                        }
-                        break;
+							let startDate = new Date(leaveSummary.startDate);
+							let formattedstartDate = startDate.toISOString().split('T')[0];
+							$('#adminfromdates').val(formattedstartDate);
 
-                    case @Convert.ToInt32(LeaveType.MaternityLeave):
-                        if (policy.maternity_MedicalDocument && !leaveSummary.uploadCertificate) {
-                            $("#showDocumentalert").text("Document required for maternity leave");
-                        }
 
-                        const weeksBefore = policy.maternity_ApplyBeforeHowManyDays;
-                        const daysBefore = weeksBefore * 7;
+							let ExpectedDeliveryDate = new Date(leaveSummary.expectedDeliveryDate);
+							let formattedExpectedDeliveryDate = ExpectedDeliveryDate.toISOString().split('T')[0];
+							$('#adminExpectedDeliveryDate').val(formattedExpectedDeliveryDate);
 
-                        const startDate = normalizeDate(leaveSummary.startDate);
-                        const expectedDelivery = normalizeDate(leaveSummary.expectedDeliveryDate);
-                        const totalDeliveryDays = (expectedDelivery - startDate) / (1000 * 60 * 60 * 24) + 1;
 
-                        if (totalDeliveryDays > daysBefore) {
-                            $("#showalert").text(`Maternity leave cannot start more than ${daysBefore} days before the expected delivery date`);
-                        }
+							$('#adminReason').val(leaveSummary.reason);
+							if (leaveSummary.uploadCertificate != "") {
+								$("#downloaddocument").css("display", "block");
+								$("#LabelUploadCertificate").css("display", "block");
+								var filedata = leaveSummary.uploadCertificate;
+								$('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
+							}
+						}
+						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.AnnualLeavel)) {
+							if (leaveSummary.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && leaveSummary.noOfDays > maxConsecutiveDaysAllowed) {
+								$("#showalert").text(`Employee exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`);
+							}
 
-                        $("#adminMaternityAdoptionMiscarrageContainer, #adminexpectedDeliveryDateContainer, #adminExpectedDeliveryDate").show();
-                        setDateField('#adminExpectedDeliveryDate', leaveSummary.expectedDeliveryDate);
-                        break;
 
-                    case @Convert.ToInt32(LeaveType.AnnualLeavel):
-                        if (leaveSummary.noOfDays > maxConsecutiveDaysAllowed) {
-                            $("#showalert").text(`Employee exceeds maximum allowed ${maxConsecutiveDaysAllowed} consecutive leave days`);
-                        }
-                        if (policy.annual_MaximumConsecutiveLeavesAllowed && !leaveSummary.uploadCertificate) {
-                            $("#showalert").text(`You can't approve leave(s) more than ${policy.annual_MaximumConsecutiveLeavesAllowed} consecutive days`);
-                        }
-                        $("#adminleaveDurationDropdown").val(leaveSummary.leaveDurationTypeID);
-                        break;
+							if (response.leavePolicyDetails.annual_MaximumConsecutiveLeavesAllowed == true) {
+								if (leaveSummary.uploadCertificate == "") {
+									$("#showalert").text(`You can't approve leave(s) more than  ${response.leavePolicyDetails.annual_MaximumConsecutiveLeavesAllowed} consecutive leave`);
+								}
+							}
+							$("#adminfullDayContainer").css("display", "flex");
+							//$("#AnnualLeaveBalance").css("display", "block");
+							$("#admintodatetime").css("display", "block");
+							$("#downloaddocument").css("display", "none");
+							$("#adminChildDOBDateContainer").css("display", "none");
+							let endDate = new Date(leaveSummary.endDate);
+							let formattedEndDate = endDate.toISOString().split('T')[0];
+							$('#admintodates').val(formattedEndDate);
+							let startDate = new Date(leaveSummary.startDate);
+							let formattedstartDate = startDate.toISOString().split('T')[0];
+							$('#adminfromdates').val(formattedstartDate);
+							$('#adminReason').val(leaveSummary.reason);
+						}
+						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Paternity)) {
 
-                    case @Convert.ToInt32(LeaveType.Paternity):
-                        if (policy.paternity_medicalDocument && !leaveSummary.uploadCertificate) {
-                            $("#showDocumentalert").text("Document required for paternity leave");
-                        }
-                        $("#adminChildDOBDateContainer").show();
-                        break;
+							if (response.leavePolicyDetails.paternity_medicalDocument == true) {
+								if (leaveSummary.uploadCertificate == "") {
+									//  $("#showalert").text(`Document required for more than ${response.leavePolicyDetails.paternity_maximumLeaveAllocationAllowed} days paternity leave`);
+									$("#showDocumentalert").text(`Document required for paternity leave`);
+								}
+							}
+							$("#adminfullDayContainer").css("display", "flex");
+							$("#admintodatetime").css("display", "block");
+							$("#adminChildDOBDateContainer").css("display", "block");
+							$("#downloaddocument").css("display", "none");
+							let endDate = new Date(leaveSummary.endDate);
+							let formattedEndDate = endDate.toISOString().split('T')[0];
+							$('#admintodates').val(formattedEndDate);
+							let startDate = new Date(leaveSummary.startDate);
+							let formattedstartDate = startDate.toISOString().split('T')[0];
+							$('#adminfromdates').val(formattedstartDate);
+							$('#adminReason').val(leaveSummary.reason);
+							if (leaveSummary.uploadCertificate != "") {
+								$("#downloaddocument").css("display", "block");
+								var filedata =leaveSummary.uploadCertificate;
+								$('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
+							}
+						}
 
-                    case @Convert.ToInt32(LeaveType.CompOff):
-                    case @Convert.ToInt32(LeaveType.LeaveWithOutPay):
-                        $("#adminleaveDurationContainer, #adminhalfDayContainer, #adminChildDOBDateContainer").hide();
-                        break;
-                }
+					} else {
+						$('#responseMessage').text('Error: Leave Summary not found.');
+					}
+				} else {
+					$('#responseMessage').text('Error: Leave Summary data not found.');
+				}
+			},
+			error: function (xhr, status, error) {
+				$('#responseMessage').text('Error: ' + xhr.responseText);
+			}
+		});
 
-                // Show full-day and time controls for applicable types
-                $("#adminfullDayContainer").show();
-                $("#admintodatetime").show();
 
-                if (leaveSummary.uploadCertificate) {
-                    showDocumentIcon(leaveSummary.uploadCertificate);
-                }
-            },
-            error: function (xhr) {
-                $('#responseMessage').text('Error: ' + xhr.responseText);
-            }
-        });
-
-        $('#ApproveRejectModel').modal('show');
-
-        // Helper functions
-        function resetLeaveModal() {
-            $("#adminleaveTypeDropdown, #adminChildDOBDateContainer, #adminexpectedDeliveryDateContainer, #adminMaternityAdoptionMiscarrageContainer, #adminExpectedDeliveryDate").hide();
-            $("#downloaddocument").hide();
-            $("#showalert, #showDocumentalert").text('');
-        }
-
-        function setDateField(selector, date) {
-            if (!date) return;
-            const formattedDate = new Date(date).toISOString().split('T')[0];
-            $(selector).val(formattedDate);
-        }
-
-        function normalizeDate(date) {
-            const d = new Date(date);
-            d.setHours(0, 0, 0, 0);
-            return d;
-        }
-    }
+		$('#ApproveRejectModel').modal('show');
+	}
 
 
 
@@ -1980,7 +2039,7 @@
 		function admintoggleContainers() {
 			var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
 
-            if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave','Comp Off'].includes(adminselectedLeaveType)) {
+			if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave','Comp Off' ].includes(adminselectedLeaveType)) {
                 adminfullDayContainer.style.display = "flex";
                 adminhalfDayContainer.style.display = "none";
                 adminChildDOBDateContainer.style.display = "none";
@@ -2113,8 +2172,7 @@
             if (['Maternity Leave', 'Adoption', 'Miscarriage' ].includes(selectedLeaveType)) {
                 fullDayContainer.style.display = "flex";
                 halfDayContainer.style.display = "none";
-                leaveDurationContainer.style.display = "none";
-                leaveDurationDropdown.style.display = "none";
+                leaveDurationContainer.style.display = "none"; 
                 ChildDOBDateContainer.style.display = "none";
                 todatetime.style.display = "block";
                 $('#leaveDurationDropdown').attr('required', false);
@@ -2160,6 +2218,7 @@
                     fromdatetime.style.display = "block";
                     return;
                 }
+				leaveDurationDropdown.style.display = "block";
                 fullDayContainer.style.display = "none";
                 leaveDurationContainer.style.display = "block";
                 leaveDurationDropdown.style.display = "flex";
@@ -2212,6 +2271,7 @@
                if(selectedLeaveTypeId == @Convert.ToInt32(LeaveType.LeaveWithOutPay))
                {
                    $("#leaveDurationContainer").css("display","none");
+				   $("#MaternityAdoptionMiscarrageContainer").css("display","none");
                    $("#todatetime").css("display","block");
                    $("#fullDayContainer").css("display","flex");
                }
