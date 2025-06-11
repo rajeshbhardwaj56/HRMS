@@ -26,13 +26,12 @@
 
 		a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-leave { 
 			top: 50%;
-			left: 50%; 
+			left: 18%; 
 			background-color: #e86262;
-			color: white;
-			border-radius: 50%;
+			color: white; 
 			font-weight: bold;
 			font-size: 18px;
-			width: 30px;
+			width: 133px;
 			height: 30px;
 			text-align: center;
 			line-height: 30px;
@@ -42,13 +41,12 @@
 
 		a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-holiday { 
 			top: 50%;
-			left: 50%; 
-			background-color: black;
+			left: 18%;
+			background-color: #1c5db1;
 			color: white;
-			border-radius: 50%;
 			font-weight: bold;
 			font-size: 18px;
-			width: 30px;
+			width: 133px;
 			height: 30px;
 			text-align: center;
 			line-height: 30px;
@@ -59,31 +57,30 @@
 		a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-unknown {
 			display: none;
 		}
-		a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-absent { 
+		a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-absent {
 			top: 50%;
-			left: 50%; 
+			left: 18%;
 			background-color: #dc3545;
 			color: white;
-			border-radius: 50%;
+			/* border-radius: 50%; */
 			font-weight: bold;
 			font-size: 18px;
-			width: 30px;
+			width: 133px;
 			height: 30px;
 			text-align: center;
 			line-height: 30px;
 			cursor: pointer;
-			border:none;
+			border: none;
 		}
 		
 		a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-present{ 
 			top: 50%;
-			left: 50%; 
+			left: 18%; 
 			background-color: #28a745;
-			color: white;
-			border-radius: 50%;
+			color: white; 
 			font-weight: bold;
 			font-size: 18px;
-			width: 30px;
+			width: 133px;
 			height: 30px;
 			text-align: center;
 			line-height: 30px;
@@ -309,7 +306,7 @@
 		}
 
 		h6.public-footer-right {
-			background: #010101;
+			background: #1c5db1;
 			padding: 15px;
 			color: white;
 			font-size: 16px;
@@ -396,7 +393,7 @@
 		}
 
 		.status-label.sunday {
-			background-color: #010101;
+			background-color: #1c5db1;
 			position: absolute;
 			top: 50%;
 			left: 50%;
@@ -634,10 +631,10 @@
 						events = response.data.dailyStatuses.map(item => {
 		  let statusClass;
 		  switch (item.status) {
-			case 'P': statusClass = 'status-present'; break;
-			case 'A': statusClass = 'status-absent'; break;
-			case 'L': statusClass = 'status-leave'; break;
-			case 'H': statusClass = 'status-holiday'; break;
+			case 'Present': statusClass = 'status-present'; break;
+			case 'Absent': statusClass = 'status-absent'; break;
+			case 'Leave': statusClass = 'status-leave'; break;
+			case 'Holiday': statusClass = 'status-holiday'; break;
 			default: statusClass = 'status-unknown';
 		  }
 

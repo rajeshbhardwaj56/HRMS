@@ -1,6 +1,7 @@
 ﻿using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Web.BusinessLayer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -9,21 +10,36 @@ using Results = HRMS.Models.Common.Results;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin)]
+
     public class HolidayController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
 
-        public HolidayController(IConfiguration configuration, IBusinessLayer businessLayer)
+        public HolidayController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
+            _CheckUserFormPermission = CheckUserFormPermission;
         }
-
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
         public IActionResult HolidayListing()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.HolidayListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -124,5 +140,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             TempData[Constants.toastType] = Constants.toastTypetWarning;
             TempData[Constants.toastMessage] = message;
         }
+         
     }
 }

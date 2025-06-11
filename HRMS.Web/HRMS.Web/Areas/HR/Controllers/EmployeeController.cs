@@ -1,4 +1,4 @@
-﻿ 
+﻿
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.EMMA;
@@ -9,10 +9,12 @@ using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.Employee;
 using HRMS.Models.ExportEmployeeExcel;
+using HRMS.Models.FormPermission;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -33,7 +35,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.HR.Controllers
 {
     [Area(Constants.ManageHR)]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+//[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
     public class EmployeeController : Controller
     {
         IConfiguration _configuration;
@@ -41,7 +43,8 @@ namespace HRMS.Web.Areas.HR.Controllers
         private IHostingEnvironment Environment;
         private readonly IS3Service _s3Service;
         private readonly IHttpContextAccessor _context;
-        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public EmployeeController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
         {
             Environment = _environment;
             _configuration = configuration;
@@ -49,10 +52,25 @@ namespace HRMS.Web.Areas.HR.Controllers
             EmailSender.configuration = _configuration;
             _s3Service = s3Service;
             _context = context;
+            _CheckUserFormPermission = CheckUserFormPermission;
+        }
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
         public IActionResult EmployeeListing()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.EmployeeListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
         [HttpPost]
@@ -330,6 +348,33 @@ namespace HRMS.Web.Areas.HR.Controllers
                 return Json(new { success = false, message = "An error occurred while fetching the L2 manager.", error = ex.Message });
             }
         }
+        [HttpGet]
+        public JsonResult loadForms(int DepartmentId,int EmployeeId)
+        {
+            try
+            {
+                List<FormPermissionViewModel> objmodel = new List<FormPermissionViewModel>();
+                FormPermissionVM objPermission = new FormPermissionVM();
+                objPermission.DepartmentId = DepartmentId;
+                objPermission.EmployeeID = EmployeeId;
+                var response = _businessLayer.SendPostAPIRequest(objPermission, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetUserFormByDepartmentID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                if (response != null)
+                {
+                    objmodel = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(response.ToString());
+                }
+
+                return Json(objmodel);
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while loading form permissions.",
+                    error = ex.Message
+                });
+            }
+        }
 
         [HttpGet]
         public ActionResult EmploymentDetails(string id, string DegtId, string DeptId)
@@ -392,7 +437,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public ActionResult EmploymentDetails(EmploymentDetail employmentDetail)
+        public ActionResult EmploymentDetails(EmploymentDetail employmentDetail, List<string> SelectedFormIds)
         {
             if (ModelState.IsValid)
             {
@@ -413,23 +458,19 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else
                 {
+                    FormPermissionVM objmodel = new FormPermissionVM();
+                    objmodel.EmployeeID = employmentDetail.EmployeeID;
+                    objmodel.SelectedFormIds = SelectedFormIds;
+                    var Permissionsdata = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddUserFormPermissions), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    var Permissionresponse = JsonConvert.DeserializeObject<long>(Permissionsdata);
+                    if (Permissionresponse < 0)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try again later";
+                        return View(employmentDetail);
+                    }
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                     TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
-                    //sendEmailProperties sendEmailProperties = new sendEmailProperties();
-                    //sendEmailProperties.emailSubject = "Reset Password Email";
-                    //sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString()), _businessLayer.EncodeStringBase64(CompanyID.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
-                    //sendEmailProperties.EmailToList.Add(employmentDetail.OfficialEmailID);
-                    //emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
-                    //if (response.responseCode == "200")
-                    //{
-                    //    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    //    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email have been sent, Please reset password for Login.";
-                    //}
-                    //else
-                    //{
-                    //    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    //    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email sending failed, Please try again later.";
-                    //}
                 }
                 if (result.IsResetPasswordRequired)
                 {
@@ -486,7 +527,11 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.ShiftTypes = employmentDetailtemp.ShiftTypes;
                 employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
             }
-            return View(employmentDetail);
+
+            //return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee );
+
+
+           return View(employmentDetail);
         }
 
         [HttpGet]
@@ -622,6 +667,16 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         public IActionResult Whatshappening()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.Whatshappening);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
@@ -649,7 +704,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             var data = _businessLayer.SendPostAPIRequest(obj, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.CheckEmployeeReporting), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var ReportingData = JsonConvert.DeserializeObject<ReportingStatus>(data);
             return Ok(new { success = true, data = ReportingData });
-        } 
+        }
         [HttpGet]
         public async Task<IActionResult> ExportEmployeeSheet()
         {
@@ -889,7 +944,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-                
+
 
                 return Json(new { success = true, message = response });
             }
@@ -965,7 +1020,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-                
+
 
                 return Json(new { success = true, message = response });
             }
@@ -1047,7 +1102,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-               
+
                 return Json(new { success = true, message = response });
             }
 
@@ -1134,7 +1189,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-              
+
                 return Json(new { success = true, message = response });
             }
 
@@ -1220,11 +1275,12 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-              
+
                 return Json(new { success = true, message = response });
             }
 
             return Json(new { success = false, message = "Failed to delete the record." });
         }
+       
     }
 }

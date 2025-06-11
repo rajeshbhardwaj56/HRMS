@@ -9,6 +9,7 @@ using HRMS.Models.Leave;
 using HRMS.Models.MyInfo;
 using HRMS.Models.ShiftType;
 using HRMS.Web.BusinessLayer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,20 +20,23 @@ using System.Linq;
 namespace HRMS.Web.Areas.Employee.Controllers
 {
     [Area(Constants.ManageEmployee)]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
+  //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class AttendanceController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
 
-        public AttendanceController(IConfiguration configuration, IBusinessLayer businessLayer)
+        public AttendanceController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
+            _CheckUserFormPermission = CheckUserFormPermission; 
         }
 
         public IActionResult AttendenceListing()
         {
+           
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
@@ -111,6 +115,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpGet]
         public IActionResult AttendenceList()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.AttendenceList);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" }); 
+            }
             return View();
         }
         [HttpPost]
@@ -457,10 +471,19 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
             return Json(new { data = model });
         }
-        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
 
         public IActionResult ApprovedAttendance()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ApprovedAttendance);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View();
         }
 
@@ -522,7 +545,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(EmployeeAttendanceModel);
         }
 
-        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
 
         public IActionResult TeamAttendanceLogs()
         {
@@ -540,7 +562,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(new { data = model.AttendanceLogs });
         }
         [HttpPost]
-        [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
         public JsonResult GetTeamEmployeeList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             try
@@ -569,5 +590,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(employeeDetailsJson).employeeModel;
             return employeeDetails;
         }
+         
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
     }
+
 }

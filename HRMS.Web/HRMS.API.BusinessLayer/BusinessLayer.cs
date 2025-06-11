@@ -32,6 +32,8 @@ using HRMS.Models.ShiftType;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Models.ExportEmployeeExcel;
+using HRMS.Models.FormPermission;
+using System.Security.Cryptography;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -82,6 +84,7 @@ namespace HRMS.API.BusinessLayer
                                    EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                                    IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                    JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                   DepartmentID = dataRow.Field<long>("DepartmentID"),
                                }).ToList().FirstOrDefault();
             }
             return loginUser;
@@ -1794,7 +1797,7 @@ namespace HRMS.API.BusinessLayer
                                   ChildDOB = dataRow.Field<DateTime>("ChildDOB"),
                               }).ToList();
 
-           // result.leaveTypes = GetLeaveTypes(model).leaveTypes;
+            // result.leaveTypes = GetLeaveTypes(model).leaveTypes;
             result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
             if (model.LeaveSummaryID > 0)
             {
@@ -1803,7 +1806,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-      
+
 
         public LeaveResults GetLeaveDurationTypes(MyInfoInputParams model)
         {
@@ -2270,7 +2273,7 @@ namespace HRMS.API.BusinessLayer
             });
             myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
             myInfoResults.CampOffLeaveCount = GetCampOffLeaveCount(model.EmployeeID, model.JobLocationTypeID);
-            myInfoResults.leaveResults.leaveTypes=GetLeaveTypes(model).leaveTypes;
+            myInfoResults.leaveResults.leaveTypes = GetLeaveTypes(model).leaveTypes;
             return myInfoResults;
         }
 
@@ -2634,7 +2637,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-         
+
 
         public MonthlyViewAttendance GetAttendanceForMonthlyViewCalendar([FromForm] AttendanceInputParams model)
         {
@@ -2656,11 +2659,11 @@ namespace HRMS.API.BusinessLayer
                 dailyStatuses = table.AsEnumerable()
                     .Select(row => new DailyAttendanceStatus
                     {
-                        DayLabel = row.Field<string>(0),     
+                        DayLabel = row.Field<string>(0),
                         Date = row.Field<DateTime>(1),
                         FirstLogDate = row.Field<DateTime?>(2),
-                        LastLogDate = row.Field<DateTime?>(3),         
-                        Status = row.IsNull(4) ? null : row.Field<string>(4)   
+                        LastLogDate = row.Field<DateTime?>(3),
+                        Status = row.IsNull(4) ? null : row.Field<string>(4)
                     }).ToList();
             }
 
@@ -3767,7 +3770,7 @@ namespace HRMS.API.BusinessLayer
                     emp.MailReceivedFromAndDate,
                     emp.EmailSentToITDate,
                     emp.IsActive
-                  //  emp.ReportingToIDL1EmployeeNumber
+                //  emp.ReportingToIDL1EmployeeNumber
                 );
             }
 
@@ -3928,7 +3931,7 @@ namespace HRMS.API.BusinessLayer
                         }).ToList();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
@@ -3939,7 +3942,7 @@ namespace HRMS.API.BusinessLayer
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@EmployeeID",  EmployeeID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", EmployeeID));
             sqlParameter.Add(new SqlParameter("@JobLocationTypeID", JobLocationTypeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameter);
             int totalRecords = 0;
@@ -3978,7 +3981,7 @@ namespace HRMS.API.BusinessLayer
 
             return null; // or return a default object indicating failure
         }
-        public UpdateLeaveStatus UpdateLeaveStatus( UpdateLeaveStatus model)
+        public UpdateLeaveStatus UpdateLeaveStatus(UpdateLeaveStatus model)
         {
             var sqlParameters = new List<SqlParameter>
     {
@@ -3992,7 +3995,7 @@ namespace HRMS.API.BusinessLayer
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
                 var row = dataSet.Tables[0].Rows[0];
-                model.Message = row["Message"]?.ToString();  
+                model.Message = row["Message"]?.ToString();
             }
             else
             {
@@ -4405,6 +4408,173 @@ namespace HRMS.API.BusinessLayer
 
         #endregion EmployeeAdditonalDetails
 
+
+        #region Page Permission
+        public Results GetAllCompanyFormsPermission(long companyID)
+        {
+            Results model = new Results();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@CompanyID", companyID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyForms, sqlParameter);
+
+
+            model.FormsPermission = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new SelectListItem
+                           {
+                               Text = dataRow.Field<string>("FormName"),
+                               Value = dataRow.Field<long>("FormID").ToString()
+                           }).ToList();
+
+            return model;
+        }
+
+
+        public long AddFormPermissions(FormPermissionViewModel objmodel)
+        {
+            long retVal = 0;
+
+            // Convert list to comma-separated string
+            string formIdsCsv = string.Join(",", objmodel.SelectedFormIds); // e.g., "1,2,3"
+
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@DepartmentID", objmodel.SelectedDepartment),
+        new SqlParameter("@FormIDs", formIdsCsv),
+        new SqlParameter("@LoggedUserID", objmodel.CreatedByID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.ups_InsupdGroupFormPermission, sqlParameter);
+
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var firstRow = dataSet.Tables[0].Rows[0];
+                if (long.TryParse(firstRow[0].ToString(), out retVal))
+                {
+                    return retVal;
+                }
+            }
+            return -1;
+        }
+
+        public List<FormPermissionViewModel> GetFormByDepartmentID(long DepartmentId)
+        {
+            List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@DepartmentID", DepartmentId));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetFormByDepartmentID, sqlParameter);
+
+
+            model = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new FormPermissionViewModel
+                           {
+                               FormName = dataRow.Field<string>("FormName"),
+                               FormID = dataRow.Field<long>("FormID"),
+                               SelectedDepartment = dataRow.Field<long>("FormID"),
+                               GroupFormID = dataRow.Field<long?>("GroupFormID"),
+                           }).ToList();
+
+            return model;
+        }
+        public List<FormPermissionViewModel> GetUserFormByDepartmentID(FormPermissionVM obj)
+        {
+            List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@DepartmentID", obj.DepartmentId));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", obj.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormByDepartmentID, sqlParameter);
+
+
+            model = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new FormPermissionViewModel
+                           {
+                               FormName = dataRow.Field<string>("FormName"),
+                               FormID = dataRow.Field<long>("FormID"),
+                               SelectedDepartment = dataRow.Field<long>("FormID"),
+                               GroupFormID = dataRow.Field<long?>("GroupFormID"),
+                               IsSelected = dataRow.Field<int?>("IsSelected"),
+                           }).ToList();
+
+            return model;
+        }
+
+
+        public List<FormPermissionViewModel> GetUserFormPermissions(FormPermissionVM objmodel)
+        {
+            List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@DepartmentID", objmodel.DepartmentId));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", objmodel.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@RoleID", objmodel.RoleID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormPermissions, sqlParameter);
+
+
+            model = dataSet.Tables[0].AsEnumerable()
+       .Select(dataRow =>
+       {
+           var modelItem = new FormPermissionViewModel();
+           try { modelItem.FormName = dataRow.Field<string>("FormName"); } catch { Console.WriteLine("FormName error"); }
+           try { modelItem.FormID = dataRow.Field<long>("FormID"); } catch { Console.WriteLine("FormID error"); }
+           try { modelItem.FormLevel = dataRow.Field<long>("FormLevel"); } catch { Console.WriteLine("FormLevel error"); }
+           try { modelItem.ParentId = dataRow.Field<long>("ParentId"); } catch { Console.WriteLine("ParentId error"); }
+           try { modelItem.Status = dataRow.Field<bool>("Status"); } catch { Console.WriteLine("Status error"); }
+           try { modelItem.IsFormPermissions = dataRow["IsFormPermission"] != DBNull.Value && Convert.ToBoolean(dataRow["IsFormPermission"]); }
+           catch { Console.WriteLine("IsFormPermission error"); }
+
+           return modelItem;
+       }).ToList();
+
+            return model;
+        }
+
+
+
+
+        public long AddUserFormPermissions(FormPermissionVM objmodel)
+        {
+            if (objmodel == null || objmodel.SelectedFormIds == null || !objmodel.SelectedFormIds.Any())
+                return 0;
+
+            string formIdsCsv = string.Join(",", objmodel.SelectedFormIds);
+
+            // If formIdsCsv is null or empty, return without calling the SP
+            if (string.IsNullOrWhiteSpace(formIdsCsv))
+                return 0;
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeID", objmodel.EmployeeID),
+        new SqlParameter("@FormIDs", formIdsCsv)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_InsertFormPermissions,
+                sqlParameters
+            );
+
+            return (dataSet != null && dataSet.Tables.Count > 0) ? 1 : 0;
+        }
+
+
+        public EmployeePermissionVM CheckUserFormPermissionByEmployeeID(FormPermissionVM obj)
+        {
+            EmployeePermissionVM model = new EmployeePermissionVM();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@EmployeeID", obj.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@FormId", obj.FormId));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_CheckUserFormPermissionByEmployeeID, sqlParameter);
+
+
+            model = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new EmployeePermissionVM
+                           {
+                               HasPermission = dataRow.Field<int>("HasPermission"),
+                              
+                           }).FirstOrDefault();
+            return model;
+        }
+
+
+        #endregion Page Permission
 
     }
 }

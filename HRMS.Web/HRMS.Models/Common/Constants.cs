@@ -34,6 +34,7 @@ namespace HRMS.Models.Common
         public const string Role = "Role";
         public const string Alias = "Alias";
         public const string Index = "index";
+        public const string InfoIndex = "InfoIndex";
         public const string EmployeeListing = "EmployeeListing";
         public const string RootUrlFormat = "{0}/{1}";
         public const string ManageAdmin = "admin";
@@ -86,6 +87,7 @@ namespace HRMS.Models.Common
         public const string Whatshappening = "Uploads/Whatshappening/";
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
         public const string JobLocationID = "JobLocationID";
+        public const string DepartmentID = "DepartmentID";
     }
     public class RoleConstants
     {
@@ -104,6 +106,29 @@ namespace HRMS.Models.Common
         Employee,
         Manager,
         SuperAdmin = 5
+    }
+       public enum PageName
+    {
+        EmployeeListing = 2,
+        MyInfo=3,
+        company = 4,
+        Templates = 11,
+        AttendenceList = 5,
+        ApprovedAttendance = 6,
+        TeamAttendenceList = 7,
+        ShiftTypeListing = 8,
+        Whatshappening = 9,
+        Dashboard=10,
+        LeavePolicyListing = 12,
+        HolidayListing = 13,
+        LeavePolicyDetailsListing = 14,
+        WhatshappeningListing = 15,
+        CompanyListing = 16,
+        MyAttendanceList = 17,
+        Support = 18,
+        MyTeam = 19,
+        FormPermission = 20,
+      
     }
 
 
@@ -131,7 +156,7 @@ namespace HRMS.Models.Common
         public const string LeavePolicyListing = "LeavePolicyListing";
         public const string LeavePolicy = "LeavePolicy";
         public const string Employee = "Employee";
-        public const string EmployeeListing = "EmployeeListing";
+        public const string EmployeeListing = "EmployeeListing"; 
 
         public const string Candidate = "Candidate";
         public const string MyInfo = "MyInfo";
@@ -153,6 +178,7 @@ namespace HRMS.Models.Common
         public const string FamilyDetail = "FamilyDetail";
         public const string ReferenceDetail = "ReferenceDetail";
         public const string EmploymentHistory = "EmploymentHistory";
+        public const string FormPermission = "FormPermission";
     }
 
     public class APIApiActionConstants
@@ -264,6 +290,13 @@ namespace HRMS.Models.Common
         public const string FetchExportEmployeeExcelSheet = "FetchExportEmployeeExcelSheet";
         public const string GetValidateCompOffLeave = "GetValidateCompOffLeave";
         public const string UpdateLeaveStatus = "UpdateLeaveStatus";
+        public const string GetAllCompanyDepartments = "GetAllCompanyDepartments";
+        public const string AddFormPermissions = "AddFormPermissions";
+        public const string GetUserFormPermissions = "GetUserFormPermissions";
+        public const string AddUserFormPermissions = "AddUserFormPermissions";
+        public const string GetUserFormByDepartmentID = "GetUserFormByDepartmentID";
+        public const string CheckUserFormPermissionByEmployeeID = "CheckUserFormPermissionByEmployeeID";
+
 
     }
 

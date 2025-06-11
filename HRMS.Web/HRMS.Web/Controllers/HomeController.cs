@@ -54,6 +54,13 @@ namespace HRMS.Web.Controllers
             obj.CompanyLogo = model.CompanyLogo;
             return View(obj);
         }
+        public async Task<IActionResult> Logout()
+        {
+            HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(); // important for authentication cookies
+
+            return RedirectToAction("Index", "Home");
+        }
 
         public ActionResult ForgotPassword()
         {
@@ -517,6 +524,7 @@ namespace HRMS.Web.Controllers
                 _context.HttpContext.Session.SetString(Constants.Surname, model.Surname ?? string.Empty);
                 _context.HttpContext.Session.SetString(Constants.OfficialEmailID, model.OfficialEmailID ?? string.Empty);
                 _context.HttpContext.Session.SetString(Constants.JobLocationID, model.JobLocationID.ToString());
+                _context.HttpContext.Session.SetString(Constants.DepartmentID, model.DepartmentID.ToString());
                 var CompanyDatas = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas);
                 var CompanyData = results.companyModel;
