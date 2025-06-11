@@ -26,7 +26,7 @@
                 <th>Employee Number</th>
                 <th> Name</th>                          
                 <th>Manager Name</th>
-                <th>DOB</th>
+       
                 <th>Designation</th>
                 <th>Department</th>
             </tr>
@@ -70,17 +70,7 @@
         "autoWidth": true
     },
                 { "data": "managerName", "autoWidth": true },
-                {
-                    "data": "dob",
-                    "render": function (data, type, row) {
-
-                        var date = new Date(data);
-                        var formattedDate = date.toISOString().split('T')[0];
-                        return formattedDate;
-                    },
-                    "autoWidth": true
-                },
-                    
+                                 
                 { "data": "designationName", "autoWidth": true },
                 { "data": "departmentName", "autoWidth": true }
             ],

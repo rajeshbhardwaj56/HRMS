@@ -69,7 +69,9 @@
                     "render": function (data, type, row) {
                         if (data) {
                             var date = new Date(data);
-                            var formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
+                        var formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
+                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                    date.getFullYear();
                             return formattedDate;
                         }
                         return '';  // If no date is provided
@@ -82,10 +84,10 @@
                         if (data) {
                             var date = new Date(data);
 
-                            // Format the date (YYYY-MM-DD)
-                            var formattedDate = date.getFullYear() + '-' +
-                                (date.getMonth() + 1).toString().padStart(2, '0') + '-' +
-                                date.getDate().toString().padStart(2, '0');
+                         
+                          var formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
+                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                    date.getFullYear();
 
                             // Get hours, minutes, and seconds in 12-hour format
                             var hours = date.getHours();
@@ -110,11 +112,9 @@
                     "render": function (data, type, row) {
                         if (data) {
                             var date = new Date(data);
-
-                            // Format the date (YYYY-MM-DD)
-                            var formattedDate = date.getFullYear() + '-' +
-                                (date.getMonth() + 1).toString().padStart(2, '0') + '-' +
-                                date.getDate().toString().padStart(2, '0');
+    var formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
+                        (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                        date.getFullYear();
 
                             // Get hours, minutes, seconds in 12-hour format
                             var hours = date.getHours();

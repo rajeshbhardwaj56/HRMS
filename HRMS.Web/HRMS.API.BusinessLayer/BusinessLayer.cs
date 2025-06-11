@@ -2416,8 +2416,7 @@ namespace HRMS.API.BusinessLayer
                                       ManagerName = dataRow.Field<string>("ManagerName"),
                                       FirstName = dataRow.Field<string>("EmployeeFirstName"),
                                       MiddelName = dataRow.Field<string>("EmployeeMiddelName"),
-                                      LastName = dataRow.Field<string>("EmployeeLastName"),
-                                      DOB = dataRow.Field<DateTime>("EmployeeDOB"),
+                                      LastName = dataRow.Field<string>("EmployeeLastName"),                                 
                                       EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
                                       DepartmentName = dataRow.Field<string>("DepartmentName"),
                                       DesignationName = dataRow.Field<string>("DesignationName"),
@@ -2538,6 +2537,7 @@ namespace HRMS.API.BusinessLayer
                                Title = dataRow.Field<string>("Title"),
                                PolicyCategoryName = dataRow.Field<string>("PolicyCategoryName"),
                                PolicyDocument = dataRow.Field<string>("PolicyDocument"),
+                               Description = dataRow.Field<string>("Description"),
                                PolicyCategoryId = dataRow.Field<long>("PolicyCategoryId"),
                            }).ToList();
             return result;

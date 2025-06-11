@@ -242,7 +242,7 @@
 													{
 														<div class="col-lg-4 col-md-4 mb-2">
 															<h6>Date of Birth</h6>
-															@Model.employeeModel.DateOfBirth.Value.ToString("dd-MM-yyyy")
+															@Model.employeeModel.DateOfBirth.Value.ToString("dd/MM/yyyy")
 														</div>
 													}
 													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PlaceOfBirth))
@@ -415,15 +415,15 @@
 
 												<div class="col-lg-4 col-md-4 mb-2">
 													<h6>Date of Joining</h6>
-													@(Model.employmentDetail.JoiningDate != null ? Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("dd MMM yyy"):"N/A")
+													@(Model.employmentDetail.JoiningDate != null ? Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("dd/MM/yyyy"):"N/A")
 												</div>
 												<div class="col-lg-4 col-md-4 mb-2">
 													<h6>Date of Joining Training</h6>
-													@(Model.employeeSeparationDetail.DateOfJoiningTraining != null ? Convert.ToDateTime(Model.employeeSeparationDetail.DateOfJoiningTraining).ToString("dd MMM yyy") : "N/A")
+													@(Model.employeeSeparationDetail.DateOfJoiningTraining != null ? Convert.ToDateTime(Model.employeeSeparationDetail.DateOfJoiningTraining).ToString("dd/MM/yyyy") : "N/A")
 												</div>
 												<div class="col-lg-4 col-md-4 mb-2">
 													<h6>Date of Joining Floor</h6>
-													@(Model.employeeSeparationDetail.DateOfJoiningFloor != null ? Convert.ToDateTime(Model.employeeSeparationDetail.DateOfJoiningFloor).ToString("dd MMM yyy") : "N/A")
+													@(Model.employeeSeparationDetail.DateOfJoiningFloor != null ? Convert.ToDateTime(Model.employeeSeparationDetail.DateOfJoiningFloor).ToString("dd/MM/yyyy") : "N/A")
 												</div>
 												<div class="col-lg-4 col-md-4 mb-2">
 													<h6>Employment Type</h6>
@@ -1360,7 +1360,7 @@
 					let day = ("0" + joiningDate.getDate()).slice(-2);
 					let month = ("0" + (joiningDate.getMonth() + 1)).slice(-2);
 					let year = joiningDate.getFullYear();
-					let formattedDate = `${day}-${month}-${year}`;
+					let formattedDate = `${day}/${month}/${year}`;
 					$("#EmplyoeeJoiningdate").text(formattedDate);
 
 				} else {
