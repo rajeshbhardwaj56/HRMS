@@ -1133,7 +1133,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize)
+        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize,string SearchTerm)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
@@ -1146,6 +1146,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 RoleId = RoleID,
                 PageSize = PageSize,
                 Page = Page,
+                SearchTerm = SearchTerm
             };
 
             var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();

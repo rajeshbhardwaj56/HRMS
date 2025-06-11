@@ -2589,7 +2589,7 @@ namespace HRMS.API.BusinessLayer
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("usp_GetDeviceLogsByMonth", conn))
+                    using (SqlCommand cmd = new SqlCommand("usp_CalculateMonthlyAttendance_WithShifts", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 
@@ -2686,7 +2686,8 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@UserId", model.UserId),
         new SqlParameter("@RoleId", model.RoleId),
         new SqlParameter("@PageNumber", model.Page),
-        new SqlParameter("@PageSize", model.PageSize)
+        new SqlParameter("@PageSize", model.PageSize),
+        new SqlParameter("@SearchTerm", model.SearchTerm)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetTeamAttendanceDeviceLog, sqlParameters);
