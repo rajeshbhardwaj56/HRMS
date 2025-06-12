@@ -1723,7 +1723,18 @@ span.Attendance-status {
         cursor: pointer;
         border: none;
     }
+    .main-menu > ul {
+        padding: 4px 3px 5px 1px !important;
+        font-size: 15px !important;
+    }
 
+    .header {
+        padding: 0px 0px !important;
+    }
+
+    .main-menu > ul > li > a {
+        padding: 15px 7px 13px 14px !important;
+    }
     a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-present {
         top: 50%;
         left: 12% !important;

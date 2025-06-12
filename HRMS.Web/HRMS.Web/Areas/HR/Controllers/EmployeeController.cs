@@ -60,19 +60,29 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
         public IActionResult EmployeeListing()
         {
-            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
-            var EmployeeID = GetSessionInt(Constants.EmployeeID);
-            var RoleId = GetSessionInt(Constants.RoleID);
-
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.EmployeeListing);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            var employeeId = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+            // Check if the user has permission for Employee Listing
+            var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.EmployeeListing);
+            // If no permission and not an admin
+            if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin)
             {
+                // Check if user has permission for My Team page
+                var teamPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
+                // Redirect to My Team page if user is not an employee and has permission
+                if (roleId != (int)Roles.Employee && teamPermission.HasPermission > 0)
+                {
+                    return RedirectToAction("GetTeamEmployeeList", "MyInfo", new { area = "employee" });
+                }
+                // Else, log the user out and redirect to home
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
-            return View(results);
+
+            return View(new HRMS.Models.Common.Results());
         }
+
         [HttpPost]
         [AllowAnonymous]
         public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
