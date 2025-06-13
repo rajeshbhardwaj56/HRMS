@@ -42,7 +42,7 @@
                     </a>
                 }  @if (Model.FormPermissionList.Where(x => x.FormID ==19 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                 {
-                    @if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin))
+                    @if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) && LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
                     {
                         <a id="myteam-link" class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="myinfo" asp-action="GetTeamEmployeeList">
                             <svg viewBox="0 0 1920 1920" fill="currentColor">
@@ -73,7 +73,7 @@
                 {
                     @if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
                     {
-                        <a class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="company" asp-action="CompanyListing">
+                      @*   <a class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageHR)" asp-controller="company" asp-action="CompanyListing">
                             <svg viewBox="0 0 48 48" fill="currentColor">
                                 <rect x="4" y="6" width="40" height="36" rx="3" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
                                 <path d="M4 14H44" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
@@ -83,12 +83,12 @@
                                 <path d="M12 32H14" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span>Company Listing</span>
-                        </a>
+                        </a> *@
                     }
                 }
                 @if (Model.FormPermissionList.Where(x => x.FormID == 5 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                 {
-                    @if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin))
+                    @if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&  LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
                     {
                         <a id="myteam-link" class="sidebar-link" asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="Attendance" asp-action="AttendenceList">
 

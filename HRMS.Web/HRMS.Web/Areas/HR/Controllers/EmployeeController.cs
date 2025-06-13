@@ -1,6 +1,7 @@
 ﻿
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
@@ -65,7 +66,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             // Check if the user has permission for Employee Listing
             var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.EmployeeListing);
             // If no permission and not an admin
-            if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin)
+            if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
             {
                 // Check if user has permission for My Team page
                 var teamPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
@@ -681,7 +682,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             var RoleId = GetSessionInt(Constants.RoleID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.Whatshappening);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();

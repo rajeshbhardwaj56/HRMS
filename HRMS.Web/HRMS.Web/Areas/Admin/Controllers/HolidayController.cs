@@ -34,7 +34,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var RoleId = GetSessionInt(Constants.RoleID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.HolidayListing);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();

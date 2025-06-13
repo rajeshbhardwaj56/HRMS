@@ -119,7 +119,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var RoleId = GetSessionInt(Constants.RoleID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.AttendenceList);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
@@ -478,7 +478,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var RoleId = GetSessionInt(Constants.RoleID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ApprovedAttendance);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
