@@ -584,6 +584,254 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 return Json(new { error = "An error occurred", details = ex.Message });
             }
         }
+
+        #region CompOff
+        [HttpGet]
+        public IActionResult CompOffApplication()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult GetCompOffAttendanceLogs()
+        {
+            CompOffAttendanceInputParams inputParams = new CompOffAttendanceInputParams
+            {
+                EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
+                JobLocationTypeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.JobLocationID))
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                inputParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetCompOffAttendanceList),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var model = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data);
+
+            return Json(new { data = model });
+        }
+
+
+        [HttpGet]
+        public IActionResult ApproveCompOff()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [HttpPost]
+        public IActionResult SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
+        {
+            var result = new Result();
+            try
+            {
+                var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+                foreach (var attendance in submission.Logs)
+                {
+                    var compOff = new CompOffAttendanceRequestModel
+                    {
+                        ID = attendance.Id,
+                        UserId = attendance.EmployeeId,
+                        AttendanceStatusId = (int)AttendanceStatusId.Submitted,
+                        WorkDate = attendance.AttendanceDate,
+                        FirstLogDate = attendance.FirstLog,
+                        LastLogDate = attendance.LastLog,
+                        Comments = submission.Comment,
+                        ModifiedBy = userId,
+                        ModifiedDate = DateTime.Now,
+                        CreatedBy = attendance.CreatedBy ?? userId,
+                        CreatedDate = DateTime.Now,
+                        IsDeleted = false
+                    };
+
+                    result = _attendanceService.AddUpdateCompOffAttendace(compOff);
+
+                    if (!string.IsNullOrEmpty(result?.Message) && result.Message.ToLower().Contains("error"))
+                    {
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = "Error while submitting comp-off requests.";
+            }
+
+            return Json(new { message = result?.Message ?? "Comp-Off requests submitted successfully." });
+        }
+
+        [HttpPost]
+        public JsonResult GetManagerApprovedCompOff([FromBody] AttendanceStatusRequest request)
+        {
+            AttendanceInputParams attendenceListParams = new AttendanceInputParams();
+            attendenceListParams.AttendanceStatusId = request.AttendanceStatus;
+            attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var data = _businessLayer.SendPostAPIRequest(
+                attendenceListParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetManagerApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+            var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList();
+            return Json(new { data = model });
+        }
+
+        [HttpPost]
+        public JsonResult GetApprovedCompOff([FromBody] AttendanceStatusRequest request)
+        {
+            AttendanceInputParams attendenceListParams = new AttendanceInputParams();
+            attendenceListParams.AttendanceStatusId = request.AttendanceStatus;
+            attendenceListParams.Year = request.Year;
+            attendenceListParams.Month = request.Month;
+            attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var data = _businessLayer.SendPostAPIRequest(
+                attendenceListParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+            var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList();
+            return Json(new { data = model });
+        }
+
+
+        [HttpPost]
+        public JsonResult ApproveRejectCompOff(long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
+        {
+          
+            var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var managerFirstName = HttpContext.Session.GetString(Constants.FirstName);
+            string manager2Email = HttpContext.Session.GetString(Constants.Manager2Email) ?? string.Empty;
+            string bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
+            employeeobj.EmployeeID = employeeId;
+            // Get employee details
+            var employeeApiResponse = _businessLayer.SendPostAPIRequest(
+                employeeobj,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+                bearerToken,
+                true
+            ).Result.ToString();
+
+            var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
+
+            // Convert string status to enum 
+            // Prepare attendance model
+            var attendanceModel = new Attendance
+            {
+                ID = attendanceId,
+                WorkDate = workDate,
+                UserId = employeeId.ToString(),
+                AttendanceStatus = status,
+                FirstLogDate = startDate,
+                LastLogDate = endDate,
+                Comments = approveRejectComment,
+                ModifiedBy = modifiedBy,
+                ModifiedDate = DateTime.Now,
+                AttendanceStatusId = attendanceStatusId
+            };
+
+            // Determine new status based on action and current status
+            if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+            {
+                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                    ? (int)AttendanceStatusId.L1Approved
+                    : (int)AttendanceStatusId.L2Approved;
+            }
+            else
+            {
+                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                    ? (int)AttendanceStatusId.L1Rejected
+                    : (int)AttendanceStatusId.L2Rejected;
+            }
+
+            // Submit updated attendance
+            var updateApiResponse = _businessLayer.SendPostAPIRequest(
+                attendanceModel,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
+                bearerToken,
+                true
+            ).Result.ToString();
+
+            var result = JsonConvert.DeserializeObject<Result>(updateApiResponse);
+            if (result != null && result.Message.Contains("Record for this user with the same date already exists!", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(new { success = false, message = result.Message });
+            }
+
+            // Email notifications
+            bool isEmailSent = false;
+            string emailMessage = string.Empty;
+
+            var emailList = new List<string>();
+            string subject = string.Empty;
+            string body = string.Empty;
+
+            switch (attendanceModel.AttendanceStatusId)
+            {
+                case (int)AttendanceStatusId.L2Approved:
+                    if (!string.IsNullOrEmpty(manager2Email))
+                    {
+                        // Email to manager 2
+                        var managerEmailProps = new sendEmailProperties
+                        {
+                            emailSubject = "Send a request for attendance approval",
+                            emailBody = $"Hi, {managerFirstName} has sent a request for attendance approval.",
+                            EmailToList = new List<string> { manager2Email }
+                        };
+                        EmailSender.SendEmail(managerEmailProps);
+                    }
+
+                    // Email to employee
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    {
+                        emailList.Add(employeeResult.PersonalEmailAddress);
+                        subject = "Attendance request status";
+                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been approved.";
+                    }
+                    break;
+
+                case (int)AttendanceStatusId.L2Rejected:
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    {
+                        emailList.Add(employeeResult.PersonalEmailAddress);
+                        subject = "Attendance request status";
+                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been rejected.";
+                    }
+                    break;
+
+                default:
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    {
+                        emailList.Add(employeeResult.PersonalEmailAddress);
+                        subject = "Attendance request status";
+                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been updated.";
+                    }
+                    break;
+            }
+
+            if (emailList.Any())
+            {
+                var emailProps = new sendEmailProperties
+                {
+                    emailSubject = subject,
+                    emailBody = body,
+                    EmailToList = emailList
+                };
+                var emailResponse = EmailSender.SendEmail(emailProps);
+                isEmailSent = emailResponse.responseCode == "200";
+                emailMessage = isEmailSent ? " and email sent." : ", but email sending failed.";
+            }
+
+            var actionVerb = actionText.Equals("approve", StringComparison.OrdinalIgnoreCase) ? "approved" : "rejected";
+
+            return Json(new
+            {
+                success = true,
+                message = $"Attendance {actionVerb} successfully{emailMessage}"
+            });
+        }
+        #endregion CompOff
         private EmployeeModel GetEmployeeDetails(long companyId, long employeeId)
         {
             var employeeDetailsJson = _businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = companyId, EmployeeID = employeeId }, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();

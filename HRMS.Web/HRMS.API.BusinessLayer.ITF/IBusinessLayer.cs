@@ -120,6 +120,10 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<LanguageDetail> GetLanguageDetails(LanguageDetailParams model);
         public Result AddUpdateLanguageDetail(LanguageDetail model);
         public string DeleteLanguageDetail(LanguageDetailParams model);
+        public List<CompOffAttendanceRequestModel> GetCompOffAttendanceList(CompOffAttendanceInputParams model);
+        public List<CompOffAttendanceRequestModel> GetApprovedCompOff(CompOffInputParams model);
+
+        public Result AddUpdateCompOffAttendace(CompOffAttendanceRequestModel att);
         #region Page Permission
         public Results GetAllCompanyFormsPermission(long companyID);
         public long AddFormPermissions(FormPermissionViewModel objmodel);

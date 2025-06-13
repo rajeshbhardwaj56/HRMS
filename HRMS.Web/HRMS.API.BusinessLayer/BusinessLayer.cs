@@ -2413,13 +2413,13 @@ namespace HRMS.API.BusinessLayer
 
                 dashBoardModel = dataSet.Tables[0].AsEnumerable()
                                   .Select(dataRow => new EmployeeDetails
-                                  {  
+                                  {
                                       EmployeeId = dataRow.Field<long>("EmployeeId"),
                                       EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
                                       ManagerName = dataRow.Field<string>("ManagerName"),
                                       FirstName = dataRow.Field<string>("EmployeeFirstName"),
                                       MiddelName = dataRow.Field<string>("EmployeeMiddelName"),
-                                      LastName = dataRow.Field<string>("EmployeeLastName"),                                 
+                                      LastName = dataRow.Field<string>("EmployeeLastName"),
                                       EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
                                       DepartmentName = dataRow.Field<string>("DepartmentName"),
                                       DesignationName = dataRow.Field<string>("DesignationName"),
@@ -4568,7 +4568,7 @@ namespace HRMS.API.BusinessLayer
                            .Select(dataRow => new EmployeePermissionVM
                            {
                                HasPermission = dataRow.Field<int>("HasPermission"),
-                              
+
                            }).FirstOrDefault();
             return model;
         }
@@ -4576,5 +4576,125 @@ namespace HRMS.API.BusinessLayer
 
         #endregion Page Permission
 
+        #region CompOff Attendance
+        public List<CompOffAttendanceRequestModel> GetCompOffAttendanceList(CompOffAttendanceInputParams model)
+        {
+            List<CompOffAttendanceRequestModel> result = new List<CompOffAttendanceRequestModel>();
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID),
+        new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetHolidayOrSundayWorkLog, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0)
+            {
+                result = dataSet.Tables[0].AsEnumerable().Select(row => new CompOffAttendanceRequestModel
+                {
+                    ID = row.Field<long>("ID"),
+                    UserId = row.Field<string>("UserId"),
+                    EmployeeId = row.Field<long>("EmployeeId"),
+                    EmployeeName = row.Field<string>("EmployeeName"),
+                    AttendanceDate = row.Field<DateTime?>("AttendanceDate"),
+                    FirstLogDate = row.Field<DateTime?>("FirstLogDate"),
+                    LastLogDate = row.Field<DateTime?>("LastLogDate"),
+                    HoursWorked = row.Field<TimeSpan? > ("HoursWorked"),
+                    ManagerName = row.Field<string>("ManagerName"),
+                    ManagerId = row.Field<long>("ManagerId"),
+                    ApprovalStatus = row.Field<long>("ApprovalStatus"),
+                    AttendanceStatus = row.Field<string>("AttendanceStatus"),
+
+                }).ToList();
+            }
+
+            return result;
+        }
+
+        public List<CompOffAttendanceRequestModel> GetApprovedCompOff(CompOffInputParams model)
+        {
+            var result = new List<CompOffAttendanceRequestModel>();
+
+            int attStatus = Convert.ToInt32(model.AttendanceStatusId);
+            try
+            {
+                List<SqlParameter> sqlParameters = new List<SqlParameter>
+        {
+            new SqlParameter("@ReportingUserID", model.UserId),
+            new SqlParameter("@Year",model.Year),
+            new SqlParameter("@Month",model.Month),
+            new SqlParameter("@AttendanceStatusId",attStatus)
+        };
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetCompOffLeaveRequestsForManagers, sqlParameters);
+
+                if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+                {
+                    result = dataSet.Tables[0].AsEnumerable()
+                        .Select(dataRow => new CompOffAttendanceRequestModel
+                        {
+                            ID = dataRow.Field<long?>("ID") ?? 0,
+                            UserId = dataRow.Field<string>("employeeId"),
+                            AttendanceStatus = dataRow.Field<string>("AttendanceStatusName"),
+                            AttendanceStatusId = dataRow.Field<int>("AttendanceStatusId"),
+                            EmployeeName = dataRow.Field<string>("EmployeeName"),
+                            WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
+                            FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
+                            LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
+                            HoursWorked = dataRow.IsNull("HoursWorked") ? TimeSpan.Zero : dataRow.Field<TimeSpan>("HoursWorked"),
+                            Comments = dataRow.Field<string>("Comments"),
+                        })
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in GetApprovedCompOffAttendance: " + ex.Message);
+            }
+
+            return result;
+        }
+
+        public Result AddUpdateCompOffAttendace(CompOffAttendanceRequestModel att)
+        {
+            Result model = new Result();
+
+            try
+            {
+                List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+                sqlParameter.Add(new SqlParameter("@Id", att.ID));
+                sqlParameter.Add(new SqlParameter("@EmployeeId", att.UserId));
+                sqlParameter.Add(new SqlParameter("@AttendanceStatusId", att.AttendanceStatusId));
+                sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
+                sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
+                sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
+                sqlParameter.Add(new SqlParameter("@Comments", att.Comments));
+                sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
+                sqlParameter.Add(new SqlParameter("@ModifiedDate", att.ModifiedDate));
+                sqlParameter.Add(new SqlParameter("@CreatedDate", att.CreatedDate));
+                sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
+                sqlParameter.Add(new SqlParameter("@IsDeleted", att.IsDeleted));
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
+                if (dataSet.Tables[0].Columns.Contains("Result"))
+                {
+                    model = dataSet.Tables[0].AsEnumerable()
+                        .Select(dataRow =>
+                            new Result()
+                            {
+                                Message = dataRow.Field<string>("Result").ToString()
+                            }
+                        ).ToList().FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return model;
+        }
+
+        #endregion CompOff Attendance
     }
 }

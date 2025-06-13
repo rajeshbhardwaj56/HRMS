@@ -97,7 +97,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Delete_WhatsHappening = "usp_Delete_WhatsHappening";
         public const string usp_CheckEmployeeReporting = "usp_CheckEmployeeReporting";
 
-      
+
         public const string usp_ExportEmployeeFullDetails = "usp_ExportEmployeeFullDetails";
         public const string usp_Get_CampOffLeaves = "usp_Get_CampOffLeaves";
         public const string usp_Is_CampOff_Eligible = "usp_Is_CampOff_Eligible";
@@ -131,6 +131,12 @@ namespace HRMS.API.BusinessLayer
         public const string usp_CheckUserFormPermissionByEmployeeID = "usp_CheckUserFormPermissionByEmployeeID";
 
         public const string usp_GetEmployeeListByManagerIDs = "usp_GetEmployeeListByManagerIDs";
+
+        public const string usp_GetHolidayOrSundayWorkLog = "usp_GetHolidayOrSundayWorkLog";
+        public const string usp_GetCompOffLeaveRequestsForManagers = "usp_GetCompOffLeaveRequestsForManagers";
+        public const string usp_SaveOrUpdateCompOffLeaveRequest = "usp_SaveOrUpdateCompOffLeaveRequest";
+        public const string usp_UpdateAttendanceCompOffStatusByUserId = "usp_UpdateAttendanceCompOffStatusByUserId";
+
 
     }
 }

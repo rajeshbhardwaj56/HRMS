@@ -128,12 +128,39 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetEmployeeDetails(objmodel));
             return response;
         }
-        
+
         [HttpPost]
         public IActionResult FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.FetchAttendanceHolidayAndLeaveInfo(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetCompOffAttendanceList(CompOffAttendanceInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetCompOffAttendanceList(objmodel));
+            return response;
+        }
+
+
+        [HttpPost]
+        public IActionResult GetApprovedCompOff(CompOffInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetApprovedCompOff(objmodel));
+            return response;
+        }
+
+
+
+        [HttpPost]
+        public IActionResult AddUpdateCompOffAttendace(CompOffAttendanceRequestModel objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateCompOffAttendace(objmodel));
             return response;
         }
     }

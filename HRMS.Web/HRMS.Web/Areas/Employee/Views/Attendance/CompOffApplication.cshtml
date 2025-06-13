@@ -1,0 +1,168 @@
+﻿@using HRMS.Models.Common
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(Constants.AreaName));
+    ViewData["Title"] = "Comp-Off Attendance";
+}
+
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+<div class="main-header anim" style="--delay: 0s">
+    Comp-Off Attendance Logs
+</div>
+
+
+
+<div class="table-responsive py-3">
+    <table id="tblCompOffListing" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll" /></th>
+                <th>Employee Name</th>
+                <th>Attendance Date</th>
+                <th>First Log</th>
+                <th>Last Log</th>
+                <th>Hours Worked</th>
+                <th>Manager Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div class="mb-3">
+    <label for="approvalComment">Comment:</label>
+    <textarea id="approvalComment" class="form-control" rows="3" placeholder="Add your comment..."></textarea>
+</div>
+
+<div class="mb-3">
+    <button id="submitRequest" class="btn btn-primary">Apply for Comp-Off</button>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+              $(document).ready(function () {
+            var table = $('#tblCompOffListing').DataTable({
+                data: [],
+                columns: [
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return `<input type="checkbox" class="row-select" value="${data}" />`;
+                        },
+                        orderable: false
+                    },
+                    { data: "employeeName" },
+                    {
+                        data: "attendanceDate",
+                        render: function (data) {
+                            if (data) {
+                                var date = new Date(data);
+                                return date.getDate().toString().padStart(2, '0') + '/' +
+                                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                                    date.getFullYear();
+                            }
+                            return '';
+                        }
+                    },
+                    {
+                        data: "firstLogDate",
+                        render: function (data) {
+                            if (data) return formatDateTime(new Date(data));
+                            return '';
+                        }
+                    },
+                    {
+                        data: "lastLogDate",
+                        render: function (data) {
+                            if (data) return formatDateTime(new Date(data));
+                            return '';
+                        }
+                    },
+                    { data: "hoursWorked" },
+                    { data: "managerName" },
+                    { data: "attendanceStatus" }
+                ]
+            });
+
+            function formatDateTime(date) {
+                var formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
+                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                    date.getFullYear();
+                var hours = date.getHours();
+                var minutes = date.getMinutes().toString().padStart(2, '0');
+                var seconds = date.getSeconds().toString().padStart(2, '0');
+                var ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                var time = hours.toString().padStart(2, '0') + ':' + minutes + ':' + seconds + ' ' + ampm;
+                return formattedDate + ' ' + time;
+            }
+
+            // ✅ Load data immediately on page load
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
+                success: function (response) {
+                    table.clear().rows.add(response.data).draw();
+                },
+                error: function () {
+                    alert("Failed to load comp-off logs.");
+                }
+            });
+
+            // Checkbox and submit logic remains unchanged
+            $('#selectAll').on('click', function () {
+                $('.row-select').prop('checked', this.checked);
+            });
+
+            $('#submitRequest').click(function () {
+                var selectedIds = $('.row-select:checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                var comment = $('#approvalComment').val().trim();
+
+                if (selectedIds.length === 0) {
+                    alert("Please select at least one attendance log to apply.");
+                    return;
+                }
+
+                if (comment === "") {
+                    alert("Please enter a comment for your comp-off request.");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SubmitCompOffRequest", "Attendance")',
+                    data: {
+                        attendanceIds: selectedIds,
+                        comment: comment
+                    },
+                    traditional: true,
+                    success: function (res) {
+                        alert(res.message || "Request submitted successfully.");
+                        $('#approvalComment').val("");
+
+                        // Reload after submission
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
+                            success: function (response) {
+                                table.clear().rows.add(response.data).draw();
+                            }
+                        });
+                    },
+                    error: function () {
+                        alert("Failed to submit comp-off request.");
+                    }
+                });
+            });
+        });
+    </script>
+}

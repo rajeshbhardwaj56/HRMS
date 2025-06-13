@@ -130,9 +130,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var employeeName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
             var employeeMiddleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName));
-            var employeeLastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname));
-
-            // Concatenate full name
+            var employeeLastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname));         
             var employeeFullName = string.Join(" ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
 
             AttendanceInputParams models = new AttendanceInputParams
