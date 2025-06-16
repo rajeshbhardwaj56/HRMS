@@ -3018,7 +3018,7 @@ namespace HRMS.API.BusinessLayer
                         .Select(dataRow => new Attendance
                         {
                             ID = dataRow.Field<long?>("ID") ?? 0,
-                            UserId = dataRow.Field<long?>("employeeId"),
+                            UserId = dataRow.Field<long?>("EmployeeId") ?? 0,
                             AttendanceStatus = dataRow.Field<string>("AttendanceStatusName"),
                             AttendanceStatusId = dataRow.Field<int>("AttendanceStatusId"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
