@@ -202,17 +202,22 @@
 										<input type="hidden" id="status" name="status">
 
 										<div class="DateFormatDiv" style="display: flex;">
-											<div class="col-lg-4 px-4">
+											<div class="col-lg-3 px-4">
 												<h6>Start Date</h6>
 												<p id="StartDate"> </p>
 											</div>
-											<div class="col-lg-4 px-4">
+											<div class="col-lg-3 px-4">
 												<h6>End Date</h6>
 												<p id="EndDate"> </p>
 											</div>
-											<div class="col-lg-4 px-4">
+											<div class="col-lg-3 px-4">
 												<h6>Work Date</h6>
 												<p id="WorkDate"> </p>
+											</div>
+											
+											<div class="col-lg-3 px-4">
+												<h6>Worked Hours</h6>
+												<p id="hoursWorked"> </p>
 											</div>
 										</div>
 										<hr>
@@ -307,7 +312,7 @@
 
 				 {
 					 render: function (data, type, row) {
-						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}')" href="#" title="Approve">
+						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}','${row.hoursWorked}')" href="#" title="Approve">
 									 <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
 								 </a>`;
 					 }
@@ -524,7 +529,7 @@
 		 });
 	 }
 
-	 function OpenApproveRejectModel(employeeID, Id,attendanceId, firstLogDate, lastLogDate, comments, workDate) {
+	 function OpenApproveRejectModel(employeeID, Id,attendanceId, firstLogDate, lastLogDate, comments, workDate,hoursWorked) {
 
 		 $("#employeeID").val(employeeID);
 		 $("#compOffId").val(Id);
@@ -534,6 +539,7 @@
 		 $("#AttStartDate").val(firstLogDate);
 		 $("#AttEndDate").val(lastLogDate);
 		 $("#WorkDate").text(formatDate(workDate));
+		 $("#hoursWorked").text(hoursWorked);
 		
 
 		 $.ajax({

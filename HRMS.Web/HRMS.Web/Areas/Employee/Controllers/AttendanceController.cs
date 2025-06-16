@@ -611,9 +611,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return Json(new { data = model });
         }
-
-
-       
+         
         [HttpPost]
         public IActionResult SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
         {

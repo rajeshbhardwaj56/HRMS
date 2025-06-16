@@ -4647,7 +4647,7 @@ namespace HRMS.API.BusinessLayer
                     HoursWorked = row.Field<TimeSpan? > ("HoursWorked"),
                     ManagerName = row.Field<string>("ManagerName"),
                     ManagerId = row.Field<long>("ManagerId"),
-                    ApprovalStatus = row.Field<long>("ApprovalStatus"),
+                    ApprovalStatus = row.Field<int>("ApprovalStatus"),
                     AttendanceStatus = row.Field<string>("AttendanceStatus"),
 
                 }).ToList();
@@ -4680,7 +4680,7 @@ namespace HRMS.API.BusinessLayer
                           // AttendanceId = dataRow.Field<long?>("AttendanceId") ,
                             UserId = dataRow.Field<long>("employeeId"),
                             AttendanceStatus = dataRow.Field<string>("AttendanceStatusName"),
-                            AttendanceStatusId = dataRow.Field<long>("AttendanceStatusId"),
+                            AttendanceStatusId = dataRow.Field<int>("AttendanceStatusId"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
                             WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
                             FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
@@ -4713,7 +4713,7 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
                 sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
                 sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
-             
+                sqlParameter.Add(new SqlParameter("@HoursWorked", att.HoursWorked));
                 sqlParameter.Add(new SqlParameter("@Remarks", att.Comments));
                 sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));

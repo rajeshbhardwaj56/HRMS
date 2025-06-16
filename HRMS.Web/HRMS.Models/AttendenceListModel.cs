@@ -95,7 +95,7 @@ namespace HRMS.Models.AttendenceList
         public DateTime? FirstLogDate { get; set; }
         public DateTime? LastLogDate { get; set; }
         public TimeSpan? HoursWorked { get; set; }
-        public long? AttendanceStatusId { get; set; }
+        public int? AttendanceStatusId { get; set; }
         public string? AttendanceStatus { get; set; }
         public string? Comments { get; set; }
         public long? AttendanceId { get; set; }
