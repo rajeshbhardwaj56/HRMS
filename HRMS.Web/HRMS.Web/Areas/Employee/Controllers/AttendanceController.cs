@@ -119,7 +119,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var RoleId = GetSessionInt(Constants.RoleID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.AttendenceList);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
@@ -207,7 +207,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
             var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            AttendenceListModel.UserId = UserId.ToString();
+            AttendenceListModel.UserId = UserId;
             AttendenceListModel.CreatedDate = DateTime.Now;
             AttendenceListModel.ModifiedBy = UserId;
             AttendenceListModel.CreatedBy = UserId;
@@ -346,7 +346,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 ID = attendanceId,
                 WorkDate = workDate,
-                UserId = employeeId.ToString(),
+                UserId = employeeId,
                 AttendanceStatus = status,
                 FirstLogDate = startDate,
                 LastLogDate = endDate,
@@ -478,7 +478,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var RoleId = GetSessionInt(Constants.RoleID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ApprovedAttendance);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();

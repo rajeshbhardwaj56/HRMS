@@ -1708,4 +1708,61 @@ span.Attendance-status {
         transform: scale(1);
     }
 }
- 
+@media (min-width: 768px) and (max-width: 1400px) {
+    a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-holiday {
+        top: 50%;
+        left: 12% !important;
+        background-color: #1c5db1;
+        color: white;
+        font-weight: bold;
+        font-size: 13px !important;
+        width: 91px !important;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+        border: none;
+    }
+    .main-menu > ul {
+        padding: 4px 3px 5px 1px !important;
+        font-size: 15px !important;
+    }
+
+    .header {
+        padding: 0px 0px !important;
+    }
+
+    .main-menu > ul > li > a {
+        padding: 15px 7px 13px 14px !important;
+    }
+    a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-present {
+        top: 50%;
+        left: 12% !important;
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        font-size: 13px !important;
+        width: 91px !important;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+        border: none;
+    }
+
+    a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-absent {
+        top: 50%;
+        left: 12% !important;
+        background-color: #dc3545;
+        color: white;
+        /* border-radius: 50%; */
+        font-weight: bold;
+        font-size: 13px !important;
+        width: 91px !important;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+        border: none;
+    }
+}

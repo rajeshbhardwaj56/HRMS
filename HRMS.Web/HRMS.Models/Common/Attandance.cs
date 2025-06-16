@@ -23,6 +23,7 @@ namespace HRMS.Models.Common
         public string? Status { get; set; }
         public long? RoleId { get; set; }
         public string? conStr { get; set; }
+        public string? SearchTerm { get; set; } = string.Empty;
 
     }
     public class Attendance
@@ -30,7 +31,7 @@ namespace HRMS.Models.Common
         public int? AttendanceStatusId { get; set; }
         public long ID { get; set; }
         public string? EncodedId { get; set; }
-        public string? UserId { get; set; }
+        public long? UserId { get; set; }
         public string? EmployeeName { get; set; }
         public DateTime? WorkDate { get; set; }
         public DateTime? FirstLogDate { get; set; } = DateTime.Now;

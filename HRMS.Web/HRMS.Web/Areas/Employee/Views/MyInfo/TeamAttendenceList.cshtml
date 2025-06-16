@@ -12,9 +12,14 @@
 		font-family: Arial, sans-serif;
 	}
 
+	.HD {
+		background: #04336f;
+		cursor: pointer;
+		/* border-radius: 27px; */
+	}
 	.status-badge {
 		display: inline-block;
-		padding: 2px 8px;
+		padding: 3px 8px;
 		border-radius: 12px;
 		font-weight: 600;
 		color: white;
@@ -34,7 +39,7 @@
 	}
 
 	.H {
-		background-color: black;
+		background-color: #1c5db1;
 		cursor: pointer;
 	}
 
@@ -245,20 +250,29 @@
 			$("#attendance-data").html(`<tr><td colspan="50" class="text-center">Loading...</td></tr>`);
 		}
 
-		function fetchAttendanceData(year, month, page) {
+		function fetchAttendanceData(year, month, page,searchTerm = "", overridePageSize = null) {
 			if (isLoading) return;
 			isLoading = true;
 			showLoading();
-
+				let effectivePageSize = overridePageSize !== null ? overridePageSize : pageSize;
 			$.ajax({
 				url: '/employee/MyInfo/TeamAttendenceCalendarList',
 				type: 'GET',
-				data: { Year: year, Month: month, Page: page, PageSize: pageSize },
+				data: { Year: year, Month: month, Page: page, PageSize: effectivePageSize,SearchTerm: searchTerm },
 				dataType: 'json',
-				success: function (response) {
-					console.log(response);
+				success: function (response) { 
 					var totalRecords = response.data.totalRecords || 0;
-
+					if (totalRecords === 0) {
+		$("#attendance-data").html(`
+			<tr>
+				<td colspan="100%" class="text-center text-muted">No records found</td>
+			</tr>
+		`);
+		$("#pagination").html(""); // clear pagination
+		$("#record-range-info").text("No records to display.");
+		isLoading = false;
+		return;
+	}
 					totalPages = Math.ceil(totalRecords / pageSize);
 					renderAttendanceTable(response);
 					renderPagination(page, totalPages);
@@ -274,6 +288,19 @@
 				}
 			});
 		}
+
+
+
+		$("#search-box").on("keyup", function () {
+		const searchText = $(this).val().trim();
+		currentPage = 1;
+		const year = parseInt($("#year-select").val()) || new Date().getFullYear();
+			const month = parseInt($("#month-select").val()) || (new Date().getMonth() + 1);
+			const pageSize = searchText === "" ? 20 : 0;
+			fetchAttendanceData(year, month, currentPage, searchText, pageSize);
+	});
+
+
 
 				function renderAttendanceTable(response) {
 		if (!response?.data?.attendances || response.data.attendances.length === 0) return;
@@ -314,6 +341,7 @@
 	const className = status === "P" ? "P"
 		: status === "A" ? "A"
 		: status === "H" ? "H"
+		: status === "HD" ? "HD"
 		: status === "L" ? "table-warning text-dark"
 		: "";
 
@@ -562,32 +590,8 @@
 			return result.trim() || '0m';
 		}
 
-			$("#search-box").on("keyup", function () {
-		const searchText = $(this).val().toLowerCase();
-		let visibleCount = 0;
 
-		$("#attendance-data tr").each(function () {
-			const rowText = $(this).text().toLowerCase();
-			const isMatch = rowText.includes(searchText);
-			$(this).toggle(isMatch);
-			if (isMatch) visibleCount++;
-		});
-
-		updateRecordInfo(visibleCount);
-	});
-		function updateRecordInfo(visibleCount) {
-		const total = $("#attendance-data tr").length;
-		const showing = visibleCount;
-
-		$("#record-range-info").text(`Displaying 1 – ${showing} of ${total}`);
-
-		if (showing < 20) {
-			$("#pagination-container").addClass("d-none");
-		} else {
-			$("#pagination-container").removeClass("d-none").css("display", "block");
-		}
-	}
-
+	
 
 </script>
 

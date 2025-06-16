@@ -2580,49 +2580,94 @@ namespace HRMS.API.BusinessLayer
             return new AttendanceLogResponse { AttendanceLogs = attendanceLogs };
         }
 
+        //public AttendanceInputParams GetAttendance(AttendanceInputParams model)
+        //{
+        //    //string connectionString = model.conStr.ToString();
+        //    string connectionString = _configuration["ConnectionStrings:attandanceStr"].ToString();
+
+        //    try
+        //    {
+        //        using (SqlConnection conn = new SqlConnection(connectionString))
+        //        {
+        //            using (SqlCommand cmd = new SqlCommand("usp_CalculateMonthlyAttendance_WithShifts", conn))
+        //            {
+        //                cmd.CommandType = CommandType.StoredProcedure;
+
+        //                // Add parameters
+        //                cmd.Parameters.AddWithValue("@Year", model.Year);
+        //                cmd.Parameters.AddWithValue("@Month", model.Month);
+        //                cmd.Parameters.AddWithValue("@Day", model.Day);
+        //                cmd.Parameters.AddWithValue("@UserId", model.UserId);
+        //                cmd.Parameters.AddWithValue("@IsManual", false);
+        //                cmd.Parameters.AddWithValue("@AttendanceStatus", AttendanceStatus.Approved.ToString());
+
+        //                conn.Open();
+
+        //                using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+        //                {
+        //                    DataSet dataSet = new DataSet();
+        //                    adapter.Fill(dataSet);
+
+        //                    if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+        //                    {
+        //                        var row = dataSet.Tables[0].Rows[0];
+        //                        string status = row["Status"].ToString();
+        //                        string message = row["Message"].ToString();
+
+        //                        model.Status = status;
+        //                        model.Message = message;
+        //                        model.IsSuccess = status.Equals("Success", StringComparison.OrdinalIgnoreCase);
+        //                    }
+        //                    else
+        //                    {
+        //                        model.Message = "No response from the stored procedure.";
+        //                        model.IsSuccess = false;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        model.Message = "Error: " + ex.Message;
+        //        model.IsSuccess = false;
+        //    }
+
+        //    return model;
+        //}
+
         public AttendanceInputParams GetAttendance(AttendanceInputParams model)
         {
-            //string connectionString = model.conStr.ToString();
-            string connectionString = _configuration["ConnectionStrings:attandanceStr"].ToString();
+            string connectionString = _configuration["ConnectionStrings:attandanceStr"];
 
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand("usp_CalculateMonthlyAttendance_WithShifts", conn))
                 {
-                    using (SqlCommand cmd = new SqlCommand("usp_GetDeviceLogsByMonth", conn))
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // Set parameters
+                    cmd.Parameters.AddWithValue("@Year", model.Year);
+                    cmd.Parameters.AddWithValue("@Month", model.Month);
+                    cmd.Parameters.AddWithValue("@Day", model.Day);
+                    cmd.Parameters.AddWithValue("@UserId", model.UserId);
+                    cmd.Parameters.AddWithValue("@IsManual", false);
+                    cmd.Parameters.AddWithValue("@AttendanceStatus", AttendanceStatus.Approved.ToString());
+
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        // Add parameters
-                        cmd.Parameters.AddWithValue("@Year", model.Year);
-                        cmd.Parameters.AddWithValue("@Month", model.Month);
-                        cmd.Parameters.AddWithValue("@Day", model.Day);
-                        cmd.Parameters.AddWithValue("@UserId", model.UserId);
-                        cmd.Parameters.AddWithValue("@IsManual", false);
-                        cmd.Parameters.AddWithValue("@AttendanceStatus", AttendanceStatus.Approved.ToString());
-
-                        conn.Open();
-
-                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        if (reader.HasRows)
                         {
-                            DataSet dataSet = new DataSet();
-                            adapter.Fill(dataSet);
-
-                            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
-                            {
-                                var row = dataSet.Tables[0].Rows[0];
-                                string status = row["Status"].ToString();
-                                string message = row["Message"].ToString();
-
-                                model.Status = status;
-                                model.Message = message;
-                                model.IsSuccess = status.Equals("Success", StringComparison.OrdinalIgnoreCase);
-                            }
-                            else
-                            {
-                                model.Message = "No response from the stored procedure.";
-                                model.IsSuccess = false;
-                            }
+                            model.Message = "Attendance calculated successfully.";
+                            model.IsSuccess = true;
+                        }
+                        else
+                        {
+                            model.Message = "No attendance data returned.";
+                            model.IsSuccess = false;
                         }
                     }
                 }
@@ -2635,7 +2680,6 @@ namespace HRMS.API.BusinessLayer
 
             return model;
         }
-
 
 
 
@@ -2686,7 +2730,8 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@UserId", model.UserId),
         new SqlParameter("@RoleId", model.RoleId),
         new SqlParameter("@PageNumber", model.Page),
-        new SqlParameter("@PageSize", model.PageSize)
+        new SqlParameter("@PageSize", model.PageSize),
+        new SqlParameter("@SearchTerm", model.SearchTerm)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetTeamAttendanceDeviceLog, sqlParameters);
@@ -2821,7 +2866,7 @@ namespace HRMS.API.BusinessLayer
                 .Select(dataRow => new Attendance
                 {
                     ID = dataRow.Field<long?>("ID") ?? 0,
-                    UserId = dataRow.Field<string>("EmployeeId"),
+                    UserId = dataRow.Field<long?>("EmployeeId"),
                     AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
                     EmployeeName = dataRow.Field<string>("EmployeeName"),
                     Comments = dataRow.Field<string>("Comments"),
@@ -2888,7 +2933,7 @@ namespace HRMS.API.BusinessLayer
                                  .Select(dataRow => new Attendance
                                  {
                                      ID = dataRow.Field<long>("ID"),
-                                     UserId = dataRow.Field<string>("EmployeeId"),
+                                     UserId = dataRow.Field<long?>("EmployeeId"),
                                      AttendanceStatusId = dataRow.Field<int?>("AttendanceStatusId"),
                                      WorkDate = dataRow.Field<DateTime>("WorkDate"),
                                      FirstLogDate = dataRow.Field<DateTime>("FirstLogDate"),
@@ -2932,7 +2977,7 @@ namespace HRMS.API.BusinessLayer
                 .Select(dataRow => new Attendance
                 {
                     ID = dataRow.Field<long?>("ID") ?? 0,
-                    UserId = dataRow.Field<string>("UserId"),
+                    UserId = dataRow.Field<long?>("UserId"),
                     AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
                     EmployeeName = dataRow.Field<string>("EmployeeName"),
                     WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
@@ -2973,7 +3018,7 @@ namespace HRMS.API.BusinessLayer
                         .Select(dataRow => new Attendance
                         {
                             ID = dataRow.Field<long?>("ID") ?? 0,
-                            UserId = dataRow.Field<string>("employeeId"),
+                            UserId = dataRow.Field<long?>("EmployeeId") ?? 0,
                             AttendanceStatus = dataRow.Field<string>("AttendanceStatusName"),
                             AttendanceStatusId = dataRow.Field<int>("AttendanceStatusId"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
@@ -3014,7 +3059,7 @@ namespace HRMS.API.BusinessLayer
                         .Select(dataRow => new Attendance
                         {
                             ID = dataRow.Field<long?>("ID") ?? 0,
-                            UserId = dataRow.Field<string>("employeeId"),
+                            UserId = dataRow.Field<long?>("employeeId"),
                             AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
                             WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,

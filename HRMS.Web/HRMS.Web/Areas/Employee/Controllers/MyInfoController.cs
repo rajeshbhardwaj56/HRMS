@@ -61,7 +61,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var RoleId = GetSessionInt(Constants.RoleID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, (int)PageName.MyInfo);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
@@ -1028,7 +1028,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.MyTeam);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
@@ -1083,7 +1083,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.Support);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
@@ -1120,7 +1120,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var RoleId = GetSessionInt(Constants.RoleID);
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.TeamAttendenceList);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin)
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
@@ -1133,7 +1133,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize)
+        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize,string SearchTerm)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
@@ -1146,6 +1146,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 RoleId = RoleID,
                 PageSize = PageSize,
                 Page = Page,
+                SearchTerm = SearchTerm
             };
 
             var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
