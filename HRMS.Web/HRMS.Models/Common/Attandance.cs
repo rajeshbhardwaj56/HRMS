@@ -110,6 +110,7 @@ namespace HRMS.Models.Common
     public class AttendanceStatusRequest
     {
         public int AttendanceStatus { get; set; }
+        public int CompOffStatus { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
     }

@@ -95,7 +95,7 @@ namespace HRMS.Models.AttendenceList
         public DateTime? FirstLogDate { get; set; }
         public DateTime? LastLogDate { get; set; }
         public TimeSpan? HoursWorked { get; set; }
-        public int? AttendanceStatusId { get; set; }
+        public long? AttendanceStatusId { get; set; }
         public string? AttendanceStatus { get; set; }
         public string? Comments { get; set; }
         public long? AttendanceId { get; set; }
@@ -108,13 +108,28 @@ namespace HRMS.Models.AttendenceList
         public long? ModifiedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public long? AuditEmployeeId { get; set; }
-        public string? UserId { get; set; }
-        public long? CreatedBy { get; set; }
+        public long? UserId { get; set; }
 
+        public long? CreatedBy { get; set; }
         public bool? IsDeleted { get; set; }
     }
 
+    public class CompOffLogSubmission
+    {
+        public List<CompOffLogItem> Logs { get; set; }
+        public string? Comment { get; set; }
+    }
 
+    public class CompOffLogItem
+    {
+        public long? AttendanceId { get; set; }
+        public long EmployeeId { get; set; }
+        public DateTime AttendanceDate { get; set; }
+        public DateTime FirstLog { get; set; }
+        public DateTime LastLog { get; set; }
+        public TimeSpan? HoursWorked { get; set; }
+        public long? CreatedBy { get; set; }
+    }
 }
 
 

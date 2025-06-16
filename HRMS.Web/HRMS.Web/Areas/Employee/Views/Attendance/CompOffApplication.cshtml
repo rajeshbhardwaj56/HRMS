@@ -51,7 +51,7 @@
                 data: [],
                 columns: [
                     {
-                        data: "id",
+                        data: "attendanceId",
                         render: function (data) {
                             return `<input type="checkbox" class="row-select" value="${data}" />`;
                         },
@@ -103,7 +103,7 @@
                 return formattedDate + ' ' + time;
             }
 
-            // ✅ Load data immediately on page load
+           
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
@@ -115,54 +115,69 @@
                 }
             });
 
-            // Checkbox and submit logic remains unchanged
+           
             $('#selectAll').on('click', function () {
                 $('.row-select').prop('checked', this.checked);
             });
 
-            $('#submitRequest').click(function () {
-                var selectedIds = $('.row-select:checked').map(function () {
-                    return $(this).val();
-                }).get();
+                   $('#submitRequest').click(function () {
+                       debugger;
+            var comment = $('#approvalComment').val().trim();
+            var selectedLogs = [];
+            table.rows().every(function () {
+                var data = this.data();
+                var $row = $(this.node());
 
-                var comment = $('#approvalComment').val().trim();
+                if ($row.find('.row-select').is(':checked')) {
+                          selectedLogs.push({
+            AttendanceId: data.attendanceId,
+            EmployeeId: data.employeeId,
+            AttendanceDate: data.attendanceDate,
+            FirstLog: data.firstLogDate,
+            LastLog: data.lastLogDate,
+            HoursWorked: data.hoursWorked,
+            CreatedBy: data.createdBy,$row
 
-                if (selectedIds.length === 0) {
-                    alert("Please select at least one attendance log to apply.");
-                    return;
+        });
                 }
-
-                if (comment === "") {
-                    alert("Please enter a comment for your comp-off request.");
-                    return;
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: '@Url.Action("SubmitCompOffRequest", "Attendance")',
-                    data: {
-                        attendanceIds: selectedIds,
-                        comment: comment
-                    },
-                    traditional: true,
-                    success: function (res) {
-                        alert(res.message || "Request submitted successfully.");
-                        $('#approvalComment').val("");
-
-                        // Reload after submission
-                        $.ajax({
-                            type: "POST",
-                            url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
-                            success: function (response) {
-                                table.clear().rows.add(response.data).draw();
-                            }
-                        });
-                    },
-                    error: function () {
-                        alert("Failed to submit comp-off request.");
-                    }
-                });
             });
+
+            if (selectedLogs.length === 0) {
+                alert("Please select at least one attendance log to apply.");
+                return;
+            }
+
+            if (comment === "") {
+                alert("Please enter a comment for your comp-off request.");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SubmitCompOffRequest", "Attendance")',
+                contentType: "application/json",
+                data: JSON.stringify({
+                    Logs: selectedLogs,
+                    Comment: comment
+                }),
+                success: function (res) {
+                    alert(res.message || "Request submitted successfully.");
+                    $('#approvalComment').val("");
+
+                    // Reload the table
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
+                        success: function (response) {
+                            table.clear().rows.add(response.data).draw();
+                        }
+                    });
+                },
+                error: function () {
+                    alert("Failed to submit comp-off request.");
+                }
+            });
+        });
         });
     </script>
 }

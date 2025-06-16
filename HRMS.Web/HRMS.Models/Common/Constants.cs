@@ -298,6 +298,8 @@ namespace HRMS.Models.Common
         public const string CheckUserFormPermissionByEmployeeID = "CheckUserFormPermissionByEmployeeID";
 
         public const string GetCompOffAttendanceList = "GetCompOffAttendanceList";
+        public const string AddUpdateCompOffAttendace = "AddUpdateCompOffAttendace";
+        public const string GetApprovedCompOff = "GetApprovedCompOff";
 
 
     }

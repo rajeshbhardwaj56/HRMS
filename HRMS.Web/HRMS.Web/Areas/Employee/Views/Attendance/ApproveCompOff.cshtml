@@ -20,30 +20,7 @@
 				<div class="group-box anim">
 					<div class="tabsInfo" id="">
 						<h3>CompOff Info</h3>
-						<div class="Month-year-dropdown d-flex">
-							<div>
-								<label for="yearDropdown">Year: </label>
-								<select id="yearDropdown" class="form-select" style="width: 150px;">
-								</select>
-							</div>
-							<div>
-								<label for="monthDropdown">Month: </label>
-								<select id="monthDropdown" class="form-select" style="width: 150px;">
-									<option value="1">January</option>
-									<option value="2">February</option>
-									<option value="3">March</option>
-									<option value="4">April</option>
-									<option value="5">May</option>
-									<option value="6">June</option>
-									<option value="7">July</option>
-									<option value="8">August</option>
-									<option value="9">September</option>
-									<option value="10">October</option>
-									<option value="11">November</option>
-									<option value="12">December</option>
-								</select>
-							</div>
-						</div>
+					
 						<nav>
 							<div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
 								<button class="nav-link active" id="applied-compOff-tab1" data-bs-toggle="tab" data-bs-target="#applied-compOff-tab" type="button" role="tab" aria-controls="applied-compOff-tab" aria-selected="true" href="#pendingTab">CompOff For Approval </button>
@@ -160,7 +137,7 @@
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">compOff Request Details</h5>
+				<h5 class="modal-title">CompOff Request Details</h5>
 				<button type="button" class="close" data-dismiss="modal" onclick="CloseApproveRejectModel();" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -211,7 +188,7 @@
 				</section>
 				<div class="group-box anim">
 					<div class="tabsInfo" id="">
-						<h3>compOff Info</h3>
+						<h3>CompOff Info</h3>
 						<div class="tab-content" id="nav-tabContent">
 							<div class="tab-pane fade active show" id="apply-compOff-tab" role="tabpanel" aria-labelledby="apply-compOff-tab1">
 								<div class="row">
@@ -220,6 +197,8 @@
 									<form class="body-text" method="post" enctype="multipart/form-data">
 										<input type="hidden" id="employeeID" name="employeeID">
 										<input type="hidden" id="compOffId" name="compOffId">
+										<input type="hidden" id="attendanceId" name="attendanceId">
+							
 										<input type="hidden" id="status" name="status">
 
 										<div class="DateFormatDiv" style="display: flex;">
@@ -287,14 +266,12 @@
 
 	 //First Tab
 	 function ApprovalcompOffAutoReload() {
+	
 		 let tableId = '#tblcompOffForApproval';
 		 let status =1;
-		 const selectedYear = $("#yearDropdown").val();
-	const selectedMonth =$("#monthDropdown").val(); ;
-		 let  Year= selectedYear;
-		 let Month= selectedMonth;
+	
 		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
-		 RefreshTable12(tableId, url, status,Year,Month);
+		 RefreshTable12(tableId, url, status);
 				 if (!$.fn.DataTable.isDataTable(tableId)) {
 					 InitcompOffForApproval();
 				 }
@@ -325,12 +302,12 @@
 					 render: formatDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
-				 { data: "compOffStatus", autoWidth: true },
+				 { data: "attendanceStatus", autoWidth: true },
 								 { data: "comments", autoWidth: true },
 
 				 {
 					 render: function (data, type, row) {
-						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.compOffStatus}','${row.workDate}')" href="#" title="Approve">
+						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}')" href="#" title="Approve">
 									 <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
 								 </a>`;
 					 }
@@ -339,12 +316,12 @@
 		 });
 	 }
 	 //First Tab Table load
-	function RefreshTable12(tableId, urlData, status,Year,Month) {
+	function RefreshTable12(tableId, urlData, status) {
 		 $.ajax({
 			 url: urlData,
 			 type: 'POST',
 			 contentType: 'application/json',
-			 data: JSON.stringify({ compOffStatus: parseInt(status),Year:Year,Month:Month }),
+			 data: JSON.stringify({ compOffStatus: parseInt(status) }),
 			 success: function (json) {
 				 let table = $(tableId).dataTable();
 				 let oSettings = table.fnSettings();
@@ -368,18 +345,13 @@
 
 	 function compOffForApproved() {
 
-				 let tableId = '#tblcompOffForApproved';
-
-			 const selectedYear = $("#yearDropdown").val();
-	const selectedMonth =$("#monthDropdown").val(); ;
-		 let  Year= selectedYear;
-		 let Month= selectedMonth;
+				 let tableId = '#tblcompOffForApproved';			 
 		 let status =2;
 		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
 		 if ($.fn.DataTable.isDataTable(tableId)) {
 		$(tableId).DataTable().clear().draw();
 	}
-			 RefreshTable12(tableId, url, status,Year,Month);
+			 RefreshTable12(tableId, url, status);
 				 if (!$.fn.DataTable.isDataTable(tableId)) {
 					 InittblcompOffForApproved();
 				 }
@@ -391,12 +363,8 @@
 	 function compOffForReject() {
 		 let status =3;
 				 let tableId = '#tblcompOffForReject';
-					 const selectedYear = $("#yearDropdown").val();
-	const selectedMonth =$("#monthDropdown").val(); ;
-		 let  Year= selectedYear;
-		 let Month= selectedMonth;
 		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
-			 RefreshTable12(tableId, url, status,Year,Month);
+			 RefreshTable12(tableId, url, status);
 				 if (!$.fn.DataTable.isDataTable(tableId)) {
 					 InittblcompOffForReject();
 				 }
@@ -429,7 +397,7 @@
 					 render: formatDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
-				 { data: "compOffStatus", autoWidth: true },
+				 { data: "attendanceStatus", autoWidth: true },
 				 { data: "comments", autoWidth: true },
 
 			 ]
@@ -501,12 +469,14 @@
 
 			const data = {
 				compOffId: $("#compOffId").val(),
+				attendanceId: $("#attendanceId").val(),
 				employeeID,
 				status: $("#status").val(),
 				ApproveRejectComment,
 				startDate: $("#AttStartDate").val(),
 				endDate: $("#AttEndDate").val(),
 				workDate: $("#AttWorkDate").val(),
+				
 				actionText: actionText
 			};
 
@@ -554,17 +524,20 @@
 		 });
 	 }
 
-	 function OpenApproveRejectModel(employeeID, Id, firstLogDate, lastLogDate, comments, workDate) {
+	 function OpenApproveRejectModel(employeeID, Id,attendanceId, firstLogDate, lastLogDate, comments, workDate) {
+
 		 $("#employeeID").val(employeeID);
 		 $("#compOffId").val(Id);
+		 $("#attendanceId").val(attendanceId);
 		 $("#status").val(comments);
 		 $("#AttWorkDate").val(workDate);
 		 $("#AttStartDate").val(firstLogDate);
 		 $("#AttEndDate").val(lastLogDate);
 		 $("#WorkDate").text(formatDate(workDate));
+		
 
 		 $.ajax({
-			 url: '/employee/Attendance/GetEmployeecompOffShiftDetails',
+			 url: '/employee/Attendance/GetEmployeeAttendanceShiftDetails',
 			 type: 'GET',
 			 data: { employeeID, Id },
 			 success: function (response) {
@@ -573,21 +546,7 @@
 				 $("#ManagerName").text(response.managerName);
 				 $("#EmployeeJoiningdate").text(response.employeeJoiningdate);
 				 $("#StartDate").text(formatDate(firstLogDate));
-				 $("#EndDate").text(formatDate(lastLogDate));
-
-				 const logFirstTime = new Date(firstLogDate);
-				 const logLastTime = new Date(lastLogDate);
-				 const shiftStartTime = new Date(logFirstTime.toDateString() + ' ' + response.shiftStartDate);
-				 const shiftEndTime = new Date(logLastTime.toDateString() + ' ' + response.shiftEndDate);
-
-				 if (shiftStartTime.getTime() !== logFirstTime.getTime() ||
-					 shiftEndTime.getTime() !== logLastTime.getTime()) {
-					 $('#responseMessage').text('The provided times do not match the shift times.').css('color', 'red');
-					// $('#approveButton').prop('disabled', true);
-				 } else {
-					 $('#responseMessage').text('The times match.').css('color', 'green');
-					// $('#approveButton').prop('disabled', false);
-				 }
+				 $("#EndDate").text(formatDate(lastLogDate));				
 			 },
 			 error: function (xhr) {
 				 $('#responseMessage').text('Error: ' + xhr.responseText);
@@ -628,7 +587,7 @@
 					 render: formatDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
-				 { data: "compOffStatus", autoWidth: true },
+				 { data: "attendanceStatus", autoWidth: true },
 								 { data: "comments", autoWidth: true },
 
 
@@ -645,46 +604,4 @@
 			 }
 		 });
 	 }
-	// Add years from 2020 to the current year dynamically
-	const yearDropdown = document.getElementById('yearDropdown');
-	const monthDropdown = document.getElementById('monthDropdown');
-	const currentYear = new Date().getFullYear();
-	const startYear = 2020;
-
-	// Add years from 2020 to the current year
-	for (let year = startYear; year <= currentYear; year++) {
-		const option = document.createElement('option');
-		option.value = year;
-		option.textContent = year;
-		yearDropdown.appendChild(option);
-	}
-
-	// Set the current year as the default selected value
-	yearDropdown.value = currentYear;
-
-	// Set the current month as the default selected value
-	const currentMonth = new Date().getMonth() + 1; // Get current month (1-based index)
-	monthDropdown.value = currentMonth;
-
-		function onChangeDropdown() {
-		const activeTab = $('.nav-tabs .active').attr('href'); // e.g. "#rejectedTab"
-
-		switch (activeTab) {
-			case "#pendingTab":
-				ApprovalcompOffAutoReload();
-				break;
-			case "#approvedTab":
-				compOffForApproved();
-				break;
-			case "#rejectedTab":
-				compOffForReject();
-				break;
-		}
-	}
-
-
-	document.getElementById('yearDropdown').addEventListener('change', onChangeDropdown);
-	document.getElementById('monthDropdown').addEventListener('change', onChangeDropdown);
-
-
 </script>

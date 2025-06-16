@@ -4593,8 +4593,7 @@ namespace HRMS.API.BusinessLayer
             {
                 result = dataSet.Tables[0].AsEnumerable().Select(row => new CompOffAttendanceRequestModel
                 {
-                    ID = row.Field<long>("ID"),
-                    UserId = row.Field<string>("UserId"),
+                    AttendanceId = row.Field<long>("AttendanceId"),
                     EmployeeId = row.Field<long>("EmployeeId"),
                     EmployeeName = row.Field<string>("EmployeeName"),
                     AttendanceDate = row.Field<DateTime?>("AttendanceDate"),
@@ -4621,9 +4620,7 @@ namespace HRMS.API.BusinessLayer
             {
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
         {
-            new SqlParameter("@ReportingUserID", model.UserId),
-            new SqlParameter("@Year",model.Year),
-            new SqlParameter("@Month",model.Month),
+            new SqlParameter("@ReportingUserID", model.UserId),      
             new SqlParameter("@AttendanceStatusId",attStatus)
         };
 
@@ -4634,16 +4631,17 @@ namespace HRMS.API.BusinessLayer
                     result = dataSet.Tables[0].AsEnumerable()
                         .Select(dataRow => new CompOffAttendanceRequestModel
                         {
-                            ID = dataRow.Field<long?>("ID") ?? 0,
-                            UserId = dataRow.Field<string>("employeeId"),
+                            ID = dataRow.Field<long?>("RequestID") ?? 0,
+                          // AttendanceId = dataRow.Field<long?>("AttendanceId") ,
+                            UserId = dataRow.Field<long>("employeeId"),
                             AttendanceStatus = dataRow.Field<string>("AttendanceStatusName"),
-                            AttendanceStatusId = dataRow.Field<int>("AttendanceStatusId"),
+                            AttendanceStatusId = dataRow.Field<long>("AttendanceStatusId"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
                             WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
                             FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
                             LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
                             HoursWorked = dataRow.IsNull("HoursWorked") ? TimeSpan.Zero : dataRow.Field<TimeSpan>("HoursWorked"),
-                            Comments = dataRow.Field<string>("Comments"),
+                            Comments = dataRow.Field<string>("Remarks"),
                         })
                         .ToList();
                 }
@@ -4663,19 +4661,18 @@ namespace HRMS.API.BusinessLayer
             try
             {
                 List<SqlParameter> sqlParameter = new List<SqlParameter>();
-
-                sqlParameter.Add(new SqlParameter("@Id", att.ID));
-                sqlParameter.Add(new SqlParameter("@EmployeeId", att.UserId));
+                sqlParameter.Add(new SqlParameter("@RequestID", att.ID));
+                sqlParameter.Add(new SqlParameter("@AttendanceId", att.AttendanceId));
+                sqlParameter.Add(new SqlParameter("@EmployeeId", att.EmployeeId));
                 sqlParameter.Add(new SqlParameter("@AttendanceStatusId", att.AttendanceStatusId));
                 sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
                 sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
                 sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
-                sqlParameter.Add(new SqlParameter("@Comments", att.Comments));
+             
+                sqlParameter.Add(new SqlParameter("@Remarks", att.Comments));
                 sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
-                sqlParameter.Add(new SqlParameter("@ModifiedDate", att.ModifiedDate));
-                sqlParameter.Add(new SqlParameter("@CreatedDate", att.CreatedDate));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
-                sqlParameter.Add(new SqlParameter("@IsDeleted", att.IsDeleted));
+             
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
@@ -4683,7 +4680,8 @@ namespace HRMS.API.BusinessLayer
                         .Select(dataRow =>
                             new Result()
                             {
-                                Message = dataRow.Field<string>("Result").ToString()
+                                Message = dataRow.Field<string>("Result").ToString(),
+                                PKNo =Convert.ToInt64( dataRow.Field<int>("PKNo"))
                             }
                         ).ToList().FirstOrDefault();
                 }

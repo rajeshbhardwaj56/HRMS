@@ -193,7 +193,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public IActionResult MyAttendance(Attendance AttendenceListModel)
         {
-            // Check if FirstLogDate is Saturday or Sunday
+            
             if (AttendenceListModel.FirstLogDate.HasValue)
             {
                 var selectedDate = AttendenceListModel.FirstLogDate.Value;
@@ -613,55 +613,69 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult ApproveCompOff()
-        {
-            return View();
-        }
-
-        [HttpPost]
+       
         [HttpPost]
         public IActionResult SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
         {
             var result = new Result();
+
             try
             {
                 var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+               
 
                 foreach (var attendance in submission.Logs)
                 {
                     var compOff = new CompOffAttendanceRequestModel
                     {
-                        ID = attendance.Id,
-                        UserId = attendance.EmployeeId,
-                        AttendanceStatusId = (int)AttendanceStatusId.Submitted,
+                        AttendanceId = attendance.AttendanceId,
+                        EmployeeId = attendance.EmployeeId,
                         WorkDate = attendance.AttendanceDate,
                         FirstLogDate = attendance.FirstLog,
                         LastLogDate = attendance.LastLog,
+                        HoursWorked=attendance.HoursWorked,
                         Comments = submission.Comment,
-                        ModifiedBy = userId,
-                        ModifiedDate = DateTime.Now,
+                        ModifiedBy = userId,         
                         CreatedBy = attendance.CreatedBy ?? userId,
-                        CreatedDate = DateTime.Now,
-                        IsDeleted = false
+                        IsDeleted = false,
+                        AttendanceStatusId = (int)AttendanceStatusId.Pending
                     };
 
-                    result = _attendanceService.AddUpdateCompOffAttendace(compOff);
+                    var responseString = _businessLayer.SendPostAPIRequest(compOff, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result?.ToString();
 
-                    if (!string.IsNullOrEmpty(result?.Message) && result.Message.ToLower().Contains("error"))
+                    if (!string.IsNullOrWhiteSpace(responseString))
                     {
+                        result = JsonConvert.DeserializeObject<Result>(responseString);
+
+                        if (!string.IsNullOrEmpty(result?.Message) &&
+                            result.Message.ToLower().Contains("error"))
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        result.Message = "No response from API.";
                         break;
                     }
                 }
             }
             catch (Exception ex)
             {
-                result.Message = "Error while submitting comp-off requests.";
+                result.Message = "Error while submitting comp-off requests: " + ex.Message;
             }
 
             return Json(new { message = result?.Message ?? "Comp-Off requests submitted successfully." });
         }
 
+        [HttpGet]
+        public IActionResult ApproveCompOff()
+        {
+            return View();
+        }
         [HttpPost]
         public JsonResult GetManagerApprovedCompOff([FromBody] AttendanceStatusRequest request)
         {
@@ -680,23 +694,21 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public JsonResult GetApprovedCompOff([FromBody] AttendanceStatusRequest request)
         {
-            AttendanceInputParams attendenceListParams = new AttendanceInputParams();
-            attendenceListParams.AttendanceStatusId = request.AttendanceStatus;
-            attendenceListParams.Year = request.Year;
-            attendenceListParams.Month = request.Month;
+            CompOffInputParams attendenceListParams = new CompOffInputParams();
+            attendenceListParams.AttendanceStatusId = request.CompOffStatus;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedCompOff), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
-            var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList();
+            var model = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data).ToList();
             return Json(new { data = model });
         }
 
 
         [HttpPost]
-        public JsonResult ApproveRejectCompOff(long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
+        public JsonResult ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
           
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -717,17 +729,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Convert string status to enum 
             // Prepare attendance model
-            var attendanceModel = new Attendance
+            var attendanceModel = new CompOffAttendanceRequestModel
             {
-                ID = attendanceId,
+                AttendanceId = attendanceId,
+                ID = compOffId,
                 WorkDate = workDate,
-                UserId = employeeId.ToString(),
+                UserId = employeeId,
                 AttendanceStatus = status,
                 FirstLogDate = startDate,
                 LastLogDate = endDate,
                 Comments = approveRejectComment,
                 ModifiedBy = modifiedBy,
-                ModifiedDate = DateTime.Now,
+                EmployeeId=employeeId,
                 AttendanceStatusId = attendanceStatusId
             };
 
@@ -748,16 +761,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             // Submit updated attendance
             var updateApiResponse = _businessLayer.SendPostAPIRequest(
                 attendanceModel,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace),
                 bearerToken,
                 true
             ).Result.ToString();
 
             var result = JsonConvert.DeserializeObject<Result>(updateApiResponse);
-            if (result != null && result.Message.Contains("Record for this user with the same date already exists!", StringComparison.OrdinalIgnoreCase))
-            {
-                return Json(new { success = false, message = result.Message });
-            }
+          
 
             // Email notifications
             bool isEmailSent = false;
@@ -775,8 +785,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         // Email to manager 2
                         var managerEmailProps = new sendEmailProperties
                         {
-                            emailSubject = "Send a request for attendance approval",
-                            emailBody = $"Hi, {managerFirstName} has sent a request for attendance approval.",
+                            emailSubject = "Send a request for CompOff attendance approval",
+                            emailBody = $"Hi, {managerFirstName} has sent a request for CompOff attendance approval.",
                             EmailToList = new List<string> { manager2Email }
                         };
                         EmailSender.SendEmail(managerEmailProps);
@@ -787,7 +797,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been approved.";
+                        body = $"Hi, {employeeResult.EmployeeName}, your CompOff has been approved.";
                     }
                     break;
 
@@ -796,7 +806,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been rejected.";
+                        body = $"Hi, {employeeResult.EmployeeName}, your CompOff attendance has been rejected.";
                     }
                     break;
 
@@ -805,7 +815,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been updated.";
+                        body = $"Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.";
                     }
                     break;
             }
