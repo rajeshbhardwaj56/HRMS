@@ -104,7 +104,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 }
                 else
                 {
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.Redirect(options.LoginPath);
                 }
                 return Task.CompletedTask;
             }

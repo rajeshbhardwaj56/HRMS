@@ -2866,7 +2866,7 @@ namespace HRMS.API.BusinessLayer
                 .Select(dataRow => new Attendance
                 {
                     ID = dataRow.Field<long?>("ID") ?? 0,
-                    UserId = dataRow.Field<string>("EmployeeId"),
+                    UserId = dataRow.Field<long?>("EmployeeId"),
                     AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
                     EmployeeName = dataRow.Field<string>("EmployeeName"),
                     Comments = dataRow.Field<string>("Comments"),
@@ -2933,7 +2933,7 @@ namespace HRMS.API.BusinessLayer
                                  .Select(dataRow => new Attendance
                                  {
                                      ID = dataRow.Field<long>("ID"),
-                                     UserId = dataRow.Field<string>("EmployeeId"),
+                                     UserId = dataRow.Field<long?>("EmployeeId"),
                                      AttendanceStatusId = dataRow.Field<int?>("AttendanceStatusId"),
                                      WorkDate = dataRow.Field<DateTime>("WorkDate"),
                                      FirstLogDate = dataRow.Field<DateTime>("FirstLogDate"),
@@ -2977,7 +2977,7 @@ namespace HRMS.API.BusinessLayer
                 .Select(dataRow => new Attendance
                 {
                     ID = dataRow.Field<long?>("ID") ?? 0,
-                    UserId = dataRow.Field<string>("UserId"),
+                    UserId = dataRow.Field<long?>("UserId"),
                     AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
                     EmployeeName = dataRow.Field<string>("EmployeeName"),
                     WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
@@ -3018,7 +3018,7 @@ namespace HRMS.API.BusinessLayer
                         .Select(dataRow => new Attendance
                         {
                             ID = dataRow.Field<long?>("ID") ?? 0,
-                            UserId = dataRow.Field<string>("employeeId"),
+                            UserId = dataRow.Field<long?>("employeeId"),
                             AttendanceStatus = dataRow.Field<string>("AttendanceStatusName"),
                             AttendanceStatusId = dataRow.Field<int>("AttendanceStatusId"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
@@ -3059,7 +3059,7 @@ namespace HRMS.API.BusinessLayer
                         .Select(dataRow => new Attendance
                         {
                             ID = dataRow.Field<long?>("ID") ?? 0,
-                            UserId = dataRow.Field<string>("employeeId"),
+                            UserId = dataRow.Field<long?>("employeeId"),
                             AttendanceStatus = dataRow.Field<string>("AttendanceStatus"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
                             WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,

@@ -207,7 +207,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
             var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            AttendenceListModel.UserId = UserId.ToString();
+            AttendenceListModel.UserId = UserId;
             AttendenceListModel.CreatedDate = DateTime.Now;
             AttendenceListModel.ModifiedBy = UserId;
             AttendenceListModel.CreatedBy = UserId;
@@ -346,7 +346,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 ID = attendanceId,
                 WorkDate = workDate,
-                UserId = employeeId.ToString(),
+                UserId = employeeId,
                 AttendanceStatus = status,
                 FirstLogDate = startDate,
                 LastLogDate = endDate,
