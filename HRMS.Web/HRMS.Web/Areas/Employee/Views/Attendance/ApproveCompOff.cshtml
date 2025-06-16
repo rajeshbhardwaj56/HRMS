@@ -491,7 +491,9 @@
 					if (json.success) {
 						showToast(json.message);
 						CloseApproveRejectModel();
-						window.location.reload();
+					setTimeout(function () {
+				window.location.reload();
+			}, 2000);
 						$("#ApproveRejectComment").val("");
 					} else {
 						$("#approverejectrequire").text(json.message);
