@@ -1226,7 +1226,7 @@ namespace HRMS.API.BusinessLayer
     };
 
             // Execute the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetManagerOfManager, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetManagerOfManager, sqlParameters);
 
             L2ManagerDetail managerDetail = new L2ManagerDetail();
 
@@ -2560,7 +2560,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@EmployeeId", model.EmployeeId ),
         new SqlParameter("@CreatedBy", model.CreatedBy )
     };
-            var dataSet = DataLayer.GetDataSetByStoredProcedure("sp_GetAttendanceAuditLog", sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_GetAttendanceAuditLog", sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2692,7 +2692,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@UserId", model.UserId)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetAttendanceDeviceLog, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceDeviceLog, sqlParameters);
 
             var dailyStatuses = new List<DailyAttendanceStatus>();
 
@@ -2734,7 +2734,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@SearchTerm", model.SearchTerm)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetTeamAttendanceDeviceLog, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetTeamAttendanceDeviceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2858,7 +2858,7 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@UserId", model.UserId)
             };
             // Get the dataset from the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetMyAttendanceLog, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetMyAttendanceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2904,7 +2904,7 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@CreatedDate", att.CreatedDate));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
                 sqlParameter.Add(new SqlParameter("@IsDeleted", att.IsDeleted));
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_SaveAttendanceManualLog, sqlParameter);
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveAttendanceManualLog, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
                     model = dataSet.Tables[0].AsEnumerable()
@@ -2956,7 +2956,7 @@ namespace HRMS.API.BusinessLayer
                 Direction = ParameterDirection.Output
             };
             sqlParameter.Add(outputMessage);
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_DeleteAttendanceDeviceLog, sqlParameter);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_DeleteAttendanceDeviceLog, sqlParameter);
             string message = outputMessage.Value.ToString();
             return message;
         }
@@ -2969,7 +2969,7 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@ReportingID", model.UserId)
             };
             // Get the dataset from the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetMyAttendanceLog, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetMyAttendanceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
