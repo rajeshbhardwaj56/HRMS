@@ -678,8 +678,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         var Message = "Exceeds maximum Compensatory Off allowed " + model.CampOffLeaveCount + ' ' + "days leaves";
                         return Json(new { isValid = false, message = Message });
                     }
-                    var totalJoiningDays = (DateTime.Today - employeeDetails.InsertedDate).TotalDays;
-                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > totalJoiningDays)
+                    //var totalJoiningDays = (DateTime.Today - employeeDetails.JoiningDate).TotalDays;
+                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining" });
@@ -700,7 +700,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         }
                         else
                         {
-                            model.leaveResults.leaveSummaryModel.CampOff =(int)CompOff.CompOff;
+                            model.leaveResults.leaveSummaryModel.CampOff =(int)CompOff.OtherLeaves;
                         }
 
                     }

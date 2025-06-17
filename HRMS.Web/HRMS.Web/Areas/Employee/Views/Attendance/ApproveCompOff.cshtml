@@ -220,6 +220,12 @@
 												<p id="hoursWorked"> </p>
 											</div>
 										</div>
+										<div class="DateFormatDiv" style="display: flex;">
+											<div class="col-lg-12 px-4">
+												<h6>Comment</h6>
+												<p id="L1ManagerComment"> </p>
+											</div>
+										</div>
 										<hr>
 										<h3>Approval Comment</h3>
 										<p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
@@ -312,7 +318,7 @@
 
 				 {
 					 render: function (data, type, row) {
-						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}','${row.hoursWorked}')" href="#" title="Approve">
+						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}','${row.hoursWorked}','${row.comments}')" href="#" title="Approve">
 									 <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
 								 </a>`;
 					 }
@@ -531,17 +537,18 @@
 		 });
 	 }
 
-	 function OpenApproveRejectModel(employeeID, Id,attendanceId, firstLogDate, lastLogDate, comments, workDate,hoursWorked) {
+	 function OpenApproveRejectModel(employeeID, Id,attendanceId, firstLogDate, lastLogDate, attendanceStatus, workDate,hoursWorked,comments) {
 
 		 $("#employeeID").val(employeeID);
 		 $("#compOffId").val(Id);
 		 $("#attendanceId").val(attendanceId);
-		 $("#status").val(comments);
+		 $("#status").val(attendanceStatus);
 		 $("#AttWorkDate").val(workDate);
 		 $("#AttStartDate").val(firstLogDate);
 		 $("#AttEndDate").val(lastLogDate);
 		 $("#WorkDate").text(formatDate(workDate));
 		 $("#hoursWorked").text(hoursWorked);
+		 $("#L1ManagerComment").text(comments);
 		
 
 		 $.ajax({

@@ -37,7 +37,7 @@ namespace HRMS.Models.Common
         MaternityLeave = 1,
         Adoption = 2,
         AnnualLeavel = 3,
-        CompOff = 4,
+        CompOff = 9,
         Miscarriage = 5,
         MedicalLeave = 6,
         Paternity = 7,

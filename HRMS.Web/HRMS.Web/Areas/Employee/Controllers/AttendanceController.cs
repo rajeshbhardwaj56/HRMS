@@ -20,23 +20,23 @@ using System.Linq;
 namespace HRMS.Web.Areas.Employee.Controllers
 {
     [Area(Constants.ManageEmployee)]
-  //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
+    //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class AttendanceController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
 
-        public AttendanceController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer)
+        public AttendanceController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
-            _CheckUserFormPermission = CheckUserFormPermission; 
+            _CheckUserFormPermission = CheckUserFormPermission;
         }
 
         public IActionResult AttendenceListing()
         {
-           
+
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
@@ -123,7 +123,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
-                return RedirectToAction("Index", "Home", new { area = "" }); 
+                return RedirectToAction("Index", "Home", new { area = "" });
             }
             return View();
         }
@@ -193,7 +193,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public IActionResult MyAttendance(Attendance AttendenceListModel)
         {
-            
+
             if (AttendenceListModel.FirstLogDate.HasValue)
             {
                 var selectedDate = AttendenceListModel.FirstLogDate.Value;
@@ -611,7 +611,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return Json(new { data = model });
         }
-         
+
         [HttpPost]
         public IActionResult SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
         {
@@ -621,7 +621,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
                 var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
-               
+
 
                 foreach (var attendance in submission.Logs)
                 {
@@ -632,9 +632,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         WorkDate = attendance.AttendanceDate,
                         FirstLogDate = attendance.FirstLog,
                         LastLogDate = attendance.LastLog,
-                        HoursWorked=attendance.HoursWorked,
+                        HoursWorked = attendance.HoursWorked,
                         Comments = submission.Comment,
-                        ModifiedBy = userId,         
+                        ModifiedBy = userId,
                         CreatedBy = attendance.CreatedBy ?? userId,
                         IsDeleted = false,
                         AttendanceStatusId = (int)AttendanceStatusId.Pending
@@ -708,7 +708,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public JsonResult ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
-          
+
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var managerFirstName = HttpContext.Session.GetString(Constants.FirstName);
             string manager2Email = HttpContext.Session.GetString(Constants.Manager2Email) ?? string.Empty;
@@ -738,23 +738,26 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 LastLogDate = endDate,
                 Comments = approveRejectComment,
                 ModifiedBy = modifiedBy,
-                EmployeeId=employeeId,
+                EmployeeId = employeeId,
                 AttendanceStatusId = attendanceStatusId
             };
 
             // Determine new status based on action and current status
-            if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
-            {
-                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                    ? (int)AttendanceStatusId.L1Approved
-                    : (int)AttendanceStatusId.L2Approved;
-            }
-            else
-            {
-                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                    ? (int)AttendanceStatusId.L1Rejected
-                    : (int)AttendanceStatusId.L2Rejected;
-            }
+             
+                if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+                {
+                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                        ? (int)AttendanceStatusId.L1Approved
+                        : (int)AttendanceStatusId.L2Approved;
+                }
+                else
+                {
+                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                        ? (int)AttendanceStatusId.L1Rejected
+                        : (int)AttendanceStatusId.L2Rejected;
+                }
+             
+
 
             // Submit updated attendance
             var updateApiResponse = _businessLayer.SendPostAPIRequest(
@@ -765,7 +768,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             ).Result.ToString();
 
             var result = JsonConvert.DeserializeObject<Result>(updateApiResponse);
-          
+
 
             // Email notifications
             bool isEmailSent = false;
@@ -787,7 +790,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                             emailBody = $"Hi, {managerFirstName} has sent a request for CompOff attendance approval.",
                             EmailToList = new List<string> { manager2Email }
                         };
-                        EmailSender.SendEmail(managerEmailProps);
+                        //   EmailSender.SendEmail(managerEmailProps);
                     }
 
                     // Email to employee
@@ -826,9 +829,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     emailBody = body,
                     EmailToList = emailList
                 };
-                var emailResponse = EmailSender.SendEmail(emailProps);
-                isEmailSent = emailResponse.responseCode == "200";
-                emailMessage = isEmailSent ? " and email sent." : ", but email sending failed.";
+                // var emailResponse = EmailSender.SendEmail(emailProps);
+                // isEmailSent = emailResponse.responseCode == "200";
+                // emailMessage = isEmailSent ? " and email sent." : ", but email sending failed.";
+                emailMessage = ", but email sending failed.";
             }
 
             var actionVerb = actionText.Equals("approve", StringComparison.OrdinalIgnoreCase) ? "approved" : "rejected";
@@ -846,7 +850,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(employeeDetailsJson).employeeModel;
             return employeeDetails;
         }
-         
+
         private int GetSessionInt(string key)
         {
             return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;

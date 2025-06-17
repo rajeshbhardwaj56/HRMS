@@ -136,6 +136,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_GetCompOffLeaveRequestsForManagers = "usp_GetCompOffLeaveRequestsForManagers";
         public const string usp_SaveOrUpdateCompOffLeaveRequest = "usp_SaveOrUpdateCompOffLeaveRequest";
         public const string usp_UpdateAttendanceCompOffStatusByUserId = "usp_UpdateAttendanceCompOffStatusByUserId";
+        public const string usp_EmployeeReportingManagersSame = "usp_EmployeeReportingManagersSame";
 
 
     }

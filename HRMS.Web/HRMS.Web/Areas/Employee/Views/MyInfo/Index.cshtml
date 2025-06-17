@@ -1372,7 +1372,7 @@
 				$("#adminexpectedDeliveryDateContainer").css("display", "none");
 				if (Array.isArray(leavesSummary)) {
 					let leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
-					console.log(leaveSummary);
+					   $("#leaveTypeID").val(leaveSummary.leaveTypeID);
 					if (leaveSummary) {
 						$("#showalert").text('');
 						$("#showDocumentalert").text('');
