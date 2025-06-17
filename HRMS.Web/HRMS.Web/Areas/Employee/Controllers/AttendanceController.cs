@@ -592,12 +592,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpPost]
-        public JsonResult GetCompOffAttendanceLogs()
+        public JsonResult GetCompOffAttendanceLogs(long attendanceStatus)
         {
             CompOffAttendanceInputParams inputParams = new CompOffAttendanceInputParams
             {
                 EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
-                JobLocationTypeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.JobLocationID))
+                JobLocationTypeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.JobLocationID)),
+                AttendanceStatus = attendanceStatus,
             };
 
             var data = _businessLayer.SendPostAPIRequest(
@@ -619,10 +620,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             try
             {
-                var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-                var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
-               
-
+                var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));             
                 foreach (var attendance in submission.Logs)
                 {
                     var compOff = new CompOffAttendanceRequestModel
@@ -647,11 +645,20 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     if (!string.IsNullOrWhiteSpace(responseString))
                     {
                         result = JsonConvert.DeserializeObject<Result>(responseString);
-
-                        if (!string.IsNullOrEmpty(result?.Message) &&
-                            result.Message.ToLower().Contains("error"))
-                        {
+                        if (!string.IsNullOrEmpty(result?.Message) && result.Message.ToLower().Contains("error"))
                             break;
+                        var managerEmail = HttpContext.Session.GetString(Constants.Manager1Email);
+                        if (!string.IsNullOrEmpty(managerEmail))
+                        {
+                            var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+                            sendEmailProperties sendEmailProperties = new sendEmailProperties
+                            {
+                                emailSubject = "Send a request for CompOff Attendance approval",
+                                emailBody = $"Hi, {Name} has sent a request for attendance approval."
+                            };
+                            sendEmailProperties.EmailToList.Add(managerEmail);
+                            emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
+                            
                         }
                     }
                     else

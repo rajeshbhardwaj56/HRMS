@@ -4629,7 +4629,8 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
-        new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID)
+        new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID),
+                    new SqlParameter("@AttendanceStatus",model.AttendanceStatus)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetHolidayOrSundayWorkLog, sqlParameters);
@@ -4649,6 +4650,7 @@ namespace HRMS.API.BusinessLayer
                     ManagerId = row.Field<long>("ManagerId"),
                     ApprovalStatus = row.Field<int>("ApprovalStatus"),
                     AttendanceStatus = row.Field<string>("AttendanceStatus"),
+                    Comments = row.Field<string>("Remarks"),
 
                 }).ToList();
             }
@@ -4733,7 +4735,7 @@ namespace HRMS.API.BusinessLayer
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine("Error in AddUpdateCompOffAttendace: " + ex.Message);
             }
             return model;
         }

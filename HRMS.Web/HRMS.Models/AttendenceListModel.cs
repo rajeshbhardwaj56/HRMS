@@ -45,9 +45,11 @@ namespace HRMS.Models.AttendenceList
     {
         public long EmployeeID { get; set; }
         public long JobLocationTypeID { get; set; }
+
+        public long AttendanceStatus { get; set; }
     }
 
- 
+
     public class CompOffAttendanceModel
     {
         public long ID { get; set; }

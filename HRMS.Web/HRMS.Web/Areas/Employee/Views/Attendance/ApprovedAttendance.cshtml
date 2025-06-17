@@ -5,7 +5,7 @@
 @inject IConfiguration _configuration
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-
+	ViewData["Title"] = "Approve Attendance";
 }
 <style>
 	.fade:not(.show) {
