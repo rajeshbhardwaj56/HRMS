@@ -143,16 +143,30 @@
                 }
             });
 
-            // Select all checkboxes
+           
             $('#selectAll').on('click', function () {
-                $('.row-select').prop('checked', this.checked);
+                 const isChecked = this.checked;
+               $('#tblNotApplied .row-select').prop('checked', isChecked);
             });
 
             $('#selectAllRejected').on('click', function () {
-                $('#tblRejected .row-select').prop('checked', this.checked);
+               const isChecked = this.checked;
+        $('#tblRejected .row-select').prop('checked', isChecked);
             });
+               
+        $('#tblNotApplied tbody').on('change', '.row-select', function () {
+            const allChecked = $('#tblNotApplied .row-select').length ===
+                              $('#tblNotApplied .row-select:checked').length;
+            $('#selectAll').prop('checked', allChecked);
+        });
 
-            // Submit comp-off requests
+       
+        $('#tblRejected tbody').on('change', '.row-select', function () {
+            const allChecked = $('#tblRejected .row-select').length ===
+                               $('#tblRejected .row-select:checked').length;
+            $('#selectAllRejected').prop('checked', allChecked);
+        });
+           
             $('#submitRequest').click(() => submitCompOffRequest('not-applied'));
             $('#submitRequestRejected').click(() => submitCompOffRequest('rejected'));
         });
