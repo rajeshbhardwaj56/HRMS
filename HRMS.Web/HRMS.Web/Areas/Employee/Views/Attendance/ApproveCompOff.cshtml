@@ -42,7 +42,9 @@
 														<table id="tblcompOffForApproval" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
+																	<th>Employee No</th>	
 																	<th>Employee Name</th>	
+																	<th>Manager</th>	
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -77,7 +79,9 @@
 														<table id="tblcompOffForApproved" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
+																	<th>Employee No</th>
 																	<th>Employee Name</th>
+																	<th>Manager</th>
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -108,7 +112,9 @@
 														<table id="tblcompOffForReject" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
+																	<th>Employee No</th>
 																	<th>Employee Name</th>
+																	<th>Manager</th>
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -296,7 +302,9 @@
 			 info: true,
 			 responsive: true,
 			 columns: [
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
+				 { data: "managerName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
 					 autoWidth: true,
@@ -312,7 +320,13 @@
 					 autoWidth: true,
 					 render: formatDate
 				 },
-				 { data: "hoursWorked", autoWidth: true },
+					{
+		data: "hoursWorked",
+		autoWidth: true,
+		render: function (data, type, row) {
+			return formatTimeToHoursMinutes(data);
+		}
+	},
 				 { data: "attendanceStatus", autoWidth: true },
 								 { data: "comments", autoWidth: true },
 
@@ -386,7 +400,9 @@
 			 info: true,
 			 responsive: true,
 			 columns: [
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
+				 { data: "managerName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
 					 autoWidth: true,
@@ -402,7 +418,13 @@
 					 autoWidth: true,
 					 render: formatDate
 				 },
-				 { data: "hoursWorked", autoWidth: true },
+				{
+		data: "hoursWorked",
+		autoWidth: true,
+		render: function (data, type, row) {
+			return formatTimeToHoursMinutes(data);
+		}
+	},
 				 { data: "attendanceStatus", autoWidth: true },
 				 { data: "comments", autoWidth: true },
 
@@ -542,10 +564,10 @@
 		 $("#AttStartDate").val(firstLogDate);
 		 $("#AttEndDate").val(lastLogDate);
 		 $("#WorkDate").text(formatDate(workDate));
-		 $("#hoursWorked").text(hoursWorked);
 		 $("#L1ManagerComment").text(comments);
-		
 
+			 let formatted = formatTimeToHoursMinutes(hoursWorked);
+	$("#hoursWorked").text(formatted);
 		 $.ajax({
 			 url: '/employee/Attendance/GetEmployeeAttendanceShiftDetails',
 			 type: 'GET',
@@ -580,7 +602,9 @@
 			 info: true,
 			 responsive: true,
 			 columns: [
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
+				 { data: "managerName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
 					 autoWidth: true,
@@ -596,7 +620,14 @@
 					 autoWidth: true,
 					 render: formatDate
 				 },
-				 { data: "hoursWorked", autoWidth: true },
+				{
+    data: "hoursWorked",
+    autoWidth: true,
+    render: function (data, type, row) {
+        return formatTimeToHoursMinutes(data);
+    }
+},
+
 				 { data: "attendanceStatus", autoWidth: true },
 								 { data: "comments", autoWidth: true },
 
@@ -614,4 +645,13 @@
 			 }
 		 });
 	 }
+		 function formatTimeToHoursMinutes(timeString) {
+		if (!timeString) return '';
+
+		const [hours, minutes] = timeString.split(':');
+		const h = parseInt(hours, 10);
+		const m = parseInt(minutes, 10);
+
+		return `${h}h ${m}m`;
+	}
 </script>

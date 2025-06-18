@@ -2909,6 +2909,7 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@CreatedDate", att.CreatedDate));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
                 sqlParameter.Add(new SqlParameter("@IsDeleted", att.IsDeleted));
+                sqlParameter.Add(new SqlParameter("@RoleId", att.RoleId));
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveAttendanceManualLog, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
@@ -3012,7 +3013,8 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@ReportingUserID", model.UserId),
             new SqlParameter("@Year",model.Year),
             new SqlParameter("@Month",model.Month),
-            new SqlParameter("@AttendanceStatusId",attStatus)
+            new SqlParameter("@AttendanceStatusId",attStatus),
+            new SqlParameter("@RoleId",model.RoleId)
         };
 
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ApprovedAttendance, sqlParameters);
@@ -4699,7 +4701,8 @@ namespace HRMS.API.BusinessLayer
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
         {
             new SqlParameter("@ReportingUserID", model.UserId),      
-            new SqlParameter("@AttendanceStatusId",attStatus)
+            new SqlParameter("@AttendanceStatusId",attStatus),
+            new SqlParameter("@RoleId",model.RoleId)
         };
 
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetCompOffLeaveRequestsForManagers, sqlParameters);
@@ -4720,6 +4723,8 @@ namespace HRMS.API.BusinessLayer
                             LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
                             HoursWorked = dataRow.IsNull("HoursWorked") ? TimeSpan.Zero : dataRow.Field<TimeSpan>("HoursWorked"),
                             Comments = dataRow.Field<string>("Remarks"),
+                            ManagerName = dataRow.Field<string>("ManagerName"),
+                            EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
                         })
                         .ToList();
                 }
@@ -4750,6 +4755,7 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@Remarks", att.Comments));
                 sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
+                sqlParameter.Add(new SqlParameter("@RoleId", att.RoleId));
              
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
