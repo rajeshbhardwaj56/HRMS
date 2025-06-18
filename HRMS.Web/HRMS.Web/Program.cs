@@ -104,7 +104,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 }
                 else
                 {
-                    context.Response.Redirect(options.LoginPath);
+                    context.Response.Redirect("/Home/ErrorPage");
                 }
                 return Task.CompletedTask;
             }

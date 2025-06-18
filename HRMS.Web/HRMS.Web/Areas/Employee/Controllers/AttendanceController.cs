@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
@@ -8,6 +9,7 @@ using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.MyInfo;
 using HRMS.Models.ShiftType;
+using HRMS.Models.User;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -216,7 +218,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
             AttendenceListModel.AttendanceStatus = AttendanceStatus.Submitted.ToString();
             AttendenceListModel.AttendanceStatusId = (int)AttendanceStatusId.Pending;
             AttendenceListModel.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-
+            EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
+            employeeobj.EmployeeID = AttendenceListModel.UserId ?? 0;
             var data = _businessLayer.SendPostAPIRequest(
                 AttendenceListModel,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
@@ -232,14 +235,65 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
             else
             {
+                var employeeApiResponse = _businessLayer.SendPostAPIRequest(
+            employeeobj,
+            _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+            HttpContext.Session.GetString(Constants.SessionBearerToken),
+            true
+        ).Result.ToString();
+                var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
+
                 var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
                 if (!string.IsNullOrEmpty(Manager1Email))
                 {
+                    var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
                     var ManagerName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
                     sendEmailProperties sendEmailProperties = new sendEmailProperties
                     {
-                        emailSubject = "Send a request for attendance approval",
-                        emailBody = "Hi, " + ManagerName + " has sent a request for attendance approval."
+
+                        emailSubject = "Send a request for CompOff Attendance approval",
+                        emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+           {Name} has sent a request for attendance approval.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Email</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeNumber}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeeName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.PersonalEmailAddress}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.DepartmentName}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+
+            
+
+            <p style='color: #000; font-size: 13px;'>
+                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
+
+                If you are happy with our services or want to share any feedback, do email us at 
+                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+                All email correspondence is sent only through our official domain: 
+                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+                Your cooperation is greatly appreciated.
+            </p>
+        </div>"
                     };
                     sendEmailProperties.EmailToList.Add(Manager1Email);
                     emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
@@ -397,14 +451,55 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             switch (attendanceModel.AttendanceStatusId)
             {
-                case (int)AttendanceStatusId.L2Approved:
+                case (int)AttendanceStatusId.L1Approved:
                     if (!string.IsNullOrEmpty(manager2Email))
                     {
                         // Email to manager 2
                         var managerEmailProps = new sendEmailProperties
                         {
                             emailSubject = "Send a request for attendance approval",
-                            emailBody = $"Hi, {managerFirstName} has sent a request for attendance approval.",
+                            emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+           {employeeResult.EmployeeName} has sent a request for attendance approval.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Email</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeNumber}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeeName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.PersonalEmailAddress}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.DepartmentName}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+
+            
+
+            <p style='color: #000; font-size: 13px;'>
+                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
+
+                If you are happy with our services or want to share any feedback, do email us at 
+                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+                All email correspondence is sent only through our official domain: 
+                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+                Your cooperation is greatly appreciated.
+            </p>
+        </div>",
                             EmailToList = new List<string> { manager2Email }
                         };
                         EmailSender.SendEmail(managerEmailProps);
@@ -415,7 +510,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been approved.";
+                        body = $@"
+   Hi, {employeeResult.EmployeeName}, your CompOff has been approved.
+    <p style='color: #000; font-size: 13px;'>
+        To no longer receive messages from Eternity Logistics, please click to 
+        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
+
+        If you are happy with our services or want to share any feedback, do email us at 
+        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+        All email correspondence is sent only through our official domain: 
+        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+        Your cooperation is greatly appreciated.
+    </p>";
                     }
                     break;
 
@@ -424,7 +536,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been rejected.";
+                        body = $@"
+    Hi {employeeResult.EmployeeName}, your CompOff attendance has been rejected.
+    <p style='color: #000; font-size: 13px;'>
+        To no longer receive messages from Eternity Logistics, please click to 
+        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
+
+        If you are happy with our services or want to share any feedback, do email us at 
+        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+        All email correspondence is sent only through our official domain: 
+        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+        Your cooperation is greatly appreciated.
+    </p>";
                     }
                     break;
 
@@ -433,7 +562,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your attendance has been updated.";
+                        body = $@"
+Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
+    <p style='color: #000; font-size: 13px;'>
+        To no longer receive messages from Eternity Logistics, please click to 
+        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
+
+        If you are happy with our services or want to share any feedback, do email us at 
+        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+        All email correspondence is sent only through our official domain: 
+        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+        Your cooperation is greatly appreciated.
+    </p>";
                     }
                     break;
             }
@@ -621,10 +767,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public IActionResult SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
         {
             var result = new Result();
-
+            EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
             try
             {
-                var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));             
+                var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
                 foreach (var attendance in submission.Logs)
                 {
                     var compOff = new CompOffAttendanceRequestModel
@@ -639,15 +785,27 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         ModifiedBy = userId,
                         CreatedBy = attendance.CreatedBy ?? userId,
                         IsDeleted = false,
-                        AttendanceStatusId = (int)AttendanceStatusId.Pending
-                    };
+                        AttendanceStatusId = (int)AttendanceStatusId.Pending,
 
+
+                    };
+                    employeeobj.EmployeeID = attendance.EmployeeId;
                     var responseString = _businessLayer.SendPostAPIRequest(compOff, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true).Result?.ToString();
 
                     if (!string.IsNullOrWhiteSpace(responseString))
                     {
+
+                        var employeeApiResponse = _businessLayer.SendPostAPIRequest(
+            employeeobj,
+            _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+            HttpContext.Session.GetString(Constants.SessionBearerToken),
+            true
+        ).Result.ToString();
+
+                        var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
+
                         result = JsonConvert.DeserializeObject<Result>(responseString);
                         if (!string.IsNullOrEmpty(result?.Message) && result.Message.ToLower().Contains("error"))
                             break;
@@ -657,12 +815,54 @@ namespace HRMS.Web.Areas.Employee.Controllers
                             var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
                             sendEmailProperties sendEmailProperties = new sendEmailProperties
                             {
+
                                 emailSubject = "Send a request for CompOff Attendance approval",
-                                emailBody = $"Hi, {Name} has sent a request for attendance approval."
+                                emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+           {Name} has sent a request for attendance approval.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Email</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeNumber}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeeName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.PersonalEmailAddress}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.DepartmentName}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+
+            
+
+            <p style='color: #000; font-size: 13px;'>
+                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
+
+                If you are happy with our services or want to share any feedback, do email us at 
+                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+                All email correspondence is sent only through our official domain: 
+                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+                Your cooperation is greatly appreciated.
+            </p>
+        </div>"
                             };
                             sendEmailProperties.EmailToList.Add(managerEmail);
                             emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
-                            
+
                         }
                     }
                     else
@@ -735,10 +935,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 bearerToken,
                 true
             ).Result.ToString();
-
             var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
 
-            // Convert string status to enum 
             // Prepare attendance model
             var attendanceModel = new CompOffAttendanceRequestModel
             {
@@ -757,20 +955,20 @@ namespace HRMS.Web.Areas.Employee.Controllers
             };
 
             // Determine new status based on action and current status
-             
-                if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
-                {
-                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                        ? (int)AttendanceStatusId.L1Approved
-                        : (int)AttendanceStatusId.L2Approved;
-                }
-                else
-                {
-                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                        ? (int)AttendanceStatusId.L1Rejected
-                        : (int)AttendanceStatusId.L2Rejected;
-                }
-             
+
+            if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+            {
+                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                    ? (int)AttendanceStatusId.L1Approved
+                    : (int)AttendanceStatusId.L2Approved;
+            }
+            else
+            {
+                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                    ? (int)AttendanceStatusId.L1Rejected
+                    : (int)AttendanceStatusId.L2Rejected;
+            }
+
 
 
             // Submit updated attendance
@@ -794,17 +992,59 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             switch (attendanceModel.AttendanceStatusId)
             {
-                case (int)AttendanceStatusId.L2Approved:
+                case (int)AttendanceStatusId.L1Approved:
                     if (!string.IsNullOrEmpty(manager2Email))
                     {
                         // Email to manager 2
                         var managerEmailProps = new sendEmailProperties
                         {
                             emailSubject = "Send a request for CompOff attendance approval",
-                            emailBody = $"Hi, {managerFirstName} has sent a request for CompOff attendance approval.",
+                            emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+           {employeeResult.EmployeeName} has sent a request for attendance approval.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Email</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeNumber}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeeName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.PersonalEmailAddress}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.DepartmentName}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+
+            
+
+            <p style='color: #000; font-size: 13px;'>
+                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
+
+                If you are happy with our services or want to share any feedback, do email us at 
+                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+                All email correspondence is sent only through our official domain: 
+                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+                Your cooperation is greatly appreciated.
+            </p>
+        </div>",
+
                             EmailToList = new List<string> { manager2Email }
                         };
-                      EmailSender.SendEmail(managerEmailProps);
+                        EmailSender.SendEmail(managerEmailProps);
                     }
 
                     // Email to employee
@@ -812,7 +1052,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your CompOff has been approved.";
+                        body = $@"
+   Hi, {employeeResult.EmployeeName}, your CompOff has been approved.
+    <p style='color: #000; font-size: 13px;'>
+        To no longer receive messages from Eternity Logistics, please click to 
+        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
+
+        If you are happy with our services or want to share any feedback, do email us at 
+        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+        All email correspondence is sent only through our official domain: 
+        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+        Your cooperation is greatly appreciated.
+    </p>";
                     }
                     break;
 
@@ -821,7 +1078,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your CompOff attendance has been rejected.";
+                        body = $@"
+    Hi {employeeResult.EmployeeName}, your CompOff attendance has been rejected.
+    <p style='color: #000; font-size: 13px;'>
+        To no longer receive messages from Eternity Logistics, please click to 
+        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
+
+        If you are happy with our services or want to share any feedback, do email us at 
+        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+        All email correspondence is sent only through our official domain: 
+        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+        Your cooperation is greatly appreciated.
+    </p>";
                     }
                     break;
 
@@ -830,7 +1104,26 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
-                        body = $"Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.";
+
+                        body = $@"
+Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
+    <p style='color: #000; font-size: 13px;'>
+        To no longer receive messages from Eternity Logistics, please click to 
+        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
+
+        If you are happy with our services or want to share any feedback, do email us at 
+        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+        All email correspondence is sent only through our official domain: 
+        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+        Your cooperation is greatly appreciated.
+    </p>";
+
                     }
                     break;
             }
@@ -843,9 +1136,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     emailBody = body,
                     EmailToList = emailList
                 };
-                 var emailResponse = EmailSender.SendEmail(emailProps);
-                  isEmailSent = emailResponse.responseCode == "200";
-                 emailMessage = isEmailSent ? " and email sent." : ", but email sending failed.";
+                var emailResponse = EmailSender.SendEmail(emailProps);
+                isEmailSent = emailResponse.responseCode == "200";
+                emailMessage = isEmailSent ? " and email sent." : ", but email sending failed.";
                 //emailMessage = ", but email sending failed.";
             }
 

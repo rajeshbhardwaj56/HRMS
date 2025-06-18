@@ -3860,6 +3860,8 @@ namespace HRMS.API.BusinessLayer
                 model.EmployeeID = Convert.ToInt64(row["EmployeeID"]);
                 model.EmployeeName = Convert.ToString(row["EmployeeName"]);
                 model.PersonalEmailAddress = Convert.ToString(row["PersonalEmailAddress"]);
+                model.DepartmentName = Convert.ToString(row["DepartmentName"]);
+                model.EmployeNumber = Convert.ToString(row["EmployeNumber"]);
             }
 
             return model;
