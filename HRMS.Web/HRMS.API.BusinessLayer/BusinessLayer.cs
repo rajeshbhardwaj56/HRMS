@@ -2408,11 +2408,11 @@ namespace HRMS.API.BusinessLayer
                 List<SqlParameter> sqlParameter = new List<SqlParameter>();
                 sqlParameter.Add(new SqlParameter("@ReportingUserID", model.EmployeeID));
                 sqlParameter.Add(new SqlParameter("@RoleID", model.RoleID));
-                sqlParameter.Add(new SqlParameter("@SortCol", "EmployeeNumber"));
-                sqlParameter.Add(new SqlParameter("@SortDir", "DESC"));
-                sqlParameter.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
-                sqlParameter.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
-                sqlParameter.Add(new SqlParameter("@DisplayLength", model.DisplayLength));
+                //sqlParameter.Add(new SqlParameter("@SortCol", "EmployeeNumber"));
+                //sqlParameter.Add(new SqlParameter("@SortDir", "DESC"));
+                //sqlParameter.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
+                //sqlParameter.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
+                //sqlParameter.Add(new SqlParameter("@DisplayLength", model.DisplayLength));
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerIDs, sqlParameter);
 
 
