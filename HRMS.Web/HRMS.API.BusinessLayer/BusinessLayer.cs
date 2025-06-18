@@ -3983,21 +3983,46 @@ namespace HRMS.API.BusinessLayer
             return employeeDetails;
         }
 
-        public int GetCampOffLeaveCount(long EmployeeID, long JobLocationTypeID)
+        //public int GetCampOffLeaveCount(long EmployeeID, long JobLocationTypeID)
+        //{
+        //    LeaveResults result = new LeaveResults();
+        //    List<SqlParameter> sqlParameter = new List<SqlParameter>();
+        //    sqlParameter.Add(new SqlParameter("@EmployeeID", EmployeeID));
+        //    sqlParameter.Add(new SqlParameter("@JobLocationTypeID", JobLocationTypeID));
+        //    var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameter);
+        //    int totalRecords = 0;
+        //    if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+        //    {
+        //        int.TryParse(dataSet.Tables[0].Rows[0]["AvailableCompOffDays"].ToString(), out totalRecords);
+        //    }
+
+        //    return totalRecords;
+        //}
+        public decimal GetCampOffLeaveCount(long employeeID, long jobLocationTypeID)
         {
-            LeaveResults result = new LeaveResults();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@EmployeeID", EmployeeID));
-            sqlParameter.Add(new SqlParameter("@JobLocationTypeID", JobLocationTypeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameter);
-            int totalRecords = 0;
+            decimal availableCompOffDays = 0;
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeID", employeeID),
+        new SqlParameter("@JobLocationTypeID", jobLocationTypeID)
+    };
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameters);
+
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                int.TryParse(dataSet.Tables[0].Rows[0]["AvailableCompOffDays"].ToString(), out totalRecords);
+                object resultValue = dataSet.Tables[0].Rows[0]["AvailableCompOffDays"];
+                if (resultValue != DBNull.Value)
+                {
+                    decimal.TryParse(resultValue.ToString(), out availableCompOffDays);
+                }
             }
 
-            return totalRecords;
+            return availableCompOffDays;
         }
+
+
         public CompOffValidationResult GetValidateCompOffLeave(CampOffEligible model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>
