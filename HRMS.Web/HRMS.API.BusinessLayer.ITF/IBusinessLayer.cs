@@ -133,5 +133,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<FormPermissionViewModel> GetUserFormByDepartmentID(FormPermissionVM obj);
         public EmployeePermissionVM CheckUserFormPermissionByEmployeeID(FormPermissionVM obj);
         #endregion Page Permission
+         
     }
 }

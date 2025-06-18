@@ -1226,7 +1226,7 @@ namespace HRMS.API.BusinessLayer
     };
 
             // Execute the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetManagerOfManager, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetManagerOfManager, sqlParameters);
 
             L2ManagerDetail managerDetail = new L2ManagerDetail();
 
@@ -2565,7 +2565,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@EmployeeId", model.EmployeeId ),
         new SqlParameter("@CreatedBy", model.CreatedBy )
     };
-            var dataSet = DataLayer.GetDataSetByStoredProcedure("sp_GetAttendanceAuditLog", sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_GetAttendanceAuditLog", sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2697,7 +2697,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@UserId", model.UserId)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetAttendanceDeviceLog, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceDeviceLog, sqlParameters);
 
             var dailyStatuses = new List<DailyAttendanceStatus>();
 
@@ -2739,7 +2739,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@SearchTerm", model.SearchTerm)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetTeamAttendanceDeviceLog, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetTeamAttendanceDeviceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2863,7 +2863,7 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@UserId", model.UserId)
             };
             // Get the dataset from the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetMyAttendanceLog, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetMyAttendanceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2909,7 +2909,7 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@CreatedDate", att.CreatedDate));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
                 sqlParameter.Add(new SqlParameter("@IsDeleted", att.IsDeleted));
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_SaveAttendanceManualLog, sqlParameter);
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveAttendanceManualLog, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
                     model = dataSet.Tables[0].AsEnumerable()
@@ -2961,7 +2961,7 @@ namespace HRMS.API.BusinessLayer
                 Direction = ParameterDirection.Output
             };
             sqlParameter.Add(outputMessage);
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_DeleteAttendanceDeviceLog, sqlParameter);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_DeleteAttendanceDeviceLog, sqlParameter);
             string message = outputMessage.Value.ToString();
             return message;
         }
@@ -2974,7 +2974,7 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@ReportingID", model.UserId)
             };
             // Get the dataset from the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.sp_GetMyAttendanceLog, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetMyAttendanceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -3988,21 +3988,46 @@ namespace HRMS.API.BusinessLayer
             return employeeDetails;
         }
 
-        public int GetCampOffLeaveCount(long EmployeeID, long JobLocationTypeID)
+        //public int GetCampOffLeaveCount(long EmployeeID, long JobLocationTypeID)
+        //{
+        //    LeaveResults result = new LeaveResults();
+        //    List<SqlParameter> sqlParameter = new List<SqlParameter>();
+        //    sqlParameter.Add(new SqlParameter("@EmployeeID", EmployeeID));
+        //    sqlParameter.Add(new SqlParameter("@JobLocationTypeID", JobLocationTypeID));
+        //    var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameter);
+        //    int totalRecords = 0;
+        //    if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+        //    {
+        //        int.TryParse(dataSet.Tables[0].Rows[0]["AvailableCompOffDays"].ToString(), out totalRecords);
+        //    }
+
+        //    return totalRecords;
+        //}
+        public decimal GetCampOffLeaveCount(long employeeID, long jobLocationTypeID)
         {
-            LeaveResults result = new LeaveResults();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@EmployeeID", EmployeeID));
-            sqlParameter.Add(new SqlParameter("@JobLocationTypeID", JobLocationTypeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameter);
-            int totalRecords = 0;
+            decimal availableCompOffDays = 0;
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeID", employeeID),
+        new SqlParameter("@JobLocationTypeID", jobLocationTypeID)
+    };
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameters);
+
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                int.TryParse(dataSet.Tables[0].Rows[0]["AvailableCompOffDays"].ToString(), out totalRecords);
+                object resultValue = dataSet.Tables[0].Rows[0]["AvailableCompOffDays"];
+                if (resultValue != DBNull.Value)
+                {
+                    decimal.TryParse(resultValue.ToString(), out availableCompOffDays);
+                }
             }
 
-            return totalRecords;
+            return availableCompOffDays;
         }
+
+
         public CompOffValidationResult GetValidateCompOffLeave(CampOffEligible model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>
@@ -4744,6 +4769,13 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
+
+     
+
+
+
+
+
 
         #endregion CompOff Attendance
     }
