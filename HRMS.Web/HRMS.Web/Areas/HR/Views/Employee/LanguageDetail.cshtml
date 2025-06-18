@@ -116,6 +116,29 @@
                     if (result && result.success) {
                         $('#languageGrid').DataTable().ajax.reload();
                         form[0].reset();
+
+                          
+        const isReset =
+            $('#LanguageID').val() === '' &&
+            !$('#IsRead').is(':checked') &&
+            !$('#IsWrite').is(':checked') &&
+            !$('#IsSpeak').is(':checked');
+
+        if (isReset) {
+           
+           
+            $('#LanguageDetailID').val('');
+            $('#checkboxError').hide();
+        } else {
+            
+            $('#LanguageID').val('');
+            $('#IsRead').prop('checked', false);
+            $('#IsWrite').prop('checked', false);
+            $('#IsSpeak').prop('checked', false);
+            $('#LanguageDetailID').val('');
+            $('#checkboxError').hide();
+        }
+
                         toastMessage('Success' , result.message);
                         
                       

@@ -19,6 +19,7 @@ namespace HRMS.Models.Employee
         public int? DisplayStart { get; set; } = 0;
         public int? DisplayLength { get; set; } = 0;
         public string? Searching { get; set; }
+       
     }
 
 
