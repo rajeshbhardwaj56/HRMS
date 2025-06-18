@@ -83,6 +83,7 @@ namespace HRMS.Models.Leave
         public string StartDate { get; set; }
         public string EndDate { get; set; }
         public string EmployeeNumber { get; set; }
+        public decimal RequestedLeaveDays { get; set; }
     }
     public class CompOffValidationResult
     {

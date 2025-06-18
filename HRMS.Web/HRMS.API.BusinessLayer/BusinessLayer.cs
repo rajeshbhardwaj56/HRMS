@@ -4036,7 +4036,8 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID),
         new SqlParameter("@StartDate", model.StartDate),
         new SqlParameter("@EndDate", model.EndDate),
-        new SqlParameter("@EmployeeNumber", model.EmployeeNumber)
+        new SqlParameter("@EmployeeNumber", model.EmployeeNumber),
+        new SqlParameter("@RequestedLeaveDays", model.RequestedLeaveDays)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Is_CampOff_Eligible, sqlParameter);

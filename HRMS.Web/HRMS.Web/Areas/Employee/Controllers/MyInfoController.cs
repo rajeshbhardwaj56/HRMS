@@ -690,6 +690,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     modeldata.EmployeeNumber = Convert.ToString(_context.HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr)); ;
                     modeldata.StartDate = model.leaveResults.leaveSummaryModel.StartDate.ToString("yyyy-MM-dd");
                     modeldata.EndDate = model.leaveResults.leaveSummaryModel.EndDate.ToString("yyyy-MM-dd");
+                    modeldata.RequestedLeaveDays = leaveSummary.NoOfDays;
                     var campoffdata = GetValidateCompOffLeave(modeldata);
                     if(campoffdata !=null)
                     {
