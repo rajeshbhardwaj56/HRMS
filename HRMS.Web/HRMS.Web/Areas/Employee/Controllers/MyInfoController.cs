@@ -1319,6 +1319,422 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         }
 
-       
+
+        public IActionResult LeaveInfo(string id)
+        {
+            // Initialize model
+            var model = new MyInfoInputParams
+            {
+                LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
+                EmployeeID = GetSessionLong(Constants.EmployeeID),
+                GenderId = GetSessionInt(Constants.Gender),
+                JobLocationTypeID = GetSessionInt(Constants.JobLocationID),
+                UserID = GetSessionLong(Constants.UserID),
+                CompanyID = GetSessionLong(Constants.CompanyID)
+            };
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, (int)PageName.MyInfo);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            // Call API
+            var jsonData = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetMyInfo),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
+
+            var results = JsonConvert.DeserializeObject<MyInfoResults>(jsonData);
+
+            // Encrypt and fetch certificates
+            if (results?.leaveResults?.leavesSummary != null)
+            {
+                foreach (var leave in results.leaveResults.leavesSummary)
+                {
+                    leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+
+                    if (!string.IsNullOrEmpty(leave.UploadCertificate))
+                        leave.UploadCertificate = _s3Service.GetFileUrl(leave.UploadCertificate);
+                }
+            }
+            var employeeDetails = GetEmployeeDetails(model.CompanyID, model.EmployeeID);
+            var leavePolicy = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
+
+            // Fiscal year: March 21
+            DateTime today = DateTime.Today;
+            DateTime fiscalYearStart = (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                ? new DateTime(today.Year, 3, 21)
+                : new DateTime(today.Year - 1, 3, 21);
+
+            // Approved leaves: Annual + Medical only
+            var approvedLeaves = results?.leaveResults?.leavesSummary?
+                .Where(x => x.StartDate >= fiscalYearStart
+                            && x.LeaveStatusID == (int)LeaveStatus.Approved
+                            && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
+                .ToList();
+
+            if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
+            {
+                decimal approvedLeaveDays = approvedLeaves?.Sum(x => x.NoOfDays) ?? 0.0m;
+                double approvedLeaveTotal = (double)approvedLeaveDays;
+
+                double maxAnnualLeaveLimit = 30;
+                double totalLeaveWithCarryForward = 0;
+
+                if (approvedLeaveTotal >= maxAnnualLeaveLimit)
+                {
+                    // Already reached or exceeded limit, do not accrue further
+                    totalLeaveWithCarryForward = maxAnnualLeaveLimit;
+                }
+                else
+                {
+                    // Calculate accrual
+                    DateTime joinDate = results.employmentDetail.JoiningDate.Value;
+                    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
+
+                    // Cap accruedLeave so total does not exceed 30 minus approved leaves
+                    double maxAvailable = maxAnnualLeaveLimit - approvedLeaveTotal;
+                    accruedLeave = Math.Min(accruedLeave, maxAvailable);
+
+                    // Add carry forward if applicable
+                    if (leavePolicy.Annual_IsCarryForward == true)
+                    {
+                        double carryForward = employeeDetails.CarryForword ?? 0.0;
+                        // Add carry forward but ensure total stays capped
+                        accruedLeave = Math.Min(accruedLeave + carryForward, maxAvailable);
+                    }
+
+                    totalLeaveWithCarryForward = approvedLeaveTotal + accruedLeave;
+
+                    // Final safety cap (optional)
+                    totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
+                }
+
+                // ViewBag assignments
+                ViewBag.TotalLeave = approvedLeaveDays;
+                ViewBag.TotalAnnualLeave = totalLeaveWithCarryForward;
+                ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
+            }
+
+            return View(results);
+        }
+
+        [HttpPost]
+
+        public IActionResult LeaveInfo(MyInfoResults model, List<IFormFile> postedFiles)
+        {
+            var leaveSummary = model.leaveResults.leaveSummaryModel;
+            var startDate = leaveSummary.StartDate;
+            var endDate = leaveSummary.EndDate;
+
+            if ((int)LeaveDay.HalfDay == leaveSummary.LeaveDurationTypeID)
+            {
+                endDate = startDate;
+            }
+
+            var currentYearDate = GetAprilFirstDate();
+
+            if ((int)LeaveDay.HalfDay != leaveSummary.LeaveDurationTypeID && startDate > endDate)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                return Json(new { isValid = false, message = "End date must be greater than or equal to start date." });
+            }
+
+            int totalDays = (endDate - startDate).Days + 1;
+            int weekendDays = 0;
+
+            leaveSummary.NoOfDays = totalDays;
+
+            if ((int)LeaveDay.HalfDay == leaveSummary.LeaveDurationTypeID)
+            {
+                leaveSummary.StartDate = leaveSummary.EndDate = startDate;
+                leaveSummary.NoOfDays = leaveSummary.NoOfDays / 2;
+            }
+            else
+            {
+                leaveSummary.LeaveDurationTypeID = (int)LeaveDay.FullDay;
+            }
+
+            if (leaveSummary.NoOfDays <= 0)
+            {
+                return View(model);
+            }
+
+            leaveSummary.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID));
+            leaveSummary.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
+            leaveSummary.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
+
+            var employeeDetails = GetEmployeeDetails(leaveSummary.CompanyID, leaveSummary.EmployeeID);
+            leaveSummary.LeavePolicyID = employeeDetails.LeavePolicyID ?? 0;
+            leaveSummary.LeaveStatusID = (int)LeaveStatus.PendingApproval;
+            leaveSummary.EmployeeID = employeeDetails.EmployeeID;
+            var joinDate = employeeDetails.JoiningDate;
+
+            var leavePolicyModel = GetLeavePolicyData(leaveSummary.CompanyID, leaveSummary.LeavePolicyID);
+            var leaveSummaryData = GetLeaveSummaryData(leaveSummary.EmployeeID, leaveSummary.UserID, leaveSummary.CompanyID);
+            var leaveSummaryDataResult = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryData)?.leavesSummary;
+            var EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var isAlreadyTakenLeave = ValidateAlreadyTakenLeaves(model, leaveSummaryData, EmployeeID);
+
+            if (isAlreadyTakenLeave)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                return Json(new { isValid = false, message = "You have already applied leave for the same Date. Please remove the conflicting leave before applying again." });
+            }
+
+            double JoiningDays = 0;
+            if (joinDate.HasValue)
+            {
+                JoiningDays = (DateTime.Today - joinDate.Value).TotalDays;
+            }
+
+            // Prepare Holiday list if needed
+            List<HolidayModel> Holidaylist = new();
+            if (leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel
+                || leaveSummary.LeaveTypeID == (int)LeaveType.Paternity
+                || leaveSummary.LeaveTypeID == (int)LeaveType.MedicalLeave)
+            {
+                var holidaydata = GetHolidayData(leaveSummary.CompanyID);
+                var holidaydataList = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(holidaydata);
+                Holidaylist = holidaydataList.Holiday.ToList();
+            }
+
+            // Count weekends and holidays only once for leave types that need it
+            bool needsWeekendHolidayCount = leaveSummary.LeaveTypeID == (int)LeaveType.Paternity
+                                           || leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel
+                                           || leaveSummary.LeaveTypeID == (int)LeaveType.MedicalLeave
+                                           || leaveSummary.LeaveTypeID == (int)LeaveType.CompOff;
+
+            if (needsWeekendHolidayCount)
+            {
+                for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
+                {
+                    //bool isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                    bool isWeekend = date.DayOfWeek == DayOfWeek.Sunday;
+                    bool isHoliday = Holidaylist.Any(h => date >= h.FromDate.Date && date <= h.ToDate.Date);
+                    if (isWeekend || isHoliday)
+                        weekendDays++;
+                }
+                leaveSummary.NoOfDays -= weekendDays;
+                if (leaveSummary.NoOfDays <= 0)
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    return Json(new { isValid = false, message = "There will be a holiday on the selected day." });
+                }
+            }
+
+            switch ((LeaveType)leaveSummary.LeaveTypeID)
+            {
+                case LeaveType.MaternityLeave:
+                    if (leaveSummary.ExpectedDeliveryDate > endDate)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = "End date must be greater than or equal to Expected Delivery Date." });
+                    }
+
+                    if (leavePolicyModel.Maternity_ApplicableAfterWorkingDays > JoiningDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Maternity_ApplicableAfterWorkingDays} days of joining" });
+                    }
+
+                    var maxMaternityLeaveDays = leavePolicyModel.Maternity_MaximumLeaveAllocationAllowed * 7;
+                    if (totalDays > maxMaternityLeaveDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = $"Leave duration exceeds the maximum allowed of {maxMaternityLeaveDays} days." });
+                    }
+                    break;
+
+                case LeaveType.Miscarriage:
+                    var maxMiscarriageLeaveDays = leavePolicyModel.Miscarriage_MaximumLeaveAllocationAllowed * 7;
+                    if (totalDays > maxMiscarriageLeaveDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        TempData[HRMS.Models.Common.Constants.toastMessage] = $"Leave duration exceeds the maximum allowed of {maxMiscarriageLeaveDays} days.";
+                        return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.MyInfo);
+                    }
+
+                    if (leavePolicyModel.Maternity_ApplicableAfterWorkingDays > JoiningDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        TempData[HRMS.Models.Common.Constants.toastMessage] = $"You can't apply leave(s) before {leavePolicyModel.Maternity_ApplicableAfterWorkingDays} days of joining";
+                        return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.MyInfo);
+                    }
+                    break;
+
+                case LeaveType.Adoption:
+                    var maxAdoptionLeaveDays = leavePolicyModel.Adoption_MaximumLeaveAllocationAllowed * 7;
+                    if (totalDays > maxAdoptionLeaveDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = $"Leave duration exceeds the maximum allowed of {maxAdoptionLeaveDays} days." });
+                    }
+
+                    if (leavePolicyModel.Maternity_ApplicableAfterWorkingDays > JoiningDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Maternity_ApplicableAfterWorkingDays} days of joining" });
+                    }
+                    break;
+
+                case LeaveType.Paternity:
+                    var maxPaternityDays = leavePolicyModel.Paternity_applicableAfterWorkingMonth * 30;
+
+                    if (maxPaternityDays > JoiningDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = $"You can't apply leave(s) before {maxPaternityDays} days of joining" });
+                    }
+
+                    if (leaveSummary.ChildDOB.Date > leaveSummary.EndDate.Date)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = "Child DOB must be less than or Equal to End Date." });
+                    }
+
+                    if (leaveSummary.ChildDOB.AddMonths(3).Date <= leaveSummary.StartDate.Date)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = "Paternity leave must be taken within 3 months after delivery or miscarriage." });
+                    }
+
+                    if (leaveSummary.NoOfDays > leavePolicyModel.Paternity_maximumLeaveAllocationAllowed)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = $"Leave duration exceeds the maximum allowed of {leavePolicyModel.Paternity_maximumLeaveAllocationAllowed} days." });
+                    }
+                    break;
+
+                case LeaveType.AnnualLeavel:
+                case LeaveType.MedicalLeave:
+                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new
+                        {
+                            isValid = false,
+                            message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining"
+                        });
+                    }
+
+                    DateTime today = DateTime.Today;
+                    DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
+
+                    // Step 1: Calculate already approved annual + medical leaves in current fiscal year
+                    decimal approvedLeaves = leaveSummaryDataResult
+                        .Where(x => x.StartDate >= fiscalYearStart
+                            && x.LeaveStatusID == (int)LeaveStatus.Approved
+                            && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
+                        .Sum(x => x.NoOfDays);
+
+                    // Step 2: Calculate accrual and carry forward
+                    double accruedLeaves = 0;
+                    if (approvedLeaves < 30)
+                    {
+                        double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+
+                        if (leavePolicyModel.Annual_IsCarryForward == true)
+                        {
+                            double carryForward = Convert.ToDouble(employeeDetails.CarryForword);
+                            accruedLeave += carryForward;
+                        }
+
+                        // Respect 30-leave annual cap
+                        double maxAvailable = 30 - (double)approvedLeaves;
+                        accruedLeaves = Math.Min(accruedLeave, maxAvailable);
+                    }
+                    else
+                    {
+                        accruedLeaves = 0; // Block both accrual and carry forward
+                    }
+
+                    // Step 3: Final validation
+                    if (leaveSummary.NoOfDays > (decimal)accruedLeaves)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new
+                        {
+                            isValid = false,
+                            message = $"Leave duration exceeds the privilege leave balance of {accruedLeaves} day(s)"
+                        });
+                    }
+
+                    break;
+
+
+                case LeaveType.CompOff:
+                    if (model.CampOffLeaveCount < leaveSummary.NoOfDays)
+                    {
+                        var Message = "Exceeds maximum Compensatory Off allowed " + model.CampOffLeaveCount + ' ' + "days leaves";
+                        return Json(new { isValid = false, message = Message });
+                    }
+                    //var totalJoiningDays = (DateTime.Today - employeeDetails.JoiningDate).TotalDays;
+                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining" });
+                    }
+                    CampOffEligible modeldata = new CampOffEligible();
+                    modeldata.JobLocationTypeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.JobLocationID));
+                    modeldata.EmployeeID = leaveSummary.EmployeeID;
+                    modeldata.EmployeeNumber = Convert.ToString(_context.HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr)); ;
+                    modeldata.StartDate = model.leaveResults.leaveSummaryModel.StartDate.ToString("yyyy-MM-dd");
+                    modeldata.EndDate = model.leaveResults.leaveSummaryModel.EndDate.ToString("yyyy-MM-dd");
+                    modeldata.RequestedLeaveDays = leaveSummary.NoOfDays;
+                    var campoffdata = GetValidateCompOffLeave(modeldata);
+                    if (campoffdata != null)
+                    {
+                        if (campoffdata.IsEligible == 0)
+                        {
+                            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                            return Json(new { isValid = false, message = campoffdata.Message });
+                        }
+                        else
+                        {
+                            model.leaveResults.leaveSummaryModel.CampOff = (int)CompOff.OtherLeaves;
+                        }
+
+                    }
+
+
+                    break;
+
+                default:
+
+                    break;
+            }
+
+
+            _s3Service.ProcessFileUpload(postedFiles, leaveSummary.UploadCertificate, out string newCertificateKey);
+
+            if (!string.IsNullOrEmpty(newCertificateKey))
+            {
+                if (!string.IsNullOrEmpty(leaveSummary.UploadCertificate))
+                {
+                    _s3Service.DeleteFile(leaveSummary.UploadCertificate);
+                }
+                leaveSummary.UploadCertificate = newCertificateKey;
+            }
+            else
+            {
+                leaveSummary.UploadCertificate = _s3Service.ExtractKeyFromUrl(leaveSummary.UploadCertificate);
+            }
+
+            var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+
+            var result = JsonConvert.DeserializeObject<Result>(data);
+            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+            var messageData = "Leave applied successfully.";
+            return Json(new { isValid = true, message = messageData });
+
+        }
+
     }
 }

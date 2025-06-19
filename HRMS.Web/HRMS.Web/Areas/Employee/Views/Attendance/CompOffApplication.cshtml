@@ -82,7 +82,7 @@
             <table id="tblRejected" class="table table-striped body-text" style="width:100%">
                 <thead>
                     <tr>
-                        <th><input type="checkbox" id="selectAllRejected" /></th>
+                        
                         <th>Employee Name</th>
                         <th>Attendance Date</th>
                         <th>First Log</th>
@@ -97,14 +97,6 @@
             </table>
         </div>
 
-        <div class="mb-3 mt-3">
-            <label for="approvalCommentRejected">Comment:</label>
-            <textarea id="approvalCommentRejected" class="form-control" rows="3" placeholder="Add your comment..."></textarea>
-        </div>
-
-        <div class="mb-3">
-            <button id="submitRequestRejected" class="btn btn-primary">Apply for Comp-Off</button>
-        </div>
     </div>
 </div>
 
@@ -149,10 +141,7 @@
                $('#tblNotApplied .row-select').prop('checked', isChecked);
             });
 
-            $('#selectAllRejected').on('click', function () {
-               const isChecked = this.checked;
-        $('#tblRejected .row-select').prop('checked', isChecked);
-            });
+          
                
         $('#tblNotApplied tbody').on('change', '.row-select', function () {
             const allChecked = $('#tblNotApplied .row-select').length ===
@@ -161,14 +150,10 @@
         });
 
        
-        $('#tblRejected tbody').on('change', '.row-select', function () {
-            const allChecked = $('#tblRejected .row-select').length ===
-                               $('#tblRejected .row-select:checked').length;
-            $('#selectAllRejected').prop('checked', allChecked);
-        });
+        
            
             $('#submitRequest').click(() => submitCompOffRequest('not-applied'));
-            $('#submitRequestRejected').click(() => submitCompOffRequest('rejected'));
+           
         });
 
         function initNotAppliedTable() {
@@ -233,13 +218,7 @@
         function initRejectedTable() {
             return $('#tblRejected').DataTable({
                 columns: [
-                    {
-                        data: "attendanceId",
-                        render: function (data) {
-                            return `<input type="checkbox" class="row-select" value="${data}" />`;
-                        },
-                        orderable: false
-                    },
+                   
                     { data: "employeeName" },
                     {
                         data: "attendanceDate",
@@ -357,7 +336,7 @@
                         if (appliedLoaded) loadAppliedData();
                         if (rejectedLoaded) loadRejectedData();
                         $('#selectAll').prop('checked', false);
-                        $('#selectAllRejected').prop('checked', false);
+                       
 
                         $('#applied-tab').tab('show');
                     

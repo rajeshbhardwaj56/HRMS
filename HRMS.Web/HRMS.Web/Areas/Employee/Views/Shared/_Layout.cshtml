@@ -52,7 +52,7 @@
 	<div class="custome-container">
 		@await Component.InvokeAsync("Menu")
 		<div class="wrapper">
-			<button class="toggleBtn" type="button">
+			<button class="toggleBtn hrms_toggleBtn" type="button">
 				<svg width="20px" height="20px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
 
 					<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
@@ -283,7 +283,48 @@
 
 		});
 	</script>
+	<script>
 
+		document.addEventListener('DOMContentLoaded', function () {
+			  const toggleButton = document.querySelector('.toggleBtn');
+		if (toggleButton) {
+			toggleButton.addEventListener('click', function () {
+				const openMenus = document.querySelectorAll('.collapse.show');
+
+				openMenus.forEach(function (menu) {
+					let collapseInstance = bootstrap.Collapse.getInstance(menu);
+					if (!collapseInstance) {
+						collapseInstance = new bootstrap.Collapse(menu, { toggle: false });
+					}
+					collapseInstance.hide();
+				});
+			});
+		}
+
+
+			   const menuTitles = document.querySelectorAll('.hrms-menu-title');
+
+			   menuTitles.forEach(function (menuTitle) {
+				   menuTitle.addEventListener('click', function () {
+					   // Get target submenu for this title
+					   const targetId = menuTitle.getAttribute('data-bs-target');
+					   const targetMenu = document.querySelector(targetId);
+
+					   // Close all other submenus
+					   document.querySelectorAll('.collapse.show').forEach(function (openMenu) {
+						   if (openMenu !== targetMenu) {
+							   let instance = bootstrap.Collapse.getInstance(openMenu);
+							   if (!instance) {
+								   instance = new bootstrap.Collapse(openMenu, { toggle: false });
+							   }
+							   instance.hide();
+						   }
+					   });
+				   });
+			   });
+		   });
+	
+	</script>
 
 	@Html.Partial("_Toast")
 
