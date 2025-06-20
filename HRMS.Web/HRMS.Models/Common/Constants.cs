@@ -88,6 +88,10 @@ namespace HRMS.Models.Common
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
         public const string JobLocationID = "JobLocationID";
         public const string DepartmentID = "DepartmentID";
+ 
+        public const string LeaveInfo = "LeaveInfo";
+
+
     }
     public class RoleConstants
     {

@@ -8,13 +8,28 @@
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(Constants.AreaName));
     ViewData["Title"] = "Comp-Off Attendance";
 }
-@* 
-<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
- *@
-<div class="main-header anim" style="--delay: 0s">
-    Comp-Off Attendance Logs
-</div>
-<div class="tabsInfo">
+<style>
+    .fade:not(.show) {
+        opacity: 1;
+    }
+
+    .compoff-group-box
+   {
+        background: var(--theme-bg);
+        /* padding: 20px; */
+        margin: 15px 0px;
+        border-radius: 10px;
+        border: 1px solid #d5e3ff;
+        padding: 20px 20px 45px 20px;
+    }
+</style>
+<section class="lower-section">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="tab-pane fade" id="compOff1" role="tabpanel" aria-labelledby="compOff1-tab">
+                <div class="compoff-group-box anim">
+                    <div class="tabsInfo" id="">
+    <h3>Comp-Off Attendance Logs</h3>
 <nav>
     <div class="nav nav-tabs mb-3 " id="compOffTabs" role="tablist">
         <button class="nav-link active" id="not-applied-tab" data-bs-toggle="tab" data-bs-target="#not-applied" type="button" role="tab" aria-controls="not-applied" aria-selected="true">Not Applied</button>
@@ -99,7 +114,12 @@
 
     </div>
 </div>
-
+                
+            </div>
+        </div>
+    </div>
+    </div>
+</section>
 @section Scripts {
     <script type="text/javascript">
         let notAppliedTable, appliedTable, rejectedTable;
