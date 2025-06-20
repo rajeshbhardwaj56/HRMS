@@ -19,6 +19,7 @@ using System.Linq;
 
 namespace HRMS.Web.Areas.Employee.Controllers
 {
+    [Authorize]
     [Area(Constants.ManageEmployee)]
     //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class AttendanceController : Controller
@@ -150,6 +151,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpGet]
         public IActionResult MyAttendanceList()
         {
+            
             var ManagerL1 = HttpContext.Session.GetString(Constants.Manager1Name).ToString();
             var ManagerL2 = HttpContext.Session.GetString(Constants.Manager2Name).ToString();
             ViewBag.ManagerL1 = ManagerL1;

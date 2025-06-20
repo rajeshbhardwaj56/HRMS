@@ -27,6 +27,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.Employee.Controllers
 {
+    [Authorize]
     [Area(Constants.ManageEmployee)]
     //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class MyInfoController : Controller
@@ -1119,6 +1120,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
+            //if (EmployeeID == 0)
+            //{
+            //    HttpContext.Session.Clear();
+            //    HttpContext.SignOutAsync();
+            //    return RedirectToAction("Index", "Home", new { area = "" });
+            //}
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.TeamAttendenceList);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
@@ -1131,8 +1138,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); // Assuming this exists
             var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
             ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
-
-
             return View();
         }
         [HttpGet]
@@ -1205,7 +1210,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult ExportAttendance(int Year, int Month,int jobLocationId)
+        public IActionResult ExportAttendance(int Year, int Month, int jobLocationId)
         {
             try
             {
@@ -1220,7 +1225,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     RoleId = roleId,
                     PageSize = 0,
                     Page = 1,
-                    JobLocationID= jobLocationId
+                    JobLocationID = jobLocationId
                 };
 
                 var response = _businessLayer.SendPostAPIRequest(
@@ -1324,7 +1329,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(new { data = results.WhatsHappeningList });
 
         }
-
-
+        
     }
 }

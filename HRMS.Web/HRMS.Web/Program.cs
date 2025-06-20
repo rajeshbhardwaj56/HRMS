@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using HRMS.Web.AttendanceScheduler;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -89,27 +89,16 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie("Cookies", options =>
     {
-        options.LoginPath = "/Home/Index"; // Default
-        options.Events = new CookieAuthenticationEvents
-        {
-            OnRedirectToLogin = context =>
-            {
-                // If not an API request, redirect to your error page
-                if (!context.Request.Path.StartsWithSegments("/api"))
-                {
-                    context.Response.Redirect("/Home/ErrorPage");
-                }
-                else
-                {
-                    context.Response.Redirect(options.LoginPath);
-                }
-                return Task.CompletedTask;
-            }
-        };
+        options.LoginPath = "/Home/Index";          
+        options.AccessDeniedPath = "/Home/Index";    
+        options.ExpireTimeSpan = TimeSpan.FromHours(10); 
     });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllersWithViews();
 
 
 //builder.Services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
