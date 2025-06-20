@@ -257,6 +257,7 @@ namespace HRMS.Models.Common
         public const string GetSubDepartmentDictionary = "GetSubDepartmentDictionary";
         public const string GetEmployeeDetails = "GetEmployeeDetails";
         public const string FetchAttendanceHolidayAndLeaveInfo = "FetchAttendanceHolidayAndLeaveInfo";
+        public const string GetJobLocationsByCompany = "GetJobLocationsByCompany";
         
         
         public const string GetAllWhatsHappeningDetails = "GetAllWhatsHappeningDetails";

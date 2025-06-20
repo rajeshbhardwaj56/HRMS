@@ -17,6 +17,32 @@
 {
 	<nav role="navigation" class="main-menu">
 		<ul class="nav-list">
+			@* <li class="nav-list__item submenu--trigger">
+				<a class="nav-link" asp-area="admin" asp-controller="Template" asp-action="TemplateListing">
+					Templates <i class="caret-down-icon"></i>
+				</a>
+				<ul class="submenu">
+					<li class="nav-list__item">
+						<a class="nav-link" asp-area="admin" asp-controller="Template" asp-action="TemplateListing">
+							First Sub Item
+						</a>
+					</li>
+					<li class="nav-list__item third-submenu--trigger">
+						<a class="nav-link" href="#">
+							Sub Item 2 <i class="caret-down-icon"></i>
+						</a>
+						<ul class="third-submenu">
+							<li class="nav-list__item"><a class="nav-link" href="#">Second Level Sub 1</a></li>
+							<li class="nav-list__item"><a class="nav-link" href="#">Second Level Sub 2</a></li>
+							<li class="nav-list__item"><a class="nav-link" href="#">Second Level Sub 3</a></li>
+						</ul>
+					</li>
+					<li class="nav-list__item">
+						<a class="nav-link" href="#">Sub 3</a>
+					</li>
+				</ul>
+			</li> *@
+
 			@if (Model.FormPermissionList.Where(x => x.FormID == 10 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
 			{
 				<li class="nav-list__item"><a class='nav-link' asp-area="@(HRMS.Models.Common.Constants.ManageAdmin)" asp-controller="DashBoard" asp-action="Index">Dashboard</a></li>

@@ -129,8 +129,9 @@ namespace HRMS.Models.DashBoard
         public DateTime? Day { get; set; }
         public int? Present { get; set; }
         public int? Absent { get; set; }
- 
-        
+        public Dictionary<string, int> PresentByLocation { get; set; } = new();
+        public Dictionary<string, int> AbsentByLocation { get; set; } = new();
+
     }
 
 }

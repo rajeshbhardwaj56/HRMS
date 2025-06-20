@@ -156,6 +156,14 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.CheckUserFormPermissionByEmployeeID(objmodel));
             return response;
         }
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public IActionResult  GetJobLocationsByCompany(Joblcoations model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetJobLocationsByCompany(model));
+            return response;
+        }
 
         #endregion Page Permission
 

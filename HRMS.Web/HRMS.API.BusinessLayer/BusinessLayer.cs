@@ -1943,14 +1943,50 @@ namespace HRMS.API.BusinessLayer
                                       NoOfEmployees = dataRow.Field<int>("NoOfEmployees"),
                                   }).ToList().FirstOrDefault();
 
-                dashBoardModel.AttendanceModel = dataSet.Tables[2].AsEnumerable()
-                              .Select(dataRow => new AttendanceModel
-                              {
-                                  Day = dataRow.Field<DateTime>("Day"),
-                                  Present = dataRow.Field<int>("Present"),
-                                  Absent = dataRow.Field<int>("Absent"),
+                //dashBoardModel.AttendanceModel = dataSet.Tables[2].AsEnumerable()
+                //              .Select(dataRow => new AttendanceModel
+                //              {
+                //                  Day = dataRow.Field<DateTime>("Day"),
+                //                  Present = dataRow.Field<int>("Present"),
+                //                  Absent = dataRow.Field<int>("Absent"),
 
-                              }).ToList();
+                //              }).ToList();
+
+
+                var attendanceTable = dataSet.Tables[2];
+
+                dashBoardModel.AttendanceModel = new List<AttendanceModel>();
+
+                foreach (DataRow row in attendanceTable.Rows)
+                {
+                    var attendance = new AttendanceModel
+                    {
+                        Day = row.Field<DateTime>("Day"),
+                        Present = row.Field<int>("Present"),
+                        Absent = row.Field<int>("Absent"),
+                        PresentByLocation = new Dictionary<string, int>(),
+                        AbsentByLocation = new Dictionary<string, int>()
+                    };
+
+                    foreach (DataColumn column in attendanceTable.Columns)
+                    {
+                        if (column.ColumnName.EndsWith("_Present"))
+                        {
+                            var location = column.ColumnName.Replace("_Present", "");
+                            int present = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                            attendance.PresentByLocation[location] = present;
+                        }
+                        else if (column.ColumnName.EndsWith("_Absent"))
+                        {
+                            var location = column.ColumnName.Replace("_Absent", "");
+                            int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                            attendance.AbsentByLocation[location] = absent;
+                        }
+                    }
+
+                    dashBoardModel.AttendanceModel.Add(attendance);
+                }
+
 
                 dashBoardModel.EmployeeDetails = dataSet.Tables[3].AsEnumerable()
      .Select(dataRow => new EmployeeDetails
@@ -2731,7 +2767,8 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@RoleId", model.RoleId),
         new SqlParameter("@PageNumber", model.Page),
         new SqlParameter("@PageSize", model.PageSize),
-        new SqlParameter("@SearchTerm", model.SearchTerm)
+        new SqlParameter("@SearchTerm", model.SearchTerm),
+        new SqlParameter("@JobLocationID", model.JobLocationID)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetTeamAttendanceDeviceLog, sqlParameters);
@@ -2746,6 +2783,7 @@ namespace HRMS.API.BusinessLayer
                         {
                             EmployeeId = dataRow.Field<long?>("EmployeeID"),
                             EmployeNumber = dataRow.Field<string>("EmployeNumber"),
+                            JobLocationName = dataRow.Field<string>("JobLocationName"),
                             EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
                             TotalWorkingDays = dataRow.Field<int>("TotalWorkingDays"),
@@ -2787,7 +2825,7 @@ namespace HRMS.API.BusinessLayer
     {
         new SqlParameter("@SelectedDate", model.SelectedDate),
         new SqlParameter("@EmployeeNumber", model.EmployeeNumber),
-        new SqlParameter("@EmployeeId",model.EmployeeId)
+        new SqlParameter("@EmployeeId",model.EmployeeId),
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDailyAttendanceDetails, sqlParameters);
@@ -4670,7 +4708,7 @@ namespace HRMS.API.BusinessLayer
                     AttendanceDate = row.Field<DateTime?>("AttendanceDate"),
                     FirstLogDate = row.Field<DateTime?>("FirstLogDate"),
                     LastLogDate = row.Field<DateTime?>("LastLogDate"),
-                    HoursWorked = row.Field<TimeSpan? > ("HoursWorked"),
+                    HoursWorked = row.Field<TimeSpan?>("HoursWorked"),
                     ManagerName = row.Field<string>("ManagerName"),
                     ManagerId = row.Field<long>("ManagerId"),
                     ApprovalStatus = row.Field<int>("ApprovalStatus"),
@@ -4691,7 +4729,7 @@ namespace HRMS.API.BusinessLayer
             {
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
         {
-            new SqlParameter("@ReportingUserID", model.UserId),      
+            new SqlParameter("@ReportingUserID", model.UserId),
             new SqlParameter("@AttendanceStatusId",attStatus)
         };
 
@@ -4703,7 +4741,7 @@ namespace HRMS.API.BusinessLayer
                         .Select(dataRow => new CompOffAttendanceRequestModel
                         {
                             ID = dataRow.Field<long?>("RequestID") ?? 0,
-                          // AttendanceId = dataRow.Field<long?>("AttendanceId") ,
+                            // AttendanceId = dataRow.Field<long?>("AttendanceId") ,
                             UserId = dataRow.Field<long>("employeeId"),
                             AttendanceStatus = dataRow.Field<string>("AttendanceStatusName"),
                             AttendanceStatusId = dataRow.Field<int>("AttendanceStatusId"),
@@ -4743,7 +4781,7 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@Remarks", att.Comments));
                 sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
-             
+
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
@@ -4752,7 +4790,7 @@ namespace HRMS.API.BusinessLayer
                             new Result()
                             {
                                 Message = dataRow.Field<string>("Result").ToString(),
-                                PKNo =Convert.ToInt64( dataRow.Field<int>("PKNo"))
+                                PKNo = Convert.ToInt64(dataRow.Field<int>("PKNo"))
                             }
                         ).ToList().FirstOrDefault();
                 }
@@ -4764,9 +4802,30 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-     
 
 
+
+        public List<Joblcoations> GetJobLocationsByCompany(Joblcoations model)
+        {
+            List<Joblcoations> obj = new List<Joblcoations>();
+            var sqlParameters = new List<SqlParameter>
+             {
+                 new SqlParameter("@CompanyID", model.CompanyId)
+             };
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetJobLocationsByCompany, sqlParameters);
+            if (dataSet.Tables.Count > 0)
+            {
+                obj = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new Joblcoations
+                {
+                    JobLocationID = dataRow.Field<long>("JobLocationID"),
+                    JobLocationName = dataRow.Field<string>("JobLocationName"),
+
+                })
+                .ToList();
+            }
+            return obj;
+        }
 
 
 
