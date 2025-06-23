@@ -137,7 +137,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         accruedLeave = Math.Min(accruedLeave + carryForward, maxAvailable);
                     }
 
-                    totalLeaveWithCarryForward = approvedLeaveTotal + accruedLeave;
+                    totalLeaveWithCarryForward =  accruedLeave- approvedLeaveTotal;
 
                     // Final safety cap (optional)
                     totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
