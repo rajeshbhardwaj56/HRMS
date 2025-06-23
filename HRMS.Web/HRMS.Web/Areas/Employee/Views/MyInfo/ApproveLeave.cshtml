@@ -785,6 +785,21 @@
 							$('#adminfromdates').val(formattedstartDate);
 							$('#adminReason').val(leaveSummary.reason);
 						}
+								if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.LeaveWithOutPay)) {
+						 
+							$("#adminfullDayContainer").css("display", "flex");
+							//$("#AnnualLeaveBalance").css("display", "block");
+							$("#admintodatetime").css("display", "block");
+							$("#downloaddocument").css("display", "none");
+							$("#adminChildDOBDateContainer").css("display", "none");
+							let endDate = new Date(leaveSummary.endDate);
+							let formattedEndDate = endDate.toISOString().split('T')[0];
+							$('#admintodates').val(formattedEndDate);
+							let startDate = new Date(leaveSummary.startDate);
+							let formattedstartDate = startDate.toISOString().split('T')[0];
+							$('#adminfromdates').val(formattedstartDate);
+							$('#adminReason').val(leaveSummary.reason);
+						}
 						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Paternity)) {
 
 							if (response.leavePolicyDetails.paternity_medicalDocument == true) {
