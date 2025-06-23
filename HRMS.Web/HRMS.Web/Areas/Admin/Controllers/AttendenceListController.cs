@@ -20,7 +20,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
     public class AttendenceListController : Controller
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration _configuration; 
         private readonly IBusinessLayer _businessLayer;
         public AttendenceListController(IConfiguration configuration, IBusinessLayer businessLayer)
         {
