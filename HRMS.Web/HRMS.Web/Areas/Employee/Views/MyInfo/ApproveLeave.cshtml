@@ -74,6 +74,12 @@
 	}
 }
 <style>
+	.leave-section-tabs {
+		/* background-color: #05397b; */
+		border-radius: 5px 5px 0px 0px;
+		color: white;
+		border: none;
+	}
 	.fade:not(.show) {
 		opacity: 0;
 		display: none !important;
@@ -118,40 +124,15 @@
 
 
 				<div class="myinfo-menu">
-					<ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">					
+					<ul class="nav nav-tabs leave-section-tabs" id="myTab1" role="tablist">
 						@if (RoleName != Convert.ToInt64(Roles.Employee))
 						{
 							<li class="nav-item" role="presentation">
-								<a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
+								<a class="nav-link section-link active" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
 							</li>
 						}
 
-                        @if (Model.employmentDetail.JoiningDate != null  )
-                        {
-                            if (Model.employeeModel.LeavePolicyID > 0)
-                            {
-                                        @if (RoleName != Convert.ToInt64(Roles.Admin) &&  RoleName != Convert.ToInt64(Roles.SuperAdmin) )
-                        {
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
-                                </li>
-                                  }
-
-                            }
-                            else
-                            {
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Leave Policy not available. Please contact your administrator.');">Leave Info</a>
-                                </li>
-                            }
-                        }
-                        else{
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
-                            </li>
-                        }
-
-					
+                      
 					</ul>
 				</div>
 			</div>
@@ -170,12 +151,12 @@
 						<div class="row">
 							<div class="col-lg-12">																			
 
-								<div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
+								<div class="tab-pane fade show active" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
 									<div class="group-box anim">
 										<div class="tabsInfo" id="">
 											<h3>Leave Approval Info</h3>
 											<nav>
-												<div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
+												<div class="nav nav-tabs mb-3" id="myTabs-timeoff" role="tablist">
 													<button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
 														Leaves For Approval
 													</button>
@@ -335,320 +316,9 @@
 									</div>
 								</div>
 
-								<div class="tab-pane fade" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
+							
 
-									<div class="group-box anim">
-										<div class="tabsInfo" id="">
-											<h3>Leave Info</h3>
-											<nav>
-												<div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
-													<button class="nav-link active" id="apply-leave-tab1" data-bs-toggle="tab" data-bs-target="#apply-leave-tab" type="button" role="tab" aria-controls="apply-leave-tab" aria-selected="true">Apply Leave</button>
-													<button class="nav-link  " id="leave-summary-tab1" data-bs-toggle="tab" data-bs-target="#leave-summary-tab" type="button" role="tab" aria-controls="leave-summary-tab" aria-selected="false">Leave Summary</button>
-												</div>
-											</nav>
-											<div class="tab-content" id="nav-tabContent">
-												<div class="tab-pane fade show active" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
-													<div class="row">
-														<div class="col-lg-8">
-
-                                                            <div class="">
-                                                                <div class="">
-                                                                    @*  <form class="body-text" method="post" enctype="multipart/form-data"> *@
-                                                                    <form id="myForm" method="post" enctype="multipart/form-data" action="/employee/myinfo/Index/">
-
-
-
-                                                                        <div id="responseMessage" class="error-message" style=" color: red;font-size: 15px;font-weight: 700;">                                                                        </div>                                                                        <div class="row py-2">
-
-
-
-                                                                            <div class="col-lg-6 col-md-12">
-                                                                                <label for="leavetype" class="">Leave Type:</label>
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
-                                                                                @Html.HiddenFor(x => x.CampOffLeaveCount)
-                                                                                @Html.DropDownListFor(
-                                                                                                  x => x.leaveResults.leaveSummaryModel.LeaveTypeID,
-                                                                                                  filteredLeaveTypes,
-                                                                                                  HRMS.Models.Common.Constants.SelectLeaveType,
-                                                                                                  new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" }
-                                                                                                  )
-                                                                            </div>
-                                                                            <div class="col-lg-6 col-md-12" id="leaveDurationContainer">
-                                                                                <label for="leavetype" class="">Leave Duration:</label>
-                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "leaveDurationDropdown" })
-                                                                            </div>
-                                                                            <div class="col-lg-6 col-md-12" id="ChildDOBDateContainer">
-                                                                                <!-- New ID for toggling -->
-                                                                                <label for="datepicker2" class="">Child DOB:</label>
-                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv3">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), })
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
-                                                                            <div class="col-lg-6 col-md-12" id="fromdatetime">
-                                                                                <label for="datepicker1" class="">From:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv1">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-																			<div class="col-lg-6 col-md-12" id="todatetime">
-																				<label for="datepicker2" class="">To:</label>
-																				<div class="position-relative">
-																					<div class="input-group date" id="datepickerdiv2">
-																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
-																					</div>
-																				</div>
-																			</div>
-																		</div>
-
-																		<div class="row py-2 halfDayContainer" id="halfDayContainer">
-																			<div class="col-lg-6 col-md-12">
-																				<label for="datepicker1" class="">Date:</label>
-																				<div class="position-relative">
-																					<div class="input-group date" id="datepickerdiv1">
-																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd") })
-																					</div>
-																				</div>
-																			</div>
-
-																		</div>
-																		<div class="row py-2 MaternityAdoptionMiscarrageContainer " id="MaternityAdoptionMiscarrageContainer">
-																			<div class="col-lg-6 col-md-12" id="expectedDeliveryDateContainer">
-																				<!-- New ID for toggling -->
-																				<label for="datepicker2" class="">Expected Delivery Date:</label>
-																				<i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
-
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv3">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="col-lg-6 col-md-12">
-                                                                                <label>Upload Certificate:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group ">
-                                                                                        @* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
-
-																						<input type="file" name="postedFiles" class="form-control body-text" />
-																						@if (Model.leaveResults.leaveSummaryModel.UploadCertificate != null && Model.leaveResults.leaveSummaryModel.UploadCertificate != "")
-																						{
-																							<p> <i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></p>
-																						}
-
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div> 
-
-                                                                        </div>
-
-																		<div class="row py-3 mb-1">
-																			<div class="col-lg-12">
-																				<label for="Reason" class="">Reason:</label>
-																				<div class="input-group">
-																					@*  <span class="input-group-text body-text">Reason</span> *@
-																					@Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required" })
-																				</div>
-																			</div>
-																		</div>
-
-                                                                        <button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
-                                                                        <a href="~/employee/MyInfo/Index/" class="btn btn-danger" type="reset">Cancel</a>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-4 px-4">
-                                                            <div class="card mb-3" style="height:86px;">
-                                                                <div class="card-body">
-                                                                    <ul class="list-group" style="width:100%;">
-                                                                        <li class="d-flex justify-content-between align-items-center ">
-                                                                            <b>Annual Leave Balance</b>
-                                                                            <span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.TotalLeave/@ViewBag.TotalAnnualLeave</span>
-                                                                        </li>
-                                                                        <li class="d-flex justify-content-between align-items-center "style="margin-top: 9px;
-                                                                        ">
-                                                                            <b>Comp off Leave Balance</b>
-                                                                            <span class="badge rounded-pill" style="background-color: #05397b">@Model.CampOffLeaveCount</span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-
-
-															<div class="card p-3">
-																<div class="accordion accordion-flush" id="accordionFlushExample">
-																	<div class="accordion-item">
-																		<h2 class="accordion-header" id="flush-headingOne">
-																			<button class="accordion-button collapsed   z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-																				Holiday List
-																			</button>
-																		</h2>
-																		<div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-																			<div class="mt-3">
-																				<ul class="list-group ">
-																					@foreach (var item in Model.HolidayModel)
-																					{
-																						<li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-																							<span class="small">
-																								@if (item.FromDate.Date == item.ToDate.Date)
-																								{
-																									@item.FromDate.ToString("dd-MMM-yyyy")
-																								}
-																								else
-																								{
-																									@($"{item.FromDate:dd-MMM-yyyy} to {item.ToDate:dd-MMM-yyyy}")
-																								}
-																							</span>
-																							<span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
-																						</li>
-																					}
-																				</ul>
-																			</div>
-																		</div>
-																	</div>
-																</div>
-															</div>
-
-														</div>
-													</div>
-
-												</div>
-												<div class="tab-pane fade" id="leave-summary-tab" role="tabpanel" aria-labelledby="leave-summary-tab1">
-
-													<div class="row">
-														<div class="col-12 col-lg-12">
-															<div class="table-responsive">
-																<table class="table table-striped body-text dataTable no-footer">
-																	<thead>
-																		<tr>
-																			<th>Request Date</th>
-																			<th>Start Date</th>
-																			<th>End Date</th>
-																			<th>Type</th>
-																			<th>Days</th>
-																			<th>Status</th>
-																			<th>Actions</th>
-																		</tr>
-																	</thead>
-																	<tbody>
-																		@foreach (var item in Model.leaveResults.leavesSummary)
-																		{
-																			<tr>
-																				<td>@item.RequestDate.ToString("MM/dd/yyyy hh:mm tt")</td>
-																				<td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
-																				<td>@item.EndDate.ToString("dd/M/yyyy")</td>
-																				<td>@item.LeaveTypeName</td>
-																				<td>
-																					@*                                            <span class="fw-bold text-primary " data-bs-toggle="tooltip" title="You are only apply 3 Consecutive leaves." style="cursor: pointer; margin-left: 5px; background: red; color: white !important;">
-
-                                                                                @item.NoOfDays
-                                                                                </span> *@
-
-                                                                                    @if (@item.LeaveTypeID == (int)LeaveType.AnnualLeavel && @item.NoOfDays > @ViewBag.ConsecutiveAllowedDays)
-                                                                                    {
-                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Exceeding maximum consecutive allowed @ViewBag.ConsecutiveAllowedDays days limit" style="cursor: pointer; background: red; color: white !important;">
-                                                                                            @item.NoOfDays
-                                                                                        </span>
-                                                                                    }
-                                                                                    else if (@item.LeaveTypeID == (int)LeaveType.MedicalLeave && @item.NoOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))
-                                                                                    {
-                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Document required for more than @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) days medical leave" style="cursor: pointer; background: red; color: white !important;">
-                                                                                            @item.NoOfDays
-                                                                                        </span>
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        <span class="fw-bold text-primary">
-                                                                                            @item.NoOfDays
-                                                                                        </span>
-                                                                                    }
-                                                                                </td>
-                                                                                @switch (item.LeaveStatusID)
-                                                                                {
-                                                                                    case (int)LeaveStatus.Approved:
-                                                                                        <td><span class="fw-bold text-success">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.PendingApproval:
-                                                                                        <td><span class="fw-bold text-primary">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.NotApproved:
-                                                                                        <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.Cancelled:
-                                                                                        <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                }
-
-                                                                                @if (item.LeaveStatusID != (int)LeaveStatus.Approved && item.LeaveStatusID != (int)LeaveStatus.Cancelled)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="~/employee/MyInfo/Index/?id=@(item.EncryptedIdentity)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
-
-																						<form action="/employee/MyInfo/DeleteLeavesSummary" method="post" style="display:inline;">
-																							<input type="hidden" name="id" value="@item.EncryptedIdentity" />
-																							<button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
-																								<i class="fa fa-close" style="font-size:22px;color:red"></i>
-																							</button>
-																						</form>
-
-
-                                                                                    </td>
-                                                                                }
-                                                                                else if (item.LeaveStatusID == (int)LeaveStatus.Approved)
-                                                                                {
-                                                                                    <td>
-                                                                                        <form action="/employee/MyInfo/UpdateLeaveStatus" method="post" style="display:inline;">
-                                                                                            <input type="hidden" name="id" value="@item.EncryptedIdentity" />
-                                                                                            <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to cancel this leave?');">
-                                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
-                                                                                            </button>
-                                                                                        </form>
-                                                                                    </td>
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    <td>  </td>
-                                                                                }
-
-																			</tr>
-																		}
-
-																	</tbody>
-																</table>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
-
-										</div>
-									</div>
-
-
-								</div>
-
-
-								<div class="tab-pane fade" id="@(MyInfoTabs.attendance)" role="tabpanel" aria-labelledby="@(MyInfoTabs.attendance)-tab">
-
-									<div class="group-box anim">
-										<div class="tabsInfo" id="">
-											<h3>Attendance</h3>
-										</div>
-									</div>
-								</div>
-
+							
 							</div>
 						</div>
 					</div>
@@ -1594,25 +1264,25 @@
 	});
 	document.addEventListener('DOMContentLoaded', function () {
 		// Save selected main tab to localStorage
-		var mainTabs = document.querySelectorAll('.nav-link.section-link');
-		mainTabs.forEach(function (tab) {
-			tab.addEventListener('click', function () {
-				localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
-			});
-		});
+		// var mainTabs = document.querySelectorAll('.nav-link.section-link');
+		// mainTabs.forEach(function (tab) {
+		// 	tab.addEventListener('click', function () {
+		// 		localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
+		// 	});
+		// });
 
-		// Check if a main tab was previously selected and open it
-		var activeMainTab = localStorage.getItem('selectedMainTab');
-		if (activeMainTab) {
-			var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
-			if (targetMainTab) {
-				var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
-				bootstrapMainTab.show();
-			}
-		}
+		// // Check if a main tab was previously selected and open it
+		// var activeMainTab = localStorage.getItem('selectedMainTab');
+		// if (activeMainTab) {
+		// 	var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
+		// 	if (targetMainTab) {
+		// 		var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
+		// 		bootstrapMainTab.show();
+		// 	}
+		// }
 
 		// Save selected sub-tab (inside Leave Info) to localStorage
-		var subTabs = document.querySelectorAll('.nav-link');
+		var subTabs = document.querySelectorAll('#myTabs-timeoff .nav-link');
 		subTabs.forEach(function (subTab) {
 			subTab.addEventListener('click', function () {
 				localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));

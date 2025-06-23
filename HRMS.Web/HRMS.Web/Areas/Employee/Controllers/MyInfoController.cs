@@ -28,6 +28,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.Employee.Controllers
 {
     [Area(Constants.ManageEmployee)]
+    [Authorize]
     //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class MyInfoController : Controller
     {

@@ -74,6 +74,13 @@
 	}
 }
 <style>
+	.leave-section-tabs {
+		/* background-color: #05397b; */
+		border-radius: 5px 5px 0px 0px;
+	
+		color: white;
+		border: none;
+	}
 	.fade:not(.show) {
 		opacity: 0;
 		display: none !important;
@@ -118,13 +125,13 @@
 
 
 				<div class="myinfo-menu">
-					<ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
-						@if (RoleName != Convert.ToInt64(Roles.Employee))
+					<ul class="nav nav-tabs leave-section-tabs " id="myTab1" role="tablist">
+					@* 	@if (RoleName != Convert.ToInt64(Roles.Employee))
 						{
 							<li class="nav-item" role="presentation">
 								<a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
 							</li>
-						}
+						} *@
 
 						@if (Model.employmentDetail.JoiningDate != null)
 						{
@@ -133,7 +140,7 @@
 								@if (RoleName != Convert.ToInt64(Roles.Admin) && RoleName != Convert.ToInt64(Roles.SuperAdmin))
 								{
 									<li class="nav-item" role="presentation">
-										<a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
+										<a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="true" >Leave Info</a>
 									</li>
 								}
 
@@ -141,14 +148,14 @@
 							else
 							{
 								<li class="nav-item" role="presentation">
-									<a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Leave Policy not available. Please contact your administrator.');">Leave Info</a>
+									<a class="nav-link section-link active" href="javascript:void(0);" aria-selected="true" onclick="alert('Leave Policy not available. Please contact your administrator.');">Leave Info</a>
 								</li>
 							}
 						}
 						else
 						{
 							<li class="nav-item" role="presentation">
-								<a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
+								<a class="nav-link section-link active" href="javascript:void(0);" aria-selected="true" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
 							</li>
 						}
 
@@ -171,172 +178,9 @@
 						<div class="row">
 							<div class="col-lg-12">
 
-								<div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
-									<div class="group-box anim">
-										<div class="tabsInfo" id="">
-											<h3>Leave Approval Info</h3>
-											<nav>
-												<div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
-													<button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
-														Leaves For Approval
-													</button>
-													<button class="nav-link  " id="leave-approved-tab1" data-bs-toggle="tab" data-bs-target="#leave-approved-tab" type="button" role="tab" aria-controls="leave-approved-tab" aria-selected="false" onclick="LeavesForApproved()">Approved Leaves</button>
-													<button class="nav-link  " id="leave-Reject-tab1" data-bs-toggle="tab" data-bs-target="#leave-Reject-tab" type="button" role="tab" aria-controls="leave-Reject-tab" aria-selected="false" onclick="LeavesForReject()">Rejected Leaves</button>
-													<button class="nav-link  " id="leave-Cancelled-tab1" data-bs-toggle="tab" data-bs-target="#leave-Cancelled-tab" type="button" role="tab" aria-controls="leave-Cancelled-tab" aria-selected="false" onclick="LeavesForCancelled()">Employees Cancelled Leaves</button>
-												</div>
-											</nav>
-											<div class="tab-content" id="nav-tabContent1">
-												<div class="tab-pane fade show active" id="applied-leave-tab" role="tabpanel" aria-labelledby="applied-leave-tab1">
-													<div class="group-box anim">
-														<div class="tabsInfo" id="myTabContent-timeoff">
-															<h3>Leaves For Approval</h3>
+							
 
-														</div>
-														<div role="tabpanel" aria-labelledby="apply-tab">
-															<div class="row">
-																<div class="col-lg-12 col-md-12 col-sm-12">
-																	<div class="card">
-																		<div class="card-body">
-																			<table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
-																				<thead>
-																					<tr>
-																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Employee Number</th>
-																						<th>Employee Name</th>
-																						<th>From Date</th>
-																						<th>To Date</th>
-																						<th>Type</th>
-																						<th>Days</th>
-																						<th>Status</th>
-																						<th>Reason</th>
-																						<th>Action</th>
-																					</tr>
-																				</thead>
-
-																			</table>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-												<div class="tab-pane fade" id="leave-approved-tab" role="tabpanel" aria-labelledby="leave-approved-tab1">
-													<div class="group-box anim">
-														<div class="tabsInfo" id="myTabContent-timeoff">
-															<h3>Approved Leaves</h3>
-														</div>
-														<div role="tabpanel" aria-labelledby="apply-tab">
-															<div class="row">
-																<div class="col-lg-12 col-md-12 col-sm-12">
-																	<div class="card">
-																		<div class="card-body">
-																			<table id="tblLeavesForApproved" class="table table-striped body-text" style="width:100%">
-																				<thead>
-																					<tr>
-																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Employee Number</th>
-																						<th>Employee Name</th>
-																						<th>From Date</th>
-																						<th>To Date</th>
-																						<th>Type</th>
-																						<th>Days</th>
-																						<th>Status</th>
-																						<th>Reason</th>
-																					</tr>
-																				</thead>
-																			</table>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-
-												<div class="tab-pane fade" id="leave-Reject-tab" role="tabpanel" aria-labelledby="leave-Reject-tab1">
-
-													<div class="group-box anim">
-														<div class="tabsInfo" id="myTabContent-timeoff">
-															<h3>Rejected Leaves</h3>
-
-														</div>
-														<div role="tabpanel" aria-labelledby="apply-tab">
-															<div class="row">
-																<div class="col-lg-12 col-md-12 col-sm-12">
-																	<div class="card">
-																		<div class="card-body">
-																			<table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
-																				<thead>
-																					<tr>
-																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Employee Number</th>
-																						<th>Employee Name</th>
-																						<th>From Date</th>
-																						<th>To Date</th>
-																						<th>Type</th>
-																						<th>Days</th>
-																						<th>Status</th>
-																						<th>Reason</th>
-																					</tr>
-																				</thead>
-
-																			</table>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-
-												@* User Cancelled Approved Leave *@
-
-												<div class="tab-pane fade" id="leave-Cancelled-tab" role="tabpanel" aria-labelledby="leave-Cancelled-tab1">
-
-													<div class="group-box anim">
-														<div class="tabsInfo" id="myTabContent-timeoff">
-															<h3>User Cancelled Leaves</h3>
-
-														</div>
-														<div role="tabpanel" aria-labelledby="apply-tab">
-															<div class="row">
-																<div class="col-lg-12 col-md-12 col-sm-12">
-																	<div class="card">
-																		<div class="card-body">
-																			<table id="tblLeavesForCancelled" class="table table-striped body-text" style="width:100%">
-																				<thead>
-																					<tr>
-																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Employee Number</th>
-																						<th>Employee Name</th>
-																						<th>From Date</th>
-																						<th>To Date</th>
-																						<th>Type</th>
-																						<th>Days</th>
-																						<th>Status</th>
-																						<th>Reason</th>
-																					</tr>
-																				</thead>
-
-																			</table>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-
-
-
-											</div>
-
-										</div>
-									</div>
-								</div>
-
-								<div class="tab-pane fade" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
+								<div class="tab-pane fade show active" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
 
 									<div class="group-box anim">
 										<div class="tabsInfo" id="">
@@ -1595,40 +1439,40 @@
 	});
 	document.addEventListener('DOMContentLoaded', function () {
 		// Save selected main tab to localStorage
-		var mainTabs = document.querySelectorAll('.nav-link.section-link');
-		mainTabs.forEach(function (tab) {
-			tab.addEventListener('click', function () {
-				localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
-			});
-		});
+		// var mainTabs = document.querySelectorAll('.nav-link.section-link');
+		// mainTabs.forEach(function (tab) {
+		// 	tab.addEventListener('click', function () {
+		// 		localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
+		// 	});
+		// });
 
-		// Check if a main tab was previously selected and open it
-		var activeMainTab = localStorage.getItem('selectedMainTab');
-		if (activeMainTab) {
-			var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
-			if (targetMainTab) {
-				var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
-				bootstrapMainTab.show();
-			}
-		}
+		// // Check if a main tab was previously selected and open it
+		// var activeMainTab = localStorage.getItem('selectedMainTab');
+		// if (activeMainTab) {
+		// 	var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
+		// 	if (targetMainTab) {
+		// 		var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
+		// 		bootstrapMainTab.show();
+		// 	}
+		// }
 
 		// Save selected sub-tab (inside Leave Info) to localStorage
-		var subTabs = document.querySelectorAll('.nav-link');
-		subTabs.forEach(function (subTab) {
-			subTab.addEventListener('click', function () {
-				localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));
-			});
+		var subTabs = document.querySelectorAll('#myTab-timeoff .nav-link'); // Scope to sub-tab nav
+	subTabs.forEach(function (subTab) {
+		subTab.addEventListener('click', function () {
+			localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));
 		});
+	});
 
-		// Check if a sub-tab was previously selected and open it
-		var activeSubTab = localStorage.getItem('selectedSubTab');
-		if (activeSubTab) {
-			var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
-			if (targetSubTab) {
-				var bootstrapSubTab = new bootstrap.Tab(targetSubTab);
-				bootstrapSubTab.show();
-			}
+	// Restore previously selected sub-tab
+	var activeSubTab = localStorage.getItem('selectedSubTab');
+	if (activeSubTab) {
+		var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
+		if (targetSubTab) {
+			var tab = new bootstrap.Tab(targetSubTab);
+			tab.show();
 		}
+	}
 
 		// Edit button event to activate Apply Leave tab
 		// document.getElementById('editButton').addEventListener('click', function (event) {
