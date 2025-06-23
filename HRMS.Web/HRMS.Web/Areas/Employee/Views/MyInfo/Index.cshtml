@@ -2208,18 +2208,21 @@
                 fullDayContainer.style.display = "flex";
                 $('#leaveDurationDropdown').attr('required', false);
             }
-       //      else if (selectedLeaveType === 'Compensatory Off') {
-       //          //leaveDurationContainer.style.display = "none";
-       //          ChildDOBDateContainer.style.display = "none";
-       //          MaternityAdoptionMiscarrageContainer.style.display = "none";
-       //        //  halfDayContainer.style.display = "none";
-       //          leaveDurationDropdown.selectedIndex = 0;
-       //        //  fullDayContainer.style.display = "flex";
-				   // $("#todatetime").css("display","block");
-       //          $('#leaveDurationDropdown').attr('required', false);
-       //      }
+       
 			else if (selectedLeaveType === 'Privilege Leave' ||selectedLeaveType === 'Leave Without Pay'||selectedLeaveType === 'Compensatory Off') {
+				if(selectedLeaveType === 'Leave Without Pay')
+				{
+					  todatetime.style.display = fullDayValue ==="block"  ;
+                    fromdatetime.style.display = fullDayValue ==="block"  ;
+                    halfDayContainer.style.display = "none";
+                    ChildDOBDateContainer.style.display = "none";
+					leaveDurationContainer.style.display = "none";
+
+                    return;
+				}
+
                 if (leaveDurationDropdown.value === fullDayValue) {
+					
                     fullDayContainer.style.display = "flex";
                     todatetime.style.display = fullDayValue === "1" ? "block" : "none";
                     fromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
@@ -2255,7 +2258,7 @@
         function toggleMaternityAdoptionMiscarrageContainer() {
             var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
             maternityAdoptionMiscarrageContainer.style.display =
-                ['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave','Compensatory Off'].includes(selectedLeaveType) ? "flex" : "none";
+                ['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave' ].includes(selectedLeaveType) ? "flex" : "none";
         }
 
 		function toggleExpectedDeliveryDate() {
@@ -2267,7 +2270,7 @@
 
         function toggleLeaveDurationVisibility() {
             var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-            if (['Compensatory Off'].includes(selectedLeaveType)) {
+            if (['Compensatory Offq'].includes(selectedLeaveType)) {
                 leaveDurationContainer.style.display = "block";
                  fullDayContainer.style.display = "none";
                 $('#leaveDurationDropdown').attr('required', true);
@@ -2284,6 +2287,7 @@
                const selectedLeaveTypeId = parseInt(this.value);
                if(selectedLeaveTypeId == @Convert.ToInt32(LeaveType.LeaveWithOutPay))
                {
+				 
                    $("#leaveDurationContainer").css("display","none");
 				   $("#MaternityAdoptionMiscarrageContainer").css("display","none");
                    $("#todatetime").css("display","block");

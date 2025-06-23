@@ -45,9 +45,11 @@ namespace HRMS.Models.AttendenceList
     {
         public long EmployeeID { get; set; }
         public long JobLocationTypeID { get; set; }
+
+        public long AttendanceStatus { get; set; }
     }
 
- 
+
     public class CompOffAttendanceModel
     {
         public long ID { get; set; }
@@ -91,6 +93,7 @@ namespace HRMS.Models.AttendenceList
         public long RequestID { get; set; }
         public long EmployeeId { get; set; }
         public string? EmployeeName { get; set; }
+        public string? EmployeeNumber { get; set; }
         public DateTime? WorkDate { get; set; }
         public DateTime? FirstLogDate { get; set; }
         public DateTime? LastLogDate { get; set; }
@@ -109,6 +112,7 @@ namespace HRMS.Models.AttendenceList
         public DateTime? ModifiedDate { get; set; }
         public long? AuditEmployeeId { get; set; }
         public long? UserId { get; set; }
+        public long? RoleId { get; set; }
 
         public long? CreatedBy { get; set; }
         public bool? IsDeleted { get; set; }

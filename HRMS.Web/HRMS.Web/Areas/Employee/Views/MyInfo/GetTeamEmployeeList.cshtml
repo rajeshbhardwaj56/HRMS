@@ -37,10 +37,20 @@
 <script type="text/javascript">
     $(document).ready(function () {       
         $('#tblLeavesForReject').DataTable({
+            //     "processing": true,
+            // "serverSide": true,
             "ajax": {
                 "url": "GetTeamEmployeeList/",
                 "type": "POST",
                 "datatype": "json"
+                 //    "data": function (d) {
+                 //     return {
+                 //         sEcho: d.draw,
+                 //         iDisplayStart: d.start,
+                 //         iDisplayLength: d.length,
+                 //         sSearch: d.search.value
+                 //     };
+                 // }
             },
             "ordering": true,
             "paging": true,

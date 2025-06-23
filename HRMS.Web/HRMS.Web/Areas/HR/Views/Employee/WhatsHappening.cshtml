@@ -30,7 +30,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="announcementModalLabel">Announcement Details</h5>
-                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" id="Closepopopup" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
                 <img id="modalImage" src="" class="rounded mb-3"   alt="Announcement Image">
@@ -101,6 +101,10 @@
             ],
             "responsive": true
         });
+                  $(document).on('click', '#Closepopopup', function () {
+
+                               $('#announcementModal').modal('hide');
+                       });
 
         // Modal Event Listener
         $(document).on('click', '.view-announcement-btn', function () {

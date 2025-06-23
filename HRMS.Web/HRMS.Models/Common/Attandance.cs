@@ -44,6 +44,7 @@ namespace HRMS.Models.Common
         public long? ModifiedBy { get; set; }
         public long? CreatedBy { get; set; }
         public long? EmployeeId { get; set; }
+        public long? RoleId { get; set; }
         public bool? IsDeleted { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? CreatedDate { get; set; }

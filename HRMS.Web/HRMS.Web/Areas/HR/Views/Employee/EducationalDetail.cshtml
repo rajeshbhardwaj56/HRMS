@@ -43,7 +43,7 @@
 
             <div class="col-md-4 form-group">
                 <label> Certificate <span class="text-danger" id="fileRequiredStar">*</span></label>
-                    <input type="file" name="CertificateFile" id="CertificateFileInput" accept="application/pdf" class="form-control" required  />
+                    <input type="file" name="CertificateFile" id="CertificateFileInput" accept=".pdf, application/pdf" class="form-control" required />
                 <span id="fileError" class="text-danger" style="display:none;"></span>
                 <div id="existingCertificateContainer" class="mt-2" style="display: none;">
                     <i class="bi bi-file-earmark-pdf fs-2 text-danger" title="Existing Certificate"></i>
@@ -160,6 +160,7 @@
           
             $('#educationForm').on('submit', function (e) {
                 e.preventDefault();
+                     $('#fileError').hide();
                 const form = $(this)[0];
                 const formData = new FormData(form);
 
@@ -197,6 +198,7 @@
                 $('#existingCertificateContainer').hide();
                 $('#fileRequiredStar').show();
                 $('#CertificateFileInput').attr('required', 'required');
+                  $('#fileError').hide().text('');
             });
 
             $(document).on('click', '.view-document', function () {
@@ -217,7 +219,7 @@
                     type: 'POST',
                     data: { encodedId },
                     success: function () {
-                        debugger;
+                      
                           const currentFormLangId = $('#EducationDetailID').val();
              if (currentFormLangId == encodedId) {
                  $('#EducationDetailID').val('');
@@ -270,5 +272,23 @@
             $('#CertificateFileInput').val('');
             $('#fileError').hide();
         }
+
+                   $('#CertificateFileInput').on('change', function() {
+            const file = this.files[0];
+            const fileError = $('#fileError');
+
+            // Reset state on new file selection
+            fileError.hide().text('');
+
+            if (!file) return;
+
+            const validTypes = ['application/pdf'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (!validTypes.includes(file.type) || fileExtension !== 'pdf') {
+                fileError.text('Only PDF files are allowed').show();
+                this.value = '';
+            }
+        });
     </script>
 }

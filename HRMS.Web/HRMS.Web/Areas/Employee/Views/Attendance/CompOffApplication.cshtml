@@ -8,47 +8,171 @@
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(Constants.AreaName));
     ViewData["Title"] = "Comp-Off Attendance";
 }
-
+@* 
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
-
+ *@
 <div class="main-header anim" style="--delay: 0s">
     Comp-Off Attendance Logs
 </div>
-
-
-
-<div class="table-responsive py-3">
-    <table id="tblCompOffListing" class="table table-striped body-text" style="width:100%">
-        <thead>
-            <tr>
-                <th><input type="checkbox" id="selectAll" /></th>
-                <th>Employee Name</th>
-                <th>Attendance Date</th>
-                <th>First Log</th>
-                <th>Last Log</th>
-                <th>Hours Worked</th>
-                <th>Manager Name</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+<div class="tabsInfo">
+<nav>
+    <div class="nav nav-tabs mb-3 " id="compOffTabs" role="tablist">
+        <button class="nav-link active" id="not-applied-tab" data-bs-toggle="tab" data-bs-target="#not-applied" type="button" role="tab" aria-controls="not-applied" aria-selected="true">Not Applied</button>
+        <button class="nav-link" id="applied-tab" data-bs-toggle="tab" data-bs-target="#applied" type="button" role="tab" aria-controls="applied" aria-selected="false">Applied</button>
+        <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab" aria-controls="rejected" aria-selected="false">Rejected</button>
+    </div>
+</nav>
 </div>
+<div class="tab-content" id="compOffTabContent">
+    <!-- Not Applied Tab -->
+    <div class="tab-pane fade show active" id="not-applied" role="tabpanel" aria-labelledby="not-applied-tab">
+        <div class="table-responsive py-3">
+            <table id="tblNotApplied" class="table table-striped body-text" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" /></th>
+                        <th>Employee Name</th>
+                        <th>Attendance Date</th>
+                        <th>First Log</th>
+                        <th>Last Log</th>
+                        <th>Hours Worked</th>
+                        <th>Manager Name</th>
+                        <th>Status</th>
+                       
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
 
-<div class="mb-3">
-    <label for="approvalComment">Comment:</label>
-    <textarea id="approvalComment" class="form-control" rows="3" placeholder="Add your comment..."></textarea>
-</div>
+        <div class="mb-3">
+            <label for="approvalComment">Comment:</label>
+            <textarea id="approvalComment" class="form-control" rows="3" placeholder="Add your comment..."></textarea>
+        </div>
 
-<div class="mb-3">
-    <button id="submitRequest" class="btn btn-primary">Apply for Comp-Off</button>
+        <div class="mb-3">
+            <button id="submitRequest" class="btn btn-primary">Apply for Comp-Off</button>
+        </div>
+    </div>
+
+    <!-- Applied Tab -->
+    <div class="tab-pane fade" id="applied" role="tabpanel" aria-labelledby="applied-tab">
+        <div class="table-responsive py-3">
+            <table id="tblApplied" class="table table-striped body-text" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Employee Name</th>
+                        <th>Attendance Date</th>
+                        <th>First Log</th>
+                        <th>Last Log</th>
+                        <th>Hours Worked</th>
+                        <th>Manager Name</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Rejected Tab -->
+    <div class="tab-pane fade" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">
+        <div class="table-responsive py-3">
+            <table id="tblRejected" class="table table-striped body-text" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAllRejected" /></th>
+                        <th>Employee Name</th>
+                        <th>Attendance Date</th>
+                        <th>First Log</th>
+                        <th>Last Log</th>
+                        <th>Hours Worked</th>
+                        <th>Manager Name</th>
+                        <th>Status</th>                       
+                        <th>Rejection Reason</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="mb-3 mt-3">
+            <label for="approvalCommentRejected">Comment:</label>
+            <textarea id="approvalCommentRejected" class="form-control" rows="3" placeholder="Add your comment..."></textarea>
+        </div>
+
+        <div class="mb-3">
+            <button id="submitRequestRejected" class="btn btn-primary">Apply for Comp-Off</button>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script type="text/javascript">
-              $(document).ready(function () {
-            var table = $('#tblCompOffListing').DataTable({
-                data: [],
+        let notAppliedTable, appliedTable, rejectedTable;
+        let notAppliedLoaded = false;
+        let appliedLoaded = false;
+        let rejectedLoaded = false;
+
+        $(document).ready(function () {
+            // Initialize tables
+            notAppliedTable = initNotAppliedTable();
+            appliedTable = initAppliedTable();
+            rejectedTable = initRejectedTable();
+
+            // Load data for default active tab (Not Applied)
+            loadNotAppliedData();
+            notAppliedLoaded = true;
+
+            // Tab change event
+            $('#compOffTabs button').on('shown.bs.tab', function (e) {
+                const target = $(e.target).attr("aria-controls");
+
+                if (target === 'not-applied' && !notAppliedLoaded) {
+                    loadNotAppliedData();
+                    notAppliedLoaded = true;
+                }
+                else if (target === 'applied' && !appliedLoaded) {
+                    loadAppliedData();
+                    appliedLoaded = true;
+                }
+                else if (target === 'rejected' && !rejectedLoaded) {
+                    loadRejectedData();
+                    rejectedLoaded = true;
+                }
+            });
+
+           
+            $('#selectAll').on('click', function () {
+                 const isChecked = this.checked;
+               $('#tblNotApplied .row-select').prop('checked', isChecked);
+            });
+
+            $('#selectAllRejected').on('click', function () {
+               const isChecked = this.checked;
+        $('#tblRejected .row-select').prop('checked', isChecked);
+            });
+               
+        $('#tblNotApplied tbody').on('change', '.row-select', function () {
+            const allChecked = $('#tblNotApplied .row-select').length ===
+                              $('#tblNotApplied .row-select:checked').length;
+            $('#selectAll').prop('checked', allChecked);
+        });
+
+       
+        $('#tblRejected tbody').on('change', '.row-select', function () {
+            const allChecked = $('#tblRejected .row-select').length ===
+                               $('#tblRejected .row-select:checked').length;
+            $('#selectAllRejected').prop('checked', allChecked);
+        });
+           
+            $('#submitRequest').click(() => submitCompOffRequest('not-applied'));
+            $('#submitRequestRejected').click(() => submitCompOffRequest('rejected'));
+        });
+
+        function initNotAppliedTable() {
+            return $('#tblNotApplied').DataTable({
                 columns: [
                     {
                         data: "attendanceId",
@@ -60,95 +184,158 @@
                     { data: "employeeName" },
                     {
                         data: "attendanceDate",
-                        render: function (data) {
-                            if (data) {
-                                var date = new Date(data);
-                                return date.getDate().toString().padStart(2, '0') + '/' +
-                                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-                                    date.getFullYear();
-                            }
-                            return '';
-                        }
+                        render: formatDate
                     },
                     {
                         data: "firstLogDate",
-                        render: function (data) {
-                            if (data) return formatDateTime(new Date(data));
-                            return '';
-                        }
+                        render: formatDateTime
                     },
                     {
                         data: "lastLogDate",
-                        render: function (data) {
-                            if (data) return formatDateTime(new Date(data));
-                            return '';
-                        }
+                        render: formatDateTime
                     },
                     { data: "hoursWorked" },
                     { data: "managerName" },
                     { data: "attendanceStatus" }
                 ]
             });
+        }
 
-            function formatDateTime(date) {
-                var formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
-                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-                    date.getFullYear();
-                var hours = date.getHours();
-                var minutes = date.getMinutes().toString().padStart(2, '0');
-                var seconds = date.getSeconds().toString().padStart(2, '0');
-                var ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                var time = hours.toString().padStart(2, '0') + ':' + minutes + ':' + seconds + ' ' + ampm;
-                return formattedDate + ' ' + time;
-            }
+        function initAppliedTable() {
+            return $('#tblApplied').DataTable({
+                columns: [
+                    { data: "employeeName" },
+                    {
+                        data: "attendanceDate",
+                        render: formatDate
+                    },
+                    {
+                        data: "firstLogDate",
+                        render: formatDateTime
+                    },
+                    {
+                        data: "lastLogDate",
+                        render: formatDateTime
+                    },
+                    { data: "hoursWorked" },
+                    { data: "managerName" },
+                    {
+                        data: "attendanceStatus",
+                        render: function(data) {
+                            return '<span class="badge bg-info">' + data + '</span>';
+                        }
+                    },
+                    { data: "comments" }
+                ]
+            });
+        }
 
-           
+        function initRejectedTable() {
+            return $('#tblRejected').DataTable({
+                columns: [
+                    {
+                        data: "attendanceId",
+                        render: function (data) {
+                            return `<input type="checkbox" class="row-select" value="${data}" />`;
+                        },
+                        orderable: false
+                    },
+                    { data: "employeeName" },
+                    {
+                        data: "attendanceDate",
+                        render: formatDate
+                    },
+                    {
+                        data: "firstLogDate",
+                        render: formatDateTime
+                    },
+                    {
+                        data: "lastLogDate",
+                        render: formatDateTime
+                    },
+                    { data: "hoursWorked" },
+                    { data: "managerName" },
+                    {
+                        data: "attendanceStatus",
+                        render: function(data) {
+                            return '<span class="badge bg-danger">' + data + '</span>';
+                        }
+                    },
+                    { data: "comments" }
+                ]
+            });
+        }
+
+        function loadNotAppliedData() {
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
+                data: { attendanceStatus: 6 },
                 success: function (response) {
-                    table.clear().rows.add(response.data).draw();
-                },
-                error: function () {
-                    alert("Failed to load comp-off logs.");
+                    notAppliedTable.clear().rows.add(response.data).draw();
                 }
             });
+        }
 
-           
-            $('#selectAll').on('click', function () {
-                $('.row-select').prop('checked', this.checked);
-            });
-
-                   $('#submitRequest').click(function () {
-                       debugger;
-            var comment = $('#approvalComment').val().trim();
-            var selectedLogs = [];
-            table.rows().every(function () {
-                var data = this.data();
-                var $row = $(this.node());
-
-                if ($row.find('.row-select').is(':checked')) {
-                          selectedLogs.push({
-            AttendanceId: data.attendanceId,
-            EmployeeId: data.employeeId,
-            AttendanceDate: data.attendanceDate,
-            FirstLog: data.firstLogDate,
-            LastLog: data.lastLogDate,
-            HoursWorked: data.hoursWorked,
-            CreatedBy: data.createdBy,$row
-
-        });
+        function loadAppliedData() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
+                data: { attendanceStatus: 1 },
+                success: function (response) {
+                    appliedTable.clear().rows.add(response.data).draw();
                 }
             });
+        }
 
-            if (selectedLogs.length === 0) {
-                alert("Please select at least one attendance log to apply.");
+        function loadRejectedData() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
+                data: { attendanceStatus: 3 },
+                success: function (response) {
+                    rejectedTable.clear().rows.add(response.data).draw();
+                }
+            });
+        }
+
+        function submitCompOffRequest(tabType) {
+            const comment = tabType === 'rejected'
+                ? $('#approvalCommentRejected').val().trim()
+                : $('#approvalComment').val().trim();
+
+            const selectedLogs = [];
+            let tableSelector = '';
+
+            if (tabType === 'not-applied') {
+                tableSelector = '#tblNotApplied';
+            } else if (tabType === 'rejected') {
+                tableSelector = '#tblRejected';
+            } else {
+                alert("Comp-off can only be applied from 'Not Applied' or 'Rejected' tabs.");
                 return;
             }
 
-            if (comment === "") {
-                alert("Please enter a comment for your comp-off request.");
+           
+            $(`${tableSelector} .row-select:checked`).each(function () {
+                const rowData = $(tableSelector).DataTable().row($(this).closest('tr')).data();
+                selectedLogs.push({
+                    AttendanceId: rowData.attendanceId,
+                    EmployeeId: rowData.employeeId,appliedLoaded,
+					AttendanceDate: rowData.attendanceDate,
+					FirstLog:rowData.firstLogDate,
+					LastLog: rowData.lastLogDate,
+					HoursWorked: rowData.hoursWorked,							
+                });
+            });
+
+            if (selectedLogs.length === 0) {
+                alert("Please select at least one attendance log.");
+                return;
+            }
+
+            if (!comment) {
+                alert("Please enter a comment.");
                 return;
             }
 
@@ -160,24 +347,65 @@
                     Logs: selectedLogs,
                     Comment: comment
                 }),
-                success: function (res) {
-                    alert(res.message || "Request submitted successfully.");
-                    $('#approvalComment').val("");
+                success: function (response) {
+                   
+                        toastMessage('Success' , 'Comp-off request submitted successfully!');
+                       // alert("Comp-off request submitted successfully!");
+                        $('#approvalComment').val('');
+                        $('#approvalCommentRejected').val('');                       
+                        if (notAppliedLoaded) loadNotAppliedData();
+                        if (appliedLoaded) loadAppliedData();
+                        if (rejectedLoaded) loadRejectedData();
+                        $('#selectAll').prop('checked', false);
+                        $('#selectAllRejected').prop('checked', false);
 
-                    // Reload the table
-                    $.ajax({
-                        type: "POST",
-                        url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
-                        success: function (response) {
-                            table.clear().rows.add(response.data).draw();
-                        }
-                    });
+                        $('#applied-tab').tab('show');
+                    
                 },
-                error: function () {
-                    alert("Failed to submit comp-off request.");
+              error: function () {
+                    toastEMessage('Error','Comp-off request not submitted ');
                 }
             });
-        });
-        });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+         function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
+
+         function toastMessage(type , message)
+            {
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
     </script>
 }

@@ -520,7 +520,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
                 {
-                    bool isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                    //bool isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                    bool isWeekend =  date.DayOfWeek == DayOfWeek.Sunday;
                     bool isHoliday = Holidaylist.Any(h => date >= h.FromDate.Date && date <= h.ToDate.Date);
                     if (isWeekend || isHoliday)
                         weekendDays++;
@@ -1050,6 +1051,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 EmployeeInputParams model = new EmployeeInputParams();
                 model.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
                 model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+                //model.DisplayStart = iDisplayStart;
+                //model.DisplayLength = iDisplayLength;
+                //model.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
 
