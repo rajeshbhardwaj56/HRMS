@@ -7,6 +7,30 @@
 
 }
 <style>
+	.crm-loader-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(255, 255, 255, 0.6);
+		z-index: 1050; /* Above modals and Bootstrap elements */
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.crm-loader-inner {
+		text-align: center;
+	}
+
+	.loader-text {
+		font-size: 16px;
+		color: #333;
+	}
+</style>
+
+<style>
 	body {
 		background-color: #f8f9fa;
 		font-family: Arial, sans-serif;
@@ -17,6 +41,7 @@
 		cursor: pointer;
 		/* border-radius: 27px; */
 	}
+
 	.status-badge {
 		display: inline-block;
 		padding: 3px 8px;
@@ -118,30 +143,55 @@
 		margin-top: 23px;
 	}
 </style>
-
+<div id="crm-loader" class="crm-loader-overlay d-none">
+	<div class="crm-loader-inner">
+		<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+		<div class="loader-text mt-2">Loading, please wait...</div>
+	</div>
+</div>
 
 <div class=" ">
 	<div class="main-header anim" style="--delay: 0s">Team Attendance Report</div>
 	<!-- Filters Row -->
-	<div class="d-flex flex-wrap align-items-end gap-3 mb-4 mt-4 filter-class">
-
+	<div class="d-flex flex-wrap align-items-end gap-3 mb-4 mt-4 p-3 rounded shadow-sm bg-white">
+		<div class="d-flex align-items-center">
+			<label for="page-size-select" class="me-2 mb-0">Show:</label>
+			<select id="page-size-select" class="form-select" style="width: 100px;">
+				<option value="10">10</option>
+				<option value="20" selected>20</option>
+				<option value="50">50</option>
+				<option value="100">100</option>
+			</select>
+		</div>
+		<div class="d-flex align-items-center" style="min-width: 300px; ">
+			<label for="search-box" class="me-4 mb-0"> Location:</label>
+			<div class="position-relative w-100">
+				<select id="jobLocationDropdown" class="form-control">
+					<option value="">-- Select Job Location &nbsp &nbsp</option>
+				</select>
+				<i class="fa fa-chevron-down position-absolute"
+				   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+			</div>
+		</div>
 		<!-- Search Input -->
 		<div class="d-flex align-items-center" style="min-width: 300px;">
-			<label for="search-box" class="me-2 filter-label mb-0">Search:</label>
+			<label for="search-box" class="me-2 mb-0">Search:</label>
 			<input type="text" id="search-box" class="form-control" placeholder="Search by name or employee no..." style="max-width: 300px;">
 		</div>
 
 		<!-- Year Selector -->
 		<div class="d-flex align-items-center">
-			<label for="year-select" class="me-2 filter-label mb-0">Year:</label>
+			<label for="year-select" class="me-2 mb-0">Year:</label>
 			<select id="year-select" class="form-select" style="width: 120px;">
-				<!-- Populated dynamically -->
+				<!-- Dynamically populated -->
 			</select>
 		</div>
 
 		<!-- Month Selector -->
 		<div class="d-flex align-items-center">
-			<label for="month-select" class="me-2 filter-label mb-0">Month:</label>
+			<label for="month-select" class="me-2 mb-0">Month:</label>
 			<select id="month-select" class="form-select" style="width: 120px;">
 				<option value="1">January</option>
 				<option value="2">February</option>
@@ -158,24 +208,18 @@
 			</select>
 		</div>
 
+		<!-- Page Size -->
+
+
+		<!-- Job Location Dropdown -->
+		
+
 		<!-- Export Button -->
 		<div>
 			<button id="export-btn" class="btn btn-primary" style="height: 38px;">Export Attendance</button>
 		</div>
 
 	</div>
-
-	<!-- Show Records Per Page -->
-	<div class="d-flex align-items-center  Show-filter-class" style="gap: 12px;">
-		<label for="page-size-select" class="filter-label mb-0">Show:</label>
-		<select id="page-size-select" class="form-select" style="width: 100px;">
-			<option value="10">10</option>
-			<option value="20" selected>20</option>
-			<option value="50">50</option>
-			<option value="100">100</option>
-		</select>
-	</div>
-
 
 
 	<div class="table-container">
@@ -188,6 +232,7 @@
 					<th>Employee ID</th>
 					<th>Employee Number</th>
 					<th>Employee Name</th>
+					<th>Job Location </th>
 				</tr>
 			</thead>
 			<tbody id="attendance-data">
@@ -222,376 +267,226 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
-			function populateYearDropdown(startYear = 2024) {
-		const currentYear = new Date().getFullYear();
-		const $yearSelect = $("#year-select");
+	let currentPage = 1;
+	let pageSize = 20;
+	let totalPages = 1;
+	let isLoading = false;
 
-		$yearSelect.empty(); // Clear any existing options
+	function showLoading() {
+	  $("#crm-loader").removeClass("d-none");
+	}
 
-		for (let year = currentYear; year >= startYear; year--) {
-			const selected = year === currentYear ? 'selected' : '';
-			$yearSelect.append(`<option value="${year}" ${selected}>${year}</option>`);
-		}
+	function hideLoading() {
+	  $("#crm-loader").addClass("d-none");
+	}
+
+	function populateYearDropdown(startYear = 2024) {
+	  const currentYear = new Date().getFullYear();
+	  const $yearSelect = $("#year-select").empty();
+	  for (let year = currentYear; year >= startYear; year--) {
+		$yearSelect.append(`<option value="${year}" ${year === currentYear ? "selected" : ""}>${year}</option>`);
+	  }
 	}
 
 	function selectCurrentMonth() {
-		const currentMonth = new Date().getMonth() + 1; // Month is 0-indexed
-		$("#month-select").val(currentMonth);
-	}
-	$(document).ready(function () {
-		populateYearDropdown();  // Populate years
-	selectCurrentMonth();
-		let currentPage = 1;
-		let pageSize = 20;
-		let totalPages = 1;
-		let isLoading = false;
-
-		function showLoading() {
-			$("#attendance-data").html(`<tr><td colspan="50" class="text-center">Loading...</td></tr>`);
-		}
-
-		function fetchAttendanceData(year, month, page,searchTerm = "", overridePageSize = null) {
-			if (isLoading) return;
-			isLoading = true;
-			showLoading();
-				let effectivePageSize = overridePageSize !== null ? overridePageSize : pageSize;
-			$.ajax({
-				url: '/employee/MyInfo/TeamAttendenceCalendarList',
-				type: 'GET',
-				data: { Year: year, Month: month, Page: page, PageSize: effectivePageSize,SearchTerm: searchTerm },
-				dataType: 'json',
-				success: function (response) { 
-					var totalRecords = response.data.totalRecords || 0;
-					if (totalRecords === 0) {
-		$("#attendance-data").html(`
-			<tr>
-				<td colspan="100%" class="text-center text-muted">No records found</td>
-			</tr>
-		`);
-		$("#pagination").html(""); // clear pagination
-		$("#record-range-info").text("No records to display.");
-		isLoading = false;
-		return;
-	}
-					totalPages = Math.ceil(totalRecords / pageSize);
-					renderAttendanceTable(response);
-					renderPagination(page, totalPages);
-		const startRecord = (page - 1) * pageSize + 1;
-		const endRecord = Math.min(page * pageSize, totalRecords);
-		$("#record-range-info").text(`Showing ${startRecord} to ${endRecord} of ${totalRecords.toLocaleString()} entries`);
-
-					isLoading = false;
-				},
-				error: function (xhr, status, error) {
-					console.error("Error fetching attendance data:", error);
-					isLoading = false;
-				}
-			});
-		}
-
-
-
-		$("#search-box").on("keyup", function () {
-		const searchText = $(this).val().trim();
-		currentPage = 1;
-		const year = parseInt($("#year-select").val()) || new Date().getFullYear();
-			const month = parseInt($("#month-select").val()) || (new Date().getMonth() + 1);
-			const pageSize = searchText === "" ? 20 : 0;
-			fetchAttendanceData(year, month, currentPage, searchText, pageSize);
-	});
-
-
-
-				function renderAttendanceTable(response) {
-		if (!response?.data?.attendances || response.data.attendances.length === 0) return;
-
-		const attendanceData = response.data.attendances;
-		const tbody = $("#attendance-data");
-		const thead = $("#header-row");
-
-		tbody.empty();
-		thead.empty();
-		// Static headers
-		let headerHtml = `
-						  <th>Employee Number</th>
-						  <th>Employee Name</th>`;
-
-		// Use the first record to get all dynamic day headers
-		const firstRecord = attendanceData[0];
-		const dayKeys = Object.keys(firstRecord.attendanceByDay);
-
-		dayKeys.forEach(day => {
-			headerHtml += `<th>${day.replace("_", " ")}</th>`;
-		});
-		// Optionally add summary columns
-		headerHtml += `<th>Total Working Days</th><th>Present Days</th>`;
-		thead.html(headerHtml);
-		// Now build body rows
-		attendanceData.forEach(record => {
-			let row = `<tr>
-				<td>${record.employeNumber}</td>
-				<td>${record.employeeName}</td>`;
-					 dayKeys.forEach(day => {
-		let status = record.attendanceByDay[day];
-
-	if (status === "Sa" || status === "S") {
-		status = "H";  // assign 'H' to status if it's Sa or S
+	  $("#month-select").val(new Date().getMonth() + 1);
 	}
 
-	const className = status === "P" ? "P"
-		: status === "A" ? "A"
-		: status === "H" ? "H"
-		: status === "HD" ? "HD"
-		: status === "L" ? "table-warning text-dark"
-		: "";
-
-
-
-		const dateStr = day.replace("_", "-");
-		row += `<td class="${className}" data-date="${dateStr}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}">
-					<span class="${className} status-badge">${status}</span>
-				</td>`;
-	});
-
-
-			row += `<td>${record.totalWorkingDays ?? '-'}</td>
-					<td>${record.presentDays ?? '-'}</td></tr>`;
-
-			tbody.append(row);
-		});
-	}
-			function renderPagination(current, total) {
-		const $paginationContainer = $("#pagination-container");
-		$paginationContainer.empty();
-
-		const maxVisiblePages = 3;
-		let startPage = Math.max(1, current - Math.floor(maxVisiblePages / 2));
-		let endPage = startPage + maxVisiblePages - 1;
-
-		if (endPage > total) {
-			endPage = total;
-			startPage = Math.max(1, endPage - maxVisiblePages + 1);
-		}
-
-		let html = '<nav aria-label="Page navigation example"><ul class="pagination justify-content-center">';
-
-		html += `
-			<li class="page-item ${current === 1 ? "disabled" : ""}">
-				<a class="page-link" href="#" aria-label="Previous" data-page="${current - 1}">Previous</a>
-			</li>
-		`;
-
-		for (let i = startPage; i <= endPage; i++) {
-			html += `
-				<li class="page-item ${i === current ? "active" : ""}">
-					<a class="page-link" href="#" data-page="${i}" >${i}</a>
-				</li>
-			`;
-		}
-
-		html += `
-			<li class="page-item ${current === total ? "disabled" : ""}">
-				<a class="page-link" href="#" aria-label="Next" data-page="${current + 1}">Next</a>
-			</li>
-		`;
-
-		html += '</ul></nav>';
-
-		$paginationContainer.html(html);
-
-		// $("#total-records-info").html(`<span class="text-muted">Total Records: ${total}</span>`);
-	}
-		$("#page-size-select").on("change", function () {
-		pageSize = parseInt($(this).val());
-		currentPage = 1;
-		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
-	});
-	// click handler
-	$("#pagination-container").off("click").on("click", "a.page-link", function (e) {
-		e.preventDefault();
-		const page = $(this).data("page");
-		if (page && page !== currentPage && page >= 1 && page <= totalPages) {
-			currentPage = page;
-			const year = parseInt($("#year-select").val()) || new Date().getFullYear();
-			const month = parseInt($("#month-select").val()) || (new Date().getMonth() + 1);
-			fetchAttendanceData(year, month, currentPage);
-		}
-	});
-		function getSelectedYear() {
-		return parseInt($("#year-select").val());
+	function getSelectedYear() {
+	  return parseInt($("#year-select").val());
 	}
 
 	function getSelectedMonth() {
-		return parseInt($("#month-select").val());
+	  return parseInt($("#month-select").val());
 	}
-	$("#year-select, #month-select").on("change", function () {
-		currentPage = 1;
-		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
-	});
-		// Initial page load
-		fetchAttendanceData(new Date().getFullYear(), new Date().getMonth() + 1, currentPage);
-	});
 
-	//Attendance Popup
-	 $(document).on("click", "#attendance-data td", function () {
-		const $td = $(this);
+	function renderAttendanceTable(response) {
+	  const data = response?.data?.attendances;
+	  if (!data?.length) return;
 
-		const rawDateKey = $td.data("date");
-		if (!rawDateKey) return;
+	  const tbody = $("#attendance-data").empty();
+	  const thead = $("#header-row").empty();
+	  const firstRecord = data[0];
+	  const dayKeys = Object.keys(firstRecord.attendanceByDay);
 
-		const dayPart = rawDateKey.substr(0, 2);
-		const paddedDay = dayPart.padStart(2, '0');
+	  let headerHtml = `<th>Employee Number</th><th>Employee Name</th><th>Job Location</th>`;
+	  dayKeys.forEach(day => headerHtml += `<th>${day.replace("_", " ")}</th>`);
+	  headerHtml += `<th>Total Working Days</th><th>Present Days</th>`;
+	  thead.html(headerHtml);
 
-		const year = parseInt($("#year-select").val());
-		const month = parseInt($("#month-select").val());
-		const paddedMonth = String(month).padStart(2, '0');
-		const fullDate = `${year}-${paddedMonth}-${paddedDay}`;
-		const employeeId = $td.data("empid");
-		const employeeNo = $td.data("empno");
-		if (!employeeId || !employeeNo) return;
-		$("#attendanceDetailModal").modal("show");
-		$("#attendanceDetailBody").html("Loading...");
-
-		$.ajax({
-			url: '/employee/MyInfo/GetAttendanceDetails',
-			type: 'GET',
-			data: {
-				date: fullDate,
-				employeeId: employeeId,
-				employeeNo: employeeNo
-			},
-				success: function (data) {
-		let html = "";
-
-		switch (data.recordType) {
-			case "Attendance":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
-							<div class="row mb-2">
-								<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
-								<div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">${data.attendanceStatus ?? '-'}</span></div>
-							</div>
-							<div class="row mb-2">
-								<div class="col-md-6"><strong>Check-in:</strong> ${formatDateTime(data.firstLogDate)}</div>
-								<div class="col-md-6"><strong>Check-out:</strong> ${formatDateTime(data.lastLogDate)}</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
-							</div>
-						</div>
-					</div>`;
-				break;
-
-			case "Holiday":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-success">🎉 Holiday</h5>
-							<div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div>
-							<div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div>
-							<div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>
-						</div>
-					</div>`;
-				break;
-
-			case "Leave":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-warning">📅 Leave Details</h5>
-							<div class="mb-2"><strong>Reason:</strong> ${data.reason}</div>
-							<div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div>
-							<div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div>
-							<div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div>
-						</div>
-					</div>`;
-				break;
-
-			case "No Record Found":
-			default:
-				html = `<div class="alert alert-warning text-center">
-							<i class="bi bi-info-circle-fill"></i> No attendance  record found for this day.
-						</div>`;
-				break;
-		}
-
-		$("#attendanceDetailBody").html(html);
-	}
+	  data.forEach(record => {
+		let row = `<tr><td>${record.employeNumber}</td><td>${record.employeeName}</td><td>${record.jobLocationName}</td>`;
+		dayKeys.forEach(day => {
+		  let status = record.attendanceByDay[day];
+		  if (status === "Sa" || status === "S") status = "H";
+		  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "table-warning text-dark" : "";
+		  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${className} status-badge">${status}</span></td>`;
 		});
-	});
-		function formatDate(dateStr) {
-		if (!dateStr) return "-";
-		const date = new Date(dateStr);
-		const day = String(date.getDate()).padStart(2, '0');
-		const month = date.toLocaleString('default', { month: 'short' });
-		const year = date.getFullYear();
-		return `${day}-${month}-${year}`;
+		row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td></tr>`;
+		tbody.append(row);
+	  });
+	}
+
+	function renderPagination(current, total) {
+	  const $pagination = $("#pagination-container").empty();
+	  const maxPages = 3;
+	  let start = Math.max(1, current - Math.floor(maxPages / 2));
+	  let end = Math.min(total, start + maxPages - 1);
+	  if (end - start < maxPages - 1) start = Math.max(1, end - maxPages + 1);
+
+	  let html = '<nav><ul class="pagination justify-content-center">';
+	  html += `<li class="page-item ${current === 1 ? "disabled" : ""}"><a class="page-link" href="#" data-page="${current - 1}">Previous</a></li>`;
+	  for (let i = start; i <= end; i++) {
+		html += `<li class="page-item ${i === current ? "active" : ""}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+	  }
+	  html += `<li class="page-item ${current === total ? "disabled" : ""}"><a class="page-link" href="#" data-page="${current + 1}">Next</a></li></ul></nav>`;
+	  $pagination.html(html);
+	}
+
+	function fetchAttendanceData(year, month, page, search = "", overridePageSize = null, jobLocationId = 0) {
+	  if (isLoading) return;
+	  isLoading = true;
+	  showLoading();
+	  const effectivePageSize = overridePageSize ?? pageSize;
+
+	  $.ajax({
+		url: '/employee/MyInfo/TeamAttendenceCalendarList',
+		type: 'GET',
+		data: { Year: year, Month: month, Page: page, PageSize: effectivePageSize, SearchTerm: search, JobLocationID: jobLocationId },
+		dataType: 'json',
+		success: function (res) {
+		  const jobList = res.data.joblocationList;
+		  const $ddl = $('#jobLocationDropdown');
+		  const selectedId = $ddl.val();
+		  $ddl.empty().append('<option value="">-- Select Job Location --</option>');
+		  $.each(jobList, (i, loc) => $ddl.append(`<option value="${loc.jobLocationID}">${loc.jobLocationName}</option>`));
+		  $ddl.val(selectedId);
+
+		  const total = res.data.totalRecords || 0;
+		  if (!total) {
+			$("#attendance-data").html(`<tr><td colspan="100%" class="text-center text-muted">No records found</td></tr>`);
+			$("#pagination").empty();
+			$("#record-range-info").text("No records to display.");
+			isLoading = false;
+			hideLoading();
+			return;
+		  }
+
+		  totalPages = Math.ceil(total / pageSize);
+		  renderAttendanceTable(res);
+		  renderPagination(page, totalPages);
+
+		  const start = (page - 1) * pageSize + 1;
+		  const end = Math.min(page * pageSize, total);
+		  $("#record-range-info").text(`Showing ${start} to ${end} of ${total.toLocaleString()} entries`);
+		  hideLoading();
+		  isLoading = false;
+		},
+		error: function (xhr, status, error) {
+		  console.error("Error fetching attendance data:", error);
+		  hideLoading();
+		  isLoading = false;
+		}
+	  });
+	}
+
+	function formatDate(dateStr) {
+	  return new Date(dateStr).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 	}
 
 	function formatDateTime(dateStr) {
-		if (!dateStr) return "-";
-		const date = new Date(dateStr);
-
-		const day = String(date.getDate()).padStart(2, '0');
-		const month = date.toLocaleString('default', { month: 'short' });
-		const year = date.getFullYear();
-
-		let hours = date.getHours();
-		const minutes = String(date.getMinutes()).padStart(2, '0');
-		const ampm = hours >= 12 ? 'PM' : 'AM';
-
-		hours = hours % 12;
-		hours = hours ? hours : 12; // Convert 0 to 12
-		const strTime = `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
-
-		return `${day}-${month}-${year} ${strTime}`;
+	  return new Date(dateStr).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 	}
 
-
-	$("#export-btn").on("click", function () {
-		const year = $("#year-select").val();
-		const month = $("#month-select").val();
-		const $btn = $(this);
-
-		const url = `/employee/MyInfo/ExportAttendance?Year=${year}&Month=${month}`;
-
-		// Change button text and disable it
-		$btn.prop("disabled", true).text("Please wait...");
-
-		// Create a hidden iframe to trigger download without navigating away
-		const $iframe = $("<iframe>")
-			.hide()
-			.attr("src", url)
-			.appendTo("body");
-
-		// Optional: Re-enable button after some delay (e.g., 5 seconds)
-		setTimeout(() => {
-			$btn.prop("disabled", false).text("Export Attendance");
-			$iframe.remove(); // Clean up
-		}, 5000); // Adjust as needed
-	});
-
+	function formatTimeOnly(dateStr) {
+	  return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	}
 
 	function formatSqlTimeToHoursMinutes(timeStr) {
-			if (!timeStr || typeof timeStr !== 'string') return '-';
+	  if (!timeStr || typeof timeStr !== 'string') return '-';
+	  const parts = timeStr.split(':');
+	  if (parts.length < 2) return '-';
+	  const hours = parseInt(parts[0], 10);
+	  const minutes = parseInt(parts[1], 10);
+	  return `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m` : ''}`.trim() || '0m';
+	}
 
-			const parts = timeStr.split(':');
-			if (parts.length < 2) return '-';
+	$(document).ready(function () {
+	  populateYearDropdown();
+	  selectCurrentMonth();
+	  fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
 
-			const hours = parseInt(parts[0], 10);
-			const minutes = parseInt(parts[1], 10);
+	  $("#year-select, #month-select").on("change", () => {
+		currentPage = 1;
+		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
+	  });
 
-			let result = '';
-			if (hours > 0) result += `${hours}h `;
-			if (minutes > 0) result += `${minutes}m`;
+	  $('#jobLocationDropdown').on('change', function () {
+		currentPage = 1;
+		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($(this).val()) || 0);
+	  });
 
-			return result.trim() || '0m';
+	  $("#search-box").on("keyup", function () {
+		const text = $(this).val().trim();
+		currentPage = 1;
+		const override = text === "" ? null : 0;
+		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, text, override, parseInt($("#jobLocationDropdown").val()) || 0);
+	  });
+
+	  $("#page-size-select").on("change", function () {
+		pageSize = parseInt($(this).val());
+		currentPage = 1;
+		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
+	  });
+
+	  $("#pagination-container").on("click", "a.page-link", function (e) {
+		e.preventDefault();
+		const page = $(this).data("page");
+		if (page && page !== currentPage && page >= 1 && page <= totalPages) {
+		  currentPage = page;
+		  fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
 		}
+	  });
 
+	  $(document).on("click", "#attendance-data td", function () {
+		const $td = $(this);
+		const rawDateKey = $td.data("date");
+		if (!rawDateKey) return;
+		const fullDate = `${getSelectedYear()}-${String(getSelectedMonth()).padStart(2, '0')}-${String(rawDateKey.substr(0, 2)).padStart(2, '0')}`;
+		const empId = $td.data("empid"), empNo = $td.data("empno");
+		if (!empId || !empNo) return;
 
-	
+		$("#attendanceDetailModal").modal("show");
+		$("#attendanceDetailBody").html("Loading...");
 
+		$.get('/employee/MyInfo/GetAttendanceDetails', { date: fullDate, employeeId: empId, employeeNo: empNo }, function (data) {
+		  let html = "";
+		  switch (data.recordType) {
+			case "Attendance":
+			  const first = new Date(data.firstLogDate), last = new Date(data.lastLogDate);
+			  const sameDay = first.toDateString() === last.toDateString();
+			  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5><div class="row mb-2"><div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div><div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">${data.attendanceStatus ?? '-'}</span></div></div><div class="row mb-2"><div class="col-md-6"><strong>Check-in:</strong> ${sameDay ? formatTimeOnly(data.firstLogDate) : formatDateTime(data.firstLogDate)}</div><div class="col-md-6"><strong>Check-out:</strong> ${sameDay ? formatTimeOnly(data.lastLogDate) : formatDateTime(data.lastLogDate)}</div></div><div class="row"><div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div></div></div></div>`;
+			  break;
+			case "Holiday":
+			  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div></div></div>`;
+			  break;
+			case "Leave":
+			  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div></div></div>`;
+			  break;
+			default:
+			  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>`;
+		  }
+		  $("#attendanceDetailBody").html(html);
+		});
+	  });
+
+	  $("#export-btn").on("click", function () {
+		const $btn = $(this);
+		const url = `/employee/MyInfo/ExportAttendance?Year=${getSelectedYear()}&Month=${getSelectedMonth()}&jobLocationId=${parseInt($("#jobLocationDropdown").val()) || 0}`;
+		$btn.prop("disabled", true).text("Please wait...");
+		const $iframe = $("<iframe>").hide().attr("src", url).appendTo("body");
+		setTimeout(() => { $btn.prop("disabled", false).text("Export Attendance"); $iframe.remove(); }, 5000);
+	  });
+	});
 </script>
 

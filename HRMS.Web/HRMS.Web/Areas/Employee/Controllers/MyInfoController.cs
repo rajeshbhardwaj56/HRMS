@@ -27,8 +27,8 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.Employee.Controllers
 {
-    [Area(Constants.ManageEmployee)]
     [Authorize]
+    [Area(Constants.ManageEmployee)]
     //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager + "," + RoleConstants.SuperAdmin))]
     public class MyInfoController : Controller
     {
@@ -1124,6 +1124,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
+            //if (EmployeeID == 0)
+            //{
+            //    HttpContext.Session.Clear();
+            //    HttpContext.SignOutAsync();
+            //    return RedirectToAction("Index", "Home", new { area = "" });
+            //}
 
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.TeamAttendenceList);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
@@ -1139,7 +1145,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize, string SearchTerm)
+        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize, string SearchTerm, int jobLocationId)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
@@ -1152,16 +1158,23 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 RoleId = RoleID,
                 PageSize = PageSize,
                 Page = Page,
-                SearchTerm = SearchTerm
+                SearchTerm = SearchTerm,
+                JobLocationID = jobLocationId
             };
+            AttendanceWithHolidaysVM model = new AttendanceWithHolidaysVM();
 
             var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var model = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(data);
+            model = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(data);
             model.Attendances.ForEach(x =>
             {
                 x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeId.ToString());
                 x.EmployeeNumberWithoutAbbr = _businessLayer.EncodeStringBase64(x.EmployeeNumberWithoutAbbr.ToString());
             });
+            var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            Joblcoations modeldata = new Joblcoations();
+            modeldata.CompanyId = CompanyID;
+            var objdata = _businessLayer.SendPostAPIRequest(modeldata, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetJobLocationsByCompany), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            model.JoblocationList = JsonConvert.DeserializeObject<List<Joblcoations>>(objdata);
             return Json(new { data = model });
         }
 
@@ -1201,7 +1214,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult ExportAttendance(int Year, int Month)
+        public IActionResult ExportAttendance(int Year, int Month, int jobLocationId)
         {
             try
             {
@@ -1214,8 +1227,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     Month = Month,
                     UserId = employeeId,
                     RoleId = roleId,
-                    PageSize = 100000,
-                    Page = 1
+                    PageSize = 0,
+                    Page = 1,
+                    JobLocationID = jobLocationId
                 };
 
                 var response = _businessLayer.SendPostAPIRequest(
