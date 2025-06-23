@@ -101,4 +101,5 @@ namespace HRMS.Models.Leave
         public long LeaveSummaryID { get; set; }
         public string? Message { get; set; }
     }
+    
 }

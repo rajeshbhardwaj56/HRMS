@@ -22,6 +22,7 @@ namespace HRMS.Models.Common
         public string? Message { get; set; }
         public string? Status { get; set; }
         public long? RoleId { get; set; }
+        public long? JobLocationID { get; set; }
         public string? conStr { get; set; }
         public string? SearchTerm { get; set; } = string.Empty;
 
@@ -63,6 +64,7 @@ namespace HRMS.Models.Common
         public string EncryptedIdentity { get; set; }
         public string EmployeeNumberWithoutAbbr { get; set; }
         public string EmployeeName { get; set; }
+        public string JobLocationName { get; set; }
         public int TotalWorkingDays { get; set; }
         public int PresentDays { get; set; }
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
@@ -121,7 +123,8 @@ namespace HRMS.Models.Common
     public class AttendanceWithHolidaysVM
     {
         public List<AttendanceViewModel> Attendances { get; set; } = new List<AttendanceViewModel>();
-        public int TotalRecords { get; set; } 
+        public int TotalRecords { get; set; }
+        public List<Joblcoations> JoblocationList { get; set; }
     }
 
 
@@ -159,7 +162,7 @@ namespace HRMS.Models.Common
     {
         public DateTime SelectedDate { get; set; }
         public string EmployeeNumber { get; set; }
-        public long EmployeeId { get; set; }
+        public long EmployeeId { get; set; } 
     }
 
 
