@@ -10,60 +10,60 @@
 @{
 	SelectListItem selectCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.CorrespondenceCountryID.ToString()).FirstOrDefault();
 
-    SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
-    SelectListItem employmentHistoryCountry;
-    var CountryData = @Model.employeeModel.Countries;
-    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-    var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
-    ViewData["Title"] = "Approve Leave";
-    var ProfilePhoto = "";
-    if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
-    {
-        ProfilePhoto = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto) ;
-    }
-    else
-    {
-        ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
-    }
-    var UploadCertificate = "";
-    if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
-    {
-        UploadCertificate =Model.leaveResults.leaveSummaryModel.UploadCertificate;
-    }
-    else
-    {
-        UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
-    }
-    if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
-    }
-    if (Model.leaveResults.leaveSummaryModel.EndDate == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.EndDate = DateTime.Now;
-    }
-    if (Model.leaveResults.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
-    }
-    if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
-    }
-    if (Model.leaveResults.leaveSummaryModel.ChildDOB == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.ChildDOB = DateTime.Now;
-    }
-    var fullDayValue = (int)LeaveDay.FullDay;
-    var halfDayValue = (int)LeaveDay.HalfDay;
-    var filteredLeaveTypes = Model.leaveResults.leaveTypes;
+	SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
+	SelectListItem employmentHistoryCountry;
+	var CountryData = @Model.employeeModel.Countries;
+	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+	ViewData["Title"] = "Approve Leave";
+	var ProfilePhoto = "";
+	if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
+	{
+		ProfilePhoto = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto) ;
+	}
+	else
+	{
+		ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+	}
+	var UploadCertificate = "";
+	if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
+	{
+		UploadCertificate =Model.leaveResults.leaveSummaryModel.UploadCertificate;
+	}
+	else
+	{
+		UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
+	}
+	if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
+	{
+		Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
+	}
+	if (Model.leaveResults.leaveSummaryModel.EndDate == DateTime.MinValue)
+	{
+		Model.leaveResults.leaveSummaryModel.EndDate = DateTime.Now;
+	}
+	if (Model.leaveResults.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
+	{
+		Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
+	}
+	if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
+	{
+		Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
+	}
+	if (Model.leaveResults.leaveSummaryModel.ChildDOB == DateTime.MinValue)
+	{
+		Model.leaveResults.leaveSummaryModel.ChildDOB = DateTime.Now;
+	}
+	var fullDayValue = (int)LeaveDay.FullDay;
+	var halfDayValue = (int)LeaveDay.HalfDay;
+	var filteredLeaveTypes = Model.leaveResults.leaveTypes;
 
-    if (Model.CampOffLeaveCount <= 0)
-    {
-        filteredLeaveTypes = filteredLeaveTypes
-            .Where(lt => !lt.Text.Equals("Compensatory Off", StringComparison.OrdinalIgnoreCase))
-            .ToList();
-    }
+	if (Model.CampOffLeaveCount <= 0)
+	{
+		filteredLeaveTypes = filteredLeaveTypes
+			.Where(lt => !lt.Text.Equals("Compensatory Off", StringComparison.OrdinalIgnoreCase))
+			.ToList();
+	}
 
 }
 	 
@@ -85,7 +85,6 @@
 		display: none !important;
 	}
 </style>
-@* <div class="main-header anim" style="--delay: 0s">My Info</div> *@
 
 
 <section class="upper-section d-flex">
@@ -132,7 +131,7 @@
 							</li>
 						}
 
-                      
+					  
 					</ul>
 				</div>
 			</div>
@@ -576,52 +575,6 @@
 <input type="hidden" id="leaveTypeID" value="" />
 <script type="text/javascript">
 	var leaveSummaryID;
-	 function UploadCertificatePreview(event) {
-		const file = event.target.files[0];
-		if (file) {
-			const previewImage = document.getElementById('UploadCertificatePreviewImage');
-			const previewPDF = document.getElementById('UploadCertificatePreviewPDF');
-			const reader = new FileReader();
-
-			reader.onload = function (e) {
-				const result = e.target.result;
-
-				if (file.type.startsWith('image/')) {
-					previewImage.src = result;
-					previewImage.style.display = 'block';
-					previewPDF.style.display = 'none';
-				} else if (file.type === 'application/pdf') {
-					previewPDF.src = result;
-					previewPDF.style.display = 'block';
-					previewImage.style.display = 'none';
-				} else {
-					alert('Unsupported file type. Please upload an image or PDF.');
-					previewImage.style.display = 'none';
-					previewPDF.style.display = 'none';
-				}
-			};
-
-			reader.readAsDataURL(file);
-		}
-	}
-	window.onload = function () {
-		const certPath = '@Html.Raw(Model.leaveResults.leaveSummaryModel.UploadCertificate)';
-		const certFilePath = certPath.toLowerCase();
-		const certImg = document.getElementById('UploadCertificatePreviewImage');
-		const certPdf = document.getElementById('UploadCertificatePreviewPDF');
-
-		if (certFilePath.includes('.pdf')) {
-			certPdf.src = certPath;
-			certPdf.style.display = 'block';
-			certImg.style.display = 'none';
-		} else if (certPath) {
-			certImg.src = certPath;
-			certImg.style.display = 'block';
-			certPdf.style.display = 'none';
-		}
-	};
-
-
 	   function ApproveRejectLeave(isApproved) {
 		const approveRejectComment = $("#ApproveRejectComment").val().trim();
 		const messageContainer = $("#approverejectrequire");
@@ -893,13 +846,13 @@
 
 
 
-    function CloseApproveRejectModel() {
-        $('#ApproveRejectModel').modal('hide');
-    }
-    function RefreshTable(tableId, urlData) {
-        $.post(urlData, null, function (json) {
-            table = $(tableId).dataTable();
-            oSettings = table.fnSettings();
+	function CloseApproveRejectModel() {
+		$('#ApproveRejectModel').modal('hide');
+	}
+	function RefreshTable(tableId, urlData) {
+		$.post(urlData, null, function (json) {
+			table = $(tableId).dataTable();
+			oSettings = table.fnSettings();
 
 			table.fnClearTable(this);
 
@@ -1263,23 +1216,7 @@
 		$('[data-bs-toggle="tooltip"]').tooltip();
 	});
 	document.addEventListener('DOMContentLoaded', function () {
-		// Save selected main tab to localStorage
-		// var mainTabs = document.querySelectorAll('.nav-link.section-link');
-		// mainTabs.forEach(function (tab) {
-		// 	tab.addEventListener('click', function () {
-		// 		localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
-		// 	});
-		// });
 
-		// // Check if a main tab was previously selected and open it
-		// var activeMainTab = localStorage.getItem('selectedMainTab');
-		// if (activeMainTab) {
-		// 	var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
-		// 	if (targetMainTab) {
-		// 		var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
-		// 		bootstrapMainTab.show();
-		// 	}
-		// }
 
 		// Save selected sub-tab (inside Leave Info) to localStorage
 		var subTabs = document.querySelectorAll('#myTabs-timeoff .nav-link');
@@ -1299,15 +1236,7 @@
 			}
 		}
 
-		// Edit button event to activate Apply Leave tab
-		// document.getElementById('editButton').addEventListener('click', function (event) {
-		//     localStorage.removeItem('selectedSubTab');
-		//     localStorage.setItem('selectedSubTab', '#apply-leave-tab');
-		//     var leaveInfoTab = new bootstrap.Tab(document.querySelector('#leaveInfo-tab1'));
-		//     leaveInfoTab.show();
-		//     var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
-		//     applyLeaveTab.show();
-		// });
+
 		// Select all buttons with the class "edit-button"
 		document.querySelectorAll('.edit-button').forEach(function (button) {
 			button.addEventListener('click', function (event) {
@@ -1333,37 +1262,7 @@
 
 
 	});
-	document.getElementById("myForm").onsubmit = async function (event) {
-		event.preventDefault();
-		const responseMessage = document.getElementById("responseMessage");
-		responseMessage.textContent = "";
-		responseMessage.className = "";
-		const formData = new FormData(this);
-		const response = await fetch(this.action, {
-			method: 'POST',
-			body: formData
-		});
-		const result = await response.json();
-		if (result.isValid) {
-			$.toast({
-				heading: 'Success',
-				text: result.message,
-				showHideTransition: 'slide',
-				icon: 'success',
-				position: 'top-right',
-			});
-			setTimeout(function () {
-				window.location.href = "/employee/myinfo/Index/";
-			}, 1000);
-			// responseMessage.textContent = result.message;
-			// responseMessage.className = "success-message";
-			// this.reset(); // Optionally reset the form fields
-		} else {
-			// Display error message
-			responseMessage.textContent = result.message;
-			responseMessage.className = "error-message";
-		}
-	};
+
 </script>
 
 
@@ -1392,43 +1291,43 @@
 			var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
 
 			if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave','Comp Off' ].includes(adminselectedLeaveType)) {
-                adminfullDayContainer.style.display = "flex";
-                adminhalfDayContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "none";
-                admintodatetime.style.display = "block";
-            } else if (adminleaveDurationDropdown.value === fullDayValue) {
-                adminfullDayContainer.style.display = "flex";
-                admintodatetime.style.display = fullDayValue === "1" ? "block" : "none";
-                adminfromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
-                adminhalfDayContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "none";
-            } else if (adminleaveDurationDropdown.value === halfDayValue) {
-                adminfullDayContainer.style.display = "flex";
-                adminhalfDayContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "none";
-                admintodatetime.style.display = "none";
-                adminfromdatetime.style.display = "block";
-            } else if (adminselectedLeaveType === 'Paternity Leave') {
-                //adminfullDayContainer.style.display = "flex";
-                adminhalfDayContainer.style.display = "none";
-                adminMaternityAdoptionMiscarrageContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "block";
-            } else {
-                adminfullDayContainer.style.display = "none";
-                adminhalfDayContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "none";
-            }
-        }
+				adminfullDayContainer.style.display = "flex";
+				adminhalfDayContainer.style.display = "none";
+				adminChildDOBDateContainer.style.display = "none";
+				admintodatetime.style.display = "block";
+			} else if (adminleaveDurationDropdown.value === fullDayValue) {
+				adminfullDayContainer.style.display = "flex";
+				admintodatetime.style.display = fullDayValue === "1" ? "block" : "none";
+				adminfromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
+				adminhalfDayContainer.style.display = "none";
+				adminChildDOBDateContainer.style.display = "none";
+			} else if (adminleaveDurationDropdown.value === halfDayValue) {
+				adminfullDayContainer.style.display = "flex";
+				adminhalfDayContainer.style.display = "none";
+				adminChildDOBDateContainer.style.display = "none";
+				admintodatetime.style.display = "none";
+				adminfromdatetime.style.display = "block";
+			} else if (adminselectedLeaveType === 'Paternity Leave') {
+				//adminfullDayContainer.style.display = "flex";
+				adminhalfDayContainer.style.display = "none";
+				adminMaternityAdoptionMiscarrageContainer.style.display = "none";
+				adminChildDOBDateContainer.style.display = "block";
+			} else {
+				adminfullDayContainer.style.display = "none";
+				adminhalfDayContainer.style.display = "none";
+				adminChildDOBDateContainer.style.display = "none";
+			}
+		}
 
-        // Toggle the maternity/adoption/miscarriage container based on admin leave type
-        function admintoggleMaternityAdoptionMiscarrageContainer() {
-            var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
-            if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave','Compensatory Off'].includes(adminselectedLeaveType)) {
-                adminmaternityAdoptionMiscarrageContainer.style.display = "flex";
-            } else {
-                adminmaternityAdoptionMiscarrageContainer.style.display = "none";
-            }
-        }
+		// Toggle the maternity/adoption/miscarriage container based on admin leave type
+		function admintoggleMaternityAdoptionMiscarrageContainer() {
+			var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
+			if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave','Compensatory Off'].includes(adminselectedLeaveType)) {
+				adminmaternityAdoptionMiscarrageContainer.style.display = "flex";
+			} else {
+				adminmaternityAdoptionMiscarrageContainer.style.display = "none";
+			}
+		}
 
 		// Toggle expected delivery date based on admin leave type
 		function admintoggleExpectedDeliveryDate() {
@@ -1436,28 +1335,28 @@
 			adminexpectedDeliveryDateContainer.style.display = adminselectedLeaveType === 'Maternity Leave' ? "block" : "none";
 		}
 
-        // Toggle leave duration container visibility
-        function admintoggleLeaveDurationVisibility() {
-            var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
-            if (['Privilege Leave','Leave Without Pay', 'Compensatory Off', 'Medical Leave' ].includes(adminselectedLeaveType)) {
-                adminleaveDurationContainer.style.display = "block";
-                $('#adminleaveDurationDropdown').attr('required', true);
-            } else {
-                adminleaveDurationContainer.style.display = "none";
-                adminleaveDurationDropdown.selectedIndex = 0;
-                $('#adminleaveDurationDropdown').attr('required', false);
-            }
-        }
+		// Toggle leave duration container visibility
+		function admintoggleLeaveDurationVisibility() {
+			var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
+			if (['Privilege Leave','Leave Without Pay', 'Compensatory Off', 'Medical Leave' ].includes(adminselectedLeaveType)) {
+				adminleaveDurationContainer.style.display = "block";
+				$('#adminleaveDurationDropdown').attr('required', true);
+			} else {
+				adminleaveDurationContainer.style.display = "none";
+				adminleaveDurationDropdown.selectedIndex = 0;
+				$('#adminleaveDurationDropdown').attr('required', false);
+			}
+		}
 
-        // Event listeners for admin functionality
-        adminleaveDurationDropdown.addEventListener("change", admintoggleContainers);
-        adminleaveTypeDropdown.addEventListener("change", function () {
-           
-            admintoggleMaternityAdoptionMiscarrageContainer();
-            admintoggleExpectedDeliveryDate();
-            admintoggleLeaveDurationVisibility();
-            admintoggleContainers();
-        });
+		// Event listeners for admin functionality
+		adminleaveDurationDropdown.addEventListener("change", admintoggleContainers);
+		adminleaveTypeDropdown.addEventListener("change", function () {
+		   
+			admintoggleMaternityAdoptionMiscarrageContainer();
+			admintoggleExpectedDeliveryDate();
+			admintoggleLeaveDurationVisibility();
+			admintoggleContainers();
+		});
 
 		// Initial calls
 		admintoggleContainers();
@@ -1471,191 +1370,7 @@
 
 
 
-<script>
-	function PanPostedFilePreview(event) {
-		const file = event.target.files[0];
-		if (file) {
-			const previewImage = document.getElementById('PanpreviewImage');
-			const pdfPreview = document.getElementById('PanpreviewPDF');
-			const reader = new FileReader();
 
-			reader.onload = function (e) {
-				const result = e.target.result;
-
-				if (file.type.startsWith('image/')) {
-					previewImage.src = result;
-					previewImage.style.display = 'block';
-					pdfPreview.style.display = 'none';
-				} else if (file.type === 'application/pdf') {
-					pdfPreview.src = result;
-					pdfPreview.style.display = 'block';
-					previewImage.style.display = 'none';
-				} else {
-					alert('Unsupported file type. Please upload an image or a PDF.');
-					previewImage.style.display = 'none';
-					pdfPreview.style.display = 'none';
-				}
-			};
-
-			reader.readAsDataURL(file);
-		}
-	}
-
-
-
-	document.addEventListener("DOMContentLoaded", function () {
-		// Define Standard User Elements
-		var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
-		var fullDayContainer = document.getElementById("fullDayContainer");
-		var halfDayContainer = document.getElementById("halfDayContainer");
-		var leaveTypeDropdown = document.getElementById("leaveTypeDropdown");
-		var maternityAdoptionMiscarrageContainer = document.getElementById("MaternityAdoptionMiscarrageContainer");
-		var leaveDurationContainer = document.getElementById("leaveDurationContainer");
-		var todatetime = document.getElementById("todatetime");
-		var fromdatetime = document.getElementById("fromdatetime");
-		var ChildDOBDateContainer = document.getElementById("ChildDOBDateContainer");
-		var expectedDeliveryDateContainer = document.getElementById("expectedDeliveryDateContainer");
-		// Placeholder values
-		var fullDayValue = "1";
-		var halfDayValue = "2";
-
-        function toggleContainers() {
-            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text; 
-			if (['Maternity Leave', 'Adoption', 'Miscarriage' ].includes(selectedLeaveType)) {
-                fullDayContainer.style.display = "flex";
-                halfDayContainer.style.display = "none";
-                leaveDurationContainer.style.display = "none"; 
-                ChildDOBDateContainer.style.display = "none";
-                todatetime.style.display = "block";
-                $('#leaveDurationDropdown').attr('required', false);
-            }
-		
-            else if (selectedLeaveType === 'Paternity Leave') {
-                fullDayContainer.style.display = "flex";
-                halfDayContainer.style.display = "none";
-                ChildDOBDateContainer.style.display = "block";
-            }
-            else if (selectedLeaveType === 'Medical Leave') {
-                leaveDurationContainer.style.display = "none";
-                ChildDOBDateContainer.style.display = "none";
-                halfDayContainer.style.display = "none";
-                leaveDurationDropdown.selectedIndex = 0;
-                fullDayContainer.style.display = "flex";
-                $('#leaveDurationDropdown').attr('required', false);
-            }
-       
-			else if (selectedLeaveType === 'Privilege Leave' ||selectedLeaveType === 'Leave Without Pay'||selectedLeaveType === 'Compensatory Off') {
-				if(selectedLeaveType === 'Leave Without Pay')
-				{
-					  todatetime.style.display = fullDayValue ==="block"  ;
-                    fromdatetime.style.display = fullDayValue ==="block"  ;
-                    halfDayContainer.style.display = "none";
-                    ChildDOBDateContainer.style.display = "none";
-					leaveDurationContainer.style.display = "none";
-
-                    return;
-				}
-
-                if (leaveDurationDropdown.value === fullDayValue) {
-					
-                    fullDayContainer.style.display = "flex";
-                    todatetime.style.display = fullDayValue === "1" ? "block" : "none";
-                    fromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
-                    halfDayContainer.style.display = "none";
-                    ChildDOBDateContainer.style.display = "none";
-                    return;
-                }
-                else if (leaveDurationDropdown.value === halfDayValue) {
-                    fullDayContainer.style.display = "flex";
-                    halfDayContainer.style.display = "none";
-                    ChildDOBDateContainer.style.display = "none";
-                    todatetime.style.display = "none";
-                    fromdatetime.style.display = "block";
-                    return;
-                }
-				leaveDurationDropdown.style.display = "block";
-                fullDayContainer.style.display = "none";
-                leaveDurationContainer.style.display = "block";
-                leaveDurationDropdown.style.display = "flex";
-                ChildDOBDateContainer.style.display = "none";
-                leaveDurationDropdown.selectedIndex = 0;
-                $('#leaveDurationDropdown').attr('required', true);
-            }
-            else {
-                fullDayContainer.style.display = "none";
-                halfDayContainer.style.display = "none";
-                ChildDOBDateContainer.style.display = "none";
-                leaveDurationContainer.style.display = "none";
-                leaveDurationDropdown.selectedIndex = 0;
-            }
-        }
-
-        function toggleMaternityAdoptionMiscarrageContainer() {
-            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-            maternityAdoptionMiscarrageContainer.style.display =
-                ['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave' ].includes(selectedLeaveType) ? "flex" : "none";
-        }
-
-		function toggleExpectedDeliveryDate() {
-			var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-			expectedDeliveryDateContainer.style.display = selectedLeaveType === 'Maternity Leave' ? "block" : "none";
-		}
-
-
-
-        function toggleLeaveDurationVisibility() {
-            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-            if (['Compensatory Offq'].includes(selectedLeaveType)) {
-                leaveDurationContainer.style.display = "block";
-                 fullDayContainer.style.display = "none";
-                $('#leaveDurationDropdown').attr('required', true);
-            }
-
-			else { 
-				$('#leaveDurationDropdown').attr('required', false);
-			}
-		}
-
-        // Event listeners for standard user functionality
-        leaveDurationDropdown.addEventListener("change", toggleContainers);
-        leaveTypeDropdown.addEventListener("change", function () {
-               const selectedLeaveTypeId = parseInt(this.value);
-               if(selectedLeaveTypeId == @Convert.ToInt32(LeaveType.LeaveWithOutPay))
-               {
-				 
-                   $("#leaveDurationContainer").css("display","none");
-				   $("#MaternityAdoptionMiscarrageContainer").css("display","none");
-                   $("#todatetime").css("display","block");
-                   $("#fullDayContainer").css("display","flex");
-               }
-			   else if(selectedLeaveTypeId == @Convert.ToInt32(LeaveType.CompOff)){
-                      $("#fullDayContainer").css("display","none");
-					         $("#todatetime").css("display","none");
-                       $("#leaveDurationContainer").css("display","block");
-            toggleExpectedDeliveryDate();
-            toggleLeaveDurationVisibility();
-            toggleContainers();
-               }
-                
-			   else{
-                      $("#fullDayContainer").css("display","none");
-					         $("#todatetime").css("display","none");
-                       $("#leaveDurationContainer").css("display","block");
-              toggleMaternityAdoptionMiscarrageContainer();
-            toggleExpectedDeliveryDate();
-            toggleLeaveDurationVisibility();
-            toggleContainers();
-               }
-                
-        });
-
-		// Initial calls
-		toggleContainers();
-		toggleMaternityAdoptionMiscarrageContainer();
-		toggleLeaveDurationVisibility();
-		toggleExpectedDeliveryDate();
-	});
-</script>
 
 
 
