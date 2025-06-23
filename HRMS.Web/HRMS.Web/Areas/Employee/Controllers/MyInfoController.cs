@@ -1642,14 +1642,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     DateTime today = DateTime.Today;
                     DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
 
-                    // Step 1: Calculate already approved annual + medical leaves in current fiscal year
+                 
                     decimal approvedLeaves = leaveSummaryDataResult
                         .Where(x => x.StartDate >= fiscalYearStart
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                         .Sum(x => x.NoOfDays);
 
-                    // Step 2: Calculate accrual and carry forward
+                    
                     double accruedLeaves = 0;
                     if (approvedLeaves < 30)
                     {
