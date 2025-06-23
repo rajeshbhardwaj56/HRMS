@@ -124,12 +124,11 @@
 
 				<div class="myinfo-menu">
 					<ul class="nav nav-tabs leave-section-tabs" id="myTab1" role="tablist">
-						@if (RoleName != Convert.ToInt64(Roles.Employee))
-						{
+					
 							<li class="nav-item" role="presentation">
 								<a class="nav-link section-link active" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
 							</li>
-						}
+						
 
 					  
 					</ul>
@@ -628,14 +627,13 @@
 		});
 	}
 
-	   function OpenApproveRejectModel(employeeID, leaveSummaryID) {
+	   function OpenApproveRejectModel(employeeID, leaveSummaryID) {	
 		$("#leaveSummaryID").val(leaveSummaryID);
 		$.ajax({
 			url: '/employee/myinfo/GetEmployeeLeaveDetails',
 			type: 'GET',
 			data: { employeeID: employeeID },
-			success: function (response) {
-				console.log(response);
+			success: function (response) {	
 				const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 				if (response.employeeModel && response.employmentDetail) {
 					const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
@@ -713,18 +711,18 @@
 									$("#showDocumentalert").text(`Document required for maternity leave`);
 								}
 							}
-							// Assuming `response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays` is in weeks
+							
 							var weeksBefore = response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays;
 							var daysBefore = weeksBefore * 7;
 
-							// Function to remove the time part and keep only the date
+						
 							function normalizeDate(date) {
 								var normalizedDate = new Date(date);
-								normalizedDate.setHours(0, 0, 0, 0); // Set time to midnight (00:00:00)
+								normalizedDate.setHours(0, 0, 0, 0); 
 								return normalizedDate;
 							}
 
-							// Normalize both dates to remove time part
+						
 							var startDateNormalized = normalizeDate(leaveSummary.startDate);
 							var expectedDeliveryDateNormalized = normalizeDate(leaveSummary.expectedDeliveryDate);
 

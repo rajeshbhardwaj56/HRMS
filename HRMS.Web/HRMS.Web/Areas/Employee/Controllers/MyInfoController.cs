@@ -49,7 +49,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpGet]
         public IActionResult Index(string id)
         {
-            // Initialize model
+           
             var model = new MyInfoInputParams
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
@@ -563,14 +563,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         TempData[HRMS.Models.Common.Constants.toastMessage] = $"Leave duration exceeds the maximum allowed of {maxMiscarriageLeaveDays} days.";
-                        return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.MyInfo);
+                        return RedirectToActionPermanent(Constants.ApplyLeave, WebControllarsConstants.MyInfo);
                     }
 
                     if (leavePolicyModel.Maternity_ApplicableAfterWorkingDays > JoiningDays)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         TempData[HRMS.Models.Common.Constants.toastMessage] = $"You can't apply leave(s) before {leavePolicyModel.Maternity_ApplicableAfterWorkingDays} days of joining";
-                        return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.MyInfo);
+                        return RedirectToActionPermanent(Constants.ApplyLeave, WebControllarsConstants.MyInfo);
                     }
                     break;
 
@@ -598,13 +598,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         return Json(new { isValid = false, message = $"You can't apply leave(s) before {maxPaternityDays} days of joining" });
                     }
 
-                    if (leaveSummary.ChildDOB.Date > leaveSummary.EndDate.Date)
+                    if (leaveSummary.ChildDOB.Value.Date > leaveSummary.EndDate.Date)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new { isValid = false, message = "Child DOB must be less than or Equal to End Date." });
                     }
 
-                    if (leaveSummary.ChildDOB.AddMonths(3).Date <= leaveSummary.StartDate.Date)
+                    if (leaveSummary.ChildDOB.Value.AddMonths(3).Date <= leaveSummary.StartDate.Date)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new { isValid = false, message = "Paternity leave must be taken within 3 months after delivery or miscarriage." });
@@ -985,7 +985,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 TempData[HRMS.Models.Common.Constants.toastMessage] = data;
             }
             return RedirectToActionPermanent(
-                      Constants.Index,
+                      Constants.ApplyLeave,
                        WebControllarsConstants.MyInfo);
         }
         [HttpPost]
@@ -1006,7 +1006,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 TempData[HRMS.Models.Common.Constants.toastMessage] = results.Message;
             }
             return RedirectToActionPermanent(
-                      Constants.Index,
+                      Constants.ApplyLeave,
                        WebControllarsConstants.MyInfo);
         }
 
@@ -1573,14 +1573,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         TempData[HRMS.Models.Common.Constants.toastMessage] = $"Leave duration exceeds the maximum allowed of {maxMiscarriageLeaveDays} days.";
-                        return RedirectToActionPermanent(Constants.LeaveInfo, WebControllarsConstants.MyInfo);
+                        return RedirectToActionPermanent(Constants.ApplyLeave, WebControllarsConstants.MyInfo);
                     }
 
                     if (leavePolicyModel.Maternity_ApplicableAfterWorkingDays > JoiningDays)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         TempData[HRMS.Models.Common.Constants.toastMessage] = $"You can't apply leave(s) before {leavePolicyModel.Maternity_ApplicableAfterWorkingDays} days of joining";
-                        return RedirectToActionPermanent(Constants.LeaveInfo, WebControllarsConstants.MyInfo);
+                        return RedirectToActionPermanent(Constants.ApplyLeave, WebControllarsConstants.MyInfo);
                     }
                     break;
 
@@ -1608,13 +1608,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         return Json(new { isValid = false, message = $"You can't apply leave(s) before {maxPaternityDays} days of joining" });
                     }
 
-                    if (leaveSummary.ChildDOB.Date > leaveSummary.EndDate.Date)
+                    if (leaveSummary.ChildDOB.Value.Date > leaveSummary.EndDate.Date)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new { isValid = false, message = "Child DOB must be less than or Equal to End Date." });
                     }
 
-                    if (leaveSummary.ChildDOB.AddMonths(3).Date <= leaveSummary.StartDate.Date)
+                    if (leaveSummary.ChildDOB.Value.AddMonths(3).Date <= leaveSummary.StartDate.Date)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new { isValid = false, message = "Paternity leave must be taken within 3 months after delivery or miscarriage." });
@@ -1993,14 +1993,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         TempData[HRMS.Models.Common.Constants.toastMessage] = $"Leave duration exceeds the maximum allowed of {maxMiscarriageLeaveDays} days.";
-                        return RedirectToActionPermanent(Constants.LeaveInfo, WebControllarsConstants.MyInfo);
+                        return RedirectToActionPermanent(Constants.ApplyLeave, WebControllarsConstants.MyInfo);
                     }
 
                     if (leavePolicyModel.Maternity_ApplicableAfterWorkingDays > JoiningDays)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         TempData[HRMS.Models.Common.Constants.toastMessage] = $"You can't apply leave(s) before {leavePolicyModel.Maternity_ApplicableAfterWorkingDays} days of joining";
-                        return RedirectToActionPermanent(Constants.LeaveInfo, WebControllarsConstants.MyInfo);
+                        return RedirectToActionPermanent(Constants.ApplyLeave, WebControllarsConstants.MyInfo);
                     }
                     break;
 
@@ -2028,13 +2028,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         return Json(new { isValid = false, message = $"You can't apply leave(s) before {maxPaternityDays} days of joining" });
                     }
 
-                    if (leaveSummary.ChildDOB.Date > leaveSummary.EndDate.Date)
+                    if (leaveSummary.ChildDOB.Value.Date > leaveSummary.EndDate.Date)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new { isValid = false, message = "Child DOB must be less than or Equal to End Date." });
                     }
 
-                    if (leaveSummary.ChildDOB.AddMonths(3).Date <= leaveSummary.StartDate.Date)
+                    if (leaveSummary.ChildDOB.Value.AddMonths(3).Date <= leaveSummary.StartDate.Date)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new { isValid = false, message = "Paternity leave must be taken within 3 months after delivery or miscarriage." });

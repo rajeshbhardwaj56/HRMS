@@ -130,12 +130,11 @@
 						{
 							if (Model.employeeModel.LeavePolicyID > 0)
 							{
-								@if (RoleName != Convert.ToInt64(Roles.Admin) && RoleName != Convert.ToInt64(Roles.SuperAdmin))
-								{
+								
 									<li class="nav-item" role="presentation">
 										<a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="true" >Leave Info</a>
 									</li>
-								}
+								
 
 							}
 							else

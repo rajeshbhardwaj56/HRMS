@@ -1708,7 +1708,7 @@ namespace HRMS.API.BusinessLayer
                                   ManagerOfficialEmailID = dataRow.Field<string>("ManagerOfficialEmailID"),
                                   EmployeeFirstName = dataRow.Field<string>("EmployeeFirstName"),
                                   ManagerFirstName = dataRow.Field<string>("ManagerFirstName"),
-                                  ChildDOB = dataRow.Field<DateTime>("ChildDOB"),
+                                  ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
                                   LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
                                   JoiningDate = dataRow.Field<DateTime>("JoiningDate"),
                                   CompanyID = dataRow.Field<long>("CompanyID"),
@@ -1747,7 +1747,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@ApproveRejectComment", leaveSummaryModel.ApproveRejectComment));
             sqlParameter.Add(new SqlParameter("@UploadCertificate", leaveSummaryModel.UploadCertificate ?? ""));
             sqlParameter.Add(new SqlParameter("@ExpectedDeliveryDate", leaveSummaryModel.ExpectedDeliveryDate));
-            sqlParameter.Add(new SqlParameter("@ChildDOB", leaveSummaryModel.ChildDOB));
+            sqlParameter.Add(new SqlParameter("@ChildDOB", leaveSummaryModel.ChildDOB ?? (object)DBNull.Value));
             sqlParameter.Add(new SqlParameter("@CampOff", leaveSummaryModel.CampOff ?? Convert.ToInt32(CompOff.OtherLeaves)));
             SqlParameterCollection pOutputParams = null;
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
@@ -1794,7 +1794,7 @@ namespace HRMS.API.BusinessLayer
                                   IsActive = dataRow.Field<bool>("IsActive"),
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                  ChildDOB = dataRow.Field<DateTime>("ChildDOB"),
+                                  ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
                               }).ToList();
 
             // result.leaveTypes = GetLeaveTypes(model).leaveTypes;

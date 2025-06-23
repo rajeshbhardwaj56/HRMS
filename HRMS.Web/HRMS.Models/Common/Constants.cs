@@ -89,7 +89,8 @@ namespace HRMS.Models.Common
         public const string JobLocationID = "JobLocationID";
         public const string DepartmentID = "DepartmentID";
  
-        public const string LeaveInfo = "LeaveInfo";
+        public const string ApplyLeave = "ApplyLeave";
+        public const string ApproveLeave = "ApproveLeave";
 
 
     }
