@@ -1524,7 +1524,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
             bool needsWeekendHolidayCount = leaveSummary.LeaveTypeID == (int)LeaveType.Paternity
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.MedicalLeave
-                                           || leaveSummary.LeaveTypeID == (int)LeaveType.CompOff;
+                                           || leaveSummary.LeaveTypeID == (int)LeaveType.CompOff
+                                           || leaveSummary.LeaveTypeID == (int)LeaveType.LeaveWithOutPay;
 
             if (needsWeekendHolidayCount)
             {
