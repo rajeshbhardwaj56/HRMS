@@ -781,79 +781,83 @@
 			return `${day}-${month}-${year} ${strTime}`;
 		}
 
-				 function showAttendanceDetails(selectedDate) {
-		  $('#modalDateText').html('Loading details for: ' + selectedDate + '...');
-		  $('#dateModal').modal('show');
+					function showAttendanceDetails(selectedDate) {
+			$('#modalDateText').html('Loading details for: ' + selectedDate + '...');
+			$('#dateModal').modal('show');
 
 			$.ajax({
-			  url: '/employee/MyInfo/GetAttendanceDetails', // Replace with your actual endpoint
-			  type: 'GET',
-			  data: { date: selectedDate },
-			  success: function(data) {
-				let html = "";
+				url: '/employee/MyInfo/GetAttendanceDetails', // Replace with your actual endpoint
+				type: 'GET',
+				data: { date: selectedDate },
+				success: function (data) {
+					let html = "";
 
 					switch (data.recordType) {
-			case "Attendance":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
-							<div class="row mb-2">
-								<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
-								<div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">${data.attendanceStatus ?? '-'}</span></div>
-							</div>
-							<div class="row mb-2">
-								<div class="col-md-6"><strong>Check-in:</strong> ${formatDateTime(data.firstLogDate)}</div>
-								<div class="col-md-6"><strong>Check-out:</strong> ${formatDateTime(data.lastLogDate)}</div>
-							</div>
-							<div class="row">
-							<div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
+						case "Attendance":
+							const { startFormatted, endFormatted } = formatDateOrTime(data.firstLogDate, data.lastLogDate);
 
-							</div>
-						</div>
-					</div>`;
-				break;
+							html = `
+								<div class="card shadow-sm border-0">
+									<div class="card-body">
+										<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
+										<div class="row mb-2">
+											<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
+											<div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">${data.attendanceStatus ?? '-'}</span></div>
+										</div>
+										<div class="row mb-2">
+											<div class="col-md-6"><strong>Check-in:</strong> ${startFormatted}</div>
+											<div class="col-md-6"><strong>Check-out:</strong> ${endFormatted}</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
+										</div>
+									</div>
+								</div>`;
+							break;
 
-			case "Holiday":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-success">🎉 Holiday</h5>
-							<div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div>
-							<div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div>
-							<div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>
-						</div>
-					</div>`;
-				break;
+						case "Holiday":
+							html = `
+								<div class="card shadow-sm border-0">
+									<div class="card-body">
+										<h5 class="card-title mb-3 text-success">🎉 Holiday</h5>
+										<div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div>
+										<div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div>
+										<div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>
+									</div>
+								</div>`;
+							break;
 
-			case "Leave":
-				html = `
-					<div class="card shadow-sm border-0">
-						<div class="card-body">
-							<h5 class="card-title mb-3 text-warning">📅 Leave Details</h5>
-							<div class="mb-2"><strong>Reason:</strong> ${data.reason}</div>
-							<div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div>
-							<div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div>
-							<div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div>
-						</div>
-					</div>`;
-				break;
+						case "Leave":
+							html = `
+								<div class="card shadow-sm border-0">
+									<div class="card-body">
+										<h5 class="card-title mb-3 text-warning">📅 Leave Details</h5>
+										<div class="mb-2"><strong>Reason:</strong> ${data.reason}</div>
+										<div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div>
+										<div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div>
+										<div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div>
+									</div>
+								</div>`;
+							break;
 
-			case "No Record Found":
-			default:
-				html = `<div class="alert alert-warning text-center">
-							<i class="bi bi-info-circle-fill"></i> No attendance  record found for this day.
-						</div>`;
-				break;
-		}
-				$('#modalDateText').html(html);
-			  },
-			  error: function() {
-				$('#modalDateText').html('<span style="color:red;">Failed to load attendance details.</span>');
-			  }
+						case "No Record Found":
+						default:
+							html = `<div class="alert alert-warning text-center">
+										<i class="bi bi-info-circle-fill"></i> No attendance record found for this day.
+									</div>`;
+							break;
+					}
+
+					$('#modalDateText').html(html);
+				},
+				error: function () {
+					$('#modalDateText').html('<span style="color:red;">Failed to load attendance details.</span>');
+				}
 			});
 		}
-							function formatSqlTimeToHoursMinutes(timeStr) {
+
+		// Format time as "Xh Ym" (e.g., "2h 30m")
+		function formatSqlTimeToHoursMinutes(timeStr) {
 			if (!timeStr || typeof timeStr !== 'string') return '-';
 
 			const parts = timeStr.split(':');
@@ -868,6 +872,37 @@
 
 			return result.trim() || '0m';
 		}
+
+		// Format date (e.g., "Jun 24, 2025")
+		function formatDate(dateStr) {
+			if (!dateStr) return '-';
+			const date = new Date(dateStr);
+			return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+		}
+
+		// Format date and time (e.g., "Jun 24, 2025, 09:30 AM")
+		function formatDateTime(dateStr) {
+			if (!dateStr) return '-';
+			const date = new Date(dateStr);
+			return date.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+		}
+
+		// Format check-in and check-out based on whether dates are same or not
+		function formatDateOrTime(start, end) {
+			const startDate = new Date(start);
+			const endDate = new Date(end);
+
+			const sameDay = startDate.toDateString() === endDate.toDateString();
+
+			const timeOnlyOptions = { hour: '2-digit', minute: '2-digit' };
+			const dateTimeOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
+			return {
+				startFormatted: startDate.toLocaleString('en-US', sameDay ? timeOnlyOptions : dateTimeOptions),
+				endFormatted: endDate.toLocaleString('en-US', sameDay ? timeOnlyOptions : dateTimeOptions)
+			};
+		}
+
 
 
     </script>

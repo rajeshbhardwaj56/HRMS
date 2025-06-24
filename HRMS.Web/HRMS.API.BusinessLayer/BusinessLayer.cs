@@ -2679,11 +2679,12 @@ namespace HRMS.API.BusinessLayer
 
         public AttendanceInputParams GetAttendance(AttendanceInputParams model)
         {
-            string connectionString = _configuration["ConnectionStrings:attandanceStr"];
+            string connectionString = _configuration["ConnectionStrings:conStr"];
 
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
+
                 using (SqlCommand cmd = new SqlCommand("usp_CalculateMonthlyAttendance_WithShifts", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
