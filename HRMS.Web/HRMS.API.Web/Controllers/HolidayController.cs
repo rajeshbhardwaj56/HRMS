@@ -22,34 +22,38 @@ namespace HRMS.API.Web.Controllers.Holiday
         }
 
         [HttpPost]
-        public IActionResult AddUpdateHoliday(HolidayModel model)
+        public async Task<IActionResult> AddUpdateHoliday(HolidayModel model)
         {
             IActionResult response = Unauthorized();
-            Result result = _businessLayer.AddUpdateHoliday(model);
+            Result result = await _businessLayer.AddUpdateHoliday(model);
             response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetAllHolidays(HolidayInputParams model)
+        public async Task<IActionResult> GetAllHolidays(HolidayInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllHolidays(model));
+            var result = await _businessLayer.GetAllHolidays(model);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetHolidayList(HolidayInputParams model)
+        public async Task<IActionResult> GetHolidayList(HolidayInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetHolidayList(model));
+            var result = await _businessLayer.GetHolidayList(model);
+            response = Ok(result);
             return response;
         }
+
         [HttpPost]
-        public IActionResult GetAllHolidayList(HolidayInputParams model)
+        public async Task<IActionResult> GetAllHolidayList(HolidayInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllHolidayList(model));
+            var result = await _businessLayer.GetAllHolidayList(model);
+            response = Ok(result);
             return response;
         }
     }

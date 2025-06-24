@@ -17,20 +17,36 @@ namespace HRMS.Web.Controllers
         }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            FormPermissionVM objmodel = new FormPermissionVM();
-          objmodel.DepartmentId = Convert.ToInt64(HttpContext.Session.GetString(Constants.DepartmentID));
-          objmodel.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            objmodel.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            FormPermissionListViewModel obj = new FormPermissionListViewModel();
-            var response = _businessLayer.SendPostAPIRequest(objmodel,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetUserFormPermissions),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true).Result.ToString();
-            if (response != null)
+            var objmodel = new FormPermissionVM
             {
-                obj.FormPermissionList = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(response);
+                DepartmentId = Convert.ToInt64(HttpContext.Session.GetString(Constants.DepartmentID)),
+                RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID)),
+                EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID))
+            };
+
+            var obj = new FormPermissionListViewModel();
+
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.Common,
+                APIApiActionConstants.GetUserFormPermissions
+            );
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                objmodel,
+                apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+
+            // If `response` is a JSON string
+            var jsonString = response?.ToString();
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                obj.FormPermissionList = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(jsonString);
             }
+
             return View(obj);
         }
-        }
+
+    }
 }

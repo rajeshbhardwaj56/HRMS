@@ -14,6 +14,7 @@ using HRMS.Models.Employee;
 using HRMS.Web.BusinessLayer.S3;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using HRMS.Models.Company;
+using System.Threading.Tasks;
 
 namespace HRMS.Web.Controllers
 {
@@ -36,7 +37,7 @@ namespace HRMS.Web.Controllers
 
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             LoginUser obj = new LoginUser();
             CompanyLoginModel model = new CompanyLoginModel();
@@ -44,12 +45,12 @@ namespace HRMS.Web.Controllers
                 var companyId = _configuration["CompanyDetails:CompanyId"];
                 model.CompanyID = Convert.ToInt64(companyId);
 
-                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
-                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
+                var data = await _businessLayer.SendPostAPIRequest(model, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false);
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data.ToString()).companyLoginModel;
             }
             if (!string.IsNullOrEmpty(model.CompanyLogo))
             {
-                model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+                model.CompanyLogo = await _s3Service.GetFileUrl(model.CompanyLogo);
             }
             obj.CompanyLogo = model.CompanyLogo;
             return View(obj);
@@ -62,7 +63,7 @@ namespace HRMS.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public ActionResult ForgotPassword()
+        public async Task<ActionResult> ForgotPassword()
         {
             ChangePasswordModel objmodel = new ChangePasswordModel();
             CompanyLoginModel model = new CompanyLoginModel();
@@ -70,25 +71,25 @@ namespace HRMS.Web.Controllers
                 var companyId = _configuration["CompanyDetails:CompanyId"];
                 model.CompanyID = Convert.ToInt64(companyId);
 
-                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
-                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
+                var data =await _businessLayer.SendPostAPIRequest(model, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false);
+                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data.ToString()).companyLoginModel;
             }
             if (!string.IsNullOrEmpty(model.CompanyLogo))
             {
-                model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+                model.CompanyLogo =await _s3Service.GetFileUrl(model.CompanyLogo);
             }
             objmodel.CompanyLogo = model.CompanyLogo;
             return View(objmodel);
         }
 
         [HttpPost]
-        public ActionResult ForgotPassword(ChangePasswordModel model)
+        public async Task<ActionResult> ForgotPassword(ChangePasswordModel model)
         {
             try
             {
-                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
-                var data = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
-                var result = JsonConvert.DeserializeObject<Result>(data);
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
+                var data = await _businessLayer.SendPostAPIRequest(model, apiUrl, null, false);
+                var result = JsonConvert.DeserializeObject<Result>(data.ToString());
 
                 if (result == null || result.Data == null)
                 {
@@ -237,7 +238,7 @@ namespace HRMS.Web.Controllers
         }
 
 
-        public ActionResult ResetPassword(string Id, string dt, string cm, string um)
+        public async Task<ActionResult> ResetPassword(string Id, string dt, string cm, string um)
         {
             ResetPasswordModel objmodel = new ResetPasswordModel();
             try
@@ -247,12 +248,12 @@ namespace HRMS.Web.Controllers
                     var companyId = _configuration["CompanyDetails:CompanyId"];
                     model.CompanyID = Convert.ToInt64(companyId);
 
-                    var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
+                    var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
                     model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
                 }
                 if (!string.IsNullOrEmpty(model.CompanyLogo))
                 {
-                    model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+                    model.CompanyLogo = await _s3Service.GetFileUrl(model.CompanyLogo);
                 }
                 objmodel.CompanyLogo = model.CompanyLogo;
                 DateTime date = Convert.ToDateTime(_businessLayer.DecodeStringBase64(dt));
@@ -280,11 +281,11 @@ namespace HRMS.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult ResetPassword(ResetPasswordModel model)
+        public async Task<ActionResult> ResetPassword(ResetPasswordModel model)
         {
             try
             {
-                string apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.ResetPassword);
+                string apiUrl =await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.ResetPassword);
                 string responseData = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(responseData);
@@ -298,7 +299,7 @@ namespace HRMS.Web.Controllers
                 {
                     ChangePasswordModel objmodel = new ChangePasswordModel();
                     objmodel.EmailId = model.UserName;
-                    var ForgetapiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
+                    var ForgetapiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
                     var data = _businessLayer.SendPostAPIRequest(objmodel, ForgetapiUrl, null, false).Result.ToString();
                     var Forgeresult = JsonConvert.DeserializeObject<Result>(data);
 
@@ -381,7 +382,7 @@ namespace HRMS.Web.Controllers
 
             return View(model);
         }
-        public ActionResult ChangePassword()
+        public async Task<ActionResult> ChangePassword()
         {
             ResetPasswordModel objmodel = new ResetPasswordModel();
             try
@@ -393,12 +394,12 @@ namespace HRMS.Web.Controllers
                 {
                     model.CompanyID = Convert.ToInt64(CompanyId);
 
-                    var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
+                    var data = _businessLayer.SendPostAPIRequest(model, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
                     model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
                 }
                 if (!string.IsNullOrEmpty(model.CompanyLogo))
                 {
-                    model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+                    model.CompanyLogo = await _s3Service.GetFileUrl(model.CompanyLogo);
                 }
                 objmodel.CompanyLogo = model.CompanyLogo;
                 objmodel.UserName = EmployeeNumber;
@@ -414,14 +415,14 @@ namespace HRMS.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult ChangePassword(ResetPasswordModel model)
+        public async Task<ActionResult> ChangePassword(ResetPasswordModel model)
         {
             try
             {
                 model.EmployeeID = HttpContext.Session.GetString(Constants.EmployeeID).ToString();
                 model.UserID = HttpContext.Session.GetString(Constants.EmployeeID).ToString();
                 model.CompanyID = HttpContext.Session.GetString(Constants.CompanyID).ToString();
-                string apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.ResetPassword);
+                string apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.ResetPassword);
                 string responseData = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(responseData);
@@ -456,13 +457,13 @@ namespace HRMS.Web.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult Index(LoginUser loginModel)
+        public async Task<IActionResult> Index(LoginUser loginModel)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    return LoginAndRedirect(loginModel);
+                    return await LoginAndRedirect(loginModel);
                 }
             }
 
@@ -479,10 +480,10 @@ namespace HRMS.Web.Controllers
             return View(loginModel);
         }
 
-        private IActionResult LoginAndRedirect(LoginUser loginModel)
+        private async Task<IActionResult> LoginAndRedirect(LoginUser loginModel)
         {
-            var data = _businessLayer.SendPostAPIRequest(loginModel, "Login", HttpContext.Session.GetString(Constants.SessionBearerToken), false).Result.ToString();
-            var result = JsonConvert.DeserializeObject<LoginUser>(data);
+            var data =await _businessLayer.SendPostAPIRequest(loginModel, "Login", HttpContext.Session.GetString(Constants.SessionBearerToken), false);
+            var result = JsonConvert.DeserializeObject<LoginUser>(data.ToString());
             if (result != null && !string.IsNullOrEmpty(result.token))
             {
                 EmployeeInputParams objmodel = new EmployeeInputParams();
@@ -507,8 +508,8 @@ namespace HRMS.Web.Controllers
                 var principal = new ClaimsPrincipal(identity);
                 var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                 DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
-                var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel);
+                var dataDashBoardModel =await _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+                var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel.ToString());
                 if (string.IsNullOrEmpty(model.ProfilePhoto))
                 {
                     model.ProfilePhoto = "";
@@ -516,7 +517,7 @@ namespace HRMS.Web.Controllers
                 }
                 else
                 {
-                    var ProfilePhoto = _s3Service.GetFileUrl(model.ProfilePhoto);
+                    var ProfilePhoto =await _s3Service.GetFileUrl(model.ProfilePhoto);
                     _context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
                 }
                 _context.HttpContext.Session.SetString(Constants.FirstName, model.FirstName);
@@ -525,12 +526,11 @@ namespace HRMS.Web.Controllers
                 _context.HttpContext.Session.SetString(Constants.OfficialEmailID, model.OfficialEmailID ?? string.Empty);
                 _context.HttpContext.Session.SetString(Constants.JobLocationID, model.JobLocationID.ToString());
                 _context.HttpContext.Session.SetString(Constants.DepartmentID, model.DepartmentID.ToString());
-                var CompanyDatas = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas);
-                var CompanyData = results.companyModel;
-                //  var CompanyLogo = "/Uploads/CompanyLogo/" + CompanyData.CompanyID + "/"+ CompanyData.CompanyLogo;
-                var CompanyLogo = _s3Service.GetFileUrl(CompanyData.CompanyLogo);
-                _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
+                var CompanyDatas = await _businessLayer.SendPostAPIRequest(objmodel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+                var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas.ToString());
+                var CompanyData = results.companyModel; 
+                var CompanyLogo = await _s3Service.GetFileUrl(CompanyData.CompanyLogo);
+                 _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
 
                 return RedirectToActionPermanent(
                    Constants.Index,

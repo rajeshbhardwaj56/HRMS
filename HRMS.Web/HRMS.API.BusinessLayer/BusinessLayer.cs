@@ -49,54 +49,64 @@ namespace HRMS.API.BusinessLayer
             DataLayer._configuration = configuration;
             _configuration = configurations;
         }
-        public LoginUser LoginUser(LoginUser loginUser)
+        public async Task<LoginUser> LoginUser(LoginUser loginUser)
         {
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@UserName", loginUser.Email));
-            sqlParameter.Add(new SqlParameter("@Password", loginUser.Password));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_LoginUser, sqlParameter);
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@UserName", loginUser.Email),
+        new SqlParameter("@Password", loginUser.Password)
+    };
+
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_LoginUser, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
-                loginUser = dataSet.Tables[0].AsEnumerable()
-                   .Select(dataRow => new LoginUser
-                   {
-                       Result = dataRow.Field<int>("Result").ToString(),
-                   }).ToList().FirstOrDefault();
+                loginUser =
+        dataSet.Tables[0].AsEnumerable()
+            .Select(dataRow => new LoginUser
+            {
+                Result = dataRow.Field<int>("Result").ToString(),
+            })
+            .FirstOrDefault();
 
             }
             else
             {
-                loginUser = dataSet.Tables[0].AsEnumerable()
-                               .Select(dataRow => new LoginUser
-                               {
-                                   UserID = dataRow.Field<long>("UserID"),
-                                   CompanyID = dataRow.Field<long>("CompanyID"),
-                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                   GenderId = dataRow.Field<int>("Gender"),
-                                   Role = dataRow.Field<string>("Role"),
-                                   RoleId = dataRow.Field<int>("RoleId"),
-                                   Manager1Name = dataRow.Field<string>("Manager1Name"),
-                                   Manager1Email = dataRow.Field<string>("Manager1Email"),
-                                   Manager2Email = dataRow.Field<string>("Manager2Email"),
-                                   Manager2Name = dataRow.Field<string>("Manager2Name"),
-                                   EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
-                                   EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
-                                   IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
-                                   JobLocationID = dataRow.Field<long>("JobLocationID"),
-                                   DepartmentID = dataRow.Field<long>("DepartmentID"),
-                               }).ToList().FirstOrDefault();
+                loginUser =
+     dataSet.Tables[0].AsEnumerable()
+         .Select(dataRow => new LoginUser
+         {
+             UserID = dataRow.Field<long>("UserID"),
+             CompanyID = dataRow.Field<long>("CompanyID"),
+             EmployeeID = dataRow.Field<long>("EmployeeID"),
+             GenderId = dataRow.Field<int>("Gender"),
+             Role = dataRow.Field<string>("Role"),
+             RoleId = dataRow.Field<int>("RoleId"),
+             Manager1Name = dataRow.Field<string>("Manager1Name"),
+             Manager1Email = dataRow.Field<string>("Manager1Email"),
+             Manager2Email = dataRow.Field<string>("Manager2Email"),
+             Manager2Name = dataRow.Field<string>("Manager2Name"),
+             EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
+             EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
+             IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
+             JobLocationID = dataRow.Field<long>("JobLocationID"),
+             DepartmentID = dataRow.Field<long>("DepartmentID"),
+         })
+         .FirstOrDefault();
+
             }
+
             return loginUser;
         }
-        public Result ResetPassword(ResetPasswordModel model)
+
+        public async Task<Result> ResetPassword(ResetPasswordModel model)
         {
             Result results = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@Password", model.Password));
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ResetPassword, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ResetPassword, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -110,12 +120,12 @@ namespace HRMS.API.BusinessLayer
             }
             return results;
         }
-        public Result GetFogotPasswordDetails(ChangePasswordModel model)
+        public async Task<Result> GetFogotPasswordDetails(ChangePasswordModel model)
         {
             Result results = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmailId", model.EmailId));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FogotPasswordDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FogotPasswordDetails, sqlParameter);
 
             var data = dataSet.Tables[0].AsEnumerable()
                                   .Select(dataRow => new UserModel
@@ -136,7 +146,7 @@ namespace HRMS.API.BusinessLayer
             results.Data = JsonConvert.SerializeObject(data);
             return results;
         }
-        public Results GetAllEmployees(EmployeeInputParams model)
+        public async Task<Results> GetAllEmployees(EmployeeInputParams model)
         {
             Results result = new Results();
             try
@@ -152,7 +162,7 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@DisplayStart", model.DisplayStart),
             new SqlParameter("@DisplayLength", model.DisplayLength)
         };
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetails, sqlParameter);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetails, sqlParameter);
 
                 result.Employees = dataSet.Tables[0].AsEnumerable()
                                   .Select(dataRow =>
@@ -349,13 +359,13 @@ namespace HRMS.API.BusinessLayer
 
             return result;
         }
-        public Results GetAllActiveEmployees(EmployeeInputParams model)
+        public async Task<Results> GetAllActiveEmployees(EmployeeInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ActiveEmployeeDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ActiveEmployeeDetails, sqlParameter);
             result.Employees = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new EmployeeModel
                               {
@@ -445,12 +455,12 @@ namespace HRMS.API.BusinessLayer
             }
             return RootName;
         }
-        public Results GetAllCountries()
+        public async Task<Results> GetAllCountries()
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Counteres, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Counteres, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -475,12 +485,12 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-        public Results GetAllCurrencies(long companyID)
+        public async Task<Results> GetAllCurrencies(long companyID)
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             // sqlParameter.Add(new SqlParameter("@CompanyID", companyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Currencies, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Currencies, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -505,12 +515,12 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-        public Results GetAllLanguages()
+        public async Task<Results> GetAllLanguages()
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Languages, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Languages, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -535,12 +545,12 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-        public Results GetAllCompanyLanguages(long companyID)
+        public async Task<Results> GetAllCompanyLanguages(long companyID)
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", companyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyLanguages, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyLanguages, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -564,12 +574,12 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-        public Results GetAllCompanyDepartments(long companyID)
+        public async Task<Results> GetAllCompanyDepartments(long companyID)
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", companyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyDepartments, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyDepartments, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -596,12 +606,12 @@ namespace HRMS.API.BusinessLayer
         }
 
         #region Employee
-        public Results GetAllCompanyEmployeeTypes(long companyID)
+        public async Task<Results> GetAllCompanyEmployeeTypes(long companyID)
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", companyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyEmployeeTypes, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyEmployeeTypes, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -625,87 +635,101 @@ namespace HRMS.API.BusinessLayer
             }
             return model;
         }
-        public Result AddUpdateEmployee(EmployeeModel employeeModel)
+        public async Task<Result> AddUpdateEmployee(EmployeeModel employeeModel)
         {
-            Result model = new Result();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-
-            sqlParameter.Add(new SqlParameter("@EmployeeID", employeeModel.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@RetEmployeeID", employeeModel.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@CompanyID", employeeModel.CompanyID));
-            sqlParameter.Add(new SqlParameter("@FirstName", employeeModel.FirstName));
-            sqlParameter.Add(new SqlParameter("@MiddleName", employeeModel.MiddleName));
-            sqlParameter.Add(new SqlParameter("@Surname", employeeModel.Surname));
-            sqlParameter.Add(new SqlParameter("@CorrespondenceAddress", employeeModel.CorrespondenceAddress));
-            sqlParameter.Add(new SqlParameter("@CorrespondenceCity", employeeModel.CorrespondenceCity));
-            sqlParameter.Add(new SqlParameter("@CorrespondencePinCode", employeeModel.CorrespondencePinCode));
-            sqlParameter.Add(new SqlParameter("@CorrespondenceState", employeeModel.CorrespondenceState));
-            sqlParameter.Add(new SqlParameter("@CorrespondenceCountryID", employeeModel.CorrespondenceCountryID));
-            sqlParameter.Add(new SqlParameter("@EmailAddress", employeeModel.EmailAddress));
-            sqlParameter.Add(new SqlParameter("@Landline", employeeModel.Landline));
-            sqlParameter.Add(new SqlParameter("@Mobile", employeeModel.Mobile));
-            sqlParameter.Add(new SqlParameter("@Telephone", employeeModel.Telephone));
-            sqlParameter.Add(new SqlParameter("@PersonalEmailAddress", employeeModel.PersonalEmailAddress));
-            sqlParameter.Add(new SqlParameter("@PermanentAddress", employeeModel.PermanentAddress));
-            sqlParameter.Add(new SqlParameter("@PermanentCity", employeeModel.PermanentCity));
-            sqlParameter.Add(new SqlParameter("@PermanentPinCode", employeeModel.PermanentPinCode));
-            sqlParameter.Add(new SqlParameter("@PermanentState", employeeModel.PermanentState));
-            sqlParameter.Add(new SqlParameter("@PermanentCountryID", employeeModel.PermanentCountryID));
-            sqlParameter.Add(new SqlParameter("@PeriodOfStay", employeeModel.PeriodOfStay));
-            sqlParameter.Add(new SqlParameter("@VerificationContactPersonName", employeeModel.VerificationContactPersonName));
-            sqlParameter.Add(new SqlParameter("@VerificationContactPersonContactNo", employeeModel.VerificationContactPersonContactNo));
-            sqlParameter.Add(new SqlParameter("@DateOfBirth", employeeModel.DateOfBirth));
-            sqlParameter.Add(new SqlParameter("@ProfilePhoto", employeeModel.ProfilePhoto));
-            sqlParameter.Add(new SqlParameter("@PlaceOfBirth", employeeModel.PlaceOfBirth));
-            sqlParameter.Add(new SqlParameter("@IsReferredByExistingEmployee", employeeModel.IsReferredByExistingEmployee));
-            sqlParameter.Add(new SqlParameter("@ReferredByEmployeeID", employeeModel.ReferredByEmployeeID));
-            sqlParameter.Add(new SqlParameter("@BloodGroup", employeeModel.BloodGroup));
-            sqlParameter.Add(new SqlParameter("@PANNo", employeeModel.PANNo));
-            sqlParameter.Add(new SqlParameter("@AadharCardNo", employeeModel.AadharCardNo));
-            sqlParameter.Add(new SqlParameter("@Allergies", employeeModel.Allergies));
-            sqlParameter.Add(new SqlParameter("@IsRelativesWorkingWithCompany", employeeModel.IsRelativesWorkingWithCompany));
-            sqlParameter.Add(new SqlParameter("@RelativesDetails", employeeModel.RelativesDetails));
-            sqlParameter.Add(new SqlParameter("@MajorIllnessOrDisability", employeeModel.MajorIllnessOrDisability));
-            sqlParameter.Add(new SqlParameter("@AwardsAchievements", employeeModel.AwardsAchievements));
-            sqlParameter.Add(new SqlParameter("@EducationGap", employeeModel.EducationGap));
-            sqlParameter.Add(new SqlParameter("@ExtraCuricuarActivities", employeeModel.ExtraCuricuarActivities));
-            sqlParameter.Add(new SqlParameter("@ForiegnCountryVisits", employeeModel.ForiegnCountryVisits));
-            sqlParameter.Add(new SqlParameter("@ContactPersonName", employeeModel.ContactPersonName));
-            sqlParameter.Add(new SqlParameter("@ContactPersonMobile", employeeModel.ContactPersonMobile));
-            sqlParameter.Add(new SqlParameter("@ContactPersonTelephone", employeeModel.ContactPersonTelephone));
-            sqlParameter.Add(new SqlParameter("@ContactPersonRelationship", employeeModel.ContactPersonRelationship));
-            sqlParameter.Add(new SqlParameter("@ITSkillsKnowledge", employeeModel.ITSkillsKnowledge));
-            sqlParameter.Add(new SqlParameter("@FamilyDetails", this.ConvertObjectToXML(employeeModel.FamilyDetails)));
-            sqlParameter.Add(new SqlParameter("@EducationalDetails", this.ConvertObjectToXML(employeeModel.EducationalDetails)));
-            sqlParameter.Add(new SqlParameter("@LanguageDetails", this.ConvertObjectToXML(employeeModel.LanguageDetails)));
-            sqlParameter.Add(new SqlParameter("@EmploymentHistory", this.ConvertObjectToXML(employeeModel.EmploymentHistory)));
-            sqlParameter.Add(new SqlParameter("@References", this.ConvertObjectToXML(employeeModel.References)));
-            sqlParameter.Add(new SqlParameter("@IsActive", employeeModel.IsActive));
-            sqlParameter.Add(new SqlParameter("@Gender", employeeModel.Gender));
-            sqlParameter.Add(new SqlParameter("@PanCardImage", employeeModel.PanCardImage));
-            sqlParameter.Add(new SqlParameter("@AadhaarCardImage", employeeModel.AadhaarCardImage));
-
-            SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
-
-            if (dataSet.Tables[0].Columns.Contains("Result"))
+            var model = new Result();
+            try
             {
-                model = dataSet.Tables[0].AsEnumerable()
-                   .Select(dataRow =>
-                        new Result()
-                        {
-                            Message = dataRow.Field<string>("Result").ToString(),
-                            UserID = dataRow.Field<long>("UserID"),
-                            PKNo = dataRow.Field<long>("UserID")
-                        }
-                   ).ToList().FirstOrDefault();
+                var sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeID", employeeModel.EmployeeID),
+        new SqlParameter("@RetEmployeeID", employeeModel.EmployeeID),
+        new SqlParameter("@CompanyID", employeeModel.CompanyID),
+        new SqlParameter("@FirstName", employeeModel.FirstName),
+        new SqlParameter("@MiddleName", employeeModel.MiddleName),
+        new SqlParameter("@Surname", employeeModel.Surname),
+        new SqlParameter("@CorrespondenceAddress", employeeModel.CorrespondenceAddress),
+        new SqlParameter("@CorrespondenceCity", employeeModel.CorrespondenceCity),
+        new SqlParameter("@CorrespondencePinCode", employeeModel.CorrespondencePinCode),
+        new SqlParameter("@CorrespondenceState", employeeModel.CorrespondenceState),
+        new SqlParameter("@CorrespondenceCountryID", employeeModel.CorrespondenceCountryID),
+        new SqlParameter("@EmailAddress", employeeModel.EmailAddress),
+        new SqlParameter("@Landline", employeeModel.Landline),
+        new SqlParameter("@Mobile", employeeModel.Mobile),
+        new SqlParameter("@Telephone", employeeModel.Telephone),
+        new SqlParameter("@PersonalEmailAddress", employeeModel.PersonalEmailAddress),
+        new SqlParameter("@PermanentAddress", employeeModel.PermanentAddress),
+        new SqlParameter("@PermanentCity", employeeModel.PermanentCity),
+        new SqlParameter("@PermanentPinCode", employeeModel.PermanentPinCode),
+        new SqlParameter("@PermanentState", employeeModel.PermanentState),
+        new SqlParameter("@PermanentCountryID", employeeModel.PermanentCountryID),
+        new SqlParameter("@PeriodOfStay", employeeModel.PeriodOfStay),
+        new SqlParameter("@VerificationContactPersonName", employeeModel.VerificationContactPersonName),
+        new SqlParameter("@VerificationContactPersonContactNo", employeeModel.VerificationContactPersonContactNo),
+        new SqlParameter("@DateOfBirth", employeeModel.DateOfBirth),
+        new SqlParameter("@ProfilePhoto", employeeModel.ProfilePhoto),
+        new SqlParameter("@PlaceOfBirth", employeeModel.PlaceOfBirth),
+        new SqlParameter("@IsReferredByExistingEmployee", employeeModel.IsReferredByExistingEmployee),
+        new SqlParameter("@ReferredByEmployeeID", employeeModel.ReferredByEmployeeID),
+        new SqlParameter("@BloodGroup", employeeModel.BloodGroup),
+        new SqlParameter("@PANNo", employeeModel.PANNo),
+        new SqlParameter("@AadharCardNo", employeeModel.AadharCardNo),
+        new SqlParameter("@Allergies", employeeModel.Allergies),
+        new SqlParameter("@IsRelativesWorkingWithCompany", employeeModel.IsRelativesWorkingWithCompany),
+        new SqlParameter("@RelativesDetails", employeeModel.RelativesDetails),
+        new SqlParameter("@MajorIllnessOrDisability", employeeModel.MajorIllnessOrDisability),
+        new SqlParameter("@AwardsAchievements", employeeModel.AwardsAchievements),
+        new SqlParameter("@EducationGap", employeeModel.EducationGap),
+        new SqlParameter("@ExtraCuricuarActivities", employeeModel.ExtraCuricuarActivities),
+        new SqlParameter("@ForiegnCountryVisits", employeeModel.ForiegnCountryVisits),
+        new SqlParameter("@ContactPersonName", employeeModel.ContactPersonName),
+        new SqlParameter("@ContactPersonMobile", employeeModel.ContactPersonMobile),
+        new SqlParameter("@ContactPersonTelephone", employeeModel.ContactPersonTelephone),
+        new SqlParameter("@ContactPersonRelationship", employeeModel.ContactPersonRelationship),
+        new SqlParameter("@ITSkillsKnowledge", employeeModel.ITSkillsKnowledge),
+        new SqlParameter("@FamilyDetails", ConvertObjectToXML(employeeModel.FamilyDetails)),
+        new SqlParameter("@EducationalDetails", ConvertObjectToXML(employeeModel.EducationalDetails)),
+        new SqlParameter("@LanguageDetails", ConvertObjectToXML(employeeModel.LanguageDetails)),
+        new SqlParameter("@EmploymentHistory", ConvertObjectToXML(employeeModel.EmploymentHistory)),
+        new SqlParameter("@References", ConvertObjectToXML(employeeModel.References)),
+        new SqlParameter("@IsActive", employeeModel.IsActive),
+        new SqlParameter("@Gender", employeeModel.Gender),
+        new SqlParameter("@PanCardImage", employeeModel.PanCardImage),
+        new SqlParameter("@AadhaarCardImage", employeeModel.AadhaarCardImage)
+    };
+
+                SqlParameterCollection pOutputParams = null;
+
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_AddUpdate_Employee,
+                    sqlParameter,
+                    p => pOutputParams = p
+                );
+
+                if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+                {
+                    var row = dataSet.Tables[0].Rows[0];
+
+                    model = new Result
+                    {
+                        Message = row["Result"]?.ToString(),
+                        UserID = row["UserID"] != DBNull.Value ? Convert.ToInt64(row["UserID"]) : 0,
+                        PKNo = row["UserID"] != DBNull.Value ? Convert.ToInt64(row["UserID"]) : 0
+                    };
+                }
             }
+            catch (Exception ex)
+            {
+
+            }
+
             return model;
         }
+
         #endregion
 
         #region Templates
-        public Results GetAllTemplates(TemplateInputParams model)
+        public async Task<Results> GetAllTemplates(TemplateInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter =
@@ -714,7 +738,7 @@ namespace HRMS.API.BusinessLayer
                 new SqlParameter("@TemplateID", model.TemplateID),
             ];
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_TemplateDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_TemplateDetails, sqlParameter);
             result.Template = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new TemplateModel
                               {
@@ -735,7 +759,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Result AddUpdateTemplate(TemplateModel templateModel)
+        public async Task<Result> AddUpdateTemplate(TemplateModel templateModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -748,7 +772,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@Description", templateModel.Description));
             sqlParameter.Add(new SqlParameter("@TemplateName", templateModel.TemplateName));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Template, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Template, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -765,12 +789,12 @@ namespace HRMS.API.BusinessLayer
         #endregion
 
         #region Companies
-        public Results GetCompaniesLogo(CompanyLoginModel model)
+        public async Task<Results> GetCompaniesLogo(CompanyLoginModel model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
             result.companyLoginModel = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new CompanyLoginModel
                               {
@@ -780,12 +804,12 @@ namespace HRMS.API.BusinessLayer
                               }).ToList().FirstOrDefault();
             return result;
         }
-        public Results GetAllCompanies(EmployeeInputParams model)
+        public async Task<Results> GetAllCompanies(EmployeeInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
             result.Companies = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new CompanyModel
                               {
@@ -817,12 +841,12 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Results GetAllCompaniesList(EmployeeInputParams model)
+        public async Task<Results> GetAllCompaniesList(EmployeeInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
             result.Companies = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new CompanyModel
                               {
@@ -849,7 +873,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Result AddUpdateCompany(CompanyModel companyModel)
+        public async Task<Result> AddUpdateCompany(CompanyModel companyModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -875,8 +899,11 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@CountryID", companyModel.CountryID));
 
             SqlParameterCollection pOutputParams = null;
-
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Company, sqlParameter, ref pOutputParams);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+               StoredProcedures.usp_AddUpdate_Company,
+               sqlParameter,
+               p => pOutputParams = p
+           );
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -893,89 +920,98 @@ namespace HRMS.API.BusinessLayer
         #endregion
 
         #region EmploymentDetails
-        public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails)
+        public async Task<Result> AddUpdateEmploymentDetails(EmploymentDetail employmentDetails)
         {
             Result model = new Result();
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            sqlParameter.Add(new SqlParameter("@EmploymentDetailID", employmentDetails.EmploymentDetailID));
-            sqlParameter.Add(new SqlParameter("@EmployeeID", employmentDetails.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@DesignationID", employmentDetails.DesignationID));
-            sqlParameter.Add(new SqlParameter("@EmployeeTypeID", employmentDetails.EmployeeTypeID));
-            sqlParameter.Add(new SqlParameter("@PayrollTypeID", employmentDetails.PayrollTypeID));
-            sqlParameter.Add(new SqlParameter("@DepartmentID", employmentDetails.DepartmentID));
-            sqlParameter.Add(new SqlParameter("@JobLocationID", employmentDetails.JobLocationID));
-            sqlParameter.Add(new SqlParameter("@OfficialEmailID", employmentDetails.OfficialEmailID));
-            sqlParameter.Add(new SqlParameter("@OfficialContactNo", employmentDetails.OfficialContactNo));
-            sqlParameter.Add(new SqlParameter("@JoiningDate", employmentDetails.JoiningDate));
-            sqlParameter.Add(new SqlParameter("@JobSeprationDate", employmentDetails.JobSeprationDate));
-            sqlParameter.Add(new SqlParameter("@ReportingToIDL1", employmentDetails.ReportingToIDL1));
-            sqlParameter.Add(new SqlParameter("@IsActive", employmentDetails.IsActive));
-            sqlParameter.Add(new SqlParameter("@IsDeleted", employmentDetails.IsDeleted));
-            sqlParameter.Add(new SqlParameter("@UserID", employmentDetails.UserID));
-            sqlParameter.Add(new SqlParameter("@LeavePolicyID", employmentDetails.LeavePolicyID));
-            sqlParameter.Add(new SqlParameter("@ReportingToIDL2", employmentDetails.ReportingToIDL2));
-            sqlParameter.Add(new SqlParameter("@ClientName", employmentDetails.ClientName));
-            sqlParameter.Add(new SqlParameter("@SubDepartmentID", employmentDetails.SubDepartmentID));
-            sqlParameter.Add(new SqlParameter("@ShiftTypeID", employmentDetails.ShiftTypeID));
-            sqlParameter.Add(new SqlParameter("@EmployeeNumber", employmentDetails.EmployeNumber));
-            sqlParameter.Add(new SqlParameter("@ESINumber", employmentDetails.ESINumber));
-            sqlParameter.Add(new SqlParameter("@ESIRegistrationDate", employmentDetails.ESIRegistrationDate));
-            sqlParameter.Add(new SqlParameter("@DateOfJoiningOnroll", employmentDetails.DateOfJoiningOnroll));
-            sqlParameter.Add(new SqlParameter("@DateOfJoiningTraining", employmentDetails.DateOfJoiningTraining));
-            sqlParameter.Add(new SqlParameter("@DateOfJoiningFloor", employmentDetails.DateOfJoiningFloor));
-            sqlParameter.Add(new SqlParameter("@DateOfJoiningOJT", employmentDetails.DateOfJoiningOJT));
-            sqlParameter.Add(new SqlParameter("@RoleID", employmentDetails.RoleId));
-            sqlParameter.Add(new SqlParameter("@CompnayID", employmentDetails.CompanyID));
 
-            SqlParameterCollection pOutputParams = null;
+            var parametersForEmployment = new List<SqlParameter>
+    {
+        new SqlParameter("@EmploymentDetailID", employmentDetails.EmploymentDetailID),
+        new SqlParameter("@EmployeeID", employmentDetails.EmployeeID),
+        new SqlParameter("@DesignationID", employmentDetails.DesignationID),
+        new SqlParameter("@EmployeeTypeID", employmentDetails.EmployeeTypeID),
+        new SqlParameter("@PayrollTypeID", employmentDetails.PayrollTypeID),
+        new SqlParameter("@DepartmentID", employmentDetails.DepartmentID),
+        new SqlParameter("@JobLocationID", employmentDetails.JobLocationID),
+        new SqlParameter("@OfficialEmailID", employmentDetails.OfficialEmailID),
+        new SqlParameter("@OfficialContactNo", employmentDetails.OfficialContactNo),
+        new SqlParameter("@JoiningDate", employmentDetails.JoiningDate),
+        new SqlParameter("@JobSeprationDate", employmentDetails.JobSeprationDate),
+        new SqlParameter("@ReportingToIDL1", employmentDetails.ReportingToIDL1),
+        new SqlParameter("@IsActive", employmentDetails.IsActive),
+        new SqlParameter("@IsDeleted", employmentDetails.IsDeleted),
+        new SqlParameter("@UserID", employmentDetails.UserID),
+        new SqlParameter("@LeavePolicyID", employmentDetails.LeavePolicyID),
+        new SqlParameter("@ReportingToIDL2", employmentDetails.ReportingToIDL2),
+        new SqlParameter("@ClientName", employmentDetails.ClientName),
+        new SqlParameter("@SubDepartmentID", employmentDetails.SubDepartmentID),
+        new SqlParameter("@ShiftTypeID", employmentDetails.ShiftTypeID),
+        new SqlParameter("@EmployeeNumber", employmentDetails.EmployeNumber),
+        new SqlParameter("@ESINumber", employmentDetails.ESINumber),
+        new SqlParameter("@ESIRegistrationDate", employmentDetails.ESIRegistrationDate),
+        new SqlParameter("@DateOfJoiningOnroll", employmentDetails.DateOfJoiningOnroll),
+        new SqlParameter("@DateOfJoiningTraining", employmentDetails.DateOfJoiningTraining),
+        new SqlParameter("@DateOfJoiningFloor", employmentDetails.DateOfJoiningFloor),
+        new SqlParameter("@DateOfJoiningOJT", employmentDetails.DateOfJoiningOJT),
+        new SqlParameter("@RoleID", employmentDetails.RoleId),
+        new SqlParameter("@CompnayID", employmentDetails.CompanyID)
+    };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmploymentDetails, sqlParameter, ref pOutputParams);
-            if (dataSet.Tables[0].Columns.Contains("Result"))
+            SqlParameterCollection outputParamsEmployment = null;
+
+            var dataSetEmployment = await DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_AddUpdate_EmploymentDetails,
+                parametersForEmployment,
+                p => outputParamsEmployment = p
+            );
+
+            if (dataSetEmployment.Tables.Count > 0 && dataSetEmployment.Tables[0].Columns.Contains("Result"))
             {
-                model = dataSet.Tables[0].AsEnumerable()
-                   .Select(dataRow =>
-                        new Result()
-                        {
-                            Message = dataRow.Field<string>("Result").ToString(),
-                            UserID = dataRow.Field<long>("UserID"),
-                            PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
-                            IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired")
-                        }
-                   ).ToList().FirstOrDefault();
+                var row = dataSetEmployment.Tables[0].Rows[0];
+                model = new Result
+                {
+                    Message = row["Result"]?.ToString(),
+                    UserID = Convert.ToInt64(row["UserID"]),
+                    PKNo = Convert.ToInt64(outputParamsEmployment["@EmploymentDetailID"].Value),
+                    IsResetPasswordRequired = Convert.ToBoolean(row["IsResetPasswordRequired"])
+                };
             }
 
-            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            // Call second stored procedure: Insert User Role
+            var parametersForRole = new List<SqlParameter>
+    {
+        new SqlParameter("@RoleID", employmentDetails.RoleId),
+        new SqlParameter("@UserID", model.UserID)
+    };
 
-            sqlParameters.Add(new SqlParameter("@RoleID", employmentDetails.RoleId));
-            sqlParameters.Add(new SqlParameter("@UserID", model.UserID));
+            SqlParameterCollection outputParamsRole = null;
 
-            SqlParameterCollection OutputParams = null;
+            var dataSetRole = await DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_InsertUserRole,
+                parametersForRole,
+                p => outputParamsRole = p
+            );
 
-            var datasSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertUserRole, sqlParameters, ref OutputParams);
-            if (dataSet.Tables[0].Columns.Contains("Result"))
+            if (dataSetRole.Tables.Count > 0 && dataSetRole.Tables[0].Columns.Contains("Result"))
             {
-                model = dataSet.Tables[0].AsEnumerable()
-                   .Select(dataRow =>
-                        new Result()
-                        {
-                            Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
-                            IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired")
-                        }
-                   ).ToList().FirstOrDefault();
+                var row = dataSetRole.Tables[0].Rows[0];
+                model.Message = row["Result"]?.ToString();
+                // Keep existing PKNo and IsResetPasswordRequired
             }
+
             return model;
         }
 
 
-        public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
+
+        public async Task<EmploymentDetail> GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
         {
 
 
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetailsFormDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetailsFormDetails, sqlParameter);
             EmploymentDetail employmentDetail = dataSet.Tables[8].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
@@ -1087,14 +1123,14 @@ namespace HRMS.API.BusinessLayer
             return employmentDetail;
         }
 
-        public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
+        public async Task<EmploymentDetail> GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@DepartmentID", model.DepartmentID));
             sqlParameter.Add(new SqlParameter("@DesignationID", model.DesignationID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
             EmploymentDetail employmentDetail = dataSet.Tables[8].AsEnumerable()
                             .Select(dataRow => new EmploymentDetail()
                             {
@@ -1217,7 +1253,7 @@ namespace HRMS.API.BusinessLayer
             return employmentDetail;
         }
 
-        public L2ManagerDetail GetL2ManagerDetails(L2ManagerInputParams model)
+        public async Task<L2ManagerDetail> GetL2ManagerDetails(L2ManagerInputParams model)
         {
             // Prepare the SQL parameter for the stored procedure
             List<SqlParameter> sqlParameters = new List<SqlParameter>
@@ -1226,7 +1262,7 @@ namespace HRMS.API.BusinessLayer
     };
 
             // Execute the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetManagerOfManager, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetManagerOfManager, sqlParameters);
 
             L2ManagerDetail managerDetail = new L2ManagerDetail();
 
@@ -1245,7 +1281,7 @@ namespace HRMS.API.BusinessLayer
             return managerDetail;
         }
 
-        public Result AddUpdateEmploymentBankDetails(EmploymentBankDetail employmentBankDetails)
+        public async Task<Result> AddUpdateEmploymentBankDetails(EmploymentBankDetail employmentBankDetails)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -1262,7 +1298,14 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@UserID", employmentBankDetails.UserID));
             SqlParameterCollection pOutputParams = null;
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeBankDetails, sqlParameter, ref pOutputParams);
+            // var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeBankDetails, sqlParameter, ref pOutputParams);
+
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+              StoredProcedures.usp_AddUpdate_EmployeeBankDetails,
+              sqlParameter,
+              p => pOutputParams = p
+          );
+
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -1280,12 +1323,12 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public EmploymentBankDetail GetEmploymentBankDetails(EmploymentBankDetailInputParams model)
+        public async Task<EmploymentBankDetail> GetEmploymentBankDetails(EmploymentBankDetailInputParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeBankDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeBankDetails, sqlParameter);
 
             EmploymentBankDetail employmentBankDetail = dataSet.Tables[0].AsEnumerable()
                             .Select(dataRow => new EmploymentBankDetail()
@@ -1317,7 +1360,7 @@ namespace HRMS.API.BusinessLayer
 
         }
 
-        public Result AddUpdateEmploymentSeparationDetails(EmploymentSeparationDetail employmentSeparationDetails)
+        public async Task<Result> AddUpdateEmploymentSeparationDetails(EmploymentSeparationDetail employmentSeparationDetails)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -1340,7 +1383,12 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@UserID", employmentSeparationDetails.UserID));
             SqlParameterCollection pOutputParams = null;
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeSeparation, sqlParameter, ref pOutputParams);
+            //  var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeSeparation, sqlParameter, ref pOutputParams);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+           StoredProcedures.usp_AddUpdate_EmployeeSeparation,
+           sqlParameter,
+           p => pOutputParams = p
+       );
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -1358,12 +1406,12 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public EmploymentSeparationDetail GetEmploymentSeparationDetails(EmploymentSeparationInputParams model)
+        public async Task<EmploymentSeparationDetail> GetEmploymentSeparationDetails(EmploymentSeparationInputParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeSeparationDetail, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeSeparationDetail, sqlParameter);
 
             EmploymentSeparationDetail employmentSeparationDetail = dataSet.Tables[0].AsEnumerable()
                             .Select(dataRow => new EmploymentSeparationDetail()
@@ -1406,12 +1454,12 @@ namespace HRMS.API.BusinessLayer
 
         #region Leave Policies
 
-        public LeavePolicyModel GetSelectLeavePolicies(LeavePolicyModel model)
+        public async Task<LeavePolicyModel> GetSelectLeavePolicies(LeavePolicyModel model)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameters.Add(new SqlParameter("@LeavePolicyID", model.LeavePolicyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePolicyDetails, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePolicyDetails, sqlParameters);
             var result = dataSet.Tables[0].AsEnumerable()
                                 .Select(dataRow => new LeavePolicyModel
                                 {
@@ -1450,13 +1498,13 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public Results GetAllLeavePolicies(LeavePolicyInputParans model)
+        public async Task<Results> GetAllLeavePolicies(LeavePolicyInputParans model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameters.Add(new SqlParameter("@LeavePolicyID", model.LeavePolicyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePolicyDetails, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePolicyDetails, sqlParameters);
             result.LeavePolicy = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeavePolicyModel
                               {
@@ -1500,7 +1548,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Result AddUpdateLeavePolicy(LeavePolicyModel leavePolicyModel)
+        public async Task<Result> AddUpdateLeavePolicy(LeavePolicyModel leavePolicyModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
@@ -1535,7 +1583,7 @@ namespace HRMS.API.BusinessLayer
 
 
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicy, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicy, sqlParameters);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -1553,7 +1601,7 @@ namespace HRMS.API.BusinessLayer
 
         #region Holidays
 
-        public Results GetAllHolidays(HolidayInputParams model)
+        public async Task<Results> GetAllHolidays(HolidayInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter =
@@ -1562,7 +1610,7 @@ namespace HRMS.API.BusinessLayer
                 new SqlParameter("@HolidayID", model.HolidayID),
             ];
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayDetails, sqlParameter);
             result.Holiday = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new HolidayModel
                               {
@@ -1589,7 +1637,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Result AddUpdateHoliday(HolidayModel HolidayModel)
+        public async Task<Result> AddUpdateHoliday(HolidayModel HolidayModel)
         {
             Result model = new Result();
 
@@ -1602,7 +1650,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@Status", HolidayModel.Status));
             sqlParameter.Add(new SqlParameter("@Description", HolidayModel.Description));
             sqlParameter.Add(new SqlParameter("@JobLocationTypeID", HolidayModel.JobLocationTypeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Holiday, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Holiday, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -1617,12 +1665,12 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public List<SelectListItem> GetHolidayList(HolidayInputParams model)
+        public async Task<List<SelectListItem>> GetHolidayList(HolidayInputParams model)
         {
             List<SelectListItem> result = new List<SelectListItem>();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayList, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayList, sqlParameter);
 
             result = dataSet.Tables[0].AsEnumerable()
                           .Select(dataRow => new SelectListItem
@@ -1632,7 +1680,7 @@ namespace HRMS.API.BusinessLayer
                           }).ToList();
             return result;
         }
-        public Results GetAllHolidayList(HolidayInputParams model)
+        public async Task<Results> GetAllHolidayList(HolidayInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -1642,7 +1690,7 @@ namespace HRMS.API.BusinessLayer
             {
                 sqlParameter.Add(new SqlParameter("@JobLocationID", model.LocationID.Value));
             }
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayList, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayList, sqlParameter);
 
             result.Holiday = dataSet.Tables[0].AsEnumerable()
                                .Select(dataRow => new HolidayModel
@@ -1674,14 +1722,14 @@ namespace HRMS.API.BusinessLayer
 
         #region Leaves
 
-        public LeaveResults GetLeaveForApprovals(MyInfoInputParams model)
+        public async Task<LeaveResults> GetLeaveForApprovals(MyInfoInputParams model)
         {
 
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@ReportingToEmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@RoleId", model.RoleId));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveForApprovals, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveForApprovals, sqlParameter);
             result.leavesSummary = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeaveSummaryModel
                               {
@@ -1714,10 +1762,10 @@ namespace HRMS.API.BusinessLayer
                                   CompanyID = dataRow.Field<long>("CompanyID"),
 
                               }).ToList();
-
-            result.leaveTypes = GetLeaveTypes(model).leaveTypes;
-            //  result.leavePolicy = GetAllLeavePolicies(model).leaveTypes;
-            result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
+            var leavetypes = await GetLeaveTypes(model);
+            result.leaveTypes = leavetypes.leaveTypes;
+            var leaveDurationTypes = await GetLeaveDurationTypes(model);
+            result.leaveDurationTypes = leaveDurationTypes.leaveDurationTypes;
             if (model.LeaveSummaryID > 0)
             {
                 result.leaveSummaryModel = result.leavesSummary.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
@@ -1726,7 +1774,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel)
+        public async Task<Result> AddUpdateLeave(LeaveSummaryModel leaveSummaryModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -1750,8 +1798,12 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@ChildDOB", leaveSummaryModel.ChildDOB ?? (object)DBNull.Value));
             sqlParameter.Add(new SqlParameter("@CampOff", leaveSummaryModel.CampOff ?? Convert.ToInt32(CompOff.OtherLeaves)));
             SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
-
+            //    var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+           StoredProcedures.usp_AddUpdate_LeaveSummary,
+           sqlParameter,
+           p => pOutputParams = p
+       );
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -1766,14 +1818,14 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public LeaveResults GetlLeavesSummary(MyInfoInputParams model)
+        public async Task<LeaveResults> GetlLeavesSummary(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavesSummary, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavesSummary, sqlParameter);
             result.leavesSummary = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeaveSummaryModel
                               {
@@ -1798,7 +1850,8 @@ namespace HRMS.API.BusinessLayer
                               }).ToList();
 
             // result.leaveTypes = GetLeaveTypes(model).leaveTypes;
-            result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
+            var leaveDurationTypes =await GetLeaveDurationTypes(model);
+            result.leaveDurationTypes = leaveDurationTypes.leaveDurationTypes;
             if (model.LeaveSummaryID > 0)
             {
                 result.leaveSummaryModel = result.leavesSummary.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
@@ -1808,12 +1861,12 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        public LeaveResults GetLeaveDurationTypes(MyInfoInputParams model)
+        public async Task<LeaveResults> GetLeaveDurationTypes(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveDurationTypes, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveDurationTypes, sqlParameter);
             result.leaveDurationTypes = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new SelectListItem
                               {
@@ -1825,13 +1878,13 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public LeaveResults GetLeaveTypes(MyInfoInputParams model)
+        public async Task<LeaveResults> GetLeaveTypes(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameter.Add(new SqlParameter("@GenderId", model.GenderId));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveTypes, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveTypes, sqlParameter);
             result.leaveTypes = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new SelectListItem
                               {
@@ -1842,7 +1895,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public string DeleteLeavesSummary(MyInfoInputParams model)
+        public async Task<string> DeleteLeavesSummary(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -1852,7 +1905,7 @@ namespace HRMS.API.BusinessLayer
                 Direction = ParameterDirection.Output
             };
             sqlParameter.Add(outputMessage);
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_LeaveSummary, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_LeaveSummary, sqlParameter);
             string message = outputMessage.Value.ToString();
             return message;
         }
@@ -1861,7 +1914,7 @@ namespace HRMS.API.BusinessLayer
         #endregion
 
         #region Dashboard
-        public DashBoardModel GetDashBoardModel(DashBoardModelInputParams model)
+        public async Task<DashBoardModel> GetDashBoardModel(DashBoardModelInputParams model)
         {
             DashBoardModel dashBoardModel = new DashBoardModel();
             try
@@ -1869,7 +1922,7 @@ namespace HRMS.API.BusinessLayer
                 List<SqlParameter> sqlParameter = new List<SqlParameter>();
                 sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
                 sqlParameter.Add(new SqlParameter("@RoleId", model.RoleID));
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDashBoardDetails, sqlParameter);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDashBoardDetails, sqlParameter);
                 dashBoardModel = dataSet.Tables[0].AsEnumerable()
                                   .Select(dataRow => new DashBoardModel
                                   {
@@ -2053,13 +2106,13 @@ namespace HRMS.API.BusinessLayer
             MyInfoInputParams objmodel = new MyInfoInputParams();
             objmodel.EmployeeID = model.EmployeeID;
             objmodel.JobLocationTypeID = model.JobLocationId;
-            dashBoardModel.leaveResults = GetlLeavesSummary(objmodel);
+            dashBoardModel.leaveResults =await GetlLeavesSummary(objmodel);
             return dashBoardModel;
         }
         #endregion
 
         #region AttendenceList
-        public Result AddUpdateAttendenceList(AttendenceListModel AttendenceListModel)
+        public async Task<Result> AddUpdateAttendenceList(AttendenceListModel AttendenceListModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
@@ -2079,7 +2132,7 @@ namespace HRMS.API.BusinessLayer
             //sqlParameters.Add(new SqlParameter("@CreatedBy", AttendenceListModel.CreatedBy));
             //sqlParameters.Add(new SqlParameter("@UpdatedBy", AttendenceListModel.UpdatedBy));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_AttendenceList, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_AttendenceList, sqlParameters);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -2094,12 +2147,12 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAllEmployees()
+        public async Task<Results> GetAllEmployees()
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Employees, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Employees, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -2125,12 +2178,12 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAllAttendenceList(AttendenceListInputParans model)
+        public async Task<Results> GetAllAttendenceList(AttendenceListInputParans model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@ID", model.ID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AttendanceList, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AttendanceList, sqlParameters);
             result.AttendenceList = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new AttendenceListModel
                               {
@@ -2170,7 +2223,7 @@ namespace HRMS.API.BusinessLayer
         #endregion
 
         #region Shift Types
-        public Results GetAllShiftTypes(ShiftTypeInputParans model)
+        public async Task<Results> GetAllShiftTypes(ShiftTypeInputParans model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
@@ -2181,7 +2234,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameters.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
             sqlParameters.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
             sqlParameters.Add(new SqlParameter("@DisplayLength", model.DisplayLength));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ShiftTypeDetails, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ShiftTypeDetails, sqlParameters);
             result.ShiftType = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new ShiftTypeModel
                               {
@@ -2216,7 +2269,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel)
+        public async Task<Result> AddUpdateShiftType(ShiftTypeModel shiftTypeModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
@@ -2241,7 +2294,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameters.Add(new SqlParameter("@EarlyExitGracePeriod", shiftTypeModel.EarlyExitGracePeriod));
             sqlParameters.Add(new SqlParameter("@Comments", shiftTypeModel.Comments));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ShiftType, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ShiftType, sqlParameters);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -2278,38 +2331,39 @@ namespace HRMS.API.BusinessLayer
                 return stream.ToString();
             }
         }
-        public MyInfoResults GetMyInfo(MyInfoInputParams model)
+        public async Task<MyInfoResults> GetMyInfo(MyInfoInputParams model)
         {
             MyInfoResults myInfoResults = new MyInfoResults();
             HolidayInputParams holidayobj = new HolidayInputParams();
-            myInfoResults.leaveResults = GetlLeavesSummary(model);
+            myInfoResults.leaveResults = await GetlLeavesSummary(model);
             EmployeeInputParams employeeInputParams = new EmployeeInputParams();
             employeeInputParams.EmployeeID = model.EmployeeID;
             employeeInputParams.CompanyID = model.CompanyID;
             holidayobj.CompanyID = model.CompanyID;
             holidayobj.EmployeeID = model.EmployeeID;
-            var data = GetAllEmployees(employeeInputParams);
+            var data = await GetAllEmployees(employeeInputParams);
             myInfoResults.employeeModel = data.employeeModel;
-            var holiday = GetAllHolidayList(holidayobj);
+            var holiday = await GetAllHolidayList(holidayobj);
             myInfoResults.HolidayModel = holiday.Holiday;
             myInfoResults.employmentHistory = data.employeeModel.EmploymentHistory;
             LeavePolicyModel models = new LeavePolicyModel();
             models.CompanyID = model.CompanyID;
             models.LeavePolicyID = data.employeeModel.LeavePolicyID ?? 0;
-            myInfoResults.LeavePolicyDetails = GetSelectLeavePolicies(models);
-            myInfoResults.employeeBankDetail = GetEmploymentBankDetails(new EmploymentBankDetailInputParams
+            myInfoResults.LeavePolicyDetails = await GetSelectLeavePolicies(models);
+            myInfoResults.employeeBankDetail = await GetEmploymentBankDetails(new EmploymentBankDetailInputParams
             {
                 EmployeeID = model.EmployeeID,
                 UserID = model.UserID
             });
-            myInfoResults.employeeSeparationDetail = GetEmploymentSeparationDetails(new EmploymentSeparationInputParams
+            myInfoResults.employeeSeparationDetail = await GetEmploymentSeparationDetails(new EmploymentSeparationInputParams
             {
                 EmployeeID = model.EmployeeID,
                 UserID = model.UserID
             });
-            myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
-            myInfoResults.CampOffLeaveCount = GetCampOffLeaveCount(model.EmployeeID, model.JobLocationTypeID);
-            myInfoResults.leaveResults.leaveTypes = GetLeaveTypes(model).leaveTypes;
+            myInfoResults.employmentDetail = await GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
+            myInfoResults.CampOffLeaveCount = await GetCampOffLeaveCount(model.EmployeeID, model.JobLocationTypeID);
+            var leavetypes = await GetLeaveTypes(model);
+            myInfoResults.leaveResults.leaveTypes = leavetypes.leaveTypes;
             return myInfoResults;
         }
 
@@ -2319,7 +2373,7 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        public Result AddUpdateLeavePolicyDetails(LeavePolicyDetailsModel LeavePolicyModel)
+        public async Task<Result> AddUpdateLeavePolicyDetails(LeavePolicyDetailsModel LeavePolicyModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -2331,7 +2385,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@PolicyDocument", LeavePolicyModel.PolicyDocument));
             sqlParameter.Add(new SqlParameter("@CompanyID", LeavePolicyModel.CompanyID));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicyDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeavePolicyDetails, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -2347,7 +2401,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAllLeavePolicyDetails(LeavePolicyDetailsInputParams model)
+        public async Task<Results> GetAllLeavePolicyDetails(LeavePolicyDetailsInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter =
@@ -2356,7 +2410,7 @@ namespace HRMS.API.BusinessLayer
                 new SqlParameter("@Id", model.Id),
             ];
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePrivacyPolicyDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePrivacyPolicyDetails, sqlParameter);
             result.LeavePolicyDetailsList = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeavePolicyDetailsModel
                               {
@@ -2376,12 +2430,12 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Results GetLeavePolicyList(LeavePolicyDetailsInputParams model)
+        public async Task<Results> GetLeavePolicyList(LeavePolicyDetailsInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePolicyDetailsList, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePolicyDetailsList, sqlParameter);
 
             result.LeavePolicyDetailsList = dataSet.Tables[0].AsEnumerable()
                           .Select(dataRow => new LeavePolicyDetailsModel
@@ -2393,7 +2447,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public string DeleteLeavePolicyDetails(LeavePolicyDetailsInputParams model)
+        public async Task<string> DeleteLeavePolicyDetails(LeavePolicyDetailsInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -2403,14 +2457,14 @@ namespace HRMS.API.BusinessLayer
                 Direction = ParameterDirection.Output
             };
             sqlParameter.Add(outputMessage);
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_LeavePolicyDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_LeavePolicyDetails, sqlParameter);
             string message = outputMessage.Value.ToString();
             return message;
         }
 
 
 
-        public Results GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model)
+        public async Task<Results> GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter =
@@ -2419,7 +2473,7 @@ namespace HRMS.API.BusinessLayer
                 new SqlParameter("@Id", model.Id),
             ];
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePrivacyPolicyDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeavePrivacyPolicyDetails, sqlParameter);
             result.LeavePolicyDetailsModel = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeavePolicyDetailsModel
                               {
@@ -2435,7 +2489,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public List<EmployeeDetails> GetEmployeeListByManagerID(EmployeeInputParams model)
+        public async Task<List<EmployeeDetails>> GetEmployeeListByManagerID(EmployeeInputParams model)
         {
             List<EmployeeDetails> dashBoardModel = new List<EmployeeDetails>();
 
@@ -2449,7 +2503,7 @@ namespace HRMS.API.BusinessLayer
                 //sqlParameter.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
                 //sqlParameter.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
                 //sqlParameter.Add(new SqlParameter("@DisplayLength", model.DisplayLength));
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerIDs, sqlParameter);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerIDs, sqlParameter);
 
 
                 dashBoardModel = dataSet.Tables[0].AsEnumerable()
@@ -2482,7 +2536,7 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        public Result AddUpdatePolicyCategory(PolicyCategoryModel LeavePolicyModel)
+        public async Task<Result> AddUpdatePolicyCategory(PolicyCategoryModel LeavePolicyModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -2491,7 +2545,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@Name", LeavePolicyModel.Name));
             sqlParameter.Add(new SqlParameter("@CompanyID", LeavePolicyModel.CompanyID));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_PolicyCategory, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_PolicyCategory, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -2506,7 +2560,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAllPolicyCategory(PolicyCategoryInputParams model)
+        public async Task<Results> GetAllPolicyCategory(PolicyCategoryInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter =
@@ -2515,7 +2569,7 @@ namespace HRMS.API.BusinessLayer
                 new SqlParameter("@Id", model.Id),
             ];
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_PolicyCategory, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_PolicyCategory, sqlParameter);
             result.PolicyCategoryList = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new PolicyCategoryModel
                               {
@@ -2532,12 +2586,12 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Results GetPolicyCategoryList(PolicyCategoryInputParams model)
+        public async Task<Results> GetPolicyCategoryList(PolicyCategoryInputParams model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_PolicyCategoryList, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_PolicyCategoryList, sqlParameter);
 
             result.PolicyCategoryList = dataSet.Tables[0].AsEnumerable()
                            .Select(dataRow => new PolicyCategoryModel
@@ -2550,7 +2604,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public string DeletePolicyCategory(PolicyCategoryInputParams model)
+        public async Task<string> DeletePolicyCategory(PolicyCategoryInputParams model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -2560,18 +2614,18 @@ namespace HRMS.API.BusinessLayer
                 Direction = ParameterDirection.Output
             };
             sqlParameter.Add(outputMessage);
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_PolicyCategory, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_PolicyCategory, sqlParameter);
             string message = outputMessage.Value.ToString();
             return message;
         }
 
 
-        public List<LeavePolicyDetailsModel> PolicyCategoryDetails(PolicyCategoryInputParams model)
+        public async Task<List<LeavePolicyDetailsModel>> PolicyCategoryDetails(PolicyCategoryInputParams model)
         {
             List<LeavePolicyDetailsModel> result = new List<LeavePolicyDetailsModel>();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_DistinctPolicyCategoryDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_DistinctPolicyCategoryDetails, sqlParameter);
 
             result = dataSet.Tables[0].AsEnumerable()
                            .Select(dataRow => new LeavePolicyDetailsModel
@@ -2593,7 +2647,7 @@ namespace HRMS.API.BusinessLayer
 
         #region Attandance Module
 
-        public AttendanceLogResponse GetAttendanceDeviceLogs(AttendanceDeviceLog model)
+        public async Task<AttendanceLogResponse> GetAttendanceDeviceLogs(AttendanceDeviceLog model)
         {
             var attendanceLogs = new List<AttendanceDeviceLog>();
             List<SqlParameter> sqlParameters = new List<SqlParameter>
@@ -2601,7 +2655,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@EmployeeId", model.EmployeeId ),
         new SqlParameter("@CreatedBy", model.CreatedBy )
     };
-            var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_GetAttendanceAuditLog", sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure("usp_GetAttendanceAuditLog", sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2677,14 +2731,13 @@ namespace HRMS.API.BusinessLayer
         //    return model;
         //}
 
-        public AttendanceInputParams GetAttendance(AttendanceInputParams model)
+        public async Task<AttendanceInputParams> GetAttendance(AttendanceInputParams model)
         {
             string connectionString = _configuration["ConnectionStrings:conStr"];
 
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
-
                 using (SqlCommand cmd = new SqlCommand("usp_CalculateMonthlyAttendance_WithShifts", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -2697,9 +2750,9 @@ namespace HRMS.API.BusinessLayer
                     cmd.Parameters.AddWithValue("@IsManual", false);
                     cmd.Parameters.AddWithValue("@AttendanceStatus", AttendanceStatus.Approved.ToString());
 
-                    conn.Open();
+                    await conn.OpenAsync();
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                     {
                         if (reader.HasRows)
                         {
@@ -2725,7 +2778,7 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        public MonthlyViewAttendance GetAttendanceForMonthlyViewCalendar([FromForm] AttendanceInputParams model)
+        public async Task<MonthlyViewAttendance> GetAttendanceForMonthlyViewCalendar([FromForm] AttendanceInputParams model)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
@@ -2734,7 +2787,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@UserId", model.UserId)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceDeviceLog, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceDeviceLog, sqlParameters);
 
             var dailyStatuses = new List<DailyAttendanceStatus>();
 
@@ -2760,7 +2813,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public AttendanceWithHolidaysVM GetTeamAttendanceForCalendar(AttendanceInputParams model)
+        public async Task<AttendanceWithHolidaysVM> GetTeamAttendanceForCalendar(AttendanceInputParams model)
         {
             List<AttendanceViewModel> attendanceList = new List<AttendanceViewModel>();
             int totalRecords = 0;
@@ -2777,7 +2830,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@JobLocationID", model.JobLocationID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetTeamAttendanceDeviceLog, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetTeamAttendanceDeviceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2824,7 +2877,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public AttendanceDetailsVM FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
+        public async Task<AttendanceDetailsVM> FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
         {
             AttendanceDetailsVM result = new AttendanceDetailsVM();
             List<SqlParameter> sqlParameters = new List<SqlParameter>
@@ -2834,7 +2887,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@EmployeeId",model.EmployeeId),
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDailyAttendanceDetails, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDailyAttendanceDetails, sqlParameters);
 
             if (dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
             {
@@ -2893,7 +2946,7 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        public MyAttendanceList GetMyAttendanceList(AttendanceInputParams model)
+        public async Task<MyAttendanceList> GetMyAttendanceList(AttendanceInputParams model)
         {
             List<Attendance> attendanceList = new List<Attendance>();
             List<SqlParameter> sqlParameters = new List<SqlParameter>  {
@@ -2902,7 +2955,7 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@UserId", model.UserId)
             };
             // Get the dataset from the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetMyAttendanceLog, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetMyAttendanceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -2928,7 +2981,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Result AddUpdateAttendace(Attendance att)
+        public async Task<Result> AddUpdateAttendace(Attendance att)
         {
             Result model = new Result();
 
@@ -2949,7 +3002,7 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
                 sqlParameter.Add(new SqlParameter("@IsDeleted", att.IsDeleted));
                 sqlParameter.Add(new SqlParameter("@RoleId", att.RoleId));
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveAttendanceManualLog, sqlParameter);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveAttendanceManualLog, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
                     model = dataSet.Tables[0].AsEnumerable()
@@ -2968,12 +3021,12 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAttendenceListID(Attendance model)
+        public async Task<Results> GetAttendenceListID(Attendance model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@ID", model.ID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.GetAttendanceDeviceLogById, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.GetAttendanceDeviceLogById, sqlParameters);
             var attendence = dataSet.Tables[0].AsEnumerable()
                                  .Select(dataRow => new Attendance
                                  {
@@ -2991,7 +3044,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public string DeleteAttendanceDetails(Attendance model)
+        public async Task<string> DeleteAttendanceDetails(Attendance model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -3001,20 +3054,20 @@ namespace HRMS.API.BusinessLayer
                 Direction = ParameterDirection.Output
             };
             sqlParameter.Add(outputMessage);
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_DeleteAttendanceDeviceLog, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_DeleteAttendanceDeviceLog, sqlParameter);
             string message = outputMessage.Value.ToString();
             return message;
         }
 
 
-        public MyAttendanceList GetAttendanceForApproval(AttendanceInputParams model)
+        public async Task<MyAttendanceList> GetAttendanceForApproval(AttendanceInputParams model)
         {
             List<Attendance> attendanceList = new List<Attendance>();
             List<SqlParameter> sqlParameters = new List<SqlParameter>  {
             new SqlParameter("@ReportingID", model.UserId)
             };
             // Get the dataset from the stored procedure
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetMyAttendanceLog, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetMyAttendanceLog, sqlParameters);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -3040,7 +3093,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public List<Attendance> GetApprovedAttendance(AttendanceInputParams model)
+        public async Task<List<Attendance>> GetApprovedAttendance(AttendanceInputParams model)
         {
             var result = new List<Attendance>();
 
@@ -3056,7 +3109,7 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@RoleId",model.RoleId)
         };
 
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ApprovedAttendance, sqlParameters);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ApprovedAttendance, sqlParameters);
 
                 if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
                 {
@@ -3084,7 +3137,7 @@ namespace HRMS.API.BusinessLayer
 
             return result;
         }
-        public List<Attendance> GetManagerApprovedAttendance(AttendanceInputParams model)
+        public async Task<List<Attendance>> GetManagerApprovedAttendance(AttendanceInputParams model)
         {
             var result = new List<Attendance>();
 
@@ -3097,7 +3150,7 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@AttendanceStatusId",attStatus)
         };
 
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Manager_ApprovedAttendance, sqlParameters);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Manager_ApprovedAttendance, sqlParameters);
 
                 if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
                 {
@@ -3128,10 +3181,10 @@ namespace HRMS.API.BusinessLayer
 
         #endregion Attandance Module
 
-        public Dictionary<string, long> GetCountryDictionary()
+        public async Task<Dictionary<string, long>> GetCountryDictionary()
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Counteres, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Counteres, sqlParameter);
 
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -3143,13 +3196,13 @@ namespace HRMS.API.BusinessLayer
             return new Dictionary<string, long>(); // Return empty dictionary if no data
         }
 
-        public Dictionary<string, CompanyInfo> GetCompaniesDictionary()
+        public async Task<Dictionary<string, CompanyInfo>> GetCompaniesDictionary()
         {
             EmployeeInputParams model = new EmployeeInputParams();
             model.CompanyID = 0;
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Companies, sqlParameter);
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
                 return dataSet.Tables[0].AsEnumerable()
@@ -3162,11 +3215,11 @@ namespace HRMS.API.BusinessLayer
             }
             return new Dictionary<string, CompanyInfo>();
         }
-        public Dictionary<string, long> GetSubDepartmentDictionary(EmployeeInputParams model)
+        public async Task<Dictionary<string, long>> GetSubDepartmentDictionary(EmployeeInputParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanySubDepartments, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanySubDepartments, sqlParameter);
 
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -3179,7 +3232,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public Dictionary<string, Dictionary<string, long>> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model)
+        public async Task<Dictionary<string, Dictionary<string, long>>> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model)
         {
             Dictionary<string, Dictionary<string, long>> employmentDictionaries = new Dictionary<string, Dictionary<string, long>>();
 
@@ -3189,7 +3242,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@EmployeeID", model.EmployeeID),
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FilterEmployeeDetailsFormDetails, sqlParameter);
 
             if (dataSet.Tables.Count > 0)
             {
@@ -3238,7 +3291,7 @@ namespace HRMS.API.BusinessLayer
         {
             return value == null || string.IsNullOrEmpty(value.ToString()) ? DBNull.Value : value;
         }
-        public Result AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel)
+        public async Task<Result> AddUpdateEmployeeFromExecel(ImportEmployeeDetail employeeModel)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -3296,7 +3349,12 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@IsActive", true));
             // Execute the stored procedure
             SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
+            //var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Employee, sqlParameter, ref pOutputParams);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+          StoredProcedures.usp_AddUpdate_Employee,
+          sqlParameter,
+          p => pOutputParams = p
+      );
 
             // Handle result
             if (dataSet.Tables[0].Columns.Contains("Result"))
@@ -3324,8 +3382,12 @@ namespace HRMS.API.BusinessLayer
             sqlParametersBank.Add(new SqlParameter("@UserID", model.UserID));
             SqlParameterCollection pOutputParamsdataSetBankDetails = null;
 
-            var dataSetBankDetails = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeBankDetails, sqlParametersBank, ref pOutputParamsdataSetBankDetails);
-
+            //var dataSetBankDetails = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeBankDetails, sqlParametersBank, ref pOutputParamsdataSetBankDetails);
+            var dataSetBankDetails = await DataLayer.GetDataSetByStoredProcedure(
+        StoredProcedures.usp_AddUpdate_EducationDetails,
+        sqlParameter,
+        p => pOutputParamsdataSetBankDetails = p
+    );
             List<SqlParameter> sqlParameterSeparation = new List<SqlParameter>();
 
             sqlParameterSeparation.Add(new SqlParameter("@EmployeeID", model.UserID));
@@ -3346,7 +3408,12 @@ namespace HRMS.API.BusinessLayer
             SqlParameterCollection pOutputParamSeparation = null;
 
 
-            var dataSetSeparation = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeSeparation, sqlParameterSeparation, ref pOutputParamSeparation);
+           // var dataSetSeparation = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeSeparation, sqlParameterSeparation, ref pOutputParamSeparation);
+            var dataSetSeparation = await DataLayer.GetDataSetByStoredProcedure(
+      StoredProcedures.usp_AddUpdate_EmployeeSeparation,
+      sqlParameter,
+      p => pOutputParamSeparation = p
+  );
             if (dataSetSeparation.Tables[0].Columns.Contains("Result"))
             {
 
@@ -3388,7 +3455,14 @@ namespace HRMS.API.BusinessLayer
 
             SqlParameterCollection pOutputParamss = null;
 
-            var dataSets = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmploymentDetails, sqlParameters, ref pOutputParamss);
+           // var dataSets = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmploymentDetails, sqlParameters, ref pOutputParamss);
+
+            var dataSets = await DataLayer.GetDataSetByStoredProcedure(
+    StoredProcedures.usp_AddUpdate_EmploymentDetails,
+    sqlParameter,
+    p => pOutputParamss = p
+);
+
             if (dataSets.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSets.Tables[0].AsEnumerable()
@@ -3409,7 +3483,15 @@ namespace HRMS.API.BusinessLayer
 
             SqlParameterCollection OutputParams1 = null;
 
-            var datasSet2 = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertUserRole, sqlParameterss, ref OutputParams1);
+            //var datasSet2 = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertUserRole, sqlParameterss, ref OutputParams1);
+
+            var datasSet2 = await DataLayer.GetDataSetByStoredProcedure(
+   StoredProcedures.usp_InsertUserRole,
+   sqlParameter,
+   p => OutputParams1 = p
+);
+
+
             if (datasSet2.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -3467,7 +3549,7 @@ namespace HRMS.API.BusinessLayer
 
         #region What's happening
 
-        public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model)
+        public async Task<Result> AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -3483,7 +3565,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@IsDeleted", Model.IsDeleted));
             sqlParameter.Add(new SqlParameter("@UserID", Model.CreatedBy));
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_WhatsHappening, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_WhatsHappening, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -3498,7 +3580,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAllWhatsHappeningDetails(WhatsHappeningModelParans model)
+        public async Task<Results> GetAllWhatsHappeningDetails(WhatsHappeningModelParans model)
         {
             Results result = new Results();
             List<SqlParameter> sqlParameter =
@@ -3507,7 +3589,7 @@ namespace HRMS.API.BusinessLayer
                 new SqlParameter("@WhatsHappeningID", model.WhatsHappeningID),
             ];
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_WhatsHappeningS, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_WhatsHappeningS, sqlParameter);
             result.WhatsHappeningList = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new WhatsHappeningModels
                               {
@@ -3530,7 +3612,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public string DeleteWhatsHappening(WhatsHappeningModelParans model)
+        public async Task<string> DeleteWhatsHappening(WhatsHappeningModelParans model)
         {
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -3540,7 +3622,7 @@ namespace HRMS.API.BusinessLayer
                 Direction = ParameterDirection.Output
             };
             sqlParameter.Add(outputMessage);
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_WhatsHappening, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_WhatsHappening, sqlParameter);
             string message = outputMessage.Value.ToString();
             return message;
         }
@@ -3563,7 +3645,7 @@ namespace HRMS.API.BusinessLayer
             }
             return null;
         }
-        public Result AddUpdateEmployeeFromExecelBulk(BulkEmployeeImportModel bulkImportModel)
+        public async Task<Result> AddUpdateEmployeeFromExecelBulk(BulkEmployeeImportModel bulkImportModel)
         {
             try
             {
@@ -3664,7 +3746,7 @@ namespace HRMS.API.BusinessLayer
                 Value = employeeDataTable
             }
         };
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdateExcelImport, parameters);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdateExcelImport, parameters);
 
                 return new Result
                 {
@@ -3881,7 +3963,7 @@ namespace HRMS.API.BusinessLayer
             };
         }
 
-        public EmployeePersonalDetails GetEmployeeDetails(EmployeePersonalDetailsById objmodel)
+        public async Task<EmployeePersonalDetails> GetEmployeeDetails(EmployeePersonalDetailsById objmodel)
         {
             EmployeePersonalDetails model = new EmployeePersonalDetails();
 
@@ -3890,7 +3972,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@EmployeeId", objmodel.EmployeeID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_Get_Employees_details", sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure("usp_Get_Employees_details", sqlParameters);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -3908,7 +3990,7 @@ namespace HRMS.API.BusinessLayer
 
 
         #region CheckEmployeeReporting
-        public ReportingStatus CheckEmployeeReporting(ReportingStatus obj)
+        public async Task<ReportingStatus> CheckEmployeeReporting(ReportingStatus obj)
         {
             ReportingStatus result = new ReportingStatus();
             List<SqlParameter> sqlParameters = new List<SqlParameter>
@@ -3917,7 +3999,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@IsActive", obj.Status)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_CheckEmployeeReporting, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_CheckEmployeeReporting, sqlParameters);
 
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -3934,7 +4016,7 @@ namespace HRMS.API.BusinessLayer
         #endregion CheckEmployeeReporting
 
 
-        public List<ExportEmployeeDetailsExcel> FetchExportEmployeeExcelSheet(EmployeeInputParams model)
+        public async Task<List<ExportEmployeeDetailsExcel>> FetchExportEmployeeExcelSheet(EmployeeInputParams model)
         {
             List<ExportEmployeeDetailsExcel> employeeDetails = new List<ExportEmployeeDetailsExcel>();
             try
@@ -3944,7 +4026,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@CompnayId", model.CompanyID),  // keep as is if SP param has typo, else correct to @CompanyId
     };
 
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ExportEmployeeFullDetails, sqlParameters);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ExportEmployeeFullDetails, sqlParameters);
 
                 if (dataSet.Tables.Count > 0)
                 {
@@ -4046,7 +4128,7 @@ namespace HRMS.API.BusinessLayer
 
         //    return totalRecords;
         //}
-        public decimal GetCampOffLeaveCount(long employeeID, long jobLocationTypeID)
+        public async Task<decimal> GetCampOffLeaveCount(long employeeID, long jobLocationTypeID)
         {
             decimal availableCompOffDays = 0;
 
@@ -4056,7 +4138,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@JobLocationTypeID", jobLocationTypeID)
     };
 
-            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameters);
+            DataSet dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CampOffLeaves, sqlParameters);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -4071,7 +4153,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public CompOffValidationResult GetValidateCompOffLeave(CampOffEligible model)
+        public async Task<CompOffValidationResult> GetValidateCompOffLeave(CampOffEligible model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
@@ -4083,7 +4165,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@RequestedLeaveDays", model.RequestedLeaveDays)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Is_CampOff_Eligible, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Is_CampOff_Eligible, sqlParameter);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -4100,7 +4182,7 @@ namespace HRMS.API.BusinessLayer
 
             return null; // or return a default object indicating failure
         }
-        public UpdateLeaveStatus UpdateLeaveStatus(UpdateLeaveStatus model)
+        public async Task<UpdateLeaveStatus> UpdateLeaveStatus(UpdateLeaveStatus model)
         {
             var sqlParameters = new List<SqlParameter>
     {
@@ -4109,7 +4191,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_UpdateLeaveStatus, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_UpdateLeaveStatus, sqlParameters);
 
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -4126,14 +4208,14 @@ namespace HRMS.API.BusinessLayer
 
         #region EmployeeAdditonalDetails
 
-        public List<EducationalDetail> GetEducationDetails(EducationDetailParams model)
+        public async Task<List<EducationalDetail>> GetEducationDetails(EducationDetailParams model)
         {
             List<SqlParameter> parameters = new()
     {
         new SqlParameter("@EmployeeID", model.EmployeeID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EducationDetailsByEmployee, parameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EducationDetailsByEmployee, parameters);
             if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
                 return new List<EducationalDetail>();
 
@@ -4151,7 +4233,7 @@ namespace HRMS.API.BusinessLayer
                 }).ToList();
         }
 
-        public Result AddUpdateEducationDetail(EducationalDetail eduDetail)
+        public async Task<Result> AddUpdateEducationDetail(EducationalDetail eduDetail)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>
@@ -4170,7 +4252,12 @@ namespace HRMS.API.BusinessLayer
     };
 
             SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EducationDetails, sqlParameter, ref pOutputParams);
+            //var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EducationDetails, sqlParameter, ref pOutputParams);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+         StoredProcedures.usp_AddUpdate_EducationDetails,
+         sqlParameter,
+         p => pOutputParams = p
+     );
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -4186,7 +4273,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public string DeleteEducationDetail(EducationDetailParams model)
+        public async Task<string> DeleteEducationDetail(EducationDetailParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EducationDetailID", model.EducationDetailID));
@@ -4195,19 +4282,19 @@ namespace HRMS.API.BusinessLayer
                 Direction = ParameterDirection.Output
             };
             sqlParameter.Add(outputMessage);
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EducationDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EducationDetails, sqlParameter);
             string message = outputMessage.Value.ToString();
             return message;
         }
 
-        public List<EmploymentHistory> GetEmploymentHistory(EmploymentHistoryParams model)
+        public async Task<List<EmploymentHistory>> GetEmploymentHistory(EmploymentHistoryParams model)
         {
             List<SqlParameter> parameters = new()
     {
         new SqlParameter("@EmployeeID", model.EmployeeID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmploymentHistoryByEmployee, parameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmploymentHistoryByEmployee, parameters);
             if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
                 return new List<EmploymentHistory>();
 
@@ -4238,9 +4325,10 @@ namespace HRMS.API.BusinessLayer
                 }).ToList();
         }
 
-        public Result AddUpdateEmploymentHistory(EmploymentHistory emp)
+        public async Task<Result> AddUpdateEmploymentHistory(EmploymentHistory emp)
         {
             Result model = new Result();
+
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
         new SqlParameter("@EmploymentHistoryID", emp.EmploymentHistoryID),
@@ -4269,10 +4357,15 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@UserID", emp.UserID)
     };
 
-            SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmploymentHistory, sqlParameter, ref pOutputParams);
+            SqlParameterCollection outputParams = null;
 
-            if (dataSet.Tables[0].Columns.Contains("Result"))
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_AddUpdate_EmploymentHistory,
+                sqlParameter,
+                p => outputParams = p // capture output parameters
+            );
+
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
                     .Select(dataRow => new Result
@@ -4285,7 +4378,8 @@ namespace HRMS.API.BusinessLayer
 
             return model;
         }
-        public string DeleteEmploymentHistory(EmploymentHistoryParams model)
+
+        public async Task<string> DeleteEmploymentHistory(EmploymentHistoryParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
@@ -4299,19 +4393,19 @@ namespace HRMS.API.BusinessLayer
 
             sqlParameter.Add(outputMessage);
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EmploymentHistory, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EmploymentHistory, sqlParameter);
 
             return outputMessage.Value.ToString();
         }
 
-        public List<Reference> GetReferenceDetails(ReferenceParams model)
+        public async Task<List<Reference>> GetReferenceDetails(ReferenceParams model)
         {
             List<SqlParameter> parameters = new()
     {
         new SqlParameter("@EmployeeID", model.EmployeeID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ReferenceDetailsByEmployee, parameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_ReferenceDetailsByEmployee, parameters);
             if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
                 return new List<Reference>();
 
@@ -4327,7 +4421,7 @@ namespace HRMS.API.BusinessLayer
                 }).ToList();
         }
 
-        public Result AddUpdateReferenceDetail(Reference reference)
+        public async Task<Result> AddUpdateReferenceDetail(Reference reference)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>
@@ -4344,8 +4438,12 @@ namespace HRMS.API.BusinessLayer
     };
 
             SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ReferenceDetails, sqlParameter, ref pOutputParams);
-
+            // var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ReferenceDetails, sqlParameter, ref pOutputParams);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+        StoredProcedures.usp_AddUpdate_ReferenceDetails,
+        sqlParameter,
+        p => pOutputParams = p
+    );
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -4360,7 +4458,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public string DeleteReferenceDetail(ReferenceParams model)
+        public async Task<string> DeleteReferenceDetail(ReferenceParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
@@ -4374,18 +4472,18 @@ namespace HRMS.API.BusinessLayer
 
             sqlParameter.Add(outputMessage);
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_ReferenceDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_ReferenceDetails, sqlParameter);
             return outputMessage.Value.ToString();
         }
 
-        public List<FamilyDetail> GetFamilyDetails(FamilyDetailParams model)
+        public async Task<List<FamilyDetail>> GetFamilyDetails(FamilyDetailParams model)
         {
             List<SqlParameter> parameters = new()
     {
         new SqlParameter("@EmployeeID", model.EmployeeID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeesFamilyDetailsByEmployee, parameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeesFamilyDetailsByEmployee, parameters);
             if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
                 return new List<FamilyDetail>();
 
@@ -4401,7 +4499,7 @@ namespace HRMS.API.BusinessLayer
                 }).ToList();
         }
 
-        public Result AddUpdateFamilyDetail(FamilyDetail familyDetail)
+        public async Task<Result> AddUpdateFamilyDetail(FamilyDetail familyDetail)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new List<SqlParameter>
@@ -4418,8 +4516,12 @@ namespace HRMS.API.BusinessLayer
     };
 
             SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_FamilyDetails, sqlParameter, ref pOutputParams);
-
+            // var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_FamilyDetails, sqlParameter, ref pOutputParams);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+       StoredProcedures.usp_AddUpdate_FamilyDetails,
+       sqlParameter,
+       p => pOutputParams = p
+   );
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -4434,7 +4536,7 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public string DeleteFamilyDetail(FamilyDetailParams model)
+        public async Task<string> DeleteFamilyDetail(FamilyDetailParams model)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
@@ -4448,18 +4550,18 @@ namespace HRMS.API.BusinessLayer
 
             sqlParameter.Add(outputMessage);
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EmployeesFamilyDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_EmployeesFamilyDetails, sqlParameter);
             return outputMessage.Value.ToString();
         }
 
-        public List<LanguageDetail> GetLanguageDetails(LanguageDetailParams model)
+        public async Task<List<LanguageDetail>> GetLanguageDetails(LanguageDetailParams model)
         {
             List<SqlParameter> parameters = new()
     {
         new SqlParameter("@EmployeeID", model.EmployeeID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LanguageDetailsByEmployee, parameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LanguageDetailsByEmployee, parameters);
             if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
                 return new List<LanguageDetail>();
 
@@ -4475,7 +4577,7 @@ namespace HRMS.API.BusinessLayer
                     IsWrite = row.Field<bool>("IsWrite")
                 }).ToList();
         }
-        public Result AddUpdateLanguageDetail(LanguageDetail languageDetail)
+        public async Task<Result> AddUpdateLanguageDetail(LanguageDetail languageDetail)
         {
             Result model = new Result();
             List<SqlParameter> sqlParameter = new()
@@ -4490,7 +4592,12 @@ namespace HRMS.API.BusinessLayer
     };
 
             SqlParameterCollection pOutputParams = null;
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LanguageDetails, sqlParameter, ref pOutputParams);
+            // var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LanguageDetails, sqlParameter, ref pOutputParams);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
+ StoredProcedures.usp_AddUpdate_LanguageDetails,
+ sqlParameter,
+ p => pOutputParams = p
+);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -4505,7 +4612,7 @@ namespace HRMS.API.BusinessLayer
 
             return model;
         }
-        public string DeleteLanguageDetail(LanguageDetailParams model)
+        public async Task<string> DeleteLanguageDetail(LanguageDetailParams model)
         {
             List<SqlParameter> sqlParameter = new()
     {
@@ -4519,7 +4626,7 @@ namespace HRMS.API.BusinessLayer
 
             sqlParameter.Add(outputMessage);
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_LanguageDetails, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Delete_LanguageDetails, sqlParameter);
             return outputMessage.Value.ToString();
         }
 
@@ -4529,12 +4636,12 @@ namespace HRMS.API.BusinessLayer
 
 
         #region Page Permission
-        public Results GetAllCompanyFormsPermission(long companyID)
+        public async Task<Results> GetAllCompanyFormsPermission(long companyID)
         {
             Results model = new Results();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", companyID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyForms, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_CompanyForms, sqlParameter);
 
 
             model.FormsPermission = dataSet.Tables[0].AsEnumerable()
@@ -4548,7 +4655,7 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public long AddFormPermissions(FormPermissionViewModel objmodel)
+        public async Task<long> AddFormPermissions(FormPermissionViewModel objmodel)
         {
             long retVal = 0;
 
@@ -4562,7 +4669,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@LoggedUserID", objmodel.CreatedByID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.ups_InsupdGroupFormPermission, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.ups_InsupdGroupFormPermission, sqlParameter);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -4575,12 +4682,12 @@ namespace HRMS.API.BusinessLayer
             return -1;
         }
 
-        public List<FormPermissionViewModel> GetFormByDepartmentID(long DepartmentId)
+        public async Task<List<FormPermissionViewModel>> GetFormByDepartmentID(long DepartmentId)
         {
             List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@DepartmentID", DepartmentId));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetFormByDepartmentID, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetFormByDepartmentID, sqlParameter);
 
 
             model = dataSet.Tables[0].AsEnumerable()
@@ -4594,13 +4701,13 @@ namespace HRMS.API.BusinessLayer
 
             return model;
         }
-        public List<FormPermissionViewModel> GetUserFormByDepartmentID(FormPermissionVM obj)
+        public async Task<List<FormPermissionViewModel>> GetUserFormByDepartmentID(FormPermissionVM obj)
         {
             List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@DepartmentID", obj.DepartmentId));
             sqlParameter.Add(new SqlParameter("@EmployeeID", obj.EmployeeID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormByDepartmentID, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormByDepartmentID, sqlParameter);
 
 
             model = dataSet.Tables[0].AsEnumerable()
@@ -4617,14 +4724,14 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public List<FormPermissionViewModel> GetUserFormPermissions(FormPermissionVM objmodel)
+        public async Task<List<FormPermissionViewModel>> GetUserFormPermissions(FormPermissionVM objmodel)
         {
             List<FormPermissionViewModel> model = new List<FormPermissionViewModel>();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@DepartmentID", objmodel.DepartmentId));
             sqlParameter.Add(new SqlParameter("@EmployeeID", objmodel.EmployeeID));
             sqlParameter.Add(new SqlParameter("@RoleID", objmodel.RoleID));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormPermissions, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetUserFormPermissions, sqlParameter);
 
 
             model = dataSet.Tables[0].AsEnumerable()
@@ -4648,7 +4755,7 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        public long AddUserFormPermissions(FormPermissionVM objmodel)
+        public async Task<long> AddUserFormPermissions(FormPermissionVM objmodel)
         {
             if (objmodel == null || objmodel.SelectedFormIds == null || !objmodel.SelectedFormIds.Any())
                 return 0;
@@ -4665,7 +4772,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@FormIDs", formIdsCsv)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(
                 StoredProcedures.usp_InsertFormPermissions,
                 sqlParameters
             );
@@ -4674,13 +4781,13 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public EmployeePermissionVM CheckUserFormPermissionByEmployeeID(FormPermissionVM obj)
+        public async Task<EmployeePermissionVM> CheckUserFormPermissionByEmployeeID(FormPermissionVM obj)
         {
             EmployeePermissionVM model = new EmployeePermissionVM();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID", obj.EmployeeID));
             sqlParameter.Add(new SqlParameter("@FormId", obj.FormId));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_CheckUserFormPermissionByEmployeeID, sqlParameter);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_CheckUserFormPermissionByEmployeeID, sqlParameter);
 
 
             model = dataSet.Tables[0].AsEnumerable()
@@ -4696,7 +4803,7 @@ namespace HRMS.API.BusinessLayer
         #endregion Page Permission
 
         #region CompOff Attendance
-        public List<CompOffAttendanceRequestModel> GetCompOffAttendanceList(CompOffAttendanceInputParams model)
+        public async Task<List<CompOffAttendanceRequestModel>> GetCompOffAttendanceList(CompOffAttendanceInputParams model)
         {
             List<CompOffAttendanceRequestModel> result = new List<CompOffAttendanceRequestModel>();
 
@@ -4707,7 +4814,7 @@ namespace HRMS.API.BusinessLayer
                     new SqlParameter("@AttendanceStatus",model.AttendanceStatus)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetHolidayOrSundayWorkLog, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetHolidayOrSundayWorkLog, sqlParameters);
 
             if (dataSet != null && dataSet.Tables.Count > 0)
             {
@@ -4732,7 +4839,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public List<CompOffAttendanceRequestModel> GetApprovedCompOff(CompOffInputParams model)
+        public async Task<List<CompOffAttendanceRequestModel>> GetApprovedCompOff(CompOffInputParams model)
         {
             var result = new List<CompOffAttendanceRequestModel>();
 
@@ -4741,12 +4848,12 @@ namespace HRMS.API.BusinessLayer
             {
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
         {
-            new SqlParameter("@ReportingUserID", model.UserId),      
+            new SqlParameter("@ReportingUserID", model.UserId),
             new SqlParameter("@AttendanceStatusId",attStatus),
             new SqlParameter("@RoleId",model.RoleId)
         };
 
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetCompOffLeaveRequestsForManagers, sqlParameters);
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetCompOffLeaveRequestsForManagers, sqlParameters);
 
                 if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
                 {
@@ -4778,7 +4885,7 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
-        public Result AddUpdateCompOffAttendace(CompOffAttendanceRequestModel att)
+        public async Task<Result> AddUpdateCompOffAttendace(CompOffAttendanceRequestModel att)
         {
             Result model = new Result();
 
@@ -4797,8 +4904,8 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
                 sqlParameter.Add(new SqlParameter("@RoleId", att.RoleId));
-             
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
+
+                var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
                     model = dataSet.Tables[0].AsEnumerable()
@@ -4821,14 +4928,14 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        public List<Joblcoations> GetJobLocationsByCompany(Joblcoations model)
+        public async Task<List<Joblcoations>> GetJobLocationsByCompany(Joblcoations model)
         {
             List<Joblcoations> obj = new List<Joblcoations>();
             var sqlParameters = new List<SqlParameter>
              {
                  new SqlParameter("@CompanyID", model.CompanyId)
              };
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetJobLocationsByCompany, sqlParameters);
+            var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetJobLocationsByCompany, sqlParameters);
             if (dataSet.Tables.Count > 0)
             {
                 obj = dataSet.Tables[0].AsEnumerable()

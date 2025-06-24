@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.EMMA;
+﻿using System.Threading.Tasks;
+using DocumentFormat.OpenXml.EMMA;
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
@@ -24,7 +25,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         private readonly IBusinessLayer _businessLayer;
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public LeavePolicyController(ICheckUserFormPermission CheckUserFormPermission , IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, IS3Service s3Service)
+        public LeavePolicyController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, IS3Service s3Service)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
@@ -36,13 +37,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
-        public IActionResult LeavePolicyListing()
+        public async Task<IActionResult> LeavePolicyListing()
         {
             Results results = new Results();
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyListing);
+            var FormPermission =await _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyListing);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -54,12 +55,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult LeavePolicyListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> LeavePolicyListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             LeavePolicyInputParans leavePolicyParams = new LeavePolicyInputParans();
             leavePolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-            var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.LeavePolicy.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.LeavePolicyID.ToString()));
 
@@ -67,17 +68,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         }
 
-        public IActionResult Index(string id)
+        public async Task<IActionResult> Index(string id)
         {
             LeavePolicyModel leavePolicyModel = new LeavePolicyModel();
             leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            
-                 
+
+
             if (!string.IsNullOrEmpty(id))
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 leavePolicyModel.LeavePolicyID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).leavePolicyModel;
             }
 
@@ -85,7 +86,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(LeavePolicyModel leavePolicyModel)
+        public async Task<IActionResult> Index(LeavePolicyModel leavePolicyModel)
         {
             //// Leaves less than maximum leaves
             //if (leavePolicyModel.MaximumEarnedLeaveAllowed + leavePolicyModel.MaximumMedicalLeaveAllocationAllowed + leavePolicyModel.MaximumCompOffLeaveAllocationAllowed > leavePolicyModel.MaximumLeaveAllocationAllowed)
@@ -94,29 +95,29 @@ namespace HRMS.Web.Areas.Admin.Controllers
             //    TempData[HRMS.Models.Common.Constants.toastMessage] = "The Casual,Medical and Annual leaves must be equal or less than to Maximum leaves allowed.";
             //    return View();
             //}
-             
-                leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicy), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var result = JsonConvert.DeserializeObject<Result>(data);
+            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicy), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);
 
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
-                return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
-             
+            TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
+            return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
+
         }
-         
+
 
 
         #region Leave Policy Details
 
-        public IActionResult LeavePolicyDetailsListing()
+        public async Task<IActionResult> LeavePolicyDetailsListing()
         {
             Results results = new Results();
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyDetailsListing);
+            var FormPermission =await _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyDetailsListing);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -128,11 +129,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult LeavePolicyDetailsListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> LeavePolicyDetailsListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             LeavePolicyInputParans leavePolicyParams = new LeavePolicyInputParans();
             leavePolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetLeavePolicyList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetLeavePolicyList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.LeavePolicyDetailsList.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.Id.ToString()));
 
@@ -140,7 +141,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         }
 
-        public IActionResult LeavePolicyDetails(string id)
+        public async Task<IActionResult> LeavePolicyDetails(string id)
         {
             LeavePolicyDetailsModel leavePolicyModel = new LeavePolicyDetailsModel();
             leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -150,16 +151,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 leavePolicyModel.Id = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).LeavePolicyDetailsModel;
                 if (!string.IsNullOrEmpty(leavePolicyModel.PolicyDocument))
                 {
-                    leavePolicyModel.PolicyDocument = _s3Service.GetFileUrl(leavePolicyModel.PolicyDocument);
+                    leavePolicyModel.PolicyDocument = await _s3Service.GetFileUrl(leavePolicyModel.PolicyDocument);
                 }
             }
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = leavePolicyModel.CompanyID;
-            var compay = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var compay = _businessLayer.SendPostAPIRequest(employee, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(compay);
             leavePolicyModel.Companies = results.Companies;
 
@@ -167,7 +168,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             LeavePolicyInputParans PolicyParams = new LeavePolicyInputParans();
             PolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-            var Policy = _businessLayer.SendPostAPIRequest(PolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetPolicyCategoryList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var Policy = _businessLayer.SendPostAPIRequest(PolicyParams, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetPolicyCategoryList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var Policyresults = JsonConvert.DeserializeObject<Results>(Policy);
             leavePolicyModel.PolicyList = Policyresults.PolicyCategoryList;
 
@@ -176,11 +177,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult LeavePolicyDetails(LeavePolicyDetailsModel leavePolicyModel, List<IFormFile> postedFiles)
+        public async Task<IActionResult> LeavePolicyDetails(LeavePolicyDetailsModel leavePolicyModel, List<IFormFile> postedFiles)
         {
             string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
-          
-            if(leavePolicyModel.Description==null)
+
+            if (leavePolicyModel.Description == null)
             {
                 leavePolicyModel.Description = string.Empty;
             }
@@ -198,7 +199,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 leavePolicyModel.PolicyDocument = _s3Service.ExtractKeyFromUrl(leavePolicyModel.PolicyDocument);
             }
 
-            var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
 
 
@@ -218,14 +219,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
         [HttpGet]
-        public IActionResult DeleteLeavesDetails(string id)
+        public async Task<IActionResult> DeleteLeavesDetails(string id)
         {
             id = _businessLayer.DecodeStringBase64(id);
             LeavePolicyDetailsInputParams model = new LeavePolicyDetailsInputParams()
             {
                 Id = Convert.ToInt64(id),
             };
-            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.DeleteLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(model, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.DeleteLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             if (data != null)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
@@ -248,12 +249,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult PolicyCategoryListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> PolicyCategoryListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             LeavePolicyInputParans PolicyParams = new LeavePolicyInputParans();
             PolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-            var data = _businessLayer.SendPostAPIRequest(PolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetPolicyCategoryList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(PolicyParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetPolicyCategoryList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.PolicyCategoryList.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.Id.ToString()));
 
@@ -261,22 +262,22 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         }
 
-        public IActionResult PolicyCategoryDetails(string id)
+        public async Task<IActionResult> PolicyCategoryDetails(string id)
         {
-            PolicyCategoryModel  PolicyModel = new PolicyCategoryModel();
+            PolicyCategoryModel PolicyModel = new PolicyCategoryModel();
             PolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             if (!string.IsNullOrEmpty(id))
             {
                 id = _businessLayer.DecodeStringBase64(id);
 
                 PolicyModel.Id = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(PolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllPolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(PolicyModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllPolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 PolicyModel = JsonConvert.DeserializeObject<Results>(data).PolicyCategoryModel;
 
             }
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = PolicyModel.CompanyID;
-            var compay = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var compay = _businessLayer.SendPostAPIRequest(employee, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(compay);
 
             PolicyModel.Companies = results.Companies;
@@ -285,10 +286,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult PolicyCategoryDetails(PolicyCategoryModel PolicyModel)
+        public async Task<IActionResult> PolicyCategoryDetails(PolicyCategoryModel PolicyModel)
         {
 
-            var data = _businessLayer.SendPostAPIRequest(PolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdatePolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(PolicyModel, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdatePolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
 
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
@@ -299,14 +300,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
         [HttpGet]
-        public IActionResult DeletePolicyCategory(string id)
+        public async Task<IActionResult> DeletePolicyCategory(string id)
         {
             id = _businessLayer.DecodeStringBase64(id);
             LeavePolicyDetailsInputParams model = new LeavePolicyDetailsInputParams()
             {
-                Id =Convert.ToInt32(id),
+                Id = Convert.ToInt32(id),
             };
-            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeletePolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeletePolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             if (data != null)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
@@ -322,13 +323,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         #region Whatshappening Details
 
-        public IActionResult WhatshappeningListing()
+        public async Task<IActionResult> WhatshappeningListing()
         {
             Results results = new Results();
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.WhatshappeningListing);
+            var FormPermission =await _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.WhatshappeningListing);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -340,27 +341,27 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult WhatshappeningListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> WhatshappeningListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             WhatsHappeningModelParans WhatsHappeningModelParams = new WhatsHappeningModelParans();
             WhatsHappeningModelParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.WhatsHappeningList.ForEach(x => x.EncodedWhatsHappeningID = _businessLayer.EncodeStringBase64(x.WhatsHappeningID.ToString()));
             if (results?.WhatsHappeningList != null)
             {
-                results.WhatsHappeningList.ForEach(x =>
+                results.WhatsHappeningList.ForEach(async x =>
                 {
                     if (!string.IsNullOrEmpty(x.IconImage))
                     {
-                        x.IconImage = _s3Service.GetFileUrl(x.IconImage);
+                        x.IconImage = await _s3Service.GetFileUrl(x.IconImage);
                     }
                 });
             }
             return Json(new { data = results.WhatsHappeningList });
         }
 
-        public IActionResult AddWhatshappening(string id)
+        public async Task<IActionResult> AddWhatshappening(string id)
         {
             WhatsHappeningModels objModelParams = new WhatsHappeningModels();
             WhatsHappeningModelParans WhatsHappeningModelParams = new WhatsHappeningModelParans();
@@ -369,19 +370,19 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 WhatsHappeningModelParams.WhatsHappeningID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 objModelParams = JsonConvert.DeserializeObject<Results>(data).WhatsHappeningModel;
                 if (!string.IsNullOrEmpty(objModelParams.IconImage))
                 {
-                    objModelParams.IconImage = _s3Service.GetFileUrl(objModelParams.IconImage);
+                    objModelParams.IconImage = await _s3Service.GetFileUrl(objModelParams.IconImage);
                 }
             }
-                return View(objModelParams);
+            return View(objModelParams);
         }
 
         [HttpPost]
-        public IActionResult AddWhatshappening(WhatsHappeningModels objModel, List<IFormFile> postedFiles)
-        {                     
+        public async Task<IActionResult> AddWhatshappening(WhatsHappeningModels objModel, List<IFormFile> postedFiles)
+        {
             if (objModel.Description == null)
             {
                 objModel.Description = string.Empty;
@@ -402,26 +403,26 @@ namespace HRMS.Web.Areas.Admin.Controllers
             objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             objModel.CreatedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
 
-            var data = _businessLayer.SendPostAPIRequest(objModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var result = JsonConvert.DeserializeObject<Result>(data);         
+            var data = _businessLayer.SendPostAPIRequest(objModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
             TempData[HRMS.Models.Common.Constants.toastMessage] = "Whats happening  created successfully.";
             return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);
 
         }
 
-      
+
 
         [HttpGet]
-        public IActionResult DeleteWhatshappening (string id)
+        public async Task<IActionResult> DeleteWhatshappening(string id)
         {
             id = _businessLayer.DecodeStringBase64(id);
-         
+
             WhatsHappeningModelParans model = new WhatsHappeningModelParans()
             {
                 WhatsHappeningID = Convert.ToInt64(id),
             };
-            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.DeleteWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(model, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.DeleteWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             if (data != null)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
@@ -430,7 +431,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);
         }
         #endregion Whatshappening Details
-        
+
 
     }
 }

@@ -59,7 +59,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 JobLocationId = jobLocationId
             };
 
-            var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
+            var apiUrl =await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
             var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
             var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
 
@@ -68,7 +68,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 foreach (var employee in model.EmployeeDetails.Where(x => !string.IsNullOrEmpty(x.EmployeePhoto)))
                 {
-                    employee.EmployeePhoto = _s3Service.GetFileUrl(employee.EmployeePhoto);
+                    employee.EmployeePhoto = await _s3Service.GetFileUrl(employee.EmployeePhoto);
                 }
             }
 
@@ -77,13 +77,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 foreach (var item in model.WhatsHappening.Where(x => !string.IsNullOrEmpty(x.IconImage)))
                 {
-                    item.IconImage = _s3Service.GetFileUrl(item.IconImage);
+                    item.IconImage =await _s3Service.GetFileUrl(item.IconImage);
                 }
             }
 
             if (model != null)
             {
-                var leavePolicy = GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
+                var leavePolicy = await GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
 
                 // Fiscal year start date (March 21)
                 DateTime today = DateTime.Today;
@@ -112,7 +112,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     // Only calculate accrued leave if approved leave < max limit
                     if (approvedLeaveTotal < maxAnnualLeaveLimit)
                     {
-                        accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
+                        accruedLeave =   CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
                         if (leavePolicy.Annual_IsCarryForward)
                         {
                             carryForward = Convert.ToDouble(model.CarryForword);
@@ -140,13 +140,36 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
 
-        private LeavePolicyModel GetLeavePolicyData(long companyId, long leavePolicyId)
+        private async Task<LeavePolicyModel> GetLeavePolicyData(long companyId, long leavePolicyId)
         {
-            var leavePolicyModel = new LeavePolicyModel { CompanyID = companyId, LeavePolicyID = leavePolicyId };
-            var leavePolicyDataJson = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var leavePolicyModelResult = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(leavePolicyDataJson).leavePolicyModel;
+            var leavePolicyModel = new LeavePolicyModel
+            {
+                CompanyID = companyId,
+                LeavePolicyID = leavePolicyId
+            };
+
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.LeavePolicy,
+                APIApiActionConstants.GetAllLeavePolicies
+            );
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                leavePolicyModel,
+                apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+
+            // If SendPostAPIRequest returns a JSON string:
+            var leavePolicyDataJson = response?.ToString() ?? "";
+
+            var leavePolicyModelResult = JsonConvert
+                .DeserializeObject<HRMS.Models.Common.Results>(leavePolicyDataJson)?
+                .leavePolicyModel;
+
             return leavePolicyModelResult;
         }
+
         private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
         {
             DateTime today = DateTime.Today;
@@ -229,10 +252,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public async Task<JsonResult> ImportExcel(IFormFile file)
         {
 
-            var data = _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendGetAPIRequest(await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var countryDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(data);
 
-            var GetCompaniesDictionary = _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCompaniesDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var GetCompaniesDictionary = _businessLayer.SendGetAPIRequest(await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCompaniesDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var CompaniesDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(GetCompaniesDictionary);
 
             try
@@ -321,14 +344,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 CompanyID = GetCompanyId ?? 0,
                                 EmployeeID = 0
                             };
-                            var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                            var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                             var employmentDetailsDictionaries = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long>>>(EmploymentDetailsDictionaries);
 
                             EmployeeInputParams employmentSubDepartmentInputParams = new EmployeeInputParams()
                             {
                                 CompanyID = GetCompanyId ?? 0,
                             };
-                            var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                            var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                             var SubDepartmentDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment);
 
 
@@ -536,7 +559,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 EmployeeID = 0,
                             };
                             uniqueEmails.Add(email);
-                            var EmaployeeData = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                            var EmaployeeData = _businessLayer.SendPostAPIRequest(employee, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                             var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
                         }
                     }
@@ -561,7 +584,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 {
                     await file.CopyToAsync(stream);
                     stream.Position = 0;
-                    string htmlTable = ProcessExcelFile(stream, file.FileName);
+                    string htmlTable =await ProcessExcelFile(stream, file.FileName);
 
                     if (!string.IsNullOrEmpty(htmlTable) && !htmlTable.Contains("Employee data imported successfully."))
                     {
@@ -592,10 +615,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 });
             }
         }
-        public string ProcessExcelFile(Stream stream, string fileName)
+        public async Task<string> ProcessExcelFile(Stream stream, string fileName)
         {
             var countryDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(
-                _businessLayer.SendGetAPIRequest(_businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString()
+                _businessLayer.SendGetAPIRequest(await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetCountryDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString()
             );
             List<ImportExcelDataTable> importList = new List<ImportExcelDataTable>();
             DataTable errorDataTable = new DataTable();
@@ -646,13 +669,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     CompanyID = companyId ?? 0,
                     EmployeeID = 0
                 };
-                var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 var employmentDetailsDictionaries = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long>>>(EmploymentDetailsDictionaries);
                 EmployeeInputParams employmentSubDepartmentInputParams = new EmployeeInputParams()
                 {
                     CompanyID = companyId ?? 0,
                 };
-                var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 var SubDepartmentDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment);
                 for (int row = 2; row <= totalRows; row++)
                 {
@@ -1249,7 +1272,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 {
                     Employees = employeeList
                 };
-                var employeeData = _businessLayer.SendPostAPIRequest(companyNameModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecelBulk), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var employeeData = _businessLayer.SendPostAPIRequest(companyNameModel, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateEmployeeFromExecelBulk), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 if (employeeData != null)
                 {
                     var model = JsonConvert.DeserializeObject<Result>(employeeData);

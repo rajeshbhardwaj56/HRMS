@@ -262,27 +262,35 @@
     
     $(document).ready(function () {
 
-        function fetchL2Manager(l1EmployeeId) {
-            if (l1EmployeeId) {
-                $.ajax({
-                    url: '/Hr/Employee/GetL2Manager',
-                    type: 'POST',
-                    data: { l1EmployeeId: l1EmployeeId },
-                    success: function (response) {
-                        if (response.success && response.managerId) {
-                            $('#ReportingManagerL2').val(response.managerName); // Display name
-                            $('#ReportingManagerL2Id').val(response.managerId); // Hidden ID
-                        } else {
-                            $('#ReportingManagerL2').val('');
-                            $('#ReportingManagerL2Id').val('');
-                        }
-                    },
-                    error: function () {
-                        alert('Error fetching L2 manager.');
-                    }
-                });
-            }
+          function fetchL2Manager(l1EmployeeId) {
+        if (!l1EmployeeId) {
+            $('#ReportingManagerL2').val('');
+            $('#ReportingManagerL2Id').val('');
+            return;
         }
+
+        $.ajax({
+            url: '/Hr/Employee/GetL2Manager',
+            type: 'POST',
+            data: { l1EmployeeId: l1EmployeeId },
+            success: function (response) {
+                if (response && response.success && response.managerId) {
+                    $('#ReportingManagerL2').val(response.managerName || ''); // Display name
+                    $('#ReportingManagerL2Id').val(response.managerId);       // Hidden ID
+                } else {
+                    $('#ReportingManagerL2').val('');
+                    $('#ReportingManagerL2Id').val('');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching L2 manager:', error);
+                $('#ReportingManagerL2').val('');
+                $('#ReportingManagerL2Id').val('');
+                alert('Error fetching L2 manager.');
+            }
+        });
+    }
+
         $('#ReportingManagerDropdown').change(function () {
             const l1EmployeeId = $(this).val();
             fetchL2Manager(l1EmployeeId);
@@ -297,7 +305,7 @@
 </script>
 <script>
     $(document).ready(function () {
-           function loadFormPermissions(departmentId) {
+         function loadFormPermissions(departmentId) {
         if (departmentId) {
             $.ajax({
                 url: '@Url.Action("loadForms", "Employee")',
@@ -309,10 +317,10 @@
                 success: function (response) {
                     let html = '';
 
-                    if (Array.isArray(response) && response.length > 0) {
+                    if (response.success && Array.isArray(response.data) && response.data.length > 0) {
                         html += `<div class="d-flex flex-wrap">`;
 
-                        response.forEach(function (item) {
+                        response.data.forEach(function (item) {
                             if (item.formID && item.formName) {
                                 html += `
                                     <div class="form-check" style="width: 20%; margin-bottom: 10px;">
@@ -345,6 +353,7 @@
             $('#form-permission-list').empty();
         }
     }
+
 
 
         // On change

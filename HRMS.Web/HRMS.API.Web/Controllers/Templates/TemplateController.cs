@@ -1,4 +1,5 @@
-﻿using HRMS.API.BusinessLayer.ITF;
+﻿using System.Threading.Tasks;
+using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
 using HRMS.Models.Template;
 using Microsoft.AspNetCore.Authorization;
@@ -22,20 +23,22 @@ namespace HRMS.API.Web.Controllers.Template
         }
 
         [HttpPost]
-        public IActionResult AddUpdateTemplate(TemplateModel model)
+        public async Task<IActionResult> AddUpdateTemplate(TemplateModel model)
         {
             IActionResult response = Unauthorized();
-            Result result = _businessLayer.AddUpdateTemplate(model);
+            Result result = await _businessLayer.AddUpdateTemplate(model);
             response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetAllTemplates(TemplateInputParams model)
+        public async Task<IActionResult> GetAllTemplates(TemplateInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllTemplates(model));
+            var result = await _businessLayer.GetAllTemplates(model);
+            response = Ok(result);
             return response;
         }
+
     }
 }

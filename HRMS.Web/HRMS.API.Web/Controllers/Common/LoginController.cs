@@ -21,12 +21,16 @@ namespace HRMS.API.Web.Controllers.Common
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Login([FromBody] LoginUser login)
+        public async Task<IActionResult> Login([FromBody] LoginUser login)
         {
-            IActionResult response = Unauthorized();
-            response = Ok(_jWTAuthentication.Authenticate(login));
-            return response;
+            var result = await _jWTAuthentication.Authenticate(login);
+            if (result == null)
+            {
+                return Unauthorized();
+            }
+            return Ok(result);
         }
-        
+
+
     }
 }

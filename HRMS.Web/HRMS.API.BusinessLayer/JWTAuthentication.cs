@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -22,10 +23,10 @@ namespace HRMS.API.BusinessLayer
             _businessLayer = businessLayer;
         }
 
-        public LoginUser Authenticate(LoginUser model)
+        public async Task<LoginUser> Authenticate(LoginUser model)
         {
             var tokenString = GenerateJSONWebToken(model);
-            model = _businessLayer.LoginUser(model);
+            model =await _businessLayer.LoginUser(model);
             if (model != null && string.IsNullOrEmpty(model.Result))
             {
                 model.token = tokenString;

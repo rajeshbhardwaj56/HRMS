@@ -24,59 +24,67 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetDashBoardModel(DashBoardModelInputParams model)
+        public async Task<IActionResult> GetDashBoardModel(DashBoardModelInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetDashBoardModel(model));
+            var result = await _businessLayer.GetDashBoardModel(model);
+            response = Ok(result);
             return response;
         }
+
         [HttpGet]
-        public IActionResult GetCountryDictionary()
+        public async Task<IActionResult> GetCountryDictionary()
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetCountryDictionary());
+            var result = await _businessLayer.GetCountryDictionary();
+            response = Ok(result);
             return response;
         }
+
         [HttpGet]
-        public IActionResult  GetCompaniesDictionary()
+        public async Task<IActionResult> GetCompaniesDictionary()
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetCompaniesDictionary());
-            return response;
-        }
-        [HttpPost]
-        public IActionResult  GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetEmploymentDetailsDictionaries(model));
+            var result = await _businessLayer.GetCompaniesDictionary();
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
-
-        public IActionResult AddUpdateEmployeeFromExecel(ImportEmployeeDetail model)
+        public async Task<IActionResult> GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUpdateEmployeeFromExecel(model));
+            var result = await _businessLayer.GetEmploymentDetailsDictionaries(model);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
-
-        public IActionResult AddUpdateEmployeeFromExecelBulk(BulkEmployeeImportModel employeeList)
+        public async Task<IActionResult> AddUpdateEmployeeFromExecel(ImportEmployeeDetail model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUpdateEmployeeFromExecelBulk(employeeList));
-            return response;
-        }
-        [HttpPost] 
-        public IActionResult  GetSubDepartmentDictionary(EmployeeInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetSubDepartmentDictionary(model));
+            var result = await _businessLayer.AddUpdateEmployeeFromExecel(model);
+            response = Ok(result);
             return response;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddUpdateEmployeeFromExecelBulk(BulkEmployeeImportModel employeeList)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.AddUpdateEmployeeFromExecelBulk(employeeList);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetSubDepartmentDictionary(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetSubDepartmentDictionary(model);
+            response = Ok(result);
+            return response;
+        }
 
     }
 }

@@ -22,147 +22,167 @@ namespace HRMS.API.Web.Controllers
 
         }
         [HttpPost]
-        public IActionResult AddUpdateAttendenceList(AttendenceListModel model)
+        public async Task<IActionResult> AddUpdateAttendenceList(AttendenceListModel model)
         {
             IActionResult response = Unauthorized();
-            Result result = _businessLayer.AddUpdateAttendenceList(model);
+            var result = await _businessLayer.AddUpdateAttendenceList(model);
             response = Ok(result);
             return response;
         }
+
         [HttpPost]
-        public IActionResult GetAllAttendenceList(AttendenceListInputParans model)
+        public async Task<IActionResult> GetAllAttendenceList(AttendenceListInputParans model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllAttendenceList(model));
+            var result = await _businessLayer.GetAllAttendenceList(model);
+            response = Ok(result);
             return response;
-
-        }
-        [HttpPost]
-        public IActionResult AddUpdateAttendace(Attendance model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUpdateAttendace(model));
-            return response;
-
-        }
-        [HttpPost]
-        public IActionResult GetAttendenceListID(Attendance model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendenceListID(model));
-            return response;
-
         }
 
         [HttpPost]
-        public IActionResult DeleteAttendanceDetails(Attendance model)
+        public async Task<IActionResult> AddUpdateAttendace(Attendance model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.DeleteAttendanceDetails(model));
+            var result = await _businessLayer.AddUpdateAttendace(model);
+            response = Ok(result);
             return response;
-
         }
+
         [HttpPost]
-        public IActionResult GetMyAttendanceList(AttendanceInputParams model)
+        public async Task<IActionResult> GetAttendenceListID(Attendance model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetMyAttendanceList(model));
+            var result = await _businessLayer.GetAttendenceListID(model);
+            response = Ok(result);
             return response;
-
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAttendanceDetails(Attendance model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.DeleteAttendanceDetails(model);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetMyAttendanceList(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetMyAttendanceList(model);
+            response = Ok(result);
+            return response;
+        }
+
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult GetAttendance(AttendanceInputParams model)
+        public async Task<IActionResult> GetAttendance(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendance(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetAttendanceForMonthlyViewCalendar(AttendanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendanceForMonthlyViewCalendar(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetTeamAttendanceForCalendar(AttendanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetTeamAttendanceForCalendar(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetApprovedAttendance(AttendanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetApprovedAttendance(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetManagerApprovedAttendance(AttendanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetManagerApprovedAttendance(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetAttendanceForApproval(AttendanceInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendanceForApproval(model));
+            var result = await _businessLayer.GetAttendance(model);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetAttendanceDeviceLogs(AttendanceDeviceLog model)
+        public async Task<IActionResult> GetAttendanceForMonthlyViewCalendar(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendanceDeviceLogs(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetEmployeeDetails(EmployeePersonalDetailsById objmodel)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetEmployeeDetails(objmodel));
+            var result = await _businessLayer.GetAttendanceForMonthlyViewCalendar(model);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
+        public async Task<IActionResult> GetTeamAttendanceForCalendar(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.FetchAttendanceHolidayAndLeaveInfo(model));
+            var result = await _businessLayer.GetTeamAttendanceForCalendar(model);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetCompOffAttendanceList(CompOffAttendanceInputParams objmodel)
+        public async Task<IActionResult> GetApprovedAttendance(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetCompOffAttendanceList(objmodel));
+            var result = await _businessLayer.GetApprovedAttendance(model);
+            response = Ok(result);
             return response;
         }
-
 
         [HttpPost]
-        public IActionResult GetApprovedCompOff(CompOffInputParams objmodel)
+        public async Task<IActionResult> GetManagerApprovedAttendance(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetApprovedCompOff(objmodel));
+            var result = await _businessLayer.GetManagerApprovedAttendance(model);
+            response = Ok(result);
             return response;
         }
-
-
 
         [HttpPost]
-        public IActionResult AddUpdateCompOffAttendace(CompOffAttendanceRequestModel objmodel)
+        public async Task<IActionResult> GetAttendanceForApproval(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUpdateCompOffAttendace(objmodel));
+            var result = await _businessLayer.GetAttendanceForApproval(model);
+            response = Ok(result);
             return response;
         }
-        
+
+        [HttpPost]
+        public async Task<IActionResult> GetAttendanceDeviceLogs(AttendanceDeviceLog model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetAttendanceDeviceLogs(model);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetEmployeeDetails(EmployeePersonalDetailsById objmodel)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetEmployeeDetails(objmodel);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.FetchAttendanceHolidayAndLeaveInfo(model);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetCompOffAttendanceList(CompOffAttendanceInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetCompOffAttendanceList(objmodel);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetApprovedCompOff(CompOffInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetApprovedCompOff(objmodel);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUpdateCompOffAttendace(CompOffAttendanceRequestModel objmodel)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.AddUpdateCompOffAttendace(objmodel);
+            response = Ok(result);
+            return response;
+        }
+
     }
 }

@@ -24,7 +24,7 @@ namespace HRMS.Web.AttendanceScheduler
             models.Year = previousDay.Year;
             models.Month = previousDay.Month;
             models.Day = previousDay.Day;  
-            var response = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendance), "", true).Result.ToString();
+            var response = _businessLayer.SendPostAPIRequest(models,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendance), "", true).ToString();
             var result = JsonConvert.DeserializeObject<dynamic>(response.ToString());
 
             // Check if Status is "Error" from stored procedure

@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Common;
+﻿using System.Threading.Tasks;
+using HRMS.Models.Common;
 using HRMS.Models.FormPermission;
 using HRMS.Models.MyInfo;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ namespace HRMS.Web.BusinessLayer
 {
     public interface ICheckUserFormPermission
     {
-        EmployeePermissionVM GetFormPermission(long employeeId, int formId);
+          Task<EmployeePermissionVM> GetFormPermission(long employeeId, int formId);
     }
     public class CheckUserFormPermission : ICheckUserFormPermission
     {
@@ -21,7 +22,7 @@ namespace HRMS.Web.BusinessLayer
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public EmployeePermissionVM GetFormPermission(long employeeId, int formId)
+        public async Task<EmployeePermissionVM> GetFormPermission(long employeeId, int formId)
         {
             var model = new FormPermissionVM
             {
@@ -29,7 +30,7 @@ namespace HRMS.Web.BusinessLayer
                 FormId = formId
             };
 
-            var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.CheckUserFormPermissionByEmployeeID);
+            var apiUrl =await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.CheckUserFormPermissionByEmployeeID);
             var token = _httpContextAccessor.HttpContext.Session.GetString(Constants.SessionBearerToken);
 
             var response = _businessLayer.SendPostAPIRequest(model, apiUrl, token, true).Result.ToString();

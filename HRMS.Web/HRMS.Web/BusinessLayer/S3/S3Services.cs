@@ -8,7 +8,7 @@ namespace HRMS.Web.BusinessLayer.S3
     {
         string UploadFile(IFormFile file, string bucketFolder);
         bool DeleteFile(string key);
-        string GetFileUrl(string key);
+        Task<string> GetFileUrl(string key);
         string ExtractKeyFromUrl(string fileUrl);
         void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey);
     }
@@ -65,7 +65,7 @@ namespace HRMS.Web.BusinessLayer.S3
 
             return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent;
         }
-        public string GetFileUrl(string key)
+        public async Task<string> GetFileUrl(string key)
         {
             var request = new GetPreSignedUrlRequest
             {

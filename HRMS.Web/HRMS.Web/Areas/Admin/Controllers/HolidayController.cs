@@ -1,4 +1,5 @@
-﻿using HRMS.Models;
+﻿using System.Threading.Tasks;
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authentication;
@@ -27,13 +28,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
-        public IActionResult HolidayListing()
+        public async Task<IActionResult> HolidayListing()
         {
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.HolidayListing);
+            var FormPermission =await _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.HolidayListing);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -45,12 +46,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult HolidayListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long? locationId)
+        public async Task<JsonResult> HolidayListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long? locationId)
         {
             HolidayInputParams HolidayParams = new HolidayInputParams();
             HolidayParams.LocationID = locationId;
             HolidayParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var data = _businessLayer.SendPostAPIRequest(HolidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(HolidayParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.Holiday.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.HolidayID.ToString()));
             return Json(new
@@ -68,7 +69,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         }
 
-        public IActionResult Index(string id)
+        public async Task<IActionResult> Index(string id)
         {
             HolidayModel HolidayModel = new HolidayModel();
             HolidayModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -78,7 +79,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 HolidayModel.HolidayID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(HolidayModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(HolidayModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 HolidayModel = JsonConvert.DeserializeObject<Results>(data).holidayModel;
                 var holidayResult = JsonConvert.DeserializeObject<Results>(data);
                 HolidayModel = holidayResult.holidayModel ?? new HolidayModel();
@@ -90,7 +91,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 var data = _businessLayer.SendPostAPIRequest(
                     HolidayModel,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays),
+                  await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidays),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true
                 ).Result.ToString();
@@ -102,13 +103,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(HolidayModel HolidayModel)
+        public async Task<IActionResult> Index(HolidayModel HolidayModel)
         {
             if (ModelState.IsValid)
             {
                 HolidayModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-                var data = _businessLayer.SendPostAPIRequest(HolidayModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.AddUpdateHoliday), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(HolidayModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.AddUpdateHoliday), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
                 if (HolidayModel.HolidayID > 0)

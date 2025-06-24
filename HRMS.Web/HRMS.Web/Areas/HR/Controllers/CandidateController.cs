@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Common;
+﻿using System.Threading.Tasks;
+using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +35,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             return View();
         }
-        public IActionResult Registration(string id)
+        public async Task<IActionResult> Registration(string id)
         {
             EmployeeModel employee = new EmployeeModel();
             employee.CompanyID = Convert.ToInt64("1");
@@ -54,7 +55,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 employee.EmployeeID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(employee,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
                 if (employee.References == null || employee.References.Count == 0)
                 {
@@ -79,7 +80,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 
         [HttpPost]
-        public IActionResult Registration(EmployeeModel employee, List<IFormFile> postedFiles)
+        public async Task<IActionResult> Registration(EmployeeModel employee, List<IFormFile> postedFiles)
         {
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
             try
@@ -95,7 +96,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                         fileName = postedFile.FileName.Replace(" ", "");
                     }
                     employee.ProfilePhoto = fileName;
-                    var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    var data = _businessLayer.SendPostAPIRequest(employee,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                     var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
 
                     string path = Path.Combine(this.Environment.WebRootPath, Constants.EmployeePhotoPath + result.PKNo.ToString());

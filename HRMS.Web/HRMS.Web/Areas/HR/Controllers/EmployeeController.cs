@@ -31,12 +31,12 @@ using System.Reflection;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography.Xml;
 using System.Text;
+using System.Threading.Tasks;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
-    [Area(Constants.ManageHR)]
-//[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+    [Area(Constants.ManageHR)] 
     public class EmployeeController : Controller
     {
         IConfiguration _configuration;
@@ -59,17 +59,17 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
-        public IActionResult EmployeeListing()
+        public async Task<IActionResult> EmployeeListing()
         {
             var employeeId = GetSessionInt(Constants.EmployeeID);
             var roleId = GetSessionInt(Constants.RoleID);
             // Check if the user has permission for Employee Listing
-            var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.EmployeeListing);
+            var formPermission =await _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.EmployeeListing);
             // If no permission and not an admin
             if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
             {
                 // Check if user has permission for My Team page
-                var teamPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
+                var teamPermission =await _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
                 // Redirect to My Team page if user is not an employee and has permission
                 if (roleId != (int)Roles.Employee && teamPermission.HasPermission > 0)
                 {
@@ -85,90 +85,117 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            EmployeeInputParams employee = new EmployeeInputParams();
-            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            employee.DisplayStart = iDisplayStart;
-            employee.DisplayLength = iDisplayLength;
-            employee.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
-            var data = _businessLayer.SendPostAPIRequest(
+            var employee = new EmployeeInputParams
+            {
+                CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)),
+                RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID)),
+                DisplayStart = iDisplayStart,
+                DisplayLength = iDisplayLength,
+                Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch
+            };
+
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.Employee,
+                APIApiActionConstants.GetAllEmployees
+            );
+
+            var response = await _businessLayer.SendPostAPIRequest(
                 employee,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees),
+                apiUrl,
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
-            ).Result.ToString();
+            );
+
+            var data = response?.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            results.Employees.ForEach(x =>
+
+            if (results?.Employees != null)
             {
-                x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString());
-                x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString());
-                x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString());
-                x.ProfilePhoto = string.IsNullOrEmpty(x.ProfilePhoto)
-                    ? "/assets/img/No_image.png"   
-                    : _s3Service.GetFileUrl(x.ProfilePhoto);
-            });           
+                var employeeTasks = results.Employees.Select(async x =>
+                {
+                    x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString());
+                    x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString());
+                    x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString());
+                    x.ProfilePhoto = string.IsNullOrEmpty(x.ProfilePhoto)
+                        ? "/assets/img/No_image.png"
+                        : await _s3Service.GetFileUrl(x.ProfilePhoto);
+                });
+
+                await Task.WhenAll(employeeTasks); // Await all tasks to ensure updates are applied before return
+            }
+
             return Json(new
             {
                 draw = sEcho,
-                recordsTotal = results.Employees.Select(x => x.TotalRecords).FirstOrDefault() ?? 0,
-                recordsFiltered = results.Employees.Select(x => x.FilteredRecords).FirstOrDefault() ?? 0,
-                data = results.Employees
+                recordsTotal = results?.Employees?.FirstOrDefault()?.TotalRecords ?? 0,
+                recordsFiltered = results?.Employees?.FirstOrDefault()?.FilteredRecords ?? 0,
+                data = results?.Employees
             });
         }
 
-        public IActionResult Index(string id)
+
+        public async Task<IActionResult> Index(string id)
         {
-            EmployeeModel employee = new EmployeeModel();
-            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+            var employee = new EmployeeModel
+            {
+                CompanyID = companyId
+            };
+
             if (string.IsNullOrEmpty(id))
             {
+                // Initialize empty details for new employee entry
                 employee.FamilyDetails.Add(new FamilyDetail());
                 employee.EducationalDetails.Add(new EducationalDetail());
                 employee.LanguageDetails.Add(new LanguageDetail());
                 employee.EmploymentHistory.Add(new EmploymentHistory());
-                employee.References = new List<HRMS.Models.Employee.Reference>() {
-                    new HRMS.Models.Employee.Reference(),
-                    new HRMS.Models.Employee.Reference()
-                };
+                employee.References = new List<HRMS.Models.Employee.Reference>
+        {
+            new HRMS.Models.Employee.Reference(),
+            new HRMS.Models.Employee.Reference()
+        };
             }
             else
             {
-                var encrpt = id;
+                // Decode and fetch existing employee data
+                var encryptedId = id;
                 id = _businessLayer.DecodeStringBase64(id);
                 employee.EmployeeID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
+
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees);
+                var response = await _businessLayer.SendPostAPIRequest(employee, apiUrl, bearerToken, true);
+                var employeeData = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(response.ToString()).employeeModel;
+
+                employee = employeeData;
+                employee.EncryptedIdentity = encryptedId;
+
+                // Resolve S3 URLs
                 if (!string.IsNullOrEmpty(employee.ProfilePhoto))
-                {
-                    employee.ProfilePhoto = _s3Service.GetFileUrl(employee.ProfilePhoto);
-                }
+                    employee.ProfilePhoto = await _s3Service.GetFileUrl(employee.ProfilePhoto);
+
                 if (!string.IsNullOrEmpty(employee.AadhaarCardImage))
-                {
-                    employee.AadhaarCardImage = _s3Service.GetFileUrl(employee.AadhaarCardImage);
-                }
+                    employee.AadhaarCardImage = await _s3Service.GetFileUrl(employee.AadhaarCardImage);
+
                 if (!string.IsNullOrEmpty(employee.PanCardImage))
-                {
-                    employee.PanCardImage = _s3Service.GetFileUrl(employee.PanCardImage);
-                }
-                employee.EncryptedIdentity = encrpt;
+                    employee.PanCardImage = await _s3Service.GetFileUrl(employee.PanCardImage);
+
+                // Ensure References always has two items
                 if (employee.References == null || employee.References.Count == 0)
                 {
-                    employee.References = new List<HRMS.Models.Employee.Reference>() {
-                    new HRMS.Models.Employee.Reference(),
-                    new HRMS.Models.Employee.Reference()
-                    };
+                    employee.References = new List<HRMS.Models.Employee.Reference> { new HRMS.Models.Employee.Reference(), new HRMS.Models.Employee.Reference() };
                 }
                 else if (employee.References.Count == 1)
                 {
                     employee.References.Add(new HRMS.Models.Employee.Reference());
                 }
-                ;
             }
 
-            HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
+            // Load dropdown dictionaries
+            var results = GetAllResults(employee.CompanyID);
             employee.Languages = results.Languages;
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
@@ -177,10 +204,16 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(employee);
         }
 
+
         [HttpPost]
-        public IActionResult Index(EmployeeModel employee, List<IFormFile> postedFiles, List<IFormFile> PanPostedFile, List<IFormFile> AadhaarPostedFile)
+        public async Task<IActionResult> Index(
+        EmployeeModel employee,
+        List<IFormFile> postedFiles,
+        List<IFormFile> PanPostedFile,
+        List<IFormFile> AadhaarPostedFile)
         {
             var results = GetAllResults(employee.CompanyID);
+
             try
             {
                 if (!ModelState.IsValid)
@@ -188,6 +221,8 @@ namespace HRMS.Web.Areas.HR.Controllers
                     SetWarningToast("Please check all data and try again.");
                     return ReturnEmployeeViewWithData(employee, results);
                 }
+
+                // Process profile photo upload
                 _s3Service.ProcessFileUpload(postedFiles, employee.ProfilePhoto, out string newProfileKey);
                 if (!string.IsNullOrEmpty(newProfileKey))
                 {
@@ -201,9 +236,49 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     employee.ProfilePhoto = _s3Service.ExtractKeyFromUrl(employee.ProfilePhoto);
                 }
-                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee);
-                var apiResult = _businessLayer.SendPostAPIRequest(employee, apiUrl, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(apiResult);
+
+                // Process PAN file upload (optional)
+                _s3Service.ProcessFileUpload(PanPostedFile, employee.PanCardImage, out string newPanKey);
+                if (!string.IsNullOrEmpty(newPanKey))
+                {
+                    if (!string.IsNullOrEmpty(employee.PanCardImage))
+                    {
+                        _s3Service.DeleteFile(employee.PanCardImage);
+                    }
+                    employee.PanCardImage = newPanKey;
+                }
+                else
+                {
+                    employee.PanCardImage = _s3Service.ExtractKeyFromUrl(employee.PanCardImage);
+                }
+
+                // Process Aadhaar file upload (optional)
+                _s3Service.ProcessFileUpload(AadhaarPostedFile, employee.AadhaarCardImage, out string newAadhaarKey);
+                if (!string.IsNullOrEmpty(newAadhaarKey))
+                {
+                    if (!string.IsNullOrEmpty(employee.AadhaarCardImage))
+                    {
+                        _s3Service.DeleteFile(employee.AadhaarCardImage);
+                    }
+                    employee.AadhaarCardImage = newAadhaarKey;
+                }
+                else
+                {
+                    employee.AadhaarCardImage = _s3Service.ExtractKeyFromUrl(employee.AadhaarCardImage);
+                }
+
+                // Call API
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.AddUpdateEmployee);
+
+                var apiResult = await _businessLayer.SendPostAPIRequest(
+                    employee,
+                    apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true);
+
+                var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(apiResult.ToString());
 
                 if (result != null && result.PKNo > 0)
                 {
@@ -213,13 +288,15 @@ namespace HRMS.Web.Areas.HR.Controllers
 
                 SetWarningToast("Please check all data and try again.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                SetWarningToast("Some error occurred, please try later.");
+                // Consider logging the error here using ILogger
+                SetWarningToast(ex.ToString());
             }
 
             return ReturnEmployeeViewWithData(employee, results);
-        }      
+        }
+
         private void SetSuccessToast(string message)
         {
             TempData[Constants.toastType] = Constants.toastTypeSuccess;
@@ -311,70 +388,98 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult ActiveEmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> ActiveEmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllActiveEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(employee,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllActiveEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
             return Json(new { data = results.Employees });
         }
         [HttpPost]
-        public JsonResult GetL2Manager(int l1EmployeeId)
+        public async Task<JsonResult> GetL2Manager(int l1EmployeeId)
         {
             try
             {
-
-                L2ManagerInputParams input = new L2ManagerInputParams
+                var input = new L2ManagerInputParams
                 {
                     L1EmployeeID = l1EmployeeId
                 };
 
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.GetL2ManagerDetails
+                );
 
-                var data = _businessLayer.SendPostAPIRequest(input,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee,
-                    APIApiActionConstants.GetL2ManagerDetails),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var apiResponse =await _businessLayer.SendPostAPIRequest(
+                    input,
+                    apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
 
-
-                L2ManagerDetail managerDetail = JsonConvert.DeserializeObject<L2ManagerDetail>(data);
-                if (managerDetail != null)
+                if (!string.IsNullOrEmpty(apiResponse.ToString()))
                 {
-                    return Json(new
+                    var managerDetail = JsonConvert.DeserializeObject<L2ManagerDetail>(apiResponse.ToString());
+                    if (managerDetail != null && managerDetail.ManagerID > 0)
                     {
-                        success = true,
-                        managerId = managerDetail.ManagerID,
-                        managerName = managerDetail.ManagerName
-                    });
+                        return Json(new
+                        {
+                            success = true,
+                            managerId = managerDetail.ManagerID,
+                            managerName = managerDetail.ManagerName
+                        });
+                    }
                 }
-                else
+
+                return Json(new
                 {
-                    return Json(new { success = false, message = "L2 manager not found." });
-                }
+                    success = false,
+                    message = "L2 manager not found."
+                });
             }
             catch (Exception ex)
             {
-
-                return Json(new { success = false, message = "An error occurred while fetching the L2 manager.", error = ex.Message });
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while fetching the L2 manager.",
+                    error = ex.Message
+                });
             }
         }
+
         [HttpGet]
-        public JsonResult loadForms(int DepartmentId,int EmployeeId)
+        public async Task<JsonResult> LoadForms(int departmentId, int employeeId)
         {
             try
             {
-                List<FormPermissionViewModel> objmodel = new List<FormPermissionViewModel>();
-                FormPermissionVM objPermission = new FormPermissionVM();
-                objPermission.DepartmentId = DepartmentId;
-                objPermission.EmployeeID = EmployeeId;
-                var response = _businessLayer.SendPostAPIRequest(objPermission, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetUserFormByDepartmentID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                if (response != null)
+                var objPermission = new FormPermissionVM
                 {
-                    objmodel = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(response.ToString());
+                    DepartmentId = departmentId,
+                    EmployeeID = employeeId
+                };
+
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetUserFormByDepartmentID
+                );
+
+                var response = await _businessLayer.SendPostAPIRequest(
+                    objPermission,
+                    apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
+
+                if (response != null && !string.IsNullOrWhiteSpace(response.ToString()))
+                {
+                    var formList = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(response.ToString());
+                    return Json(new { success = true, data = formList });
                 }
 
-                return Json(objmodel);
+                return Json(new { success = false, message = "No forms found." });
             }
             catch (Exception ex)
             {
@@ -387,199 +492,279 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
         }
 
+
         [HttpGet]
-        public ActionResult EmploymentDetails(string id, string DegtId, string DeptId)
+        public async Task<ActionResult> EmploymentDetails(string id, string DegtId, string DeptId)
         {
-            var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+            var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
 
-            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
+            // Prepare input params
+            var employmentDetailInputParams = new EmploymentDetailInputParams
             {
-                UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
+                CompanyID = companyId,
+                UserID = userId
             };
-            CompanyLoginModel model = new CompanyLoginModel();
-            {
 
-                model.CompanyID = Convert.ToInt64(CompanyID);
+            // Fetch company logo and abbreviation
+            var companyModel = new CompanyLoginModel { CompanyID = companyId };
+            var companyData = await _businessLayer.SendPostAPIRequest(
+                companyModel,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo),
+                " ",
+                false);
 
-                var Companydata = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
-                model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(Companydata).companyLoginModel;
-            }
-            if (!string.IsNullOrEmpty(model.CompanyLogo))
+            companyModel = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(companyData.ToString()).companyLoginModel;
+
+            if (!string.IsNullOrEmpty(companyModel.CompanyLogo))
             {
-                model.CompanyLogo = _s3Service.GetFileUrl(model.CompanyLogo);
+                companyModel.CompanyLogo = await _s3Service.GetFileUrl(companyModel.CompanyLogo);
             }
+
+            // Decode and populate employee info if present
             if (!string.IsNullOrEmpty(id))
             {
-                id = _businessLayer.DecodeStringBase64(id);
-                employmentDetailInputParams.DesignationID = long.Parse(_businessLayer.DecodeStringBase64(DegtId));
-                employmentDetailInputParams.DepartmentID = long.Parse(_businessLayer.DecodeStringBase64(DeptId));
-                employmentDetailInputParams.EmployeeID = long.Parse(id);
+                employmentDetailInputParams.EmployeeID = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+                employmentDetailInputParams.DesignationID = Convert.ToInt64(_businessLayer.DecodeStringBase64(DegtId));
+                employmentDetailInputParams.DepartmentID = Convert.ToInt64(_businessLayer.DecodeStringBase64(DeptId));
             }
-            employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            EmploymentDetail employmentDetail = new EmploymentDetail();
-            var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(data);
+
+            // Fetch employment detail
+            var employmentData = await _businessLayer.SendPostAPIRequest(
+                employmentDetailInputParams,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee),
+                bearerToken,
+                true);
+
+            var employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(employmentData.ToString());
+
+            // Append values
             employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
-            employmentDetail.EmployeNumber = model.Abbr + employmentDetail.EmployeNumber;
-            employmentDetail.CompanyAbbr = model.Abbr;
+            employmentDetail.EmployeNumber = companyModel.Abbr + employmentDetail.EmployeNumber;
+            employmentDetail.CompanyAbbr = companyModel.Abbr;
+
             return View(employmentDetail);
         }
 
         [HttpGet]
-        public ActionResult FilterEmploymentDetails(string id, long departmentID, long designationID)
+        public async Task<ActionResult> FilterEmploymentDetails(string id, long departmentID, long designationID)
         {
-            EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+            var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+            var inputParams = new EmploymentDetailInputParams
             {
-                UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
+                CompanyID = companyId,
+                DepartmentID = departmentID,
+                DesignationID = designationID,
+                UserID = userId
             };
+
             if (!string.IsNullOrEmpty(id))
             {
-                id = _businessLayer.DecodeStringBase64(id);
-                employmentDetailInputParams.EmployeeID = long.Parse(id);
+                var decodedId = _businessLayer.DecodeStringBase64(id);
+                inputParams.EmployeeID = Convert.ToInt64(decodedId);
             }
-            employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            employmentDetailInputParams.DepartmentID = departmentID;
-            employmentDetailInputParams.DesignationID = designationID;
-            EmploymentDetail employmentDetail = new EmploymentDetail();
-            var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(data);
-            employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                inputParams,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee),
+                bearerToken,
+                true
+            );
+
+            var employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(response.ToString());
+
+            if (employmentDetail != null && employmentDetail.EmployeeID > 0)
+            {
+                employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
+            }
+
             return Json(employmentDetail);
         }
 
+
         [HttpPost]
-        public ActionResult EmploymentDetails(EmploymentDetail employmentDetail, List<string> SelectedFormIds)
+        public async Task<ActionResult> EmploymentDetails(EmploymentDetail employmentDetail, List<string> SelectedFormIds)
         {
             if (ModelState.IsValid)
             {
-                var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-                employmentDetail.CompanyID = Convert.ToInt64(CompanyID);
+                long companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+                employmentDetail.CompanyID = companyId;
                 employmentDetail.EmployeNumber = employmentDetail.EmployeNumber.Split(employmentDetail.CompanyAbbr)[1];
-                var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                Result result = JsonConvert.DeserializeObject<Result>(data);
-                if (result != null && result.PKNo > 0 && result.Message.Contains("EmailID already Exists in System, please try again with another email.", StringComparison.OrdinalIgnoreCase))
+
+                var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+                string employmentApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails);
+                var employmentResponse = await _businessLayer.SendPostAPIRequest(employmentDetail, employmentApiUrl, bearerToken, true) ;
+
+                Result result = JsonConvert.DeserializeObject<Result>(employmentResponse.ToString());
+
+                if (result != null && result.PKNo > 0)
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
-                }
-                else if (result != null && result.PKNo > 0 && result.Message.Contains("Some error occurred, please try again later.", StringComparison.OrdinalIgnoreCase))
-                {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
-                }
-                else
-                {
-                    FormPermissionVM objmodel = new FormPermissionVM();
-                    objmodel.EmployeeID = employmentDetail.EmployeeID;
-                    objmodel.SelectedFormIds = SelectedFormIds;
-                    var Permissionsdata = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddUserFormPermissions), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                    var Permissionresponse = JsonConvert.DeserializeObject<long>(Permissionsdata);
-                    if (Permissionresponse < 0)
+                    if (result.Message.Contains("EmailID already Exists", StringComparison.OrdinalIgnoreCase) ||
+                        result.Message.Contains("Some error occurred", StringComparison.OrdinalIgnoreCase))
                     {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try again later";
+                        TempData[Constants.toastType] = Constants.toastTypeError;
+                        TempData[Constants.toastMessage] = result.Message;
                         return View(employmentDetail);
                     }
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+
+                    // Save permissions
+                    FormPermissionVM permissionModel = new FormPermissionVM
+                    {
+                        EmployeeID = employmentDetail.EmployeeID,
+                        SelectedFormIds = SelectedFormIds
+                    };
+
+                    string permissionApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddUserFormPermissions);
+                    var permissionResponseStr = await _businessLayer.SendPostAPIRequest(permissionModel, permissionApiUrl, bearerToken, true);
+                    long permissionResponse = JsonConvert.DeserializeObject<long>(permissionResponseStr.ToString());
+
+                    if (permissionResponse < 0)
+                    {
+                        TempData[Constants.toastType] = Constants.toastTypeError;
+                        TempData[Constants.toastMessage] = "Some error occurred, please try again later.";
+                        return View(employmentDetail);
+                    }
+
+                    TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                    TempData[Constants.toastMessage] = result.Message;
+
+                    // Send reset password email
+                    if (result.IsResetPasswordRequired)
+                    {
+                        string resetLink = string.Format(
+                            _configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"],
+                            _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString() ?? ""),
+                            _businessLayer.EncodeStringBase64(DateTime.Now.ToString()),
+                            _businessLayer.EncodeStringBase64(companyId.ToString()),
+                            _businessLayer.EncodeStringBase64(employmentDetail.CompanyAbbr + employmentDetail.EmployeNumber)
+                        );
+
+                        sendEmailProperties emailProps = new sendEmailProperties
+                        {
+                            emailSubject = "Reset Password Email",
+                            emailBody = $"Hi,<br/><br/>Please click on the link below to reset your password.<br/><a target='_blank' href='{resetLink}'>Click here to reset password</a><br/><br/>",
+                            EmailToList = new List<string> { employmentDetail.OfficialEmailID }
+                        };
+
+                        emailSendResponse emailResp = EmailSender.SendEmail(emailProps);
+                        TempData[Constants.toastType] = emailResp.responseCode == "200"
+                            ? Constants.toastTypeSuccess
+                            : Constants.toastTypeError;
+                        TempData[Constants.toastMessage] = emailResp.responseCode == "200"
+                            ? "Reset password email has been sent. Please check your inbox."
+                            : "Failed to send reset password email. Please try again later.";
+                    }
                 }
-                if (result.IsResetPasswordRequired)
+
+                // Refresh employment detail view model
+                var inputParams = new EmploymentDetailInputParams
                 {
-                    sendEmailProperties sendEmailProperties = new sendEmailProperties();
-                    sendEmailProperties.emailSubject = "Reset Password Email";
-                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> " +
-                        "<a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString()), _businessLayer.EncodeStringBase64(CompanyID.ToString()), _businessLayer.EncodeStringBase64(employmentDetail.CompanyAbbr + employmentDetail.EmployeNumber.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
-                    sendEmailProperties.EmailToList.Add(employmentDetail.OfficialEmailID);
-                    emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
-                    if (response.responseCode == "200")
-                    {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email have been sent, Please reset password for Login.";
-                    }
-                    else
-                    {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email sending failed, Please try again later.";
-                    }
-                }
-                EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
-                employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-                employmentDetailInputParams.DepartmentID = employmentDetail.DepartmentID;
-                employmentDetailInputParams.DesignationID = employmentDetail.DesignationID;
-                var dataBody = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(dataBody);
-                employmentDetail.EmployeeList = employmentDetailtemp.EmployeeList;
-                employmentDetail.Departments = employmentDetailtemp.Departments;
-                employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
-                employmentDetail.Designations = employmentDetailtemp.Designations;
-                employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
-                employmentDetail.PayrollTypes = employmentDetailtemp.PayrollTypes;
-                employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
-                employmentDetail.RoleList = employmentDetailtemp.RoleList;
-                employmentDetail.SubDepartments = employmentDetailtemp.SubDepartments;
-                employmentDetail.ShiftTypes = employmentDetailtemp.ShiftTypes;
+                    CompanyID = companyId,
+                    DepartmentID = employmentDetail.DepartmentID,
+                    DesignationID = employmentDetail.DesignationID
+                };
+
+                string detailApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee);
+                var detailResponse = await _businessLayer.SendPostAPIRequest(inputParams, detailApiUrl, bearerToken, true);
+                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(detailResponse.ToString());
+
+                MapEmploymentDetailLists(employmentDetail, employmentDetailtemp);
                 employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
             }
             else
             {
-                EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
-                employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-                var data = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(data);
-                employmentDetail.EmployeeList = employmentDetailtemp.EmployeeList;
-                employmentDetail.Departments = employmentDetailtemp.Departments;
-                employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
-                employmentDetail.Designations = employmentDetailtemp.Designations;
-                employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
-                employmentDetail.PayrollTypes = employmentDetailtemp.PayrollTypes;
-                employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
-                employmentDetail.RoleList = employmentDetailtemp.RoleList;
-                employmentDetail.SubDepartments = employmentDetailtemp.SubDepartments;
-                employmentDetail.ShiftTypes = employmentDetailtemp.ShiftTypes;
+                // ModelState is not valid — load supporting lists
+                var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+                var inputParams = new EmploymentDetailInputParams { CompanyID = companyId };
+
+                var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee);
+                var response = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, bearerToken, true);
+                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(response.ToString());
+
+                MapEmploymentDetailLists(employmentDetail, employmentDetailtemp);
                 employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
             }
 
-            //return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee );
-
-
-           return View(employmentDetail);
+            return View(employmentDetail);
         }
 
-        [HttpGet]
-        public ActionResult EmploymentBankDetails(string id)
+        private void MapEmploymentDetailLists(EmploymentDetail target, EmploymentDetail source)
         {
-            EmploymentBankDetailInputParams employmentBankInputParams = new EmploymentBankDetailInputParams()
+            target.EmployeeList = source.EmployeeList;
+            target.Departments = source.Departments;
+            target.JobLocations = source.JobLocations;
+            target.Designations = source.Designations;
+            target.EmploymentTypes = source.EmploymentTypes;
+            target.PayrollTypes = source.PayrollTypes;
+            target.LeavePolicyList = source.LeavePolicyList;
+            target.RoleList = source.RoleList;
+            target.SubDepartments = source.SubDepartments;
+            target.ShiftTypes = source.ShiftTypes;
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult> EmploymentBankDetails(string id)
+        {
+            var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+            var companyToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+            var inputParams = new EmploymentBankDetailInputParams
             {
-                UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
+                UserID = userId
             };
+
             if (!string.IsNullOrEmpty(id))
             {
-                id = _businessLayer.DecodeStringBase64(id);
-                employmentBankInputParams.EmployeeID = long.Parse(id);
+                var decodedId = _businessLayer.DecodeStringBase64(id);
+                inputParams.EmployeeID = Convert.ToInt64(decodedId);
             }
 
-            EmploymentBankDetail employmentBankDetail = new EmploymentBankDetail();
-            var data = _businessLayer.SendPostAPIRequest(employmentBankInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentBankDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            employmentBankDetail = JsonConvert.DeserializeObject<EmploymentBankDetail>(data);
-            employmentBankDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentBankDetail.EmployeeID.ToString());
-            if (!string.IsNullOrEmpty(employmentBankDetail.AadhaarCardImage))
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.Employee,
+                APIApiActionConstants.GetEmploymentBankDetails
+            );
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                inputParams, apiUrl, companyToken, true
+            );
+
+            var employmentBankDetail = JsonConvert.DeserializeObject<EmploymentBankDetail>(response.ToString());
+
+            if (employmentBankDetail != null)
             {
-                employmentBankDetail.AadhaarCardImage = _s3Service.GetFileUrl(employmentBankDetail.AadhaarCardImage);
-            }
-            if (!string.IsNullOrEmpty(employmentBankDetail.PanCardImage))
-            {
-                employmentBankDetail.PanCardImage = _s3Service.GetFileUrl(employmentBankDetail.PanCardImage);
+                employmentBankDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentBankDetail.EmployeeID.ToString());
+
+                if (!string.IsNullOrEmpty(employmentBankDetail.AadhaarCardImage))
+                {
+                    employmentBankDetail.AadhaarCardImage = await _s3Service.GetFileUrl(employmentBankDetail.AadhaarCardImage);
+                }
+
+                if (!string.IsNullOrEmpty(employmentBankDetail.PanCardImage))
+                {
+                    employmentBankDetail.PanCardImage = await _s3Service.GetFileUrl(employmentBankDetail.PanCardImage);
+                }
             }
 
             return View(employmentBankDetail);
         }
 
+
+         
         [HttpPost]
-        public ActionResult EmploymentBankDetails(EmploymentBankDetail employmentBankDetail, List<IFormFile> PanPostedFile, List<IFormFile> AadhaarPostedFile)
+        public async Task<ActionResult> EmploymentBankDetails(EmploymentBankDetail employmentBankDetail,List<IFormFile> PanPostedFile,List<IFormFile> AadhaarPostedFile)
         {
             if (ModelState.IsValid)
             {
                 employmentBankDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+                // Process PAN file
                 _s3Service.ProcessFileUpload(PanPostedFile, employmentBankDetail.PanCardImage, out string newPanKey);
                 if (!string.IsNullOrEmpty(newPanKey))
                 {
@@ -594,6 +779,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     employmentBankDetail.PanCardImage = _s3Service.ExtractKeyFromUrl(employmentBankDetail.PanCardImage);
                 }
 
+                // Process Aadhaar file
                 _s3Service.ProcessFileUpload(AadhaarPostedFile, employmentBankDetail.AadhaarCardImage, out string newAadhaarKey);
                 if (!string.IsNullOrEmpty(newAadhaarKey))
                 {
@@ -608,163 +794,250 @@ namespace HRMS.Web.Areas.HR.Controllers
                     employmentBankDetail.AadhaarCardImage = _s3Service.ExtractKeyFromUrl(employmentBankDetail.AadhaarCardImage);
                 }
 
-                var data = _businessLayer.SendPostAPIRequest(employmentBankDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentBankDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                // API call to save
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.AddUpdateEmploymentBankDetails);
 
-                Result result = JsonConvert.DeserializeObject<Result>(data);
+                var response =await _businessLayer.SendPostAPIRequest(
+                    employmentBankDetail,
+                    apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true);
+
+                var result = JsonConvert.DeserializeObject<Result>(response.ToString());
 
                 if (result != null && result.PKNo > 0)
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Bank details saved successfully.";
-                    return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee);
+                    TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                    TempData[Constants.toastMessage] = "Bank details saved successfully.";
+                    return RedirectToActionPermanent(
+                        WebControllarsConstants.EmployeeListing,
+                        WebControllarsConstants.Employee);
                 }
                 else
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Failed to save bank details.";
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Failed to save bank details.";
                 }
             }
+
+            // Return view with validation errors or failed upload
             return View(employmentBankDetail);
         }
 
         [HttpGet]
-        public ActionResult EmploymentSeparation(string id)
+        public async Task<ActionResult> EmploymentSeparation(string id)
         {
-            EmploymentSeparationInputParams employmentSeparationInputParams = new EmploymentSeparationInputParams()
+            var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+            var inputParams = new EmploymentSeparationInputParams
             {
-                UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
+                UserID = userId
             };
+
             if (!string.IsNullOrEmpty(id))
             {
-                id = _businessLayer.DecodeStringBase64(id);
-                employmentSeparationInputParams.EmployeeID = long.Parse(id);
+                var decodedId = _businessLayer.DecodeStringBase64(id);
+                inputParams.EmployeeID = long.Parse(decodedId);
             }
 
-            EmploymentSeparationDetail employmentSeparationDetail = new EmploymentSeparationDetail();
-            var data = _businessLayer.SendPostAPIRequest(employmentSeparationInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentSeparationDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            employmentSeparationDetail = JsonConvert.DeserializeObject<EmploymentSeparationDetail>(data);
-            employmentSeparationDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentSeparationDetail.EmployeeID.ToString());
-            return View(employmentSeparationDetail);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.Employee,
+                APIApiActionConstants.GetEmploymentSeparationDetails);
+
+            var jsonData = await _businessLayer.SendPostAPIRequest(
+                inputParams,
+                apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var separationDetail = JsonConvert.DeserializeObject<EmploymentSeparationDetail>(jsonData.ToString());
+            separationDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(separationDetail.EmployeeID.ToString());
+
+            return View(separationDetail);
         }
 
         [HttpPost]
-        public ActionResult EmploymentSeparation(EmploymentSeparationDetail employmentSeparationDetail)
+        public async Task<ActionResult> EmploymentSeparation(EmploymentSeparationDetail model)
         {
             if (ModelState.IsValid)
             {
-                employmentSeparationDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-                var data = _businessLayer.SendPostAPIRequest(employmentSeparationDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentSeparationDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                model.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
 
-                Result result = JsonConvert.DeserializeObject<Result>(data);
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.AddUpdateEmploymentSeparationDetails);
+
+                var jsonData =await _businessLayer.SendPostAPIRequest(
+                    model,
+                    apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true);
+
+                var result = JsonConvert.DeserializeObject<Result>(jsonData.ToString());
 
                 if (result != null && result.PKNo > 0)
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Employee Separation details saved successfully.";
-                    return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee);
+                    TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                    TempData[Constants.toastMessage] = "Employee Separation details saved successfully.";
+                    return RedirectToActionPermanent(
+                        WebControllarsConstants.EmployeeListing,
+                        WebControllarsConstants.Employee);
                 }
                 else
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Failed to save Employee Separation details.";
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Failed to save Employee Separation details.";
                 }
             }
 
-
-
-
-            return View(employmentSeparationDetail);
+            return View(model);
         }
 
-        public IActionResult Whatshappening()
+        public async Task<IActionResult> Whatshappening()
         {
-            var EmployeeID = GetSessionInt(Constants.EmployeeID);
-            var RoleId = GetSessionInt(Constants.RoleID);
+            var employeeId = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.Whatshappening);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            var formPermission = await _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.Whatshappening);
+
+            if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
-                HttpContext.SignOutAsync();
-                return RedirectToAction("Index", "Home", new { area = "" });
+                await HttpContext.SignOutAsync(); // Don't forget to await async calls
+                return RedirectToAction("Index", "Home");
             }
-            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
+
+            var results = new HRMS.Models.Common.Results();
             return View(results);
         }
+
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult Whatshappening(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> Whatshappening(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
-            WhatsHappeningModelParans WhatsHappeningModelParams = new WhatsHappeningModelParans();
-            WhatsHappeningModelParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-            results.WhatsHappeningList.ForEach(x => x.IconImage = _s3Service.GetFileUrl(x.IconImage));
-            return Json(new { data = results.WhatsHappeningList });
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
+            var inputParams = new WhatsHappeningModelParans
+            {
+                CompanyID = companyId
+            };
+
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.LeavePolicy,
+                APIApiActionConstants.GetAllWhatsHappeningDetails
+            );
+
+            var jsonResponse =await _businessLayer.SendPostAPIRequest(
+                inputParams,
+                apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+
+            var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(jsonResponse.ToString());
+
+            // Fetch image URLs asynchronously and wait for all to finish
+            var tasks = results.WhatsHappeningList
+                .Select(async x => x.IconImage = await _s3Service.GetFileUrl(x.IconImage))
+                .ToList();
+
+            await Task.WhenAll(tasks);
+
+            return Json(new
+            {
+                draw = sEcho,
+                recordsTotal = results.WhatsHappeningList.Count,
+                recordsFiltered = results.WhatsHappeningList.Count,
+                data = results.WhatsHappeningList
+            });
         }
-
 
 
         [HttpGet]
-        public IActionResult InActiveEmployee(int employeeId, int isActive)
+        public async Task<IActionResult> InActiveEmployee(int employeeId, int isActive)
         {
-            ReportingStatus obj = new ReportingStatus();
-            obj.EmployeeId = employeeId;
-            obj.Status = isActive;
-            var data = _businessLayer.SendPostAPIRequest(obj, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.CheckEmployeeReporting), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var ReportingData = JsonConvert.DeserializeObject<ReportingStatus>(data);
-            return Ok(new { success = true, data = ReportingData });
+            var input = new ReportingStatus
+            {
+                EmployeeId = employeeId,
+                Status = isActive
+            };
+
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.Employee,
+                APIApiActionConstants.CheckEmployeeReporting
+            );
+
+            var responseJson =await _businessLayer.SendPostAPIRequest(
+                input,
+                apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+
+            var reportingData = JsonConvert.DeserializeObject<ReportingStatus>(responseJson.ToString());
+
+            return Ok(new
+            {
+                success = true,
+                data = reportingData
+            });
         }
+
         [HttpGet]
         public async Task<IActionResult> ExportEmployeeSheet()
         {
             try
             {
-                var companyIdString = HttpContext.Session.GetString(Constants.CompanyID);
-                if (!long.TryParse(companyIdString, out var companyId))
+                if (!long.TryParse(HttpContext.Session.GetString(Constants.CompanyID), out var companyId))
                     return BadRequest("Invalid Company ID");
 
-                var models = new EmployeeInputParams
+                var inputParams = new EmployeeInputParams
                 {
                     CompanyID = companyId
                 };
 
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.FetchExportEmployeeExcelSheet
+                );
+
                 var response = await _businessLayer.SendPostAPIRequest(
-                    models,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.FetchExportEmployeeExcelSheet),
+                    inputParams,
+                    apiUrl,
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true);
-                var responseString = response.ToString();
+                    true
+                );
+
+                var responseString = response?.ToString();
                 var employees = JsonConvert.DeserializeObject<List<ExportEmployeeDetailsExcel>>(responseString);
 
-                if (employees == null || !employees.Any())
-                {
+                if (employees == null || employees.Count == 0)
                     return NotFound("No employee data found.");
-                }
 
                 using var package = new ExcelPackage();
                 var worksheet = package.Workbook.Worksheets.Add("Employees");
 
-                // Define headers (same order as your properties)
-                string[] headers = new[] {
-        "EmployeeNumber", "CompanyName", "FirstName", "MiddleName", "Surname", "Gender", "DateOfBirth",
-        "PlaceOfBirth", "EmailAddress", "PersonalEmailAddress", "Mobile", "Landline", "Telephone",
-        "CorrespondenceAddress", "CorrespondenceCity", "CorrespondenceState", "CorrespondencePinCode",
-        "PermanentAddress", "PermanentCity", "PermanentState", "PermanentPinCode", "PANNo",
-        "AadharCardNo", "BloodGroup", "Allergies", "MajorIllnessOrDisability", "AwardsAchievements",
-        "EducationGap", "ExtraCuricuarActivities", "ForiegnCountryVisits", "ContactPersonName",
-        "ContactPersonMobile", "ContactPersonTelephone", "ContactPersonRelationship", "ITSkillsKnowledge",
-        "Designation", "EmployeeType", "Department", "SubDepartment", "JobLocation", "ShiftType",
-        "OfficialEmail", "OfficialContactNo", "JoiningDate", "ReportingManager", "PolicyName",
-        "PayrollType", "ClientName", "ESINumber", "ESIRegistrationDate", "BankAccountNumber",
-        "IFSCCode", "BankName", "UANNumber", "DateOfResignation", "DateOfLeaving", "LeavingType",
-        "NoticeServed", "AgeOnNetwork", "PreviousExperience", "DateOfJoiningTraining",
-        "DateOfJoiningFloor", "DateOfJoiningOJT", "DateOfJoiningOnroll", "BackOnFloorDate",
-        "LeavingRemarks", "MailReceivedFromAndDate", "EmailSentToITDate"
-    };
+                string[] headers = new[]
+                {
+            "EmployeeNumber", "CompanyName", "FirstName", "MiddleName", "Surname", "Gender", "DateOfBirth",
+            "PlaceOfBirth", "EmailAddress", "PersonalEmailAddress", "Mobile", "Landline", "Telephone",
+            "CorrespondenceAddress", "CorrespondenceCity", "CorrespondenceState", "CorrespondencePinCode",
+            "PermanentAddress", "PermanentCity", "PermanentState", "PermanentPinCode", "PANNo",
+            "AadharCardNo", "BloodGroup", "Allergies", "MajorIllnessOrDisability", "AwardsAchievements",
+            "EducationGap", "ExtraCuricuarActivities", "ForiegnCountryVisits", "ContactPersonName",
+            "ContactPersonMobile", "ContactPersonTelephone", "ContactPersonRelationship", "ITSkillsKnowledge",
+            "Designation", "EmployeeType", "Department", "SubDepartment", "JobLocation", "ShiftType",
+            "OfficialEmail", "OfficialContactNo", "JoiningDate", "ReportingManager", "PolicyName",
+            "PayrollType", "ClientName", "ESINumber", "ESIRegistrationDate", "BankAccountNumber",
+            "IFSCCode", "BankName", "UANNumber", "DateOfResignation", "DateOfLeaving", "LeavingType",
+            "NoticeServed", "AgeOnNetwork", "PreviousExperience", "DateOfJoiningTraining",
+            "DateOfJoiningFloor", "DateOfJoiningOJT", "DateOfJoiningOnroll", "BackOnFloorDate",
+            "LeavingRemarks", "MailReceivedFromAndDate", "EmailSentToITDate"
+        };
 
-                // Add header row
+                // Add header
                 for (int i = 0; i < headers.Length; i++)
                 {
                     worksheet.Cells[1, i + 1].Value = headers[i];
@@ -773,94 +1046,91 @@ namespace HRMS.Web.Areas.HR.Controllers
                     worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                 }
 
-                // Fill data rows
-                for (int rowIndex = 0; rowIndex < employees.Count; rowIndex++)
+                // Populate rows dynamically using reflection for brevity
+                for (int row = 0; row < employees.Count; row++)
                 {
-                    var emp = employees[rowIndex];
-                    int excelRow = rowIndex + 2;
+                    var emp = employees[row];
+                    int col = 1;
 
-                    worksheet.Cells[excelRow, 1].Value = emp.EmployeeNumber;
-                    worksheet.Cells[excelRow, 2].Value = emp.CompanyName;
-                    worksheet.Cells[excelRow, 3].Value = emp.FirstName;
-                    worksheet.Cells[excelRow, 4].Value = emp.MiddleName;
-                    worksheet.Cells[excelRow, 5].Value = emp.Surname;
-                    worksheet.Cells[excelRow, 6].Value = emp.Gender;
-                    worksheet.Cells[excelRow, 7].Value = emp.DateOfBirth?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 8].Value = emp.PlaceOfBirth;
-                    worksheet.Cells[excelRow, 9].Value = emp.EmailAddress;
-                    worksheet.Cells[excelRow, 10].Value = emp.PersonalEmailAddress;
-                    worksheet.Cells[excelRow, 11].Value = emp.Mobile;
-                    worksheet.Cells[excelRow, 12].Value = emp.Landline;
-                    worksheet.Cells[excelRow, 13].Value = emp.Telephone;
-                    worksheet.Cells[excelRow, 14].Value = emp.CorrespondenceAddress;
-                    worksheet.Cells[excelRow, 15].Value = emp.CorrespondenceCity;
-                    worksheet.Cells[excelRow, 16].Value = emp.CorrespondenceState;
-                    worksheet.Cells[excelRow, 17].Value = emp.CorrespondencePinCode;
-                    worksheet.Cells[excelRow, 18].Value = emp.PermanentAddress;
-                    worksheet.Cells[excelRow, 19].Value = emp.PermanentCity;
-                    worksheet.Cells[excelRow, 20].Value = emp.PermanentState;
-                    worksheet.Cells[excelRow, 21].Value = emp.PermanentPinCode;
-                    worksheet.Cells[excelRow, 22].Value = emp.PANNo;
-                    worksheet.Cells[excelRow, 23].Value = emp.AadharCardNo;
-                    worksheet.Cells[excelRow, 24].Value = emp.BloodGroup;
-                    worksheet.Cells[excelRow, 25].Value = emp.Allergies;
-                    worksheet.Cells[excelRow, 26].Value = emp.MajorIllnessOrDisability;
-                    worksheet.Cells[excelRow, 27].Value = emp.AwardsAchievements;
-                    worksheet.Cells[excelRow, 28].Value = emp.EducationGap;
-                    worksheet.Cells[excelRow, 29].Value = emp.ExtraCuricuarActivities;
-                    worksheet.Cells[excelRow, 30].Value = emp.ForiegnCountryVisits;
-                    worksheet.Cells[excelRow, 31].Value = emp.ContactPersonName;
-                    worksheet.Cells[excelRow, 32].Value = emp.ContactPersonMobile;
-                    worksheet.Cells[excelRow, 33].Value = emp.ContactPersonTelephone;
-                    worksheet.Cells[excelRow, 34].Value = emp.ContactPersonRelationship;
-                    worksheet.Cells[excelRow, 35].Value = emp.ITSkillsKnowledge;
-                    worksheet.Cells[excelRow, 36].Value = emp.Designation;
-                    worksheet.Cells[excelRow, 37].Value = emp.EmployeeType;
-                    worksheet.Cells[excelRow, 38].Value = emp.Department;
-                    worksheet.Cells[excelRow, 39].Value = emp.SubDepartment;
-                    worksheet.Cells[excelRow, 40].Value = emp.JobLocation;
-                    worksheet.Cells[excelRow, 41].Value = emp.ShiftType;
-                    worksheet.Cells[excelRow, 42].Value = emp.OfficialEmailID;
-                    worksheet.Cells[excelRow, 43].Value = emp.OfficialContactNo;
-                    worksheet.Cells[excelRow, 44].Value = emp.JoiningDate?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 45].Value = emp.ReportingManager;
-                    worksheet.Cells[excelRow, 46].Value = emp.PolicyName;
-                    worksheet.Cells[excelRow, 47].Value = emp.PayrollType;
-                    worksheet.Cells[excelRow, 48].Value = emp.ClientName;
-                    worksheet.Cells[excelRow, 49].Value = emp.ESINumber;
-                    worksheet.Cells[excelRow, 50].Value = emp.ESIRegistrationDate?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 51].Value = emp.BankAccountNumber;
-                    worksheet.Cells[excelRow, 52].Value = emp.IFSCCode;
-                    worksheet.Cells[excelRow, 53].Value = emp.BankName;
-                    worksheet.Cells[excelRow, 54].Value = emp.UANNumber;
-                    worksheet.Cells[excelRow, 55].Value = emp.DateOfResignation?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 56].Value = emp.DateOfLeaving?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 57].Value = emp.LeavingType;
-                    worksheet.Cells[excelRow, 58].Value = emp.NoticeServed?.ToString();
-                    worksheet.Cells[excelRow, 59].Value = emp.AgeOnNetwork?.ToString();
-                    worksheet.Cells[excelRow, 60].Value = emp.PreviousExperience?.ToString();
-                    worksheet.Cells[excelRow, 61].Value = emp.DateOfJoiningTraining?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 62].Value = emp.DateOfJoiningFloor?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 63].Value = emp.DateOfJoiningOJT?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 64].Value = emp.DateOfJoiningOnroll?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 65].Value = emp.BackOnFloorDate?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 66].Value = emp.LeavingRemarks;
-                    worksheet.Cells[excelRow, 67].Value = emp.MailReceivedFromAndDate?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[excelRow, 68].Value = emp.EmailSentToITDate?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.EmployeeNumber;
+                    worksheet.Cells[row + 2, col++].Value = emp.CompanyName;
+                    worksheet.Cells[row + 2, col++].Value = emp.FirstName;
+                    worksheet.Cells[row + 2, col++].Value = emp.MiddleName;
+                    worksheet.Cells[row + 2, col++].Value = emp.Surname;
+                    worksheet.Cells[row + 2, col++].Value = emp.Gender;
+                    worksheet.Cells[row + 2, col++].Value = emp.DateOfBirth?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.PlaceOfBirth;
+                    worksheet.Cells[row + 2, col++].Value = emp.EmailAddress;
+                    worksheet.Cells[row + 2, col++].Value = emp.PersonalEmailAddress;
+                    worksheet.Cells[row + 2, col++].Value = emp.Mobile;
+                    worksheet.Cells[row + 2, col++].Value = emp.Landline;
+                    worksheet.Cells[row + 2, col++].Value = emp.Telephone;
+                    worksheet.Cells[row + 2, col++].Value = emp.CorrespondenceAddress;
+                    worksheet.Cells[row + 2, col++].Value = emp.CorrespondenceCity;
+                    worksheet.Cells[row + 2, col++].Value = emp.CorrespondenceState;
+                    worksheet.Cells[row + 2, col++].Value = emp.CorrespondencePinCode;
+                    worksheet.Cells[row + 2, col++].Value = emp.PermanentAddress;
+                    worksheet.Cells[row + 2, col++].Value = emp.PermanentCity;
+                    worksheet.Cells[row + 2, col++].Value = emp.PermanentState;
+                    worksheet.Cells[row + 2, col++].Value = emp.PermanentPinCode;
+                    worksheet.Cells[row + 2, col++].Value = emp.PANNo;
+                    worksheet.Cells[row + 2, col++].Value = emp.AadharCardNo;
+                    worksheet.Cells[row + 2, col++].Value = emp.BloodGroup;
+                    worksheet.Cells[row + 2, col++].Value = emp.Allergies;
+                    worksheet.Cells[row + 2, col++].Value = emp.MajorIllnessOrDisability;
+                    worksheet.Cells[row + 2, col++].Value = emp.AwardsAchievements;
+                    worksheet.Cells[row + 2, col++].Value = emp.EducationGap;
+                    worksheet.Cells[row + 2, col++].Value = emp.ExtraCuricuarActivities;
+                    worksheet.Cells[row + 2, col++].Value = emp.ForiegnCountryVisits;
+                    worksheet.Cells[row + 2, col++].Value = emp.ContactPersonName;
+                    worksheet.Cells[row + 2, col++].Value = emp.ContactPersonMobile;
+                    worksheet.Cells[row + 2, col++].Value = emp.ContactPersonTelephone;
+                    worksheet.Cells[row + 2, col++].Value = emp.ContactPersonRelationship;
+                    worksheet.Cells[row + 2, col++].Value = emp.ITSkillsKnowledge;
+                    worksheet.Cells[row + 2, col++].Value = emp.Designation;
+                    worksheet.Cells[row + 2, col++].Value = emp.EmployeeType;
+                    worksheet.Cells[row + 2, col++].Value = emp.Department;
+                    worksheet.Cells[row + 2, col++].Value = emp.SubDepartment;
+                    worksheet.Cells[row + 2, col++].Value = emp.JobLocation;
+                    worksheet.Cells[row + 2, col++].Value = emp.ShiftType;
+                    worksheet.Cells[row + 2, col++].Value = emp.OfficialEmailID;
+                    worksheet.Cells[row + 2, col++].Value = emp.OfficialContactNo;
+                    worksheet.Cells[row + 2, col++].Value = emp.JoiningDate?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.ReportingManager;
+                    worksheet.Cells[row + 2, col++].Value = emp.PolicyName;
+                    worksheet.Cells[row + 2, col++].Value = emp.PayrollType;
+                    worksheet.Cells[row + 2, col++].Value = emp.ClientName;
+                    worksheet.Cells[row + 2, col++].Value = emp.ESINumber;
+                    worksheet.Cells[row + 2, col++].Value = emp.ESIRegistrationDate?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.BankAccountNumber;
+                    worksheet.Cells[row + 2, col++].Value = emp.IFSCCode;
+                    worksheet.Cells[row + 2, col++].Value = emp.BankName;
+                    worksheet.Cells[row + 2, col++].Value = emp.UANNumber;
+                    worksheet.Cells[row + 2, col++].Value = emp.DateOfResignation?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.DateOfLeaving?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.LeavingType;
+                    worksheet.Cells[row + 2, col++].Value = emp.NoticeServed;
+                    worksheet.Cells[row + 2, col++].Value = emp.AgeOnNetwork;
+                    worksheet.Cells[row + 2, col++].Value = emp.PreviousExperience;
+                    worksheet.Cells[row + 2, col++].Value = emp.DateOfJoiningTraining?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.DateOfJoiningFloor?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.DateOfJoiningOJT?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.DateOfJoiningOnroll?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.BackOnFloorDate?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.LeavingRemarks;
+                    worksheet.Cells[row + 2, col++].Value = emp.MailReceivedFromAndDate?.ToString("yyyy-MM-dd");
+                    worksheet.Cells[row + 2, col++].Value = emp.EmailSentToITDate?.ToString("yyyy-MM-dd");
                 }
 
-                // Auto-fit columns
                 worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
-                var fileContents = package.GetAsByteArray();
                 var fileName = $"EmployeeDetails_{DateTime.Now:yyyyMMdd}.xlsx";
-
-                return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-
+                return File(package.GetAsByteArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
             catch (Exception ex)
             {
-                // Log ex if needed
+                // Log the error properly in production
                 return StatusCode(500, "An error occurred while exporting employee details.");
             }
         }
@@ -875,95 +1145,101 @@ namespace HRMS.Web.Areas.HR.Controllers
             };
             return View(model);
         }
-        [HttpPost]
-        public JsonResult GetEducationDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
-        {
-            EducationDetailParams educationDetailParams = new EducationDetailParams();
-            educationDetailParams.EmployeeID = EmployeeID;
-            var data = _businessLayer.SendPostAPIRequest(educationDetailParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEducationDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<List<EducationalDetail>>(data);
 
-            if (results != null)
+        [HttpPost]
+        public async Task<JsonResult> GetEducationDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            var educationDetailParams = new EducationDetailParams
             {
-                results.ForEach(x =>
+                EmployeeID = EmployeeID
+            };
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                educationDetailParams,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEducationDetails),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var data = response?.ToString();
+            var results = JsonConvert.DeserializeObject<List<EducationalDetail>>(data) ?? new List<EducationalDetail>();
+
+            // Parallelizing file URL tasks improves performance
+            var tasks = results
+                .Where(x => !string.IsNullOrEmpty(x.CertificateImage))
+                .Select(async x =>
                 {
-                    if (!string.IsNullOrEmpty(x.CertificateImage))
-                    {
-                        x.CertificateImage = _s3Service.GetFileUrl(x.CertificateImage);
-                    }
+                    x.CertificateImage = await _s3Service.GetFileUrl(x.CertificateImage);
                 });
-            }
+
+            await Task.WhenAll(tasks);
+
             return Json(new
             {
+                draw = sEcho,
+                recordsTotal = results.Count,
+                recordsFiltered = results.Count,
                 data = results
             });
         }
 
         [HttpPost]
-        public JsonResult EducationalDetail(EducationalDetail eduDetail, List<IFormFile> CertificateFile)
+        public async Task<JsonResult> EducationalDetail(EducationalDetail eduDetail, List<IFormFile> CertificateFile)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Validation failed." });
+
+            eduDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+            _s3Service.ProcessFileUpload(CertificateFile, eduDetail.CertificateImage, out string newCertificateKey);
+
+            if (!string.IsNullOrEmpty(newCertificateKey))
             {
-                eduDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-                _s3Service.ProcessFileUpload(CertificateFile, eduDetail.CertificateImage, out string newPanKey);
-                if (!string.IsNullOrEmpty(newPanKey))
-                {
-                    if (!string.IsNullOrEmpty(eduDetail.CertificateImage))
-                    {
-                        _s3Service.DeleteFile(eduDetail.CertificateImage);
-                    }
-                    eduDetail.CertificateImage = newPanKey;
-                }
-                else
-                {
-                    eduDetail.CertificateImage = _s3Service.ExtractKeyFromUrl(eduDetail.CertificateImage);
-                }
+                if (!string.IsNullOrEmpty(eduDetail.CertificateImage))
+                    _s3Service.DeleteFile(eduDetail.CertificateImage);
 
-                var data = _businessLayer.SendPostAPIRequest(
-                    eduDetail,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEducationDetail),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true
-                ).Result.ToString();
-
-                Result result = JsonConvert.DeserializeObject<Result>(data);
-
-                if (result != null && result.PKNo > 0)
-                {
-                    return Json(new { success = true, message = "Education details saved successfully." });
-                }
-                return Json(new { success = false, message = "Failed to save family details." });
+                eduDetail.CertificateImage = newCertificateKey;
+            }
+            else
+            {
+                eduDetail.CertificateImage = _s3Service.ExtractKeyFromUrl(eduDetail.CertificateImage);
             }
 
-            return Json(new { success = false, message = "Validation failed." });
-        }
-        [HttpPost]
-        public IActionResult DeleteEducationDetail(long encodedId)
-        {
+            var response = await _businessLayer.SendPostAPIRequest(
+                eduDetail,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEducationDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
 
-            EducationDetailParams model = new EducationDetailParams
+            var result = JsonConvert.DeserializeObject<Result>(response.ToString());
+
+            if (result != null && result.PKNo > 0)
+                return Json(new { success = true, message = "Education details saved successfully." });
+
+            return Json(new { success = false, message = "Failed to save education details." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteEducationDetail(long encodedId)
+        {
+            var model = new EducationDetailParams
             {
                 EducationDetailID = encodedId
             };
 
-            var response = _businessLayer.SendPostAPIRequest(
+            var response = await _businessLayer.SendPostAPIRequest(
                 model,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEducationDetail),
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEducationDetail),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            ).Result.ToString();
+                true);
 
-            if (!string.IsNullOrEmpty(response))
+            var responseStr = response?.ToString();
+            if (!string.IsNullOrWhiteSpace(responseStr))
             {
-
-
-                return Json(new { success = true, message = response });
+                return Json(new { success = true, message = responseStr });
             }
 
             return Json(new { success = false, message = "Failed to delete the record." });
         }
-
-
         [HttpGet]
         public IActionResult FamilyDetail(string id)
         {
@@ -974,66 +1250,75 @@ namespace HRMS.Web.Areas.HR.Controllers
             };
             return View(model);
         }
+
         [HttpPost]
-        public JsonResult GetFamilyDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        public async Task<JsonResult> GetFamilyDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
         {
-            FamilyDetailParams familyDetailParams = new FamilyDetailParams();
-            familyDetailParams.EmployeeID = EmployeeID;
-            var data = _businessLayer.SendPostAPIRequest(familyDetailParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFamilyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<List<FamilyDetail>>(data);
+            var familyDetailParams = new FamilyDetailParams
+            {
+                EmployeeID = EmployeeID
+            };
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                familyDetailParams,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFamilyDetails),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var data = response?.ToString();
+            var results = JsonConvert.DeserializeObject<List<FamilyDetail>>(data) ?? new List<FamilyDetail>();
+
             return Json(new
             {
+                draw = sEcho,
+                recordsTotal = results.Count,
+                recordsFiltered = results.Count,
                 data = results
             });
         }
 
         [HttpPost]
-        public JsonResult FamilyDetail(FamilyDetail famDetail)
+        public async Task<JsonResult> FamilyDetail(FamilyDetail famDetail)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Validation failed." });
+
+            famDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                famDetail,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateFamilyDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var result = JsonConvert.DeserializeObject<Result>(response?.ToString());
+
+            if (result != null && result.PKNo > 0)
             {
-                famDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-
-                var data = _businessLayer.SendPostAPIRequest(
-                    famDetail,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateFamilyDetail),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true
-                ).Result.ToString();
-
-                Result result = JsonConvert.DeserializeObject<Result>(data);
-
-                if (result != null && result.PKNo > 0)
-                {
-                    return Json(new { success = true, message = "Family details saved successfully." });
-                }
-
-                return Json(new { success = false, message = "Failed to save family details." });
+                return Json(new { success = true, message = "Family details saved successfully." });
             }
 
-            return Json(new { success = false, message = "Validation failed." });
+            return Json(new { success = false, message = "Failed to save family details." });
         }
-        [HttpPost]
-        public IActionResult DeleteFamilyDetail(long encodedId)
-        {
 
-            FamilyDetailParams model = new FamilyDetailParams
+        [HttpPost]
+        public async Task<IActionResult> DeleteFamilyDetail(long encodedId)
+        {
+            var model = new FamilyDetailParams
             {
                 EmployeesFamilyDetailID = encodedId
             };
 
-            var response = _businessLayer.SendPostAPIRequest(
+            var response = await _businessLayer.SendPostAPIRequest(
                 model,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteFamilyDetail),
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteFamilyDetail),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            ).Result.ToString();
+                true);
 
-            if (!string.IsNullOrEmpty(response))
+            var responseStr = response?.ToString();
+            if (!string.IsNullOrWhiteSpace(responseStr))
             {
-
-
-                return Json(new { success = true, message = response });
+                return Json(new { success = true, message = responseStr });
             }
 
             return Json(new { success = false, message = "Failed to delete the record." });
@@ -1051,70 +1336,74 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetReferenceDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        public async Task<JsonResult> GetReferenceDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
         {
-            ReferenceParams referenceParams = new ReferenceParams
+            var referenceParams = new ReferenceParams
             {
                 EmployeeID = EmployeeID
             };
 
-            var data = _businessLayer.SendPostAPIRequest(
+            var response = await _businessLayer.SendPostAPIRequest(
                 referenceParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetReferenceDetails),
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetReferenceDetails),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            ).Result.ToString();
+                true);
 
-            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.Reference>>(data);
+            var data = response?.ToString();
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.Reference>>(data) ?? new List<HRMS.Models.Employee.Reference>();
 
-            return Json(new { data = results });
+            return Json(new
+            {
+                draw = sEcho,
+                recordsTotal = results.Count,
+                recordsFiltered = results.Count,
+                data = results
+            });
         }
 
         [HttpPost]
-        public JsonResult ReferenceDetail(HRMS.Models.Employee.Reference reference)
+        public async Task<JsonResult> ReferenceDetail(HRMS.Models.Employee.Reference reference)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Validation failed." });
+
+            reference.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                reference,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateReferenceDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var result = JsonConvert.DeserializeObject<Result>(response?.ToString());
+
+            if (result != null && result.PKNo > 0)
             {
-                reference.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-
-                var data = _businessLayer.SendPostAPIRequest(
-                    reference,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateReferenceDetail),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true
-                ).Result.ToString();
-
-                Result result = JsonConvert.DeserializeObject<Result>(data);
-
-                if (result != null && result.PKNo > 0)
-                {
-                    return Json(new { success = true, message = "ReferenceDetail details saved successfully." });
-                }
-                return Json(new { success = false, message = "Failed to save reference details." });
+                return Json(new { success = true, message = "Reference details saved successfully." });
             }
 
-            return Json(new { success = false, message = "Validation failed." });
+            return Json(new { success = false, message = "Failed to save reference details." });
         }
 
         [HttpPost]
-        public IActionResult DeleteReferenceDetail(long encodedId)
+        public async Task<IActionResult> DeleteReferenceDetail(long encodedId)
         {
-            ReferenceParams model = new ReferenceParams
+            var model = new ReferenceParams
             {
                 ReferenceDetailID = encodedId
             };
 
-            var response = _businessLayer.SendPostAPIRequest(
+            var response = await _businessLayer.SendPostAPIRequest(
                 model,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteReferenceDetail),
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteReferenceDetail),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            ).Result.ToString();
+                true);
 
-            if (!string.IsNullOrEmpty(response))
+            var resultStr = response?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(resultStr))
             {
-
-                return Json(new { success = true, message = response });
+                return Json(new { success = true, message = resultStr });
             }
 
             return Json(new { success = false, message = "Failed to delete the record." });
@@ -1127,6 +1416,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
             var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var results = GetAllResults(companyId);
+
             var model = new HRMS.Models.Employee.EmploymentHistory
             {
                 EmployeeID = decodedEmployeeId,
@@ -1137,75 +1427,79 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetEmploymentHistoryDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        public async Task<JsonResult> GetEmploymentHistoryDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
         {
             var requestParams = new EmploymentHistoryParams
             {
                 EmployeeID = EmployeeID
-
             };
 
-            var data = _businessLayer.SendPostAPIRequest(
+            var response = await _businessLayer.SendPostAPIRequest(
                 requestParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentHistory),
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentHistory),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            ).Result.ToString();
+                true);
 
-            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.EmploymentHistory>>(data);
+            var data = response?.ToString();
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.EmploymentHistory>>(data) ?? new List<HRMS.Models.Employee.EmploymentHistory>();
 
-            return Json(new { data = results });
+            return Json(new
+            {
+                draw = sEcho,
+                recordsTotal = results.Count,
+                recordsFiltered = results.Count,
+                data = results
+            });
         }
 
         [HttpPost]
-        public JsonResult EmploymentHistory(HRMS.Models.Employee.EmploymentHistory history)
+        public async Task<JsonResult> EmploymentHistory(HRMS.Models.Employee.EmploymentHistory history)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Validation failed." });
+
+            history.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                history,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentHistory),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var result = JsonConvert.DeserializeObject<Result>(response?.ToString());
+
+            if (result != null && result.PKNo > 0)
             {
-                history.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-
-                var data = _businessLayer.SendPostAPIRequest(
-                    history,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentHistory),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true
-                ).Result.ToString();
-
-                Result result = JsonConvert.DeserializeObject<Result>(data);
-
-                if (result != null && result.PKNo > 0)
-                {
-                    return Json(new { success = true, message = "Employment history saved successfully." });
-                }
-                return Json(new { success = false, message = "Failed to save employment history." });
+                return Json(new { success = true, message = "Employment history saved successfully." });
             }
 
-            return Json(new { success = false, message = "Validation failed." });
+            return Json(new { success = false, message = "Failed to save employment history." });
         }
 
         [HttpPost]
-        public IActionResult DeleteEmploymentHistory(long encodedId)
+        public async Task<IActionResult> DeleteEmploymentHistory(long encodedId)
         {
-            EmploymentHistoryParams model = new EmploymentHistoryParams
+            var model = new EmploymentHistoryParams
             {
                 EmploymentHistoryID = encodedId
             };
 
-            var response = _businessLayer.SendPostAPIRequest(
+            var response = await _businessLayer.SendPostAPIRequest(
                 model,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEmploymentHistory),
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEmploymentHistory),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            ).Result.ToString();
+                true);
 
-            if (!string.IsNullOrEmpty(response))
+            var resultStr = response?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(resultStr))
             {
-
-                return Json(new { success = true, message = response });
+                return Json(new { success = true, message = resultStr });
             }
 
             return Json(new { success = false, message = "Failed to delete the record." });
         }
+
 
         [HttpGet]
         public IActionResult LanguageDetail(string id)
@@ -1219,79 +1513,83 @@ namespace HRMS.Web.Areas.HR.Controllers
                 EmployeeID = decodedEmployeeId,
                 Languages = results.Languages,
             };
+
             return View(model);
         }
 
         [HttpPost]
-        public JsonResult GetLanguageDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        public async Task<JsonResult> GetLanguageDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
         {
             var requestParams = new HRMS.Models.Employee.LanguageDetailParams
             {
                 EmployeeID = EmployeeID
             };
 
-            var data = _businessLayer.SendPostAPIRequest(
+            var response = await _businessLayer.SendPostAPIRequest(
                 requestParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLanguageDetails),
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLanguageDetails),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
-            ).Result.ToString();
+            );
 
-            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.LanguageDetail>>(data);
+            var data = response?.ToString();
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.LanguageDetail>>(data) ?? new List<HRMS.Models.Employee.LanguageDetail>();
 
-            return Json(new { data = results });
-        }
-
-        [HttpPost]
-        public JsonResult LanguageDetail(HRMS.Models.Employee.LanguageDetail language)
-        {
-            if (ModelState.IsValid)
+            return Json(new
             {
-                language.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-
-                var data = _businessLayer.SendPostAPIRequest(
-                    language,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLanguageDetail),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true
-                ).Result.ToString();
-
-                var result = JsonConvert.DeserializeObject<Result>(data);
-
-                if (result != null && result.PKNo > 0)
-                {
-                    return Json(new { success = true, message = "Language detail saved successfully." });
-                }
-
-                return Json(new { success = false, message = "Failed to save language detail." });
-            }
-
-            return Json(new { success = false, message = "Validation failed." });
+                draw = sEcho,
+                recordsTotal = results.Count,
+                recordsFiltered = results.Count,
+                data = results
+            });
         }
 
         [HttpPost]
-        public IActionResult DeleteLanguageDetail(long encodedId)
+        public async Task<JsonResult> LanguageDetail(HRMS.Models.Employee.LanguageDetail language)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Validation failed." });
+
+            language.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+            var response = await _businessLayer.SendPostAPIRequest(
+                language,
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLanguageDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+
+            var result = JsonConvert.DeserializeObject<Result>(response?.ToString());
+
+            if (result != null && result.PKNo > 0)
+                return Json(new { success = true, message = "Language detail saved successfully." });
+
+            return Json(new { success = false, message = "Failed to save language detail." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteLanguageDetail(long encodedId)
         {
             var model = new HRMS.Models.Employee.LanguageDetailParams
             {
-                EmployeesFamilyDetailID = encodedId
+                EmployeesFamilyDetailID = encodedId  
             };
 
-            var response = _businessLayer.SendPostAPIRequest(
+            var response = await _businessLayer.SendPostAPIRequest(
                 model,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteLanguageDetail),
+                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteLanguageDetail),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
-            ).Result.ToString();
+            );
 
-            if (!string.IsNullOrEmpty(response))
-            {
+            var resultStr = response?.ToString();
 
-                return Json(new { success = true, message = response });
-            }
+            if (!string.IsNullOrWhiteSpace(resultStr))
+                return Json(new { success = true, message = resultStr });
 
             return Json(new { success = false, message = "Failed to delete the record." });
         }
-       
+
+
     }
 }

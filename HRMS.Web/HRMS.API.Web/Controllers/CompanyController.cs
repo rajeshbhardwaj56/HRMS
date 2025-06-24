@@ -19,36 +19,40 @@ namespace HRMS.API.Web.Controllers
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
-
         [HttpPost]
-        public IActionResult AddUpdateCompany(CompanyModel model)
+        public async Task<IActionResult> AddUpdateCompany(CompanyModel model)
         {
             IActionResult response = Unauthorized();
-            Result result = _businessLayer.AddUpdateCompany(model);
+            var result = await _businessLayer.AddUpdateCompany(model);
             response = Ok(result);
             return response;
         }
+
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult GetCompaniesLogo(CompanyLoginModel model)
+        public async Task<IActionResult> GetCompaniesLogo(CompanyLoginModel model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetCompaniesLogo(model));
+            var result = await _businessLayer.GetCompaniesLogo(model);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetAllCompanies(EmployeeInputParams model)
+        public async Task<IActionResult> GetAllCompanies(EmployeeInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllCompanies(model));
+            var result = await _businessLayer.GetAllCompanies(model);
+            response = Ok(result);
             return response;
         }
+
         [HttpPost]
-        public IActionResult GetAllCompaniesList(EmployeeInputParams model)
+        public async Task<IActionResult> GetAllCompaniesList(EmployeeInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllCompaniesList(model));
+            var result = await _businessLayer.GetAllCompaniesList(model);
+            response = Ok(result);
             return response;
         }
     }

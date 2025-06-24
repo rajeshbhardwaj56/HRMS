@@ -23,84 +23,94 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddUpdateLeavePolicy(LeavePolicyModel model)
+        public async Task<IActionResult> AddUpdateLeavePolicy(LeavePolicyModel model)
         {
             IActionResult response = Unauthorized();
-            Result result = _businessLayer.AddUpdateLeavePolicy(model);
+            Result result = await _businessLayer.AddUpdateLeavePolicy(model);
             response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetAllLeavePolicies(LeavePolicyInputParans model)
+        public async Task<IActionResult> GetAllLeavePolicies(LeavePolicyInputParans model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllLeavePolicies(model));
-            return response;
-        }
-         
-        [HttpPost]
-        public IActionResult AddUpdateLeavePolicyDetails(LeavePolicyDetailsModel model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUpdateLeavePolicyDetails(model));
-            return response;
-        }
-        
-        [HttpPost]
-        public IActionResult GetLeavePolicyList(LeavePolicyDetailsInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetLeavePolicyList(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetAllLeavePolicyDetails(LeavePolicyDetailsInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllLeavePolicyDetails(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult DeleteLeavePolicyDetails(LeavePolicyDetailsInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.DeleteLeavePolicyDetails(model));
-            return response;
-        }
-        
-        [HttpPost]
-        public IActionResult GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllLeavePolicyDetailsByCompanyId(model));
+            var result = await _businessLayer.GetAllLeavePolicies(model);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult AddUpdateWhatsHappeningDetails(WhatsHappeningModels model)
+        public async Task<IActionResult> AddUpdateLeavePolicyDetails(LeavePolicyDetailsModel model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUpdateWhatsHappeningDetails(model));
-            return response;
-        }
-        [HttpPost]
-        public IActionResult GetAllWhatsHappeningDetails(WhatsHappeningModelParans model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllWhatsHappeningDetails(model));
-            return response;
-        }
-        
-        [HttpPost]
-        public IActionResult DeleteWhatsHappening(WhatsHappeningModelParans model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.DeleteWhatsHappening(model));
+            var result = await _businessLayer.AddUpdateLeavePolicyDetails(model);
+            response = Ok(result);
             return response;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GetLeavePolicyList(LeavePolicyDetailsInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetLeavePolicyList(model);
+            response = Ok(result);
+            return response;
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> GetAllLeavePolicyDetails(LeavePolicyDetailsInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetAllLeavePolicyDetails(model);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteLeavePolicyDetails(LeavePolicyDetailsInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.DeleteLeavePolicyDetails(model);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetAllLeavePolicyDetailsByCompanyId(model);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUpdateWhatsHappeningDetails(WhatsHappeningModels model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.AddUpdateWhatsHappeningDetails(model);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetAllWhatsHappeningDetails(WhatsHappeningModelParans model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetAllWhatsHappeningDetails(model);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteWhatsHappening(WhatsHappeningModelParans model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.DeleteWhatsHappening(model);
+            response = Ok(result);
+            return response;
+        }
 
 
     }

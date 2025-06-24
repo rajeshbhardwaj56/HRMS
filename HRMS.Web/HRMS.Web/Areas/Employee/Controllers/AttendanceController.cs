@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HRMS.Web.Areas.Employee.Controllers
 {
@@ -45,24 +46,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult GetAllAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetAllAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             AttendenceListInputParans attendenceListParams = new AttendenceListInputParans();
             attendenceListParams.ID = Convert.ToInt64(HttpContext.Session.GetString(Constants.ID));
 
-            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAllAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
 
             return Json(new { data = results.AttendenceList });
 
         }
-        public IActionResult Index(string id)
+        public async Task<IActionResult> Index(string id)
         {
             Attendance model = new Attendance();
             if (!string.IsNullOrEmpty(id))
             {
                 model.ID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendanceModel;
             }
             HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
@@ -88,12 +89,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(AttendenceListModel AttendenceListModel)
+        public async Task<IActionResult> Index(AttendenceListModel AttendenceListModel)
         {
             if (ModelState.IsValid)
             {
 
-                var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(AttendenceListModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendenceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
                 if (AttendenceListModel.ID > 0)
@@ -116,12 +117,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpGet]
-        public IActionResult AttendenceList()
+        public async Task<IActionResult> AttendenceList()
         {
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.AttendenceList);
+            var FormPermission =await _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.AttendenceList);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -131,7 +132,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult AttendenceCalendarList(AttendanceInputParams objmodel)
+        public async Task<IActionResult> AttendenceCalendarList(AttendanceInputParams objmodel)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var employeeName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
@@ -146,7 +147,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             models.Month = objmodel.Month;
             models.UserId = Convert.ToInt64(EmployeeNumber);
 
-            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForMonthlyViewCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(models,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForMonthlyViewCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var model = JsonConvert.DeserializeObject<MonthlyViewAttendance>(data);
             return Json(new { data = model, employeeFullName = employeeFullName });
         }
@@ -161,7 +162,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpPost]
-        public JsonResult GetMyAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetMyAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             var ManagerL1 = HttpContext.Session.GetString(Constants.Manager1Name).ToString();
             var ManagerL2 = HttpContext.Session.GetString(Constants.Manager2Name).ToString();
@@ -171,7 +172,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             attendenceListParams.Month = DateTime.Now.Month;
             attendenceListParams.Year = DateTime.Now.Year;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetMyAttendanceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetMyAttendanceList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
 
             var model = JsonConvert.DeserializeObject<MyAttendanceList>(data);
             model.Attendances.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.ID.ToString()));
@@ -179,14 +180,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(new { data = model });
         }
         [HttpGet]
-        public IActionResult MyAttendance(string id)
+        public async Task<IActionResult> MyAttendance(string id)
         {
             Attendance model = new Attendance();
             if (!string.IsNullOrEmpty(id))
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 model.ID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendanceModel;
             }
             //HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
@@ -195,7 +196,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         }
         [HttpPost]
-        public IActionResult MyAttendance(Attendance AttendenceListModel)
+        public async Task<IActionResult> MyAttendance(Attendance AttendenceListModel)
         {
 
             if (AttendenceListModel.FirstLogDate.HasValue)
@@ -224,7 +225,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             employeeobj.EmployeeID = AttendenceListModel.UserId ?? 0;
             var data = _businessLayer.SendPostAPIRequest(
                 AttendenceListModel,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
+            await    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
@@ -239,7 +240,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 var employeeApiResponse = _businessLayer.SendPostAPIRequest(
             employeeobj,
-            _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+            await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
             HttpContext.Session.GetString(Constants.SessionBearerToken),
             true
         ).Result.ToString();
@@ -355,14 +356,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         //}
         [HttpGet]
-        public IActionResult DeleteAttendanceDetails(string id)
+        public async Task<IActionResult> DeleteAttendanceDetails(string id)
         {
             id = _businessLayer.DecodeStringBase64(id);
             Attendance model = new Attendance()
             {
                 ID = Convert.ToInt32(id),
             };
-            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.DeleteAttendanceDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.DeleteAttendanceDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             if (data != null)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
@@ -378,7 +379,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpPost]
-        public JsonResult ApproveRejectAttendance(long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
+        public async Task<JsonResult> ApproveRejectAttendance(long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
             // Get session values
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -391,7 +392,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             // Get employee details
             var employeeApiResponse = _businessLayer.SendPostAPIRequest(
                 employeeobj,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+           await     _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
                 bearerToken,
                 true
             ).Result.ToString();
@@ -432,7 +433,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             // Submit updated attendance
             var updateApiResponse = _businessLayer.SendPostAPIRequest(
                 attendanceModel,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
+             await   _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace),
                 bearerToken,
                 true
             ).Result.ToString();
@@ -610,7 +611,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult GetTeamAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetTeamAttendenceList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             AttendanceInputParams attendenceListParams = new AttendanceInputParams();
             attendenceListParams.Month = DateTime.Now.Month;
@@ -618,17 +619,17 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             attendenceListParams.Year = DateTime.Now.Year;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             attendenceListParams.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
             return Json(new { data = model });
         }
 
-        public IActionResult ApprovedAttendance()
+        public async Task<IActionResult> ApprovedAttendance()
         {
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ApprovedAttendance);
+            var FormPermission =await _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ApprovedAttendance);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -639,7 +640,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
         }
 
         [HttpPost]
-        public JsonResult GetApprovedAttendance([FromBody] AttendanceStatusRequest request)
+        public async Task<JsonResult> GetApprovedAttendance([FromBody] AttendanceStatusRequest request)
         {
             AttendanceInputParams attendenceListParams = new AttendanceInputParams();
             attendenceListParams.AttendanceStatusId = request.AttendanceStatus;
@@ -649,14 +650,14 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             attendenceListParams.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
+              await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
             var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList();
             return Json(new { data = model });
         }
         [HttpPost]
-        public JsonResult GetManagerApprovedAttendance([FromBody] AttendanceStatusRequest request)
+        public async Task<JsonResult> GetManagerApprovedAttendance([FromBody] AttendanceStatusRequest request)
         {
             AttendanceInputParams attendenceListParams = new AttendanceInputParams();
             //if (!Enum.IsDefined(typeof(AttendanceStatusId), attendanceStatus))
@@ -667,7 +668,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetManagerApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
+              await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetManagerApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
             var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList();
@@ -675,15 +676,15 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
         }
 
         [HttpGet]
-        public IActionResult GetEmployeeAttendanceShiftDetails(int employeeID, int Id)
+        public async Task<IActionResult> GetEmployeeAttendanceShiftDetails(int employeeID, int Id)
         {
             ShiftTypeModel shiftTypeModel = new ShiftTypeModel();
             EmployeeAttendance EmployeeAttendanceModel = new EmployeeAttendance();
             var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var employeeDetails = GetEmployeeDetails(CompanyID, employeeID);
+            var employeeDetails = await GetEmployeeDetails(CompanyID, employeeID);
             shiftTypeModel.ShiftTypeID = employeeDetails.ShiftTypeID;
             shiftTypeModel.CompanyID = CompanyID;
-            var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(shiftTypeModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             shiftTypeModel = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).shiftTypeModel;
             EmployeeAttendanceModel.FullName = employeeDetails.FirstName + ' ' + employeeDetails.MiddleName + ' ' + employeeDetails.Surname;
             EmployeeAttendanceModel.EmployeeNumber = employeeDetails.EmployeeNumber;
@@ -704,17 +705,17 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             return View(results);
         }
         [HttpPost]
-        public JsonResult GetTeamAttendanceLogs(string EmployeeId)
+        public async Task<JsonResult> GetTeamAttendanceLogs(string EmployeeId)
         {
             AttendanceDeviceLog attendenceDeviceLogs = new AttendanceDeviceLog();
             attendenceDeviceLogs.EmployeeId = EmployeeId;
             attendenceDeviceLogs.CreatedBy = HttpContext.Session.GetString(Constants.EmployeeID);
-            var data = _businessLayer.SendPostAPIRequest(attendenceDeviceLogs, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceDeviceLogs), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(attendenceDeviceLogs,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceDeviceLogs), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var model = JsonConvert.DeserializeObject<AttendanceLogResponse>(data);
             return Json(new { data = model.AttendanceLogs });
         }
         [HttpPost]
-        public JsonResult GetTeamEmployeeList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetTeamEmployeeList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             try
             {
@@ -722,7 +723,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                 EmployeeInputParams model = new EmployeeInputParams();
                 model.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
                 model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-                var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
                 if (employeeDetails == null || employeeDetails.Count == 0)
                 {
@@ -744,7 +745,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             return View();
         }
         [HttpPost]
-        public JsonResult GetCompOffAttendanceLogs(long attendanceStatus)
+        public async Task<JsonResult> GetCompOffAttendanceLogs(long attendanceStatus)
         {
             CompOffAttendanceInputParams inputParams = new CompOffAttendanceInputParams
             {
@@ -755,7 +756,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
             var data = _businessLayer.SendPostAPIRequest(
                 inputParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetCompOffAttendanceList),
+              await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetCompOffAttendanceList),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
@@ -766,7 +767,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
         }
 
         [HttpPost]
-        public IActionResult SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
+        public async Task<IActionResult> SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
         {
             var result = new Result();
             EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
@@ -792,7 +793,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
                     };
                     employeeobj.EmployeeID = attendance.EmployeeId;
-                    var responseString = _businessLayer.SendPostAPIRequest(compOff, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace),
+                    var responseString = _businessLayer.SendPostAPIRequest(compOff,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true).Result?.ToString();
 
@@ -801,7 +802,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
                         var employeeApiResponse = _businessLayer.SendPostAPIRequest(
             employeeobj,
-            _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+         await   _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
             HttpContext.Session.GetString(Constants.SessionBearerToken),
             true
         ).Result.ToString();
@@ -888,14 +889,14 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             return View();
         }
         [HttpPost]
-        public JsonResult GetManagerApprovedCompOff([FromBody] AttendanceStatusRequest request)
+        public async Task<JsonResult> GetManagerApprovedCompOff([FromBody] AttendanceStatusRequest request)
         {
             AttendanceInputParams attendenceListParams = new AttendanceInputParams();
             attendenceListParams.AttendanceStatusId = request.AttendanceStatus;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetManagerApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
+              await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetManagerApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
             var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList();
@@ -903,7 +904,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
         }
 
         [HttpPost]
-        public JsonResult GetApprovedCompOff([FromBody] AttendanceStatusRequest request)
+        public async Task<JsonResult> GetApprovedCompOff([FromBody] AttendanceStatusRequest request)
         {
             CompOffInputParams attendenceListParams = new CompOffInputParams();
             attendenceListParams.AttendanceStatusId = request.CompOffStatus;
@@ -911,7 +912,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedCompOff), HttpContext.Session.GetString(Constants.SessionBearerToken),
+              await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedCompOff), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
             var model = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data).ToList();
@@ -920,7 +921,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
 
         [HttpPost]
-        public JsonResult ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
+        public async Task<JsonResult> ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
 
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -933,7 +934,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             // Get employee details
             var employeeApiResponse = _businessLayer.SendPostAPIRequest(
                 employeeobj,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+             await   _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
                 bearerToken,
                 true
             ).Result.ToString();
@@ -976,7 +977,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             // Submit updated attendance
             var updateApiResponse = _businessLayer.SendPostAPIRequest(
                 attendanceModel,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace),
+             await   _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace),
                 bearerToken,
                 true
             ).Result.ToString();
@@ -1153,9 +1154,9 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             });
         }
         #endregion CompOff
-        private EmployeeModel GetEmployeeDetails(long companyId, long employeeId)
+        private async Task<EmployeeModel> GetEmployeeDetails(long companyId, long employeeId)
         {
-            var employeeDetailsJson = _businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = companyId, EmployeeID = employeeId }, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var employeeDetailsJson = _businessLayer.SendPostAPIRequest(new EmployeeInputParams { CompanyID = companyId, EmployeeID = employeeId },await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var employeeDetails = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(employeeDetailsJson).employeeModel;
             return employeeDetails;
         }

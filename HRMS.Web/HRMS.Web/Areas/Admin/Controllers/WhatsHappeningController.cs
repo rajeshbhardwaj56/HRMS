@@ -1,4 +1,5 @@
-﻿using HRMS.Models.AttendenceList;
+﻿using System.Threading.Tasks;
+using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using HRMS.Models.WhatsHappening;
 using HRMS.Web.BusinessLayer;
@@ -30,13 +31,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
             Environment = hostingEnvironment;
 
         }
-        public IActionResult Index(String id)
+        public async Task<IActionResult> Index(String id)
         {
             WhatsHappening whatsHappening = new WhatsHappening();
             if (!string.IsNullOrEmpty(id))
             {
                 whatsHappening.WhatsHappeningID = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
-                var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(whatsHappening,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappenings.Where(x => x.WhatsHappeningID == whatsHappening.WhatsHappeningID).FirstOrDefault();
             }
             return View(whatsHappening);
@@ -44,22 +45,22 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
 
-        public IActionResult Manage()
+        public async Task<IActionResult> Manage()
         {
             WhatsHappening whatsHappening = new WhatsHappening();
             whatsHappening.WhatsHappeningID = 0;
-            var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(whatsHappening,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var result = JsonConvert.DeserializeObject<WhatsHappeningModel>(data);
             return View(result);
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult WhatsHappeningListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> WhatsHappeningListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
             WhatsHappening whatsHappening = new WhatsHappening();
             whatsHappening.WhatsHappeningID = 0;
-            var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(whatsHappening,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<WhatsHappeningModel>(data);
             results._WhatsHappenings.ForEach(x =>
             {
@@ -72,7 +73,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
         [HttpPost]
-        public IActionResult Index(WhatsHappening whatsHappening, List<IFormFile> postedFiles)
+        public async Task<IActionResult> Index(WhatsHappening whatsHappening, List<IFormFile> postedFiles)
         {
             try
             {
@@ -86,7 +87,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     whatsHappening.IconImage = fileName;
                     whatsHappening.CompanyID = long.Parse(HttpContext.Session.GetString(Constants.CompanyID));
                     whatsHappening.UserID = long.Parse(HttpContext.Session.GetString(Constants.UserID));
-                    var data = _businessLayer.SendPostAPIRequest(whatsHappening, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    var data = _businessLayer.SendPostAPIRequest(whatsHappening,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                     //whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappening;
                     var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
 

@@ -1,4 +1,5 @@
-﻿using HRMS.API.BusinessLayer;
+﻿using System.Threading.Tasks;
+using HRMS.API.BusinessLayer;
 using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
 using HRMS.Models.FormPermission;
@@ -25,62 +26,72 @@ namespace HRMS.API.Web.Controllers.Common
         [HttpGet]
         [OutputCache(Duration = 999999)]
         [AllowAnonymous]
-        public IActionResult GetAllResults(long CompanyID)
+        public async Task<IActionResult> GetAllResults(long CompanyID)
         {
-            IActionResult response = Unauthorized();
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
-            results.Countries = _businessLayer.GetAllCountries().Countries;
-            results.Languages = _businessLayer.GetAllCompanyLanguages(CompanyID).Languages;
-            results.Departments = _businessLayer.GetAllCompanyDepartments(CompanyID).Departments;
-            results.EmploymentTypes = _businessLayer.GetAllCompanyEmployeeTypes(CompanyID).EmploymentTypes;
-            results.Currencies = _businessLayer.GetAllCurrencies(CompanyID).Currencies;
-            response = Ok(results);
-            return response;
-        }
-        [HttpGet]
-        [OutputCache(Duration = 999999)]
-        public IActionResult GetAllCountries()
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllCountries());
-            return response;
-        }
-   
 
+            var countriesResult = await _businessLayer.GetAllCountries();
+            var languagesResult = await _businessLayer.GetAllCompanyLanguages(CompanyID);
+            var departmentsResult = await _businessLayer.GetAllCompanyDepartments(CompanyID);
+            var employmentTypesResult = await _businessLayer.GetAllCompanyEmployeeTypes(CompanyID);
+            var currenciesResult = await _businessLayer.GetAllCurrencies(CompanyID);
+
+            results.Countries = countriesResult.Countries;
+            results.Languages = languagesResult.Languages;
+            results.Departments = departmentsResult.Departments;
+            results.EmploymentTypes = employmentTypesResult.EmploymentTypes;
+            results.Currencies = currenciesResult.Currencies;
+
+            return Ok(results);
+        }
 
         [HttpGet]
         [OutputCache(Duration = 999999)]
-        public IActionResult GetAllLanguages()
+        public async Task<IActionResult> GetAllCountries()
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllLanguages());
+            var result = await _businessLayer.GetAllCountries();
+            response = Ok(result);
             return response;
         }
 
         [HttpGet]
         [OutputCache(Duration = 999999)]
-        public IActionResult GetAllEmployees()
+        public async Task<IActionResult> GetAllLanguages()
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllEmployees());
+            var result = await _businessLayer.GetAllLanguages();
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpGet]
+        [OutputCache(Duration = 999999)]
+        public async Task<IActionResult> GetAllEmployees()
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetAllEmployees();
+            response = Ok(result);
             return response;
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult ResetPassword(ResetPasswordModel model)
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.ResetPassword(model));
+            var result = await _businessLayer.ResetPassword(model);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult GetFogotPasswordDetails(ChangePasswordModel model)
+        public async Task<IActionResult> GetFogotPasswordDetails(ChangePasswordModel model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetFogotPasswordDetails(model));
+            var result = await _businessLayer.GetFogotPasswordDetails(model);
+            response = Ok(result);
             return response;
         }
 
@@ -88,86 +99,95 @@ namespace HRMS.API.Web.Controllers.Common
 
         [HttpGet]
         [OutputCache(Duration = 999999)]
-        public IActionResult GetAllCompanyDepartments(long CompanyID)
+        public async Task<IActionResult> GetAllCompanyDepartments(long CompanyID)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllCompanyDepartments(CompanyID));
+            var result = await _businessLayer.GetAllCompanyDepartments(CompanyID);
+            response = Ok(result);
             return response;
         }
 
         [HttpGet]
         [OutputCache(Duration = 999999)]
-        public IActionResult GetAllCompanyFormsPermission(long CompanyID)
+        public async Task<IActionResult> GetAllCompanyFormsPermission(long CompanyID)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllCompanyFormsPermission(CompanyID));
+            var result = await _businessLayer.GetAllCompanyFormsPermission(CompanyID);
+            response = Ok(result);
             return response;
         }
 
         [HttpPost]
         [OutputCache(Duration = 999999)]
-        public IActionResult AddFormPermissions(FormPermissionViewModel objmodel)
+        public async Task<IActionResult> AddFormPermissions(FormPermissionViewModel objmodel)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddFormPermissions(objmodel));
+            var result = await _businessLayer.AddFormPermissions(objmodel);
+            response = Ok(result);
             return response;
         }
+
         [HttpGet]
         [OutputCache(Duration = 999999)]
-        public IActionResult GetFormByDepartmentID(long DepartmentId)
+        public async Task<IActionResult> GetFormByDepartmentID(long DepartmentId)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetFormByDepartmentID(DepartmentId));
-            return response;
-        }
-        
-        [HttpPost]
-        [OutputCache(Duration = 999999)]
-        public IActionResult GetUserFormPermissions(FormPermissionVM objmodel)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetUserFormPermissions(objmodel));
-            return response;
-        }
-        
-        [HttpPost]
-        [OutputCache(Duration = 999999)]
-        public IActionResult AddUserFormPermissions(FormPermissionVM objmodel)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUserFormPermissions(objmodel));
-            return response;
-        }
-        
-
-        [HttpPost]
-        [OutputCache(Duration = 999999)]
-        public IActionResult GetUserFormByDepartmentID(FormPermissionVM objmodel)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetUserFormByDepartmentID(objmodel));
-            return response;
-        }
-        [HttpPost]
-        [OutputCache(Duration = 999999)]
-        public IActionResult   CheckUserFormPermissionByEmployeeID(FormPermissionVM objmodel)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.CheckUserFormPermissionByEmployeeID(objmodel));
-            return response;
-        }
-        [HttpPost]
-        [OutputCache(Duration = 999999)]
-        public IActionResult  GetJobLocationsByCompany(Joblcoations model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetJobLocationsByCompany(model));
+            var result = await _businessLayer.GetFormByDepartmentID(DepartmentId);
+            response = Ok(result);
             return response;
         }
 
-        #endregion Page Permission
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public async Task<IActionResult> GetUserFormPermissions(FormPermissionVM objmodel)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetUserFormPermissions(objmodel);
+            response = Ok(result);
+            return response;
+        }
 
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public async Task<IActionResult> AddUserFormPermissions(FormPermissionVM objmodel)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.AddUserFormPermissions(objmodel);
+            response = Ok(result);
+            return response;
+        }
 
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public async Task<IActionResult> GetUserFormByDepartmentID(FormPermissionVM objmodel)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetUserFormByDepartmentID(objmodel);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public async Task<IActionResult> CheckUserFormPermissionByEmployeeID(FormPermissionVM objmodel)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.CheckUserFormPermissionByEmployeeID(objmodel);
+            response = Ok(result);
+            return response;
+        }
+
+        [HttpPost]
+        [OutputCache(Duration = 999999)]
+        public async Task<IActionResult> GetJobLocationsByCompany(Joblcoations model)
+        {
+            IActionResult response = Unauthorized();
+            var result = await _businessLayer.GetJobLocationsByCompany(model);
+            response = Ok(result);
+            return response;
+        }
+
+        #endregion
 
     }
 }

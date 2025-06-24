@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
+﻿using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using HRMS.Models.Common;
 using HRMS.Models.Company;
@@ -31,12 +32,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public ActionResult FormPermission()
+        public async Task<ActionResult> FormPermission()
         {
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.FormPermission);
+            var FormPermission = await _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.FormPermission);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -46,18 +47,18 @@ namespace HRMS.Web.Areas.Admin.Controllers
             FormPermissionViewModel objmodel = new FormPermissionViewModel();
 
             var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var data = _businessLayer.SendGetAPIRequest("Common/GetAllCompanyDepartments?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            objmodel.Departments = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).Departments;
+            var data =await _businessLayer.SendGetAPIRequest("Common/GetAllCompanyDepartments?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+            objmodel.Departments = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data.ToString()).Departments;
 
 
-            var Forms = _businessLayer.SendGetAPIRequest("Common/GetAllCompanyFormsPermission?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            objmodel.FormsPermission = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(Forms).FormsPermission;
+            var Forms =await  _businessLayer.SendGetAPIRequest("Common/GetAllCompanyFormsPermission?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+            objmodel.FormsPermission = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(Forms.ToString()).FormsPermission;
 
             return View(objmodel);
         }
 
         [HttpPost]
-        public ActionResult FormPermission(FormPermissionViewModel obj)
+        public async Task<ActionResult> FormPermission(FormPermissionViewModel obj)
         {
             long insertedId = 0;
             try
@@ -65,7 +66,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 obj.CreatedByID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
 
                 var data = _businessLayer.SendPostAPIRequest(obj,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddFormPermissions),
+                  await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddFormPermissions),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true).Result.ToString();
                 insertedId = JsonConvert.DeserializeObject<long>(data);

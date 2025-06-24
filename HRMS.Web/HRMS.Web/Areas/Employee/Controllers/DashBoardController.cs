@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Common;
+﻿using System.Threading.Tasks;
+using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.LeavePolicy;
 using HRMS.Web.BusinessLayer;
@@ -42,7 +43,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 JobLocationId = jobLocationId
             };
 
-            var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
+            var apiUrl =await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
             var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
             var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
 
@@ -51,7 +52,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 foreach (var employee in model.EmployeeDetails.Where(x => !string.IsNullOrEmpty(x.EmployeePhoto)))
                 {
-                    employee.EmployeePhoto = _s3Service.GetFileUrl(employee.EmployeePhoto);
+                    employee.EmployeePhoto =await _s3Service.GetFileUrl(employee.EmployeePhoto);
                 }
             }
 
@@ -60,13 +61,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 foreach (var item in model.WhatsHappening.Where(x => !string.IsNullOrEmpty(x.IconImage)))
                 {
-                    item.IconImage = _s3Service.GetFileUrl(item.IconImage);
+                    item.IconImage = await _s3Service.GetFileUrl(item.IconImage);
                 }
             }
 
             if (model != null)
             {
-                var leavePolicy = GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
+                var leavePolicy =await GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
 
                 // Fiscal year start date (March 21)
                 DateTime today = DateTime.Today;
@@ -121,10 +122,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
          
-        private LeavePolicyModel GetLeavePolicyData(long companyId, long leavePolicyId)
+        private async Task<LeavePolicyModel> GetLeavePolicyData(long companyId, long leavePolicyId)
         {
             var leavePolicyModel = new LeavePolicyModel { CompanyID = companyId, LeavePolicyID = leavePolicyId };
-            var leavePolicyDataJson = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var leavePolicyDataJson = _businessLayer.SendPostAPIRequest(leavePolicyModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var leavePolicyModelResult = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(leavePolicyDataJson).leavePolicyModel;
             return leavePolicyModelResult;
         }

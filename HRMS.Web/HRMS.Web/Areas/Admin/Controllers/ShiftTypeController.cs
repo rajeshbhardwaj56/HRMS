@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Common;
+﻿using System.Threading.Tasks;
+using HRMS.Models.Common;
 using HRMS.Models.ShiftType;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authentication;
@@ -24,12 +25,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
             _CheckUserFormPermission = CheckUserFormPermission;
         }
 
-        public IActionResult ShiftTypeListing()
+        public async Task<IActionResult> ShiftTypeListing()
         {
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ShiftTypeListing);
+            var FormPermission =await _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ShiftTypeListing);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -41,14 +42,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult ShiftTypeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> ShiftTypeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
         {
           ShiftTypeInputParans shiftTypeParams = new ShiftTypeInputParans();
             shiftTypeParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             shiftTypeParams.DisplayStart = iDisplayStart;
             shiftTypeParams.DisplayLength = iDisplayLength;
             shiftTypeParams.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
-            var data = _businessLayer.SendPostAPIRequest(shiftTypeParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(shiftTypeParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             return Json(new {
                 draw = sEcho,
@@ -56,7 +57,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 recordsFiltered = results.ShiftType.Select(x => x.FilteredRecords).FirstOrDefault() ?? 0,
                 data = results.ShiftType });
         }
-        public IActionResult Index(string id)
+        public async Task<IActionResult> Index(string id)
         {
             ShiftTypeModel shiftTypeModel = new ShiftTypeModel();
             shiftTypeModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -64,10 +65,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(id))
             {
                 shiftTypeModel.ShiftTypeID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(shiftTypeModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
                 shiftTypeModel = JsonConvert.DeserializeObject<Results>(data).shiftTypeModel;
             }
-            var holidayListData = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var holidayListData = _businessLayer.SendPostAPIRequest(shiftTypeModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
             if (holidayListData != null)
             {
                 shiftTypeModel.HolidayList = JsonConvert.DeserializeObject<List<SelectListItem>>(holidayListData);
@@ -81,13 +82,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return View(shiftTypeModel);
         }
         [HttpPost]
-        public IActionResult Index(ShiftTypeModel shiftTypeModel)
+        public async Task<IActionResult> Index(ShiftTypeModel shiftTypeModel)
         {
             if (ModelState.IsValid)
             {
                 shiftTypeModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
 
-                var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.AddUpdateShiftType), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var data = _businessLayer.SendPostAPIRequest(shiftTypeModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.AddUpdateShiftType), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var results = JsonConvert.DeserializeObject<Result>(data);
 
                 if (shiftTypeModel.ShiftTypeID > 0)

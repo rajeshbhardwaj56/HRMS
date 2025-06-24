@@ -21,19 +21,20 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddUpdateShiftType(ShiftTypeModel shiftTypeModel)
+        public async Task<IActionResult> AddUpdateShiftType(ShiftTypeModel shiftTypeModel)
         {
             IActionResult response = Unauthorized();
-            Result result = _businessLayer.AddUpdateShiftType(shiftTypeModel);
+            Result result = await _businessLayer.AddUpdateShiftType(shiftTypeModel);
             response = Ok(result);
             return response;
         }
 
         [HttpPost]
-        public IActionResult GetAllShiftTypes(ShiftTypeInputParans model)
+        public async Task<IActionResult> GetAllShiftTypes(ShiftTypeInputParans model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAllShiftTypes(model));
+            var result = await _businessLayer.GetAllShiftTypes(model);
+            response = Ok(result);
             return response;
         }
     }
