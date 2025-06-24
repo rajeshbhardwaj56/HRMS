@@ -1274,7 +1274,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             var model = new HRMS.Models.Employee.LanguageDetailParams
             {
-                EmployeesFamilyDetailID = encodedId
+                EmployeeLanguageDetailID = encodedId
             };
 
             var response = _businessLayer.SendPostAPIRequest(

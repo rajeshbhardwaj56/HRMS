@@ -2733,11 +2733,8 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@Month", model.Month),
         new SqlParameter("@UserId", model.UserId)
     };
-
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceDeviceLog, sqlParameters);
-
             var dailyStatuses = new List<DailyAttendanceStatus>();
-
             if (dataSet.Tables.Count > 0)
             {
                 var table = dataSet.Tables[0];
@@ -4509,7 +4506,7 @@ namespace HRMS.API.BusinessLayer
         {
             List<SqlParameter> sqlParameter = new()
     {
-        new SqlParameter("@LanguageDetailID", model.EmployeesFamilyDetailID)
+        new SqlParameter("@LanguageDetailID", model.EmployeeLanguageDetailID)
     };
 
             SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
@@ -4741,7 +4738,7 @@ namespace HRMS.API.BusinessLayer
             {
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
         {
-            new SqlParameter("@ReportingUserID", model.UserId),      
+            new SqlParameter("@ReportingUserID", model.UserId),
             new SqlParameter("@AttendanceStatusId",attStatus),
             new SqlParameter("@RoleId",model.RoleId)
         };
@@ -4797,7 +4794,7 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
                 sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
                 sqlParameter.Add(new SqlParameter("@RoleId", att.RoleId));
-             
+
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
                 if (dataSet.Tables[0].Columns.Contains("Result"))
                 {
@@ -4847,5 +4844,32 @@ namespace HRMS.API.BusinessLayer
 
 
         #endregion CompOff Attendance
+
+
+        #region Exception Handling
+        public void InsertException(ExceptionLogModel model)
+        {
+         
+           
+                List<SqlParameter> sqlParams = new List<SqlParameter>
+        {
+            new SqlParameter("@ControllerName", model.ControllerName ?? (object)DBNull.Value),
+            new SqlParameter("@AreaName", model.AreaName ?? (object)DBNull.Value),
+            new SqlParameter("@ActionName", model.ActionName ?? (object)DBNull.Value),
+            new SqlParameter("@Url", model.Url ?? (object)DBNull.Value),
+            new SqlParameter("@Message", model.Message ?? (object)DBNull.Value),
+            new SqlParameter("@StackTrace", model.StackTrace ?? (object)DBNull.Value),
+            new SqlParameter("@Source", model.Source ?? (object)DBNull.Value),
+            new SqlParameter("@EmployeeId", model.EmployeeId ?? (object)DBNull.Value)
+        };
+
+                SqlParameterCollection outputParams = null;
+
+                
+                DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertExceptionLog, sqlParams, ref outputParams);
+            
+           
+        }
+        #endregion Exception Handling
     }
 }

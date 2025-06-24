@@ -1,5 +1,6 @@
 ﻿using HRMS.API.BusinessLayer;
 using HRMS.API.BusinessLayer.ITF;
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.FormPermission;
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +46,7 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.GetAllCountries());
             return response;
         }
-   
+
 
 
         [HttpGet]
@@ -120,7 +121,7 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.GetFormByDepartmentID(DepartmentId));
             return response;
         }
-        
+
         [HttpPost]
         [OutputCache(Duration = 999999)]
         public IActionResult GetUserFormPermissions(FormPermissionVM objmodel)
@@ -129,7 +130,7 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.GetUserFormPermissions(objmodel));
             return response;
         }
-        
+
         [HttpPost]
         [OutputCache(Duration = 999999)]
         public IActionResult AddUserFormPermissions(FormPermissionVM objmodel)
@@ -138,7 +139,7 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.AddUserFormPermissions(objmodel));
             return response;
         }
-        
+
 
         [HttpPost]
         [OutputCache(Duration = 999999)]
@@ -150,7 +151,7 @@ namespace HRMS.API.Web.Controllers.Common
         }
         [HttpPost]
         [OutputCache(Duration = 999999)]
-        public IActionResult   CheckUserFormPermissionByEmployeeID(FormPermissionVM objmodel)
+        public IActionResult CheckUserFormPermissionByEmployeeID(FormPermissionVM objmodel)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.CheckUserFormPermissionByEmployeeID(objmodel));
@@ -158,7 +159,7 @@ namespace HRMS.API.Web.Controllers.Common
         }
         [HttpPost]
         [OutputCache(Duration = 999999)]
-        public IActionResult  GetJobLocationsByCompany(Joblcoations model)
+        public IActionResult GetJobLocationsByCompany(Joblcoations model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetJobLocationsByCompany(model));
@@ -167,7 +168,15 @@ namespace HRMS.API.Web.Controllers.Common
 
         #endregion Page Permission
 
-
+        #region Exception
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult InsertException(ExceptionLogModel model)
+        {
+            _businessLayer.InsertException(model);
+            return Ok(); 
+        }
+        #endregion Exception
 
     }
 }

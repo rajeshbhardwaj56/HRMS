@@ -306,6 +306,8 @@ namespace HRMS.Models.Common
         public const string AddUpdateCompOffAttendace = "AddUpdateCompOffAttendace";
         public const string GetApprovedCompOff = "GetApprovedCompOff";
 
+        public const string InsertException = "InsertException";
+
 
     }
 

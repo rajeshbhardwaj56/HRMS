@@ -10,7 +10,7 @@ namespace HRMS.Models.Employee
     public class LanguageDetailParams
     {
         public long EmployeeID { get; set; }
-        public long EmployeesFamilyDetailID { get; set; }
+        public long EmployeeLanguageDetailID { get; set; }
     }
     public class LanguageDetail
     {

@@ -14,6 +14,8 @@ using HRMS.Models.Employee;
 using HRMS.Web.BusinessLayer.S3;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using HRMS.Models.Company;
+using HRMS.Models;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace HRMS.Web.Controllers
 {
@@ -554,10 +556,67 @@ namespace HRMS.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
+           
+
+      
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
         public IActionResult ErrorPage()
         {
+            var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+
+            if (exceptionFeature != null)
+            {
+                var exception = exceptionFeature.Error;
+                var path = exceptionFeature.Path;
+                string controllerName = "Unknown";
+                string actionName = "Unknown";
+                string areaName = "Unknown";
+                var stackLines = exception.StackTrace?.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                if (stackLines != null)
+                {
+                    var controllerLine = stackLines.FirstOrDefault(line => line.Contains(".Controllers.") && line.Contains(" in "));
+                    if (!string.IsNullOrEmpty(controllerLine))
+                    {
+              
+                        var methodMatch = System.Text.RegularExpressions.Regex.Match(controllerLine, @"(?<=\.)\w+\s*\(");
+                        if (methodMatch.Success)
+                        {
+                            actionName = methodMatch.Value.Replace("(", "").Trim();
+                        }
+
+                    
+                        var parts = controllerLine.Split('.');
+                        var areaIndex = Array.IndexOf(parts, "Areas");
+                        if (areaIndex >= 0 && parts.Length > areaIndex + 3)
+                        {
+                            areaName = parts[areaIndex + 1];
+                            controllerName = parts[areaIndex + 3].Replace("Controller", "");
+                        }
+                    }
+                }
+
+                var model = new ExceptionLogModel
+                {
+                    AreaName = areaName,
+                    ControllerName = controllerName,
+                    ActionName = actionName,
+                    Url = path,
+                    Message = exception.Message,
+                    StackTrace = exception.StackTrace ?? "",
+                    Source = exception.Source ?? "",
+                    EmployeeId = HttpContext.Session?.GetString("EmployeeID") != null
+                        ? Convert.ToInt64(HttpContext.Session.GetString("EmployeeID"))
+                        : (long?)null
+                };             
+                var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+                _businessLayer.SendPostAPIRequest(
+                    model,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.InsertException),
+                    bearerToken,
+                    true
+                ).GetAwaiter().GetResult();
+            }
             return View();
         }
     }
