@@ -8,14 +8,14 @@
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 
-    ViewData["Title"] = "Attendance List";
+    ViewData["Title"] = "Attendance Correction";
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
 }
 
 
-<div class="main-header anim" style="--delay: 0s">My Attendance List  <a href="~/Employee/Attendance/MyAttendance"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
+<div class="main-header anim" style="--delay: 0s">My Attendance Correction List  <a href="~/Employee/Attendance/MyAttendance"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
 
 <div class="table-responsive py-3">
     <table id="tblAttendenceListing" class="table table-striped body-text" style="width:100%">
@@ -26,8 +26,7 @@
                 <th>AttendenceDate</th>
                 <th>First Login </th>
                 <th>Last Login</th>
-                <th>Manager L1 Name</th>
-                <th>Manager L2 Name</th>
+                <th>Manager Name</th>
                 <th>Status</th>
                 <th>Comments</th>
                 <th>Action</th>
@@ -135,7 +134,6 @@
                 }
                 ,
                 { "data": "managerNameL1", "autoWidth": true },
-                { "data": "managerNameL2", "autoWidth": true },
                 { "data": "attendanceStatus", "autoWidth": true },
                 { "data": "comments", "autoWidth": true },
                 {

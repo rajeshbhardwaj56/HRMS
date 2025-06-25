@@ -12,6 +12,8 @@ using System.ComponentModel.Design;
 using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authentication;
 using System.Threading.Tasks;
+using HRMS.Models.LeavePolicy;
+using DocumentFormat.OpenXml.EMMA;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
@@ -54,13 +56,17 @@ namespace HRMS.Web.Areas.HR.Controllers
 		[AllowAnonymous]
 		public async Task<JsonResult> CompanyListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
 		{
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
 			EmployeeInputParams employee = new EmployeeInputParams();
-			var data = _businessLayer.SendPostAPIRequest(employee,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
-			var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(employee, apiUrl, token, true);
+          
+			var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(apiResponse?.ToString());
 			return Json(new { data = results.Companies });
 		}
 		public async Task<IActionResult> Index(string id)
         {
+            
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
@@ -81,14 +87,17 @@ namespace HRMS.Web.Areas.HR.Controllers
 				{
 					model.CompanyID = Convert.ToInt64(id);
 				}
-				var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
-				model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyModel;
+				var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(model, apiUrl, token, true);
+                
+				model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(apiResponse?.ToString())?.companyModel;
 			}
 			if (!string.IsNullOrEmpty(model.CompanyLogo))
 			{
 				model.CompanyLogo =await _s3Service.GetFileUrl(model.CompanyLogo);
 			}
-			HRMS.Models.Common.Results results = GetAllResults(Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)));
+			HRMS.Models.Common.Results results = await GetAllResults(Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)));
 			model.Countries = results.Countries;
 			model.Currencies = results.Currencies;
 			return View(model);
@@ -100,7 +109,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 			if (ModelState.IsValid)
 			{
 				model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-				HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
+				HRMS.Models.Common.Results results =await GetAllResults(model.CompanyID);
 				model.Countries = results.Countries;
 				model.Currencies = results.Currencies;
 
@@ -120,13 +129,10 @@ namespace HRMS.Web.Areas.HR.Controllers
 				var CompanyLogo = _s3Service.GetFileUrl(newProfileKey);
 				_context.HttpContext.Session.SetString(Constants.CompanyLogo, "");
 				_context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
-				var data = _businessLayer.SendPostAPIRequest(
-					model,
-					await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.AddUpdateCompany),
-					HttpContext.Session.GetString(Constants.SessionBearerToken),
-					true
-				).ToString();
-				var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
+				var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.AddUpdateCompany);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(model, apiUrl, token, true);
+				var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(apiResponse?.ToString());
 				TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
 				TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
 				return RedirectToActionPermanent(
@@ -137,14 +143,14 @@ namespace HRMS.Web.Areas.HR.Controllers
 			}
 			else
 			{
-				HRMS.Models.Common.Results results = GetAllResults(model.CompanyID);
+				HRMS.Models.Common.Results results = await GetAllResults(model.CompanyID);
 				model.Countries = results.Countries;
 				model.Currencies = results.Currencies;
 				return View(model);
 			}
 		}
 
-		public HRMS.Models.Common.Results GetAllResults(long CompanyID)
+		public  async Task<HRMS.Models.Common.Results> GetAllResults(long CompanyID)
 		{
 			HRMS.Models.Common.Results result = null;
 			var data = "";
@@ -154,8 +160,9 @@ namespace HRMS.Web.Areas.HR.Controllers
 			}
 			else
 			{
-				data = _businessLayer.SendGetAPIRequest("Common/GetAllResults?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-			}
+                var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+				data = (string)(await _businessLayer.SendGetAPIRequest("Common/GetAllResults?CompanyID=" + CompanyID, token, true));
+            }
 			HttpContext.Session.SetString(Constants.ResultsData, data);
 			result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
 			return result;

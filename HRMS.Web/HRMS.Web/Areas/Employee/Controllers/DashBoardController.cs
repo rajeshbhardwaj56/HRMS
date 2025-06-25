@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using DocumentFormat.OpenXml.EMMA;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.LeavePolicy;
@@ -125,7 +126,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
         private async Task<LeavePolicyModel> GetLeavePolicyData(long companyId, long leavePolicyId)
         {
             var leavePolicyModel = new LeavePolicyModel { CompanyID = companyId, LeavePolicyID = leavePolicyId };
-            var leavePolicyDataJson = _businessLayer.SendPostAPIRequest(leavePolicyModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                leavePolicyModel,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+        
+            var leavePolicyDataJson = apiResponse?.ToString();
             var leavePolicyModelResult = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(leavePolicyDataJson).leavePolicyModel;
             return leavePolicyModelResult;
         }

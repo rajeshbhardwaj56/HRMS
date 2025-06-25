@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using DocumentFormat.OpenXml.EMMA;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Web.BusinessLayer;
@@ -55,8 +56,10 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 employee.EmployeeID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(employee,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
-                employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).employeeModel;
+                var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(employee, apiUrl, token, true);             
+                employee = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(apiResponse?.ToString()).employeeModel;
                 if (employee.References == null || employee.References.Count == 0)
                 {
                     employee.References = new List<Reference>() {
@@ -70,7 +73,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 };
             }
 
-            HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
+            HRMS.Models.Common.Results results = await GetAllResults(employee.CompanyID);
             employee.Languages = results.Languages;
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
@@ -82,7 +85,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpPost]
         public async Task<IActionResult> Registration(EmployeeModel employee, List<IFormFile> postedFiles)
         {
-            HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
+            HRMS.Models.Common.Results results = await GetAllResults(employee.CompanyID);
             try
             {
                 string wwwPath = Environment.WebRootPath;
@@ -96,8 +99,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                         fileName = postedFile.FileName.Replace(" ", "");
                     }
                     employee.ProfilePhoto = fileName;
-                    var data = _businessLayer.SendPostAPIRequest(employee,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
-                    var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
+                    var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+                    var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee);
+                    var apiResponse = await _businessLayer.SendPostAPIRequest(employee, apiUrl, token, true);                                
+                    var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(apiResponse?.ToString());
 
                     string path = Path.Combine(this.Environment.WebRootPath, Constants.EmployeePhotoPath + result.PKNo.ToString());
 
@@ -154,7 +159,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 
 
-        public HRMS.Models.Common.Results GetAllResults(long CompanyID)
+        public async Task<HRMS.Models.Common.Results> GetAllResults(long CompanyID)
         {
             HRMS.Models.Common.Results result = null;
             var data = "";
@@ -164,11 +169,13 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             else
             {
-                data = _businessLayer.SendGetAPIRequest("Common/GetAllResults?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+                data = (string)(await _businessLayer.SendGetAPIRequest("Common/GetAllResults?CompanyID=" + CompanyID, token, true));
             }
             HttpContext.Session.SetString(Constants.ResultsData, data);
             result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             return result;
         }
+
     }
 }

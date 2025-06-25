@@ -48,8 +48,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             var apiUrl =await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
             var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
             var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
-
-            // Update Employee Photos URLs
+          
             if (model?.EmployeeDetails != null)
             {
                 foreach (var employee in model.EmployeeDetails.Where(x => !string.IsNullOrEmpty(x.EmployeePhoto)))
@@ -57,8 +56,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     employee.EmployeePhoto = await _s3Service.GetFileUrl(employee.EmployeePhoto);
                 }
             }
-
-            // Update WhatsHappening Icon URLs
+        
             if (model?.WhatsHappening != null)
             {
                 foreach (var item in model.WhatsHappening.Where(x => !string.IsNullOrEmpty(x.IconImage)))
@@ -127,9 +125,18 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         private async Task<LeavePolicyModel> GetLeavePolicyData(long companyId, long leavePolicyId)
         {
-            var leavePolicyModel = new LeavePolicyModel { CompanyID = companyId, LeavePolicyID = leavePolicyId };
-            var leavePolicyDataJson =  _businessLayer.SendPostAPIRequest(leavePolicyModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
-            var leavePolicyModelResult = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(leavePolicyDataJson).leavePolicyModel;
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var leavePolicyModel = new LeavePolicyModel
+            {
+                CompanyID = companyId,
+                LeavePolicyID = leavePolicyId
+            };
+
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(leavePolicyModel, apiUrl, token, true);
+
+            var leavePolicyModelResult = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(apiResponse?.ToString())?.leavePolicyModel;
+
             return leavePolicyModelResult;
         }
         private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
