@@ -15,8 +15,9 @@ using Microsoft.AspNetCore.Authentication;
 namespace HRMS.Web.Areas.HR.Controllers
 {
 	[Area(Constants.ManageHR)]
-	//[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
-	public class CompanyController : Controller
+    [Authorize]
+    //[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+    public class CompanyController : Controller
 	{
 		IConfiguration _configuration;
 		IBusinessLayer _businessLayer;

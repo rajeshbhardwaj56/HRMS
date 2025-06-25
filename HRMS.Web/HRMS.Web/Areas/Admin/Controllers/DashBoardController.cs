@@ -27,7 +27,7 @@ using System.Diagnostics;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-
+    [Authorize]
     public class DashBoardController : Controller
     {
         IConfiguration _configuration;

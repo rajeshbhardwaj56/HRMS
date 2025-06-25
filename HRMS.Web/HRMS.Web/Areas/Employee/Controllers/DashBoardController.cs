@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 namespace HRMS.Web.Areas.Employee.Controllers
 {
+    [Authorize]
     [Area(Constants.ManageEmployee )]
   //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager))]
     public class DashBoardController : Controller

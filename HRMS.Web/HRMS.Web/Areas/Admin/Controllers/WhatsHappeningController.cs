@@ -12,7 +12,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-
+    [Authorize]
     public class WhatsHappeningController : Controller
     {
         private readonly ILogger<WhatsHappeningController> _logger;

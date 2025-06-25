@@ -43,8 +43,11 @@
 			{
 				<li class="nav-list__item"><a class='nav-link' asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="MyInfo" asp-action="Support">Support</a></li>
 
-			} 
-
+			}
+			@if (Model.FormPermissionList.Where(x => x.FormID == 12 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+			{
+				<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyListing">Leave Policy</a></li>
+			}
 			<div class="user-settings dropdown">
 
 				<a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
@@ -64,10 +67,7 @@
 							{
 								<li class="nav-list__item submenu--triggers"><a class='nav-link' asp-area="admin" asp-controller="Template" asp-action="TemplateListing">Templates </a></li>
 							}
-							@if (Model.FormPermissionList.Where(x => x.FormID == 12 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
-							{
-								<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyListing">Leave Policy</a></li>
-							}
+						
 							@if (Model.FormPermissionList.Where(x => x.FormID == 14 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
 							{
 								<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyDetailsListing">Add Policies </a></li>

@@ -11,7 +11,7 @@ using Results = HRMS.Models.Common.Results;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-
+    [Authorize]
     public class ShiftTypeController : Controller
     {
         private readonly IConfiguration _configuration;
