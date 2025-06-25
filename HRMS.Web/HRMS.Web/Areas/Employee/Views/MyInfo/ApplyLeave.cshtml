@@ -64,7 +64,8 @@
 			.Where(lt => !lt.Text.Equals("Compensatory Off", StringComparison.OrdinalIgnoreCase))
 			.ToList();
 	}
-
+		  
+																						 
 }
 
 @functions {
@@ -231,7 +232,16 @@
 																				<label for="datepicker1" class="">From:</label>
 																				<div class="position-relative">
 																					<div class="input-group date" id="datepickerdiv1">
-																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new
+																							{
+																								@class = "form-control body-text",
+																								@type = "date",
+																								@min = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd") 
+																							})
+																							 
+
+																					 
+
 																					</div>
 																				</div>
 																			</div>
@@ -240,7 +250,15 @@
 																				<label for="datepicker2" class="">To:</label>
 																				<div class="position-relative">
 																					<div class="input-group date" id="datepickerdiv2">
-																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+																				@* 	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+ *@
+
+																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new
+																							{
+																								@class = "form-control body-text",
+																								@type = "date",
+																								@min = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd") 
+																							})
 																					</div>
 																				</div>
 																			</div>

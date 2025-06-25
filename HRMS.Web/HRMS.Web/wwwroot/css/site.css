@@ -12,6 +12,12 @@ button#DeleteButton {
 
 
 }
+span.LeaveApproved {
+    background: #145322;
+    color: white;
+    border-radius: 6px;
+    padding: 3px 8px 4px 8px;
+}
 @media (min-width: 768px) {
     html {
         font-size: 16px;

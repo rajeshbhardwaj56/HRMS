@@ -1789,7 +1789,7 @@ namespace HRMS.API.BusinessLayer
                                   LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
                                   LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
                                   UploadCertificate = dataRow.Field<string>("UploadCertificate"),
-                                  ExpectedDeliveryDate = dataRow.Field<DateTime>("ExpectedDeliveryDate"),
+                                  ExpectedDeliveryDate = dataRow.Field<DateTime?>("ExpectedDeliveryDate"),
                                   NoOfDays = dataRow.Field<decimal>("NoOfDays"),
                                   IsActive = dataRow.Field<bool>("IsActive"),
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
@@ -2790,7 +2790,8 @@ namespace HRMS.API.BusinessLayer
                             EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
                             TotalWorkingDays = dataRow.Field<int>("TotalWorkingDays"),
-                            PresentDays = dataRow.Field<int>("PresentDays"),
+                            PresentDays = dataRow.Field<decimal>("PresentDays"),
+                            TotalLeaves = dataRow.Field<decimal>("TotalLeaves"),
                             AttendanceByDay = new Dictionary<string, string>()
                         };
 

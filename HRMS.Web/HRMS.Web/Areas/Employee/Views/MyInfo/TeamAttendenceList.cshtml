@@ -311,7 +311,7 @@
 
 	  let headerHtml = `<th>Employee Number</th><th>Employee Name</th><th>Job Location</th>`;
 	  dayKeys.forEach(day => headerHtml += `<th>${day.replace("_", " ")}</th>`);
-	  headerHtml += `<th>Total Working Days</th><th>Present Days</th>`;
+	  headerHtml += `<th>Total Working Days</th><th>Present Days</th><th>Total Leaves</th>`;
 	  thead.html(headerHtml);
 
 	  data.forEach(record => {
@@ -322,7 +322,7 @@
 		  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "table-warning text-dark" : "";
 		  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${className} status-badge">${status}</span></td>`;
 		});
-		row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td></tr>`;
+		row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td></tr>`;
 		tbody.append(row);
 	  });
 	}
@@ -426,12 +426,30 @@
 		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($(this).val()) || 0);
 	  });
 
-	  $("#search-box").on("keyup", function () {
+		 let searchTimer;
+
+	$("#search-box").on("keyup", function () {
+		clearTimeout(searchTimer); // Purana timer clear karo
+
 		const text = $(this).val().trim();
 		currentPage = 1;
 		const override = text === "" ? null : 0;
-		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, text, override, parseInt($("#jobLocationDropdown").val()) || 0);
-	  });
+
+		// Minimum character limit (optional but useful)
+		if (text.length === 0 || text.length >= 2) {
+			searchTimer = setTimeout(function () {
+				fetchAttendanceData(
+					getSelectedYear(),
+					getSelectedMonth(),
+					currentPage,
+					text,
+					override,
+					parseInt($("#jobLocationDropdown").val()) || 0
+				);
+			}, 300); // debounce delay: 300ms
+		}
+	});
+
 
 	  $("#page-size-select").on("change", function () {
 		pageSize = parseInt($(this).val());
@@ -471,7 +489,7 @@
 			  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div></div></div>`;
 			  break;
 			case "Leave":
-			  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div></div></div>`;
+			  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div></div></div>`;
 			  break;
 			default:
 			  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>`;
