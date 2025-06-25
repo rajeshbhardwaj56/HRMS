@@ -241,9 +241,7 @@
                                 }
                                 @if (Model.FormPermissionList.Any(x => x.FormID == 7 && x.IsFormPermissions && x.FormLevel == 2))
                                 {
-                                    if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
-                                    LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
-                                    {
+                                     
                                         <li>
                                             <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "TeamAttendenceList" ? "hrms-active" : "")"
                                             asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
@@ -252,7 +250,7 @@
                                                 <i class="bi bi-people me-2"></i> Team Attendance
                                             </a>
                                         </li>
-                                    }
+                                    
                                 }
                                 @if (Model.FormPermissionList.Any(x => x.FormID == 6 && x.IsFormPermissions && x.FormLevel == 2))
                                 {
