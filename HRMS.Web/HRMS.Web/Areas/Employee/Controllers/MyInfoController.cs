@@ -1528,6 +1528,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         public async Task<IActionResult> ApplyLeave(MyInfoResults model, List<IFormFile> postedFiles)
         {
+
             var leaveSummary = model.leaveResults.leaveSummaryModel;
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
@@ -1575,7 +1576,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             leaveSummary.EmployeeID = employeeDetails.EmployeeID;
             var joinDate = employeeDetails.JoiningDate;
 
-            var leavePolicyModel =await GetLeavePolicyData(leaveSummary.CompanyID, leaveSummary.LeavePolicyID);
+            var leavePolicyModel = await GetLeavePolicyData(leaveSummary.CompanyID, leaveSummary.LeavePolicyID);
             var leaveSummaryData = await GetLeaveSummaryData(leaveSummary.EmployeeID, leaveSummary.UserID, leaveSummary.CompanyID);
             var leaveSummaryDataResult = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryData)?.leavesSummary;
             var EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -1608,8 +1609,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             bool needsWeekendHolidayCount = leaveSummary.LeaveTypeID == (int)LeaveType.Paternity
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.MedicalLeave
-                                           || leaveSummary.LeaveTypeID == (int)LeaveType.CompOff
-                                           || leaveSummary.LeaveTypeID == (int)LeaveType.LeaveWithOutPay;
+                                           || leaveSummary.LeaveTypeID == (int)LeaveType.CompOff;
 
             if (needsWeekendHolidayCount)
             {
@@ -1727,14 +1727,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     DateTime today = DateTime.Today;
                     DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
 
-                 
+                    // Step 1: Calculate already approved annual + medical leaves in current fiscal year
                     decimal approvedLeaves = leaveSummaryDataResult
                         .Where(x => x.StartDate >= fiscalYearStart
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                         .Sum(x => x.NoOfDays);
 
-                    
+                    // Step 2: Calculate accrual and carry forward
                     double accruedLeaves = 0;
                     if (approvedLeaves < 30)
                     {
@@ -1788,7 +1788,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     modeldata.StartDate = model.leaveResults.leaveSummaryModel.StartDate.ToString("yyyy-MM-dd");
                     modeldata.EndDate = model.leaveResults.leaveSummaryModel.EndDate.ToString("yyyy-MM-dd");
                     modeldata.RequestedLeaveDays = leaveSummary.NoOfDays;
-                    var campoffdata = await  GetValidateCompOffLeave(modeldata);
+                    var campoffdata = await GetValidateCompOffLeave(modeldata);
                     if (campoffdata != null)
                     {
                         if (campoffdata.IsEligible == 0)
@@ -1812,7 +1812,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
 
             string newCertificateKey = await _s3Service.ProcessFileUploadAsync(postedFiles, leaveSummary.UploadCertificate);
-            
+
+
             if (!string.IsNullOrEmpty(newCertificateKey))
             {
                 if (!string.IsNullOrEmpty(leaveSummary.UploadCertificate))
@@ -1827,18 +1828,17 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
             var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave);
             var apiResponse = await _businessLayer.SendPostAPIRequest(
-                model,
+model.leaveResults.leaveSummaryModel,
               apiUrl,
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             );
-      
             var data = apiResponse?.ToString();
+
             var result = JsonConvert.DeserializeObject<Result>(data);
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
             var messageData = "Leave applied successfully.";
             return Json(new { isValid = true, message = messageData });
-
         }
 
         #endregion Apply Leave
