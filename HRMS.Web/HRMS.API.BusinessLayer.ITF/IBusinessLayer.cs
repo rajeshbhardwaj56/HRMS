@@ -130,7 +130,7 @@ namespace HRMS.API.BusinessLayer.ITF
         Task<EmployeePermissionVM> CheckUserFormPermissionByEmployeeID(FormPermissionVM obj);
         #endregion Page Permission
         Task<List<Joblcoations>> GetJobLocationsByCompany(Joblcoations model);
-        public List<Joblcoations> GetJobLocationsByCompany(Joblcoations model);
+   
 
         #region Exception Handling
         void  InsertException(ExceptionLogModel model);

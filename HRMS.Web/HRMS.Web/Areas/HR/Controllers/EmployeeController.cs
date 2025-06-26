@@ -998,31 +998,28 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             try
             {
-                if (!long.TryParse(HttpContext.Session.GetString(Constants.CompanyID), out var companyId))
+                var companyIdString = HttpContext.Session.GetString(Constants.CompanyID);
+                if (!long.TryParse(companyIdString, out var companyId))
                     return BadRequest("Invalid Company ID");
 
-                var inputParams = new EmployeeInputParams
+                var models = new EmployeeInputParams
                 {
                     CompanyID = companyId
                 };
 
-                var apiUrl = await _businessLayer.GetFormattedAPIUrl(
-                    APIControllarsConstants.Employee,
-                    APIApiActionConstants.FetchExportEmployeeExcelSheet
-                );
-
                 var response = await _businessLayer.SendPostAPIRequest(
-                    inputParams,
-                    apiUrl,
+                    models,
+                  await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.FetchExportEmployeeExcelSheet),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true
-                );
+                    true);
 
-                var responseString = response?.ToString();
+                var responseString = response.ToString();
                 var employees = JsonConvert.DeserializeObject<List<ExportEmployeeDetailsExcel>>(responseString);
 
-                if (employees == null || employees.Count == 0)
+                if (employees == null || !employees.Any())
+                {
                     return NotFound("No employee data found.");
+                }
 
                 // Project the data into a flat, exportable structure (anonymous or DTO)
                 var exportData = employees.Select(emp => new
@@ -1114,6 +1111,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
                 worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
+                var fileContents = package.GetAsByteArray();
                 var fileName = $"EmployeeDetails_{DateTime.Now:yyyyMMdd}.xlsx";
 
                 return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);

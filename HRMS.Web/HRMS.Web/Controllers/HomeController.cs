@@ -602,7 +602,7 @@ namespace HRMS.Web.Controllers
       
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-        public IActionResult ErrorPage()
+        public async Task<IActionResult> ErrorPage()
         {
             var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
@@ -653,7 +653,7 @@ namespace HRMS.Web.Controllers
                 var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
                 _businessLayer.SendPostAPIRequest(
                     model,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.InsertException),
+                 await   _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.InsertException),
                     bearerToken,
                     true
                 ).GetAwaiter().GetResult();

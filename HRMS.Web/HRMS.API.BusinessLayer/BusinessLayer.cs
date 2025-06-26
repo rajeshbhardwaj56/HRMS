@@ -4977,9 +4977,13 @@ namespace HRMS.API.BusinessLayer
                 SqlParameterCollection outputParams = null;
 
                 
-                DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertExceptionLog, sqlParams, ref outputParams);
-            
-           
+              //  DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertExceptionLog, sqlParams, ref outputParams);
+                DataLayer.GetDataSetByStoredProcedure(
+                  StoredProcedures.usp_InsertExceptionLog,
+                  sqlParams,
+                  p => outputParams = p
+              );
+
         }
         #endregion Exception Handling
     }
