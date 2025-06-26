@@ -503,7 +503,7 @@
 		const url = `/employee/MyInfo/ExportAttendance?Year=${getSelectedYear()}&Month=${getSelectedMonth()}&jobLocationId=${parseInt($("#jobLocationDropdown").val()) || 0}`;
 		$btn.prop("disabled", true).text("Please wait...");
 		const $iframe = $("<iframe>").hide().attr("src", url).appendTo("body");
-		setTimeout(() => { $btn.prop("disabled", false).text("Export Attendance"); $iframe.remove(); }, 5000);
+		setTimeout(() => { $btn.prop("disabled", false).text("Export Attendance"); $iframe.remove(); }, 6000);
 	  });
 	});
 </script>

@@ -796,6 +796,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.AddRange(dayKeys.Select(k => k.Replace("_", " ")));
                     headers.Add("TotalWorkingDays");
                     headers.Add("PresentDays");
+                    headers.Add("TotalLeaves");
 
                     for (int i = 0; i < headers.Count; i++)
                     {
@@ -822,6 +823,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                         worksheet.Cells[rowIndex, 3 + dayKeys.Count].Value = record.TotalWorkingDays.ToString() ?? "-";
                         worksheet.Cells[rowIndex, 4 + dayKeys.Count].Value = record.PresentDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
 
                         rowIndex++;
                     }
