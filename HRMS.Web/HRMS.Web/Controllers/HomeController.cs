@@ -649,14 +649,15 @@ namespace HRMS.Web.Controllers
                     EmployeeId = HttpContext.Session?.GetString("EmployeeID") != null
                         ? Convert.ToInt64(HttpContext.Session.GetString("EmployeeID"))
                         : (long?)null
-                };             
+                };
                 var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
-                _businessLayer.SendPostAPIRequest(
-                    model,
-                 await   _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.InsertException),
-                    bearerToken,
-                    true
-                ).GetAwaiter().GetResult();
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.InsertException);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                       model,
+                      apiUrl,
+                       "",
+                       false
+                   );
             }
             return View();
         }

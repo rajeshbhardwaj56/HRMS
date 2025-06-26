@@ -133,7 +133,7 @@ namespace HRMS.API.BusinessLayer.ITF
    
 
         #region Exception Handling
-        void  InsertException(ExceptionLogModel model);
+        Task  InsertException(ExceptionLogModel model);
         #endregion Exception Handling
     }
 }
