@@ -54,7 +54,7 @@ namespace HRMS.Models.Leave
         public string ManagerFirstName { get; set; } = string.Empty;
 
         public string? UploadCertificate { get; set; } = string.Empty;
-        public DateTime ExpectedDeliveryDate { get; set; } = DateTime.Now;
+        public DateTime? ExpectedDeliveryDate { get; set; } = DateTime.Now;
         public DateTime? ChildDOB { get; set; }
         public DateTime? JoiningDate { get; set; }
         public int? CompOff { get; set; }

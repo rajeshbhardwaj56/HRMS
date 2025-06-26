@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HRMS.API.BusinessLayer;
 using HRMS.API.BusinessLayer.ITF;
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.FormPermission;
 using Microsoft.AspNetCore.Authorization;
@@ -157,6 +158,7 @@ namespace HRMS.API.Web.Controllers.Common
             return response;
         }
 
+
         [HttpPost]
         [OutputCache(Duration = 999999)]
         public async Task<IActionResult> GetUserFormByDepartmentID(FormPermissionVM objmodel)
@@ -187,7 +189,17 @@ namespace HRMS.API.Web.Controllers.Common
             return response;
         }
 
-        #endregion
+        #endregion Page Permission
+
+        #region Exception
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult InsertException(ExceptionLogModel model)
+        {
+            _businessLayer.InsertException(model);
+            return Ok(); 
+        }
+        #endregion Exception
 
     }
 }

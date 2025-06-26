@@ -1841,7 +1841,7 @@ namespace HRMS.API.BusinessLayer
                                   LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
                                   LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
                                   UploadCertificate = dataRow.Field<string>("UploadCertificate"),
-                                  ExpectedDeliveryDate = dataRow.Field<DateTime>("ExpectedDeliveryDate"),
+                                  ExpectedDeliveryDate = dataRow.Field<DateTime?>("ExpectedDeliveryDate"),
                                   NoOfDays = dataRow.Field<decimal>("NoOfDays"),
                                   IsActive = dataRow.Field<bool>("IsActive"),
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
@@ -2790,7 +2790,6 @@ namespace HRMS.API.BusinessLayer
             var dataSet = await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceDeviceLog, sqlParameters);
 
             var dailyStatuses = new List<DailyAttendanceStatus>();
-
             if (dataSet.Tables.Count > 0)
             {
                 var table = dataSet.Tables[0];
@@ -2846,7 +2845,8 @@ namespace HRMS.API.BusinessLayer
                             EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
                             TotalWorkingDays = dataRow.Field<int>("TotalWorkingDays"),
-                            PresentDays = dataRow.Field<int>("PresentDays"),
+                            PresentDays = dataRow.Field<decimal>("PresentDays"),
+                            TotalLeaves = dataRow.Field<decimal>("TotalLeaves"),
                             AttendanceByDay = new Dictionary<string, string>()
                         };
 
@@ -4101,6 +4101,7 @@ namespace HRMS.API.BusinessLayer
                             LeavingRemarks = row.Field<string>("LeavingRemarks"),
                             MailReceivedFromAndDate = DateTime.TryParse(row["MailReceivedFromAndDate"]?.ToString(), out var mailReceived) ? mailReceived : (DateTime?)null,
                             EmailSentToITDate = DateTime.TryParse(row["EmailSentToITDate"]?.ToString(), out var emailSent) ? emailSent : (DateTime?)null,
+                            Status = row.Field<string>("Status"),
 
 
                         }).ToList();
@@ -4616,7 +4617,7 @@ namespace HRMS.API.BusinessLayer
         {
             List<SqlParameter> sqlParameter = new()
     {
-        new SqlParameter("@LanguageDetailID", model.EmployeesFamilyDetailID)
+        new SqlParameter("@LanguageDetailID", model.EmployeeLanguageDetailID)
     };
 
             SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
@@ -4954,5 +4955,32 @@ namespace HRMS.API.BusinessLayer
 
 
         #endregion CompOff Attendance
+
+
+        #region Exception Handling
+        public void InsertException(ExceptionLogModel model)
+        {
+         
+           
+                List<SqlParameter> sqlParams = new List<SqlParameter>
+        {
+            new SqlParameter("@ControllerName", model.ControllerName ?? (object)DBNull.Value),
+            new SqlParameter("@AreaName", model.AreaName ?? (object)DBNull.Value),
+            new SqlParameter("@ActionName", model.ActionName ?? (object)DBNull.Value),
+            new SqlParameter("@Url", model.Url ?? (object)DBNull.Value),
+            new SqlParameter("@Message", model.Message ?? (object)DBNull.Value),
+            new SqlParameter("@StackTrace", model.StackTrace ?? (object)DBNull.Value),
+            new SqlParameter("@Source", model.Source ?? (object)DBNull.Value),
+            new SqlParameter("@EmployeeId", model.EmployeeId ?? (object)DBNull.Value)
+        };
+
+                SqlParameterCollection outputParams = null;
+
+                
+                DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertExceptionLog, sqlParams, ref outputParams);
+            
+           
+        }
+        #endregion Exception Handling
     }
 }

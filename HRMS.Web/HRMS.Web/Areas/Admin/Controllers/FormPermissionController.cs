@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
+    [Authorize]
     public class FormPermissionController : Controller
     {
         private readonly IConfiguration _configuration;

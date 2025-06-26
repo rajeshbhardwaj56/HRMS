@@ -413,6 +413,7 @@
 													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
 													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
 													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
+													@Html.AntiForgeryToken()
 													<div class="row py-2">
 														<div class="col-lg-6 col-md-12">
 															<label for="leavetype" class="">Leave Type:</label>
@@ -572,9 +573,11 @@
 </div>
 <input type="hidden" id="leaveSummaryID" value="" />
 <input type="hidden" id="leaveTypeID" value="" />
+<input name="__RequestVerificationToken" type="hidden" value="" />
+
 <script type="text/javascript">
 	var leaveSummaryID;
-	   function ApproveRejectLeave(isApproved) {
+		function ApproveRejectLeave(isApproved) {
 		const approveRejectComment = $("#ApproveRejectComment").val().trim();
 		const messageContainer = $("#approverejectrequire");
 
@@ -597,32 +600,41 @@
 		const postData = {
 			leaveSummaryID: leaveSummaryID,
 			isApproved: isApproved,
-			ApproveRejectComment: approveRejectComment,
+			approveRejectComment: approveRejectComment,
 			leaveTypeID: leaveTypeID
 		};
 
-		const urlData = '/employee/myinfo/ApproveRejectLeave/';
+		const urlData = '/employee/myinfo/ApproveRejectLeave';
 
-		$.post(urlData, postData, function (response) {
-			console.log(response);
+		$.ajax({
+			url: urlData,
+			type: 'POST',
+			headers: {
+				'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+			},
+			data: postData,
+			success: function (response) {
+				const data = response.data || {};
+				const message = response.message || "Leave status updated successfully.";
 
-			const data = response.data || {};
-			const message = response.message || "Leave status updated successfully.";
+				if (data.status === 1) {
+					messageContainer.text(message);
+				} else {
+					$.toast({
+						heading: 'Success',
+						text: message,
+						showHideTransition: 'slide',
+						icon: 'success',
+						position: 'top-right',
+					});
 
-			if (data.status === 1) {
-				messageContainer.text(message);
-			} else {
-				$.toast({
-					heading: 'Success',
-					text: message,
-					showHideTransition: 'slide',
-					icon: 'success',
-					position: 'top-right',
-				});
-
-				CloseApproveRejectModel();
-				AutoReload();
-				$("#ApproveRejectComment").val('');
+					CloseApproveRejectModel();
+					AutoReload();
+					$("#ApproveRejectComment").val('');
+				}
+			},
+			error: function () {
+				messageContainer.text("Something went wrong. Please try again.");
 			}
 		});
 	}
@@ -632,6 +644,7 @@
 		$.ajax({
 			url: '/employee/myinfo/GetEmployeeLeaveDetails',
 			type: 'GET',
+			 
 			data: { employeeID: employeeID },
 			success: function (response) {	
 				const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));

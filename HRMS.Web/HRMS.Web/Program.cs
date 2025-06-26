@@ -31,7 +31,6 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 
 builder.Services.AddMvcCore()
     .AddViewLocalization();
-
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new List<CultureInfo>
@@ -44,7 +43,6 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = supportedCultures;
     options.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
 });
-
 builder.Services.AddWebMarkupMin(
        options =>
        {
@@ -131,14 +129,15 @@ var path = Directory.GetCurrentDirectory();
 
 app.UseForwardedHeaders();
 
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Home/ErrorPage");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.UseExceptionHandler("/Home/ErrorPage");
 //app.UseHttpsRedirection();
 
 //Required using WebMarkupMin.AspNetCore8;

@@ -5,13 +5,14 @@
     @using Microsoft.AspNetCore.Http
 @{
     var LoginRole = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+    var EmployeeID = Convert.ToInt64(this.Context.Session.GetString(Constants.EmployeeID));
     var Logo = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.CompanyLogo);
     var EmployeeNumber = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.EmployeeNumber);
     var allowedFormIds = Enumerable.Range(2, 19).ToList(); // 2 to 18
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 
-  
+
     bool IsLeaveSubmenuActive()
     {
         var action = ViewContext.RouteData.Values["action"]?.ToString();
@@ -33,6 +34,7 @@
 
         return 
                (controller == "Company" && action == "Index")||
+               (controller == "Company" && action == "CompanyListing") ||
                (controller == "FormPermission" && action == "FormPermission") ||
                (controller == "ShiftType" && action == "ShiftTypeListing");
     }
@@ -63,9 +65,9 @@
     .hrms-menu-group a.hrms-active,
     .hrms-menu-group a.hrms-active:hover,
     .hrms-menu-group a:hover {
-        background-color: #044a8c;
-        color: white !important;
-        font-weight: 600;
+    background-color: #044a8c;
+    color: white !important;
+    font-weight: 600;
     }
     .hrms-menu-title:hover {
     background-color: #e2e6ea;
@@ -103,8 +105,8 @@
 
     .hrms-menu-title1  {
     font-size: 16px;
-        background-color: var(--body-bg);
-        ; /* keep your original background */
+    background-color: var(--body-bg);
+    ; /* keep your original background */
     color: white; /* keep your original icon color */
     border-radius: 6px; /* rounded corners */
     padding: 6px; /* space inside icon */
@@ -158,15 +160,15 @@
 
                     @if (Model.FormPermissionList.Any(x => x.FormID == 3 && x.IsFormPermissions && x.FormLevel == 2))
                     {<li>
-                        
-                                <a class="  hrms-menu-title d-flex align-items-center  @(currentController == "MyInfo" && currentAction == "Index" ? "hrms-active" : "")"
-                               asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
-                               asp-controller="myinfo"
-                               asp-action="Index">
+
+                            <a class="  hrms-menu-title d-flex align-items-center  @(currentController == "MyInfo" && currentAction == "Index" ? "hrms-active" : "")"
+                            asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                            asp-controller="myinfo"
+                            asp-action="Index">
                                 <i class="bi bi-person-circle hrms-menu-title1"></i>
                                 <span class="hrms-menu-label ms-3"> My Info</span>
                             </a>
-                       
+
                         </li>
                     }
                 </ul>
@@ -174,179 +176,189 @@
                     @if (Model.FormPermissionList.Any(x => x.FormID == 19 && x.IsFormPermissions && x.FormLevel == 2))
                     {
                         @if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
-                      LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                 LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
                         {
                             <li >
-                          
-                                    <a class="hrms-menu-title d-flex align-items-center  @(currentController == "MyInfo" && currentAction == "GetTeamEmployeeList" ? "hrms-active" : "")"
+
+                                <a class="hrms-menu-title d-flex align-items-center  @(currentController == "MyInfo" && currentAction == "GetTeamEmployeeList" ? "hrms-active" : "")"
                                 asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
                                 asp-controller="myinfo"
                                 asp-action="GetTeamEmployeeList">
                                     <i class="bi bi-people hrms-menu-title1"></i>
                                     <span class="hrms-menu-label ms-3 ">My Team</span>
                                 </a>
-                               
+
                             </li>
                         }
                     }
-                    </ul>
-              
+                </ul>
+
 
                 <ul class="hrms-menu-group">
 
                     @if (Model.FormPermissionList.Any(x => x.FormID == 2 && x.IsFormPermissions && x.FormLevel == 2))
                     {
                         <li>
-                          
-                                <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Employee" && currentAction == "EmployeeListing" ? "hrms-active" : "")"
-                                    asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
-                                    asp-controller="employee"
-                                    asp-action="EmployeeListing">
+
+                            <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Employee" && currentAction == "EmployeeListing" ? "hrms-active" : "")"
+                            asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
+                            asp-controller="employee"
+                            asp-action="EmployeeListing">
                                 <i class="bi bi-people-fill  hrms-menu-title1"></i>
-                                    <span class="hrms-menu-label ms-3"> Employee's</span>
-                                </a>
-                           
+                                <span class="hrms-menu-label ms-3"> Employee's</span>
+                            </a>
+
                         </li>
                     }
                 </ul>
                 <ul class="hrms-menu-group">
                     <li>
                         <div class="hrms-menu-title  d-flex align-items-center justify-content-between"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#hrms-attendance-submenu"
-                    aria-expanded="@(IsAttendanceSubmenuActive().ToString().ToLower())"
-                    aria-controls="hrms-attendance-submenu">
+                        data-bs-toggle="collapse"
+                        data-bs-target="#hrms-attendance-submenu"
+                        aria-expanded="@(IsAttendanceSubmenuActive().ToString().ToLower())"
+                        aria-controls="hrms-attendance-submenu">
                             <i class="bi bi-calendar-check flex-shrink-0 hrms-menu-title1"></i>
-                        <span class="hrms-menu-label ms-3">Attendance</span>
+                            <span class="hrms-menu-label ms-3">Attendance</span>
                             <i class="bi bi-chevron-down hrms-toggle-icon ms-auto"></i>
-                    </div>
-                    <div class="collapse @(IsAttendanceSubmenuActive() ? "show" : "")" id="hrms-attendance-submenu">
-                        <ul class="hrms-submenu list-unstyled ps-3">
-                            @if (Model.FormPermissionList.Any(x => x.FormID == 5 && x.IsFormPermissions && x.FormLevel == 2))
-                            {
-                                if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
-                                LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                        </div>
+                        <div class="collapse @(IsAttendanceSubmenuActive() ? "show" : "")" id="hrms-attendance-submenu">
+                            <ul class="hrms-submenu list-unstyled ps-3">
+                                @if (Model.FormPermissionList.Any(x => x.FormID == 5 && x.IsFormPermissions && x.FormLevel == 2))
                                 {
+                                    if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
+                                    LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                                    {
+                                        <li>
+                                            <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AttendenceList" ? "hrms-active" : "")"
+                                            asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                                            asp-controller="Attendance"
+                                            asp-action="AttendenceList">
+                                                <i class="bi bi-calendar-check me-2"></i> My Attendance
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                @if (Model.FormPermissionList.Any(x => x.FormID == 7 && x.IsFormPermissions && x.FormLevel == 2))
+                                {
+                                     
+                                        <li>
+                                            <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "TeamAttendenceList" ? "hrms-active" : "")"
+                                            asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                                            asp-controller="myinfo"
+                                            asp-action="TeamAttendenceList">
+                                                <i class="bi bi-people me-2"></i> Team Attendance
+                                            </a>
+                                        </li>
+                                    
+                                }
+                                @if (Model.FormPermissionList.Any(x => x.FormID == 6 && x.IsFormPermissions && x.FormLevel == 2))
+                                {
+
                                     <li>
-                                        <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AttendenceList" ? "hrms-active" : "")"
+                                        <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApprovedAttendance" ? "hrms-active" : "")"
                                         asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
                                         asp-controller="Attendance"
-                                        asp-action="AttendenceList">
-                                            <i class="bi bi-calendar-check me-2"></i> My Attendance
+                                        asp-action="ApprovedAttendance">
+                                            <i class="bi bi-person-check "></i> Approve Attendance
                                         </a>
                                     </li>
                                 }
-                            }
-                            @if (Model.FormPermissionList.Any(x => x.FormID == 7 && x.IsFormPermissions && x.FormLevel == 2))
-                            {
-                                <li>
-                                    <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "TeamAttendenceList" ? "hrms-active" : "")"
-                                    asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
-                                    asp-controller="myinfo"
-                                    asp-action="TeamAttendenceList">
-                                        <i class="bi bi-people me-2"></i> Team Attendance
-                                    </a>
-                                </li>
-                            }
-                            @if (Model.FormPermissionList.Any(x => x.FormID == 6 && x.IsFormPermissions && x.FormLevel == 2))
-                            {
-                                <li>
-                                    <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApprovedAttendance" ? "hrms-active" : "")"
-                                    asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
-                                    asp-controller="Attendance"
-                                    asp-action="ApprovedAttendance">
-                                        <i class="bi bi-person-check "></i> Approve Attendance
-                                    </a>
-                                </li>
-                            }
 
 
 
-                            @if (Model.FormPermissionList.Any(x => x.FormID == 17 && x.IsFormPermissions && x.FormLevel == 2))
-                            {
-                                if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
-                                LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                                @if (Model.FormPermissionList.Any(x => x.FormID == 17 && x.IsFormPermissions && x.FormLevel == 2))
                                 {
+                                    if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
+                                    LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                                    {
+                                        <li>
+                                            <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MyAttendanceList" ? "hrms-active" : "")"
+                                            asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                                            asp-controller="Attendance"
+                                            asp-action="MyAttendanceList">
+                                                <i class="bi bi-pencil-square"></i> Attendance Correction
+                                            </a>
+                                        </li>
+                                    }
+                                }
+
+                                @if (Model.FormPermissionList.Where(x => x.FormID == 22 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+                                {
+                                    if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
+                                    LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                                    {
+                                        <li>
+                                            <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CompOffApplication" ? "hrms-active" : "")"
+                                            asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                                            asp-controller="Attendance"
+                                            asp-action="CompOffApplication">
+                                                <i class="bi bi-journal-plus me-2"></i>Apply CompOff
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                @if (Model.FormPermissionList.Where(x => x.FormID == 23 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+                                {
+
                                     <li>
-                                        <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MyAttendanceList" ? "hrms-active" : "")"
+                                        <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApproveCompOff" ? "hrms-active" : "")"
                                         asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
                                         asp-controller="Attendance"
-                                        asp-action="MyAttendanceList">
-                                            <i class="bi bi-pencil-square"></i> Attendance Correction
+                                        asp-action="ApproveCompOff">
+                                            <i class="bi bi-calendar-check "></i>Approve CompOff
                                         </a>
                                     </li>
                                 }
-                            }
-
-                            @if (Model.FormPermissionList.Where(x => x.FormID == 22 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
-                            {
-
-                                <li>
-                                    <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CompOffApplication" ? "hrms-active" : "")"
-                                    asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
-                                    asp-controller="Attendance"
-                                    asp-action="CompOffApplication">
-                                        <i class="bi bi-journal-plus me-2"></i>Apply CompOff
-                                    </a>
-                                </li>
-                            }
-                            @if (Model.FormPermissionList.Where(x => x.FormID == 23 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
-                            {
-
-                                <li>
-                                    <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApproveCompOff" ? "hrms-active" : "")"
-                                    asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
-                                    asp-controller="Attendance"
-                                    asp-action="ApproveCompOff">
-                                        <i class="bi bi-calendar-check "></i>Approve CompOff
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </div>
+                            </ul>
+                        </div>
                     </li>
                 </ul>
 
-              
+
                 <ul class="hrms-menu-group">
                     <li>
-                    <div class="  hrms-menu-title d-flex align-items-center justify-content-between"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#hrms-leave-submenu"
-                    aria-expanded="@(IsLeaveSubmenuActive().ToString().ToLower())"
-                    aria-controls="hrms-leave-submenu">
+                        <div class="  hrms-menu-title d-flex align-items-center justify-content-between"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#hrms-leave-submenu"
+                        aria-expanded="@(IsLeaveSubmenuActive().ToString().ToLower())"
+                        aria-controls="hrms-leave-submenu">
                             <i class="bi bi-person-dash flex-shrink-0 hrms-menu-title1"></i>
                             <span class="hrms-menu-label ms-3">Leave</span>
                             <i class="bi bi-chevron-down hrms-toggle-icon ms-auto"></i>
-                    </div>
-                    <div class="collapse @(IsLeaveSubmenuActive() ? "show" : "")" id="hrms-leave-submenu">
-                        <ul class="hrms-submenu list-unstyled ps-3">
-                            @if (Model.FormPermissionList.Where(x => x.FormID == 24 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
-                            {
-                                <li>
-                                    <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApplyLeave" ? "hrms-active" : "")"
-                                    asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
-                                    asp-controller="myinfo"
-                                    asp-action="ApplyLeave">
-                                        <i class="bi bi-journal-plus me-2"></i> Apply Leave
+                        </div>
+                        <div class="collapse @(IsLeaveSubmenuActive() ? "show" : "")" id="hrms-leave-submenu">
+                            <ul class="hrms-submenu list-unstyled ps-3">
+                                @if (Model.FormPermissionList.Where(x => x.FormID == 24 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+                                {
+                                    if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
+                                LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                                    {
+                                        <li>
+                                            <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApplyLeave" ? "hrms-active" : "")"
+                                            asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                                            asp-controller="myinfo"
+                                            asp-action="ApplyLeave">
+                                                <i class="bi bi-journal-plus me-2"></i> Apply Leave
 
-                                    </a>
-                                </li>
-                            }
-                            @if (Model.FormPermissionList.Where(x => x.FormID == 25 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
-                            {
-                                <li>
-                                    <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApproveLeave" ? "hrms-active" : "")"
-                                       asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
-                                       asp-controller="myinfo"
-                                       asp-action="ApproveLeave">
-                                        <i class="bi bi-file-earmark-check me-2"></i>Approve Leave
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                @if (Model.FormPermissionList.Where(x => x.FormID == 25 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+                                {
+                                    <li>
+                                        <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApproveLeave" ? "hrms-active" : "")"
+                                        asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                                        asp-controller="myinfo"
+                                        asp-action="ApproveLeave">
+                                            <i class="bi bi-file-earmark-check me-2"></i>Approve Leave
 
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </div>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
                     </li>
                 </ul>
                 <ul class="hrms-menu-group">
@@ -355,9 +367,9 @@
                         <li>
 
                             <a class=" hrms-menu-title d-flex align-items-center  @(currentController == "Employee" && currentAction == "Whatshappening" ? "hrms-active" : "")"
-                               asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
-                               asp-controller="employee"
-                               asp-action="Whatshappening">
+                            asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
+                            asp-controller="employee"
+                            asp-action="Whatshappening">
                                 <i class="bi bi-megaphone-fill hrms-menu-title1"></i>
                                 <span class="hrms-menu-label  ms-3">  What's Happening</span>
                             </a>
@@ -371,41 +383,59 @@
                 {
                     <ul class="hrms-menu-group">
                         <li>
-                        <div class="  hrms-menu-title d-flex align-items-center justify-content-between"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#hrms-admin-submenu"
-                        aria-expanded="@(IsAdminSubmenuActive().ToString().ToLower())"
-                        aria-controls="hrms-admin-submenu">
+                            <div class="  hrms-menu-title d-flex align-items-center justify-content-between"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#hrms-admin-submenu"
+                            aria-expanded="@(IsAdminSubmenuActive().ToString().ToLower())"
+                            aria-controls="hrms-admin-submenu">
                                 <i class="bi bi-gear flex-shrink-0 hrms-menu-title1"></i>
-                            <span class="hrms-menu-label ms-3">Master</span>
+                                <span class="hrms-menu-label ms-3">Master</span>
                                 <i class="bi bi-chevron-down hrms-toggle-icon ms-auto"></i>
-                        </div>
-                        <div class="collapse @(IsAdminSubmenuActive() ? "show" : "")" id="hrms-admin-submenu">
-                            <ul class="hrms-submenu list-unstyled ps-3">
-                                @if (Model.FormPermissionList.Any(x => x.FormID == 4 && x.IsFormPermissions && x.FormLevel == 2))
-                                {
-                                    <li>
-                                        <a class="hrms-sidebar-link @(currentController == "Company" && currentAction == "Index" ? "hrms-active" : "")"
-                                        asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
-                                        asp-controller="company"
-                                        asp-action="Index">
-                                            <i class="bi bi-buildings me-2 "></i>
-                                            @(LoginRole == (long)HRMS.Models.Common.Roles.SuperAdmin ? "Company" : "Manage Company")
-                                        </a>
-                                    </li>
-                                }
-                                @if (Model.FormPermissionList.Where(x => x.FormID == 20 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
-                                {
-                                    <li>
-                                        <a class="hrms-sidebar-link  @(currentController == "FormPermission" && currentAction == "FormPermission" ? "hrms-active" : "")"
-                                        asp-area="@(HRMS.Models.Common.Constants.ManageAdmin)" 
-                                        asp-controller="FormPermission" 
-                                        asp-action="FormPermission">
-                                            <i class="bi bi-shield-lock me-2"></i>
-                                            Form Permission
-                                        </a>
-                                    </li>
-                                }
+                            </div>
+                            <div class="collapse @(IsAdminSubmenuActive() ? "show" : "")" id="hrms-admin-submenu">
+                                <ul class="hrms-submenu list-unstyled ps-3">
+                                    @if (Model.FormPermissionList.Any(x => x.FormID == 4 && x.IsFormPermissions && x.FormLevel == 2))
+                                    {
+                                        <li>
+                                            <a class="hrms-sidebar-link @(currentController == "Company" && currentAction == "Index" ? "hrms-active" : "")"
+                                            asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
+                                            asp-controller="company"
+                                            asp-action="Index">
+                                                <i class="bi bi-buildings me-2 "></i>
+                                                @(LoginRole == (long)HRMS.Models.Common.Roles.SuperAdmin ? "Company" : "Manage Company")
+                                            </a>
+                                        </li>
+                                    }
+                                    @if (Model.FormPermissionList.Any(x => x.FormID == 16 && x.IsFormPermissions && x.FormLevel == 2))
+                                    {
+                                        if (EmployeeID.ToString() == "1981")
+                                        {
+                                            <li>
+                                                <a class="hrms-sidebar-link @(currentController == "Company" && currentAction == "CompanyListing" ? "hrms-active" : "")"
+                                                asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
+                                                asp-controller="company"
+                                                   asp-action="CompanyListing">
+                                                    <i class="bi bi-buildings me-2 "></i>
+                                                    Company List
+                                                </a>
+                                            </li>
+                                        }
+                                    }
+                                    @if (Model.FormPermissionList.Where(x => x.FormID == 20 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+                                    {
+                                        if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                                        {
+                                            <li>
+                                                <a class="hrms-sidebar-link  @(currentController == "FormPermission" && currentAction == "FormPermission" ? "hrms-active" : "")"
+                                                asp-area="@(HRMS.Models.Common.Constants.ManageAdmin)" 
+                                                asp-controller="FormPermission" 
+                                                asp-action="FormPermission">
+                                                    <i class="bi bi-shield-lock me-2"></i>
+                                                    Form Permission
+                                                </a>
+                                            </li>
+                                        }
+                                    }
                                 @if (Model.FormPermissionList.Where(x => x.FormID == 8 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                                 {
                                     <li>

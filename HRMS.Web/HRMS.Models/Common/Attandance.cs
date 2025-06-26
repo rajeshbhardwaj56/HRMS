@@ -66,7 +66,8 @@ namespace HRMS.Models.Common
         public string EmployeeName { get; set; }
         public string JobLocationName { get; set; }
         public int TotalWorkingDays { get; set; }
-        public int PresentDays { get; set; }
+        public decimal PresentDays { get; set; }
+        public decimal TotalLeaves { get; set; }
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
     }
 

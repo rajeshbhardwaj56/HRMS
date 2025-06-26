@@ -66,6 +66,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
         public async Task<IActionResult> Index(string id)
         {
+    
             Attendance model = new Attendance();
             if (!string.IsNullOrEmpty(id))
             {
@@ -140,6 +141,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpGet]
         public async Task<IActionResult> AttendenceList()
         {
+
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 

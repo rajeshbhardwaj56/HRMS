@@ -4,7 +4,7 @@
 @model LeavePolicyDetailsModel
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Leave Policy";
+    ViewData["Title"] = "Add Policy";
     var IconImage = "";
     if (!string.IsNullOrEmpty(Model.PolicyDocument))
     {
@@ -16,7 +16,7 @@
     }
 } 
  
-<div class="main-header anim" style="--delay: 0s">Leave Policy Details
+<div class="main-header anim" style="--delay: 0s"> Policy Details
     <a href="/admin/LeavePolicy/PolicyCategoryListing"
        class="btn btn-sm btn-primary addpolicycategory"
        style="font-size: 12px;">

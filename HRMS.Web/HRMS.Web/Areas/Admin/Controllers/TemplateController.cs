@@ -21,7 +21,7 @@ using Results = HRMS.Models.Common.Results;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-
+    [Authorize]
     public class TemplateController : Controller
     {
         private readonly IConverter _pdfConverter;

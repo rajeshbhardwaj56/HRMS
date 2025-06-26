@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 
 namespace HRMS.Web.Areas.Employee.Controllers
 {
+    [Authorize]
     [Area(Constants.ManageEmployee )]
   //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager))]
     public class DashBoardController : Controller
@@ -30,6 +31,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         public async Task<IActionResult> Index()
         {
+          
             var session = HttpContext.Session;
             var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID));
             var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));

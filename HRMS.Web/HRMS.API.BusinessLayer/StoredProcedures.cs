@@ -139,6 +139,8 @@ namespace HRMS.API.BusinessLayer
         public const string usp_EmployeeReportingManagersSame = "usp_EmployeeReportingManagersSame";
         public const string usp_GetJobLocationsByCompany = "usp_GetJobLocationsByCompany";
 
+        public const string usp_InsertExceptionLog = "usp_InsertExceptionLog";
+
 
     }
 }

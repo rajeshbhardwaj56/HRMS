@@ -153,7 +153,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
 
-        // Helpers
+      
         private long GetSessionLong(string key)
         {
             return long.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
@@ -320,12 +320,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             var response = new ErrorLeaveResults();
 
-            // Get employee session info
+      
             long companyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             long employeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             long userID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
 
-            // Fetch leaves pending approval for this employee
+           
             var inputParams = new MyInfoInputParams
             {
                 CompanyID = companyID,
@@ -992,78 +992,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
 
-
-
-        //private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
-        //{
-        //    // Define financial year start and end based on the current date
-        //    DateTime today = DateTime.Today;
-        //    //DateTime today = new DateTime(2024, 6, 14);
-        //    DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1); // Start from 20th march of current financial year
-        //    DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-11); // March 31st of the next year
-
-        //    // Annual entitlement and accrual per month
-
-        //    double annualLeaveEntitlement = Annual_MaximumLeaveAllocationAllowed;
-        //    double monthlyAccrual = annualLeaveEntitlement / 12;
-
-        //    double totalAccruedLeave = 0;
-
-        //    // If the join date is before the fiscal year start, adjust it to the start of the fiscal year
-        //    if (joinDate < fiscalYearStart)
-        //    {
-        //        joinDate = fiscalYearStart;
-        //    }
-
-        //    // Start from the month of joining and calculate leave for completed months up to today
-        //    DateTime current = new DateTime(joinDate.Year, joinDate.Month, 1);
-
-        //    while (current <= today)
-        //    {
-        //        // Get the last day of the current month
-        //        int daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
-        //        DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth).AddDays(-11);
-
-        //        // Adjust the comparison in the current month
-        //        if (current.Month == today.Month && current.Year == today.Year)
-        //        {
-        //            // Special case: Compare the days worked in the current month up to today
-        //            int daysWorkedInMonth = (today - joinDate).Days + 1;
-
-        //            // Accrue leave if more than 10 days worked
-        //            if (daysWorkedInMonth > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
-        //            {
-        //                totalAccruedLeave += monthlyAccrual;
-        //            }
-
-
-        //        }
-        //        else
-        //        {
-        //            // For past months, compare the join date with the last day of the month
-        //            if (joinDate <= lastDayOfMonth)
-        //            {
-        //                int daysWorkedInMonth = (lastDayOfMonth - joinDate).Days + 1;
-        //                if (daysWorkedInMonth > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
-        //                {
-        //                    totalAccruedLeave += monthlyAccrual;
-        //                }
-        //            }
-        //        }
-
-        //        // Move to the next month
-        //        current = current.AddMonths(1);
-
-        //        // Adjust join date to the 1st of the next month after the first iteration
-        //        if (current.Month > joinDate.Month || current.Year > joinDate.Year)
-        //        {
-        //            joinDate = new DateTime(current.Year, current.Month, 1);
-        //        }
-        //    }
-
-        //    return totalAccruedLeave;
-        //}
-
         [HttpPost]
         public async Task<IActionResult> DeleteLeavesSummary(string id)
         {
@@ -1411,6 +1339,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.AddRange(dayKeys.Select(k => k.Replace("_", " ")));
                     headers.Add("TotalWorkingDays");
                     headers.Add("PresentDays");
+                    headers.Add("TotalLeaves");
 
                     for (int i = 0; i < headers.Count; i++)
                     {
@@ -1437,6 +1366,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                         worksheet.Cells[rowIndex, 3 + dayKeys.Count].Value = record.TotalWorkingDays.ToString() ?? "-";
                         worksheet.Cells[rowIndex, 4 + dayKeys.Count].Value = record.PresentDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
 
                         rowIndex++;
                     }
@@ -1459,9 +1389,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 return StatusCode(500, "An error occurred while exporting attendance.");
             }
         }
-
-
-
 
         public IActionResult Whatshappening()
         {
@@ -1921,7 +1848,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         #region Approve Leave
         public async Task<IActionResult> ApproveLeave(string id)
         {
-            // Initialize model
+          
             var model = new MyInfoInputParams
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),

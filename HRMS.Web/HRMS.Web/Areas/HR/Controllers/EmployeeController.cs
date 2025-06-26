@@ -37,7 +37,9 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
-    [Area(Constants.ManageHR)] 
+    [Area(Constants.ManageHR)]
+    [Authorize]
+    //[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
     public class EmployeeController : Controller
     {
         IConfiguration _configuration;
@@ -1022,124 +1024,107 @@ namespace HRMS.Web.Areas.HR.Controllers
                 if (employees == null || employees.Count == 0)
                     return NotFound("No employee data found.");
 
+                // Project the data into a flat, exportable structure (anonymous or DTO)
+                var exportData = employees.Select(emp => new
+                {
+                    emp.EmployeeNumber,
+                    emp.CompanyName,
+                    emp.FirstName,
+                    emp.MiddleName,
+                    emp.Surname,
+                    emp.Gender,
+                    DateOfBirth = emp.DateOfBirth?.ToString("yyyy-MM-dd"),
+                    emp.PlaceOfBirth,
+                    emp.EmailAddress,
+                    emp.PersonalEmailAddress,
+                    emp.Mobile,
+                    emp.Landline,
+                    emp.Telephone,
+                    emp.CorrespondenceAddress,
+                    emp.CorrespondenceCity,
+                    emp.CorrespondenceState,
+                    emp.CorrespondencePinCode,
+                    emp.PermanentAddress,
+                    emp.PermanentCity,
+                    emp.PermanentState,
+                    emp.PermanentPinCode,
+                    emp.PANNo,
+                    emp.AadharCardNo,
+                    emp.BloodGroup,
+                    emp.Allergies,
+                    emp.MajorIllnessOrDisability,
+                    emp.AwardsAchievements,
+                    emp.EducationGap,
+                    emp.ExtraCuricuarActivities,
+                    emp.ForiegnCountryVisits,
+                    emp.ContactPersonName,
+                    emp.ContactPersonMobile,
+                    emp.ContactPersonTelephone,
+                    emp.ContactPersonRelationship,
+                    emp.ITSkillsKnowledge,
+                    emp.Designation,
+                    emp.EmployeeType,
+                    emp.Department,
+                    emp.SubDepartment,
+                    emp.JobLocation,
+                    emp.ShiftType,
+                    emp.OfficialEmailID,
+                    emp.OfficialContactNo,
+                    JoiningDate = emp.JoiningDate?.ToString("yyyy-MM-dd"),
+                    emp.ReportingManager,
+                    emp.PolicyName,
+                    emp.PayrollType,
+                    emp.ClientName,
+                    emp.ESINumber,
+                    ESIRegistrationDate = emp.ESIRegistrationDate?.ToString("yyyy-MM-dd"),
+                    emp.BankAccountNumber,
+                    emp.IFSCCode,
+                    emp.BankName,
+                    emp.UANNumber,
+                    DateOfResignation = emp.DateOfResignation?.ToString("yyyy-MM-dd"),
+                    DateOfLeaving = emp.DateOfLeaving?.ToString("yyyy-MM-dd"),
+                    emp.LeavingType,
+                    emp.NoticeServed,
+                    emp.AgeOnNetwork,
+                    emp.PreviousExperience,
+                    DateOfJoiningTraining = emp.DateOfJoiningTraining?.ToString("yyyy-MM-dd"),
+                    DateOfJoiningFloor = emp.DateOfJoiningFloor?.ToString("yyyy-MM-dd"),
+                    DateOfJoiningOJT = emp.DateOfJoiningOJT?.ToString("yyyy-MM-dd"),
+                    DateOfJoiningOnroll = emp.DateOfJoiningOnroll?.ToString("yyyy-MM-dd"),
+                    BackOnFloorDate = emp.BackOnFloorDate?.ToString("yyyy-MM-dd"),
+                    emp.LeavingRemarks,
+                    MailReceivedFromAndDate = emp.MailReceivedFromAndDate?.ToString("yyyy-MM-dd"),
+                    EmailSentToITDate = emp.EmailSentToITDate?.ToString("yyyy-MM-dd"),
+                    Status = emp.Status
+                }).ToList();
+
                 using var package = new ExcelPackage();
                 var worksheet = package.Workbook.Worksheets.Add("Employees");
 
-                string[] headers = new[]
-                {
-            "EmployeeNumber", "CompanyName", "FirstName", "MiddleName", "Surname", "Gender", "DateOfBirth",
-            "PlaceOfBirth", "EmailAddress", "PersonalEmailAddress", "Mobile", "Landline", "Telephone",
-            "CorrespondenceAddress", "CorrespondenceCity", "CorrespondenceState", "CorrespondencePinCode",
-            "PermanentAddress", "PermanentCity", "PermanentState", "PermanentPinCode", "PANNo",
-            "AadharCardNo", "BloodGroup", "Allergies", "MajorIllnessOrDisability", "AwardsAchievements",
-            "EducationGap", "ExtraCuricuarActivities", "ForiegnCountryVisits", "ContactPersonName",
-            "ContactPersonMobile", "ContactPersonTelephone", "ContactPersonRelationship", "ITSkillsKnowledge",
-            "Designation", "EmployeeType", "Department", "SubDepartment", "JobLocation", "ShiftType",
-            "OfficialEmail", "OfficialContactNo", "JoiningDate", "ReportingManager", "PolicyName",
-            "PayrollType", "ClientName", "ESINumber", "ESIRegistrationDate", "BankAccountNumber",
-            "IFSCCode", "BankName", "UANNumber", "DateOfResignation", "DateOfLeaving", "LeavingType",
-            "NoticeServed", "AgeOnNetwork", "PreviousExperience", "DateOfJoiningTraining",
-            "DateOfJoiningFloor", "DateOfJoiningOJT", "DateOfJoiningOnroll", "BackOnFloorDate",
-            "LeavingRemarks", "MailReceivedFromAndDate", "EmailSentToITDate"
-        };
+                // Load data and headers
+                worksheet.Cells["A1"].LoadFromCollection(exportData, PrintHeaders: true);
 
-                // Add header
-                for (int i = 0; i < headers.Length; i++)
+                // Style header row
+                using (var range = worksheet.Cells[1, 1, 1, exportData[0].GetType().GetProperties().Length])
                 {
-                    worksheet.Cells[1, i + 1].Value = headers[i];
-                    worksheet.Cells[1, i + 1].Style.Font.Bold = true;
-                    worksheet.Cells[1, i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                }
-
-                // Populate rows dynamically using reflection for brevity
-                for (int row = 0; row < employees.Count; row++)
-                {
-                    var emp = employees[row];
-                    int col = 1;
-
-                    worksheet.Cells[row + 2, col++].Value = emp.EmployeeNumber;
-                    worksheet.Cells[row + 2, col++].Value = emp.CompanyName;
-                    worksheet.Cells[row + 2, col++].Value = emp.FirstName;
-                    worksheet.Cells[row + 2, col++].Value = emp.MiddleName;
-                    worksheet.Cells[row + 2, col++].Value = emp.Surname;
-                    worksheet.Cells[row + 2, col++].Value = emp.Gender;
-                    worksheet.Cells[row + 2, col++].Value = emp.DateOfBirth?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.PlaceOfBirth;
-                    worksheet.Cells[row + 2, col++].Value = emp.EmailAddress;
-                    worksheet.Cells[row + 2, col++].Value = emp.PersonalEmailAddress;
-                    worksheet.Cells[row + 2, col++].Value = emp.Mobile;
-                    worksheet.Cells[row + 2, col++].Value = emp.Landline;
-                    worksheet.Cells[row + 2, col++].Value = emp.Telephone;
-                    worksheet.Cells[row + 2, col++].Value = emp.CorrespondenceAddress;
-                    worksheet.Cells[row + 2, col++].Value = emp.CorrespondenceCity;
-                    worksheet.Cells[row + 2, col++].Value = emp.CorrespondenceState;
-                    worksheet.Cells[row + 2, col++].Value = emp.CorrespondencePinCode;
-                    worksheet.Cells[row + 2, col++].Value = emp.PermanentAddress;
-                    worksheet.Cells[row + 2, col++].Value = emp.PermanentCity;
-                    worksheet.Cells[row + 2, col++].Value = emp.PermanentState;
-                    worksheet.Cells[row + 2, col++].Value = emp.PermanentPinCode;
-                    worksheet.Cells[row + 2, col++].Value = emp.PANNo;
-                    worksheet.Cells[row + 2, col++].Value = emp.AadharCardNo;
-                    worksheet.Cells[row + 2, col++].Value = emp.BloodGroup;
-                    worksheet.Cells[row + 2, col++].Value = emp.Allergies;
-                    worksheet.Cells[row + 2, col++].Value = emp.MajorIllnessOrDisability;
-                    worksheet.Cells[row + 2, col++].Value = emp.AwardsAchievements;
-                    worksheet.Cells[row + 2, col++].Value = emp.EducationGap;
-                    worksheet.Cells[row + 2, col++].Value = emp.ExtraCuricuarActivities;
-                    worksheet.Cells[row + 2, col++].Value = emp.ForiegnCountryVisits;
-                    worksheet.Cells[row + 2, col++].Value = emp.ContactPersonName;
-                    worksheet.Cells[row + 2, col++].Value = emp.ContactPersonMobile;
-                    worksheet.Cells[row + 2, col++].Value = emp.ContactPersonTelephone;
-                    worksheet.Cells[row + 2, col++].Value = emp.ContactPersonRelationship;
-                    worksheet.Cells[row + 2, col++].Value = emp.ITSkillsKnowledge;
-                    worksheet.Cells[row + 2, col++].Value = emp.Designation;
-                    worksheet.Cells[row + 2, col++].Value = emp.EmployeeType;
-                    worksheet.Cells[row + 2, col++].Value = emp.Department;
-                    worksheet.Cells[row + 2, col++].Value = emp.SubDepartment;
-                    worksheet.Cells[row + 2, col++].Value = emp.JobLocation;
-                    worksheet.Cells[row + 2, col++].Value = emp.ShiftType;
-                    worksheet.Cells[row + 2, col++].Value = emp.OfficialEmailID;
-                    worksheet.Cells[row + 2, col++].Value = emp.OfficialContactNo;
-                    worksheet.Cells[row + 2, col++].Value = emp.JoiningDate?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.ReportingManager;
-                    worksheet.Cells[row + 2, col++].Value = emp.PolicyName;
-                    worksheet.Cells[row + 2, col++].Value = emp.PayrollType;
-                    worksheet.Cells[row + 2, col++].Value = emp.ClientName;
-                    worksheet.Cells[row + 2, col++].Value = emp.ESINumber;
-                    worksheet.Cells[row + 2, col++].Value = emp.ESIRegistrationDate?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.BankAccountNumber;
-                    worksheet.Cells[row + 2, col++].Value = emp.IFSCCode;
-                    worksheet.Cells[row + 2, col++].Value = emp.BankName;
-                    worksheet.Cells[row + 2, col++].Value = emp.UANNumber;
-                    worksheet.Cells[row + 2, col++].Value = emp.DateOfResignation?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.DateOfLeaving?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.LeavingType;
-                    worksheet.Cells[row + 2, col++].Value = emp.NoticeServed;
-                    worksheet.Cells[row + 2, col++].Value = emp.AgeOnNetwork;
-                    worksheet.Cells[row + 2, col++].Value = emp.PreviousExperience;
-                    worksheet.Cells[row + 2, col++].Value = emp.DateOfJoiningTraining?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.DateOfJoiningFloor?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.DateOfJoiningOJT?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.DateOfJoiningOnroll?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.BackOnFloorDate?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.LeavingRemarks;
-                    worksheet.Cells[row + 2, col++].Value = emp.MailReceivedFromAndDate?.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row + 2, col++].Value = emp.EmailSentToITDate?.ToString("yyyy-MM-dd");
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                 }
 
                 worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
                 var fileName = $"EmployeeDetails_{DateTime.Now:yyyyMMdd}.xlsx";
-                return File(package.GetAsByteArray(),
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+
+                return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
             catch (Exception ex)
             {
-                // Log the error properly in production
+                // Optionally log exception
                 return StatusCode(500, "An error occurred while exporting employee details.");
             }
         }
+
 
         [HttpGet]
         public IActionResult EducationalDetail(string id)
@@ -1579,7 +1564,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             var model = new HRMS.Models.Employee.LanguageDetailParams
             {
-                EmployeesFamilyDetailID = encodedId  
+                EmployeeLanguageDetailID = encodedId
             };
 
             var response = await _businessLayer.SendPostAPIRequest(

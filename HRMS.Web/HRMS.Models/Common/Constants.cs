@@ -88,7 +88,6 @@ namespace HRMS.Models.Common
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
         public const string JobLocationID = "JobLocationID";
         public const string DepartmentID = "DepartmentID";
- 
         public const string ApplyLeave = "ApplyLeave";
         public const string ApproveLeave = "ApproveLeave";
 
@@ -306,6 +305,8 @@ namespace HRMS.Models.Common
         public const string GetCompOffAttendanceList = "GetCompOffAttendanceList";
         public const string AddUpdateCompOffAttendace = "AddUpdateCompOffAttendace";
         public const string GetApprovedCompOff = "GetApprovedCompOff";
+
+        public const string InsertException = "InsertException";
 
 
     }
