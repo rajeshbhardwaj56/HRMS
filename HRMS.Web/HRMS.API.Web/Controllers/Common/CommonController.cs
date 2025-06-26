@@ -194,9 +194,9 @@ namespace HRMS.API.Web.Controllers.Common
         #region Exception
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult InsertException(ExceptionLogModel model)
+        public async  Task<IActionResult> InsertException(ExceptionLogModel model)
         {
-            _businessLayer.InsertException(model);
+           await _businessLayer.InsertException(model);
             return Ok(); 
         }
         #endregion Exception

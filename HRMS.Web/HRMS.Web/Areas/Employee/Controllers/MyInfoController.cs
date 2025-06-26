@@ -1218,7 +1218,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             AttendanceWithHolidaysVM model = new AttendanceWithHolidaysVM();
             var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar);
             var apiResponse = await _businessLayer.SendPostAPIRequest(
-                model,
+                models,
               apiUrl,
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
@@ -1241,7 +1241,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             );
-            var objdata = apiResponse?.ToString();
+            var objdata = apiResponses?.ToString();
             model.JoblocationList = JsonConvert.DeserializeObject<List<Joblcoations>>(objdata);
             return Json(new { data = model });
         }

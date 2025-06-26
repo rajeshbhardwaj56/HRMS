@@ -4958,7 +4958,7 @@ namespace HRMS.API.BusinessLayer
 
 
         #region Exception Handling
-        public void InsertException(ExceptionLogModel model)
+        public async Task InsertException(ExceptionLogModel model)
         {
          
            
@@ -4976,9 +4976,7 @@ namespace HRMS.API.BusinessLayer
 
                 SqlParameterCollection outputParams = null;
 
-                
-              //  DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertExceptionLog, sqlParams, ref outputParams);
-                DataLayer.GetDataSetByStoredProcedure(
+              await  DataLayer.GetDataSetByStoredProcedure(
                   StoredProcedures.usp_InsertExceptionLog,
                   sqlParams,
                   p => outputParams = p
