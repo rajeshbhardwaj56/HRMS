@@ -71,6 +71,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public DateTime? DateOfResignation { get; set; }
         public DateTime? DateOfLeaving { get; set; }
         public string LeavingType { get; set; }
+        public string Status { get; set; }
         public int? NoticeServed { get; set; }
         public int? AgeOnNetwork { get; set; }
         public string? PreviousExperience { get; set; }

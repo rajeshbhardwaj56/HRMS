@@ -7,6 +7,9 @@
 
 }
 <style>
+	span.L.status-badge {
+		background: #053470;
+	}
 	.crm-loader-overlay {
 		position: fixed;
 		top: 0;
@@ -319,8 +322,8 @@
 		dayKeys.forEach(day => {
 		  let status = record.attendanceByDay[day];
 		  if (status === "Sa" || status === "S") status = "H";
-		  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "table-warning text-dark" : "";
-		  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${className} status-badge">${status}</span></td>`;
+		  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" : "";
+		  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${status}</span></td>`;
 		});
 		row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td></tr>`;
 		tbody.append(row);

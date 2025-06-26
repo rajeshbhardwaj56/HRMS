@@ -4017,6 +4017,7 @@ namespace HRMS.API.BusinessLayer
                             LeavingRemarks = row.Field<string>("LeavingRemarks"),
                             MailReceivedFromAndDate = DateTime.TryParse(row["MailReceivedFromAndDate"]?.ToString(), out var mailReceived) ? mailReceived : (DateTime?)null,
                             EmailSentToITDate = DateTime.TryParse(row["EmailSentToITDate"]?.ToString(), out var emailSent) ? emailSent : (DateTime?)null,
+                            Status = row.Field<string>("Status"),
 
 
                         }).ToList();
