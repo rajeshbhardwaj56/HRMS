@@ -57,7 +57,7 @@ namespace HRMS.Models.Leave
         public DateTime ExpectedDeliveryDate { get; set; } = DateTime.Now;
         public DateTime? ChildDOB { get; set; }
         public DateTime? JoiningDate { get; set; }
-        public int? CampOff { get; set; }
+        public int? CompOff { get; set; }
 
     }
 

@@ -37,7 +37,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(id))
             {
                 whatsHappening.WhatsHappeningID = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
-                var data = _businessLayer.SendPostAPIRequest(whatsHappening,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    whatsHappening,
+                  apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
+                var data = apiResponse?.ToString();
                 whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappenings.Where(x => x.WhatsHappeningID == whatsHappening.WhatsHappeningID).FirstOrDefault();
             }
             return View(whatsHappening);
@@ -49,7 +56,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             WhatsHappening whatsHappening = new WhatsHappening();
             whatsHappening.WhatsHappeningID = 0;
-            var data = _businessLayer.SendPostAPIRequest(whatsHappening,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                whatsHappening,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString(); 
             var result = JsonConvert.DeserializeObject<WhatsHappeningModel>(data);
             return View(result);
         }
@@ -60,7 +74,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             WhatsHappening whatsHappening = new WhatsHappening();
             whatsHappening.WhatsHappeningID = 0;
-            var data = _businessLayer.SendPostAPIRequest(whatsHappening,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWhatsHappenings);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                whatsHappening,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<WhatsHappeningModel>(data);
             results._WhatsHappenings.ForEach(x =>
             {
@@ -87,8 +108,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     whatsHappening.IconImage = fileName;
                     whatsHappening.CompanyID = long.Parse(HttpContext.Session.GetString(Constants.CompanyID));
                     whatsHappening.UserID = long.Parse(HttpContext.Session.GetString(Constants.UserID));
-                    var data = _businessLayer.SendPostAPIRequest(whatsHappening,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
-                    //whatsHappening = JsonConvert.DeserializeObject<WhatsHappeningModel>(data)._WhatsHappening;
+                    var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.AddUpdateWhatsHappening);
+                    var apiResponse = await _businessLayer.SendPostAPIRequest(
+                        whatsHappening,
+                      apiUrl,
+                        HttpContext.Session.GetString(Constants.SessionBearerToken),
+                        true
+                    );
+                    var data = apiResponse?.ToString();
                     var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);
 
                     string path = Path.Combine(this.Environment.WebRootPath, Constants.WhatHapenningIconPath + result.PKNo.ToString());

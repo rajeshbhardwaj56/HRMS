@@ -65,7 +65,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             TemplateInputParams Template = new TemplateInputParams();
             Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var data = _businessLayer.SendPostAPIRequest(Template,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                Template,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             if (results?.Template != null)
             {
@@ -93,7 +100,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 Template.TemplateID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(Template,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    Template,
+                  apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
+                var data = apiResponse?.ToString();
                 Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
             }
             if (!string.IsNullOrEmpty(Template.HeaderImage)) { 
@@ -109,13 +123,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(TemplateModel template, List<IFormFile> HeaderImageFile, List<IFormFile> FooterImageFile)
         {
-            template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));    
-            _s3Service.ProcessFileUpload(HeaderImageFile, template.HeaderImage, out string newProfileKey);
+            template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            string newProfileKey = await _s3Service.ProcessFileUploadAsync(HeaderImageFile, template.HeaderImage);
             if (!string.IsNullOrEmpty(newProfileKey))
             {
                 if (!string.IsNullOrEmpty(template.HeaderImage))
                 {
-                    _s3Service.DeleteFile(template.HeaderImage);
+                    await _s3Service.DeleteFileAsync(template.HeaderImage);
                 }
                 template.HeaderImage = newProfileKey;
             }
@@ -123,12 +137,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 template.HeaderImage = _s3Service.ExtractKeyFromUrl(template.HeaderImage);
             }
-            _s3Service.ProcessFileUpload(FooterImageFile, template.FooterImage, out string newFooterKey);
+            string newFooterKey=await _s3Service.ProcessFileUploadAsync(FooterImageFile, template.FooterImage);
             if (!string.IsNullOrEmpty(newFooterKey))
             {
                 if (!string.IsNullOrEmpty(template.FooterImage))
                 {
-                    _s3Service.DeleteFile(template.FooterImage);
+                    await _s3Service.DeleteFileAsync(template.FooterImage);
                 }
                 template.FooterImage = newFooterKey;
             }
@@ -136,7 +150,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 template.FooterImage = _s3Service.ExtractKeyFromUrl(template.FooterImage);
             }
-            var data = _businessLayer.SendPostAPIRequest(template,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.AddUpdateTemplate), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.AddUpdateTemplate);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                template,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString();
             var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);                                     
             if (template.TemplateID > 0)
             {
@@ -190,7 +211,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             // Check the file content type to determine if it's an image
             return file.ContentType.StartsWith("image/");
         }
-        public async Task<IActionResult> PreviewAndPrintq(string id)
+        public async Task<IActionResult> PreviewAndPrint(string id)
         {
             TemplateModel Template = new TemplateModel();
             Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -199,7 +220,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 id = _businessLayer.DecodeStringBase64(id);
                 Template.TemplateID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(Template, await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Template, APIApiActionConstants.GetAllTemplates);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    Template,
+                  apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
+                var data = apiResponse?.ToString();
                 Template = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).templateModel;
                 if (!string.IsNullOrEmpty(Template.HeaderImage))
                 {
@@ -219,7 +247,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
 
-        public async Task<IActionResult> PreviewAndPrint(string id)
+        public async Task<IActionResult> PreviewAndPrintq(string id)
         {
             TemplateModel Template = new TemplateModel();
             Template.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));

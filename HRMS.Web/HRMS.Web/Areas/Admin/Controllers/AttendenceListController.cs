@@ -14,6 +14,7 @@ using HRMS.Models.DashBoard;
 using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using HRMS.Models;
 using System.Threading.Tasks;
+using HRMS.Models.WhatsHappening;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -39,15 +40,18 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             AttendanceInputParams attendenceListParams = new AttendanceInputParams();
              attendenceListParams.Month = DateTime.Now.Month;
-            //attendenceListParams.Month =1;
             attendenceListParams.Year = DateTime.Now.Year;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            var data = _businessLayer.SendPostAPIRequest(attendenceListParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
-   
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                attendenceListParams,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString();   
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
-
             return Json(new { data = model });
-
         }
         public async Task<IActionResult> Index(string id)
         {
@@ -56,12 +60,19 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(id))
             {
                 model.ID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendenceListID);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    model,
+                  apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
+                var data = apiResponse?.ToString();
                 model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).AttendanceModel;
 
             }
 
-            HRMS.Models.Common.Results results = GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
+            HRMS.Models.Common.Results results = await GetAllEmployees(Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)));
             model.Employeelist = results.Employee;
             return View(model);
         }
@@ -69,7 +80,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Index(Attendance AttendenceListModel)
         {
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
-                var data = _businessLayer.SendPostAPIRequest(AttendenceListModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                AttendenceListModel,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
                 if (AttendenceListModel.ID > 0)
@@ -84,7 +102,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 }        
         }
-        public HRMS.Models.Common.Results GetAllEmployees(long EmployeeID)
+        public async Task<HRMS.Models.Common.Results> GetAllEmployees(long EmployeeID)
         {
             HRMS.Models.Common.Results result = null;
             var data = "";
@@ -94,7 +112,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             else
             {
-                data = _businessLayer.SendGetAPIRequest("Common/GetAllEmployees?EmployeeID=" + EmployeeID, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var apiResponse = await _businessLayer.SendGetAPIRequest("Common/GetAllEmployees?EmployeeID=" + EmployeeID, HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+                data = apiResponse?.ToString();
             }
             HttpContext.Session.SetString(Constants.ResultsData, data);
             result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
@@ -108,7 +127,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 ID = id,
             };
-            var data = _businessLayer.SendPostAPIRequest(model,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.DeleteAttendanceDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.DeleteAttendanceDetails);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                model,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString();
             if (data != null)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
@@ -140,8 +166,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 Month = month,
                 UserId = employeeId,
             };
-
-            var data = _businessLayer.SendPostAPIRequest(models,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForMonthlyViewCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendanceForMonthlyViewCalendar);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                models,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString();
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
 
             return Json(new { data = model, employeeFullName = employeeFullName });

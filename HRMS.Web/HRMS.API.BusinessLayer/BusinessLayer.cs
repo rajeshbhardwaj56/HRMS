@@ -1796,7 +1796,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@UploadCertificate", leaveSummaryModel.UploadCertificate ?? ""));
             sqlParameter.Add(new SqlParameter("@ExpectedDeliveryDate", leaveSummaryModel.ExpectedDeliveryDate));
             sqlParameter.Add(new SqlParameter("@ChildDOB", leaveSummaryModel.ChildDOB ?? (object)DBNull.Value));
-            sqlParameter.Add(new SqlParameter("@CampOff", leaveSummaryModel.CampOff ?? Convert.ToInt32(CompOff.OtherLeaves)));
+            sqlParameter.Add(new SqlParameter("@CampOff", leaveSummaryModel.CompOff ?? Convert.ToInt32(CompOff.OtherLeaves)));
             SqlParameterCollection pOutputParams = null;
             //    var dataSet =await DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
             var dataSet = await DataLayer.GetDataSetByStoredProcedure(

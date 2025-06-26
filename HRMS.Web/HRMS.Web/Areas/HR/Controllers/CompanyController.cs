@@ -113,12 +113,12 @@ namespace HRMS.Web.Areas.HR.Controllers
 				model.Countries = results.Countries;
 				model.Currencies = results.Currencies;
 
-                _s3Service.ProcessFileUpload(postedFiles, model.CompanyLogo, out string newProfileKey);
+                string newProfileKey = await _s3Service.ProcessFileUploadAsync(postedFiles, model.CompanyLogo);
                 if (!string.IsNullOrEmpty(newProfileKey))
                 {
                     if (!string.IsNullOrEmpty(model.CompanyLogo))
                     {
-                        _s3Service.DeleteFile(model.CompanyLogo);
+                        await _s3Service.DeleteFileAsync(model.CompanyLogo);
                     }
                     model.CompanyLogo = newProfileKey;
                 }

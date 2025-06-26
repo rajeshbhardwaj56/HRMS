@@ -49,7 +49,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             shiftTypeParams.DisplayStart = iDisplayStart;
             shiftTypeParams.DisplayLength = iDisplayLength;
             shiftTypeParams.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
-            var data = _businessLayer.SendPostAPIRequest(shiftTypeParams,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                shiftTypeParams,
+              apiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             return Json(new {
                 draw = sEcho,
@@ -65,10 +72,24 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(id))
             {
                 shiftTypeModel.ShiftTypeID = Convert.ToInt64(id);
-                var data = _businessLayer.SendPostAPIRequest(shiftTypeModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    shiftTypeModel,
+                  apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
+                var data = apiResponse?.ToString();
                 shiftTypeModel = JsonConvert.DeserializeObject<Results>(data).shiftTypeModel;
             }
-            var holidayListData = _businessLayer.SendPostAPIRequest(shiftTypeModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var holidayApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetHolidayList);
+            var holidayApiResponse = await _businessLayer.SendPostAPIRequest(
+                shiftTypeModel,
+              holidayApiUrl,
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            var holidayListData = holidayApiResponse?.ToString();
             if (holidayListData != null)
             {
                 shiftTypeModel.HolidayList = JsonConvert.DeserializeObject<List<SelectListItem>>(holidayListData);
@@ -87,8 +108,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 shiftTypeModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
-                var data = _businessLayer.SendPostAPIRequest(shiftTypeModel,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.AddUpdateShiftType), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.AddUpdateShiftType);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    shiftTypeModel,
+                  apiUrl,
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                );
+                var data = apiResponse?.ToString();
                 var results = JsonConvert.DeserializeObject<Result>(data);
 
                 if (shiftTypeModel.ShiftTypeID > 0)

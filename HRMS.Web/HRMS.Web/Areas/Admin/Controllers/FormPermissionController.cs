@@ -47,6 +47,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             FormPermissionViewModel objmodel = new FormPermissionViewModel();
 
             var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+          
             var data =await _businessLayer.SendGetAPIRequest("Common/GetAllCompanyDepartments?CompanyID=" + CompanyID, HttpContext.Session.GetString(Constants.SessionBearerToken), true);
             objmodel.Departments = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data.ToString()).Departments;
 
@@ -65,10 +66,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 obj.CreatedByID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
 
-                var data = _businessLayer.SendPostAPIRequest(obj,
-                  await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddFormPermissions),
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddFormPermissions);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    obj,
+                  apiUrl,
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true).Result.ToString();
+                    true
+                );
+                var data = apiResponse?.ToString();
+               
                 insertedId = JsonConvert.DeserializeObject<long>(data);
                 if (insertedId == 1)
                 {
@@ -94,13 +100,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
         [HttpGet]
-        public JsonResult loadForms(int DepartmentId)
+        public async Task<JsonResult> loadForms(int DepartmentId)
         {
             try
             {
                 List<FormPermissionViewModel> objmodel = new List<FormPermissionViewModel>();
 
-                var response = _businessLayer.SendGetAPIRequest(
+                var response = await _businessLayer.SendGetAPIRequest(
                     "Common/GetFormByDepartmentID?DepartmentId=" + DepartmentId,
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true
@@ -108,7 +114,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 if (response != null)
                 {
-                    objmodel = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(response.Result.ToString());
+                    objmodel = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(response.ToString());
                 }
 
                 return Json(objmodel);

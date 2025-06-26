@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System.Threading.Tasks;
+using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using ImageMagick;
@@ -6,11 +7,13 @@ namespace HRMS.Web.BusinessLayer.S3
 {
     public interface IS3Service
     {
-        string UploadFile(IFormFile file, string bucketFolder);
-        bool DeleteFile(string key);
+        Task<string> UploadFileAsync(IFormFile file, string fileName);
+        Task<bool> DeleteFileAsync(string key);
         Task<string> GetFileUrl(string key);
         string ExtractKeyFromUrl(string fileUrl);
-        void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey);
+        Task<string> ProcessFileUploadAsync(List<IFormFile> files, string existingKey);
+       
+        
     }
 
     public class S3Service : IS3Service
@@ -29,7 +32,7 @@ namespace HRMS.Web.BusinessLayer.S3
             _bucketName = configuration["AWS:BucketName"];
             _s3Client = new AmazonS3Client(_accessKey, _secretKey, RegionEndpoint.GetBySystemName(_region));
         }
-        public string UploadFile(IFormFile file, string fileName)
+        public async Task<string> UploadFileAsync(IFormFile file, string fileName)
         {
             string extension = Path.GetExtension(fileName);
             string originalName = Path.GetFileNameWithoutExtension(fileName)
@@ -47,13 +50,13 @@ namespace HRMS.Web.BusinessLayer.S3
                     ContentType = file.ContentType
                 };
 
-                var response = _s3Client.PutObjectAsync(request).GetAwaiter().GetResult();
+                var response = await _s3Client.PutObjectAsync(request);
                 if (response.HttpStatusCode != System.Net.HttpStatusCode.OK)
                     throw new Exception($"Upload failed. AWS returned status code: {response.HttpStatusCode}");
                 return uniqueFileName;
             }
         }
-        public bool DeleteFile(string key)
+        public async Task<bool> DeleteFileAsync(string key)
         {
             var deleteRequest = new DeleteObjectRequest
             {
@@ -61,7 +64,7 @@ namespace HRMS.Web.BusinessLayer.S3
                 Key = key
             };
 
-            var response = _s3Client.DeleteObjectAsync(deleteRequest).GetAwaiter().GetResult();
+            var response =await _s3Client.DeleteObjectAsync(deleteRequest);
 
             return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent;
         }
@@ -84,30 +87,30 @@ namespace HRMS.Web.BusinessLayer.S3
             var fileName = fileUrl.Substring(fileUrl.LastIndexOf('/') + 1);
             return fileName.Split('?')[0];
         }
-        public void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey)
+        public async Task<string> ProcessFileUploadAsync(List<IFormFile> files, string existingKey)
         {
-            uploadedKey = string.Empty;
-            if (files != null && files.Count > 0)
+            if (files == null || !files.Any()) return string.Empty;
+
+            foreach (var file in files)
             {
-                foreach (var file in files)
+                if (file?.Length > 0)
                 {
-                    if (file?.Length > 0)
+                    var extension = Path.GetExtension(file.FileName)?.ToLower();
+                    var imageExtensions = new HashSet<string>
                     {
-                        var extension = Path.GetExtension(file.FileName)?.ToLower();
-                        var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff", ".tif", ".heic", ".heif" };
-                        if (imageExtensions.Contains(extension))
-                        {                          
-                            var compressedFile = CompressImage(file);
-                            uploadedKey = UploadFile(compressedFile, compressedFile.FileName);
-                        }
-                        else
-                        {                            
-                            uploadedKey = UploadFile(file, file.FileName);
-                        }
-                        if (!string.IsNullOrEmpty(uploadedKey)) break;
-                    }
+                        ".jpg", ".jpeg", ".png", ".webp", ".gif",
+                        ".bmp", ".tiff", ".tif", ".heic", ".heif"
+                    };
+
+                    var fileToUpload = imageExtensions.Contains(extension)
+                        ? CompressImage(file)
+                        : file;
+
+                    return await UploadFileAsync(fileToUpload, fileToUpload.FileName);
                 }
             }
+
+            return string.Empty;
         }
         public static IFormFile CompressImage(IFormFile originalFile)
         {

@@ -5,6 +5,7 @@ using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2019.Drawing.Model3D;
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Company;
@@ -223,12 +224,13 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
 
                 // Process profile photo upload
-                _s3Service.ProcessFileUpload(postedFiles, employee.ProfilePhoto, out string newProfileKey);
+                string newProfileKey = await _s3Service.ProcessFileUploadAsync(postedFiles, employee.ProfilePhoto);
+              
                 if (!string.IsNullOrEmpty(newProfileKey))
                 {
                     if (!string.IsNullOrEmpty(employee.ProfilePhoto))
                     {
-                        _s3Service.DeleteFile(employee.ProfilePhoto);
+                       await _s3Service.DeleteFileAsync(employee.ProfilePhoto);
                     }
                     employee.ProfilePhoto = newProfileKey;
                 }
@@ -237,13 +239,13 @@ namespace HRMS.Web.Areas.HR.Controllers
                     employee.ProfilePhoto = _s3Service.ExtractKeyFromUrl(employee.ProfilePhoto);
                 }
 
-                // Process PAN file upload (optional)
-                _s3Service.ProcessFileUpload(PanPostedFile, employee.PanCardImage, out string newPanKey);
+            
+                string newPanKey = await _s3Service.ProcessFileUploadAsync(postedFiles, employee.PanCardImage);              
                 if (!string.IsNullOrEmpty(newPanKey))
                 {
                     if (!string.IsNullOrEmpty(employee.PanCardImage))
                     {
-                        _s3Service.DeleteFile(employee.PanCardImage);
+                       await _s3Service.DeleteFileAsync(employee.PanCardImage);
                     }
                     employee.PanCardImage = newPanKey;
                 }
@@ -253,12 +255,14 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
 
                 // Process Aadhaar file upload (optional)
-                _s3Service.ProcessFileUpload(AadhaarPostedFile, employee.AadhaarCardImage, out string newAadhaarKey);
+                string newAadhaarKey = await _s3Service.ProcessFileUploadAsync(AadhaarPostedFile, employee.AadhaarCardImage);
+
+           
                 if (!string.IsNullOrEmpty(newAadhaarKey))
                 {
                     if (!string.IsNullOrEmpty(employee.AadhaarCardImage))
                     {
-                        _s3Service.DeleteFile(employee.AadhaarCardImage);
+                       await _s3Service.DeleteFileAsync(employee.AadhaarCardImage);
                     }
                     employee.AadhaarCardImage = newAadhaarKey;
                 }
@@ -765,12 +769,14 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentBankDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
 
                 // Process PAN file
-                _s3Service.ProcessFileUpload(PanPostedFile, employmentBankDetail.PanCardImage, out string newPanKey);
+                string newPanKey = await _s3Service.ProcessFileUploadAsync(PanPostedFile, employmentBankDetail.PanCardImage);
+
+               
                 if (!string.IsNullOrEmpty(newPanKey))
                 {
                     if (!string.IsNullOrEmpty(employmentBankDetail.PanCardImage))
                     {
-                        _s3Service.DeleteFile(employmentBankDetail.PanCardImage);
+                       await _s3Service.DeleteFileAsync(employmentBankDetail.PanCardImage);
                     }
                     employmentBankDetail.PanCardImage = newPanKey;
                 }
@@ -780,12 +786,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
 
                 // Process Aadhaar file
-                _s3Service.ProcessFileUpload(AadhaarPostedFile, employmentBankDetail.AadhaarCardImage, out string newAadhaarKey);
+                string newAadhaarKey= await _s3Service.ProcessFileUploadAsync(AadhaarPostedFile, employmentBankDetail.AadhaarCardImage);
                 if (!string.IsNullOrEmpty(newAadhaarKey))
                 {
                     if (!string.IsNullOrEmpty(employmentBankDetail.AadhaarCardImage))
                     {
-                        _s3Service.DeleteFile(employmentBankDetail.AadhaarCardImage);
+                       await _s3Service.DeleteFileAsync(employmentBankDetail.AadhaarCardImage);
                     }
                     employmentBankDetail.AadhaarCardImage = newAadhaarKey;
                 }
@@ -1190,12 +1196,13 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             eduDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
 
-            _s3Service.ProcessFileUpload(CertificateFile, eduDetail.CertificateImage, out string newCertificateKey);
+
+          string newCertificateKey= await _s3Service.ProcessFileUploadAsync(CertificateFile, eduDetail.CertificateImage);
 
             if (!string.IsNullOrEmpty(newCertificateKey))
             {
                 if (!string.IsNullOrEmpty(eduDetail.CertificateImage))
-                    _s3Service.DeleteFile(eduDetail.CertificateImage);
+                   await _s3Service.DeleteFileAsync(eduDetail.CertificateImage);
 
                 eduDetail.CertificateImage = newCertificateKey;
             }

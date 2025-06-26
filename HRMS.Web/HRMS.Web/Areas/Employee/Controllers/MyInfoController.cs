@@ -356,7 +356,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             if (leaveTypeID == (int)LeaveType.CompOff)
             {
-                leaveRecord.CampOff = (int)CompOff.CompOff;
+                leaveRecord.CompOff = (int)CompOff.CompOff;
             }
 
             if (isApproved && leaveRecord.LeaveTypeID == (int)LeaveType.AnnualLeavel)
@@ -739,7 +739,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         }
                         else
                         {
-                            model.leaveResults.leaveSummaryModel.CampOff = (int)CompOff.OtherLeaves;
+                            model.leaveResults.leaveSummaryModel.CompOff = (int)CompOff.OtherLeaves;
                         }
 
                     }
@@ -753,13 +753,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
 
 
-            _s3Service.ProcessFileUpload(postedFiles, leaveSummary.UploadCertificate, out string newCertificateKey);
+           string newCertificateKey =await _s3Service.ProcessFileUploadAsync(postedFiles, leaveSummary.UploadCertificate);
 
             if (!string.IsNullOrEmpty(newCertificateKey))
             {
                 if (!string.IsNullOrEmpty(leaveSummary.UploadCertificate))
                 {
-                    _s3Service.DeleteFile(leaveSummary.UploadCertificate);
+                    await _s3Service.DeleteFileAsync(leaveSummary.UploadCertificate);
                 }
                 leaveSummary.UploadCertificate = newCertificateKey;
             }
@@ -1871,7 +1871,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         }
                         else
                         {
-                            model.leaveResults.leaveSummaryModel.CampOff = (int)CompOff.OtherLeaves;
+                            model.leaveResults.leaveSummaryModel.CompOff = (int)CompOff.OtherLeaves;
                         }
 
                     }
@@ -1884,14 +1884,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     break;
             }
 
-
-            _s3Service.ProcessFileUpload(postedFiles, leaveSummary.UploadCertificate, out string newCertificateKey);
-
+            string newCertificateKey = await _s3Service.ProcessFileUploadAsync(postedFiles, leaveSummary.UploadCertificate);
+            
             if (!string.IsNullOrEmpty(newCertificateKey))
             {
                 if (!string.IsNullOrEmpty(leaveSummary.UploadCertificate))
                 {
-                    _s3Service.DeleteFile(leaveSummary.UploadCertificate);
+                    await _s3Service.DeleteFileAsync(leaveSummary.UploadCertificate);
                 }
                 leaveSummary.UploadCertificate = newCertificateKey;
             }
@@ -2298,7 +2297,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         }
                         else
                         {
-                            model.leaveResults.leaveSummaryModel.CampOff = (int)CompOff.OtherLeaves;
+                            model.leaveResults.leaveSummaryModel.CompOff = (int)CompOff.OtherLeaves;
                         }
 
                     }
@@ -2311,14 +2310,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     break;
             }
 
-
-            _s3Service.ProcessFileUpload(postedFiles, leaveSummary.UploadCertificate, out string newCertificateKey);
+            string newCertificateKey = await _s3Service.ProcessFileUploadAsync(postedFiles, leaveSummary.UploadCertificate);
+           
 
             if (!string.IsNullOrEmpty(newCertificateKey))
             {
                 if (!string.IsNullOrEmpty(leaveSummary.UploadCertificate))
                 {
-                    _s3Service.DeleteFile(leaveSummary.UploadCertificate);
+                    await _s3Service.DeleteFileAsync(leaveSummary.UploadCertificate);
                 }
                 leaveSummary.UploadCertificate = newCertificateKey;
             }
