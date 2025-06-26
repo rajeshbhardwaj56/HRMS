@@ -210,6 +210,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public JsonResult ApproveRejectLeave(long leaveSummaryID, bool isApproved, string approveRejectComment, int leaveTypeID)
         {
             var response = new ErrorLeaveResults();
