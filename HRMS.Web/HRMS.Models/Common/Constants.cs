@@ -111,6 +111,14 @@ namespace HRMS.Models.Common
         Manager,
         SuperAdmin = 5
     }
+    public enum Location
+    {
+        Mohali = 12,
+        Kolkata = 8,
+        Employee,
+        Manager,
+        SuperAdmin = 5
+    }
        public enum PageName
     {
         EmployeeListing = 2,

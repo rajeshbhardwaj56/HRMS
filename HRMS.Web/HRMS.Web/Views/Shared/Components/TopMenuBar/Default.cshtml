@@ -49,6 +49,7 @@
 			{
 				<li class="nav-list__item"><a class='nav-link' asp-area="employee" asp-controller="MyInfo" asp-action="PolicyCategoryDetails"> Policies </a></li>
 			}
+
 			@if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.Admin) || LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
 			{
 				<div class="user-settings dropdown">
