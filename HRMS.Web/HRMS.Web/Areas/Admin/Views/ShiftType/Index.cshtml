@@ -54,8 +54,11 @@
                         <label class="form-label"> Holiday List <span class="Mandetory">*</span> </label>
                     </div>
                     <div class="col-md-12">
+                                <div class="position-relative">
                         @Html.DropDownListFor(model => model.HolidayID, Model.HolidayList, "-- Select Holiday --", new { @class = "form-control" })
-
+                                <i class="fa fa-chevron-down position-absolute"
+                                   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                                </div>
                     </div>
                 </div>
                 <div class="col-md-6 my-2">

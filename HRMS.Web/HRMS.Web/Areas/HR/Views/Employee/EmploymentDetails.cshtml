@@ -53,7 +53,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Official Contact No <span class="Mandetory">*</span> (123-456-7890)</label>
-                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control", @type = "tel", @pattern = "[0-9]{3}-[0-9]{3}-[0-9]{4}", @required = "required" })
+                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control  mobile-mask" , @required = "required" })
 
                 </div>
                 <div class="col-md-4 form-group">
@@ -370,4 +370,26 @@
             loadFormPermissions(initialDepartmentId); 
         }
     });
+
+
+       $(document).ready(function () {
+            $('.mobile-mask').on('input', function () {
+                let input = $(this).val().replace(/\D/g, '');
+                if (input.length > 10) input = input.substring(0, 10);
+
+                let formatted = '';
+
+                if (input.length > 0) {
+                    formatted += '(' + input.substring(0, 3);
+                }
+                if (input.length >= 4) {
+                    formatted += ') ' + input.substring(3, 6);
+                }
+                if (input.length >= 7) {
+                    formatted += '-' + input.substring(6, 10);
+                }
+
+                $(this).val(formatted);
+            });
+        });
 </script>

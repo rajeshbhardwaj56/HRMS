@@ -570,11 +570,31 @@
             reader.readAsDataURL(file);
         }
     }
-    $(document).ready(function () {   
-        $('.mobile-mask').mask('(000) 000-0000');
-    });
+    // $(document).ready(function () {   
+    //     $('.mobile-mask').mask('(000) 000-0000');
+    // });
          
-   
+    $(document).ready(function () {
+            $('.mobile-mask').on('input', function () {
+                let input = $(this).val().replace(/\D/g, '');
+                if (input.length > 10) input = input.substring(0, 10);
+
+                let formatted = '';
+
+                if (input.length > 0) {
+                    formatted += '(' + input.substring(0, 3);
+                }
+                if (input.length >= 4) {
+                    formatted += ') ' + input.substring(3, 6);
+                }
+                if (input.length >= 7) {
+                    formatted += '-' + input.substring(6, 10);
+                }
+
+                $(this).val(formatted);
+            });
+        });
+
     
  
 </script>
