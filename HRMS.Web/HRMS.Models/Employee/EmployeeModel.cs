@@ -117,6 +117,7 @@ namespace HRMS.Models.Employee
         public string? ShiftStartTime { get; set; } = string.Empty;
         public string? ManagerName { get; set; } = string.Empty;
         public string? Shift { get; set; } = string.Empty;
+        public string? JobLocation { get; set; } = string.Empty;
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();

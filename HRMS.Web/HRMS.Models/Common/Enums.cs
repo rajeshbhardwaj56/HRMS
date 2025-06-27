@@ -59,7 +59,8 @@ namespace HRMS.Models.Common
         L1Rejected = 3,
         L2Approved = 4,      
         L2Rejected = 5,
-        NotApplied=6
+        NotApplied=6,
+        AdminApproved=7,
     }
 
     public enum MaxMedicalLeaveDoc

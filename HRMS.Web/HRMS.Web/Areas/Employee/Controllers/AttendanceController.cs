@@ -399,9 +399,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             ).Result.ToString();
 
             var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
-
-            // Convert string status to enum 
-            // Prepare attendance model
             var attendanceModel = new Attendance
             {
                 ID = attendanceId,
@@ -416,19 +413,25 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 AttendanceStatusId = attendanceStatusId,
                 RoleId = RoleId
             };
-
-            // Determine new status based on action and current status
-            if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+            if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
             {
-                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                    ? (int)AttendanceStatusId.L1Approved
-                    : (int)AttendanceStatusId.L2Approved;
+                attendanceModel.AttendanceStatusId = (int)AttendanceStatusId.AdminApproved;
             }
             else
             {
-                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                    ? (int)AttendanceStatusId.L1Rejected
-                    : (int)AttendanceStatusId.L2Rejected;
+                // Determine new status based on action and current status
+                if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+                {
+                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                        ? (int)AttendanceStatusId.L1Approved
+                        : (int)AttendanceStatusId.L2Approved;
+                }
+                else
+                {
+                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                        ? (int)AttendanceStatusId.L1Rejected
+                        : (int)AttendanceStatusId.L2Rejected;
+                }
             }
 
             // Submit updated attendance
@@ -959,8 +962,13 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             };
 
             // Determine new status based on action and current status
-
-            if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+            if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
+            {
+                attendanceModel.AttendanceStatusId = (int)AttendanceStatusId.AdminApproved;
+            }
+            else
+            {
+                if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
             {
                 attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
                     ? (int)AttendanceStatusId.L1Approved
@@ -971,6 +979,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                 attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
                     ? (int)AttendanceStatusId.L1Rejected
                     : (int)AttendanceStatusId.L2Rejected;
+            }
             }
 
 

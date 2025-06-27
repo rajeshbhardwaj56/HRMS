@@ -74,7 +74,7 @@
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
                     </div>
                 </div>
-                <div class="col-md-12 form-group ">
+                <div class="col-md-12 form-group userPermissionSection">
                     <label>User Permission <span class="Mandetory">*</span></label>
                     <div id="form-permission-list" class="mt-3 userPermission"></div>
                 </div>
@@ -309,7 +309,7 @@
                 success: function (response) {
                     let html = '';
 
-                    if (Array.isArray(response) && response.length > 0) {
+                      if (Array.isArray(response) && response.length > 0) {
                         html += `<div class="d-flex flex-wrap">`;
 
                         response.forEach(function (item) {
@@ -359,6 +359,10 @@
         var initialDepartmentId = $('#DepartmentID').val();
         if (initialDepartmentId) { 
             loadFormPermissions(initialDepartmentId); 
+        }
+        else{
+           let   html = `<p class="text-muted">No form permissions available.</p>`;
+              $('#form-permission-list').html(html);
         }
     });
 </script>

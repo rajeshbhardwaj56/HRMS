@@ -139,10 +139,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(data);                                     
             if (template.TemplateID > 0)
             {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Template saved successfully.";
                 return RedirectToActionPermanent(WebControllarsConstants.TemplateListing, WebControllarsConstants.Template);
             }
             else
             {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Something went wrong.";
                 return RedirectToActionPermanent(WebControllarsConstants.TemplateListing, WebControllarsConstants.Template);
             }
 

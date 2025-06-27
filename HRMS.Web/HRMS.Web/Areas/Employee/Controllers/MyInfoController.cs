@@ -219,12 +219,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             long companyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             long employeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             long userID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+            long RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
 
            
             var inputParams = new MyInfoInputParams
             {
                 CompanyID = companyID,
-                EmployeeID = employeeID
+                EmployeeID = employeeID,
+                RoleId = RoleID 
             };
 
             var jsonData = _businessLayer.SendPostAPIRequest(inputParams,

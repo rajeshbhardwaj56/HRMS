@@ -64,7 +64,8 @@
 														<table id="tblAttendanceForApproval" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
-																	<th>Employee Name</th>
+																	<th>Emp No</th>
+																	<th>  Name</th>
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -99,7 +100,8 @@
 														<table id="tblAttendanceForApproved" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
-																	<th>Employee Name</th>
+																	<th>Emp No</th>
+																	<th>Name</th>
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -130,7 +132,8 @@
 														<table id="tblAttendanceForReject" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
-																	<th>Employee Name</th>
+																	<th>Emp No</th>
+																	<th>  Name</th>
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -307,6 +310,7 @@
 			 info: true,
 			 responsive: true,
 			 columns: [
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
@@ -410,7 +414,7 @@
 			 searching: true,
 			 info: true,
 			 responsive: true,
-			 columns: [
+			 columns: [ { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
@@ -611,7 +615,7 @@
 			 searching: true,
 			 info: true,
 			 responsive: true,
-			 columns: [
+			 columns: [ { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
