@@ -106,7 +106,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Index(CompanyModel model, List<IFormFile> postedFiles)
 		{
-			string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
+
 			if (ModelState.IsValid)
 			{
 				model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -136,10 +136,12 @@ namespace HRMS.Web.Areas.HR.Controllers
 				var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(apiResponse?.ToString());
 				TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
 				TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
-				return RedirectToActionPermanent(
+				return RedirectToAction(
 				   Constants.Index,
-				WebControllarsConstants.Company,
-				  new { id = result.PKNo.ToString() }
+				WebControllarsConstants.Company
+				  //,new { id = result.PKNo.ToString() }
+				  
+
 			   );
 			}
 			else

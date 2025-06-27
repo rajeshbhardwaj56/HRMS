@@ -66,6 +66,7 @@ namespace HRMS.Web.BusinessLayer
             {
                 lock (Locker)
                 {
+
                     _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + BearerToken);
                 }
             }

@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.IdentityModel.Xml;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
@@ -398,7 +399,10 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            var data = _businessLayer.SendPostAPIRequest(employee,await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllActiveEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).ToString();
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllActiveEmployees);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(employee, apiUrl, token, true);
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
             results.Employees.ForEach(x => x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.EmployeeID.ToString()));
             return Json(new { data = results.Employees });
@@ -515,13 +519,13 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             // Fetch company logo and abbreviation
             var companyModel = new CompanyLoginModel { CompanyID = companyId };
-            var companyData = await _businessLayer.SendPostAPIRequest(
-                companyModel,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo),
-                " ",
-                false);
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(companyModel, apiUrl, token, true);
+            var data = apiResponse?.ToString();
 
-            companyModel = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(companyData.ToString()).companyLoginModel;
+
+            companyModel = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(apiResponse.ToString()).companyLoginModel;
 
             if (!string.IsNullOrEmpty(companyModel.CompanyLogo))
             {
@@ -535,15 +539,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetailInputParams.DesignationID = Convert.ToInt64(_businessLayer.DecodeStringBase64(DegtId));
                 employmentDetailInputParams.DepartmentID = Convert.ToInt64(_businessLayer.DecodeStringBase64(DeptId));
             }
+            var employeeToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var employeeApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee);
+            var employeeApiResponse = await _businessLayer.SendPostAPIRequest(employmentDetailInputParams, employeeApiUrl, employeeToken, true);
+           
 
-            // Fetch employment detail
-            var employmentData = await _businessLayer.SendPostAPIRequest(
-                employmentDetailInputParams,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee),
-                bearerToken,
-                true);
-
-            var employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(employmentData.ToString());
+            var employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(employeeApiResponse.ToString());
 
             // Append values
             employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
@@ -558,7 +559,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-            var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+          
 
             var inputParams = new EmploymentDetailInputParams
             {
@@ -573,15 +574,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                 var decodedId = _businessLayer.DecodeStringBase64(id);
                 inputParams.EmployeeID = Convert.ToInt64(decodedId);
             }
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
+         
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                inputParams,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee),
-                bearerToken,
-                true
-            );
-
-            var employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(response.ToString());
+            var employmentDetail = JsonConvert.DeserializeObject<EmploymentDetail>(apiResponse.ToString());
 
             if (employmentDetail != null && employmentDetail.EmployeeID > 0)
             {
@@ -785,9 +783,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 else
                 {
                     employmentBankDetail.PanCardImage = _s3Service.ExtractKeyFromUrl(employmentBankDetail.PanCardImage);
-                }
-
-                // Process Aadhaar file
+                }              
                 string newAadhaarKey= await _s3Service.ProcessFileUploadAsync(AadhaarPostedFile, employmentBankDetail.AadhaarCardImage);
                 if (!string.IsNullOrEmpty(newAadhaarKey))
                 {
@@ -802,7 +798,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     employmentBankDetail.AadhaarCardImage = _s3Service.ExtractKeyFromUrl(employmentBankDetail.AadhaarCardImage);
                 }
 
-                // API call to save
+           
                 var apiUrl = await _businessLayer.GetFormattedAPIUrl(
                     APIControllarsConstants.Employee,
                     APIApiActionConstants.AddUpdateEmploymentBankDetails);
@@ -1006,14 +1002,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     CompanyID = companyId
                 };
-
-                var response = await _businessLayer.SendPostAPIRequest(
-                    models,
-                  await  _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.FetchExportEmployeeExcelSheet),
-                    HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true);
-
-                var responseString = response.ToString();
+                var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.FetchExportEmployeeExcelSheet);
+                var apiResponse = await _businessLayer.SendPostAPIRequest(models, apiUrl, token, true);      
+                var responseString = apiResponse.ToString();
                 var employees = JsonConvert.DeserializeObject<List<ExportEmployeeDetailsExcel>>(responseString);
 
                 if (employees == null || !employees.Any())
@@ -1142,17 +1134,15 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EmployeeID = EmployeeID
             };
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEducationDetails);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(educationDetailParams, apiUrl, token, true);
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                educationDetailParams,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEducationDetails),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var data = response?.ToString();
+            
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<List<EducationalDetail>>(data) ?? new List<EducationalDetail>();
 
-            // Parallelizing file URL tasks improves performance
+           
             var tasks = results
                 .Where(x => !string.IsNullOrEmpty(x.CertificateImage))
                 .Select(async x =>
@@ -1193,14 +1183,12 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 eduDetail.CertificateImage = _s3Service.ExtractKeyFromUrl(eduDetail.CertificateImage);
             }
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEducationDetail);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(eduDetail, apiUrl, token, true);
+           
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                eduDetail,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEducationDetail),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var result = JsonConvert.DeserializeObject<Result>(response.ToString());
+            var result = JsonConvert.DeserializeObject<Result>(apiResponse.ToString());
 
             if (result != null && result.PKNo > 0)
                 return Json(new { success = true, message = "Education details saved successfully." });
@@ -1215,14 +1203,10 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EducationDetailID = encodedId
             };
-
-            var response = await _businessLayer.SendPostAPIRequest(
-                model,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEducationDetail),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var responseStr = response?.ToString();
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEducationDetail);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(model, apiUrl, token, true);
+            var responseStr = apiResponse?.ToString();
             if (!string.IsNullOrWhiteSpace(responseStr))
             {
                 return Json(new { success = true, message = responseStr });
@@ -1248,14 +1232,11 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EmployeeID = EmployeeID
             };
-
-            var response = await _businessLayer.SendPostAPIRequest(
-                familyDetailParams,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFamilyDetails),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var data = response?.ToString();
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFamilyDetails);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(familyDetailParams, apiUrl, token, true);
+         
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<List<FamilyDetail>>(data) ?? new List<FamilyDetail>();
 
             return Json(new
@@ -1274,14 +1255,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 return Json(new { success = false, message = "Validation failed." });
 
             famDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-
-            var response = await _businessLayer.SendPostAPIRequest(
-                famDetail,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateFamilyDetail),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var result = JsonConvert.DeserializeObject<Result>(response?.ToString());
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateFamilyDetail);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(famDetail, apiUrl, token, true);        
+            var result = JsonConvert.DeserializeObject<Result>(apiResponse?.ToString());
 
             if (result != null && result.PKNo > 0)
             {
@@ -1298,14 +1275,11 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EmployeesFamilyDetailID = encodedId
             };
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteFamilyDetail);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(model, apiUrl, token, true); 
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                model,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteFamilyDetail),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var responseStr = response?.ToString();
+            var responseStr = apiResponse?.ToString();
             if (!string.IsNullOrWhiteSpace(responseStr))
             {
                 return Json(new { success = true, message = responseStr });
@@ -1332,14 +1306,12 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EmployeeID = EmployeeID
             };
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetReferenceDetails);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(referenceParams, apiUrl, token, true);
+          
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                referenceParams,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetReferenceDetails),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var data = response?.ToString();
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.Reference>>(data) ?? new List<HRMS.Models.Employee.Reference>();
 
             return Json(new
@@ -1358,14 +1330,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 return Json(new { success = false, message = "Validation failed." });
 
             reference.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-
-            var response = await _businessLayer.SendPostAPIRequest(
-                reference,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateReferenceDetail),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var result = JsonConvert.DeserializeObject<Result>(response?.ToString());
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateReferenceDetail);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(reference, apiUrl, token, true);
+            var result = JsonConvert.DeserializeObject<Result>(apiResponse?.ToString());
 
             if (result != null && result.PKNo > 0)
             {
@@ -1382,14 +1350,12 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 ReferenceDetailID = encodedId
             };
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteReferenceDetail);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(model, apiUrl, token, true);
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                model,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteReferenceDetail),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
 
-            var resultStr = response?.ToString();
+            var resultStr = apiResponse?.ToString();
 
             if (!string.IsNullOrWhiteSpace(resultStr))
             {
@@ -1423,14 +1389,10 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EmployeeID = EmployeeID
             };
-
-            var response = await _businessLayer.SendPostAPIRequest(
-                requestParams,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentHistory),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var data = response?.ToString();
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentHistory);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(requestParams, apiUrl, token, true);
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.EmploymentHistory>>(data) ?? new List<HRMS.Models.Employee.EmploymentHistory>();
 
             return Json(new
@@ -1449,14 +1411,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                 return Json(new { success = false, message = "Validation failed." });
 
             history.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentHistory);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(history, apiUrl, token, true);
+           
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                history,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentHistory),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var result = JsonConvert.DeserializeObject<Result>(response?.ToString());
+            var result = JsonConvert.DeserializeObject<Result>(apiResponse?.ToString());
 
             if (result != null && result.PKNo > 0)
             {
@@ -1473,14 +1433,10 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EmploymentHistoryID = encodedId
             };
-
-            var response = await _businessLayer.SendPostAPIRequest(
-                model,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEmploymentHistory),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true);
-
-            var resultStr = response?.ToString();
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEmploymentHistory);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(model, apiUrl, token, true);       
+            var resultStr = apiResponse?.ToString();
 
             if (!string.IsNullOrWhiteSpace(resultStr))
             {
@@ -1514,15 +1470,12 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EmployeeID = EmployeeID
             };
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLanguageDetails);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(requestParams, apiUrl, token, true);
+          
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                requestParams,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLanguageDetails),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            );
-
-            var data = response?.ToString();
+            var data = apiResponse?.ToString();
             var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.LanguageDetail>>(data) ?? new List<HRMS.Models.Employee.LanguageDetail>();
 
             return Json(new
@@ -1541,15 +1494,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 return Json(new { success = false, message = "Validation failed." });
 
             language.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
-
-            var response = await _businessLayer.SendPostAPIRequest(
-                language,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLanguageDetail),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            );
-
-            var result = JsonConvert.DeserializeObject<Result>(response?.ToString());
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLanguageDetail);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(language, apiUrl, token, true);      
+            var result = JsonConvert.DeserializeObject<Result>(apiResponse?.ToString());
 
             if (result != null && result.PKNo > 0)
                 return Json(new { success = true, message = "Language detail saved successfully." });
@@ -1564,15 +1512,14 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 EmployeeLanguageDetailID = encodedId
             };
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteLanguageDetail);
+            var apiResponse = await _businessLayer.SendPostAPIRequest(model, apiUrl, token, true);
 
-            var response = await _businessLayer.SendPostAPIRequest(
-                model,
-                await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteLanguageDetail),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            );
 
-            var resultStr = response?.ToString();
+       
+
+            var resultStr = apiResponse?.ToString();
 
             if (!string.IsNullOrWhiteSpace(resultStr))
                 return Json(new { success = true, message = resultStr });

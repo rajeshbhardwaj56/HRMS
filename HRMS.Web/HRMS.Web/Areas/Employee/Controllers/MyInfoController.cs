@@ -1832,7 +1832,7 @@ model.leaveResults.leaveSummaryModel,
               apiUrl,
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
-            );
+            );                 
             var data = apiResponse?.ToString();
 
             var result = JsonConvert.DeserializeObject<Result>(data);
