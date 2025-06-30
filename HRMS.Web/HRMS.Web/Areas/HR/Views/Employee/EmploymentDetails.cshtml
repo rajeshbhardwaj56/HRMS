@@ -53,7 +53,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Official Contact No <span class="Mandetory">*</span> (123-456-7890)</label>
-                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control", @type = "tel", @pattern = "[0-9]{3}-[0-9]{3}-[0-9]{4}", @required = "required" })
+                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control mobile-mask",   @required = "required" })
 
                 </div>
                 <div class="col-md-4 form-group">
@@ -365,4 +365,62 @@
               $('#form-permission-list').html(html);
         }
     });
+
+
+
+       $(document).ready(function () {
+        // Input masking for each mobile-mask field
+        $('.mobile-mask').on('input', function () {
+            let input = $(this).val().replace(/\D/g, '');
+
+            if (input.length > 10) input = input.substring(0, 10);
+
+            let formatted = '';
+
+            if (input.length >= 1) {
+                formatted += '(' + input.substring(0, Math.min(4, input.length)) + ')';
+            }
+
+            if (input.length > 4) {
+                formatted += '-' + input.substring(4, Math.min(7, input.length));
+            }
+
+            if (input.length > 7) {
+                formatted += '-' + input.substring(7, 10);
+            }
+
+            $(this).val(formatted);
+        });
+
+        // On blur, validate individual field
+        $('.mobile-mask').on('blur', function () {
+            let rawInput = $(this).val().replace(/\D/g, '');
+            if (rawInput.length < 10) {
+                alert("Please enter Correct number.");
+
+            }
+        });
+
+        // On form submit, validate all mobile-mask fields
+        $('#myForm').on('submit', function (e) {
+            let isValid = true;
+
+            $('.mobile-mask').each(function () {
+                let rawInput = $(this).val().replace(/\D/g, '');
+                if (rawInput.length < 10) {
+                    alert("Please enter Correct number");
+                setTimeout(() => {
+                $(this).focus();
+            }, 0);
+                    isValid = false;
+                    return false; // break out of .each loop
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault(); // Stop form submission
+            }
+        });
+    });
+
 </script>

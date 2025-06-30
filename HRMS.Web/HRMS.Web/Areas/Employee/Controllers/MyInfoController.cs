@@ -98,10 +98,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult GetEmployeeLeaveDetails(string employeeID)
+        public IActionResult GetEmployeeLeaveDetails(string employeeID,long leaveSummaryID)
         {
             MyInfoInputParams model = new MyInfoInputParams();
             model.EmployeeID = Convert.ToInt64(employeeID);
+            model.LeaveSummaryID = Convert.ToInt64(leaveSummaryID);
             model.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
             model.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
             var employeeDetails = GetEmployeeDetails(model.CompanyID, model.EmployeeID);
@@ -140,7 +141,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
             if (leavePolicyModel != null)
             {
-                Approvals = results.leavesSummary.Where(x => x.LeaveStatusID != (int)LeaveStatus.Approved && x.LeaveStatusID != (int)LeaveStatus.NotApproved && x.LeaveStatusID != (int)LeaveStatus.Cancelled).ToList();
+                Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.PendingApproval).ToList();
                 ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
                 if (leavePolicyModel.Paternity_medicalDocument == true)
                 {
@@ -947,7 +948,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         accruedLeave = Math.Min(accruedLeave + carryForward, maxAvailable);
                     }
 
-                    totalLeaveWithCarryForward = approvedLeaveTotal + accruedLeave;
+                    totalLeaveWithCarryForward = accruedLeave- approvedLeaveTotal ;
 
                     // Final safety cap (optional)
                     totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);

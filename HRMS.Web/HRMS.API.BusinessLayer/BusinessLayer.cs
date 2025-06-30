@@ -2923,7 +2923,8 @@ namespace HRMS.API.BusinessLayer
                     WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
                     FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
                     LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
-                    HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked")
+                    HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked"),
+                    AttendanceStatusId = dataRow.Field<int?>("AttendanceStatusId")
                 })
                 .ToList();
             }
@@ -3080,7 +3081,7 @@ namespace HRMS.API.BusinessLayer
                             HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked"),
                             Comments = dataRow.Field<string>("Comments"),
                             EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
-                        })
+                        }).OrderBy(x=>x.ID)
                         .ToList();
                 }
             }

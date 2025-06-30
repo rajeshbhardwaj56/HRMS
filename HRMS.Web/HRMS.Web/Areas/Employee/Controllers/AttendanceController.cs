@@ -200,16 +200,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public IActionResult MyAttendance(Attendance AttendenceListModel)
         {
 
-            if (AttendenceListModel.FirstLogDate.HasValue)
-            {
-                var selectedDate = AttendenceListModel.FirstLogDate.Value;
-                if (selectedDate.DayOfWeek == DayOfWeek.Saturday || selectedDate.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Attendance cannot be submitted for weekends (Saturday or Sunday).";
-                    return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
-                }
-            }
+            //if (AttendenceListModel.FirstLogDate.HasValue)
+            //{
+            //    var selectedDate = AttendenceListModel.FirstLogDate.Value;
+            //    if (selectedDate.DayOfWeek == DayOfWeek.Saturday || selectedDate.DayOfWeek == DayOfWeek.Sunday)
+            //    {
+            //        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+            //        TempData[HRMS.Models.Common.Constants.toastMessage] = "Attendance cannot be submitted for weekends (Saturday or Sunday).";
+            //        return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
+            //    }
+            //}
 
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
             var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -255,7 +255,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     sendEmailProperties sendEmailProperties = new sendEmailProperties
                     {
 
-                        emailSubject = "Send a request for CompOff Attendance approval",
+                        emailSubject = "Send a request for Attendance approval",
                         emailBody = $@"
         <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
             Hi,<br/><br/>
@@ -373,10 +373,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public JsonResult ApproveRejectAttendance(long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
             // Get session values
+            string approvesStatus = "";
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var managerFirstName = HttpContext.Session.GetString(Constants.FirstName);
-            string manager2Email = HttpContext.Session.GetString(Constants.Manager2Email) ?? string.Empty;
+            string manager2Email = HttpContext.Session.GetString(Constants.Manager1Email) ?? string.Empty;
             string bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
             EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
             employeeobj.EmployeeID = employeeId;
@@ -445,7 +446,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var emailList = new List<string>();
             string subject = string.Empty;
             string body = string.Empty;
-
+            var actions= actionText.Equals("approve", StringComparison.OrdinalIgnoreCase) ? "approved" : "rejected";
             switch (attendanceModel.AttendanceStatusId)
             {
                 case (int)AttendanceStatusId.L1Approved:
@@ -495,10 +496,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     // Email to employee
                     if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
                     {
+                        approvesStatus = "L1 manager";
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-   Hi, {employeeResult.EmployeeName}, your CompOff has been approved.
+   Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {approvesStatus}.
   <p style='color: #000; font-size: 13px;'>
              Protalk Solutions is an ISO 27001:2022 certified. <br/>
              This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
@@ -508,12 +510,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     break;
 
                 case (int)AttendanceStatusId.L2Rejected:
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+     employeeResult.PersonalEmailAddress.Contains("@"))
                     {
+                        approvesStatus = "L2 manager";
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-    Hi {employeeResult.EmployeeName}, your CompOff attendance has been rejected.
+    Hi {employeeResult.EmployeeName}, your attendance   has been {actions}  by your {approvesStatus}.
     <p style='color: #000; font-size: 13px;'>
              Protalk Solutions is an ISO 27001:2022 certified. <br/>
              This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
@@ -523,12 +527,22 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     break;
 
                 default:
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+     employeeResult.PersonalEmailAddress.Contains("@"))
                     {
-                        emailList.Add(employeeResult.PersonalEmailAddress);
+                        if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
+                        {
+                            approvesStatus = "Admin";
+                        }
+                        else
+                        {
+                            approvesStatus = "L1 manager";
+                        }
+
+                            emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
+Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {approvesStatus}.
     <p style='color: #000; font-size: 13px;'>
              Protalk Solutions is an ISO 27001:2022 certified. <br/>
              This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
@@ -864,11 +878,11 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
         [HttpPost]
         public JsonResult ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
-
+            string approvesStatus = "";
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var managerFirstName = HttpContext.Session.GetString(Constants.FirstName);
-            string manager2Email = HttpContext.Session.GetString(Constants.Manager2Email) ?? string.Empty;
+            string manager2Email = HttpContext.Session.GetString(Constants.Manager1Email) ?? string.Empty;
             string bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
             EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
             employeeobj.EmployeeID = employeeId;
@@ -939,7 +953,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             var emailList = new List<string>();
             string subject = string.Empty;
             string body = string.Empty;
-
+            var actions = actionText.Equals("approve", StringComparison.OrdinalIgnoreCase) ? "approved" : "rejected";
             switch (attendanceModel.AttendanceStatusId)
             {
                 case (int)AttendanceStatusId.L1Approved:
@@ -988,12 +1002,13 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                     }
 
                     // Email to employee
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+     employeeResult.PersonalEmailAddress.Contains("@"))
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-   Hi, {employeeResult.EmployeeName}, your CompOff has been approved.
+ Hi, {employeeResult.EmployeeName}, your CompOff has been  {actions} by your L1 manager.
    <p style='color: #000; font-size: 13px;'>
              Protalk Solutions is an ISO 27001:2022 certified. <br/>
              This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
@@ -1003,12 +1018,13 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                     break;
 
                 case (int)AttendanceStatusId.L2Rejected:
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+     employeeResult.PersonalEmailAddress.Contains("@"))
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-    Hi {employeeResult.EmployeeName}, your CompOff attendance has been rejected.
+ Hi, {employeeResult.EmployeeName}, your CompOff has been  {actions} by your L2 manager.
    <p style='color: #000; font-size: 13px;'>
              Protalk Solutions is an ISO 27001:2022 certified. <br/>
              This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
@@ -1018,13 +1034,24 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                     break;
 
                 default:
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+    employeeResult.PersonalEmailAddress.Contains("@"))
                     {
+
+                        if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
+                        {
+                            approvesStatus = "Admin";
+                        }
+                        else
+                        {
+                            approvesStatus = "L1 manager";
+                        }
+
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
 
                         body = $@"
-Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
+ Hi, {employeeResult.EmployeeName}, your CompOff has been  {actions} by your {approvesStatus}.
    <p style='color: #000; font-size: 13px;'>
              Protalk Solutions is an ISO 27001:2022 certified. <br/>  
              This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.

@@ -362,6 +362,7 @@
 			 },
 			 error: function (xhr, status, error) {
 				 console.error("Error in RefreshTable12:", error);
+					 window.location.href = '/Home/ErrorPage';
 			 }
 		 });
 	 }
@@ -477,37 +478,25 @@
 		 });
 	 }
 
-		 function ApproveRejectcompOff(isApproved) {
-
+			 function ApproveRejectcompOff(isApproved) {
 		const ApproveRejectComment = $("#ApproveRejectComment").val();
+		const approveButton = $("#approveButton");
+		const rejectButton = $(".btn-primary");
 
-			if (ApproveRejectComment === "") {
-				$("#approverejectrequire").text('Comment required');
-				// Re-enable both buttons and reset text
-				approveButton.prop('disabled', false);
-				rejectButton.prop('disabled', false);
-				approveButton.text('Approve');
-				rejectButton.text('Reject');
-				return;
-			}
-
-		const approveButton = $("#approveButton");  // Approve button
-		const rejectButton = $(".btn-primary");    // Reject button (using class to select)
+		if (ApproveRejectComment === "") {
+			$("#approverejectrequire").text('Comment required');
+			approveButton.prop('disabled', false).text('Approve');
+			rejectButton.prop('disabled', false).text('Reject');
+			return;
+		}
 
 		const actionText = isApproved ? "approve" : "reject";
 
-		// Disable both buttons and change text of the clicked button
+		// Disable buttons and set processing text
 		approveButton.prop('disabled', true);
 		rejectButton.prop('disabled', true);
+		isApproved ? approveButton.text('Processing...') : rejectButton.text('Processing...');
 
-		// Change text to 'Processing...' for the clicked button
-		if (isApproved) {
-			approveButton.text('Processing...');
-		} else {
-			rejectButton.text('Processing...');
-		}
-
-		// Show confirmation dialog
 		if (confirm(`Are you sure you want to ${actionText} this compOff request?`)) {
 			const employeeID = $("#employeeID").val();
 
@@ -520,42 +509,46 @@
 				startDate: $("#AttStartDate").val(),
 				endDate: $("#AttEndDate").val(),
 				workDate: $("#AttWorkDate").val(),
-				
 				actionText: actionText
 			};
 
-			$.post('/Employee/Attendance/ApproveRejectCompOff/', data, function (json) {
-			
-				if (json && json.message) {
-					if (json.success) {
-						showToast(json.message);
-						CloseApproveRejectModel();
-					setTimeout(function () {
-				window.location.reload();
-			}, 2000);
-						$("#ApproveRejectComment").val("");
-					} else {
-						$("#approverejectrequire").text(json.message);
-						window.location.reload();
-						CloseApproveRejectModel();
+			$.ajax({
+				url: '/Employee/Attendance/ApproveRejectCompOff/',
+				type: 'POST',
+				data: data,
+				success: function (json) {
+					try {
+						if (json && json.message) {
+							if (json.success) {
+								showToast(json.message);
+								CloseApproveRejectModel();
+								setTimeout(() => window.location.reload(), 2000);
+								$("#ApproveRejectComment").val("");
+							} else {
+								$("#approverejectrequire").text(json.message || "Something went wrong.");
+								CloseApproveRejectModel();
+								window.location.reload();
+							}
+						} else {
+							showToast("CompOff status updated.");
+							$("#ApproveRejectComment").val("");
+						}
+					} catch (ex) {
+							window.location.href = '/Home/ErrorPage';
 					}
-				} else {
-					showToast("compOff status updated.");
-					$("#ApproveRejectComment").val("");
+				},
+				error: function (xhr, status, error) {
+				window.location.href = '/Home/ErrorPage';
+				},
+				complete: function () {
+					approveButton.prop('disabled', false).text('Approve');
+					rejectButton.prop('disabled', false).text('Reject');
 				}
-
-				// Re-enable both buttons and reset text after the request completes
-				approveButton.prop('disabled', false);
-				rejectButton.prop('disabled', false);
-				approveButton.text('Approve');
-				rejectButton.text('Reject');
 			});
 		} else {
-			// Re-enable both buttons and reset text if the user cancels
-			approveButton.prop('disabled', false);
-			rejectButton.prop('disabled', false);
-			approveButton.text('Approve');
-			rejectButton.text('Reject');
+			// User canceled confirmation
+			approveButton.prop('disabled', false).text('Approve');
+			rejectButton.prop('disabled', false).text('Reject');
 		}
 	}
 

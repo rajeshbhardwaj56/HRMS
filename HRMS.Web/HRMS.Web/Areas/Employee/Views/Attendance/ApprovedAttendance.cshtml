@@ -64,6 +64,7 @@
 														<table id="tblAttendanceForApproval" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
+																	<th>Id</th>
 																	<th>Emp No</th>
 																	<th>  Name</th>
 																	<th>From Date</th>
@@ -100,6 +101,7 @@
 														<table id="tblAttendanceForApproved" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
+																	<th>Id</th>
 																	<th>Emp No</th>
 																	<th>Name</th>
 																	<th>From Date</th>
@@ -132,6 +134,7 @@
 														<table id="tblAttendanceForReject" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
+																	<th>Id</th>
 																	<th>Emp No</th>
 																	<th>  Name</th>
 																	<th>From Date</th>
@@ -309,7 +312,9 @@
 			 searching: true,
 			 info: true,
 			 responsive: true,
+			  order: [[0, 'desc']],
 			 columns: [
+					{ data: "id", visible: false },
 				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
@@ -342,30 +347,40 @@
 		 });
 	 }
 	 //First Tab Table load
-	function RefreshTable12(tableId, urlData, status,Year,Month) {
-		 $.ajax({
-			 url: urlData,
-			 type: 'POST',
-			 contentType: 'application/json',
-			 data: JSON.stringify({ attendanceStatus: parseInt(status),Year:Year,Month:Month }),
-			 success: function (json) {
-				 let table = $(tableId).dataTable();
-				 let oSettings = table.fnSettings();
+		function RefreshTable12(tableId, urlData, status, Year, Month) {
+		$.ajax({
+			url: urlData,
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify({ attendanceStatus: parseInt(status), Year: Year, Month: Month }),
+			success: function (json) {
+				try {
+					let table = $(tableId).dataTable();
+					let oSettings = table.fnSettings();
 
-				 table.fnClearTable();
+					table.fnClearTable();
 
-				 for (var i = 0; i < json.data.length; i++) {
-					 table.oApi._fnAddData(oSettings, json.data[i]);
-				 }
+					if (json && json.data && Array.isArray(json.data)) {
+						for (var i = 0; i < json.data.length; i++) {
+							table.oApi._fnAddData(oSettings, json.data[i]);
+						}
 
-				 oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-				 table.fnDraw();
-			 },
-			 error: function (xhr, status, error) {
-				 console.error("Error in RefreshTable12:", error);
-			 }
-		 });
-	 }
+						oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+						table.fnDraw();
+					} else {
+						alert("Unexpected response format. Please contact IT support.");
+					}
+				} catch (ex) {
+					window.location.href = '/Home/ErrorPage';
+				}
+			},
+			error: function (xhr, status, error) {
+			window.location.href = '/Home/ErrorPage';
+
+			}
+		});
+	}
+
 
 	 //second tab
 
@@ -414,7 +429,10 @@
 			 searching: true,
 			 info: true,
 			 responsive: true,
-			 columns: [ { data: "employeeNumber", autoWidth: true },
+			   order: [[0, 'desc']],
+			 columns: [
+					{ data: "id", visible: false },
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
@@ -468,40 +486,29 @@
 		 });
 	 }
 
-		 function ApproveRejectAttendance(isApproved) {
-
+		function ApproveRejectAttendance(isApproved) {
 		const ApproveRejectComment = $("#ApproveRejectComment").val();
+		const approveButton = $("#approveButton");
+		const rejectButton = $(".btn-primary");
 
-			if (ApproveRejectComment === "") {
-				$("#approverejectrequire").text('Comment required');
-				// Re-enable both buttons and reset text
-				approveButton.prop('disabled', false);
-				rejectButton.prop('disabled', false);
-				approveButton.text('Approve');
-				rejectButton.text('Reject');
-				return;
-			}
-
-		const approveButton = $("#approveButton");  // Approve button
-		const rejectButton = $(".btn-primary");    // Reject button (using class to select)
+		if (ApproveRejectComment === "") {
+			$("#approverejectrequire").text('Comment required');
+			approveButton.prop('disabled', false).text('Approve');
+			rejectButton.prop('disabled', false).text('Reject');
+			return;
+		}
 
 		const actionText = isApproved ? "approve" : "reject";
 
-		// Disable both buttons and change text of the clicked button
+		// Disable buttons and show processing state
 		approveButton.prop('disabled', true);
 		rejectButton.prop('disabled', true);
-
-		// Change text to 'Processing...' for the clicked button
-		if (isApproved) {
-			approveButton.text('Processing...');
-		} else {
-			rejectButton.text('Processing...');
-		}
+		isApproved ? approveButton.text('Processing...') : rejectButton.text('Processing...');
 
 		// Show confirmation dialog
 		if (confirm(`Are you sure you want to ${actionText} this attendance request?`)) {
 			const employeeID = $("#employeeID").val();
-			
+
 			const data = {
 				attendanceId: $("#attendanceId").val(),
 				employeeID,
@@ -513,40 +520,48 @@
 				actionText: actionText
 			};
 
-			$.post('/Employee/Attendance/ApproveRejectAttendance/', data, function (json) {
-				console.log(json);
-				if (json && json.message) {
-					if (json.success) {
-						showToast(json.message);
-						CloseApproveRejectModel();
-					setTimeout(function () {
-				window.location.reload();
-			}, 2000);
-						$("#ApproveRejectComment").val("");
-					} else {
-						$("#approverejectrequire").text(json.message);
-						window.location.reload();
-						CloseApproveRejectModel();
+			$.ajax({
+				url: '/Employee/Attendance/ApproveRejectAttendance/',
+				type: 'POST',
+				data: data,
+				success: function (json) {
+					try {
+						console.log(json);
+						if (json && json.message) {
+							if (json.success) {
+								showToast(json.message);
+								CloseApproveRejectModel();
+								setTimeout(() => window.location.reload(), 2000);
+								$("#ApproveRejectComment").val("");
+							} else {
+								$("#approverejectrequire").text(json.message || "Something went wrong.");
+								CloseApproveRejectModel();
+								window.location.reload();
+							}
+						} else {
+							showToast("Attendance status updated.");
+							$("#ApproveRejectComment").val("");
+						}
+					} catch (ex) { 
+						window.location.href = '/Home/ErrorPage';
 					}
-				} else {
-					showToast("Attendance status updated.");
-					$("#ApproveRejectComment").val("");
+				},
+				error: function (xhr, status, error) {
+					window.location.href = '/Home/ErrorPage';
+				},
+				complete: function () {
+					// Re-enable both buttons and reset text
+					approveButton.prop('disabled', false).text('Approve');
+					rejectButton.prop('disabled', false).text('Reject');
 				}
-
-				// Re-enable both buttons and reset text after the request completes
-				approveButton.prop('disabled', false);
-				rejectButton.prop('disabled', false);
-				approveButton.text('Approve');
-				rejectButton.text('Reject');
 			});
 		} else {
-			// Re-enable both buttons and reset text if the user cancels
-			approveButton.prop('disabled', false);
-			rejectButton.prop('disabled', false);
-			approveButton.text('Approve');
-			rejectButton.text('Reject');
+			// User canceled the confirmation
+			approveButton.prop('disabled', false).text('Approve');
+			rejectButton.prop('disabled', false).text('Reject');
 		}
 	}
+
 
 
 	 function showToast(message) {
@@ -596,6 +611,7 @@
 			 },
 			 error: function (xhr) {
 				 $('#responseMessage').text('Error: ' + xhr.responseText);
+				 window.location.href = '/Home/ErrorPage';
 			 }
 		 });
 
@@ -615,7 +631,10 @@
 			 searching: true,
 			 info: true,
 			 responsive: true,
-			 columns: [ { data: "employeeNumber", autoWidth: true },
+			  order: [[0, 'desc']],
+			 columns: [
+				 { data: "id", visible: false },
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
@@ -654,7 +673,7 @@
 	const yearDropdown = document.getElementById('yearDropdown');
 	const monthDropdown = document.getElementById('monthDropdown');
 	const currentYear = new Date().getFullYear();
-	const startYear = 2020;
+	const startYear = 2025;
 
 	// Add years from 2020 to the current year
 	for (let year = startYear; year <= currentYear; year++) {
