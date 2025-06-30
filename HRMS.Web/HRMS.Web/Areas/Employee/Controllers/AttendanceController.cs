@@ -283,19 +283,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
             
 
             <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>
         </div>"
                     };
@@ -492,19 +482,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
             
 
             <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>
         </div>",
                             EmailToList = new List<string> { manager2Email }
@@ -519,22 +499,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         subject = "Attendance request status";
                         body = $@"
    Hi, {employeeResult.EmployeeName}, your CompOff has been approved.
-    <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+  <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
 
@@ -546,21 +515,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         body = $@"
     Hi {employeeResult.EmployeeName}, your CompOff attendance has been rejected.
     <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
 
@@ -572,21 +530,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         body = $@"
 Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
     <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
             }
@@ -850,20 +797,10 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
             
 
-            <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
+          <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>
         </div>"
                             };
@@ -1038,20 +975,10 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
             
 
-            <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
+           <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>
         </div>",
 
@@ -1067,22 +994,11 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                         subject = "Attendance request status";
                         body = $@"
    Hi, {employeeResult.EmployeeName}, your CompOff has been approved.
-    <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+   <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
 
@@ -1093,22 +1009,11 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                         subject = "Attendance request status";
                         body = $@"
     Hi {employeeResult.EmployeeName}, your CompOff attendance has been rejected.
-    <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+   <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
 
@@ -1120,22 +1025,11 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
                         body = $@"
 Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
-    <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+   <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>  
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
 
                     }
                     break;
