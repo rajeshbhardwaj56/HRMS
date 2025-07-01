@@ -1707,8 +1707,8 @@ namespace HRMS.API.BusinessLayer
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                                   OfficialEmailID = dataRow.Field<string>("OfficialEmailID" ?? ""),
                                   ManagerOfficialEmailID = dataRow.Field<string>("ManagerOfficialEmailID") ?? "",
-                                  EmployeeFirstName = dataRow.Field<string>("EmployeeFirstName") ??"",
-                                  ManagerFirstName = dataRow.Field<string>("ManagerFirstName")??"",
+                                  EmployeeFirstName = dataRow.Field<string>("EmployeeFirstName") ?? "",
+                                  ManagerFirstName = dataRow.Field<string>("ManagerFirstName") ?? "",
                                   ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
                                   LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
                                   JoiningDate = dataRow.Field<DateTime>("JoiningDate"),
@@ -2102,34 +2102,19 @@ namespace HRMS.API.BusinessLayer
             return model;
         }
 
-        public Results GetAllEmployees()
+        public List<SelectListItem> GetAllEmployeesList(WeekOfEmployeeId Employeemodel)
         {
-            Results model = new Results();
+            List<SelectListItem> model = new List<SelectListItem>();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-
+            sqlParameter.Add(new SqlParameter("@EmployeeID", Employeemodel.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Employees, sqlParameter);
-
-            if (dataSet.Tables[0].Columns.Contains("Result"))
-            {
                 model = dataSet.Tables[0].AsEnumerable()
-                  .Select(dataRow => new Results
-                  {
-                      Result = new Result()
-                      {
-                          Message = dataRow.Field<int>("Result").ToString()
-                      },
-                  }).ToList().FirstOrDefault();
-
-            }
-            else
-            {
-                model.Employee = dataSet.Tables[0].AsEnumerable()
                                .Select(dataRow => new SelectListItem
                                {
                                    Text = dataRow.Field<string>("EmployeeName"),
                                    Value = dataRow.Field<long>("EmployeeID").ToString()
                                }).ToList();
-            }
+            
             return model;
         }
 
@@ -3081,7 +3066,7 @@ namespace HRMS.API.BusinessLayer
                             HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked"),
                             Comments = dataRow.Field<string>("Comments"),
                             EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
-                        }).OrderBy(x=>x.ID)
+                        }).OrderBy(x => x.ID)
                         .ToList();
                 }
             }
@@ -3898,7 +3883,7 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@EmployeeId", objmodel.EmployeeID)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_Get_Employees_details", sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Employees_details, sqlParameters);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -4861,9 +4846,9 @@ namespace HRMS.API.BusinessLayer
         #region Exception Handling
         public void InsertException(ExceptionLogModel model)
         {
-         
-           
-                List<SqlParameter> sqlParams = new List<SqlParameter>
+
+
+            List<SqlParameter> sqlParams = new List<SqlParameter>
         {
             new SqlParameter("@ControllerName", model.ControllerName ?? (object)DBNull.Value),
             new SqlParameter("@AreaName", model.AreaName ?? (object)DBNull.Value),
@@ -4875,13 +4860,123 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@EmployeeId", model.EmployeeId ?? (object)DBNull.Value)
         };
 
-                SqlParameterCollection outputParams = null;
+            SqlParameterCollection outputParams = null;
 
-                
-                DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertExceptionLog, sqlParams, ref outputParams);
-            
-           
+
+            DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertExceptionLog, sqlParams, ref outputParams);
+
+
         }
         #endregion Exception Handling
+
+
+        public bool GetRosterWeekOff(WeekOffUploadModelList model)
+        {
+            var data = CreateWeekOffDataTable(model.WeekOffList);
+            UploadWeekOffRoster(data, model.CreatedBy);
+            return true;
+        }
+
+        public DataTable CreateWeekOffDataTable(List<WeekOffUploadModel> models)
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("EmployeeNumber", typeof(int));
+            dt.Columns.Add("WeekOff1", typeof(DateTime));
+            dt.Columns.Add("WeekOff2", typeof(DateTime));
+            dt.Columns.Add("WeekOff3", typeof(DateTime));
+            dt.Columns.Add("WeekOff4", typeof(DateTime));
+            dt.Columns.Add("WeekOff5", typeof(DateTime));
+            foreach (var item in models)
+            {
+                var row = dt.NewRow();
+                row["EmployeeNumber"] = item.EmployeeNumber;
+                row["WeekOff1"] = item.WeekOff1 ?? (object)DBNull.Value;
+                row["WeekOff2"] = item.WeekOff2 ?? (object)DBNull.Value;
+                row["WeekOff3"] = item.WeekOff3 ?? (object)DBNull.Value;
+                row["WeekOff4"] = item.WeekOff4 ?? (object)DBNull.Value;
+                row["WeekOff5"] = item.WeekOff5 ?? (object)DBNull.Value;
+                dt.Rows.Add(row);
+            }
+
+            return dt;
+        }
+
+        public async Task UploadWeekOffRoster(DataTable dt, long createdBy)
+        {
+            try
+            {
+                string connStr = _configuration["ConnectionStrings:conStr"];
+
+                using var conn = new SqlConnection(connStr);
+                await conn.OpenAsync();
+
+                using var cmd = new SqlCommand("dbo.usp_BulkUploadWeekOffRoster", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                var tvpParam = cmd.Parameters.AddWithValue("@WeekOffs", dt);
+                tvpParam.SqlDbType = SqlDbType.Structured;
+                tvpParam.TypeName = "dbo.WeekOffUploadType";
+
+                cmd.Parameters.AddWithValue("@CreatedBy", createdBy);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+
+
+
+
+        public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model)
+        {
+            List<WeekOffUploadModel> result = new List<WeekOffUploadModel>();
+            try
+            {
+                List<SqlParameter> sqlParameter = new List<SqlParameter>
+        {
+            new SqlParameter("@ReportingToID", model.EmployeeID),
+            new SqlParameter("@SearchTerm", string.IsNullOrEmpty(model.SearchTerm) ? DBNull.Value : (object)model.SearchTerm),
+            new SqlParameter("@Month", model.Month),
+            new SqlParameter("@Year", model.Year),
+            new SqlParameter("@PageNumber", model.PageNumber),
+            new SqlParameter("@PageSize", model.PageSize)
+
+        };
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetWeekOffRoster, sqlParameter);
+
+                result = dataSet.Tables[0].AsEnumerable()
+                                  .Select(dataRow =>
+                                  new WeekOffUploadModel
+                                  {
+                                      Id = dataRow.Field<int?>("Id"),
+                                      EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
+                                      RosterMonth = dataRow.Field<DateTime>("RosterMonth"),
+                                      WeekOff1 = dataRow.Field<DateTime>("WeekOff1"),
+                                      WeekOff2 = dataRow.Field<DateTime>("WeekOff2"),
+                                      WeekOff3 = dataRow.Field<DateTime>("WeekOff3"),
+                                      WeekOff4 = dataRow.Field<DateTime>("WeekOff4"),
+                                      WeekOff5 = dataRow.Field<DateTime>("WeekOff5"),
+                                      ModifiedDate = dataRow.Field<DateTime>("ModifiedDate"),
+                                      ModifiedName = dataRow.Field<string?>("ModifiedName"),
+                                      EmployeeName = dataRow.Field<string?>("EmployeeName"),
+                                      TotalCount = dataRow.Field<int?>("TotalCount"),
+                                      EmployeeId = dataRow.Field<long?>("EmployeeId")
+
+                                  }).ToList();
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return result;
+        }
     }
 }

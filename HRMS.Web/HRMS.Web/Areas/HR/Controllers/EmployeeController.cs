@@ -1410,6 +1410,92 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             return Json(new { success = false, message = "Failed to delete the record." });
         }
-       
-    }
+
+
+
+
+
+        [HttpGet]
+        public IActionResult EmployeesWeekOffRoster()
+        {
+            var employeeId = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+            // Check if the user has permission for Employee Listing
+            var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.EmployeeListing);
+            // If no permission and not an admin
+            if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
+            {
+                // Check if user has permission for My Team page
+                var teamPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
+                // Redirect to My Team page if user is not an employee and has permission
+                if (roleId != (int)Roles.Employee && teamPermission.HasPermission > 0)
+                {
+                    return RedirectToAction("GetTeamEmployeeList", "MyInfo", new { area = "employee" });
+                }
+                // Else, log the user out and redirect to home
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            return View(new HRMS.Models.Common.Results());
+        }
+
+        [HttpPost] 
+        public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch)
+        {
+            WeekOfInputParams employee = new WeekOfInputParams();
+            employee.PageNumber = PageNumber;
+            employee.PageSize = PageSize;
+            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)); ;
+            employee.SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch;
+            var data = _businessLayer.SendPostAPIRequest(
+                employee,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesWeekOffRoster),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+            var results = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(data);
+            results.ForEach(x =>
+            {
+                x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.Id.ToString());
+            });
+            return Json(new
+            {
+                draw = sEcho,
+                recordsTotal = results.Select(x => x.TotalCount).FirstOrDefault() ?? 0,
+                recordsFiltered = results.Select(x => x.TotalCount).FirstOrDefault() ?? 0,
+                data = results
+            });
+        }
+
+
+        [HttpGet]
+        public IActionResult AddUpdateWeekOffRoster(string id)
+        {
+
+            WeekOfEmployeeId Employeemodel = new WeekOfEmployeeId();
+            WeekOffUploadModel modeldata = new WeekOffUploadModel();
+            if(id == null)
+            {
+                Employeemodel.EmployeeID = 0;
+
+            }
+            else
+            {
+                Employeemodel.EmployeeID = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+
+            }
+
+            var data = _businessLayer.SendPostAPIRequest(
+                    Employeemodel,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployeesList),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+            modeldata.Employee = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
+            return View(modeldata);
+        }
+        }
 }

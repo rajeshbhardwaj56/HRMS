@@ -138,8 +138,11 @@ namespace HRMS.API.BusinessLayer
         public const string usp_UpdateAttendanceCompOffStatusByUserId = "usp_UpdateAttendanceCompOffStatusByUserId";
         public const string usp_EmployeeReportingManagersSame = "usp_EmployeeReportingManagersSame";
         public const string usp_GetJobLocationsByCompany = "usp_GetJobLocationsByCompany";
+        public const string usp_Get_Employees_details = "usp_Get_Employees_details";
 
         public const string usp_InsertExceptionLog = "usp_InsertExceptionLog";
+        public const string usp_BulkUploadWeekOffRoster = "usp_BulkUploadWeekOffRoster";
+        public const string usp_GetWeekOffRoster = "usp_GetWeekOffRoster";
 
 
     }

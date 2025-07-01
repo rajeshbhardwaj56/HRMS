@@ -23,6 +23,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using HRMS.Web.BusinessLayer.S3;
 using OfficeOpenXml.Packaging.Ionic.Zlib;
 using System.Diagnostics;
+using HRMS.Models.ExportEmployeeExcel;
+using System.Data.SqlClient;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -126,7 +128,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     double remainingLeave = Math.Max(totalEarnedLeave - approvedLeaveTotal, 0);
 
                     // Assign values to model for the View
-                 //   model.TotalLeave = (decimal)approvedLeaveTotal;            // Leaves already taken
+                    //   model.TotalLeave = (decimal)approvedLeaveTotal;            // Leaves already taken
                     model.NoOfLeaves = Convert.ToInt64(remainingLeave);        // Leaves remaining (available)
                     ViewBag.NoOfLeaves = remainingLeave;        // Leaves remaining (available)
 
@@ -658,7 +660,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 {
                     if (IsRowEmpty(worksheet, row))
                         continue;
-                    bool hasError = false;      
+                    bool hasError = false;
                     var item = new ImportExcelDataTable();
                     foreach (var prop in typeof(ImportExcelDataTable).GetProperties())
                     {
@@ -670,7 +672,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             {
                                 case "EmployeeNumber":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
-                                    {                                     
+                                    {
                                         if (!uniqueEmployeeNumber.Add(cellValue))
                                         {
                                             AddErrorRow(errorDataTable, columnName, $"Row {row}: Duplicate EmployeeNumber found.");
@@ -693,14 +695,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         if (DateTime.TryParse(cellValue, out DateTime dob))
                                         {
                                             prop.SetValue(item, dob.ToString("yyyy-MM-dd"));
-                                        }                                       
+                                        }
                                     }
                                     else
                                     {
                                         AddErrorRow(errorDataTable, columnName, $"Row {row}: DateOfBirth is mandatory.");
                                         hasError = true;
                                     }
-                                    break;                             
+                                    break;
                                 case "FirstName":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -711,7 +713,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddErrorRow(errorDataTable, columnName, $"Row {row}: FirstName is mandatory.");
                                         hasError = true;
                                     }
-                                    break;                              
+                                    break;
                                 case "JoiningDate":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -910,14 +912,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     else if (employmentDetailsDictionaries.TryGetValue("Departments", out var departmentDict))
-                                    {                                      
+                                    {
                                         var departmentMatch = departmentDict
-                                            .FirstOrDefault(kvp => kvp.Key.Equals(cellValue, StringComparison.OrdinalIgnoreCase));                                        
+                                            .FirstOrDefault(kvp => kvp.Key.Equals(cellValue, StringComparison.OrdinalIgnoreCase));
                                         if (departmentMatch.Equals(default(KeyValuePair<string, int>)))
                                         {
                                             departmentMatch = departmentDict
                                                 .FirstOrDefault(kvp => kvp.Key.IndexOf(cellValue, StringComparison.OrdinalIgnoreCase) >= 0);
-                                        }                                     
+                                        }
                                         if (!departmentMatch.Equals(default(KeyValuePair<string, int>)) && departmentMatch.Value != 0)
                                         {
                                             DepartmentId = departmentMatch.Value;
@@ -1217,14 +1219,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     JoiningDate = item.JoiningDate,
                     DateOfResignation = item.DateOfResignation,
                     ReferredByEmployeeName = item.ReferredByEmployeeName,
-                    PayrollTypeName = item.PayrollTypeName,                   
+                    PayrollTypeName = item.PayrollTypeName,
                     ClientName = item.ClientName,
                     SubDepartmentName = item.SubDepartmentName,
                     ShiftTypeName = item.ShiftTypeName,
                     ESINumber = item.ESINumber,
                     RegistrationDateInESIC = item.RegistrationDateInESIC,
                     BankAccountNumber = item.BankAccountNumber,
-                    UANNumber=item.UANNumber,
+                    UANNumber = item.UANNumber,
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
                     AgeOnNetwork = item.AgeOnNetwork,
@@ -1234,7 +1236,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     DOJInTraining = item.DOJInTraining,
                     DOJOnFloor = item.DOJOnFloor,
                     DOJInOJT = item.DOJInOJT,
-                    DOJInOnroll=item.DOJInOnroll,
+                    DOJInOnroll = item.DOJInOnroll,
                     DateOfLeaving = item.DateOfLeaving,
                     BackOnFloor = item.BackOnFloor,
                     LeavingRemarks = item.LeavingRemarks,
@@ -1289,7 +1291,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var excludeHeaders = new List<string> {  "InsertedByUserID",
         "ExcelFile",
         "CompanyName",
-        "ReportingToIDL2Name" };        
+        "ReportingToIDL2Name" };
             string Normalize(string input) =>
                 string.Concat(input.Where(c => !char.IsWhiteSpace(c))).ToLowerInvariant();
             var expectedProperties = targetType.GetProperties()
@@ -1350,6 +1352,180 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 errorTable.Rows.Add(errorRow);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> UploadRosterExcel()
+        {
+            return View();
+        }
+     
+        [HttpPost]
+        public async Task<IActionResult> UploadRosterExcel(IFormFile file)
+        {
+            string tempFilePath = null;
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest(new { success = false, message = "No file uploaded." });
+
+                // Save uploaded file temporarily
+                tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + Path.GetExtension(file.FileName));
+                using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                    await file.CopyToAsync(stream);
+
+                // Read Excel to DataTable
+                var dataTable = ReadExcelToDataTable(tempFilePath);
+
+                // Convert DataTable to strongly-typed model list
+                var modelList = ConvertDataTableToModelList(dataTable);
+
+                // Validate model list
+                var validationError = ValidateModelList(modelList);
+                if (!string.IsNullOrEmpty(validationError))
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Validation failed.",
+                        details = validationError
+                    });
+
+                var session = HttpContext.Session;
+                var employeeIdString = session.GetString(Constants.EmployeeID);
+                var token = session.GetString(Constants.SessionBearerToken);
+
+                if (string.IsNullOrEmpty(employeeIdString) || string.IsNullOrEmpty(token))
+                    return Unauthorized(new { success = false, message = "Session expired. Please log in again." });
+
+                var employeeId = Convert.ToInt64(employeeIdString);
+
+                var weekOffUploadModel = new WeekOffUploadModelList
+                {
+                    WeekOffList = modelList,
+                    CreatedBy = employeeId
+                };
+
+                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetRosterWeekOff);
+
+                var apiResponse = await _businessLayer.SendPostAPIRequest(weekOffUploadModel, apiUrl, token, true);
+
+                if (apiResponse == null)
+                    return StatusCode(500, new { success = false, message = "Failed to upload data to the server. Please try again later." });
+                return Ok(new { success = true, message = "Excel uploaded & data inserted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An unexpected error occurred while processing the file.",
+                    details = ex.Message
+                });
+            }
+            finally
+            {
+                // Cleanup temp file
+                if (!string.IsNullOrEmpty(tempFilePath) && System.IO.File.Exists(tempFilePath))
+                {
+                    try { System.IO.File.Delete(tempFilePath); } catch { /* ignore cleanup errors */ }
+                }
+            }
+        }
+
+        private DataTable ReadExcelToDataTable(string filePath)
+        {
+            var dt = new DataTable();
+
+            using var package = new ExcelPackage(new FileInfo(filePath));
+            var ws = package.Workbook.Worksheets.First();
+            if (ws.Dimension == null)
+                throw new InvalidOperationException("The uploaded Excel file is empty.");
+
+            int colCount = ws.Dimension.End.Column;
+            int rowCount = ws.Dimension.End.Row;
+
+            // Add columns using header row (1st row in Excel)
+            for (int col = 1; col <= colCount; col++)
+                dt.Columns.Add(ws.Cells[1, col].Text);
+
+            // Add data rows starting from row 2
+            for (int row = 2; row <= rowCount; row++)
+            {
+                var dr = dt.NewRow();
+                for (int col = 1; col <= colCount; col++)
+                    dr[col - 1] = ws.Cells[row, col].Text;
+                dt.Rows.Add(dr);
+            }
+
+            return dt;
+        }
+        private List<WeekOffUploadModel> ConvertDataTableToModelList(DataTable dt)
+        {
+            var list = new List<WeekOffUploadModel>();
+            try
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    var model = new WeekOffUploadModel
+                    {
+                        EmployeeNumber = long.TryParse(row["EmployeeNumber"]?.ToString(), out var empId) ? empId.ToString() : "0",
+                        WeekOff1 = DateTime.TryParse(row["WeekOff1"]?.ToString(), out var w1) ? w1 : (DateTime?)null,
+                        WeekOff2 = DateTime.TryParse(row["WeekOff2"]?.ToString(), out var w2) ? w2 : (DateTime?)null,
+                        WeekOff3 = DateTime.TryParse(row["WeekOff3"]?.ToString(), out var w3) ? w3 : (DateTime?)null,
+                        WeekOff4 = DateTime.TryParse(row["WeekOff4"]?.ToString(), out var w4) ? w4 : (DateTime?)null,
+                        WeekOff5 = DateTime.TryParse(row["WeekOff5"]?.ToString(), out var w5) ? w5 : (DateTime?)null,
+                    };
+                    list.Add(model);
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return list;
+        }
+        private string ValidateModelList(List<WeekOffUploadModel> models)
+        {
+            var errors = new List<string>();
+
+            for (int i = 0; i < models.Count; i++)
+            {
+                var item = models[i];
+                var rowNum = i + 2; // header is row 1, so data starts from row 2
+
+                // Validate EmployeeNumber
+                if (item.EmployeeNumber == "0")
+                    errors.Add($"Row {rowNum}: Missing EmployeeNumber.");
+
+                // Check if ALL WeekOff dates are empty/null
+                if (!item.WeekOff1.HasValue || !item.WeekOff2.HasValue || !item.WeekOff3.HasValue
+     || !item.WeekOff4.HasValue )
+                {
+                    errors.Add($"Row {rowNum}: At least one WeekOff date must be filled in.");
+                }
+
+                // Validate individual WeekOff dates if they are present
+                if (item.WeekOff1.HasValue && item.WeekOff1.Value.Year < 2000)
+                    errors.Add($"Row {rowNum}: WeekOff1 '{item.WeekOff1}' is an invalid or unreasonable date.");
+                if (item.WeekOff2.HasValue && item.WeekOff2.Value.Year < 2000)
+                    errors.Add($"Row {rowNum}: WeekOff2 '{item.WeekOff2}' is an invalid or unreasonable date.");
+                if (item.WeekOff3.HasValue && item.WeekOff3.Value.Year < 2000)
+                    errors.Add($"Row {rowNum}: WeekOff3 '{item.WeekOff3}' is an invalid or unreasonable date.");
+                if (item.WeekOff4.HasValue && item.WeekOff4.Value.Year < 2000)
+                    errors.Add($"Row {rowNum}: WeekOff4 '{item.WeekOff4}' is an invalid or unreasonable date.");
+                if (item.WeekOff5.HasValue && item.WeekOff5.Value.Year < 2000)
+                    errors.Add($"Row {rowNum}: WeekOff5 '{item.WeekOff5}' is an invalid or unreasonable date.");
+            }
+
+            if (errors.Any())
+                return string.Join("\n", errors);
+
+            return null; // no errors
+        }
+
+
+
+
 
 
     }

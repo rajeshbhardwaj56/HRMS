@@ -1,6 +1,7 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.Leave;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -347,6 +348,21 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.DeleteLanguageDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetEmployeesWeekOffRoster(WeekOfInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeesWeekOffRoster(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetAllEmployeesList(WeekOfEmployeeId Employeemodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllEmployeesList(Employeemodel));
             return response;
         }
     }

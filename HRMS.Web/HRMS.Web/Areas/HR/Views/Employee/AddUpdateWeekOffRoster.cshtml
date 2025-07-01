@@ -1,0 +1,95 @@
+﻿﻿@using HRMS.Models.ExportEmployeeExcel
+
+
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@model WeekOffUploadModel
+@{
+	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	ViewData["Title"] = "WeekOff Upload  List";
+
+}
+<div class="main-header anim" style="--delay: 0s">Add Week Off</div>
+<form method="post" enctype="multipart/form-data">
+	<div class="Container">
+		<div class="group-box anim" style="--delay: .3s">
+
+			<input type="hidden" name="ID" value="@Model.Id" />
+			@{
+				var now = DateTime.Now;
+				var threeDaysAgo = now.AddDays(-30);
+			}
+			<div class="col-md-4 form-group position-relative">
+				<label>Select Employee<span class="Mandetory">*</span></label>
+				<div class="position-relative">
+					@Html.DropDownListFor(x => x.EmployeeId, Model.Employee, HRMS.Models.Common.Constants.SelectEmployee, new { @class = "form-control", @required = "required" })
+					<i class="fa fa-chevron-down position-absolute"
+					   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+				</div>
+			</div>
+            <div class="row d-flex">
+                <div class="col-md-6 form-group">
+                    <label>WeekOff 1 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff1, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            @required = "required",
+                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                        })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>WeekOff 2 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff2, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            @required = "required",
+                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                        })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>WeekOff 3 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff3, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            @required = "required",
+                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                        })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>WeekOff 4 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff4, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            @required = "required",
+                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                        })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>WeekOff 5 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff5, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            @required = "required",
+                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                        })
+                </div>
+            </div>
+
+
+
+			<div class="row d-flex text-end">
+				<div class="col-md-12">
+					<input type="submit" value="Submit" class="btn btn-success" />
+					<a href="/employee/Attendance/MyAttendanceList" class="btn btn-danger" type="button" value="Cancel">Cancel</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

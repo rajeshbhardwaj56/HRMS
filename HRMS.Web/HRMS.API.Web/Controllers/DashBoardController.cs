@@ -4,6 +4,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.ImportFromExcel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -74,6 +75,15 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetSubDepartmentDictionary(model));
+            return response;
+        }
+
+        
+        [HttpPost] 
+        public IActionResult   GetRosterWeekOff(WeekOffUploadModelList model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetRosterWeekOff(model));
             return response;
         }
 

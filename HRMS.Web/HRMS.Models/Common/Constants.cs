@@ -217,6 +217,7 @@ namespace HRMS.Models.Common
         public const string AddUpdateEmployee = "AddUpdateEmployee";
         public const string GetEmployeeListByManagerID = "GetEmployeeListByManagerID";
         public const string GetAllEmployees = "GetAllEmployees";
+        public const string GetAllEmployeesList = "GetAllEmployeesList";
         public const string GetAllActiveEmployees = "GetAllActiveEmployees";
         public const string AddUpdateTemplate = "AddUpdateTemplate";
         public const string GetAllTemplates = "GetAllTemplates";
@@ -315,6 +316,8 @@ namespace HRMS.Models.Common
         public const string GetApprovedCompOff = "GetApprovedCompOff";
 
         public const string InsertException = "InsertException";
+        public const string GetRosterWeekOff = "GetRosterWeekOff";
+        public const string GetEmployeesWeekOffRoster = "GetEmployeesWeekOffRoster";
 
 
     }

@@ -1,0 +1,165 @@
+﻿@using Microsoft.AspNetCore.Http;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using HRMS.Models;
+@using HRMS.Models.Common;
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@model HRMS.Models.Common.Results
+@{
+	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+
+	ViewData["Title"] = "Employee";
+
+	var success = TempData["Success"];
+	var Err = TempData["Error"];
+}
+
+<div class="main-header anim" style="--delay: 0s">
+	Employee List
+	<section class="right-button-employee">
+		<a href="~/HR/AddUpdateWeekOffRoster"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee Roster</button></a>
+		<a href="~/Admin/Dashboard/UploadRosterExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees Week Roster</button></a>
+
+	</section>
+</div>
+<div class="table-responsive py-3">
+
+	<table id="tblEmployeeWeekOffListing" class="table table-striped body-text" style="width:100%">
+		<thead>
+			<tr>
+				<th> </th>
+				<th>Emp No</th>
+				<th>Employee Name</th>
+				<th>WeekOff1</th>
+				<th>WeekOff2</th>
+				<th>WeekOff3</th>
+				<th>WeekOff4</th>
+				<th>WeekOff5</th>
+				<th>Modified By</th>
+				<th>ModifiedDate</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+
+	</table>
+</div>
+
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('#tblEmployeeWeekOffListing').DataTable({
+			"processing": true,
+			"serverSide": true,
+			"ajax": {
+				"url": "GetEmployeesWeekOffRoster/",
+				"type": "POST",
+				"datatype": "json",
+				"data": function (d) {
+					   var pageNumber = Math.floor(d.start / d.length) + 1;
+					return {
+						sEcho: d.draw,
+						iDisplayStart: d.start,
+						iDisplayLength: d.length,
+						sSearch: d.search.value,
+						 PageNumber: pageNumber,
+			           PageSize: d.length
+					};
+				}
+			},
+			"ordering": true,
+			"paging": true,
+			"searching": true,
+			"info": true,
+			"columns": [
+				{ "data": "id", "autoWidth": true, "visible": false },
+				{ "data": "employeeNumber", "autoWidth": true },
+				{ "data": "employeeName", "autoWidth": true },
+				{
+		"data": "weekOff1",
+		"autoWidth": true,
+		"render": function (data, type, row) { return formatDateCell(data); }
+	},
+	{
+		"data": "weekOff2",
+		"autoWidth": true,
+		"render": function (data, type, row) { return formatDateCell(data); }
+	},
+	{
+		"data": "weekOff3",
+		"autoWidth": true,
+		"render": function (data, type, row) { return formatDateCell(data); }
+	},
+	{
+		"data": "weekOff4",
+		"autoWidth": true,
+		"render": function (data, type, row) { return formatDateCell(data); }
+	},
+	{
+		"data": "weekOff5",
+		"autoWidth": true,
+		"render": function (data, type, row) { return formatDateCell(data); }
+	},
+
+				{ "data": "modifiedName", "autoWidth": true },
+			{
+					"data": "modifiedDate",
+					"autoWidth": true,
+					"render": function (data, type, row) { return formatDateTimeCell(data); }
+				},
+					{
+		"data": null,
+		"render": function (data, type, row) {
+			var linkEdit = '<div class="table-data-feature">' +
+				'<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity  +'" title="Edit">' +
+				'<img src="/assets/img/edit.png" width="20" height="20" />' +
+				'</a>' +
+				'</div>';
+
+			var moveToActiveEmployee = '<div class="table-data-feature">' +
+				'<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Edit">' +
+				'<img src="/assets/img/ReadyStatus.svg" width="20" height="20" />' +
+				'</a>' +
+				'</div>';
+
+			return linkEdit + moveToActiveEmployee;
+		},
+		"orderable": false,
+		"className": "Edit-Button" // <-- Add your custom class here
+	}
+
+			],
+			"columnDefs": [
+				{ "targets": [0], "orderable": false, "visible": false },
+				{ "targets": [1], "orderable": false }
+			],
+			"responsive": true
+		});
+	});
+
+		function formatDateCell(data) {
+		if (!data) return "";
+		const date = new Date(data);
+		if (isNaN(date)) return data; // fallback if invalid date
+		const day = date.getDate().toString().padStart(2, '0');
+		const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		const year = date.getFullYear();
+		return `${day}-${month}-${year}`;
+	}
+
+
+		 function formatDateTimeCell(data) {
+		if (!data) return "";
+		var date = new Date(data);
+		if (isNaN(date)) return data; // fallback if invalid date
+		return date.toLocaleDateString('en-GB') + " " + date.toLocaleTimeString('en-GB', {
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: true // ✅ use AM/PM format
+		});
+	}
+
+</script>

@@ -57,7 +57,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public DashBoardModel GetDashBoardModel(DashBoardModelInputParams model);
         public Results GetAllAttendenceList(AttendenceListInputParans model);
         public Result AddUpdateAttendenceList(AttendenceListModel model);
-        public Results GetAllEmployees();
+        public List<SelectListItem> GetAllEmployeesList(WeekOfEmployeeId Employeemodel);
         public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel);
         public Results GetAllShiftTypes(ShiftTypeInputParans model);
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
@@ -138,5 +138,8 @@ namespace HRMS.API.BusinessLayer.ITF
         #region Exception Handling
         void  InsertException(ExceptionLogModel model);
         #endregion Exception Handling
+
+        public bool GetRosterWeekOff(WeekOffUploadModelList model);
+        public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model);
     }
 }

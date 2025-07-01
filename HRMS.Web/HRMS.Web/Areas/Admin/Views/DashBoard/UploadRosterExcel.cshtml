@@ -1,0 +1,165 @@
+﻿@using HRMS.Models.Employee;
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EmployeeModel
+
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Upload Roster Excel";
+}
+
+<style>
+    .alert {
+        margin-top: 89px;
+        padding: 11px 18px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        width: 665px;
+    }
+
+    .alert-danger {
+        background-color: #fdecea;
+        color: #b71c1c;
+        border-color: #f5c6cb;
+    }
+
+    .alert-success {
+        background-color: #e6f4ea;
+        color: #2e7d32;
+        border-color: #c3e6cb;
+    }
+
+    .custom-alert {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .small-text {
+        font-size: 0.875rem;
+    }
+
+    #upload-messages h5 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="main-header anim" style="--delay: 0s">Import Employee Roster</div>
+
+
+<div class="Container">
+    <div class="group-box anim" style="--delay: .3s">
+
+
+        <div class="card-body" style=" height: 150px;">
+            <h4 class="mb-0 titleweekof">Upload Week-Off Excel</h4>
+
+                        <form id="uploadForm">
+                            <div class="mb-3">
+                    <input type="file" class="form-control" id="excelFile" accept=".xls,.xlsx" required style=" width: 500px;">
+                            </div>
+                            <button type="submit" class="btn btn-primary ">Upload</button>
+                        </form>
+
+                        <div class="mt-4">
+                            <div id="progressBar" class="progress d-none">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                     style="width: 0%"></div>
+                            </div>
+                            <div id="resultMessage" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+                 
+    </div>
+
+<script>
+    document.getElementById("uploadForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const fileInput = document.getElementById("excelFile");
+        const file = fileInput.files[0];
+        const progressBar = document.getElementById("progressBar");
+        const resultMessage = document.getElementById("resultMessage");
+
+        // Clear previous messages
+        resultMessage.innerHTML = "";
+
+        if (!file) {
+            resultMessage.innerHTML = '<div class="alert alert-danger">Please select a file.</div>';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/admin/Dashboard/UploadRosterExcel", true);
+
+        xhr.upload.addEventListener("loadstart", function () {
+            progressBar.classList.remove("d-none");
+            progressBar.querySelector(".progress-bar").style.width = "0%";
+        });
+
+        xhr.upload.addEventListener("progress", function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressBar.querySelector(".progress-bar").style.width = percentComplete + "%";
+            }
+        });
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                progressBar.classList.add("d-none");
+
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    // Success
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        const message = response.message || xhr.responseText;
+                        resultMessage.innerHTML = '<div class="alert alert-success">' + message + '</div>';
+
+                        // Clear file input on success
+                        fileInput.value = '';
+
+                        // Hide success message after 2 minutes
+                        setTimeout(() => {
+                            resultMessage.innerHTML = '';
+                        }, 5000);
+
+                    } catch (e) {
+                        resultMessage.innerHTML = '<div class="alert alert-success">' + xhr.responseText + '</div>';
+                        fileInput.value = '';
+
+                        setTimeout(() => {
+                            resultMessage.innerHTML = '';
+                        },5000);
+                    }
+                } else {
+                    // Error
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        const message = response.message || "An error occurred.";
+                        const details = response.details || "";
+
+                        resultMessage.innerHTML = `
+                            <div class="alert alert-danger">
+                                <strong>${message}</strong><br>
+                                ${details.replace(/\n/g, "<br>")}
+                            </div>`;
+
+                        // Don't clear file input on error so user can fix & re-upload
+
+                    } catch (e) {
+                        resultMessage.innerHTML = '<div class="alert alert-danger"><strong>Error:</strong> ' + xhr.statusText + '</div>';
+                    }
+                }
+            }
+        };
+
+        xhr.send(formData);
+    });
+</script>
+
+ 

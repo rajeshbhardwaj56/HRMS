@@ -209,6 +209,17 @@
                             </a>
 
                         </li>
+                        <li>
+
+                            <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Employee" && currentAction == "EmployeesWeekOffRoster" ? "hrms-active" : "")"
+                               asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
+                               asp-controller="employee"
+                               asp-action="EmployeesWeekOffRoster">
+                                <i class="bi bi-people-fill  hrms-menu-title1"></i>
+                                <span>Employee Roster</span>
+                            </a>
+
+                        </li>
                     }
                 </ul>
                 <ul class="hrms-menu-group">
@@ -447,6 +458,8 @@
                                         </a>
                                     </li>
                                 }
+                                  
+                                 
                             </ul>
                     </div>
                     </li>
