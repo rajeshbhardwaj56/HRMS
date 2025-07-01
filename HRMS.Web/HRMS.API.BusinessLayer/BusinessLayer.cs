@@ -3868,8 +3868,8 @@ namespace HRMS.API.BusinessLayer
                     emp.LeavingRemarks,
                     emp.MailReceivedFromAndDate,
                     emp.EmailSentToITDate,
-                    emp.IsActive
-                //  emp.ReportingToIDL1EmployeeNumber
+                    emp.IsActive,
+                  emp.ReportingToIDL1EmployeeNumber
                 );
             }
 
