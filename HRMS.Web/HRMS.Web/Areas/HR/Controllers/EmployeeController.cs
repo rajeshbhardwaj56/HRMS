@@ -1472,7 +1472,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 
         [HttpGet]
-        public IActionResult AddUpdateWeekOffRoster(string id,string emp)
+        public async Task<IActionResult> AddUpdateWeekOffRoster(string id, string emp)
         {
 
             WeekOfEmployeeId Employeemodel = new WeekOfEmployeeId();
@@ -1494,7 +1494,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true
                 ).Result.ToString();
-            var dta  = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(getdata).FirstOrDefault();
+            var dta = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(getdata).FirstOrDefault();
             modeldata = dta;
 
 
@@ -1507,7 +1507,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 Employeemodel.EmployeeID = Convert.ToInt64(_businessLayer.DecodeStringBase64(emp));
             }
-           
+
             var data = _businessLayer.SendPostAPIRequest(
                     Employeemodel,
                     _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployeesList),
@@ -1517,6 +1517,40 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             modeldata.Employee = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
             return View(modeldata);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUpdateWeekOffRoster(WeekOffUploadModel model)
+        {
+            try
+            {
+                var session = HttpContext.Session;
+                var employeeIdString = session.GetString(Constants.EmployeeID);
+                var token = session.GetString(Constants.SessionBearerToken);
+
+                if (string.IsNullOrEmpty(employeeIdString) || string.IsNullOrEmpty(token))
+                    return Unauthorized(new { success = false, message = "Session expired. Please log in again." });
+
+                var employeeId = Convert.ToInt64(employeeIdString);
+
+                var weekOffUploadModel = new WeekOffUploadModelList
+                {
+                    WeekOffList = new List<WeekOffUploadModel> { model },
+                    CreatedBy = employeeId
+                };
+
+                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetRosterWeekOff);
+
+                var apiResponse = await _businessLayer.SendPostAPIRequest(weekOffUploadModel, apiUrl, token, true);
+
+                if (apiResponse == null)
+                    return StatusCode(500, new { success = false, message = "Failed to upload data to the server. Please try again later." });
+            }
+            catch(Exception ex)
+            {
+
+            }
+            return View(model);
         }
     }
 }

@@ -4889,7 +4889,7 @@ namespace HRMS.API.BusinessLayer
             foreach (var item in models)
             {
                 var row = dt.NewRow();
-                row["EmployeeNumber"] = item.EmployeeNumber;
+                row["EmployeeNumber"] = item.EmployeeNumber ?? item.EmployeeNumberWithOutAbbr;
                 row["WeekOff1"] = item.WeekOff1 ?? (object)DBNull.Value;
                 row["WeekOff2"] = item.WeekOff2 ?? (object)DBNull.Value;
                 row["WeekOff3"] = item.WeekOff3 ?? (object)DBNull.Value;
@@ -4967,7 +4967,8 @@ namespace HRMS.API.BusinessLayer
                                       ModifiedName = dataRow.Field<string?>("ModifiedName"),
                                       EmployeeName = dataRow.Field<string?>("EmployeeName"),
                                       TotalCount = dataRow.Field<int?>("TotalCount"),
-                                      EmployeeId = dataRow.Field<long?>("EmployeeId")
+                                      EmployeeId = dataRow.Field<long?>("EmployeeId"),
+                                      EmployeeNumberWithOutAbbr = dataRow.Field<string?>("EmployeeNumberWithOutAbbr")
 
                                   }).ToList();
 

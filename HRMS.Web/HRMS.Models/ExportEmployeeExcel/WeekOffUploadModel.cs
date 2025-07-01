@@ -10,7 +10,7 @@ namespace HRMS.Models.ExportEmployeeExcel
     public class WeekOffUploadModel
     {
         public int? Id { get; set; }
-        public string EmployeeNumber { get; set; }
+        public string? EmployeeNumber { get; set; }
         public long? EmployeeId { get; set; }
         public DateTime? WeekOff1 { get; set; }
         public DateTime? WeekOff2 { get; set; }
@@ -25,6 +25,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public string? EmployeeName { get; set; }
         public string? EncryptedIdentity { get; set; }
         public string? EncryptedEmployeeId { get; set; }
+        public string? EmployeeNumberWithOutAbbr { get; set; }
         public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
     }
 
