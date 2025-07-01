@@ -4941,6 +4941,7 @@ namespace HRMS.API.BusinessLayer
                 List<SqlParameter> sqlParameter = new List<SqlParameter>
         {
             new SqlParameter("@ReportingToID", model.EmployeeID),
+            new SqlParameter("@RecordID", model.Id),
             new SqlParameter("@SearchTerm", string.IsNullOrEmpty(model.SearchTerm) ? DBNull.Value : (object)model.SearchTerm),
             new SqlParameter("@Month", model.Month),
             new SqlParameter("@Year", model.Year),

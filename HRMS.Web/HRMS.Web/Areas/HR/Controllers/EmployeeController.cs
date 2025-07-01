@@ -48,7 +48,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         private readonly IS3Service _s3Service;
         private readonly IHttpContextAccessor _context;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public EmployeeController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
+        public EmployeeController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
         {
             Environment = _environment;
             _configuration = configuration;
@@ -110,9 +110,9 @@ namespace HRMS.Web.Areas.HR.Controllers
                 x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString());
                 x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString());
                 x.ProfilePhoto = string.IsNullOrEmpty(x.ProfilePhoto)
-                    ? "/assets/img/No_image.png"   
+                    ? "/assets/img/No_image.png"
                     : _s3Service.GetFileUrl(x.ProfilePhoto);
-            });           
+            });
             return Json(new
             {
                 draw = sEcho,
@@ -222,7 +222,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
 
             return ReturnEmployeeViewWithData(employee, results);
-        }      
+        }
         private void SetSuccessToast(string message)
         {
             TempData[Constants.toastType] = Constants.toastTypeSuccess;
@@ -363,7 +363,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
         }
         [HttpGet]
-        public JsonResult loadForms(int DepartmentId,int EmployeeId)
+        public JsonResult loadForms(int DepartmentId, int EmployeeId)
         {
             try
             {
@@ -460,11 +460,11 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.EmployeNumber = employmentDetail.EmployeNumber.Split(employmentDetail.CompanyAbbr)[1];
                 var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Result result = JsonConvert.DeserializeObject<Result>(data);
-                if(result != null && result.PKNo > 0
+                if (result != null && result.PKNo > 0
     && result.Message != null
     && result.Message.StartsWith("Duplicate Email found:", StringComparison.OrdinalIgnoreCase))
-{
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                {
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
 
                     TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
                 }
@@ -491,7 +491,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     if (result.IsResetPasswordRequired)
                     {
                         ChangePasswordModel model = new ChangePasswordModel();
-                        model.EmailId = employmentDetail.CompanyAbbr+  employmentDetail.EmployeNumber;
+                        model.EmailId = employmentDetail.CompanyAbbr + employmentDetail.EmployeNumber;
                         var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
                         var datamodel = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
                         var resultdata = JsonConvert.DeserializeObject<Result>(datamodel);
@@ -635,7 +635,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     }
                 }
 
-           
+
 
 
                 EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
@@ -678,7 +678,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             //return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee );
 
 
-           return View(employmentDetail);
+            return View(employmentDetail);
         }
 
         [HttpGet]
@@ -1441,7 +1441,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(new HRMS.Models.Common.Results());
         }
 
-        [HttpPost] 
+        [HttpPost]
         public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch)
         {
             WeekOfInputParams employee = new WeekOfInputParams();
@@ -1459,6 +1459,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             results.ForEach(x =>
             {
                 x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.Id.ToString());
+                x.EncryptedEmployeeId = _businessLayer.EncodeStringBase64(x.EmployeeId.ToString());
             });
             return Json(new
             {
@@ -1471,22 +1472,42 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 
         [HttpGet]
-        public IActionResult AddUpdateWeekOffRoster(string id)
+        public IActionResult AddUpdateWeekOffRoster(string id,string emp)
         {
 
             WeekOfEmployeeId Employeemodel = new WeekOfEmployeeId();
             WeekOffUploadModel modeldata = new WeekOffUploadModel();
-            if(id == null)
-            {
-                Employeemodel.EmployeeID = 0;
+            WeekOfInputParams modeldatas = new WeekOfInputParams();
 
+            if (id == null)
+            {
+                modeldatas.Id = 0;
             }
             else
             {
-                Employeemodel.EmployeeID = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
-
+                modeldatas.Id = Convert.ToInt32(_businessLayer.DecodeStringBase64(id));
             }
 
+            var getdata = _businessLayer.SendPostAPIRequest(
+                    modeldatas,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesWeekOffRoster),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+            var dta  = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(getdata).FirstOrDefault();
+            modeldata = dta;
+
+
+
+            if (emp == null)
+            {
+                Employeemodel.EmployeeID = 0;
+            }
+            else
+            {
+                Employeemodel.EmployeeID = Convert.ToInt64(_businessLayer.DecodeStringBase64(emp));
+            }
+           
             var data = _businessLayer.SendPostAPIRequest(
                     Employeemodel,
                     _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployeesList),
@@ -1497,5 +1518,5 @@ namespace HRMS.Web.Areas.HR.Controllers
             modeldata.Employee = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
             return View(modeldata);
         }
-        }
+    }
 }

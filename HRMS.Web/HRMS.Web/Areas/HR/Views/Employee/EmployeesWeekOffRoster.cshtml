@@ -18,7 +18,7 @@
 <div class="main-header anim" style="--delay: 0s">
 	Employee List
 	<section class="right-button-employee">
-		<a href="~/HR/AddUpdateWeekOffRoster"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee Roster</button></a>
+		<a href="~/HR/employee/AddUpdateWeekOffRoster"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee Roster</button></a>
 		<a href="~/Admin/Dashboard/UploadRosterExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees Week Roster</button></a>
 
 	</section>
@@ -114,7 +114,7 @@
 		"data": null,
 		"render": function (data, type, row) {
 			var linkEdit = '<div class="table-data-feature">' +
-				'<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity  +'" title="Edit">' +
+				'<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity  + '&emp=' + row.encryptedEmployeeId + '" title="Edit">' +
 				'<img src="/assets/img/edit.png" width="20" height="20" />' +
 				'</a>' +
 				'</div>';

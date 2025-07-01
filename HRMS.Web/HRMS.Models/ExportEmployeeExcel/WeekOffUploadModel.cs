@@ -24,6 +24,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public string? ModifiedName { get; set; }
         public string? EmployeeName { get; set; }
         public string? EncryptedIdentity { get; set; }
+        public string? EncryptedEmployeeId { get; set; }
         public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
     }
 
@@ -36,6 +37,7 @@ namespace HRMS.Models.ExportEmployeeExcel
 
     public class WeekOfInputParams
     {
+        public int Id { get; set; }
         public long EmployeeID { get; set; }
         public int? Month { get; set; }
         public int? Year { get; set; }
