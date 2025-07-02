@@ -25,6 +25,7 @@ using OfficeOpenXml.Packaging.Ionic.Zlib;
 using System.Diagnostics;
 using HRMS.Models.ExportEmployeeExcel;
 using System.Data.SqlClient;
+using Microsoft.AspNetCore.Authentication;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -37,13 +38,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
         IHttpContextAccessor _context;
         private readonly IS3Service _s3Service;
-        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
             _context = context;
             _businessLayer = businessLayer;
             _s3Service = s3Service;
+            _CheckUserFormPermission = CheckUserFormPermission;
 
         }
         public async Task<IActionResult> Index()
@@ -1356,9 +1359,26 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> UploadRosterExcel()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.WeekOffRoster);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View();
         }
-     
+        private long GetSessionLong(string key)
+        {
+            return long.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
+
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
         [HttpPost]
         public async Task<IActionResult> UploadRosterExcel(IFormFile file)
         {
@@ -1404,7 +1424,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     CreatedBy = employeeId
                 };
 
-                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetRosterWeekOff);
+                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetRosterWeekOff);
 
                 var apiResponse = await _businessLayer.SendPostAPIRequest(weekOffUploadModel, apiUrl, token, true);
 
@@ -1488,39 +1508,103 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             var errors = new List<string>();
 
+            // ✅ Detect duplicate EmployeeNumbers with their rows
+            var employeeNumberToRows = new Dictionary<string, List<int>>();
             for (int i = 0; i < models.Count; i++)
             {
                 var item = models[i];
-                var rowNum = i + 2; // header is row 1, so data starts from row 2
+                var rowNum = i + 2; // Excel rows start at 2
 
-                // Validate EmployeeNumber
-                if (item.EmployeeNumber == "0")
-                    errors.Add($"Row {rowNum}: Missing EmployeeNumber.");
+                if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
+                    continue; // skip invalid or empty EmployeeNumber
 
-                // Check if ALL WeekOff dates are empty/null
-                if (!item.WeekOff1.HasValue || !item.WeekOff2.HasValue || !item.WeekOff3.HasValue
-     || !item.WeekOff4.HasValue )
-                {
-                    errors.Add($"Row {rowNum}: At least one WeekOff date must be filled in.");
-                }
+                if (!employeeNumberToRows.ContainsKey(item.EmployeeNumber))
+                    employeeNumberToRows[item.EmployeeNumber] = new List<int>();
 
-                // Validate individual WeekOff dates if they are present
-                if (item.WeekOff1.HasValue && item.WeekOff1.Value.Year < 2000)
-                    errors.Add($"Row {rowNum}: WeekOff1 '{item.WeekOff1}' is an invalid or unreasonable date.");
-                if (item.WeekOff2.HasValue && item.WeekOff2.Value.Year < 2000)
-                    errors.Add($"Row {rowNum}: WeekOff2 '{item.WeekOff2}' is an invalid or unreasonable date.");
-                if (item.WeekOff3.HasValue && item.WeekOff3.Value.Year < 2000)
-                    errors.Add($"Row {rowNum}: WeekOff3 '{item.WeekOff3}' is an invalid or unreasonable date.");
-                if (item.WeekOff4.HasValue && item.WeekOff4.Value.Year < 2000)
-                    errors.Add($"Row {rowNum}: WeekOff4 '{item.WeekOff4}' is an invalid or unreasonable date.");
-                if (item.WeekOff5.HasValue && item.WeekOff5.Value.Year < 2000)
-                    errors.Add($"Row {rowNum}: WeekOff5 '{item.WeekOff5}' is an invalid or unreasonable date.");
+                employeeNumberToRows[item.EmployeeNumber].Add(rowNum);
             }
 
-            if (errors.Any())
-                return string.Join("\n", errors);
+            // ✅ Report duplicates with their row numbers
+            var duplicatesWithRows = employeeNumberToRows
+                .Where(kvp => kvp.Value.Count > 1)
+                .ToList();
 
-            return null; // no errors
+            if (duplicatesWithRows.Any())
+            {
+                var details = duplicatesWithRows
+                    .Select(kvp => $"EmployeeNumber '{kvp.Key}' at rows {string.Join(", ", kvp.Value)}")
+                    .ToList();
+
+                errors.Add($"Duplicate EmployeeNumber(s) found:\n{string.Join("\n", details)}");
+            }
+
+            // ✅ Validate each row
+            for (int i = 0; i < models.Count; i++)
+            {
+                var item = models[i];
+                var rowNum = i + 2; // Excel row
+
+                if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
+                {
+                    errors.Add($"Row {rowNum}: Missing or invalid EmployeeNumber.");
+                    continue; // Skip further checks if EmployeeNumber is missing
+                }
+
+                var weekOffDates = new List<DateTime>();
+
+                // ✅ Loop-based validation for WeekOff1-4
+                var mandatoryWeekOffs = new List<(DateTime? Date, string FieldName)>
+        {
+            (item.WeekOff1, "WeekOff1"),
+            (item.WeekOff2, "WeekOff2"),
+            (item.WeekOff3, "WeekOff3"),
+            (item.WeekOff4, "WeekOff4")
+        };
+
+                foreach (var (date, fieldName) in mandatoryWeekOffs)
+                {
+                    if (!date.HasValue)
+                    {
+                        errors.Add($"Row {rowNum}: {fieldName} must not be empty.");
+                    }
+                    else
+                    {
+                        AddDateIfValid(weekOffDates, date, rowNum, fieldName, errors);
+                    }
+                }
+
+                // ✅ WeekOff5 is optional, so only validate if provided
+                if (item.WeekOff5.HasValue)
+                {
+                    AddDateIfValid(weekOffDates, item.WeekOff5, rowNum, "WeekOff5", errors);
+                }
+
+                // ✅ Check for duplicate dates within this row
+                var duplicateDates = weekOffDates
+                    .GroupBy(d => d)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key.ToString("yyyy-MM-dd"))
+                    .ToList();
+
+                if (duplicateDates.Any())
+                    errors.Add($"Row {rowNum}: Duplicate WeekOff dates found: {string.Join(", ", duplicateDates)}.");
+            }
+
+            return errors.Any() ? string.Join("\n", errors) : null;
+        }
+
+        /// <summary>
+        /// Adds a date to the list if it's valid and not unreasonable, otherwise records an error.
+        /// </summary>
+        private void AddDateIfValid(List<DateTime> dates, DateTime? date, int rowNum, string fieldName, List<string> errors)
+        {
+            if (date.HasValue)
+            {
+                if (date.Value.Year < 2000)
+                    errors.Add($"Row {rowNum}: {fieldName} '{date.Value}' is an invalid or unreasonable date.");
+                else
+                    dates.Add(date.Value.Date);  // Always add as date-only (ignores time part)
+            }
         }
 
 

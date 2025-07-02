@@ -1421,7 +1421,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             var employeeId = GetSessionInt(Constants.EmployeeID);
             var roleId = GetSessionInt(Constants.RoleID);
             // Check if the user has permission for Employee Listing
-            var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.EmployeeListing);
+            var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.WeekOffRoster);
             // If no permission and not an admin
             if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
             {
@@ -1442,12 +1442,15 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch)
+        public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch, int Year, int Month)
         {
             WeekOfInputParams employee = new WeekOfInputParams();
             employee.PageNumber = PageNumber;
             employee.PageSize = PageSize;
-            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)); ;
+            employee.Month = Month;
+            employee.Year = Year;
+            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            employee.RoleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID)); ;
             employee.SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch;
             var data = _businessLayer.SendPostAPIRequest(
                 employee,
@@ -1488,17 +1491,17 @@ namespace HRMS.Web.Areas.HR.Controllers
                 modeldatas.Id = Convert.ToInt32(_businessLayer.DecodeStringBase64(id));
             }
 
-            var getdata = _businessLayer.SendPostAPIRequest(
+            if (id != null)
+            {
+                var getdata = _businessLayer.SendPostAPIRequest(
                     modeldatas,
                     _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesWeekOffRoster),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true
                 ).Result.ToString();
-            var dta = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(getdata).FirstOrDefault();
-            modeldata = dta;
-
-
-
+                modeldata = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(getdata).FirstOrDefault();
+                modeldata.EmployeeIdWithEmployeeNo = modeldata.EmployeeId.ToString();
+            }
             if (emp == null)
             {
                 Employeemodel.EmployeeID = 0;
@@ -1515,7 +1518,28 @@ namespace HRMS.Web.Areas.HR.Controllers
                     true
                 ).Result.ToString();
 
-            modeldata.Employee = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
+
+            var employeeList = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
+
+            if (id != null)
+            {
+                if (employeeList != null && employeeList.Count > 0)
+                {
+                    foreach (var item in employeeList)
+                    {
+                        if (!string.IsNullOrEmpty(item.Value) && item.Value.Contains("_"))
+                        {
+                            item.Value = item.Value.Split('_')[0];
+                        }
+                    }
+                }
+
+                modeldata.Employee = employeeList;
+            }
+            else
+            {
+                modeldata.Employee = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
+            }
             return View(modeldata);
         }
 
@@ -1529,28 +1553,177 @@ namespace HRMS.Web.Areas.HR.Controllers
                 var token = session.GetString(Constants.SessionBearerToken);
 
                 if (string.IsNullOrEmpty(employeeIdString) || string.IsNullOrEmpty(token))
+                {
                     return Unauthorized(new { success = false, message = "Session expired. Please log in again." });
+                }
 
                 var employeeId = Convert.ToInt64(employeeIdString);
 
-                var weekOffUploadModel = new WeekOffUploadModelList
+                if (model.EmployeeNumberWithOutAbbr == null)
                 {
-                    WeekOffList = new List<WeekOffUploadModel> { model },
-                    CreatedBy = employeeId
-                };
+                    model.EmployeeNumber = model.EmployeeIdWithEmployeeNo.Split('_')[1];
+                }
+                else
+                {
+                    model.EmployeeNumber = model.EmployeeNumberWithOutAbbr;
+                }
 
-                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetRosterWeekOff);
+                    var weekOffUploadModel = new WeekOffUploadModelList
+                    {
+                        WeekOffList = new List<WeekOffUploadModel> { model },
+                        CreatedBy = employeeId
+                    };
 
-                var apiResponse = await _businessLayer.SendPostAPIRequest(weekOffUploadModel, apiUrl, token, true);
+                var validationError = ValidateModelList(weekOffUploadModel.WeekOffList);
+                if (!string.IsNullOrEmpty(validationError))
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = validationError;
+                    return RedirectToAction(WebControllarsConstants.EmployeesWeekOffRoster, WebControllarsConstants.Employee);
+                }
+
+                var apiUrl = _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.GetRosterWeekOff
+                );
+
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    weekOffUploadModel, apiUrl, token, true
+                );
 
                 if (apiResponse == null)
-                    return StatusCode(500, new { success = false, message = "Failed to upload data to the server. Please try again later." });
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Failed to upload data to the server. Please try again later.";
+                }
+                else
+                {
+                    var results = JsonConvert.DeserializeObject<bool>(apiResponse.ToString());
+                    if (results ==true)
+                    {
+                        TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                        TempData[Constants.toastMessage] = "Data saved successfully.";
+                    }
+                    else
+                    {
+                        TempData[Constants.toastType] = Constants.toastTypeError;
+                        TempData[Constants.toastMessage] = "Something went wrong. Please try again later.";
+                    }
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-
+                TempData[Constants.toastType] = Constants.toastTypeError;
+                TempData[Constants.toastMessage] = "An unexpected error occurred. Please try again later.";
             }
-            return View(model);
+
+            return RedirectToAction(WebControllarsConstants.EmployeesWeekOffRoster, WebControllarsConstants.Employee);
+        }
+
+
+        [HttpGet]
+        public IActionResult DeleteWeekOffRoster(string id)
+        {
+            id = _businessLayer.DecodeStringBase64(id);
+            WeekOffUploadDeleteModel model = new WeekOffUploadDeleteModel()
+            {
+                RecordId = Convert.ToInt64(id),
+                ModifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
+
+            };
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteWeekOffRoster), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            if (data != null)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = data;
+            }
+            return RedirectToActionPermanent(WebControllarsConstants.EmployeesWeekOffRoster , WebControllarsConstants.Employee);
+        }
+
+
+        private string ValidateModelList(List<WeekOffUploadModel> models)
+        {
+            var errors = new List<string>();
+
+            // ✅ Build a dictionary: EmployeeNumber => List of row numbers where it appears
+            var employeeNumberToRows = new Dictionary<string, List<int>>();
+            for (int i = 0; i < models.Count; i++)
+            {
+                var item = models[i];
+                var rowNum = i + 2; // Excel rows start at 2
+
+                if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
+                    continue; // skip invalid or empty EmployeeNumber
+
+                var key = item.EmployeeNumber;
+                if (!employeeNumberToRows.ContainsKey(key))
+                    employeeNumberToRows[key] = new List<int>();
+
+                employeeNumberToRows[key].Add(rowNum);
+            }
+
+            // ✅ Report duplicates with their row numbers
+            var duplicatesWithRows = employeeNumberToRows
+                .Where(kvp => kvp.Value.Count > 1)
+                .ToList();
+
+            if (duplicatesWithRows.Any())
+            {
+                var details = duplicatesWithRows
+                    .Select(kvp => $"EmployeeNumber '{kvp.Key}' at rows {string.Join(", ", kvp.Value)}")
+                    .ToList();
+
+                errors.Add($"Duplicate EmployeeNumber(s) found:\n{string.Join("\n", details)}");
+            }
+
+            for (int i = 0; i < models.Count; i++)
+            {
+                var item = models[i];
+                var rowNum = i + 2; // Excel row
+
+                if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
+                {
+                    errors.Add($"Row {rowNum}: Missing or invalid EmployeeNumber.");
+                    continue; // Skip further checks if EmployeeNumber is missing
+                }
+
+                // ✅ Collect week-off dates into one list
+                var weekOffDates = new List<DateTime>();
+                AddDateIfValid(weekOffDates, item.WeekOff1, rowNum, "WeekOff1", errors);
+                AddDateIfValid(weekOffDates, item.WeekOff2, rowNum, "WeekOff2", errors);
+                AddDateIfValid(weekOffDates, item.WeekOff3, rowNum, "WeekOff3", errors);
+                AddDateIfValid(weekOffDates, item.WeekOff4, rowNum, "WeekOff4", errors);
+
+                // ✅ Check that at least one date was filled
+                if (!weekOffDates.Any())
+                    errors.Add($"Row {rowNum}: At least one WeekOff date must be filled in.");
+
+                // ✅ Check for duplicate dates within this row
+                var duplicateDates = weekOffDates
+                    .GroupBy(d => d)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key.ToString("yyyy-MM-dd"))
+                    .ToList();
+
+                if (duplicateDates.Any())
+                    errors.Add($"Row {rowNum}: Duplicate WeekOff dates found: {string.Join(", ", duplicateDates)}.");
+            }
+
+            return errors.Any() ? string.Join("\n", errors) : null;
+        }
+
+        /// <summary>
+        /// Adds a date to the list if it's valid and not unreasonable, otherwise records an error.
+        /// </summary>
+        private void AddDateIfValid(List<DateTime> dates, DateTime? date, int rowNum, string fieldName, List<string> errors)
+        {
+            if (date.HasValue)
+            {
+                if (date.Value.Year < 2000)
+                    errors.Add($"Row {rowNum}: {fieldName} '{date.Value}' is an invalid or unreasonable date.");
+                else
+                    dates.Add(date.Value.Date);  // Always add as date-only (ignores time part)
+            }
         }
     }
 }

@@ -140,6 +140,7 @@ namespace HRMS.Models.Common
         Support = 18,
         MyTeam = 19,
         FormPermission = 20,
+        WeekOffRoster = 26,
       
     }
 
@@ -163,6 +164,7 @@ namespace HRMS.Models.Common
     public class WebControllarsConstants
     {
 
+        public const string EmployeesWeekOffRoster = "EmployeesWeekOffRoster";
         public const string PolicyCategoryListing = "PolicyCategoryListing";
         public const string LeavePolicyDetailsListing = "LeavePolicyDetailsListing";
         public const string LeavePolicyListing = "LeavePolicyListing";
@@ -318,6 +320,7 @@ namespace HRMS.Models.Common
         public const string InsertException = "InsertException";
         public const string GetRosterWeekOff = "GetRosterWeekOff";
         public const string GetEmployeesWeekOffRoster = "GetEmployeesWeekOffRoster";
+        public const string DeleteWeekOffRoster = "DeleteWeekOffRoster"; 
 
 
     }

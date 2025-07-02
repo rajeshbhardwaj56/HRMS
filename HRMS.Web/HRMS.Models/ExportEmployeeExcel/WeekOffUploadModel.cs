@@ -12,6 +12,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public int? Id { get; set; }
         public string? EmployeeNumber { get; set; }
         public long? EmployeeId { get; set; }
+        public string? EmployeeIdWithEmployeeNo { get; set; }
         public DateTime? WeekOff1 { get; set; }
         public DateTime? WeekOff2 { get; set; }
         public DateTime? WeekOff3 { get; set; }
@@ -44,11 +45,16 @@ namespace HRMS.Models.ExportEmployeeExcel
         public int? Year { get; set; }
         public int? PageNumber { get; set; } = 0;
         public int? PageSize { get; set; } = 0;
+        public int? RoleId { get; set; } = 0;
         public string? SearchTerm { get; set; }
     }
     public class WeekOfEmployeeId
     {
         public long EmployeeID { get; set; }
     }
-
+    public class WeekOffUploadDeleteModel
+    {
+        public long RecordId { get; set; }
+        public long ModifiedBy { get; set; }
     }
+}

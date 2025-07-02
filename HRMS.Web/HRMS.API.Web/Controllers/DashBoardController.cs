@@ -79,14 +79,7 @@ namespace HRMS.API.Web.Controllers
         }
 
         
-        [HttpPost] 
-        public IActionResult   GetRosterWeekOff(WeekOffUploadModelList model)
-        {
-            IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetRosterWeekOff(model));
-            return response;
-        }
-
+       
 
     }
 }

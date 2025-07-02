@@ -365,5 +365,20 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetAllEmployeesList(Employeemodel));
             return response;
         }
+        [HttpPost]
+        public IActionResult DeleteWeekOffRoster(WeekOffUploadDeleteModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteWeekOffRoster(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetRosterWeekOff(WeekOffUploadModelList model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetRosterWeekOff(model));
+            return response;
+        }
+
     }
 }

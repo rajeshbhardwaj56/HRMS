@@ -141,5 +141,6 @@ namespace HRMS.API.BusinessLayer.ITF
 
         public bool GetRosterWeekOff(WeekOffUploadModelList model);
         public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model);
+        public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model);
     }
 }

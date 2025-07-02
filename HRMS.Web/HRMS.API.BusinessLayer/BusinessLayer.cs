@@ -2112,7 +2112,7 @@ namespace HRMS.API.BusinessLayer
                                .Select(dataRow => new SelectListItem
                                {
                                    Text = dataRow.Field<string>("EmployeeName"),
-                                   Value = dataRow.Field<long>("EmployeeID").ToString()
+                                   Value = dataRow.Field<string>("EmployeeID").ToString()
                                }).ToList();
             
             return model;
@@ -4877,6 +4877,7 @@ namespace HRMS.API.BusinessLayer
             return true;
         }
 
+
         public DataTable CreateWeekOffDataTable(List<WeekOffUploadModel> models)
         {
             var dt = new DataTable();
@@ -4946,7 +4947,8 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@Month", model.Month),
             new SqlParameter("@Year", model.Year),
             new SqlParameter("@PageNumber", model.PageNumber),
-            new SqlParameter("@PageSize", model.PageSize)
+            new SqlParameter("@PageSize", model.PageSize),
+            new SqlParameter("@RoleId", model.RoleId)
 
         };
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetWeekOffRoster, sqlParameter);
@@ -4957,13 +4959,13 @@ namespace HRMS.API.BusinessLayer
                                   {
                                       Id = dataRow.Field<int?>("Id"),
                                       EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
-                                      RosterMonth = dataRow.Field<DateTime>("RosterMonth"),
-                                      WeekOff1 = dataRow.Field<DateTime>("WeekOff1"),
-                                      WeekOff2 = dataRow.Field<DateTime>("WeekOff2"),
-                                      WeekOff3 = dataRow.Field<DateTime>("WeekOff3"),
-                                      WeekOff4 = dataRow.Field<DateTime>("WeekOff4"),
-                                      WeekOff5 = dataRow.Field<DateTime>("WeekOff5"),
-                                      ModifiedDate = dataRow.Field<DateTime>("ModifiedDate"),
+                                      RosterMonth = dataRow.Field<DateTime?>("RosterMonth"),
+                                      WeekOff1 = dataRow.Field<DateTime?>("WeekOff1"),
+                                      WeekOff2 = dataRow.Field<DateTime?>("WeekOff2"),
+                                      WeekOff3 = dataRow.Field<DateTime?>("WeekOff3"),
+                                      WeekOff4 = dataRow.Field<DateTime?>("WeekOff4"),
+                                      WeekOff5 = dataRow.Field<DateTime?>("WeekOff5"),
+                                      ModifiedDate = dataRow.Field<DateTime?>("ModifiedDate"),
                                       ModifiedName = dataRow.Field<string?>("ModifiedName"),
                                       EmployeeName = dataRow.Field<string?>("EmployeeName"),
                                       TotalCount = dataRow.Field<int?>("TotalCount"),
@@ -4980,5 +4982,33 @@ namespace HRMS.API.BusinessLayer
             }
             return result;
         }
+
+
+        public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model)
+        {
+            // Prepare parameters
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@Id", model.RecordId),
+        new SqlParameter("@ModifiedBy", model.ModifiedBy)
+    };
+
+            // Call stored procedure and get dataset
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_DeleteWeekOffRoster, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+                int status = Convert.ToInt32(row["Status"]);
+                string message = row["Message"].ToString();
+
+                // Return in format like "1|Success message" or "0|Failure message"
+                return  message ;
+            }
+
+            // Fallback if no result returned
+            return "0|Delete failed: No response from stored procedure.";
+        }
+
     }
 }
