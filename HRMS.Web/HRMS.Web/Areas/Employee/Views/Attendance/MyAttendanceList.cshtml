@@ -6,139 +6,139 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject IConfiguration _configuration
 @{
-    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-    var AttendanceSubmitted =Convert.ToInt32(HRMS.Models.Common.AttendanceStatus.Submitted);
-    ViewData["Title"] = "Attendance List";
+	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	var AttendanceSubmitted = Convert.ToInt32(HRMS.Models.Common.AttendanceStatus.Submitted);
+	ViewData["Title"] = "Attendance List";
 
-    var success = TempData["Success"];
-    var Err = TempData["Error"];
+	var success = TempData["Success"];
+	var Err = TempData["Error"];
 }
 
 
 <div class="main-header anim" style="--delay: 0s">My Attendance List  <a href="~/Employee/Attendance/MyAttendance"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Attendence</button></a></div>
 
 <div class="table-responsive py-3">
-    <table id="tblAttendenceListing" class="table table-striped body-text" style="width:100%">
-        <thead>
-            <tr>
-                <th class="first" style="visibility:hidden" /th>
-                    <th>Name</th>
-                    <th>AttendenceDate</th>
-                    <th>First Login </th>
-                    <th>Last Login</th>
-                    <th>Manager  </th>
-                    <th>Status</th>
-                    <th>Comments</th>
-                    <th>Action</th>
-            </tr>
-        </thead>
+	<table id="tblAttendenceListing" class="table table-striped body-text" style="width:100%">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Name</th>
+				<th>AttendenceDate</th>
+				<th>First Login </th>
+				<th>Last Login</th>
+				<th>Manager  </th>
+				<th>Status</th>
+				<th>Comments</th>
+				<th>Action</th>
+			</tr>
+		</thead>
 
-    </table>
+	</table>
 </div>
 
 <script type="text/javascript">
     var managerNameL1 = '@Html.Raw(ViewBag.ManagerL1)';
-    var managerNameL2 = '@Html.Raw(ViewBag.ManagerL2)';
-    var AttendanceSubmitted = @AttendanceSubmitted; // inject constant value for comparison
+var managerNameL2 = '@Html.Raw(ViewBag.ManagerL2)';
+var AttendanceSubmitted = @AttendanceSubmitted; // inject constant value for comparison
 
-    $(document).ready(function () {
-        $('#tblAttendenceListing').DataTable({
-            "ajax": {
-                "url": "GetMyAttendenceList/",
-                "type": "POST",
-                "dataType": "json",
-                "dataSrc": function (json) {
+$(document).ready(function () {
+    var table = $('#tblAttendenceListing').DataTable({
+        "processing": true,
+        "serverSide": false, // 🚨 set true only if your server returns recordsTotal etc.
+        "ajax": {
+            "url": "GetMyAttendenceList/",
+            "type": "POST",
+            "dataType": "json",
+            "dataSrc": function (json) {
+                console.log("Raw Ajax response:", json);
+
+                // Defensive check:
+                if (json && json.data && Array.isArray(json.data.attendances)) {
                     var attendances = json.data.attendances;
+                    // add manager names to each row
                     for (var i = 0; i < attendances.length; i++) {
                         attendances[i].managerNameL1 = managerNameL1;
                         attendances[i].managerNameL2 = managerNameL2;
                     }
                     return attendances;
+                } else if (json && Array.isArray(json.data)) {
+                    // fallback: if your API returns {data:[...]} directly
+                    return json.data;
+                } else if (Array.isArray(json)) {
+                    // fallback: if your API returns pure array
+                    return json;
+                } else {
+                    console.error("Unexpected response format for DataTables:", json);
+                    return [];
                 }
             },
-            "ordering": true,
-            "paging": true,
-            "searching": true,
-            "info": true,
-            "columns": [
-                { "data": "id", "autoWidth": true },
-                { "data": "employeeName", "autoWidth": true },
-                {
-                    "data": "workDate",
-                    "autoWidth": true,
-                    "render": function (data) {
-                        if (data) {
-                            var date = new Date(data);
-                            return formatDate(date);
-                        }
-                        return '';
-                    }
-                },
-                {
-                    "data": "firstLogDate",
-                    "autoWidth": true,
-                    "render": function (data) {
-                        if (data) {
-                            var date = new Date(data);
-                            return formatDateTime(date);
-                        }
-                        return '';
-                    }
-                },
-                {
-                    "data": "lastLogDate",
-                    "autoWidth": true,
-                    "render": function (data) {
-                        if (data) {
-                            var date = new Date(data);
-                            return formatDateTime(date);
-                        }
-                        return '';
-                    }
-                },
-                { "data": "managerNameL1", "autoWidth": true },
-                { "data": "attendanceStatus", "autoWidth": true },
-                { "data": "comments", "autoWidth": true },
-                {
-                    "data": null,
-                    "autoWidth": true,
-                    "render": function (data, type, row) {
-                        var statusId = parseInt(row.attendanceStatusId);
-                        if (statusId === AttendanceSubmitted) {
-                            var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top" class="item" href="MyAttendance?id=' + row.encodedId + '" title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                            var linkDelete = '<a href="#" class="preview-btn" data-id="' + row.encodedId + '" title="Preview"><img title="Delete" src="/assets/img/delete.png" width="20" height="20" style="margin-top:5px;" /></a>';
-                            return linkEdit + linkDelete + '</div>';
-                        } else {
-                            return 'Processing'; // Hide controls for other statuses
-                        }
-                    }
-                }
-            ],
-            "columnDefs": [
-                {
-                    "targets": [0],
-                    "visible": false
-                }
-            ],
-            "responsive": true
-        });
-
-        $('#tblAttendenceListing').on('click', '.preview-btn', function (e) {
-            e.preventDefault();
-            var encodedId = $(this).data('id');
-            if (confirm("Are you sure you want to delete this?")) {
-                window.location.href = "/Employee/Attendance/DeleteAttendanceDetails?id=" + encodedId;
+            "error": function (xhr, status, error) {
+                console.error("Ajax error:", error, xhr.responseText);
+                alert("Error loading attendance data. Please check the console for details.");
             }
-        });
+        },
+        "ordering": true,
+        "paging": true,
+        "searching": true,
+        "info": true,
+        "columns": [
+            { "data": "id", "visible": false },
+            { "data": "employeeName", "autoWidth": true },
+            {
+                "data": "workDate",
+                "render": function (data) { return formatDate(data); }
+            },
+            {
+                "data": "firstLogDate",
+                "render": function (data) { return formatDateTime(data); }
+            },
+            {
+                "data": "lastLogDate",
+                "render": function (data) { return formatDateTime(data); }
+            },
+            { "data": "managerNameL1", "autoWidth": true },
+            { "data": "attendanceStatus", "autoWidth": true },
+            { "data": "comments", "autoWidth": true },
+            {
+                "data": null,
+                "render": function (data, type, row) {
+                    var statusId = parseInt(row.attendanceStatusId);
+                    if (statusId === AttendanceSubmitted) {
+                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top" class="item" href="MyAttendance?id=' + row.encodedId + '" title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                        var linkDelete = '<a href="#" class="preview-btn" data-id="' + row.encodedId + '" title="Delete"><img title="Delete" src="/assets/img/delete.png" width="20" height="20" style="margin-top:5px;" /></a>';
+                        return linkEdit + linkDelete + '</div>';
+                    } else {
+                        return 'Processing';
+                    }
+                }
+            }
+        ],
+        "columnDefs": [
+            { "targets": [0], "orderable": false, "visible": false }
+        ],
+        "responsive": true
+    });
 
-        function formatDate(date) {
-            return date.getDate().toString().padStart(2, '0') + '/' +
-                   (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-                   date.getFullYear();
+    $('#tblAttendenceListing').on('click', '.preview-btn', function (e) {
+        e.preventDefault();
+        var encodedId = $(this).data('id');
+        if (confirm("Are you sure you want to delete this?")) {
+            window.location.href = "/Employee/Attendance/DeleteAttendanceDetails?id=" + encodedId;
         }
+    });
 
-           function formatDateTime(date) {
-        var formattedDate = formatDate(date);
+    function formatDate(data) {
+        if (!data) return '';
+        var date = new Date(data);
+        return date.getDate().toString().padStart(2, '0') + '/' +
+            (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+            date.getFullYear();
+    }
+
+    function formatDateTime(data) {
+        if (!data) return '';
+        var date = new Date(data);
+        var formattedDate = formatDate(data);
         var hours = date.getHours();
         var minutes = date.getMinutes().toString().padStart(2, '0');
         var ampm = hours >= 12 ? 'PM' : 'AM';
@@ -146,6 +146,6 @@
         var formattedTime = hours.toString().padStart(2, '0') + ':' + minutes + ' ' + ampm;
         return formattedDate + ' ' + formattedTime;
     }
+});
 
-    });
 </script>
