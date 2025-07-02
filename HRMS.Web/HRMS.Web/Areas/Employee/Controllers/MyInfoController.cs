@@ -169,7 +169,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult GetEmployeeLeaveDetails(string employeeID,long leaveSummaryID)
+        public async Task<IActionResult> GetEmployeeLeaveDetails(string employeeID,long leaveSummaryID)
         {
             MyInfoInputParams model = new MyInfoInputParams();
             model.EmployeeID = Convert.ToInt64(employeeID);

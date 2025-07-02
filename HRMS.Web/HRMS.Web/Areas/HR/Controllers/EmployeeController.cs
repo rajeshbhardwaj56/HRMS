@@ -599,9 +599,13 @@ namespace HRMS.Web.Areas.HR.Controllers
                 long companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
                 employmentDetail.CompanyID = companyId;
                 employmentDetail.EmployeNumber = employmentDetail.EmployeNumber.Split(employmentDetail.CompanyAbbr)[1];
-                var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                Result result = JsonConvert.DeserializeObject<Result>(data);
-                if(result != null && result.PKNo > 0
+                var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+                string employmentApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails);
+                var employmentResponse = await _businessLayer.SendPostAPIRequest(employmentDetail, employmentApiUrl, bearerToken, true);
+
+                Result result = JsonConvert.DeserializeObject<Result>(employmentResponse.ToString());
+                if (result != null && result.PKNo > 0
     && result.Message != null
     && result.Message.StartsWith("Duplicate Email found:", StringComparison.OrdinalIgnoreCase))
 {
@@ -616,12 +620,17 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else
                 {
-                    FormPermissionVM objmodel = new FormPermissionVM();
-                    objmodel.EmployeeID = employmentDetail.EmployeeID;
-                    objmodel.SelectedFormIds = SelectedFormIds;
-                    var Permissionsdata = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddUserFormPermissions), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                    var Permissionresponse = JsonConvert.DeserializeObject<long>(Permissionsdata);
-                    if (Permissionresponse < 0)
+                
+                    // Save permissions
+                    FormPermissionVM permissionModel = new FormPermissionVM
+                    {
+                        EmployeeID = employmentDetail.EmployeeID,
+                        SelectedFormIds = SelectedFormIds
+                    };
+                    string permissionApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddUserFormPermissions);
+                    var permissionResponseStr = await _businessLayer.SendPostAPIRequest(permissionModel, permissionApiUrl, bearerToken, true);
+                    long permissionResponse = JsonConvert.DeserializeObject<long>(permissionResponseStr.ToString());
+                    if (permissionResponse < 0)
                     {
                         TempData[Constants.toastType] = Constants.toastTypeError;
                         TempData[Constants.toastMessage] = "Some error occurred, please try again later.";
@@ -633,9 +642,9 @@ namespace HRMS.Web.Areas.HR.Controllers
                     {
                         ChangePasswordModel model = new ChangePasswordModel();
                         model.EmailId = employmentDetail.CompanyAbbr+  employmentDetail.EmployeNumber;
-                        var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
-                        var datamodel = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
-                        var resultdata = JsonConvert.DeserializeObject<Result>(datamodel);
+                        var apiUrls =await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
+                        var datamodel =await _businessLayer.SendPostAPIRequest(model, apiUrls, null, false);
+                        var resultdata = JsonConvert.DeserializeObject<Result>(datamodel.ToString());
 
                         if (resultdata == null || resultdata.Data == null)
                         {
@@ -732,9 +741,9 @@ namespace HRMS.Web.Areas.HR.Controllers
                                 }
 
                                 // Send email
-                                emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
+                                emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
 
-                                if (response.responseCode == "200")
+                                if (responses.responseCode == "200")
                                 {
                                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
 
@@ -783,8 +792,11 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
                 employmentDetailInputParams.DepartmentID = employmentDetail.DepartmentID;
                 employmentDetailInputParams.DesignationID = employmentDetail.DesignationID;
-                var dataBody = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(dataBody);
+                // ModelState is not valid — load supporting lists
+                var inputParams = new EmploymentDetailInputParams { CompanyID = companyId };
+                var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee);
+                var response = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, bearerToken, true);
+                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(response.ToString());
                 employmentDetail.EmployeeList = employmentDetailtemp.EmployeeList;
                 employmentDetail.Departments = employmentDetailtemp.Departments;
                 employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
