@@ -360,8 +360,9 @@
         $('#DepartmentID').on('change', function () {
             var departmentId = $(this).val();
             loadFormPermissions(departmentId);
-            fetchSubDepartments(departmentId);
-
+        setTimeout(function () {
+        fetchSubDepartments(departmentId);
+    }, 5000);
         });
 
         // On load (edit scenario)
