@@ -319,6 +319,8 @@ namespace HRMS.Models.Common
         public const string GetRosterWeekOff = "GetRosterWeekOff";
         public const string GetEmployeesWeekOffRoster = "GetEmployeesWeekOffRoster";
 
+        public const string GetLeaveWeekOffDates = "GetLeaveWeekOffDates";
+
 
     }
 

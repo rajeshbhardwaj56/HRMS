@@ -2108,13 +2108,13 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID", Employeemodel.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Employees, sqlParameter);
-                model = dataSet.Tables[0].AsEnumerable()
-                               .Select(dataRow => new SelectListItem
-                               {
-                                   Text = dataRow.Field<string>("EmployeeName"),
-                                   Value = dataRow.Field<long>("EmployeeID").ToString()
-                               }).ToList();
-            
+            model = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new SelectListItem
+                           {
+                               Text = dataRow.Field<string>("EmployeeName"),
+                               Value = dataRow.Field<long>("EmployeeID").ToString()
+                           }).ToList();
+
             return model;
         }
 
@@ -4930,9 +4930,6 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-
-
-
         public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model)
         {
             List<WeekOffUploadModel> result = new List<WeekOffUploadModel>();
@@ -4980,5 +4977,32 @@ namespace HRMS.API.BusinessLayer
             }
             return result;
         }
+
+
+        public List<DateTime> GetLeaveWeekOffDates(LeaveWeekOfInputParams model)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID),
+        new SqlParameter("@FromDate", model.FromDate),
+        new SqlParameter("@ToDate", model.ToDate)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetWeekOffDatesForEmployee,
+                sqlParameters
+            );
+
+            return dataSet?.Tables?[0]?
+                .AsEnumerable()
+                .Select(row => row.Field<DateTime?>("WeekOffDate"))
+                .Where(d => d.HasValue)
+                .Select(d => d.Value)
+                .ToList() ?? new List<DateTime>();
+        }
+
+
+
     }
+
 }

@@ -8,7 +8,12 @@ using System.Threading.Tasks;
 
 namespace HRMS.Models.Leave
 {
-
+    public class LeaveWeekOfInputParams
+    {
+        public long EmployeeID { get; set; }
+        public DateTime FromDate { get; set; }
+        public DateTime ToDate { get; set; }
+    }
     public class MyInfoInputParams
     {
         public long PKNo { get; set; }

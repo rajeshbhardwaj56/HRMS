@@ -136,10 +136,12 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<Joblcoations> GetJobLocationsByCompany(Joblcoations model);
 
         #region Exception Handling
-        void  InsertException(ExceptionLogModel model);
+        void InsertException(ExceptionLogModel model);
         #endregion Exception Handling
 
         public bool GetRosterWeekOff(WeekOffUploadModelList model);
         public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model);
+
+        public List<DateTime> GetLeaveWeekOffDates(LeaveWeekOfInputParams model);
     }
 }

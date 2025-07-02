@@ -218,7 +218,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.CheckEmployeeReporting(obj));
             return response;
         }
-        
+
         [HttpPost]
         public IActionResult FetchExportEmployeeExcelSheet(EmployeeInputParams model)
         {
@@ -226,8 +226,8 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.FetchExportEmployeeExcelSheet(model));
             return response;
         }
-        
-        
+
+
         [HttpPost]
         public IActionResult GetValidateCompOffLeave(CampOffEligible model)
         {
@@ -235,7 +235,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetValidateCompOffLeave(model));
             return response;
         }
-        
+
         [HttpPost]
         public IActionResult UpdateLeaveStatus(UpdateLeaveStatus model)
         {
@@ -243,7 +243,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.UpdateLeaveStatus(model));
             return response;
         }
-        
+
 
         [HttpPost]
         public IActionResult GetEducationDetails(EducationDetailParams model)
@@ -365,5 +365,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetAllEmployeesList(Employeemodel));
             return response;
         }
+        [HttpPost]
+        public IActionResult GetLeaveWeekOffDates(LeaveWeekOfInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLeaveWeekOffDates(model));
+            return response;
+        }
+
     }
 }

@@ -860,7 +860,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         #region Apply Leave
         public IActionResult ApplyLeave(string id)
         {
-            // Initialize model
+          
             var model = new MyInfoInputParams
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
@@ -1045,17 +1045,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Count weekends and holidays only once for leave types that need it
             bool needsWeekendHolidayCount = leaveSummary.LeaveTypeID == (int)LeaveType.Paternity
-                                           || leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel
+                                           || leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel //Privilage Leave
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.MedicalLeave
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.CompOff
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.LeaveWithOutPay;
 
             if (needsWeekendHolidayCount)
             {
+                var weekOffInput = new LeaveWeekOfInputParams
+                {
+                    EmployeeID = leaveSummary.EmployeeID,
+                    FromDate = leaveSummary.StartDate,
+                    ToDate = leaveSummary.EndDate
+                };
+
+                // Call API to fetch week-offs
+                var weekOffApiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveWeekOffDates);
+                var weekOffResponse = _businessLayer.SendPostAPIRequest(weekOffInput, weekOffApiUrl, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result?.ToString();
+                List<DateTime> weekOffDates = new();
+                if (!string.IsNullOrEmpty(weekOffResponse))
+                {
+                    weekOffDates = JsonConvert.DeserializeObject<List<DateTime>>(weekOffResponse) ?? new List<DateTime>();
+                }
                 for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
                 {
-                    //bool isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
-                    bool isWeekend = date.DayOfWeek == DayOfWeek.Sunday;
+                   
+                    bool isWeekend = weekOffDates.Contains(date.Date);
+
                     bool isHoliday = Holidaylist.Any(h => date >= h.FromDate.Date && date <= h.ToDate.Date);
                     if (isWeekend || isHoliday)
                         weekendDays++;
@@ -1064,7 +1080,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 if (leaveSummary.NoOfDays <= 0)
                 {
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    return Json(new { isValid = false, message = "There will be a holiday on the selected day." });
+                    return Json(new { isValid = false, message = "There will be a holiday or  weekeoff on the selected day ." });
                 }
             }
 
@@ -1276,7 +1292,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         #endregion Apply Leave
-
+        
 
 
         #region Approve Leave
