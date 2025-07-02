@@ -234,6 +234,7 @@ namespace HRMS.API.BusinessLayer
                                       ShiftEndTime = dataRow.Field<string>("ShiftEndTime"),
                                       ShiftStartTime = dataRow.Field<string>("ShiftStartTime"),
                                       Shift = dataRow.Field<string>("Shift"),
+                                      JobLocation = dataRow.Field<string>("JobLocation"),
 
                                   }).ToList();
 
@@ -1753,9 +1754,9 @@ namespace HRMS.API.BusinessLayer
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                                   OfficialEmailID = dataRow.Field<string>("OfficialEmailID" ?? ""),
-                                  ManagerOfficialEmailID = dataRow.Field<string>("ManagerOfficialEmailID"),
-                                  EmployeeFirstName = dataRow.Field<string>("EmployeeFirstName"),
-                                  ManagerFirstName = dataRow.Field<string>("ManagerFirstName"),
+                                  ManagerOfficialEmailID = dataRow.Field<string>("ManagerOfficialEmailID") ?? "",
+                                  EmployeeFirstName = dataRow.Field<string>("EmployeeFirstName") ??"",
+                                  ManagerFirstName = dataRow.Field<string>("ManagerFirstName")??"",
                                   ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
                                   LeavePolicyID = dataRow.Field<long>("LeavePolicyID"),
                                   JoiningDate = dataRow.Field<DateTime>("JoiningDate"),
@@ -2017,6 +2018,7 @@ namespace HRMS.API.BusinessLayer
                         Day = row.Field<DateTime>("Day"),
                         Present = row.Field<int>("Present"),
                         Absent = row.Field<int>("Absent"),
+                        Leaves = row.Field<int>("Leave"),
                         PresentByLocation = new Dictionary<string, int>(),
                         AbsentByLocation = new Dictionary<string, int>()
                     };
@@ -2034,6 +2036,12 @@ namespace HRMS.API.BusinessLayer
                             var location = column.ColumnName.Replace("_Absent", "");
                             int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
                             attendance.AbsentByLocation[location] = absent;
+                        }
+                        else if (column.ColumnName.EndsWith("_Leave"))
+                        {
+                            var location = column.ColumnName.Replace("_Leave", "");
+                            int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                            attendance.LeaveByLocation[location] = absent;
                         }
                     }
 
@@ -2970,7 +2978,8 @@ namespace HRMS.API.BusinessLayer
                     WorkDate = dataRow.IsNull("WorkDate") ? (DateTime?)null : dataRow.Field<DateTime>("WorkDate").Date,
                     FirstLogDate = dataRow.IsNull("FirstLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("FirstLogDate"),
                     LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
-                    HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked")
+                    HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked"),
+                    AttendanceStatusId = dataRow.Field<int?>("AttendanceStatusId")
                 })
                 .ToList();
             }
@@ -3126,7 +3135,8 @@ namespace HRMS.API.BusinessLayer
                             LastLogDate = dataRow.IsNull("LastLogDate") ? (DateTime?)null : dataRow.Field<DateTime>("LastLogDate"),
                             HoursWorked = dataRow.IsNull("HoursWorked") ? 0 : dataRow.Field<int>("HoursWorked"),
                             Comments = dataRow.Field<string>("Comments"),
-                        })
+                            EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
+                        }).OrderBy(x=>x.ID)
                         .ToList();
                 }
             }
@@ -3942,8 +3952,8 @@ namespace HRMS.API.BusinessLayer
                     emp.LeavingRemarks,
                     emp.MailReceivedFromAndDate,
                     emp.EmailSentToITDate,
-                    emp.IsActive
-                //  emp.ReportingToIDL1EmployeeNumber
+                    emp.IsActive,
+                  emp.ReportingToIDL1EmployeeNumber
                 );
             }
 

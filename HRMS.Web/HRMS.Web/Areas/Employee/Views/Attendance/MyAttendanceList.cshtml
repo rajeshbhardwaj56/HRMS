@@ -1,12 +1,14 @@
 ﻿@using HRMS.Models.Common;
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
-
+@using HRMS.Models.Common;
 @using Microsoft.AspNetCore.Http
 @using Microsoft.Extensions.Configuration
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject IConfiguration _configuration
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    var AttendanceSubmitted =Convert.ToInt32(HRMS.Models.Common.AttendanceStatus.Submitted);
+    ViewData["Title"] = "Attendance List";
 
     ViewData["Title"] = "Attendance Correction";
 
@@ -22,38 +24,38 @@
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden" /th>
-                <th>Name</th>
-                <th>AttendenceDate</th>
-                <th>First Login </th>
-                <th>Last Login</th>
-                <th>Manager Name</th>
-                <th>Status</th>
-                <th>Comments</th>
-                <th>Action</th>
+                    <th>Name</th>
+                    <th>AttendenceDate</th>
+                    <th>First Login </th>
+                    <th>Last Login</th>
+                    <th>Manager  </th>
+                    <th>Status</th>
+                    <th>Comments</th>
+                    <th>Action</th>
             </tr>
         </thead>
 
     </table>
 </div>
+
 <script type="text/javascript">
- 
     var managerNameL1 = '@Html.Raw(ViewBag.ManagerL1)';
     var managerNameL2 = '@Html.Raw(ViewBag.ManagerL2)';
+    var AttendanceSubmitted = @AttendanceSubmitted; // inject constant value for comparison
+
     $(document).ready(function () {
-       
         $('#tblAttendenceListing').DataTable({
             "ajax": {
                 "url": "GetMyAttendenceList/",
                 "type": "POST",
-                "datatype": "json",
+                "dataType": "json",
                 "dataSrc": function (json) {
                     var attendances = json.data.attendances;
                     for (var i = 0; i < attendances.length; i++) {
-                        attendances[i].managerNameL1 = managerNameL1;  
-                        attendances[i].managerNameL2 = managerNameL2;   
+                        attendances[i].managerNameL1 = managerNameL1;
+                        attendances[i].managerNameL2 = managerNameL2;
                     }
-
-                    return attendances;   
+                    return attendances;
                 }
             },
             "ordering": true,
@@ -61,107 +63,91 @@
             "searching": true,
             "info": true,
             "columns": [
-                { "data": "id", "autoWidth": true },  // ID
-                { "data": "employeeName", "autoWidth": true },  // Employee Name
+                { "data": "id", "autoWidth": true },
+                { "data": "employeeName", "autoWidth": true },
                 {
-                    "data": "workDate", "autoWidth": true,  // Work Date
-                    "render": function (data, type, row) {
+                    "data": "workDate",
+                    "autoWidth": true,
+                    "render": function (data) {
                         if (data) {
                             var date = new Date(data);
-                        var formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
-                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-                    date.getFullYear();
-                            return formattedDate;
+                            return formatDate(date);
                         }
-                        return '';  // If no date is provided
+                        return '';
                     }
                 },
                 {
                     "data": "firstLogDate",
-                    "autoWidth": true,  // First Log Date
-                    "render": function (data, type, row) {
+                    "autoWidth": true,
+                    "render": function (data) {
                         if (data) {
                             var date = new Date(data);
-
-                         
-                          var formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
-                    (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-                    date.getFullYear();
-
-                            // Get hours, minutes, and seconds in 12-hour format
-                            var hours = date.getHours();
-                            var minutes = date.getMinutes().toString().padStart(2, '0');
-                            var seconds = date.getSeconds().toString().padStart(2, '0');
-
-                            // Convert to 12-hour format
-                            var ampm = hours >= 12 ? 'PM' : 'AM';
-                            hours = hours % 12 || 12;  // Convert 0 to 12 for 12-hour format
-
-                            // Format time with AM/PM
-                            var formattedTime = hours.toString().padStart(2, '0') + ':' + minutes + ':' + seconds + ' ' + ampm;
-
-                            return formattedDate + ' ' + formattedTime;  // Return formatted date and time
+                            return formatDateTime(date);
                         }
-                        return '';  // If no date is provided
+                        return '';
                     }
-                }
-                ,
+                },
                 {
-                    "data": "lastLogDate", "autoWidth": true,  // Last Log Date
-                    "render": function (data, type, row) {
+                    "data": "lastLogDate",
+                    "autoWidth": true,
+                    "render": function (data) {
                         if (data) {
                             var date = new Date(data);
-    var formattedDate = date.getDate().toString().padStart(2, '0') + '/' +
-                        (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
-                        date.getFullYear();
-
-                            // Get hours, minutes, seconds in 12-hour format
-                            var hours = date.getHours();
-                            var minutes = date.getMinutes().toString().padStart(2, '0');
-                            var seconds = date.getSeconds().toString().padStart(2, '0');
-
-                            // Convert to 12-hour format
-                            var ampm = hours >= 12 ? 'PM' : 'AM';
-                            hours = hours % 12 || 12;  // Convert 0 to 12 for 12-hour format
-
-                            // Format time with AM/PM
-                            var formattedTime = hours.toString().padStart(2, '0') + ':' + minutes + ':' + seconds + ' ' + ampm;
-
-                            return formattedDate + ' ' + formattedTime;  // Return formatted date and time
+                            return formatDateTime(date);
                         }
-                        return '';  // If no date is provided
+                        return '';
                     }
-                }
-                ,
+                },
                 { "data": "managerNameL1", "autoWidth": true },
                 { "data": "attendanceStatus", "autoWidth": true },
                 { "data": "comments", "autoWidth": true },
                 {
-                    mRender: function (data, type, row) {
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top" class="item" href="MyAttendance?id=' + row.encodedId + '" title="" data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                              var linkDelete = '<a href="#" class="preview-btn" data-id="' + row.encodedId + '" title="Preview"><img title="Approve" src="/assets/img/delete.png" width="20" height="20"margin-top=""margin-top="5px" /></a>';
-                        return linkEdit + linkDelete + '</div>';
+                    "data": null,
+                    "autoWidth": true,
+                    "render": function (data, type, row) {
+                        var statusId = parseInt(row.attendanceStatusId);
+                        if (statusId === AttendanceSubmitted) {
+                            var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top" class="item" href="MyAttendance?id=' + row.encodedId + '" title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                            var linkDelete = '<a href="#" class="preview-btn" data-id="' + row.encodedId + '" title="Preview"><img title="Delete" src="/assets/img/delete.png" width="20" height="20" style="margin-top:5px;" /></a>';
+                            return linkEdit + linkDelete + '</div>';
+                        } else {
+                            return 'Processing'; // Hide controls for other statuses
+                        }
                     }
-                },
+                }
             ],
             "columnDefs": [
                 {
-                    "targets": [0], // ID column
-                    "visible": false // Hide this column
+                    "targets": [0],
+                    "visible": false
                 }
             ],
             "responsive": true
         });
-         $('#tblAttendenceListing').on('click', '.preview-btn', function (e) {
-        e.preventDefault();
-        var encodedId = $(this).data('id');
 
-        if (confirm("Are you sure you want to delete this?")) {
-            window.location.href = "/Employee/Attendance/DeleteAttendanceDetails?id=" + encodedId;
+        $('#tblAttendenceListing').on('click', '.preview-btn', function (e) {
+            e.preventDefault();
+            var encodedId = $(this).data('id');
+            if (confirm("Are you sure you want to delete this?")) {
+                window.location.href = "/Employee/Attendance/DeleteAttendanceDetails?id=" + encodedId;
+            }
+        });
+
+        function formatDate(date) {
+            return date.getDate().toString().padStart(2, '0') + '/' +
+                   (date.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                   date.getFullYear();
         }
-    });
+
+           function formatDateTime(date) {
+        var formattedDate = formatDate(date);
+        var hours = date.getHours();
+        var minutes = date.getMinutes().toString().padStart(2, '0');
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        var formattedTime = hours.toString().padStart(2, '0') + ':' + minutes + ' ' + ampm;
+        return formattedDate + ' ' + formattedTime;
+    }
 
     });
-     
-
-</script> 
+</script>

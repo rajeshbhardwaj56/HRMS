@@ -179,8 +179,8 @@
 																				<thead>
 																					<tr>
 																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Employee Number</th>
-																						<th>Employee Name</th>
+																						<th>Emp No</th>
+																						<th>  Name</th>
 																						<th>From Date</th>
 																						<th>To Date</th>
 																						<th>Type</th>
@@ -213,8 +213,8 @@
 																				<thead>
 																					<tr>
 																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Employee Number</th>
-																						<th>Employee Name</th>
+																						<th>Emp No</th>
+																						<th>  Name</th>
 																						<th>From Date</th>
 																						<th>To Date</th>
 																						<th>Type</th>
@@ -248,8 +248,8 @@
 																				<thead>
 																					<tr>
 																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Employee Number</th>
-																						<th>Employee Name</th>
+																						<th>Emp No</th>
+																						<th>  Name</th>
 																						<th>From Date</th>
 																						<th>To Date</th>
 																						<th>Type</th>
@@ -286,8 +286,8 @@
 																				<thead>
 																					<tr>
 																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Employee Number</th>
-																						<th>Employee Name</th>
+																						<th>Emp No</th>
+																						<th>  Name</th>
 																						<th>From Date</th>
 																						<th>To Date</th>
 																						<th>Type</th>
@@ -441,7 +441,7 @@
 															<label for="datepicker1" class="">From:</label>
 															<div class="position-relative">
 																<div class="input-group date" id="datepickerdiv1">
-																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text" ,   @disabled = "disabled" })
+																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", id = "StartDate", @disabled = "disabled" })
 																</div>
 															</div>
 														</div>
@@ -449,7 +449,7 @@
 															<label for="datepicker2" class="">To:</label>
 															<div class="position-relative">
 																<div class="input-group date" id="datepickerdiv2">
-																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text",  @disabled = "disabled" })
+																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", id = "EndDate" , @disabled = "disabled" })
 																</div>
 															</div>
 														</div>
@@ -645,8 +645,8 @@
 			url: '/employee/myinfo/GetEmployeeLeaveDetails',
 			type: 'GET',
 			 
-			data: { employeeID: employeeID },
-			success: function (response) {	
+			data: { employeeID: employeeID ,leaveSummaryID:leaveSummaryID},
+			success: function (response) {	 
 				const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 				if (response.employeeModel && response.employmentDetail) {
 					const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
@@ -676,6 +676,15 @@
 						$("#showalert").text('');
 						$("#showDocumentalert").text('');
 						$('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
+
+						let startDate = new Date(leaveSummary.startDate);
+							let formattedstartDate = startDate.toISOString().split('T')[0];
+							$('#StartDate').val(formattedstartDate);
+								let endDate = new Date(leaveSummary.endDate);
+							let formattedEndDate = endDate.toISOString().split('T')[0];
+							$('#EndDate').val(formattedEndDate);
+
+
 						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)|| leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
 
 							if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage)) {
@@ -700,6 +709,8 @@
 									$("#showalert").text(`Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`);
 								}
 							}
+								
+
 
 							$("#adminfullDayContainer").css("display", "flex");
 							$("#admintodatetime").css("display", "block");
@@ -956,15 +967,10 @@
 
 
 	$(document).ready(function () {
-		if (@RoleName != @Convert.ToInt64(Roles.Employee)  ) {
 			$('#applied-leave-tab1').click();
 			$('#leave-approved-tab').css("display", "none");
 			$('#leave-Reject-tab').css("display", "none");
-
-
-			AutoReload();
-		}
-
+		AutoReload();
 	});
 	function InitOverviewDataTable() {
 		const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));

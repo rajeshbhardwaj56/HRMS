@@ -80,7 +80,7 @@
         </div>
     }
 </div>
-<form method="post" enctype="multipart/form-data">
+<form id="myForm" method="post" enctype="multipart/form-data">
     <div class="Container">
         <div class="group-box anim" style="--delay: .3s">
             <div class="small-header">Personal Details</div>
@@ -153,8 +153,8 @@
                 </div>
 
                 <div class="col-md-4 form-group">
-                    <label>Landline <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.Landline, new { @class = "form-control" })
+                    <label>Landline  </label>
+                    @Html.TextBoxFor(a => a.Landline, new { @class = "form-control mobile-mask" })
                     @*  @Html.ValidationMessageFor(m => m.Landline) *@
                 </div>
 
@@ -573,28 +573,33 @@
     // $(document).ready(function () {   
     //     $('.mobile-mask').mask('(000) 000-0000');
     // });
-         
-    $(document).ready(function () {
-            $('.mobile-mask').on('input', function () {
-                let input = $(this).val().replace(/\D/g, '');
-                if (input.length > 10) input = input.substring(0, 10);
 
-                let formatted = '';
+      $(document).ready(function () {
+        // Input masking for each mobile-mask field
+        $('.mobile-mask').on('input', function () {
+            let input = $(this).val().replace(/\D/g, '');
 
-                if (input.length > 0) {
-                    formatted += '(' + input.substring(0, 3);
-                }
-                if (input.length >= 4) {
-                    formatted += ') ' + input.substring(3, 6);
-                }
-                if (input.length >= 7) {
-                    formatted += '-' + input.substring(6, 10);
-                }
+            if (input.length > 10) input = input.substring(0, 10);
 
-                $(this).val(formatted);
-            });
+            let formatted = '';
+
+            if (input.length >= 1) {
+                formatted += '(' + input.substring(0, Math.min(4, input.length)) + ')';
+            }
+
+            if (input.length > 4) {
+                formatted += '-' + input.substring(4, Math.min(7, input.length));
+            }
+
+            if (input.length > 7) {
+                formatted += '-' + input.substring(7, 10);
+            }
+
+            $(this).val(formatted);
         });
 
-    
- 
+       
+    });
+
+
 </script>

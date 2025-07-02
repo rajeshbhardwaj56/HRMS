@@ -13,6 +13,7 @@ using HRMS.Models.Employee;
 using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.FormPermission;
 using HRMS.Models.ImportFromExcel;
+using HRMS.Models.User;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
@@ -598,86 +599,202 @@ namespace HRMS.Web.Areas.HR.Controllers
                 long companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
                 employmentDetail.CompanyID = companyId;
                 employmentDetail.EmployeNumber = employmentDetail.EmployeNumber.Split(employmentDetail.CompanyAbbr)[1];
+                var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+                if(result != null && result.PKNo > 0
+    && result.Message != null
+    && result.Message.StartsWith("Duplicate Email found:", StringComparison.OrdinalIgnoreCase))
+{
+                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
 
-                var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
-
-                string employmentApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails);
-                var employmentResponse = await _businessLayer.SendPostAPIRequest(employmentDetail, employmentApiUrl, bearerToken, true) ;
-
-                Result result = JsonConvert.DeserializeObject<Result>(employmentResponse.ToString());
-
-                if (result != null && result.PKNo > 0)
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+                }
+                else if (result != null && result.PKNo > 0 && result.Message.Contains("Some error occurred, please try again later.", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (result.Message.Contains("EmailID already Exists", StringComparison.OrdinalIgnoreCase) ||
-                        result.Message.Contains("Some error occurred", StringComparison.OrdinalIgnoreCase))
-                    {
-                        TempData[Constants.toastType] = Constants.toastTypeError;
-                        TempData[Constants.toastMessage] = result.Message;
-                        return View(employmentDetail);
-                    }
-
-                    // Save permissions
-                    FormPermissionVM permissionModel = new FormPermissionVM
-                    {
-                        EmployeeID = employmentDetail.EmployeeID,
-                        SelectedFormIds = SelectedFormIds
-                    };
-
-                    string permissionApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddUserFormPermissions);
-                    var permissionResponseStr = await _businessLayer.SendPostAPIRequest(permissionModel, permissionApiUrl, bearerToken, true);
-                    long permissionResponse = JsonConvert.DeserializeObject<long>(permissionResponseStr.ToString());
-
-                    if (permissionResponse < 0)
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+                }
+                else
+                {
+                    FormPermissionVM objmodel = new FormPermissionVM();
+                    objmodel.EmployeeID = employmentDetail.EmployeeID;
+                    objmodel.SelectedFormIds = SelectedFormIds;
+                    var Permissionsdata = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddUserFormPermissions), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    var Permissionresponse = JsonConvert.DeserializeObject<long>(Permissionsdata);
+                    if (Permissionresponse < 0)
                     {
                         TempData[Constants.toastType] = Constants.toastTypeError;
                         TempData[Constants.toastMessage] = "Some error occurred, please try again later.";
                         return View(employmentDetail);
                     }
-
-                    TempData[Constants.toastType] = Constants.toastTypeSuccess;
-                    TempData[Constants.toastMessage] = result.Message;
-
-                    // Send reset password email
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
                     if (result.IsResetPasswordRequired)
                     {
-                        string resetLink = string.Format(
-                            _configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"],
-                            _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString() ?? ""),
-                            _businessLayer.EncodeStringBase64(DateTime.Now.ToString()),
-                            _businessLayer.EncodeStringBase64(companyId.ToString()),
-                            _businessLayer.EncodeStringBase64(employmentDetail.CompanyAbbr + employmentDetail.EmployeNumber)
-                        );
+                        ChangePasswordModel model = new ChangePasswordModel();
+                        model.EmailId = employmentDetail.CompanyAbbr+  employmentDetail.EmployeNumber;
+                        var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
+                        var datamodel = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
+                        var resultdata = JsonConvert.DeserializeObject<Result>(datamodel);
 
-                        sendEmailProperties emailProps = new sendEmailProperties
+                        if (resultdata == null || resultdata.Data == null)
                         {
-                            emailSubject = "Reset Password Email",
-                            emailBody = $"Hi,<br/><br/>Please click on the link below to reset your password.<br/><a target='_blank' href='{resetLink}'>Click here to reset password</a><br/><br/>",
-                            EmailToList = new List<string> { employmentDetail.OfficialEmailID }
-                        };
+                            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid response from server.";
+                            return View(model);
+                        }
 
-                        emailSendResponse emailResp = EmailSender.SendEmail(emailProps);
-                        TempData[Constants.toastType] = emailResp.responseCode == "200"
-                            ? Constants.toastTypeSuccess
-                            : Constants.toastTypeError;
-                        TempData[Constants.toastMessage] = emailResp.responseCode == "200"
-                            ? "Reset password email has been sent. Please check your inbox."
-                            : "Failed to send reset password email. Please try again later.";
+                        UserModel userModel = JsonConvert.DeserializeObject<UserModel>((string)resultdata.Data);
+
+                        if (userModel != null)
+                        {
+                            if (userModel.EmployeeID > 0)
+                            {
+
+
+                                // Get the configuration values
+                                var rootUrl = _configuration["AppSettings:RootUrl"];
+                                var resetPasswordUrl = _configuration["AppSettings:ResetPasswordURL"]; // Should have {0}, {1}, {2}
+
+
+                                // Encode required parameters
+                                var encodedTimestamp = _businessLayer.EncodeStringBase64(DateTime.Now.ToString());
+                                var encodedCompany = _businessLayer.EncodeStringBase64("YourCompanyValue"); // Replace with actual company ID
+                                                                                                            // Format the Reset Password URL correctly
+                                var formattedResetUrl = string.Format(resetPasswordUrl, _businessLayer.EncodeStringBase64(userModel.EmployeeID == null ? "" : userModel.EmployeeID.ToString()), encodedTimestamp, _businessLayer.EncodeStringBase64(userModel.CompanyID.ToString()), _businessLayer.EncodeStringBase64(userModel.UserName.ToString()));
+
+                                // Prepare email content
+                                sendEmailProperties sendEmailProperties = new sendEmailProperties
+                                {
+                                    emailSubject = "Reset Password",
+                                    emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+            Please click on the link below to reset your password.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Manager</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.UserName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.FullName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.ManagerName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.DepartmentName}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+
+            <a target='_blank' 
+               href='{rootUrl}{formattedResetUrl}' 
+              >
+                Click here to reset password
+            </a><br/><br/>
+
+            <p style='color: #000; font-size: 13px;'>
+                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
+
+                If you are happy with our services or want to share any feedback, do email us at 
+                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+                All email correspondence is sent only through our official domain: 
+                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+                Your cooperation is greatly appreciated.
+            </p>
+        </div>"
+                                };
+                                // Add recipient email
+                                if ((userModel.RoleID == (int)Roles.Employee) && string.IsNullOrEmpty(userModel.Email))
+                                {
+                                    sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
+                                }
+                                else
+                                {
+                                    if (string.IsNullOrEmpty(userModel.Email))
+                                    {
+                                        sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
+                                    }
+                                    else
+                                    {
+                                        sendEmailProperties.EmailToList.Add(userModel.Email);
+                                    }
+                                }
+
+                                // Send email
+                                emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
+
+                                if (response.responseCode == "200")
+                                {
+                                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+
+                                    if ((userModel.RoleID == (int)Roles.Employee))
+                                    {
+                                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT Team.";
+                                    }
+                                    else
+                                    {
+                                        if (string.IsNullOrEmpty(userModel.Email))
+                                        {
+                                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT Team.";
+
+                                        }
+                                        else
+                                        {
+                                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to your email.";
+
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email sending failed. Please try again later.";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid User Please try again.";
+                        }
+
+
+
+
+
                     }
                 }
 
-                // Refresh employment detail view model
-                var inputParams = new EmploymentDetailInputParams
-                {
-                    CompanyID = companyId,
-                    DepartmentID = employmentDetail.DepartmentID,
-                    DesignationID = employmentDetail.DesignationID
-                };
+           
 
-                string detailApiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee);
-                var detailResponse = await _businessLayer.SendPostAPIRequest(inputParams, detailApiUrl, bearerToken, true);
-                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(detailResponse.ToString());
 
-                MapEmploymentDetailLists(employmentDetail, employmentDetailtemp);
+                EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
+                employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+                employmentDetailInputParams.DepartmentID = employmentDetail.DepartmentID;
+                employmentDetailInputParams.DesignationID = employmentDetail.DesignationID;
+                var dataBody = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFilterEmploymentDetailsByEmployee), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                EmploymentDetail employmentDetailtemp = JsonConvert.DeserializeObject<EmploymentDetail>(dataBody);
+                employmentDetail.EmployeeList = employmentDetailtemp.EmployeeList;
+                employmentDetail.Departments = employmentDetailtemp.Departments;
+                employmentDetail.JobLocations = employmentDetailtemp.JobLocations;
+                employmentDetail.Designations = employmentDetailtemp.Designations;
+                employmentDetail.EmploymentTypes = employmentDetailtemp.EmploymentTypes;
+                employmentDetail.PayrollTypes = employmentDetailtemp.PayrollTypes;
+                employmentDetail.LeavePolicyList = employmentDetailtemp.LeavePolicyList;
+                employmentDetail.RoleList = employmentDetailtemp.RoleList;
+                employmentDetail.SubDepartments = employmentDetailtemp.SubDepartments;
+                employmentDetail.ShiftTypes = employmentDetailtemp.ShiftTypes;
                 employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
             }
             else

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Mail;
 using System.Reflection;
@@ -44,6 +45,7 @@ namespace HRMS.Models.Employee
         public long CorrespondenceCountryID { get; set; }
         public string? EmailAddress { get; set; } = string.Empty;
         public string? Landline { get; set; } = string.Empty;
+      
         public string? Mobile { get; set; } = string.Empty;
         public string? Telephone { get; set; } = string.Empty;
         public string? PersonalEmailAddress { get; set; } = string.Empty;
@@ -117,6 +119,7 @@ namespace HRMS.Models.Employee
         public string? ShiftStartTime { get; set; } = string.Empty;
         public string? ManagerName { get; set; } = string.Empty;
         public string? Shift { get; set; } = string.Empty;
+        public string? JobLocation { get; set; } = string.Empty;
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();

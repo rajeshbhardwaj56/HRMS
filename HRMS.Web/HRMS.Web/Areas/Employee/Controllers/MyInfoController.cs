@@ -169,10 +169,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployeeLeaveDetails(string employeeID)
+        public IActionResult GetEmployeeLeaveDetails(string employeeID,long leaveSummaryID)
         {
             MyInfoInputParams model = new MyInfoInputParams();
             model.EmployeeID = Convert.ToInt64(employeeID);
+            model.LeaveSummaryID = Convert.ToInt64(leaveSummaryID);
             model.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
             model.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
             var employeeDetails = await GetEmployeeDetails(model.CompanyID, model.EmployeeID);
@@ -225,7 +226,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leavePolicyModel = await GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
             if (leavePolicyModel != null)
             {
-                Approvals = results.leavesSummary.Where(x => x.LeaveStatusID != (int)LeaveStatus.Approved && x.LeaveStatusID != (int)LeaveStatus.NotApproved && x.LeaveStatusID != (int)LeaveStatus.Cancelled).ToList();
+                Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.PendingApproval).ToList();
                 ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
                 if (leavePolicyModel.Paternity_medicalDocument == true)
                 {
@@ -324,12 +325,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             long companyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             long employeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             long userID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+            long RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
 
            
             var inputParams = new MyInfoInputParams
             {
                 CompanyID = companyID,
-                EmployeeID = employeeID
+                EmployeeID = employeeID,
+                RoleId = RoleID 
             };
             var apiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals);
             var apiResponse = await _businessLayer.SendPostAPIRequest(
@@ -433,23 +436,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 <br/>
 
-<p style='color: #000; font-size: 13px; line-height: 1.5;'>
-    To no longer receive messages from Eternity Logistics, please click to
-    <strong><a href='http://unsubscribe.eternitylogistics.co/' style='color: #1a73e8; text-decoration: none;'>Unsubscribe</a></strong>.<br/><br/>
-
-    If you are happy with our services or want to share any feedback, please email us at
-    <a href='mailto:feedback@eternitylogistics.co' style='color: #1a73e8; text-decoration: none;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-    All email correspondence is sent only through our official domain:
-    <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-    <strong>CONFIDENTIALITY NOTICE:</strong><br/>
-    This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information.
-    If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information.
-    Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments.
-    This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction.
-    Your cooperation is greatly appreciated.
-</p>"
+   <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>  
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>"
                 };
 
                 emailProps.EmailToList.Add(leaveRecord.OfficialEmailID);
@@ -1509,7 +1500,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         accruedLeave = Math.Min(accruedLeave + carryForward, maxAvailable);
                     }
 
-                    totalLeaveWithCarryForward = approvedLeaveTotal + accruedLeave;
+                    totalLeaveWithCarryForward = accruedLeave- approvedLeaveTotal ;
 
                     // Final safety cap (optional)
                     totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);

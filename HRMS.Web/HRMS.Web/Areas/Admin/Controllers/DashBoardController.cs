@@ -126,7 +126,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     double remainingLeave = Math.Max(totalEarnedLeave - approvedLeaveTotal, 0);
 
                     // Assign values to model for the View
-                    model.TotalLeave = (decimal)approvedLeaveTotal;            // Leaves already taken
+                 //   model.TotalLeave = (decimal)approvedLeaveTotal;            // Leaves already taken
                     model.NoOfLeaves = Convert.ToInt64(remainingLeave);        // Leaves remaining (available)
                     ViewBag.NoOfLeaves = remainingLeave;        // Leaves remaining (available)
 

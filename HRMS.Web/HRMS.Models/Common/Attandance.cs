@@ -41,6 +41,7 @@ namespace HRMS.Models.Common
         public bool? IsManual { get; set; }
         public string? AttendanceStatus { get; set; }
         public string? Comments { get; set; }
+        public string? EmployeeNumber { get; set; }
         public long? ModifiedBy { get; set; }
         public long? CreatedBy { get; set; }
         public long? EmployeeId { get; set; }

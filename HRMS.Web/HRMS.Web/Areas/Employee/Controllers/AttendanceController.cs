@@ -244,16 +244,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public async Task<IActionResult> MyAttendance(Attendance AttendenceListModel)
         {
 
-            if (AttendenceListModel.FirstLogDate.HasValue)
-            {
-                var selectedDate = AttendenceListModel.FirstLogDate.Value;
-                if (selectedDate.DayOfWeek == DayOfWeek.Saturday || selectedDate.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Attendance cannot be submitted for weekends (Saturday or Sunday).";
-                    return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
-                }
-            }
+            //if (AttendenceListModel.FirstLogDate.HasValue)
+            //{
+            //    var selectedDate = AttendenceListModel.FirstLogDate.Value;
+            //    if (selectedDate.DayOfWeek == DayOfWeek.Saturday || selectedDate.DayOfWeek == DayOfWeek.Sunday)
+            //    {
+            //        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+            //        TempData[HRMS.Models.Common.Constants.toastMessage] = "Attendance cannot be submitted for weekends (Saturday or Sunday).";
+            //        return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
+            //    }
+            //}
 
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
             var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -305,7 +305,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     sendEmailProperties sendEmailProperties = new sendEmailProperties
                     {
 
-                        emailSubject = "Send a request for CompOff Attendance approval",
+                        emailSubject = "Send a request for Attendance approval",
                         emailBody = $@"
         <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
             Hi,<br/><br/>
@@ -333,19 +333,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
             
 
             <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>
         </div>"
                     };
@@ -441,10 +431,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
         public async Task<JsonResult> ApproveRejectAttendance(long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
             // Get session values
+            string approvesStatus = "";
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var managerFirstName = HttpContext.Session.GetString(Constants.FirstName);
-            string manager2Email = HttpContext.Session.GetString(Constants.Manager2Email) ?? string.Empty;
+            string manager2Email = HttpContext.Session.GetString(Constants.Manager1Email) ?? string.Empty;
             string bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
             EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
             employeeobj.EmployeeID = employeeId;
@@ -461,9 +452,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
             var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
-
-            // Convert string status to enum 
-            // Prepare attendance model
             var attendanceModel = new Attendance
             {
                 ID = attendanceId,
@@ -478,19 +466,25 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 AttendanceStatusId = attendanceStatusId,
                 RoleId = RoleId
             };
-
-            // Determine new status based on action and current status
-            if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+            if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
             {
-                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                    ? (int)AttendanceStatusId.L1Approved
-                    : (int)AttendanceStatusId.L2Approved;
+                attendanceModel.AttendanceStatusId = (int)AttendanceStatusId.AdminApproved;
             }
             else
             {
-                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                    ? (int)AttendanceStatusId.L1Rejected
-                    : (int)AttendanceStatusId.L2Rejected;
+                // Determine new status based on action and current status
+                if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+                {
+                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                        ? (int)AttendanceStatusId.L1Approved
+                        : (int)AttendanceStatusId.L2Approved;
+                }
+                else
+                {
+                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                        ? (int)AttendanceStatusId.L1Rejected
+                        : (int)AttendanceStatusId.L2Rejected;
+                }
             }
 
             // Submit updated attendance
@@ -517,7 +511,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var emailList = new List<string>();
             string subject = string.Empty;
             string body = string.Empty;
-
+            var actions= actionText.Equals("approve", StringComparison.OrdinalIgnoreCase) ? "approved" : "rejected";
             switch (attendanceModel.AttendanceStatusId)
             {
                 case (int)AttendanceStatusId.L1Approved:
@@ -554,19 +548,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
             
 
             <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>
         </div>",
                             EmailToList = new List<string> { manager2Email }
@@ -577,78 +561,58 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     // Email to employee
                     if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
                     {
+                        approvesStatus = "L1 manager";
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-   Hi, {employeeResult.EmployeeName}, your CompOff has been approved.
-    <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+   Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {approvesStatus}.
+  <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
 
                 case (int)AttendanceStatusId.L2Rejected:
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+     employeeResult.PersonalEmailAddress.Contains("@"))
                     {
+                        approvesStatus = "L2 manager";
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-    Hi {employeeResult.EmployeeName}, your CompOff attendance has been rejected.
+    Hi {employeeResult.EmployeeName}, your attendance   has been {actions}  by your {approvesStatus}.
     <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
 
                 default:
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+     employeeResult.PersonalEmailAddress.Contains("@"))
                     {
-                        emailList.Add(employeeResult.PersonalEmailAddress);
+                        if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
+                        {
+                            approvesStatus = "Admin";
+                        }
+                        else
+                        {
+                            approvesStatus = "L1 manager";
+                        }
+
+                            emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
+Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {approvesStatus}.
     <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
             }
@@ -961,20 +925,10 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
             
 
-            <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
+          <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>
         </div>"
                             };
@@ -1045,11 +999,11 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
         [HttpPost]
         public async Task<JsonResult> ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
-
+            string approvesStatus = "";
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             var managerFirstName = HttpContext.Session.GetString(Constants.FirstName);
-            string manager2Email = HttpContext.Session.GetString(Constants.Manager2Email) ?? string.Empty;
+            string manager2Email = HttpContext.Session.GetString(Constants.Manager1Email) ?? string.Empty;
             string bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
             EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
             employeeobj.EmployeeID = employeeId;
@@ -1080,8 +1034,13 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             };
 
             // Determine new status based on action and current status
-
-            if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+            if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
+            {
+                attendanceModel.AttendanceStatusId = (int)AttendanceStatusId.AdminApproved;
+            }
+            else
+            {
+                if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
             {
                 attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
                     ? (int)AttendanceStatusId.L1Approved
@@ -1092,6 +1051,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                 attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
                     ? (int)AttendanceStatusId.L1Rejected
                     : (int)AttendanceStatusId.L2Rejected;
+            }
             }
 
             var updateapiUrl = await _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace);
@@ -1116,7 +1076,7 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
             var emailList = new List<string>();
             string subject = string.Empty;
             string body = string.Empty;
-
+            var actions = actionText.Equals("approve", StringComparison.OrdinalIgnoreCase) ? "approved" : "rejected";
             switch (attendanceModel.AttendanceStatusId)
             {
                 case (int)AttendanceStatusId.L1Approved:
@@ -1152,20 +1112,10 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
 
             
 
-            <p style='color: #000; font-size: 13px;'>
-                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
-
-                If you are happy with our services or want to share any feedback, do email us at 
-                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-                All email correspondence is sent only through our official domain: 
-                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-                Your cooperation is greatly appreciated.
+           <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>
         </div>",
 
@@ -1175,81 +1125,61 @@ Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
                     }
 
                     // Email to employee
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+     employeeResult.PersonalEmailAddress.Contains("@"))
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-   Hi, {employeeResult.EmployeeName}, your CompOff has been approved.
-    <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+ Hi, {employeeResult.EmployeeName}, your CompOff has been  {actions} by your L1 manager.
+   <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
 
                 case (int)AttendanceStatusId.L2Rejected:
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+     employeeResult.PersonalEmailAddress.Contains("@"))
                     {
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
-    Hi {employeeResult.EmployeeName}, your CompOff attendance has been rejected.
-    <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+ Hi, {employeeResult.EmployeeName}, your CompOff has been  {actions} by your L2 manager.
+   <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
                     }
                     break;
 
                 default:
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+    employeeResult.PersonalEmailAddress.Contains("@"))
                     {
+
+                        if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
+                        {
+                            approvesStatus = "Admin";
+                        }
+                        else
+                        {
+                            approvesStatus = "L1 manager";
+                        }
+
                         emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
 
                         body = $@"
-Hi, {employeeResult.EmployeeName}, your CompOff attendance has been updated.
-    <p style='color: #000; font-size: 13px;'>
-        To no longer receive messages from Eternity Logistics, please click to 
-        <strong><a href='http://unsubscribe.eternitylogistics.co/'>Unsubscribe</a></strong>.<br/><br/>
-
-        If you are happy with our services or want to share any feedback, do email us at 
-        <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
-
-        All email correspondence is sent only through our official domain: 
-        <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
-
-        <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
-        If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
-        Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
-        This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
-        Your cooperation is greatly appreciated.
-    </p>";
+ Hi, {employeeResult.EmployeeName}, your CompOff has been  {actions} by your {approvesStatus}.
+   <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>  
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>";
 
                     }
                     break;

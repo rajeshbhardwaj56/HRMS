@@ -64,8 +64,8 @@
 			.Where(lt => !lt.Text.Equals("Compensatory Off", StringComparison.OrdinalIgnoreCase))
 			.ToList();
 	}
-		  
-																						 
+
+
 }
 
 @functions {
@@ -78,10 +78,10 @@
 	.leave-section-tabs {
 		/* background-color: #05397b; */
 		border-radius: 5px 5px 0px 0px;
-	
 		color: white;
 		border: none;
 	}
+
 	.fade:not(.show) {
 		opacity: 0;
 		display: none !important;
@@ -126,16 +126,16 @@
 
 
 				<div class="myinfo-menu">
-					<ul class="nav nav-tabs leave-section-tabs " id="myTab1" role="tablist">					
+					<ul class="nav nav-tabs leave-section-tabs " id="myTab1" role="tablist">
 						@if (Model.employmentDetail.JoiningDate != null)
 						{
 							if (Model.employeeModel.LeavePolicyID > 0)
 							{
-								
-									<li class="nav-item" role="presentation">
-										<a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="true" >Leave Info</a>
-									</li>
-								
+
+								<li class="nav-item" role="presentation">
+									<a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="true">Leave Info</a>
+								</li>
+
 
 							}
 							else
@@ -168,7 +168,7 @@
 						<div class="row">
 							<div class="col-lg-12">
 
-							
+
 
 								<div class="tab-pane fade show active" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
 
@@ -236,11 +236,11 @@
 																							{
 																								@class = "form-control body-text",
 																								@type = "date",
-																								@min = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd") 
+																								@min = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd")
 																							})
-																							 
 
-																					 
+
+
 
 																					</div>
 																				</div>
@@ -250,14 +250,14 @@
 																				<label for="datepicker2" class="">To:</label>
 																				<div class="position-relative">
 																					<div class="input-group date" id="datepickerdiv2">
-																				@* 	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+																						@* 	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
  *@
 
 																						@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new
 																							{
 																								@class = "form-control body-text",
 																								@type = "date",
-																								@min = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd") 
+																								@min = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd")
 																							})
 																					</div>
 																				</div>
@@ -403,11 +403,6 @@
 																				<td>@item.EndDate.ToString("dd/M/yyyy")</td>
 																				<td>@item.LeaveTypeName</td>
 																				<td>
-																					@*                                            <span class="fw-bold text-primary " data-bs-toggle="tooltip" title="You are only apply 3 Consecutive leaves." style="cursor: pointer; margin-left: 5px; background: red; color: white !important;">
-
-                                                                                @item.NoOfDays
-                                                                                </span> *@
-
 																					@if (@item.LeaveTypeID == (int)LeaveType.AnnualLeavel && @item.NoOfDays > @ViewBag.ConsecutiveAllowedDays)
 																					{
 																						<span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Exceeding maximum consecutive allowed @ViewBag.ConsecutiveAllowedDays days limit" style="cursor: pointer; background: red; color: white !important;">
@@ -460,14 +455,22 @@
 																				}
 																				else if (item.LeaveStatusID == (int)LeaveStatus.Approved)
 																				{
-																					<td>
-																						<form action="/employee/MyInfo/UpdateLeaveStatus" method="post" style="display:inline;">
-																							<input type="hidden" name="id" value="@item.EncryptedIdentity" />
-																							<button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to cancel this leave?');">
-																								<i class="fa fa-close" style="font-size:22px;color:red"></i>
-																							</button>
-																						</form>
-																					</td>
+																					@if (item.StartDate > DateTime.Now)
+																					{
+																						<td>
+																							<form action="/employee/MyInfo/UpdateLeaveStatus" method="post" style="display:inline;">
+																								<input type="hidden" name="id" value="@item.EncryptedIdentity" />
+																								<button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to cancel this leave?');">
+																									<i class="fa fa-close" style="font-size:22px;color:red"></i>
+																								</button>
+																							</form>
+																						</td>
+																					}
+																					else
+																					{
+																						<td>  </td>
+																					}
+
 																				}
 																				else
 																				{
@@ -547,21 +550,21 @@
 			certImg.style.display = 'block';
 			certPdf.style.display = 'none';
 		}
-	};	 	
-	
+	};
+
 	$(document).ready(function () {
 		$('[data-bs-toggle="tooltip"]').tooltip();
 	});
 	document.addEventListener('DOMContentLoaded', function () {
-	
-		var subTabs = document.querySelectorAll('#myTab-timeoff .nav-link'); 
+
+		var subTabs = document.querySelectorAll('#myTab-timeoff .nav-link');
 	subTabs.forEach(function (subTab) {
 		subTab.addEventListener('click', function () {
 			localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));
 		});
 	});
 
-	
+
 	var activeSubTab = localStorage.getItem('selectedSubTab');
 	if (activeSubTab) {
 		var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
@@ -571,7 +574,7 @@
 		}
 	}
 
-		
+
 		document.querySelectorAll('.edit-button').forEach(function (button) {
 			button.addEventListener('click', function (event) {
 				event.preventDefault(); // Prevent immediate navigation to allow custom actions
@@ -583,7 +586,7 @@
 				// Show the "Apply Leave" tab
 				var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
 				applyLeaveTab.show();
-					
+
 				// Navigate to the href link
 				const href = button.getAttribute('href');
 				if (href) {
