@@ -199,18 +199,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public IActionResult MyAttendance(Attendance AttendenceListModel)
         {
-
-            //if (AttendenceListModel.FirstLogDate.HasValue)
-            //{
-            //    var selectedDate = AttendenceListModel.FirstLogDate.Value;
-            //    if (selectedDate.DayOfWeek == DayOfWeek.Saturday || selectedDate.DayOfWeek == DayOfWeek.Sunday)
-            //    {
-            //        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-            //        TempData[HRMS.Models.Common.Constants.toastMessage] = "Attendance cannot be submitted for weekends (Saturday or Sunday).";
-            //        return RedirectToActionPermanent(WebControllarsConstants.MyAttendanceList, WebControllarsConstants.Attendance);
-            //    }
-            //}
-
+             
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
             var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             AttendenceListModel.UserId = UserId;
@@ -250,8 +239,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
                 if (!string.IsNullOrEmpty(Manager1Email))
                 {
-                    var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
-                    var ManagerName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+                    var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName)); 
                     sendEmailProperties sendEmailProperties = new sendEmailProperties
                     {
 
@@ -494,7 +482,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     }
 
                     // Email to employee
-                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress))
+                    if (!string.IsNullOrEmpty(employeeResult?.PersonalEmailAddress) &&
+      employeeResult.PersonalEmailAddress.Contains("@"))
                     {
                         approvesStatus = "L1 manager";
                         emailList.Add(employeeResult.PersonalEmailAddress);

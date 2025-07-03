@@ -61,7 +61,7 @@
         <tbody></tbody>
     </table>
 </div>
-
+<script src="/js/mobilemasking.js"></script>
 @section Scripts {
     <script>
           function toastMessage(type , message)
@@ -195,31 +195,9 @@
             $('#OrgnizationName').val(rowData.orgnizationName);
             $('#RelationWithCandidate').val(rowData.relationWithCandidate);
         }
-            $(document).ready(function () {
-            // Input masking for each mobile-mask field
-            $('.mobile-mask').on('input', function () {
-                let input = $(this).val().replace(/\D/g, '');
-
-                if (input.length > 10) input = input.substring(0, 10);
-
-                let formatted = '';
-
-                if (input.length >= 1) {
-                    formatted += '(' + input.substring(0, Math.min(4, input.length)) + ')';
-                }
-
-                if (input.length > 4) {
-                    formatted += '-' + input.substring(4, Math.min(7, input.length));
-                }
-
-                if (input.length > 7) {
-                    formatted += '-' + input.substring(7, 10);
-                }
-
-                $(this).val(formatted);
-            });
-
-
+                $(document).ready(function () {
+            $('.mobile-mask').mask('(0000)-000-000');
         });
+
     </script>
 }

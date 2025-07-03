@@ -21,6 +21,8 @@
                 <th class="first" style="visibility:hidden"></th>
                 <th>Title</th>
                 <th>Image</th>
+                <th>From</th>
+                <th>To</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -56,10 +58,32 @@
                     "data": "iconImage",
                     "autoWidth": true,
                     "render": function (data, type, row) {
-                        // Check if the image URL exists and render the image tag
                         return data ? `<img src="${data}" alt="${row.title}" style="width: 50px; height: 50px;"/>` : 'No Image'; // If no image, show 'No Image'
                     }
                 },
+                   {
+        "data": "fromDate",
+        "autoWidth": true,
+        "render": function (data, type, row) {
+            if (!data) return '';
+            const datePart = data.split('T')[0]; // yyyy-mm-dd
+            const parts = datePart.split('-'); // [yyyy, mm, dd]
+            if (parts.length !== 3) return datePart;
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; // dd-mm-yyyy
+        }
+    },
+    {
+        "data": "toDate",
+        "autoWidth": true,
+        "render": function (data, type, row) {
+            if (!data) return '';
+            const datePart = data.split('T')[0]; // yyyy-mm-dd
+            const parts = datePart.split('-');
+            if (parts.length !== 3) return datePart;
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; // dd-mm-yyyy
+        }
+    },
+
                 {
                     "mRender": function (data, type, row) {
                         var linkActions = `

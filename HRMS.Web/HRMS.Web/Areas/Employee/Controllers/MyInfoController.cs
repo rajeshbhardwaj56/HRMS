@@ -6,6 +6,7 @@ using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HRMS.Models;
+using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
@@ -316,10 +317,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 string actionText = isApproved ? "approved" : "rejected";
 
-                var emailProps = new sendEmailProperties
+                if (!string.IsNullOrEmpty(leaveRecord.OfficialEmailID) && leaveRecord.OfficialEmailID.Contains("@"))
                 {
-                    emailSubject = $"Leave {actionText} Notification",
-                    emailBody = $@"
+
+                    var emailProps = new sendEmailProperties
+                    {
+                        emailSubject = $"Leave {actionText} Notification",
+                        emailBody = $@"
 <p>Hi {leaveRecord.EmployeeFirstName},</p>
 
 <p>
@@ -335,15 +339,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
              This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
              We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
             </p>"
-                };
+                    };
 
-                emailProps.EmailToList.Add(leaveRecord.OfficialEmailID);
-                var responses = EmailSender.SendEmail(emailProps);
+                    emailProps.EmailToList.Add(leaveRecord.OfficialEmailID);
+                    var responses = EmailSender.SendEmail(emailProps);
 
-                if (responses.responseCode == "200")
-                {
-                    message = $"Leave {actionText} successfully and email sent successfully.";
+                    if (responses.responseCode == "200")
+                    {
+                        message = $"Leave {actionText} successfully and email sent successfully.";
+                    }
                 }
+
+
             }
 
 
@@ -1166,14 +1173,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     DateTime today = DateTime.Today;
                     DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
 
-                 
+
                     decimal approvedLeaves = leaveSummaryDataResult
                         .Where(x => x.StartDate >= fiscalYearStart
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                         .Sum(x => x.NoOfDays);
 
-                    
+
                     double accruedLeaves = 0;
                     if (approvedLeaves < 30)
                     {
@@ -1267,11 +1274,80 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
 
             var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-
+            string messageData = "";
             var result = JsonConvert.DeserializeObject<Result>(data);
-            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-            var messageData = "Leave applied successfully.";
-            return Json(new { isValid = true, message = messageData });
+         if (!string.IsNullOrEmpty(result.Message) &&
+    result.Message.Contains("Leave status Added/Modified successfully", StringComparison.OrdinalIgnoreCase))
+{
+
+                EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
+                employeeobj.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID));
+                var employeeApiResponse = _businessLayer.SendPostAPIRequest(
+            employeeobj,
+            _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+            HttpContext.Session.GetString(Constants.SessionBearerToken),
+            true
+        ).Result.ToString();
+                var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
+
+                var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
+                if (!string.IsNullOrEmpty(Manager1Email)&& Manager1Email.Contains("@"))
+                {
+                    var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+            
+                    sendEmailProperties sendEmailProperties = new sendEmailProperties
+                    {
+
+                        emailSubject = "Send a request for leave approval",
+                        emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+           {Name} has sent a request for leave approval.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Email</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeNumber}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeeName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.PersonalEmailAddress}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.DepartmentName}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+
+            
+
+            <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>
+        </div>"
+                    };
+                    sendEmailProperties.EmailToList.Add(Manager1Email);
+                    emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
+                }
+
+
+
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                  messageData = "Leave applied successfully.";
+            }
+            else
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                messageData = "Some thing went wrong";
+            }
+
+                return Json(new { isValid = true, message = messageData });
 
         }
 

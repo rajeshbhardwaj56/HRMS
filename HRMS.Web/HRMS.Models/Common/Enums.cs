@@ -73,6 +73,7 @@ namespace HRMS.Models.Common
         L1Approved = 2,
         L2Approve = 3,
         Approved = 4,
-        Cancelled = 5
+        Cancelled = 5,
+        AdminApproved = 7,
     }
 }

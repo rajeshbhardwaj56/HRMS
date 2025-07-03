@@ -229,7 +229,7 @@
         </div>
     </div>
 </form>
-
+<script src="/js/mobilemasking.js"></script>
 <script>
     document.getElementById('cancelButton').addEventListener('click', function () {
 
@@ -378,35 +378,10 @@
     });
 
 
-       $(document).ready(function () {
-        $('.mobile-mask').on('input', function (e) {
-            let input = $(this).val().replace(/\D/g, ''); // Keep only digits
-
-            // Limit to 10 digits
-            if (input.length > 10) input = input.substring(0, 10);
-
-            // Format the number
-            let formatted = '';
-            if (input.length > 0) {
-                formatted += '(' + input.substring(0, Math.min(3, input.length));
-            }
-            if (input.length >= 4) {
-                formatted += ') ' + input.substring(3, Math.min(6, input.length));
-            }
-            if (input.length >= 7) {
-                formatted += '-' + input.substring(6, 10);
-            }
-
-            $(this).val(formatted);
-        });
-
-        // Optional: prevent typing non-numeric keys
-        $('.mobile-mask').on('keypress', function (e) {
-            if (!/\d/.test(e.key)) {
-                e.preventDefault();
-            }
-        });
+        $(document).ready(function () {
+        $('.mobile-mask').mask('(0000)-000-000');
     });
+
 </script>
 <style>
     .select2-container--bootstrap-5 .select2-selection {
