@@ -206,6 +206,11 @@
             });
         }
 
+
+               
+
+
+
         function initAppliedTable() {
             return $('#tblApplied').DataTable({
                 columns: [
@@ -373,17 +378,25 @@
             return date.toLocaleDateString('en-GB');
         }
 
-        function formatDateTime(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
+         function formatDateTime(data) {
+            if (!data) return "";
+            let date = new Date(data);
+
+            // Format date as dd/mm/yyyy
+            let day = ("0" + date.getDate()).slice(-2);
+            let month = ("0" + (date.getMonth() + 1)).slice(-2);
+            let year = date.getFullYear();
+
+            // Format time as hh:mm AM/PM
+            let hours = date.getHours();
+            let minutes = ("0" + date.getMinutes()).slice(-2);
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // handle 0 => 12
+
+            let formattedTime = hours + ':' + minutes + ' ' + ampm;
+
+            return `${day}/${month}/${year} ${formattedTime}`;
         }
 
          function toastEMessage(type , message){

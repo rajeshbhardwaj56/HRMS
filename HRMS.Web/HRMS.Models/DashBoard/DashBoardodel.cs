@@ -88,6 +88,7 @@ namespace HRMS.Models.DashBoard
         public decimal TotalLeave { get; set; } 
         public long? LeavePolicyId { get; set; } 
         public double CarryForword { get; set; } 
+        public int? RecordPresent { get; set; } 
 
         public List<EmployeeDetails> EmployeeDetails { get; set; }
         public List<HolidayModel> HolidayList { get; set; }
