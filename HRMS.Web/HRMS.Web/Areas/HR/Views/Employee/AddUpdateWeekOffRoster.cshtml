@@ -28,7 +28,18 @@
  
 
 }
- 
+ <style>
+    /* Force consistent height for all form controls */
+    .form-group .form-control,
+    .form-group .form-select,
+    .select2-container .select2-selection--single {
+        height: 38px !important; /* Or match your Bootstrap input height */
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+ </style>
 
 <div class="main-header anim" style="--delay: 0s">Add Week Off</div>
 <form method="post" enctype="multipart/form-data">
@@ -79,7 +90,7 @@
             </div>
             @Html.HiddenFor(m => m.SelectedMonth, new { id = "HiddenSelectedMonth" })
             @Html.HiddenFor(m => m.SelectedYear, new { id = "HiddenSelectedYear" })
-
+            @Html.HiddenFor(x => x.EmployeeNumberWithOutAbbr)
             @Html.HiddenFor(model => model.ShiftTypeId, new { @id = "HiddenShiftTypeId" })
             @Html.HiddenFor(model => model.EmployeeNumberWithOutAbbr, new { @id = "EmployeeNumberWithOutAbbr" })
 
@@ -89,11 +100,10 @@
                 var firstDay = new DateTime(today.Year, today.Month, 1);
                 var lastDay = firstDay.AddMonths(1).AddDays(-1); 
 			}
-            @Html.HiddenFor(x => x.EmployeeNumberWithOutAbbr)
 		
 
             <div class="row d-flex">
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 1 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff1, "{0:yyyy-MM-dd}", new
                         {
@@ -102,7 +112,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),  
                         })
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 2 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff2, "{0:yyyy-MM-dd}", new
                         {
@@ -111,7 +121,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 3 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff3, "{0:yyyy-MM-dd}", new
                         {
@@ -120,7 +130,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 4 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff4, "{0:yyyy-MM-dd}", new
                         {
@@ -129,7 +139,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-6 form-group">
+              <div class="col-md-4 form-group">
                     <label>WeekOff 5 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff5, "{0:yyyy-MM-dd}", new
                         {
@@ -138,7 +148,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 6 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff6, "{0:yyyy-MM-dd}", new
                         {
@@ -147,7 +157,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 7 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff7, "{0:yyyy-MM-dd}", new
                         {
@@ -156,7 +166,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                 <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 8 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff8, "{0:yyyy-MM-dd}", new
                         {
@@ -165,7 +175,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 9 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff9, "{0:yyyy-MM-dd}", new
                         {
@@ -211,9 +221,6 @@
             dropdownCssClass: "custom-select-dropdown",  // Custom class for dropdown
             containerCssClass: "custom-select-container" // Custom class for the container
         });
-   
-
-
 
          $('#EmployeeIdWithEmployeeNo').on('change', function () {
         const selectedEmployeeId = $(this).val();
@@ -271,13 +278,7 @@
             });
        
     }
-
-
-
-
-
-
-
+     
     });
 
     

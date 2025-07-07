@@ -1087,7 +1087,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 if (leaveSummary.NoOfDays <= 0)
                 {
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    return Json(new { isValid = false, message = "There will be a holiday or  weekeoff on the selected day ." });
+                    return Json(new { isValid = false, message = "There will be a holiday or  weekoff on the selected day ." });
                 }
             }
 
