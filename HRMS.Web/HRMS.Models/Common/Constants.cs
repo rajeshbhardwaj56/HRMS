@@ -318,9 +318,10 @@ namespace HRMS.Models.Common
         public const string GetApprovedCompOff = "GetApprovedCompOff";
 
         public const string InsertException = "InsertException";
-        public const string GetRosterWeekOff = "GetRosterWeekOff";
+        public const string UploadRosterWeekOff = "UploadRosterWeekOff";
         public const string GetEmployeesWeekOffRoster = "GetEmployeesWeekOffRoster";
         public const string DeleteWeekOffRoster = "DeleteWeekOffRoster"; 
+        public const string GetShiftTypeList = "GetShiftTypeList"; 
 
 
     }

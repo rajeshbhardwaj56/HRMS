@@ -144,6 +144,8 @@ namespace HRMS.API.BusinessLayer
         public const string usp_BulkUploadWeekOffRoster = "usp_BulkUploadWeekOffRoster";
         public const string usp_GetWeekOffRoster = "usp_GetWeekOffRoster";
         public const string usp_DeleteWeekOffRoster = "usp_DeleteWeekOffRoster";
+        public const string usp_GetShiftTypeByName   = "usp_GetShiftTypeByName";
+        public const string usp_GetShiftTypesByCompany = "usp_GetShiftTypesByCompany";
 
 
     }

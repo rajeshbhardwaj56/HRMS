@@ -18,15 +18,22 @@ namespace HRMS.Models.ExportEmployeeExcel
         public DateTime? WeekOff3 { get; set; }
         public DateTime? WeekOff4 { get; set; }
         public DateTime? WeekOff5 { get; set; }
+        public DateTime? WeekOff6 { get; set; }
+        public DateTime? WeekOff7 { get; set; }
+        public DateTime? WeekOff8 { get; set; }
+        public DateTime? WeekOff9 { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? RosterMonth { get; set; }
         public long? ModifiedBy { get; set; }
+        public long? ShiftTypeId { get; set; }
         public int? TotalCount { get; set; }
         public string? ModifiedName { get; set; }
         public string? EmployeeName { get; set; }
         public string? EncryptedIdentity { get; set; }
         public string? EncryptedEmployeeId { get; set; }
         public string? EmployeeNumberWithOutAbbr { get; set; }
+        public int? SelectedMonth { get; set; }
+        public int? SelectedYear { get; set; }
         public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
     }
 
@@ -56,5 +63,12 @@ namespace HRMS.Models.ExportEmployeeExcel
     {
         public long RecordId { get; set; }
         public long ModifiedBy { get; set; }
+    }
+    
+    public class EmployeeShiftModel
+    {
+        public long ShiftTypeID { get; set; }
+        public string ShiftName { get; set; }
+        public int IsSelected { get; set; }
     }
 }

@@ -26,6 +26,7 @@ using System.Diagnostics;
 using HRMS.Models.ExportEmployeeExcel;
 using System.Data.SqlClient;
 using Microsoft.AspNetCore.Authentication;
+using System.Text.RegularExpressions;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -1380,7 +1381,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
         [HttpPost]
-        public async Task<IActionResult> UploadRosterExcel(IFormFile file)
+        public async Task<IActionResult> UploadRosterExcel(IFormFile file, int month, int year)
         {
             string tempFilePath = null;
             try
@@ -1397,7 +1398,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var dataTable = ReadExcelToDataTable(tempFilePath);
 
                 // Convert DataTable to strongly-typed model list
-                var modelList = ConvertDataTableToModelList(dataTable);
+                var modelList =await ConvertDataTableToModelList(dataTable, month, year);
 
                 // Validate model list
                 var validationError = ValidateModelList(modelList);
@@ -1424,7 +1425,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     CreatedBy = employeeId
                 };
 
-                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetRosterWeekOff);
+                var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.UploadRosterWeekOff);
 
                 var apiResponse = await _businessLayer.SendPostAPIRequest(weekOffUploadModel, apiUrl, token, true);
 
@@ -1478,32 +1479,79 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return dt;
         }
-        private List<WeekOffUploadModel> ConvertDataTableToModelList(DataTable dt)
+        private async Task<List<WeekOffUploadModel>> ConvertDataTableToModelList(DataTable dt, int month, int year)
         {
             var list = new List<WeekOffUploadModel>();
+
             try
             {
                 foreach (DataRow row in dt.Rows)
                 {
                     var model = new WeekOffUploadModel
                     {
-                        EmployeeNumber = long.TryParse(row["EmployeeNumber"]?.ToString(), out var empId) ? empId.ToString() : "0",
-                        WeekOff1 = DateTime.TryParse(row["WeekOff1"]?.ToString(), out var w1) ? w1 : (DateTime?)null,
-                        WeekOff2 = DateTime.TryParse(row["WeekOff2"]?.ToString(), out var w2) ? w2 : (DateTime?)null,
-                        WeekOff3 = DateTime.TryParse(row["WeekOff3"]?.ToString(), out var w3) ? w3 : (DateTime?)null,
-                        WeekOff4 = DateTime.TryParse(row["WeekOff4"]?.ToString(), out var w4) ? w4 : (DateTime?)null,
-                        WeekOff5 = DateTime.TryParse(row["WeekOff5"]?.ToString(), out var w5) ? w5 : (DateTime?)null,
+                        EmployeeNumber = row["EmployeeNumber"]?.ToString() ?? "0",
+                        WeekOff1 = ParseDateIfColumnExists(dt, row, "WeekOff1"),
+                        WeekOff2 = ParseDateIfColumnExists(dt, row, "WeekOff2"),
+                        WeekOff3 = ParseDateIfColumnExists(dt, row, "WeekOff3"),
+                        WeekOff4 = ParseDateIfColumnExists(dt, row, "WeekOff4"),
+                        WeekOff5 = ParseDateIfColumnExists(dt, row, "WeekOff5"),
+                        WeekOff6 = ParseDateIfColumnExists(dt, row, "WeekOff6"),
+                        WeekOff7 = ParseDateIfColumnExists(dt, row, "WeekOff7"),
+                        WeekOff8 = ParseDateIfColumnExists(dt, row, "WeekOff8"),
+                        WeekOff9 = ParseDateIfColumnExists(dt, row, "WeekOff9"), // will remain null if column is missing
+                        ShiftTypeId = 0 // default
                     };
+
+                    var shiftName = row.Table.Columns.Contains("Shift") ? row["Shift"]?.ToString() : null;
+                    if (!string.IsNullOrWhiteSpace(shiftName))
+                    {
+                        try
+                        {
+                            var match = Regex.Match(shiftName, @"^(.*?)\(");
+                            string shiftCode = match.Success ? match.Groups[1].Value.Trim() : shiftName;
+
+                            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+                            var response = await _businessLayer.SendGetAPIRequest(
+                                $"Employee/GetShiftTypeId?ShiftTypeName={shiftCode}",
+                                token,
+                                true);
+
+                            if (!string.IsNullOrEmpty(response?.ToString()))
+                            {
+                                model.ShiftTypeId = JsonConvert.DeserializeObject<long>(response.ToString());
+                            }
+                        }
+                        catch (Exception apiEx)
+                        {
+                            throw new Exception($"Failed to fetch ShiftTypeId for shift '{shiftName}'.", apiEx);
+                        }
+                    }
+                    int currentDay = DateTime.Today.Day;
+                    model.RosterMonth = new DateTime(year, month, currentDay);
                     list.Add(model);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-
+                throw new Exception("Error converting DataTable to WeekOffUploadModel list.", ex);
             }
 
             return list;
         }
+
+        private DateTime? ParseDateIfColumnExists(DataTable dt, DataRow row, string columnName)
+        {
+            if (dt.Columns.Contains(columnName))
+            {
+                var value = row[columnName]?.ToString();
+                if (DateTime.TryParse(value, out var date))
+                    return date;
+            }
+            return null;
+        }
+
+
         private string ValidateModelList(List<WeekOffUploadModel> models)
         {
             var errors = new List<string>();
@@ -1561,23 +1609,23 @@ namespace HRMS.Web.Areas.Admin.Controllers
             (item.WeekOff4, "WeekOff4")
         };
 
-                foreach (var (date, fieldName) in mandatoryWeekOffs)
-                {
-                    if (!date.HasValue)
-                    {
-                        errors.Add($"Row {rowNum}: {fieldName} must not be empty.");
-                    }
-                    else
-                    {
-                        AddDateIfValid(weekOffDates, date, rowNum, fieldName, errors);
-                    }
-                }
+                //foreach (var (date, fieldName) in mandatoryWeekOffs)
+                //{
+                //    if (!date.HasValue)
+                //    {
+                //        errors.Add($"Row {rowNum}: {fieldName} must not be empty.");
+                //    }
+                //    else
+                //    {
+                //        AddDateIfValid(weekOffDates, date, rowNum, fieldName, errors);
+                //    }
+                //}
 
                 // ✅ WeekOff5 is optional, so only validate if provided
-                if (item.WeekOff5.HasValue)
-                {
-                    AddDateIfValid(weekOffDates, item.WeekOff5, rowNum, "WeekOff5", errors);
-                }
+                //if (item.WeekOff5.HasValue)
+                //{
+                //    AddDateIfValid(weekOffDates, item.WeekOff5, rowNum, "WeekOff5", errors);
+                //}
 
                 // ✅ Check for duplicate dates within this row
                 var duplicateDates = weekOffDates
