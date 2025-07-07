@@ -139,10 +139,12 @@ namespace HRMS.API.BusinessLayer.ITF
         void InsertException(ExceptionLogModel model);
         #endregion Exception Handling
 
-        public bool GetRosterWeekOff(WeekOffUploadModelList model);
+        public bool UploadRosterWeekOff(WeekOffUploadModelList model);
         public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model);
 
         public List<DateTime> GetLeaveWeekOffDates(LeaveWeekOfInputParams model);
         public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model);
+        public long GetShiftTypeId(string ShiftTypeName);
+        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber);
     }
 }

@@ -18,8 +18,8 @@
 <div class="main-header anim" style="--delay: 0s">
 	Employee Roster List
 	<section class="right-button-employee">
-		<a href="~/HR/employee/AddUpdateWeekOffRoster"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee Roster</button></a>
-		<a href="~/Admin/Dashboard/UploadRosterExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees Week Roster</button></a>
+		<a href="~/HR/employee/AddUpdateWeekOffRoster"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add WeekOff</button></a>
+		<a href="~/Admin/Dashboard/UploadRosterExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import WeekOff Roster</button></a>
 	</section>
 </div>
 
@@ -62,11 +62,15 @@
 				<th> </th>
 				<th>Emp No</th>
 				<th>Employee Name</th>
-				<th>WeekOff1</th>
-				<th>WeekOff2</th>
-				<th>WeekOff3</th>
-				<th>WeekOff4</th>
-				<th>WeekOff5</th>
+				<th>WeekOff 1</th>
+				<th>WeekOff 2</th>
+				<th>WeekOff 3</th>
+				<th>WeekOff 4</th>
+				<th>WeekOff 5</th>
+				<th>WeekOff 6</th>
+				<th>WeekOff 7</th>
+				<th>WeekOff 8</th>
+				<th>WeekOff 9</th>
 				<th>Modified By</th>
 				<th>ModifiedDate</th>
 				<th>Action</th>
@@ -141,6 +145,27 @@
 					"data": "weekOff5", "autoWidth": true,
 					"render": function (data) { return formatDateCell(data); }
 				},
+				{
+					"data": "weekOff6", "autoWidth": true,
+					"render": function (data) { return formatDateCell(data); }
+				},
+				{
+					"data": "weekOff7", "autoWidth": true,
+					"render": function (data) { return formatDateCell(data); }
+				},
+				{
+					"data": "weekOff8", "autoWidth": true,
+					"render": function (data) { return formatDateCell(data); }
+				},
+				{
+					"data": "weekOff9", "autoWidth": true,
+					"render": function (data) { return formatDateCell(data); }
+				},
+
+
+
+
+
 				{ "data": "modifiedName", "autoWidth": true },
 				{
 					"data": "modifiedDate", "autoWidth": true,

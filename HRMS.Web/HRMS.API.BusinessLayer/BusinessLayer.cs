@@ -1,39 +1,29 @@
-﻿using HRMS.API.BusinessLayer.ITF;
-using HRMS.API.DataLayer.ITF;
-using HRMS.Models.Common;
-using HRMS.Models.Employee;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 using System.Xml;
-using System.ComponentModel.Design;
-using HRMS.Models.Template;
+using System.Xml.Serialization;
+using HRMS.API.BusinessLayer.ITF;
+using HRMS.API.DataLayer.ITF;
+using HRMS.Models;
+using HRMS.Models.AttendenceList;
+using HRMS.Models.Common;
 using HRMS.Models.Company;
+using HRMS.Models.DashBoard;
+using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
+using HRMS.Models.FormPermission;
+using HRMS.Models.ImportFromExcel;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
-using HRMS.Models;
-using HRMS.Models.AttendenceList;
-using System.Reflection;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Net;
-using HRMS.Models.DashBoard;
-using Microsoft.AspNetCore.Mvc;
-using HRMS.Models.User;
-using Newtonsoft.Json;
 using HRMS.Models.ShiftType;
-using HRMS.Models.ImportFromExcel;
+using HRMS.Models.Template;
+using HRMS.Models.User;
 using HRMS.Models.WhatsHappeningModel;
-using HRMS.Models.ExportEmployeeExcel;
-using HRMS.Models.FormPermission;
-using System.Security.Cryptography;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -2108,13 +2098,13 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID", Employeemodel.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Employees, sqlParameter);
-                model = dataSet.Tables[0].AsEnumerable()
-                               .Select(dataRow => new SelectListItem
-                               {
-                                   Text = dataRow.Field<string>("EmployeeName"),
-                                   Value = dataRow.Field<string>("EmployeeID").ToString()
-                               }).ToList();
-            
+            model = dataSet.Tables[0].AsEnumerable()
+                           .Select(dataRow => new SelectListItem
+                           {
+                               Text = dataRow.Field<string>("EmployeeName"),
+                               Value = dataRow.Field<string>("EmployeeID").ToString()
+                           }).ToList();
+
             return model;
         }
 
@@ -4870,7 +4860,7 @@ namespace HRMS.API.BusinessLayer
         #endregion Exception Handling
 
 
-        public bool GetRosterWeekOff(WeekOffUploadModelList model)
+        public bool UploadRosterWeekOff(WeekOffUploadModelList model)
         {
             var data = CreateWeekOffDataTable(model.WeekOffList);
             UploadWeekOffRoster(data, model.CreatedBy);
@@ -4881,26 +4871,47 @@ namespace HRMS.API.BusinessLayer
         public DataTable CreateWeekOffDataTable(List<WeekOffUploadModel> models)
         {
             var dt = new DataTable();
-            dt.Columns.Add("EmployeeNumber", typeof(int));
+            dt.Columns.Add("EmployeeNumber", typeof(string)); // Corrected: should be string
             dt.Columns.Add("WeekOff1", typeof(DateTime));
             dt.Columns.Add("WeekOff2", typeof(DateTime));
             dt.Columns.Add("WeekOff3", typeof(DateTime));
             dt.Columns.Add("WeekOff4", typeof(DateTime));
             dt.Columns.Add("WeekOff5", typeof(DateTime));
+            dt.Columns.Add("WeekOff6", typeof(DateTime));
+            dt.Columns.Add("WeekOff7", typeof(DateTime));
+            dt.Columns.Add("WeekOff8", typeof(DateTime));
+            dt.Columns.Add("WeekOff9", typeof(DateTime));
+            dt.Columns.Add("ShiftId", typeof(long));
+            dt.Columns.Add("RosterMonth", typeof(DateTime));
+
             foreach (var item in models)
             {
                 var row = dt.NewRow();
-                row["EmployeeNumber"] = item.EmployeeNumber ?? item.EmployeeNumberWithOutAbbr;
+
+                // EmployeeNumber fallback logic: choose EmployeeNumber if not null/empty, else EmployeeNumberWithOutAbbr
+                var employeeNumber = !string.IsNullOrWhiteSpace(item.EmployeeNumber)
+                    ? item.EmployeeNumber
+                    : item.EmployeeNumberWithOutAbbr ?? string.Empty;
+
+                row["EmployeeNumber"] = employeeNumber;
+
                 row["WeekOff1"] = item.WeekOff1 ?? (object)DBNull.Value;
                 row["WeekOff2"] = item.WeekOff2 ?? (object)DBNull.Value;
                 row["WeekOff3"] = item.WeekOff3 ?? (object)DBNull.Value;
                 row["WeekOff4"] = item.WeekOff4 ?? (object)DBNull.Value;
                 row["WeekOff5"] = item.WeekOff5 ?? (object)DBNull.Value;
+                row["WeekOff6"] = item.WeekOff6 ?? (object)DBNull.Value;
+                row["WeekOff7"] = item.WeekOff7 ?? (object)DBNull.Value;
+                row["WeekOff8"] = item.WeekOff8 ?? (object)DBNull.Value;
+                row["WeekOff9"] = item.WeekOff9 ?? (object)DBNull.Value;
+                row["ShiftId"] = item.ShiftTypeId ?? 0; // Assuming ShiftTypeId is long (non-nullable), else use ?? 0 if ShiftTypeId is nullable long?
+                row["RosterMonth"] = item.RosterMonth ?? (object)DBNull.Value;
                 dt.Rows.Add(row);
             }
 
             return dt;
         }
+
 
         public async Task UploadWeekOffRoster(DataTable dt, long createdBy)
         {
@@ -4962,6 +4973,10 @@ namespace HRMS.API.BusinessLayer
                                       WeekOff3 = dataRow.Field<DateTime?>("WeekOff3"),
                                       WeekOff4 = dataRow.Field<DateTime?>("WeekOff4"),
                                       WeekOff5 = dataRow.Field<DateTime?>("WeekOff5"),
+                                      WeekOff6 = dataRow.Field<DateTime?>("WeekOff6"),
+                                      WeekOff7 = dataRow.Field<DateTime?>("WeekOff7"),
+                                      WeekOff8 = dataRow.Field<DateTime?>("WeekOff8"),
+                                      WeekOff9 = dataRow.Field<DateTime?>("WeekOff9"),
                                       ModifiedDate = dataRow.Field<DateTime?>("ModifiedDate"),
                                       ModifiedName = dataRow.Field<string?>("ModifiedName"),
                                       EmployeeName = dataRow.Field<string?>("EmployeeName"),
@@ -5000,12 +5015,67 @@ namespace HRMS.API.BusinessLayer
                 string message = row["Message"].ToString();
 
                 // Return in format like "1|Success message" or "0|Failure message"
-                return  message ;
+                return message;
             }
 
             // Fallback if no result returned
             return "0|Delete failed: No response from stored procedure.";
         }
+        public long GetShiftTypeId(string ShiftTypeName)
+        {
+            long ShiftTypeID = 0;
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ShiftTypeName", ShiftTypeName),
+    };
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetShiftTypeByName, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                object resultValue = dataSet.Tables[0].Rows[0]["ShiftTypeID"];
+                if (resultValue != DBNull.Value)
+                {
+                    long.TryParse(resultValue.ToString(), out ShiftTypeID);
+                }
+            }
+
+            return ShiftTypeID;
+        }
+
+ 
+
+
+        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmployeeNumber", employeeNumber), // Note: Parameter name should match SP: @CompanyID
+    };
+
+            List<EmployeeShiftModel> model = new List<EmployeeShiftModel>();
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetShiftTypesByCompany, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                          .Select(dataRow => new EmployeeShiftModel
+                          {
+                              ShiftName = dataRow.Field<string>("ShiftName"), // <-- updated to match SP column alias
+                              ShiftTypeID = dataRow.Field<long>("ShiftTypeID"),
+                              IsSelected = dataRow.Field<int>("IsSelected")
+                          }).ToList();
+            }
+
+            return model;
+        }
+
+
+
+
+
 
 
 

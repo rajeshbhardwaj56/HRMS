@@ -46,6 +46,16 @@
 </style>
 
 <div class="main-header anim" style="--delay: 0s">Import Employee Roster</div>
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label for="monthSelect" class="form-label">Month</label>
+        <select id="monthSelect" class="form-select" required></select>
+    </div>
+    <div class="col-md-3">
+        <label for="yearSelect" class="form-label">Year</label>
+        <select id="yearSelect" class="form-select" required></select>
+    </div>
+</div>
 
 
 <div class="Container">
@@ -59,7 +69,7 @@
                             <div class="mb-3">
                     <input type="file" class="form-control" id="excelFile" accept=".xls,.xlsx" required style=" width: 500px;">
                             </div>
-                            <button type="submit" class="btn btn-primary ">Upload</button>
+                <button type="submit" id="uploadButton"  class="btn btn-primary ">Upload</button>
                         </form>
 
                         <div class="mt-4">
@@ -75,6 +85,34 @@
     </div>
 
 <script>
+
+      const monthSelect = document.getElementById("monthSelect");
+    const currentMonth = new Date().getMonth(); // 0-based month
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    monthNames.forEach((name, index) => {
+        const option = document.createElement("option");
+        option.value = index + 1; // Month number 1-12
+        option.text = name;
+        if (index === currentMonth) option.selected = true;
+        monthSelect.appendChild(option);
+    });
+
+    // Populate Year dropdown (current year ±5 years)
+    const yearSelect = document.getElementById("yearSelect");
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+        const option = document.createElement("option");
+        option.value = y;
+        option.text = y;
+        if (y === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+
+
     document.getElementById("uploadForm").addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -82,7 +120,7 @@
         const file = fileInput.files[0];
         const progressBar = document.getElementById("progressBar");
         const resultMessage = document.getElementById("resultMessage");
-
+        const uploadButton = document.getElementById("uploadButton");
         // Clear previous messages
         resultMessage.innerHTML = "";
 
@@ -91,8 +129,19 @@
             return;
         }
 
+        uploadButton.innerHTML = 'Please wait...';
+        uploadButton.disabled = true;
+
         const formData = new FormData();
         formData.append("file", file);
+
+        // ✅ ADD THESE LINES: Get selected month/year and add to formData
+        const selectedMonth = document.getElementById("monthSelect").value;
+        const selectedYear = document.getElementById("yearSelect").value;
+
+        formData.append("month", selectedMonth);
+        formData.append("year", selectedYear);
+        // ✅ END ADDITION
 
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "/admin/Dashboard/UploadRosterExcel", true);
@@ -112,6 +161,8 @@
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 progressBar.classList.add("d-none");
+                uploadButton.innerHTML = 'Upload';
+                uploadButton.disabled = false;
 
                 if (xhr.status >= 200 && xhr.status < 300) {
                     // Success
@@ -123,7 +174,7 @@
                         // Clear file input on success
                         fileInput.value = '';
 
-                        // Hide success message after 2 minutes
+                        // Hide success message after 5 seconds
                         setTimeout(() => {
                             resultMessage.innerHTML = '';
                         }, 5000);
@@ -134,7 +185,7 @@
 
                         setTimeout(() => {
                             resultMessage.innerHTML = '';
-                        },5000);
+                        }, 5000);
                     }
                 } else {
                     // Error
@@ -161,5 +212,6 @@
         xhr.send(formData);
     });
 </script>
+
 
  

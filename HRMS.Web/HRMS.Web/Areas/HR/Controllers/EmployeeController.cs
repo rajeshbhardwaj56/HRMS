@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Style;
 using System;
@@ -1540,8 +1541,41 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 modeldata.Employee = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
             }
+
+           
+
             return View(modeldata);
         }
+
+
+        [HttpGet]
+        public IActionResult GetShiftsByEmployee(string employeeNumber)
+        {
+            if (employeeNumber.Contains("_"))
+            {
+                var parts = employeeNumber.Split('_');
+                if (parts.Length > 1)
+                {
+                    employeeNumber = parts[1]; // assume format like "9_22"
+                }
+            }
+            else
+            {
+                employeeNumber = employeeNumber;
+            }
+                List<EmployeeShiftModel> obj = new List<EmployeeShiftModel>();
+            var session = HttpContext.Session; 
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var Shiftdata = _businessLayer.SendGetAPIRequest(
+                               $"Employee/GetShiftTypeList?employeeNumber={employeeNumber}",
+                               token,
+                               true).Result.ToString();
+            obj = JsonConvert.DeserializeObject<List<EmployeeShiftModel>>(Shiftdata);
+
+            return Json(obj);
+        }
+
+
 
         [HttpPost]
         public async Task<IActionResult> AddUpdateWeekOffRoster(WeekOffUploadModel model)
@@ -1567,8 +1601,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     model.EmployeeNumber = model.EmployeeNumberWithOutAbbr;
                 }
+                int currentDay = DateTime.Today.Day;
+                model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
 
-                    var weekOffUploadModel = new WeekOffUploadModelList
+                var weekOffUploadModel = new WeekOffUploadModelList
                     {
                         WeekOffList = new List<WeekOffUploadModel> { model },
                         CreatedBy = employeeId
@@ -1584,7 +1620,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
                 var apiUrl = _businessLayer.GetFormattedAPIUrl(
                     APIControllarsConstants.Employee,
-                    APIApiActionConstants.GetRosterWeekOff
+                    APIApiActionConstants.UploadRosterWeekOff
                 );
 
                 var apiResponse = await _businessLayer.SendPostAPIRequest(

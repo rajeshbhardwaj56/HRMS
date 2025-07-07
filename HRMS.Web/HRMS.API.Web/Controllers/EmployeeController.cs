@@ -373,10 +373,25 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpPost]
-        public IActionResult GetRosterWeekOff(WeekOffUploadModelList model)
+        public IActionResult UploadRosterWeekOff(WeekOffUploadModelList model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetRosterWeekOff(model));
+            response = Ok(_businessLayer.UploadRosterWeekOff(model));
+            return response;
+        }
+
+        [HttpGet]
+        public IActionResult GetShiftTypeId(string ShiftTypeName)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetShiftTypeId(ShiftTypeName));
+            return response;
+        }
+        [HttpGet]
+        public IActionResult GetShiftTypeList(string employeeNumber)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetShiftTypeList(employeeNumber));
             return response;
         }
 

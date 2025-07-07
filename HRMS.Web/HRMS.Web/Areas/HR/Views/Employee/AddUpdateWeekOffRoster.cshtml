@@ -9,27 +9,89 @@
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	ViewData["Title"] = "WeekOff Upload  List";
+    DateTime? initialDate = null;
+    if (Model.WeekOff1.HasValue) initialDate = Model.WeekOff1;
+    else if (Model.WeekOff2.HasValue) initialDate = Model.WeekOff2;
+    else if (Model.WeekOff3.HasValue) initialDate = Model.WeekOff3;
+    else if (Model.WeekOff4.HasValue) initialDate = Model.WeekOff4;
+    else if (Model.WeekOff5.HasValue) initialDate = Model.WeekOff5;
+    else if (Model.WeekOff6.HasValue) initialDate = Model.WeekOff6;
+    else if (Model.WeekOff7.HasValue) initialDate = Model.WeekOff7;
+    else if (Model.WeekOff8.HasValue) initialDate = Model.WeekOff8;
+    else if (Model.WeekOff9.HasValue) initialDate = Model.WeekOff9;
+
+    initialDate ??= DateTime.Today;
+
+    var selectedMonth = initialDate.Value.Month;
+    var selectedYear = initialDate.Value.Year;
+    int currentYear = DateTime.Today.Year;
+ 
 
 }
+ 
+
 <div class="main-header anim" style="--delay: 0s">Add Week Off</div>
 <form method="post" enctype="multipart/form-data">
 	<div class="Container">
 		<div class="group-box anim" style="--delay: .3s">
+            <div class="row mb-3" >
+                <div class="col-md-3 form-group">
+                    <label>Select Year</label>
+                    <select id="monthSelect" class="form-select">
+                        @{
+                            for (int m = 1; m <= 12; m++)
+                            {
+                                var monthName = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m);
+                                <option value="@m" @(m == selectedMonth ? "selected" : "")>@monthName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Select Month</label>
+                    <select id="yearSelect" class="form-select">
+                        @{
+                            for (int y = currentYear - 0; y <= currentYear + 1; y++)
+                            {
+                                <option value="@y" @(y == selectedYear ? "selected" : "")>@y</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 form-group position-relative">
+                    <label>Select Employee<span class="Mandetory">*</span></label>
+
+                    @Html.DropDownListFor(
+                             x => x.EmployeeIdWithEmployeeNo,
+                             Model.Employee,
+                             HRMS.Models.Common.Constants.SelectEmployee,
+                             new { @class = " select2", @required = "required" }
+                             )
+
+                </div>
+
+                <div class="col-md-3 form-group position-relative" Id="Shiftlist" style="display:none">
+                    <label>Select Shift Type<span class="Mandetory">*</span></label>
+
+                    <select id="ShiftTypeId" class="form-select"></select>
+
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.SelectedMonth, new { id = "HiddenSelectedMonth" })
+            @Html.HiddenFor(m => m.SelectedYear, new { id = "HiddenSelectedYear" })
+
+            @Html.HiddenFor(model => model.ShiftTypeId, new { @id = "HiddenShiftTypeId" })
+            @Html.HiddenFor(model => model.EmployeeNumberWithOutAbbr, new { @id = "EmployeeNumberWithOutAbbr" })
 
 			<input type="hidden" name="ID" value="@Model.Id" />
 			@{
-				var now = DateTime.Now;
-                var threeDaysAgo = DateTime.Now;
+                var today = DateTime.Today;
+                var firstDay = new DateTime(today.Year, today.Month, 1);
+                var lastDay = firstDay.AddMonths(1).AddDays(-1); 
 			}
             @Html.HiddenFor(x => x.EmployeeNumberWithOutAbbr)
-			<div class="col-md-4 form-group position-relative">
-				<label>Select Employee<span class="Mandetory">*</span></label>
-				<div class="position-relative">
-                    @Html.DropDownListFor(x => x.EmployeeIdWithEmployeeNo, Model.Employee, HRMS.Models.Common.Constants.SelectEmployee, new { @class = "form-control", @required = "required" })
-					<i class="fa fa-chevron-down position-absolute"
-					   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-				</div>
-			</div>
+		
+
             <div class="row d-flex">
                 <div class="col-md-6 form-group">
                     <label>WeekOff 1 <span class="Mandetory">*</span></label>
@@ -37,8 +99,7 @@
                         {
                             @class = "form-control",
                             @type = "date",
-                            @required = "required",
-                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                            min = firstDay.ToString("yyyy-MM-dd"),  
                         })
                 </div>
                 <div class="col-md-6 form-group">
@@ -47,8 +108,7 @@
                         {
                             @class = "form-control",
                             @type = "date",
-                            @required = "required",
-                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                            min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
                 <div class="col-md-6 form-group">
@@ -57,8 +117,7 @@
                         {
                             @class = "form-control",
                             @type = "date",
-                            @required = "required",
-                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                            min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
                 <div class="col-md-6 form-group">
@@ -67,8 +126,7 @@
                         {
                             @class = "form-control",
                             @type = "date",
-                            @required = "required",
-                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                            min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
                 <div class="col-md-6 form-group">
@@ -77,7 +135,43 @@
                         {
                             @class = "form-control",
                             @type = "date",
-                            min = threeDaysAgo.ToString("yyyy-MM-dd")
+                            min = firstDay.ToString("yyyy-MM-dd"),
+                        })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>WeekOff 6 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff6, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            min = firstDay.ToString("yyyy-MM-dd"),
+                        })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>WeekOff 7 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff7, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            min = firstDay.ToString("yyyy-MM-dd"),
+                        })
+                </div>
+                 <div class="col-md-6 form-group">
+                    <label>WeekOff 8 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff8, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            min = firstDay.ToString("yyyy-MM-dd"),
+                        })
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>WeekOff 9 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.WeekOff9, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
             </div>
@@ -93,13 +187,127 @@
 		</div>
 	</div>
 </form>
-@* @section Scripts {
-    <script>
-        $(document).ready(function () {
-            $('#EmployeeId').change(function () {
-                var selectedEmployeeId = $(this).val();
-                $('#EmployeeNumberWithOutAbbr').val(selectedEmployeeId);
-            });
+<link href="~/css/select2.min.css" rel="stylesheet" />
+<script src="~/js/select2.min.js"></script>
+
+
+<script>
+    $('form').on('submit', function () {
+        const selectedMonth = $('#monthSelect').val();
+        const selectedYear = $('#yearSelect').val();
+
+        $('#HiddenSelectedMonth').val(selectedMonth);
+        $('#HiddenSelectedYear').val(selectedYear);
+    });
+
+    $(document).ready(function () {
+           $('.select2, .select1').each(function () {
+        let placeholderText = $(this).hasClass('select2') ? 'Select Employee' : 'Select Shift';
+
+        $(this).select2({
+            placeholder: placeholderText,
+            allowClear: true,
+            width: '100%',
+            dropdownCssClass: "custom-select-dropdown",  // Custom class for dropdown
+            containerCssClass: "custom-select-container" // Custom class for the container
         });
-    </script>
-} *@
+   
+
+
+
+         $('#EmployeeIdWithEmployeeNo').on('change', function () {
+        const selectedEmployeeId = $(this).val();
+        loadShiftsForEmployee(selectedEmployeeId);
+        
+    });
+
+        $('#ShiftTypeId').on('change', function () {
+        $('#HiddenShiftTypeId').val($(this).val());
+    });
+        const preSelectedEmployee = $('#EmployeeNumberWithOutAbbr').val();
+    if (preSelectedEmployee) {
+        loadShiftsForEmployee(preSelectedEmployee);
+    }
+
+        function loadShiftsForEmployee(employeeNumber) {
+        if (!employeeNumber) {
+            $('#ShiftTypeId').empty().append($('<option>', { value: '', text: 'Select Shift Type' })).trigger('change.select2');
+            return;
+        }
+
+         $.ajax({
+                url: '/HR/Employee/GetShiftsByEmployee', // change to your actual route
+                type: 'GET',
+                data: { employeeNumber: employeeNumber },
+                success: function (data) {
+                   $('#Shiftlist').show();
+                    const $shiftSelect = $('#ShiftTypeId');
+                    $shiftSelect.empty(); // clear existing options
+
+                    // Add default option first
+                    $shiftSelect.append($('<option>', { value: '', text: 'Select Shift Type' }));
+
+                    $.each(data, function (i, item) {
+
+                        const option = $('<option>', {
+                            value: item.shiftTypeID,
+                            text: item.shiftName
+                        });
+
+                        if (item.isSelected === 1) {
+                            option.prop('selected', true);
+                              $('#HiddenShiftTypeId').val(item.shiftTypeID);
+                        }
+
+                        $shiftSelect.append(option);
+                    });
+
+                    // Re-initialize select2 to update the dropdown with new options and selection
+                    $shiftSelect.trigger('change.select2');
+                },
+                error: function () {
+                    alert('Error loading shift types. Please try again.');
+                }
+            });
+       
+    }
+
+
+
+
+
+
+
+    });
+
+    
+
+        updateDatePickers();
+
+        $('#monthSelect, #yearSelect').on('change', function () {
+            updateDatePickers();
+        });
+    });
+
+       function updateDatePickers() {
+        const month = parseInt($('#monthSelect').val());
+        const year = parseInt($('#yearSelect').val());
+
+        const firstDay = new Date(year, month - 1, 1);
+        const lastDay = new Date(year, month, 0);
+
+        const minDateStr = firstDay.toISOString().split('T')[0];
+        const maxDateStr = lastDay.toISOString().split('T')[0];
+
+        $('input[type="date"]').each(function () {
+            $(this).attr('min', minDateStr);
+            $(this).attr('max', maxDateStr);
+
+            const currentValue = $(this).val();
+            if (currentValue && (currentValue < minDateStr || currentValue > maxDateStr)) {
+                $(this).val('');
+            }
+        });
+    }
+
+</script>
