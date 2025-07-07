@@ -19,13 +19,13 @@
 			<input type="hidden" name="ID" value="@Model.Id" />
 			@{
 				var now = DateTime.Now;
-				var threeDaysAgo = now.AddDays(-30);
+                var threeDaysAgo = DateTime.Now;
 			}
             @Html.HiddenFor(x => x.EmployeeNumberWithOutAbbr)
 			<div class="col-md-4 form-group position-relative">
 				<label>Select Employee<span class="Mandetory">*</span></label>
 				<div class="position-relative">
-					@Html.DropDownListFor(x => x.EmployeeId, Model.Employee, HRMS.Models.Common.Constants.SelectEmployee, new { @class = "form-control", @required = "required" })
+                    @Html.DropDownListFor(x => x.EmployeeIdWithEmployeeNo, Model.Employee, HRMS.Models.Common.Constants.SelectEmployee, new { @class = "form-control", @required = "required" })
 					<i class="fa fa-chevron-down position-absolute"
 					   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
 				</div>
@@ -77,7 +77,6 @@
                         {
                             @class = "form-control",
                             @type = "date",
-                            @required = "required",
                             min = threeDaysAgo.ToString("yyyy-MM-dd")
                         })
                 </div>
@@ -94,3 +93,13 @@
 		</div>
 	</div>
 </form>
+@* @section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#EmployeeId').change(function () {
+                var selectedEmployeeId = $(this).val();
+                $('#EmployeeNumberWithOutAbbr').val(selectedEmployeeId);
+            });
+        });
+    </script>
+} *@

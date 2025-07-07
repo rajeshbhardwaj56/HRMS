@@ -8,7 +8,7 @@
     var EmployeeID = Convert.ToInt64(this.Context.Session.GetString(Constants.EmployeeID));
     var Logo = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.CompanyLogo);
     var EmployeeNumber = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.EmployeeNumber);
-    var allowedFormIds = Enumerable.Range(2, 19).ToList(); // 2 to 18
+    var allowedFormIds = Enumerable.Range(2, 20).ToList(); // 2 to 18
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 
@@ -209,17 +209,26 @@
                             </a>
 
                         </li>
+                     
+                    }
+                </ul>
+
+                <ul class="hrms-menu-group">
+
+                    @if (Model.FormPermissionList.Any(x => x.FormID == 26 && x.IsFormPermissions && x.FormLevel == 2))
+                    {
                         <li>
 
-                            <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Employee" && currentAction == "EmployeesWeekOffRoster" ? "hrms-active" : "")"
+                            <a class="hrms-menu-title d-flex align-items-center   @(currentController == "Employee" && currentAction == "EmployeesWeekOffRoster" ? "hrms-active" : "")"
                                asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
                                asp-controller="employee"
                                asp-action="EmployeesWeekOffRoster">
                                 <i class="bi bi-people-fill  hrms-menu-title1"></i>
-                                <span>Employee Roster</span>
+                                <span style="margin-left: 12px;"> Employee Roster</span>
                             </a>
 
                         </li>
+                     
                     }
                 </ul>
                 <ul class="hrms-menu-group">

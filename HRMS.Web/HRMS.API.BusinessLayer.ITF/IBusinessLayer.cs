@@ -143,5 +143,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model);
 
         public List<DateTime> GetLeaveWeekOffDates(LeaveWeekOfInputParams model);
+        public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model);
     }
 }
