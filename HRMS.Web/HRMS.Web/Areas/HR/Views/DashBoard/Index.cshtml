@@ -18,7 +18,7 @@
     </div>
 
     <div class="row mb-4">
-        @if (RoleName != Convert.ToInt64(Roles.Employee))
+        @if (Model.RecordPresent == 1 || RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.SuperAdmin))
         {
             <div class="col-xl-3 col-sm-6 col-12">
                 <div class="card board1 fill1 " id="RedirectBtn">
@@ -163,7 +163,7 @@
                                         {
                                             <tr>
                                                 <td>
-                                                    @item.Day.Value.ToString("yyyy-dd-MM")
+                                                    @item.Day.Value.ToString("dd/MM/yyyy")
                                                 </td>
                                                 <td>@item.Present</td>
                                                 <td>@item.Absent</td>
@@ -178,8 +178,7 @@
                             </tbody>
                         </table>
                     </div>
-                    @*                     <a href="" class="viewAll">View All →</a>
- *@                </div>
+                </div>
             </div>
         </div>
 

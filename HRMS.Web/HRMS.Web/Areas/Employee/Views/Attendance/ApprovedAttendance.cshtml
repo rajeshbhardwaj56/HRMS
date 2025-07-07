@@ -327,10 +327,10 @@
 					 autoWidth: true,
 					 render: formatDate
 				 },
-				 {
+				  {
 					 data: "workDate",
 					 autoWidth: true,
-					 render: formatDate
+						 render: formatWorkDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
 				 { data: "attendanceStatus", autoWidth: true },
@@ -381,7 +381,22 @@
 		});
 	}
 
-
+	 function formatWorkDate(dateString) {
+			 const date = new Date(dateString);
+			 const monthNames = [
+				 "January", "February", "March", "April", "May", "June",
+				 "July", "August", "September", "October", "November", "December"
+			 ];
+			 const day = date.getDate();
+			 const month = date.getMonth()+1;
+			 const year = date.getFullYear();
+			 let hours = date.getHours();
+			 let minutes = date.getMinutes();
+			 const ampm = hours >= 12 ? 'PM' : 'AM';
+			 hours = hours % 12 || 12;
+			 minutes = minutes < 10 ? '0' + minutes : minutes;
+			 return `${day}/${month}/${year} `;
+		 }
 	 //second tab
 
 	 function AttendanceForApproved() {
@@ -447,7 +462,7 @@
 				 {
 					 data: "workDate",
 					 autoWidth: true,
-					 render: formatDate
+						 render: formatWorkDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
 				 { data: "attendanceStatus", autoWidth: true },
@@ -649,7 +664,7 @@
 				 {
 					 data: "workDate",
 					 autoWidth: true,
-					 render: formatDate
+						 render: formatWorkDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
 				 { data: "attendanceStatus", autoWidth: true },

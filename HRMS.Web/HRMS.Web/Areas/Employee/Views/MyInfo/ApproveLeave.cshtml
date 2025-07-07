@@ -359,7 +359,7 @@
 																		<p id="EmplyoeeName"></p>
 																	</div>
 																	<div class="col-lg-4 col-md-4 mb-2">
-																		<h6>ID</h6>
+																		<h6>Emp ID</h6>
 																		<p id="EmplyoeeNmmber"></p>
 																	</div>
 																	<div class="col-lg-4 col-md-4 mb-2">
@@ -424,6 +424,10 @@
 														<div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
 															<label for="leavetype" class="">Leave Duration:</label>
 															@Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "adminleaveDurationDropdown", @disabled = "disabled" })
+														</div>
+														<div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
+															<label for="leavetype" class="">No Of Days:</label>
+															@Html.TextBoxFor(x => x.leaveResults.leaveSummaryModel.NoOfDays, new { @class = "form-control", @id = "NoOfDays", @disabled = "disabled" })
 														</div>
 														<div class="col-lg-6 col-md-12" id="adminChildDOBDateContainer">
 															<!-- New ID for toggling -->
@@ -649,9 +653,10 @@
 			success: function (response) {	 
 				const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 				if (response.employeeModel && response.employmentDetail) {
+					console.log(response);
 					const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
 					$("#EmplyoeeName").text(names.join(' '));
-					$("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
+					$("#EmplyoeeNmmber").text(response.employeeModel.employeeNumber);
 					$("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
 					$("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
 					$("#Employeeemail").text(response.employeeModel.emailAddress);
@@ -677,12 +682,22 @@
 						$("#showDocumentalert").text('');
 						$('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
 
-						let startDate = new Date(leaveSummary.startDate);
-							let formattedstartDate = startDate.toISOString().split('T')[0];
-							$('#StartDate').val(formattedstartDate);
-								let endDate = new Date(leaveSummary.endDate);
-							let formattedEndDate = endDate.toISOString().split('T')[0];
-							$('#EndDate').val(formattedEndDate);
+					let startDate = new Date(leaveSummary.startDate);
+	let formattedstartDate =
+		("0" + startDate.getDate()).slice(-2) + "/" +
+		("0" + (startDate.getMonth() + 1)).slice(-2) + "/" +
+		startDate.getFullYear();
+	$('#StartDate').val(formattedstartDate);
+
+	let endDate = new Date(leaveSummary.endDate);
+	let formattedEndDate =
+		("0" + endDate.getDate()).slice(-2) + "/" +
+		("0" + (endDate.getMonth() + 1)).slice(-2) + "/" +
+		endDate.getFullYear();
+	$('#EndDate').val(formattedEndDate);
+
+
+							$('#NoOfDays').val(leaveSummary.noOfDays);
 
 
 						if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)|| leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
@@ -932,6 +947,7 @@
 		});
 	}
 	function AutoReload() {
+		$('#leave-Cancelled-tab').css("display", "none");
 		RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
 		if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
 			InitOverviewDataTable();

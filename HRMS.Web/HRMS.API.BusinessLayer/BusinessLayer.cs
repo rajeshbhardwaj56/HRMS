@@ -2021,9 +2021,16 @@ namespace HRMS.API.BusinessLayer
 
                              }).ToList();
 
+                var TotalRecordPresent = dataSet.Tables[7].AsEnumerable()
+                       .Select(dataRow => new DashBoardModel
+                       {
+                           RecordPresent = dataRow.Field<int>("RecordPresent"),
+                       }).ToList().FirstOrDefault();
+                dashBoardModel.RecordPresent = TotalRecordPresent.RecordPresent;
+
                 if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.HR)
                 {
-                    var CompanyDetails = dataSet.Tables[7].AsEnumerable()
+                    var CompanyDetails = dataSet.Tables[8].AsEnumerable()
                            .Select(dataRow => new DashBoardModel
                            {
                                CountsOfCompanies = dataRow.Field<int>("TotalCompanies"),
@@ -2031,6 +2038,10 @@ namespace HRMS.API.BusinessLayer
                     dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
 
                 }
+                
+           
+
+                
                 if (dashBoardModel == null)
                 {
                     dashBoardModel = new DashBoardModel();
@@ -3844,7 +3855,7 @@ namespace HRMS.API.BusinessLayer
                     emp.MailReceivedFromAndDate,
                     emp.EmailSentToITDate,
                     emp.IsActive,
-                 emp.ReportingToIDL1EmployeeNumber
+                  emp.ReportingToIDL1EmployeeNumber
                 );
             }
 

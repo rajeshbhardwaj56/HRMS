@@ -4,44 +4,44 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer
 @{
-    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-    var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
 
-    ViewData["Title"] = "Dashboard";
+	ViewData["Title"] = "Dashboard";
 }
 
 <div class="main-header anim" style="--delay: 0s">Dashboard</div>
 <div class="page-wrapper dashboard-page">
-    <div class="page-name 	mb-4">
-        <h4 class="m-0"><img src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="mr-1" alt="profile" /> Hi @Model.FirstName (@Model.EmployeNumber), @_businessLayer.GetSatutation() !</h4>
-        <label>@DateTime.Now.ToString("ddd, dd MMM yyy")</label>
-    </div>
+	<div class="page-name 	mb-4">
+		<h4 class="m-0"><img src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="mr-1" alt="profile" /> Hi @Model.FirstName (@Model.EmployeNumber), @_businessLayer.GetSatutation() !</h4>
+		<label>@DateTime.Now.ToString("ddd, dd MMM yyy")</label>
+	</div>
 
-    <div class="row mb-4">
-        @if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.Manager))
-        {
-            <div class="col-xl-3 col-sm-6 col-12">
-                <div class="card board1 fill1 " id="RedirectBtn">
+	<div class="row mb-4">
+		@if (Model.RecordPresent == 1 || RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.SuperAdmin))
+		{
+			<div class="col-xl-3 col-sm-6 col-12">
+				<div class="card board1 fill1 " id="RedirectBtn">
 
-                    <div class="card-body">
-                        <div class="card_widget_header">
-                            <label>Employees</label>
-                            <h4>@Model.NoOfEmployees</h4>
-                        </div>
-                        <div class="card_widget_img">
-                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1.5 6.5C1.5 3.46243 3.96243 1 7 1C10.0376 1 12.5 3.46243 12.5 6.5C12.5 9.53757 10.0376 12 7 12C3.96243 12 1.5 9.53757 1.5 6.5Z" fill="#000000" />
-                                <path d="M14.4999 6.5C14.4999 8.00034 14.0593 9.39779 13.3005 10.57C14.2774 11.4585 15.5754 12 16.9999 12C20.0375 12 22.4999 9.53757 22.4999 6.5C22.4999 3.46243 20.0375 1 16.9999 1C15.5754 1 14.2774 1.54153 13.3005 2.42996C14.0593 3.60221 14.4999 4.99966 14.4999 6.5Z" fill="#000000" />
-                                <path d="M0 18C0 15.7909 1.79086 14 4 14H10C12.2091 14 14 15.7909 14 18V22C14 22.5523 13.5523 23 13 23H1C0.447716 23 0 22.5523 0 22V18Z" fill="#000000" />
-                                <path d="M16 18V23H23C23.5522 23 24 22.5523 24 22V18C24 15.7909 22.2091 14 20 14H14.4722C15.4222 15.0615 16 16.4633 16 18Z" fill="#000000" />
-                            </svg>
-                        </div>
-                    </div>
+					<div class="card-body">
+						<div class="card_widget_header">
+							<label>Employees</label>
+							<h4>@Model.NoOfEmployees</h4>
+						</div>
+						<div class="card_widget_img">
+							<svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M1.5 6.5C1.5 3.46243 3.96243 1 7 1C10.0376 1 12.5 3.46243 12.5 6.5C12.5 9.53757 10.0376 12 7 12C3.96243 12 1.5 9.53757 1.5 6.5Z" fill="#000000" />
+								<path d="M14.4999 6.5C14.4999 8.00034 14.0593 9.39779 13.3005 10.57C14.2774 11.4585 15.5754 12 16.9999 12C20.0375 12 22.4999 9.53757 22.4999 6.5C22.4999 3.46243 20.0375 1 16.9999 1C15.5754 1 14.2774 1.54153 13.3005 2.42996C14.0593 3.60221 14.4999 4.99966 14.4999 6.5Z" fill="#000000" />
+								<path d="M0 18C0 15.7909 1.79086 14 4 14H10C12.2091 14 14 15.7909 14 18V22C14 22.5523 13.5523 23 13 23H1C0.447716 23 0 22.5523 0 22V18Z" fill="#000000" />
+								<path d="M16 18V23H23C23.5522 23 24 22.5523 24 22V18C24 15.7909 22.2091 14 20 14H14.4722C15.4222 15.0615 16 16.4633 16 18Z" fill="#000000" />
+							</svg>
+						</div>
+					</div>
 
-                </div>
-            </div>
-        }
-        @*  <div class="col-xl-3 col-sm-6 col-12">
+				</div>
+			</div>
+		}
+		@*  <div class="col-xl-3 col-sm-6 col-12">
         <div class="card board1 fill2 ">
         <div class="card-body">
         <div class="card_widget_header">
@@ -54,15 +54,15 @@
         </div>
         </div>
         </div> *@
-        <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card board1 fill3 ">
-                <div class="card-body">
-                    <div class="card_widget_header">
-                        <label>Leaves</label>
-                        <h4> @Model.TotalLeave</h4>
-                    </div>
-                    <div class="card_widget_img">
-                        <svg width="20px" height="20px" viewBox="0 0 512 512" id="Layer_1" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<div class="col-xl-3 col-sm-6 col-12">
+			<div class="card board1 fill3 ">
+				<div class="card-body">
+					<div class="card_widget_header">
+						<label>Leaves</label>
+						<h4> @Model.TotalLeave</h4>
+					</div>
+					<div class="card_widget_img">
+						<svg width="20px" height="20px" viewBox="0 0 512 512" id="Layer_1" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g>
 <path class="st0" d="M442.5,30h-69.7c-2.9,0-5.4,1.7-6.5,4.4L261.8,295.9c-1.4,3.6,0.3,7.7,3.9,9.1c0.9,0.3,1.7,0.5,2.6,0.5   c2.8,0,5.4-1.7,6.5-4.4L377.6,44h64.9c3.9,0,7-3.1,7-7S446.4,30,442.5,30z" />
 <path class="st0" d="M149.7,204.9c11-2.7,24.1-2.2,37.5,1.8c8.1,2.4,15.8,5.7,23.3,8.9c7.5,3.2,14.5,6.2,22,8.4   c16.4,4.8,31.6,3.6,40.7-3.3c2-1.5,3.9-3.5,5.9-5.5l37.6-94.1H149.7V204.9z" />
@@ -72,11 +72,11 @@
 <path class="st0" d="M287.5,446.2V396c-6.3,0.9-12.8,1.4-19.2,1.4c-6.4,0-12.8-0.5-19.2-1.4v50.2c-19.8,5.2-36.4,18.4-46.2,35.9   h130.8C323.9,464.5,307.3,451.4,287.5,446.2z" />
 </g>
 </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @* <div class="col-xl-3 col-sm-6 col-12">
+					</div>
+				</div>
+			</div>
+		</div>
+		@* <div class="col-xl-3 col-sm-6 col-12">
         <div class="card board1 fill4 ">
         <div class="card-body">
         <div class="card_widget_header">
@@ -91,12 +91,12 @@
         </div>
         </div>
         </div> *@
-    </div>
+	</div>
 
 
-    <div class="row">
+	<div class="row">
 
-@* 
+		@* 
         @{
             var allLocationKeys = new HashSet<string>();
 
@@ -155,276 +155,276 @@
         </div>
 
  *@
-        <div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
-            <div class="card main-box">
-                <div class="card-header pb-0 p-3">
-                    <h6 class="mb-0">Time Off</h6>
-                </div>
-                <div class="timeOff">
-                    <ul>
-                        <li>
-                            <div class="timeOffCard">
-                                <h5>Leave Balance</h5>
-                                <h2>@ViewBag.NoOfLeaves</h2>
-                                <span>Available</span>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="timeOffCard">
-                                <h5>Upcoming Holiday</h5>
-                                @if (Model?.HolidayList != null && Model.HolidayList.Any())
-                                {
-                                    foreach (var item in Model.HolidayList)
-                                    {
-                                        <h5 class="card-title">@item.HolidayName</h5>
-                                        @item.FromDate.ToString("dd/MM/yyyy")
-                                    }
+		<div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
+			<div class="card main-box">
+				<div class="card-header pb-0 p-3">
+					<h6 class="mb-0">Time Off</h6>
+				</div>
+				<div class="timeOff">
+					<ul>
+						<li>
+							<div class="timeOffCard">
+								<h5>Leave Balance</h5>
+								<h2>@ViewBag.NoOfLeaves</h2>
+								<span>Available</span>
+							</div>
+						</li>
+						<li>
+							<div class="timeOffCard">
+								<h5>Upcoming Holiday</h5>
+								@if (Model?.HolidayList != null && Model.HolidayList.Any())
+								{
+									foreach (var item in Model.HolidayList)
+									{
+										<h5 class="card-title">@item.HolidayName</h5>
+										@item.FromDate.ToString("dd/MM/yyyy")
+									}
 
-                                }
-                                else
-                                {
-                                    <p>No Record Found</p>
-                                }
-                            </div>
-                        </li>
-                    </ul>
-                    @*  <div class="applyLeave">
+								}
+								else
+								{
+									<p>No Record Found</p>
+								}
+							</div>
+						</li>
+					</ul>
+					@*  <div class="applyLeave">
                     <a href="./leave_application.html" class="leaveapp btn btn-primary btn-download">Apply for Leave</a>
                     </div> *@
-                </div>
-            </div>
-        </div>
+				</div>
+			</div>
+		</div>
 
-        <div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
-            <div class="card">
-                <div class="card-header pb-0 p-3">
-                    <h6 class="mb-0">Attendance</h6>
-                </div>
-                <div class="p-3">
-                    <div class="table-responsive">
-                        <table class="table table-striped body-text dataTable no-footer">
-                            <thead>
-                                <tr>
-                                    <th>Day</th>
-                                    <th>Present</th>
-                                    <th>Absent</th>
-                                    <th>Leave</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if(Model !=null)
-                                {
-                                    @if(Model.AttendanceModel !=null && Model.AttendanceModel.Count()>0)
-                                    {
-                                        foreach(var item in Model.AttendanceModel)
-                                        {
-                                            <tr>
-                                                <td>
-                                                    @item.Day.Value.ToString("dd/MM/yyyy")
-                                                </td>
-                                                <td>@item.Present</td>
-                                                <td>@item.Absent</td>
-                                                <td>@item.Leaves</td>
-                                            </tr>
-                                        }
-                                    }
-                                }
-                             
-                           
-                            </tbody>
-                        </table>
-                    </div>
-@*                     <a href="/employee/myinfo/TeamAttendenceList" class="viewAll">View All →</a>
+		<div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
+			<div class="card">
+				<div class="card-header pb-0 p-3">
+					<h6 class="mb-0">Attendance</h6>
+				</div>
+				<div class="p-3">
+					<div class="table-responsive">
+						<table class="table table-striped body-text dataTable no-footer">
+							<thead>
+								<tr>
+									<th>Day</th>
+									<th>Present</th>
+									<th>Absent</th>
+									<th>Leave</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if (Model != null)
+								{
+									@if (Model.AttendanceModel != null && Model.AttendanceModel.Count() > 0)
+									{
+										foreach (var item in Model.AttendanceModel)
+										{
+											<tr>
+												<td>
+													@item.Day.Value.ToString("dd/MM/yyyy")
+												</td>
+												<td>@item.Present</td>
+												<td>@item.Absent</td>
+												<td>@item.Leaves</td>
+											</tr>
+										}
+									}
+								}
+
+
+							</tbody>
+						</table>
+					</div>
+					@*                     <a href="/employee/myinfo/TeamAttendenceList" class="viewAll">View All →</a>
  *@                </div>
-            </div>
-        </div>
+			</div>
+		</div>
 
-        <div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
-            <div class="card">
-                <div class="card-header pb-0 p-3">
-                    <h6 class="mb-0">Celebrations</h6>
-                </div>
-                <div class="card-carousel overflow-hidden h-100 p-0">
-                    <div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel">
-                        <!-- Indicators -->
-                        <div class="carousel-indicators">
-                            @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
-                            {
-                                int index = 0;
-                                foreach (var item in Model.EmployeeDetails)
-                                {
-                                    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="@index" class="@((index == 0) ? "active" : "")" aria-label="Slide @index"></button>
-                                    index++;
-                                }
-                            }
-                            else
-                            {
-                                <p>No Record Found</p>
-                            }
-                        </div>
+		<div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
+			<div class="card">
+				<div class="card-header pb-0 p-3">
+					<h6 class="mb-0">Celebrations</h6>
+				</div>
+				<div class="card-carousel overflow-hidden h-100 p-0">
+					<div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel">
+						<!-- Indicators -->
+						<div class="carousel-indicators">
+							@if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
+							{
+								int index = 0;
+								foreach (var item in Model.EmployeeDetails)
+								{
+									<button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="@index" class="@((index == 0) ? "active" : "")" aria-label="Slide @index"></button>
+									index++;
+								}
+							}
+							else
+							{
+								<p>No Record Found</p>
+							}
+						</div>
 
-                        <div class="carousel-inner border-radius-lg h-100">
-                            @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
-                            {
-                                int index = 0;
-                                foreach (var item in Model.EmployeeDetails)
-                                {
-                                    var UserPhoto =  @item.EmployeePhoto;
-                                    var isActive = index == 0 ? "active" : "";
+						<div class="carousel-inner border-radius-lg h-100">
+							@if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
+							{
+								int index = 0;
+								foreach (var item in Model.EmployeeDetails)
+								{
+									var UserPhoto = @item.EmployeePhoto;
+									var isActive = index == 0 ? "active" : "";
 
-                                    <div class="carousel-item h-100 @isActive">
-                                        <div class="carousel-caption d-none d-md-block top-10 text-center">
-                                            <div class="person-img">
-                                                <div class="ratio ratio-1x1 rounded-circle overflow-hidden">
-                                                    @if (item.EmployeePhoto == null)
-                                                    {
-                                                        <img src="/assets/img/No_image.png" class="card-img-top img-cover" alt="@item.FirstName">
-                                                    }
-                                                    else
-                                                    {
-                                                        <img src="@UserPhoto" class="card-img-top img-cover" alt="@item.FirstName">
-                                                    }
-                                                </div>
-                                            </div>
-                                            <h5 class="card-title">@item.FirstName @item.LastName</h5>
-                                            @if (item.DOB.HasValue)
-                                            {
-                                                <p class="card-text">@item.DOB.Value.ToString("MMMM d") - Happy Birthday!</p>
-                                            }
+									<div class="carousel-item h-100 @isActive">
+										<div class="carousel-caption d-none d-md-block top-10 text-center">
+											<div class="person-img">
+												<div class="ratio ratio-1x1 rounded-circle overflow-hidden">
+													@if (item.EmployeePhoto == null)
+													{
+														<img src="/assets/img/No_image.png" class="card-img-top img-cover" alt="@item.FirstName">
+													}
+													else
+													{
+														<img src="@UserPhoto" class="card-img-top img-cover" alt="@item.FirstName">
+													}
+												</div>
+											</div>
+											<h5 class="card-title">@item.FirstName @item.LastName</h5>
+											@if (item.DOB.HasValue)
+											{
+												<p class="card-text">@item.DOB.Value.ToString("MMMM d") - Happy Birthday!</p>
+											}
 
-                                        </div>
-                                    </div>
-                                    index++;
-                                }
-                            }
-                            else
-                            {
-                                <p>No Record Found</p>
-                            }
-                        </div>
+										</div>
+									</div>
+									index++;
+								}
+							}
+							else
+							{
+								<p>No Record Found</p>
+							}
+						</div>
 
-                        <!-- Controls -->
-                        <button class="carousel-control-prev w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+						<!-- Controls -->
+						<button class="carousel-control-prev w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">Previous</span>
+						</button>
+						<button class="carousel-control-next w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">Next</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    </div>
+	</div>
 
-    <div class="row">
-        <div class="col col-lg-12 order-0 mb-4 anim" style="--delay: .1s">
-            <div class="card">
-                <div class="card-header pb-0 p-3">
-                    <h6 class="mb-0">What's happening at Protalk</h6>
-                </div>
-                <div class="p-3">
-                    <ul class="list-group body-text">
-                     
-                        @if (Model?.WhatsHappening != null && Model.WhatsHappening.Any(x => x.ToDate >= DateTime.Today))
-                        {
-                            foreach (var item in Model.WhatsHappening.Where(x => x.ToDate >= DateTime.Today))
-                            {
-                            <li class="list-group-item py-3">
-                                <div class="d-flex justify-content-between align-items-center">                                                                    
-                                    <div>
-                                            <img src="@item.IconImage" width="30" height="30">
-                                            <a href="javascript:void(0)" class="font-weight-bold text-decoration-none" style="color:#05397b;">@item.Title   <b>&nbsp;&nbsp;|  @item.FromDate?.ToString("dd-MMM-yyyy") </b></a>
-                                    </div>
-                                     <div>
-                                            <button class="btn btn-light btn-sm border border-2 view-announcement-btn"                                                  
-                                                    data-title="@item.Title"
-                                                    data-description="@item.Description"
-                                                    data-fromdate="@item.FromDate?.ToString("dd-MMM-yyyy")"
-                                                    data-todate="@item.ToDate?.ToString("dd-MMM-yyyy")"
-                                                    data-image="@item.IconImage">
-                                                View Announcement
-                                            </button>
-                                            <a href="javascript:void(0)" class="px-2">
-                                             
-                                        </a>
-                                    </div> 
-                                    
-                                </div>
-                            </li>
-                        }
-                        }
-                        else
-                        {
-                            <p>No Record Found</p>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="row">
+		<div class="col col-lg-12 order-0 mb-4 anim" style="--delay: .1s">
+			<div class="card">
+				<div class="card-header pb-0 p-3">
+					<h6 class="mb-0">What's happening at Protalk</h6>
+				</div>
+				<div class="p-3">
+					<ul class="list-group body-text">
+
+						@if (Model?.WhatsHappening != null && Model.WhatsHappening.Any(x => x.ToDate >= DateTime.Today))
+						{
+							foreach (var item in Model.WhatsHappening.Where(x => x.ToDate >= DateTime.Today))
+							{
+								<li class="list-group-item py-3">
+									<div class="d-flex justify-content-between align-items-center">
+										<div>
+											<img src="@item.IconImage" width="30" height="30">
+											<a href="javascript:void(0)" class="font-weight-bold text-decoration-none" style="color:#05397b;">@item.Title   <b>&nbsp;&nbsp;|  @item.FromDate?.ToString("dd-MMM-yyyy") </b></a>
+										</div>
+										<div>
+											<button class="btn btn-light btn-sm border border-2 view-announcement-btn"
+													data-title="@item.Title"
+													data-description="@item.Description"
+													data-fromdate="@item.FromDate?.ToString("dd-MMM-yyyy")"
+													data-todate="@item.ToDate?.ToString("dd-MMM-yyyy")"
+													data-image="@item.IconImage">
+												View Announcement
+											</button>
+											<a href="javascript:void(0)" class="px-2">
+
+											</a>
+										</div>
+
+									</div>
+								</li>
+							}
+						}
+						else
+						{
+							<p>No Record Found</p>
+						}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="announcementModalLabel">Announcement Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="modalImage" src="" class="rounded mb-3"  alt="Announcement Image">
-                <h5 id="modalTitle"></h5>
-                <p id="modalDescription"></p>
-                <p><b>From Date:</b> <span id="modalFromDate"></span></p>
-                <p><b>To Date:</b> <span id="modalToDate"></span></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondaryannouncement" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
+	<div class="modal-dialog modal-xl modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="announcementModalLabel">Announcement Details</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body text-center">
+				<img id="modalImage" src="" class="rounded mb-3" alt="Announcement Image">
+				<h5 id="modalTitle"></h5>
+				<p id="modalDescription"></p>
+				<p><b>From Date:</b> <span id="modalFromDate"></span></p>
+				<p><b>To Date:</b> <span id="modalToDate"></span></p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondaryannouncement" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
-       document.addEventListener("DOMContentLoaded", function () {
-            const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
-            document.querySelectorAll(".view-announcement-btn").forEach(button => {
-                button.addEventListener("click", function () {
-                    const title = this.getAttribute("data-title");
-                    const fromDate = this.getAttribute("data-fromdate");
-                    const toDate = this.getAttribute("data-todate");
-                    const image = this.getAttribute("data-image");
-                    const description = this.getAttribute("data-description");  // Use data-description directly
+	   document.addEventListener("DOMContentLoaded", function () {
+			const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
+			document.querySelectorAll(".view-announcement-btn").forEach(button => {
+				button.addEventListener("click", function () {
+					const title = this.getAttribute("data-title");
+					const fromDate = this.getAttribute("data-fromdate");
+					const toDate = this.getAttribute("data-todate");
+					const image = this.getAttribute("data-image");
+					const description = this.getAttribute("data-description");  // Use data-description directly
 
-                    document.getElementById("modalTitle").innerText = title;
-                    document.getElementById("modalDescription").innerHTML = description;  // Set description directly
-                    document.getElementById("modalFromDate").innerText = fromDate;
-                    document.getElementById("modalToDate").innerText = toDate;
-                    document.getElementById("modalImage").src = image;
+					document.getElementById("modalTitle").innerText = title;
+					document.getElementById("modalDescription").innerHTML = description;  // Set description directly
+					document.getElementById("modalFromDate").innerText = fromDate;
+					document.getElementById("modalToDate").innerText = toDate;
+					document.getElementById("modalImage").src = image;
 
-                    modal.show();
-                });
-            });
-        });
+					modal.show();
+				});
+			});
+		});
 
 
 
-    document.getElementById('RedirectBtn').addEventListener('click', function () {
-        window.location.href = '@Url.Action("GetTeamEmployeeList", "myinfo")';
-    });
+	document.getElementById('RedirectBtn').addEventListener('click', function () {
+		window.location.href = '@Url.Action("GetTeamEmployeeList", "myinfo")';
+	});
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Ensure the carousel is initialized correctly
-        var carouselElement = document.querySelector('#carouselExampleCaptions');
-        if (carouselElement) {
-            var carousel = new bootstrap.Carousel(carouselElement, {
-                interval: 5000, // Set auto-rotate interval
-                ride: 'carousel' // Start automatically
-            });
-        } else {
-            console.error('Carousel element not found!');
-        }
-    });
+	document.addEventListener('DOMContentLoaded', function () {
+		// Ensure the carousel is initialized correctly
+		var carouselElement = document.querySelector('#carouselExampleCaptions');
+		if (carouselElement) {
+			var carousel = new bootstrap.Carousel(carouselElement, {
+				interval: 5000, // Set auto-rotate interval
+				ride: 'carousel' // Start automatically
+			});
+		} else {
+			console.error('Carousel element not found!');
+		}
+	});
 </script>

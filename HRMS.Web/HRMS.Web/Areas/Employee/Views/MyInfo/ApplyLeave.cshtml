@@ -663,8 +663,8 @@
 
 
 
-	document.addEventListener("DOMContentLoaded", function () {
-		// Define Standard User Elements
+		document.addEventListener("DOMContentLoaded", function () {
+		// Define elements
 		var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
 		var fullDayContainer = document.getElementById("fullDayContainer");
 		var halfDayContainer = document.getElementById("halfDayContainer");
@@ -675,13 +675,15 @@
 		var fromdatetime = document.getElementById("fromdatetime");
 		var ChildDOBDateContainer = document.getElementById("ChildDOBDateContainer");
 		var expectedDeliveryDateContainer = document.getElementById("expectedDeliveryDateContainer");
+
 		// Placeholder values
 		var fullDayValue = "1";
 		var halfDayValue = "2";
 
 		function toggleContainers() {
 			var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-			if (['Maternity Leave', 'Adoption', 'Miscarriage' ].includes(selectedLeaveType)) {
+
+			if (['Maternity Leave', 'Adoption', 'Miscarriage'].includes(selectedLeaveType)) {
 				fullDayContainer.style.display = "flex";
 				halfDayContainer.style.display = "none";
 				leaveDurationContainer.style.display = "none";
@@ -689,7 +691,6 @@
 				todatetime.style.display = "block";
 				$('#leaveDurationDropdown').attr('required', false);
 			}
-
 			else if (selectedLeaveType === 'Paternity Leave') {
 				fullDayContainer.style.display = "flex";
 				halfDayContainer.style.display = "none";
@@ -703,24 +704,21 @@
 				fullDayContainer.style.display = "flex";
 				$('#leaveDurationDropdown').attr('required', false);
 			}
+			else if (selectedLeaveType === 'Privilege Leave' || selectedLeaveType === 'Leave Without Pay' || selectedLeaveType === 'Compensatory Off') {
 
-			else if (selectedLeaveType === 'Privilege Leave' ||selectedLeaveType === 'Leave Without Pay'||selectedLeaveType === 'Compensatory Off') {
-				if(selectedLeaveType === 'Leave Without Pay')
-				{
-					  todatetime.style.display = fullDayValue ==="block"  ;
-					fromdatetime.style.display = fullDayValue ==="block"  ;
+				if (selectedLeaveType === 'Leave Without Pay') {
+					todatetime.style.display = "block";
+					fromdatetime.style.display = "block";
 					halfDayContainer.style.display = "none";
 					ChildDOBDateContainer.style.display = "none";
 					leaveDurationContainer.style.display = "none";
-
 					return;
 				}
 
 				if (leaveDurationDropdown.value === fullDayValue) {
-
 					fullDayContainer.style.display = "flex";
-					todatetime.style.display = fullDayValue === "1" ? "block" : "none";
-					fromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
+					todatetime.style.display = "block";
+					fromdatetime.style.display = "block";
 					halfDayContainer.style.display = "none";
 					ChildDOBDateContainer.style.display = "none";
 					return;
@@ -733,10 +731,10 @@
 					fromdatetime.style.display = "block";
 					return;
 				}
-				leaveDurationDropdown.style.display = "block";
+
+				leaveDurationDropdown.style.display = "flex";
 				fullDayContainer.style.display = "none";
 				leaveDurationContainer.style.display = "block";
-				leaveDurationDropdown.style.display = "flex";
 				ChildDOBDateContainer.style.display = "none";
 				leaveDurationDropdown.selectedIndex = 0;
 				$('#leaveDurationDropdown').attr('required', true);
@@ -753,7 +751,7 @@
 		function toggleMaternityAdoptionMiscarrageContainer() {
 			var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
 			maternityAdoptionMiscarrageContainer.style.display =
-				['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave' ].includes(selectedLeaveType) ? "flex" : "none";
+				['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave'].includes(selectedLeaveType) ? "flex" : "none";
 		}
 
 		function toggleExpectedDeliveryDate() {
@@ -761,52 +759,47 @@
 			expectedDeliveryDateContainer.style.display = selectedLeaveType === 'Maternity Leave' ? "block" : "none";
 		}
 
-
-
 		function toggleLeaveDurationVisibility() {
 			var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
 			if (['Compensatory Offq'].includes(selectedLeaveType)) {
 				leaveDurationContainer.style.display = "block";
-				 fullDayContainer.style.display = "none";
+				fullDayContainer.style.display = "none";
 				$('#leaveDurationDropdown').attr('required', true);
 			}
-
 			else {
 				$('#leaveDurationDropdown').attr('required', false);
 			}
 		}
 
-		// Event listeners for standard user functionality
+		// Event listeners
 		leaveDurationDropdown.addEventListener("change", toggleContainers);
+
 		leaveTypeDropdown.addEventListener("change", function () {
-			   const selectedLeaveTypeId = parseInt(this.value);
-			   if(selectedLeaveTypeId == @Convert.ToInt32(LeaveType.LeaveWithOutPay))
-			   {
+			const selectedLeaveTypeId = parseInt(this.value);
 
-				   $("#leaveDurationContainer").css("display","none");
-				   $("#MaternityAdoptionMiscarrageContainer").css("display","none");
-				   $("#todatetime").css("display","block");
-				   $("#fullDayContainer").css("display","flex");
-			   }
-			   else if(selectedLeaveTypeId == @Convert.ToInt32(LeaveType.CompOff)){
-					  $("#fullDayContainer").css("display","none");
-							 $("#todatetime").css("display","none");
-					   $("#leaveDurationContainer").css("display","block");
-			toggleExpectedDeliveryDate();
-			toggleLeaveDurationVisibility();
-			toggleContainers();
-			   }
-
-			   else{
-					  $("#fullDayContainer").css("display","none");
-							 $("#todatetime").css("display","none");
-					   $("#leaveDurationContainer").css("display","block");
-			  toggleMaternityAdoptionMiscarrageContainer();
-			toggleExpectedDeliveryDate();
-			toggleLeaveDurationVisibility();
-			toggleContainers();
-			   }
-
+			if (selectedLeaveTypeId === @Convert.ToInt32(LeaveType.LeaveWithOutPay)) {
+				$("#leaveDurationContainer").css("display", "none");
+				$("#MaternityAdoptionMiscarrageContainer").css("display", "none");
+				$("#todatetime").css("display", "block");
+				$("#fullDayContainer").css("display", "flex");
+			}
+			else if (selectedLeaveTypeId === @Convert.ToInt32(LeaveType.CompOff)) {
+				$("#fullDayContainer").css("display", "none");
+				$("#todatetime").css("display", "none");
+				$("#leaveDurationContainer").css("display", "block");
+				toggleExpectedDeliveryDate();
+				toggleLeaveDurationVisibility();
+				toggleContainers();
+			}
+			else {
+				$("#fullDayContainer").css("display", "none");
+				$("#todatetime").css("display", "none");
+				$("#leaveDurationContainer").css("display", "block");
+				toggleMaternityAdoptionMiscarrageContainer();
+				toggleExpectedDeliveryDate();
+				toggleLeaveDurationVisibility();
+				toggleContainers();
+			}
 		});
 
 		// Initial calls
@@ -815,6 +808,7 @@
 		toggleLeaveDurationVisibility();
 		toggleExpectedDeliveryDate();
 	});
+
 </script>
 
 

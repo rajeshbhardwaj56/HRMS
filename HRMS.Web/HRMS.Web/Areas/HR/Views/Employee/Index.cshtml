@@ -3,321 +3,321 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @model EmployeeModel
 @{
-    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-    ViewData["Title"] = "Employment Details";
-    var ProfilePhoto = "";
-    if (!string.IsNullOrEmpty(Model.ProfilePhoto))
-    {
-        ProfilePhoto = Model.ProfilePhoto;
-    }
-    else
-    {
-        ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
-    }
-   
-    bool isEdit = Model != null && Model.EmployeeID > 0;
-    var headerText = isEdit ? "Edit Employee" : "New Employee";
+	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	ViewData["Title"] = "Employment Details";
+	var ProfilePhoto = "";
+	if (!string.IsNullOrEmpty(Model.ProfilePhoto))
+	{
+		ProfilePhoto = Model.ProfilePhoto;
+	}
+	else
+	{
+		ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+	}
+
+	bool isEdit = Model != null && Model.EmployeeID > 0;
+	var headerText = isEdit ? "Edit Employee" : "New Employee";
 }
 <div class="main-header anim" style="--delay: 0s">
-    @headerText
-    @if (isEdit)
-    {
+	@headerText
+	@if (isEdit)
+	{
 
-        <div class="user-settings dropdown">
-           
-            <a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
-                <div class="user-name">Additional Details</div>
-                <svg viewBox="0 0 492 492" fill="currentColor">
-                    <path d="M484.13 124.99l-16.11-16.23a26.72 26.72 0 00-19.04-7.86c-7.2 0-13.96 2.79-19.03 7.86L246.1 292.6 62.06 108.55c-5.07-5.06-11.82-7.85-19.03-7.85s-13.97 2.79-19.04 7.85L7.87 124.68a26.94 26.94 0 000 38.06l219.14 219.93c5.06 5.06 11.81 8.63 19.08 8.63h.09c7.2 0 13.96-3.57 19.02-8.63l218.93-219.33A27.18 27.18 0 00492 144.1c0-7.2-2.8-14.06-7.87-19.12z"></path>
-                </svg>
-            </a>
+		<div class="user-settings dropdown">
 
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown" data-bs-popper="none">
-                <ul class="list-unstyled mb-1">
-                    <li>
-                        <a class="dropdown-item" href="~/HR/Employee/FamilyDetail/@Model.EncryptedIdentity">
-                            <span class="mr-2">
-                                <i class="fa fa-users"></i>
-                            </span>
-                            Family Details
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="~/HR/Employee/EducationalDetail/@Model.EncryptedIdentity">
-                            <span class="mr-2">
-                                <i class="fa fa-graduation-cap"></i>
-                            </span>
-                            Education Details
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="~/HR/Employee/ReferenceDetail/@Model.EncryptedIdentity">
-                            <span class="mr-2">
-                                <i class="fa fa-address-book"></i>
-                            </span>
-                            Reference Details
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="~/HR/Employee/EmploymentHistory/@Model.EncryptedIdentity">
-                            <span class="mr-2">
-                                <i class="fa fa-briefcase"></i>
-                            </span>
-                            Employment History Details
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="~/HR/Employee/LanguageDetail/@Model.EncryptedIdentity">
-                            <span class="mr-2">
-                                <i class="fa fa-briefcase"></i>
-                            </span>
-                            Language Details
-                        </a>
-                    </li>
-                </ul>
+			<a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+				<div class="user-name">Additional Details</div>
+				<svg viewBox="0 0 492 492" fill="currentColor">
+					<path d="M484.13 124.99l-16.11-16.23a26.72 26.72 0 00-19.04-7.86c-7.2 0-13.96 2.79-19.03 7.86L246.1 292.6 62.06 108.55c-5.07-5.06-11.82-7.85-19.03-7.85s-13.97 2.79-19.04 7.85L7.87 124.68a26.94 26.94 0 000 38.06l219.14 219.93c5.06 5.06 11.81 8.63 19.08 8.63h.09c7.2 0 13.96-3.57 19.02-8.63l218.93-219.33A27.18 27.18 0 00492 144.1c0-7.2-2.8-14.06-7.87-19.12z"></path>
+				</svg>
+			</a>
 
-            </div>
-        </div>
-    }
+			<div class="dropdown-menu" aria-labelledby="navbarDropdown" data-bs-popper="none">
+				<ul class="list-unstyled mb-1">
+					<li>
+						<a class="dropdown-item" href="~/HR/Employee/FamilyDetail/@Model.EncryptedIdentity">
+							<span class="mr-2">
+								<i class="fa fa-users"></i>
+							</span>
+							Family Details
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="~/HR/Employee/EducationalDetail/@Model.EncryptedIdentity">
+							<span class="mr-2">
+								<i class="fa fa-graduation-cap"></i>
+							</span>
+							Education Details
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="~/HR/Employee/ReferenceDetail/@Model.EncryptedIdentity">
+							<span class="mr-2">
+								<i class="fa fa-address-book"></i>
+							</span>
+							Reference Details
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="~/HR/Employee/EmploymentHistory/@Model.EncryptedIdentity">
+							<span class="mr-2">
+								<i class="fa fa-briefcase"></i>
+							</span>
+							Employment History Details
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="~/HR/Employee/LanguageDetail/@Model.EncryptedIdentity">
+							<span class="mr-2">
+								<i class="fa fa-briefcase"></i>
+							</span>
+							Language Details
+						</a>
+					</li>
+				</ul>
+
+			</div>
+		</div>
+	}
 </div>
 <form id="myForm" method="post" enctype="multipart/form-data">
-    <div class="Container">
-        <div class="group-box anim" style="--delay: .3s">
-            <div class="small-header">Personal Details</div>
-            @Html.HiddenFor(m => m.EmployeeID)
-            @Html.HiddenFor(m => m.CompanyID)
-           
-            <div class="row">
-                <div class="col-md-4 form-group">
-                    <label>First Name <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })                  
-                </div>
-                <div class="col-md-4 form-group">
-                    <label>Middle Name <span class="Mandetory"> </span></label>
-                    @Html.TextBoxFor(a => a.MiddleName, new { @class = "form-control" })
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>Surname <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })                
-                </div>
-
-
-                <div class="col-md-4 form-group">
-                    <label>Photo</label>
-                    <div class="row d-flex align-items-center">
-                        <div class="col-md-4">
-                            <img id="previewImage" src="@ProfilePhoto"
-                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
-                                 style="width:100px; height:100px" />
-                        </div>
-                        <div class="col-md-8">
-                            <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col-md-12 form-group">
-                    <label>Address of Correspondence <span class="Mandetory">*</span></label>
-                    @Html.TextAreaFor(a => a.CorrespondenceAddress, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.CorrespondenceAddress) *@
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>City <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.CorrespondenceCity, new { @class = "form-control", @required = "required" })
-                    @*   @Html.ValidationMessageFor(m => m.CorrespondenceCity) *@
-                </div>
-
-
-                <div class="col-md-4 form-group">
-                    <label>Pin <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.CorrespondencePinCode, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.CorrespondencePinCode) *@
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>State <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.CorrespondenceState, new { @class = "form-control", @required = "required" })
-                    @* @Html.ValidationMessageFor(m => m.CorrespondenceState) *@
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>Country <span class="Mandetory">*</span></label>
-                    <div class="position-relative">
-                        @Html.DropDownListFor(x => x.CorrespondenceCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control ", @required = "required" })
-                        <i class="fa fa-chevron-down position-absolute"
-                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-                          </div>
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>Landline  </label>
-                    @Html.TextBoxFor(a => a.Landline, new { @class = "form-control mobile-mask" })
-                    @*  @Html.ValidationMessageFor(m => m.Landline) *@
-                </div>
-
-
-                <div class="col-md-4 form-group">
-                    <label>Mobile <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.Mobile, new { @class = "form-control mobile-mask", @required = "required" })
-                </div>
-
-
-                <div class="col-md-4 form-group">
-                    <label>Personal Email Address <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
-                </div>
-                <div class="col-md-4 form-group">
-                    <label>Gender <span class="Mandetory">*</span></label>
-                    <div class="position-relative">
-                    @Html.DropDownListFor(a => a.Gender, new List<SelectListItem>
-                    {
-                    new SelectListItem { Text = "--Select Gender--", Value = "" },
-                    new SelectListItem { Text = "Male", Value = "1" },
-                    new SelectListItem { Text = "Female", Value = "2" },
-                    new SelectListItem { Text = "Other", Value = "3" }
-                    }, new { @class = "form-control ", @required = "required" })
-                        <i class="fa fa-chevron-down position-absolute"
-                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-                   
-                    </div>
-                </div>
-                <div class="col-md-12 form-group">
-                    <label>Permanent Address <span class="Mandetory">*</span></label>
-                    @Html.TextAreaFor(a => a.PermanentAddress, new { @class = "form-control", @required = "required" })
-                    
-                </div>
-
-
-                <div class="col-md-4 form-group">
-                    <label>City <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.PermanentCity, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.PermanentCity) *@
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>Pin <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.PermanentPinCode, new { @class = "form-control", @required = "required" })
-                    @*   @Html.ValidationMessageFor(m => m.PermanentPinCode) *@
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>State <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.PermanentState, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.PermanentState) *@
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>Country <span class="Mandetory">*</span></label>
-                    <div class="position-relative">
-                    @Html.DropDownListFor(x => x.PermanentCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
-                        <i class="fa fa-chevron-down position-absolute"
-                           style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-                </div>
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>Telephone </label>
-                    @Html.TextBoxFor(a => a.Telephone, new { @class = "form-control mobile-mask" })
-                    @*  @Html.ValidationMessageFor(m => m.Telephone) *@
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>Date of Birth <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
-                    @* @Html.ValidationMessageFor(m => m.DateOfBirth) *@
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <label>Place of Birth <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
-                    @*   @Html.ValidationMessageFor(m => m.PlaceOfBirth) *@
-                </div>
+	<div class="Container">
+		<div class="group-box anim" style="--delay: .3s">
+			<div class="small-header">Personal Details</div>
+			@Html.HiddenFor(m => m.EmployeeID)
+			@Html.HiddenFor(m => m.CompanyID)
+
+			<div class="row">
+				<div class="col-md-4 form-group">
+					<label>First Name <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
+				</div>
+				<div class="col-md-4 form-group">
+					<label>Middle Name <span class="Mandetory"> </span></label>
+					@Html.TextBoxFor(a => a.MiddleName, new { @class = "form-control" })
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>Surname <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })
+				</div>
+
+
+				<div class="col-md-4 form-group">
+					<label>Photo</label>
+					<div class="row d-flex align-items-center">
+						<div class="col-md-4">
+							<img id="previewImage" src="@ProfilePhoto"
+								 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+								 style="width:100px; height:100px" />
+						</div>
+						<div class="col-md-8">
+							<input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)" />
+						</div>
+					</div>
+				</div>
+
+
+				<div class="col-md-12 form-group">
+					<label>Address of Correspondence <span class="Mandetory">*</span></label>
+					@Html.TextAreaFor(a => a.CorrespondenceAddress, new { @class = "form-control", @required = "required" })
+					@*  @Html.ValidationMessageFor(m => m.CorrespondenceAddress) *@
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>City <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.CorrespondenceCity, new { @class = "form-control", @required = "required" })
+					@*   @Html.ValidationMessageFor(m => m.CorrespondenceCity) *@
+				</div>
+
+
+				<div class="col-md-4 form-group">
+					<label>Pin <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.CorrespondencePinCode, new { @class = "form-control", @required = "required" })
+					@*  @Html.ValidationMessageFor(m => m.CorrespondencePinCode) *@
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>State <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.CorrespondenceState, new { @class = "form-control", @required = "required" })
+					@* @Html.ValidationMessageFor(m => m.CorrespondenceState) *@
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>Country <span class="Mandetory">*</span></label>
+					<div class="position-relative">
+						@Html.DropDownListFor(x => x.CorrespondenceCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control ", @required = "required" })
+						<i class="fa fa-chevron-down position-absolute"
+						   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+					</div>
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>Landline  </label>
+					@Html.TextBoxFor(a => a.Landline, new { @class = "form-control mobile-mask" })
+					@*  @Html.ValidationMessageFor(m => m.Landline) *@
+				</div>
+
+
+				<div class="col-md-4 form-group">
+					<label>Mobile <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.Mobile, new { @class = "form-control mobile-mask", @required = "required" })
+				</div>
+
+
+				<div class="col-md-4 form-group">
+					<label>Personal Email Address <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.PersonalEmailAddress, new { @class = "form-control", @required = "required" })
+					@*  @Html.ValidationMessageFor(m => m.PersonalEmailAddress) *@
+				</div>
+				<div class="col-md-4 form-group">
+					<label>Gender <span class="Mandetory">*</span></label>
+					<div class="position-relative">
+						@Html.DropDownListFor(a => a.Gender, new List<SelectListItem>
+						{
+						new SelectListItem { Text = "--Select Gender--", Value = "" },
+						new SelectListItem { Text = "Male", Value = "1" },
+						new SelectListItem { Text = "Female", Value = "2" },
+						new SelectListItem { Text = "Other", Value = "3" }
+						}, new { @class = "form-control ", @required = "required" })
+						<i class="fa fa-chevron-down position-absolute"
+						   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+
+					</div>
+				</div>
+				<div class="col-md-12 form-group">
+					<label>Permanent Address <span class="Mandetory">*</span></label>
+					@Html.TextAreaFor(a => a.PermanentAddress, new { @class = "form-control", @required = "required" })
+
+				</div>
+
+
+				<div class="col-md-4 form-group">
+					<label>City <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.PermanentCity, new { @class = "form-control", @required = "required" })
+					@*  @Html.ValidationMessageFor(m => m.PermanentCity) *@
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>Pin <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.PermanentPinCode, new { @class = "form-control", @required = "required" })
+					@*   @Html.ValidationMessageFor(m => m.PermanentPinCode) *@
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>State <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.PermanentState, new { @class = "form-control", @required = "required" })
+					@*  @Html.ValidationMessageFor(m => m.PermanentState) *@
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>Country <span class="Mandetory">*</span></label>
+					<div class="position-relative">
+						@Html.DropDownListFor(x => x.PermanentCountryID, Model.Countries, HRMS.Models.Common.Constants.SelectCountry, new { @class = "form-control", @required = "required" })
+						<i class="fa fa-chevron-down position-absolute"
+						   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+					</div>
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>Telephone </label>
+					@Html.TextBoxFor(a => a.Telephone, new { @class = "form-control mobile-mask" })
+					@*  @Html.ValidationMessageFor(m => m.Telephone) *@
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>Date of Birth <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+					@* @Html.ValidationMessageFor(m => m.DateOfBirth) *@
+				</div>
+
+				<div class="col-md-4 form-group">
+					<label>Place of Birth <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control", @required = "required" })
+					@*   @Html.ValidationMessageFor(m => m.PlaceOfBirth) *@
+				</div>
 
 
-                <div class="col-md-4 form-group">
-                    <label>Contact Person Name for Verification <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.VerificationContactPersonName, new { @class = "form-control", @required = "required" })
-                    @*  @Html.ValidationMessageFor(m => m.VerificationContactPersonName) *@
-                </div>
+				<div class="col-md-4 form-group">
+					<label>Contact Person Name for Verification <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.VerificationContactPersonName, new { @class = "form-control", @required = "required" })
+					@*  @Html.ValidationMessageFor(m => m.VerificationContactPersonName) *@
+				</div>
 
-                <div class="col-md-4 form-group">
-                    <label>Contact No <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control mobile-mask", @required = "required" })
-                    @* @Html.ValidationMessageFor(m => m.VerificationContactPersonContactNo) *@
-                </div>
-            </div>
-        </div>
+				<div class="col-md-4 form-group">
+					<label>Contact No <span class="Mandetory">*</span></label>
+					@Html.TextBoxFor(a => a.VerificationContactPersonContactNo, new { @class = "form-control mobile-mask", @required = "required" })
+					@* @Html.ValidationMessageFor(m => m.VerificationContactPersonContactNo) *@
+				</div>
+			</div>
+		</div>
 
 
 
 
-        <div class="group-box anim" style="--delay: .3s">
+		<div class="group-box anim" style="--delay: .3s">
 
-            <div class="row mt-4">
-                <div class="col-md-6 form-group">
-                    <label>Do you have any relatives working with Protalk Logistics? </label>
-                </div>
-                <div class="col-md-6 form-group">
-                    @Html.CheckBoxFor(x => x.IsRelativesWorkingWithCompany)
-                </div>
-            </div>
+			<div class="row mt-4">
+				<div class="col-md-6 form-group">
+					<label>Do you have any relatives working with Protalk Logistics? </label>
+				</div>
+				<div class="col-md-6 form-group">
+					@Html.CheckBoxFor(x => x.IsRelativesWorkingWithCompany)
+				</div>
+			</div>
 
-            <div class="row">
-                <div class="col-md-6 form-group">
-                    <label>if Yes Elaborate</label>
-                </div>
-                <div class="col-md-6 form-group">
-                    @Html.TextAreaFor(a => a.RelativesDetails, new { @class = "form-control" })
-                </div>
-            </div>
+			<div class="row">
+				<div class="col-md-6 form-group">
+					<label>if Yes Elaborate</label>
+				</div>
+				<div class="col-md-6 form-group">
+					@Html.TextAreaFor(a => a.RelativesDetails, new { @class = "form-control" })
+				</div>
+			</div>
 
-            <div class="row">
-                <div class="col-md-6 form-group">
-                    <label>Have you been refered by an Protalk Logistics employee?</label>
-                </div>
-                <div class="col-md-6 form-group">
-                    @Html.CheckBoxFor(x => x.IsReferredByExistingEmployee)
-                </div>
-            </div>
+			<div class="row">
+				<div class="col-md-6 form-group">
+					<label>Have you been refered by an Protalk Logistics employee?</label>
+				</div>
+				<div class="col-md-6 form-group">
+					@Html.CheckBoxFor(x => x.IsReferredByExistingEmployee)
+				</div>
+			</div>
 
-            <div class="row">
-                <div class="col-md-6 form-group">
-                    <label>if Yes Please mention Name and Designition</label>
-                </div>
-                <div class="col-md-6 form-group">
-                    @Html.TextBoxFor(a => a.ReferredByEmployeeID, new { @class = "form-control" })
-                </div>
-            </div>
+			<div class="row">
+				<div class="col-md-6 form-group">
+					<label>if Yes Please mention Name and Designition</label>
+				</div>
+				<div class="col-md-6 form-group">
+					@Html.TextBoxFor(a => a.ReferredByEmployeeID, new { @class = "form-control" })
+				</div>
+			</div>
 
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Blood Group</label>
-                        @Html.TextBoxFor(a => a.BloodGroup, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Allergies</label>
-                        @Html.TextBoxFor(a => a.Allergies, new { @class = "form-control" })
-                    </div>
-                </div>
-            </div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label>Blood Group</label>
+						@Html.TextBoxFor(a => a.BloodGroup, new { @class = "form-control" })
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="form-group">
+						<label>Allergies</label>
+						@Html.TextBoxFor(a => a.Allergies, new { @class = "form-control" })
+					</div>
+				</div>
+			</div>
 
 
-            <div class="row">
-                <div class="col-md-6 form-group">
-                    <label>Please mention, if you any mazor illness/Handicap/Permanent disabilities or any gamily history on same.</label>
-                </div>
-                <div class="col-md-6 form-group">
-                    @Html.TextAreaFor(a => a.MajorIllnessOrDisability, new { @class = "form-control" })
-                </div>
-            </div>
+			<div class="row">
+				<div class="col-md-6 form-group">
+					<label>Please mention, if you any mazor illness/Handicap/Permanent disabilities or any gamily history on same.</label>
+				</div>
+				<div class="col-md-6 form-group">
+					@Html.TextAreaFor(a => a.MajorIllnessOrDisability, new { @class = "form-control" })
+				</div>
+			</div>
 
 
 
@@ -328,7 +328,7 @@
 
 
 
-        </div>
+		</div>
 
 
 
@@ -346,288 +346,311 @@
 
 
 
-        <div class="group-box anim" style="--delay: .3s">
-            <div class="small-header">General Information</div>
-            <div class="form-group mt-3">
-                <label>Information of extra-curricular/leisure activities, Hobbies</label>
-                @Html.TextAreaFor(a => a.ExtraCuricuarActivities, new { @class = "form-control" })
-            </div>
-            <div class="form-group mt-3">
-                <label>Foriegn Countries visited in last 5 years</label>
-                @Html.TextAreaFor(a => a.ForiegnCountryVisits, new { @class = "form-control" })
-            </div>
+		<div class="group-box anim" style="--delay: .3s">
+			<div class="small-header">General Information</div>
+			<div class="form-group mt-3">
+				<label>Information of extra-curricular/leisure activities, Hobbies</label>
+				@Html.TextAreaFor(a => a.ExtraCuricuarActivities, new { @class = "form-control" })
+			</div>
+			<div class="form-group mt-3">
+				<label>Foriegn Countries visited in last 5 years</label>
+				@Html.TextAreaFor(a => a.ForiegnCountryVisits, new { @class = "form-control" })
+			</div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <b> Person to be contacted, in case of emergency</b>
-                </div>
+			<div class="row">
+				<div class="col-md-12">
+					<b> Person to be contacted, in case of emergency</b>
+				</div>
 
-                <div class="col-md-3">
-                    <label>Contact Person Name</label>
-                    @Html.TextBoxFor(a => a.ContactPersonName, new { @class = "form-control" })
-                </div>
-                <div class="col-md-3">
-                    <label>Relationship</label>
-                    @Html.TextBoxFor(a => a.ContactPersonRelationship, new { @class = "form-control" })
-                </div>
+				<div class="col-md-3">
+					<label>Contact Person Name</label>
+					@Html.TextBoxFor(a => a.ContactPersonName, new { @class = "form-control" })
+				</div>
+				<div class="col-md-3">
+					<label>Relationship</label>
+					@Html.TextBoxFor(a => a.ContactPersonRelationship, new { @class = "form-control" })
+				</div>
 
-                <div class="col-md-3">
-                    <label>Mobile</label>
-                    @Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control mobile-mask" })
+				<div class="col-md-3">
+					<label>Mobile</label>
+					@Html.TextBoxFor(a => a.ContactPersonMobile, new { @class = "form-control mobile-mask" })
 
-                </div>
+				</div>
 
-                <div class="col-md-3">
-                    <label>Tel</label>
-                    @Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control mobile-mask" })
-                </div>
-            </div>
-        </div>
-        <div class="group-box anim" style="--delay: .3s">
-            <div class="small-header">Employee Status  (Active/In-active)</div>
-            <div class="col-md-4 form-group">
-                <label>Status</label>
-                @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <input type="submit" value="Submit" class="btn btn-success" />
-                <a href="/hr/employee/EmployeeListing" class="btn btn-danger" type="reset">Cancel</a>
-            </div>
-        </div>
+				<div class="col-md-3">
+					<label>Tel</label>
+					@Html.TextBoxFor(a => a.ContactPersonTelephone, new { @class = "form-control mobile-mask" })
+				</div>
+			</div>
+		</div>
+		<div class="group-box anim" style="--delay: .3s">
+			<div class="small-header">Employee Status  (Active/In-active)</div>
+			<div class="col-md-4 form-group">
+				<label>Status</label>
+				@Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input toggle-status-checkbox", data_employeeid = Model.EmployeeID })
 
-    </div>
+			</div>
+		</div>
+		<div class="row" id="EmployeeButtons">
+			<div class="col-md-12">
+				<input type="submit" value="Submit" class="btn btn-success" />
+				<a href="/hr/employee/EmployeeListing" class="btn btn-danger" type="reset">Cancel</a>
+			</div>
+		</div>
+
+	</div>
 
 </form>
-
+<div class="modal fade" id="congratsModal" tabindex="-1" aria-labelledby="congratsModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content text-center p-4" style="border-radius: 1rem; background: #e0f7e9;">
+			<div class="modal-body">
+				<h2 class="congrats-title mb-3">🎉 Congratulations! 🎉</h2>
+				<p id="congratsMessage" class="lead"></p>
+				<button type="button" class="btn btn-success mt-3" data-bs-dismiss="modal">Awesome!</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content text-center p-4" style="border-radius: 1rem; background: #fdecea;">
+			<div class="modal-body">
+				<h2 class="error-title mb-3">⚠️ Oops! Alert.</h2>
+				<p id="errorMessage" class="lead text-danger"></p>
+				<button type="button" class="btn btn-danger mt-3" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script src="/js/mobilemasking.js"></script>
 
 <script type="text/javascript">
 
-    var url = "@Url.Action("AddNewFamilyMember", "Employee")";
-    var urlEducationalDetails = "@Url.Action("AddNewEducationalDetail", "Employee")";
-    var urlAddNewLanguageDetails = "@Url.Action("AddNewLanguageDetail", "Employee")";
-    var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentHistory", "Employee")";
+	var url = "@Url.Action("AddNewFamilyMember", "Employee")";
+	var urlEducationalDetails = "@Url.Action("AddNewEducationalDetail", "Employee")";
+	var urlAddNewLanguageDetails = "@Url.Action("AddNewLanguageDetail", "Employee")";
+	var urlAddNewEmploymentDetails = "@Url.Action("AddNewEmploymentHistory", "Employee")";
 
-    function AddNewFamily(isDeleted) {
-        var familyMembers = [];
-        if ($('.FamilyName').length > 0) {
-            var elementID = '';
+	function AddNewFamily(isDeleted) {
+		var familyMembers = [];
+		if ($('.FamilyName').length > 0) {
+			var elementID = '';
 
-            $('.FamilyName').each(function (index, element) {
-                elementID = element.id;
-                var familyMember = {
-                    FamilyName: $("#" + elementID).val(),
-                    EmployeesFamilyDetailID: $("#" + elementID.replace("FamilyName", "EmployeesFamilyDetailID")).val(),
-                    Relationship: $("#" + elementID.replace("FamilyName", "Relationship")).val(),
-                    Age: $("#" + elementID.replace("FamilyName", "Age")).val(),
-                    Details: $("#" + elementID.replace("FamilyName", "Details")).val()
-                };
-                familyMembers.push(familyMember);
-            });
-        }
-        var model = { FamilyDetails: familyMembers, isDeleted: isDeleted };
+			$('.FamilyName').each(function (index, element) {
+				elementID = element.id;
+				var familyMember = {
+					FamilyName: $("#" + elementID).val(),
+					EmployeesFamilyDetailID: $("#" + elementID.replace("FamilyName", "EmployeesFamilyDetailID")).val(),
+					Relationship: $("#" + elementID.replace("FamilyName", "Relationship")).val(),
+					Age: $("#" + elementID.replace("FamilyName", "Age")).val(),
+					Details: $("#" + elementID.replace("FamilyName", "Details")).val()
+				};
+				familyMembers.push(familyMember);
+			});
+		}
+		var model = { FamilyDetails: familyMembers, isDeleted: isDeleted };
 
-        $.post(url, model, function (res) {
-            //res contains the markup returned by the partial view
-            //You probably want to set that to some Div.
-            $("#FamilyDetails").html(res);
-        });
-    }
-
-
-    function AddNewEducation(isDeleted) {
-        var EducationalDetails = [];
-        if ($('.EducationalDetails').length > 0) {
-            var elementID = '';
-            $('.EducationalDetails').each(function (index, element) {
-                elementID = element.id;
-                var EducationalDetail = {
-                    School_University: $("#" + elementID).val(),
-                    EducationDetailID: $("#" + elementID.replace("School_University", "EducationDetailID")).val(),
-                    Qualification: $("#" + elementID.replace("School_University", "Qualification")).val(),
-                    YearOfPassing: $("#" + elementID.replace("School_University", "YearOfPassing")).val(),
-                    Percentage: $("#" + elementID.replace("School_University", "Percentage")).val(),
-                    Major_OptionalSubjects: $("#" + elementID.replace("School_University", "Major_OptionalSubjects")).val(),
-                    CertificateImage: $("#" + elementID.replace("School_University", "CertificateImage_" + (index + 1))).val()
-                };
-                EducationalDetails.push(EducationalDetail);
-            });
-        }
-        var model = { EducationalDetails: EducationalDetails, isDeleted: isDeleted };
-
-        $.post(urlEducationalDetails, model, function (res) {
-            //res contains the markup returned by the partial view
-            //You probably want to set that to some Div.
-            $("#EducationalDetails").html(res);
-        });
-    }
+		$.post(url, model, function (res) {
+			//res contains the markup returned by the partial view
+			//You probably want to set that to some Div.
+			$("#FamilyDetails").html(res);
+		});
+	}
 
 
-    function AddNewLanguage(isDeleted) {
-        var LanguageDetails = [];
-        if ($('.LanguageID').length > 0) {
-            var elementID = '';
-            $('.LanguageID').each(function (index, element) {
-                elementID = element.id;
-                var LanguageDetail = {
-                    LanguageID: $("#" + elementID).val(),
-                    LanguageDetailID: $("#" + elementID.replace("LanguageID", "EducationDetailID")).val(),
-                    IsSpeak: $("#" + elementID.replace("LanguageID", "IsSpeak")).is(":checked"),
-                    IsRead: $("#" + elementID.replace("LanguageID", "IsRead")).is(":checked"),
-                    IsWrite: $("#" + elementID.replace("LanguageID", "IsWrite")).is(":checked")
-                };
-                LanguageDetails.push(LanguageDetail);
-            });
-        }
-        var model = { LanguageDetails: LanguageDetails, isDeleted: isDeleted };
+	function AddNewEducation(isDeleted) {
+		var EducationalDetails = [];
+		if ($('.EducationalDetails').length > 0) {
+			var elementID = '';
+			$('.EducationalDetails').each(function (index, element) {
+				elementID = element.id;
+				var EducationalDetail = {
+					School_University: $("#" + elementID).val(),
+					EducationDetailID: $("#" + elementID.replace("School_University", "EducationDetailID")).val(),
+					Qualification: $("#" + elementID.replace("School_University", "Qualification")).val(),
+					YearOfPassing: $("#" + elementID.replace("School_University", "YearOfPassing")).val(),
+					Percentage: $("#" + elementID.replace("School_University", "Percentage")).val(),
+					Major_OptionalSubjects: $("#" + elementID.replace("School_University", "Major_OptionalSubjects")).val(),
+					CertificateImage: $("#" + elementID.replace("School_University", "CertificateImage_" + (index + 1))).val()
+				};
+				EducationalDetails.push(EducationalDetail);
+			});
+		}
+		var model = { EducationalDetails: EducationalDetails, isDeleted: isDeleted };
 
-        $.post(urlAddNewLanguageDetails, model, function (res) {
-            //res contains the markup returned by the partial view
-            //You probably want to set that to some Div.
-            $("#LanguageDetails").html(res);
-        });
-    }
+		$.post(urlEducationalDetails, model, function (res) {
+			//res contains the markup returned by the partial view
+			//You probably want to set that to some Div.
+			$("#EducationalDetails").html(res);
+		});
+	}
 
-    function AddNewEmployment(isDeleted) {
-        var EmploymentHistory = [];
-        if ($('.EmploymentHistory').length > 0) {
-            var elementID = '';
-            $('.EmploymentHistory').each(function (index, element) {
-                elementID = element.id;
-                var EmploymentDetail = {
-                    CompanyName: $("#" + elementID).val(),
-                    EmployementID: $("#" + elementID.replace("CompanyName", "EmployementID")).val(),
-                    From: $("#" + elementID.replace("CompanyName", "From")).val(),
-                    To: $("#" + elementID.replace("CompanyName", "To")).val(),
-                    Address: $("#" + elementID.replace("CompanyName", "Address")).val(),
-                    Phone: $("#" + elementID.replace("CompanyName", "Phone")).val(),
-                    City: $("#" + elementID.replace("CompanyName", "City")).val(),
-                    State: $("#" + elementID.replace("CompanyName", "State")).val(),
-                    CountryID: $("#" + elementID.replace("CompanyName", "CountryID")).val(),
-                    PostalCode: $("#" + elementID.replace("CompanyName", "PostalCode")).val(),
-                    ReasionFoLeaving: $("#" + elementID.replace("CompanyName", "ReasionFoLeaving")).val(),
-                    Designition: $("#" + elementID.replace("CompanyName", "Designition")).val(),
-                    GrossSalary: $("#" + elementID.replace("CompanyName", "GrossSalary")).val(),
-                    SupervisorName: $("#" + elementID.replace("CompanyName", "SupervisorName")).val(),
-                    SupervisorDesignition: $("#" + elementID.replace("CompanyName", "SupervisorDesignition")).val(),
-                    SupervisorContactNo: $("#" + elementID.replace("CompanyName", "SupervisorContactNo")).val(),
-                    HRName: $("#" + elementID.replace("CompanyName", "HRName")).val(),
-                    HREmail: $("#" + elementID.replace("CompanyName", "HREmail")).val(),
-                    HRContactNo: $("#" + elementID.replace("CompanyName", "HRContactNo")).val(),
-                };
 
-                EmploymentHistory.push(EmploymentDetail);
-            });
-        }
-        var model = { EmploymentHistory: EmploymentHistory, isDeleted: isDeleted };
+	function AddNewLanguage(isDeleted) {
+		var LanguageDetails = [];
+		if ($('.LanguageID').length > 0) {
+			var elementID = '';
+			$('.LanguageID').each(function (index, element) {
+				elementID = element.id;
+				var LanguageDetail = {
+					LanguageID: $("#" + elementID).val(),
+					LanguageDetailID: $("#" + elementID.replace("LanguageID", "EducationDetailID")).val(),
+					IsSpeak: $("#" + elementID.replace("LanguageID", "IsSpeak")).is(":checked"),
+					IsRead: $("#" + elementID.replace("LanguageID", "IsRead")).is(":checked"),
+					IsWrite: $("#" + elementID.replace("LanguageID", "IsWrite")).is(":checked")
+				};
+				LanguageDetails.push(LanguageDetail);
+			});
+		}
+		var model = { LanguageDetails: LanguageDetails, isDeleted: isDeleted };
 
-        $.post(urlAddNewEmploymentDetails, model, function (res) {
-            //res contains the markup returned by the partial view
-            //You probably want to set that to some Div.
-            $("#EmploymentDetails").html(res);
-        });
-    }
+		$.post(urlAddNewLanguageDetails, model, function (res) {
+			//res contains the markup returned by the partial view
+			//You probably want to set that to some Div.
+			$("#LanguageDetails").html(res);
+		});
+	}
 
-    $(document).ready(function () {
-        var familyMembers = [];
-        $('#AddNewFamily').click(function () {
-            AddNewFamily(false);
-        });
+	function AddNewEmployment(isDeleted) {
+		var EmploymentHistory = [];
+		if ($('.EmploymentHistory').length > 0) {
+			var elementID = '';
+			$('.EmploymentHistory').each(function (index, element) {
+				elementID = element.id;
+				var EmploymentDetail = {
+					CompanyName: $("#" + elementID).val(),
+					EmployementID: $("#" + elementID.replace("CompanyName", "EmployementID")).val(),
+					From: $("#" + elementID.replace("CompanyName", "From")).val(),
+					To: $("#" + elementID.replace("CompanyName", "To")).val(),
+					Address: $("#" + elementID.replace("CompanyName", "Address")).val(),
+					Phone: $("#" + elementID.replace("CompanyName", "Phone")).val(),
+					City: $("#" + elementID.replace("CompanyName", "City")).val(),
+					State: $("#" + elementID.replace("CompanyName", "State")).val(),
+					CountryID: $("#" + elementID.replace("CompanyName", "CountryID")).val(),
+					PostalCode: $("#" + elementID.replace("CompanyName", "PostalCode")).val(),
+					ReasionFoLeaving: $("#" + elementID.replace("CompanyName", "ReasionFoLeaving")).val(),
+					Designition: $("#" + elementID.replace("CompanyName", "Designition")).val(),
+					GrossSalary: $("#" + elementID.replace("CompanyName", "GrossSalary")).val(),
+					SupervisorName: $("#" + elementID.replace("CompanyName", "SupervisorName")).val(),
+					SupervisorDesignition: $("#" + elementID.replace("CompanyName", "SupervisorDesignition")).val(),
+					SupervisorContactNo: $("#" + elementID.replace("CompanyName", "SupervisorContactNo")).val(),
+					HRName: $("#" + elementID.replace("CompanyName", "HRName")).val(),
+					HREmail: $("#" + elementID.replace("CompanyName", "HREmail")).val(),
+					HRContactNo: $("#" + elementID.replace("CompanyName", "HRContactNo")).val(),
+				};
 
-        $('#AddNewEducation').click(function () {
-            AddNewEducation(false);
-        });
-        $('#AddNewLanguage').click(function () {
-            AddNewLanguage(false);
-        });
-        $('#AddNewEmployment').click(function () {
-            AddNewEmployment(false);
-        });
+				EmploymentHistory.push(EmploymentDetail);
+			});
+		}
+		var model = { EmploymentHistory: EmploymentHistory, isDeleted: isDeleted };
 
-    });
-     function showPreview(event) {
-        const file = event.target.files[0];
-        const maxSizeInMB = 4;
-        if (file) {
-            const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
-            if (!file.type.startsWith('image/')) {
-                alert("Only image files are allowed.");
-                event.target.value = "";
-                return;
-            }
-            if (file.size > maxSizeInBytes) {
-                alert("Image size should not exceed 4MB.");
-                event.target.value = "";
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById('previewImage').src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-    // $(document).ready(function () {   
-    //     $('.mobile-mask').mask('(000) 000-0000');
-    // });
+		$.post(urlAddNewEmploymentDetails, model, function (res) {
+			//res contains the markup returned by the partial view
+			//You probably want to set that to some Div.
+			$("#EmploymentDetails").html(res);
+		});
+	}
 
-      $(document).ready(function () {
-        // Input masking for each mobile-mask field
-        $('.mobile-mask').on('input', function () {
-            let input = $(this).val().replace(/\D/g, '');
+	$(document).ready(function () {
+		var familyMembers = [];
+		$('#AddNewFamily').click(function () {
+			AddNewFamily(false);
+		});
 
-            if (input.length > 10) input = input.substring(0, 10);
+		$('#AddNewEducation').click(function () {
+			AddNewEducation(false);
+		});
+		$('#AddNewLanguage').click(function () {
+			AddNewLanguage(false);
+		});
+		$('#AddNewEmployment').click(function () {
+			AddNewEmployment(false);
+		});
 
-            let formatted = '';
+	});
+	 function showPreview(event) {
+		const file = event.target.files[0];
+		const maxSizeInMB = 4;
+		if (file) {
+			const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+			if (!file.type.startsWith('image/')) {
+				alert("Only image files are allowed.");
+				event.target.value = "";
+				return;
+			}
+			if (file.size > maxSizeInBytes) {
+				alert("Image size should not exceed 4MB.");
+				event.target.value = "";
+				return;
+			}
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				document.getElementById('previewImage').src = e.target.result;
+			};
+			reader.readAsDataURL(file);
+		}
+	}
+	$(document).ready(function () {
+	    $('.mobile-mask').mask('(0000)-000-000');
+	});
 
-            if (input.length >= 1) {
-                formatted += '(' + input.substring(0, Math.min(4, input.length)) + ')';
-            }
+ 
 
-            if (input.length > 4) {
-                formatted += '-' + input.substring(4, Math.min(7, input.length));
-            }
 
-            if (input.length > 7) {
-                formatted += '-' + input.substring(7, 10);
-            }
 
-            $(this).val(formatted);
-        });
+	   $(document).on('change', '.toggle-status-checkbox', function () {
+		var employeeId = $(this).data('employeeid');
+		var newStatus = $(this).is(':checked') ? 1 : 0;
+	var Emp = '@Model.EmployeeID';
+	if(Emp>0)
+	{
+		toggleEmployeeStatus(employeeId, newStatus);
+	}
+	});
 
-        // On blur, validate individual field
-        $('.mobile-mask').on('blur', function () {
-            let rawInput = $(this).val().replace(/\D/g, '');
-            if (rawInput.length < 10) {
-                alert("Please enter Correct number.");
-              
-            }
-        });
 
-        // On form submit, validate all mobile-mask fields
-        $('#myForm').on('submit', function (e) {
-            let isValid = true;
+		function toggleEmployeeStatus(employeeId, newStatus) {
 
-            $('.mobile-mask').each(function () {
-                let rawInput = $(this).val().replace(/\D/g, '');
-                if (rawInput.length < 10) {
-                    alert("Please enter Correct number");
-                setTimeout(() => {
-                $(this).focus();
-            }, 0);
-                    isValid = false;
-                    return false; // break out of .each loop
-                }
-            });
+		if (!confirm('Are you sure you want to change the employee status?')) {
+			return;
+		}
 
-            if (!isValid) {
-                e.preventDefault(); // Stop form submission
-            }
-        });
-    });
+		$.ajax({
+			url: '/HR/employee/InActiveEmployee',
+			type: 'GET',
+			data: {
+				employeeId: '@Model.EmployeeID',
+				isActive: newStatus
+			},
+			success: function (response) {
+				if (response.success) {
+					var reportingData = response.data;
+					if (reportingData.status == 0) {
+						// $('#congratsMessage').text(reportingData.message);
+						// var congratsModal = new bootstrap.Modal(document.getElementById('congratsModal'));
+						// congratsModal.show();
+						// setTimeout(() => congratsModal.hide(), 4000);
+
+						// $('#tblEmployeeListing').DataTable().ajax.reload(null, false);
+					} else {
+						$("#EmployeeButtons").hide();
+						$('#errorMessage').text(reportingData.message);
+						var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+						errorModal.show();
+					}
+				} else {
+					alert('Operation was not successful.');
+				}
+			},
+			error: function () {
+				alert('Failed to toggle status.');
+			}
+		});
+	}
+
+
 
 
 </script>
