@@ -1169,7 +1169,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     DateOfBirth = item.DateOfBirth,
                     PlaceOfBirth = item.PlaceOfBirth,
                     IsReferredByExistingEmployee = item.IsReferredByExistingEmployee,
-                    ReferredByEmployeeName = item.ReferredByEmployeeName,
+                   
                     BloodGroup = item.BloodGroup,
                     PANNo = item.PANNo,
                     AadharCardNo = item.AadharCardNo,
