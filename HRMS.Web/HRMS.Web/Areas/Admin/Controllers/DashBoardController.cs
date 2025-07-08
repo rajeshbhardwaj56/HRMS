@@ -641,7 +641,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 long SubDepartmentNameId = 0;
                 long ShiftTypeId = 0;
                 long JobLocationId = 0;
-                long RoleId = 0;
+            
                 long PayrollTypeId = 0;
                 long LeavePolicyId = 0;
                 long GenderId = 0;
@@ -674,7 +674,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         {
                             switch (columnName)
                             {
-                                case "EmployeeNumber":
+                                case "EMPID":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
                                         if (!uniqueEmployeeNumber.Add(cellValue))
@@ -740,7 +740,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 case "CompanyName":
                                     prop.SetValue(item, companyId.ToString());
                                     break;
-                                case "CorrespondenceCountryName":
+                                case "PresentCountryName":
                                     if (!string.IsNullOrEmpty(cellValue))
                                     {
                                         long countryId = countryDictionary.TryGetValue(cellValue.ToLower(), out long cid) ? cid : 0;
@@ -776,10 +776,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-                                case "JobLocationName":
+                                case "Location":
                                     if (string.IsNullOrWhiteSpace(cellValue))
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: JobLocationName is required.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: Location is required.");
                                         hasError = true;
                                     }
                                     else if (employmentDetailsDictionaries.TryGetValue("JobLocations", out var JobLocationNameDict))
@@ -792,13 +792,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                                         if (JobLocationId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: JobLocationName  not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: Location  not found in master data.");
                                             hasError = true;
                                         }
                                     }
                                     else
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: JobLocationName dictionary is missing or empty.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: Location dictionary is missing or empty.");
                                         hasError = true;
                                     }
                                     break;
@@ -859,31 +859,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-                                case "RoleName":
-                                    if (string.IsNullOrWhiteSpace(cellValue))
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: RoleName is required.");
-                                        hasError = true;
-                                    }
-                                    else if (employmentDetailsDictionaries.TryGetValue("Roles", out var RoleNameDict))
-                                    {
-                                        var matchedPolicy = RoleNameDict
-                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                        RoleId = matchedPolicy.Value;
-                                        prop.SetValue(item, RoleId.ToString());
 
-                                        if (RoleId == 0)
-                                        {
-                                            AddError(errorDataTable, columnName, $"Row {row}: RoleName not found in master data.");
-                                            hasError = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: RoleName dictionary is missing or empty.");
-                                        hasError = true;
-                                    }
-                                    break;
                                 case "PayrollTypeName":
                                     if (string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -996,10 +972,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
-                                case "EmploymentType":
+                                case "Category":
                                     if (string.IsNullOrWhiteSpace(cellValue))
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: EmploymentType is required.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: Category is required.");
                                         hasError = true;
                                     }
                                     else if (employmentDetailsDictionaries.TryGetValue("EmploymentTypes", out var EmploymentTypesDict))
@@ -1012,13 +988,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                                         if (EmploymentTypesId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: EmploymentType not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: Category not found in master data.");
                                             hasError = true;
                                         }
                                     }
                                     else
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: EmploymentType dictionary is missing or empty.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: Category dictionary is missing or empty.");
                                         hasError = true;
                                     }
                                     break;
@@ -1173,16 +1149,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     FirstName = item.FirstName,
                     MiddleName = item.MiddleName,
                     Surname = item.Surname,
-                    CorrespondenceAddress = item.CorrespondenceAddress,
-                    CorrespondenceCity = item.CorrespondenceCity,
-                    CorrespondencePinCode = item.CorrespondencePinCode,
-                    CorrespondenceState = item.CorrespondenceState,
-                    CorrespondenceCountryName = item.CorrespondenceCountryName,
-                    EmailAddress = item.EmailAddress,
+                    PresentAddress = item.PresentAddress,
+                    PresentCity = item.PresentCity,
+                    PresentPinCode = item.PresentPinCode,
+                    PresentState = item.PresentState,
+                    PresentCountryName = item.PresentCountryName,
+                    EmailId = item.EmailId,
                     Landline = item.Landline,
                     Mobile = item.Mobile,
                     Telephone = item.Telephone,
-                    PersonalEmailAddress = item.PersonalEmailAddress,
                     PermanentAddress = item.PermanentAddress,
                     PermanentCity = item.PermanentCity,
                     PermanentPinCode = item.PermanentPinCode,
@@ -1212,13 +1187,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     ITSkillsKnowledge = item.ITSkillsKnowledge,
                     LeavePolicyName = item.LeavePolicyName,
                     Gender = item.Gender,
-                    RoleName = item.RoleName,
-                    EmployeeNumber = item.EmployeeNumber,
+                    EMPID = item.EMPID,
                     DesignationName = item.DesignationName,
-                    EmploymentType = item.EmploymentType,
+                    Category = item.Category,
                     DepartmentName = item.DepartmentName,
-                    JobLocationName = item.JobLocationName,
-                    OfficialEmail = item.OfficialEmail,
+                    Location = item.Location,
+                    ProtalkId = item.ProtalkId,
                     OfficialContactNo = item.OfficialContactNo,
                     JoiningDate = item.JoiningDate,
                     DateOfResignation = item.DateOfResignation,
@@ -1233,7 +1207,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     UANNumber = item.UANNumber,
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
-                    AgeOnNetwork = item.AgeOnNetwork,
+                    AON = item.AON,
                     NoticeServed = item.NoticeServed,
                     LeavingType = item.LeavingType,
                     PreviousExperience = item.PreviousExperience,
@@ -1245,8 +1219,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     BackOnFloor = item.BackOnFloor,
                     LeavingRemarks = item.LeavingRemarks,
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
-                    DateOfEmailSentToITForDeletion = item.DateOfEmailSentToITForDeletion,
-                    ReportingToManagerEmployeeNumber = item.ReportingToManagerEmployeeNumber,
+                    DateOfEmailSentToITForIDDeletion = item.DateOfEmailSentToITForIDDeletion,
+                    EmpCodeofReportingManager = item.EmpCodeofReportingManager,
                     ReportingToIDL2Name = HttpContext.Session.GetString(Constants.EmployeeID),
                     InsertedByUserID = HttpContext.Session.GetString(Constants.UserID),
                     Status = item.Status,
@@ -1268,6 +1242,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return ConvertDataTableToHTML(errorDataTable);
         }
+
         private string GetCellValue(ExcelWorksheet worksheet, int row, Dictionary<string, int> columnIndexes, string columnName)
         {
             return columnIndexes.ContainsKey(columnName)

@@ -3568,16 +3568,16 @@ namespace HRMS.API.BusinessLayer
                     FirstName = item.FirstName,
                     MiddleName = item.MiddleName,
                     Surname = item.Surname,
-                    CorrespondenceAddress = item.CorrespondenceAddress,
-                    CorrespondenceCity = item.CorrespondenceCity,
-                    CorrespondencePinCode = item.CorrespondencePinCode,
-                    CorrespondenceState = item.CorrespondenceState,
-                    CorrespondenceCountryID = Convert.ToInt64(item.CorrespondenceCountryName),
-                    EmailAddress = item.EmailAddress,
+                    CorrespondenceAddress = item.PresentAddress,
+                    CorrespondenceCity = item.PresentCity,
+                    CorrespondencePinCode = item.PresentPinCode,
+                    CorrespondenceState = item.PresentState,
+                    CorrespondenceCountryID = Convert.ToInt64(item.PresentCountryName),
+                    EmailAddress = item.EmailId,
                     Landline = item.Landline,
                     Mobile = item.Mobile,
                     Telephone = item.Telephone,
-                    PersonalEmailAddress = item.PersonalEmailAddress,
+                    PersonalEmailAddress = item.EmailId,
                     PermanentAddress = item.PermanentAddress,
                     PermanentCity = item.PermanentCity,
                     PermanentPinCode = item.PermanentPinCode,
@@ -3608,15 +3608,15 @@ namespace HRMS.API.BusinessLayer
                     InsertedByUserID = Convert.ToInt64(item.InsertedByUserID),
                     LeavePolicyID = Convert.ToInt64(item.LeavePolicyName),
                     Gender = TryParseInt(item.Gender),
-                    UserName = item.EmployeeNumber,
-                    Email = item.PersonalEmailAddress,
-                    RoleID = TryParseInt(item.RoleName) ?? 0,
-                    EmployeNumber = item.EmployeeNumber,
+                    UserName = item.EMPID,
+                    Email = item.EmailId,
+
+                    EmployeNumber = item.EMPID,
                     DesignationID = Convert.ToInt64(item.DesignationName),
-                    EmployeeTypeID = Convert.ToInt64(item.EmploymentType),
+                    EmployeeTypeID = Convert.ToInt64(item.Category),
                     DepartmentID = Convert.ToInt64(item.DepartmentName),
-                    JobLocationID = Convert.ToInt64(item.JobLocationName),
-                    OfficialEmailID = item.OfficialEmail,
+                    JobLocationID = Convert.ToInt64(item.Location),
+                    OfficialEmailID = item.ProtalkId,
                     OfficialContactNo = item.OfficialContactNo,
                     JoiningDate = TryParseDate(item.JoiningDate),
                     JobSeprationDate = TryParseDate(item.DateOfResignation),
@@ -3632,7 +3632,7 @@ namespace HRMS.API.BusinessLayer
                     UANNumber = item.UANNumber,
                     IFSCCode = item.IFSCCode,
                     BankName = item.BankName,
-                    AgeOnNetwork = Convert.ToInt32(item.AgeOnNetwork),
+                    AgeOnNetwork = Convert.ToInt32(item.AON),
                     NoticeServed = Convert.ToInt32(item.NoticeServed),
                     LeavingType = item.LeavingType,
                     PreviousExperience = item.PreviousExperience,
@@ -3645,19 +3645,19 @@ namespace HRMS.API.BusinessLayer
                     BackOnFloorDate = TryParseDate(item.BackOnFloor),
                     LeavingRemarks = item.LeavingRemarks,
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
-                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForDeletion),
+                    EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion),
                     IsActive = item.Status == "1",
-                    ReportingToIDL1EmployeeNumber = item.ReportingToManagerEmployeeNumber
+                    ReportingToIDL1EmployeeNumber = item.EmpCodeofReportingManager
                 }).ToList();
                 var employeeDataTable = ConvertToDataTable(employeeList);
                 var parameters = new List<SqlParameter>
-        {
-            new SqlParameter("@EmployeeTVP", SqlDbType.Structured)
-            {
-                TypeName = "dbo.EmployeeTVP",
-                Value = employeeDataTable
-            }
-        };
+{
+    new SqlParameter("@EmployeeTVP", SqlDbType.Structured)
+    {
+        TypeName = "dbo.EmployeeTVP",
+        Value = employeeDataTable
+    }
+};
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdateExcelImport, parameters);
 
                 return new Result
@@ -3673,6 +3673,12 @@ namespace HRMS.API.BusinessLayer
                 };
             }
         }
+
+
+
+
+
+
 
         private DataTable ConvertToDataTable(List<ImportExcelDataTableType> employees)
         {
@@ -3727,7 +3733,6 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("UserName", typeof(string));
             table.Columns.Add("PasswordHash", typeof(string));
             table.Columns.Add("Email", typeof(string));
-            table.Columns.Add("RoleID", typeof(int));
             table.Columns.Add("EmployeNumber", typeof(string));
             table.Columns.Add("DesignationID", typeof(long));
             table.Columns.Add("EmployeeTypeID", typeof(long));
@@ -3818,7 +3823,6 @@ namespace HRMS.API.BusinessLayer
                     emp.UserName,
                     emp.PasswordHash,
                     emp.Email,
-                    emp.RoleID,
                     emp.EmployeNumber,
                     emp.DesignationID,
                     emp.EmployeeTypeID,
@@ -3862,6 +3866,12 @@ namespace HRMS.API.BusinessLayer
             return table;
         }
 
+
+
+
+
+
+        
         private static bool? TryParseBool(string? boolString)
         {
             if (boolString == null) return null;
