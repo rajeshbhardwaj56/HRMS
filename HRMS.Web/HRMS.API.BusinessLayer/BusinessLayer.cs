@@ -3589,6 +3589,7 @@ namespace HRMS.API.BusinessLayer
                     DateOfBirth = TryParseDate(item.DateOfBirth),
                     PlaceOfBirth = item.PlaceOfBirth,
                     IsReferredByExistingEmployee = TryParseBool(item.IsReferredByExistingEmployee),
+                    ReferredByEmployeeID = item.ReferredByEmployeeName,
                     BloodGroup = item.BloodGroup,
                     PANNo = item.PANNo,
                     AadharCardNo = item.AadharCardNo,
@@ -3610,7 +3611,6 @@ namespace HRMS.API.BusinessLayer
                     Gender = TryParseInt(item.Gender),
                     UserName = item.EMPID,
                     Email = item.EmailId,
-
                     EmployeNumber = item.EMPID,
                     DesignationID = Convert.ToInt64(item.DesignationName),
                     EmployeeTypeID = Convert.ToInt64(item.Category),
