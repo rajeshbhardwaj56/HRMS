@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Xml;
 using System.Xml.Serialization;
 using HRMS.API.BusinessLayer.ITF;
@@ -20,20 +21,25 @@ using HRMS.Models.ShiftType;
 using HRMS.Models.Template;
 using HRMS.Models.User;
 using HRMS.Models.WhatsHappeningModel;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Serilog.Core;
 
 namespace HRMS.API.BusinessLayer
 {
     public class BusinessLayer : IBusinessLayer
     {
+        private readonly ILogger<BusinessLayer> _logger;
         IDataLayer DataLayer { get; set; }
         IAttandanceDataLayer AttandanceDataLayer { get; set; }
         private readonly IConfiguration _configuration;
-        public BusinessLayer(IConfiguration configuration, IDataLayer dataLayer, IAttandanceDataLayer attandanceDataLayer, IConfiguration configurations)
+        public BusinessLayer(ILogger<BusinessLayer> logger, IConfiguration configuration, IDataLayer dataLayer, IAttandanceDataLayer attandanceDataLayer, IConfiguration configurations)
         {
+            _logger = logger;
             DataLayer = dataLayer;
             AttandanceDataLayer = attandanceDataLayer;
             DataLayer._configuration = configuration;
@@ -423,13 +429,13 @@ namespace HRMS.API.BusinessLayer
             switch (RoleID)
             {
                 case (int)Roles.Admin:
-                    RootName = string.Format(Constants.RootUrlFormat, Constants.ManageAdmin, Roles.Admin.ToString());
+                    RootName = string.Format(Models.Common.Constants.RootUrlFormat, Models.Common.Constants.ManageAdmin, Roles.Admin.ToString());
                     break;
                 case (int)Roles.HR:
-                    RootName = string.Format(Constants.RootUrlFormat, Constants.ManageHR, Roles.HR.ToString());
+                    RootName = string.Format(Models.Common.Constants.RootUrlFormat, Models.Common.Constants.ManageHR, Roles.HR.ToString());
                     break;
                 case (int)Roles.Employee:
-                    RootName = string.Format(Constants.RootUrlFormat, Constants.ManageEmployee, Roles.Employee.ToString());
+                    RootName = string.Format(Models.Common.Constants.RootUrlFormat, Models.Common.Constants.ManageEmployee, Roles.Employee.ToString());
                     break;
                 default:
                     break;
@@ -2038,10 +2044,10 @@ namespace HRMS.API.BusinessLayer
                     dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
 
                 }
-                
-           
 
-                
+
+
+
                 if (dashBoardModel == null)
                 {
                     dashBoardModel = new DashBoardModel();
@@ -2615,65 +2621,57 @@ namespace HRMS.API.BusinessLayer
             return new AttendanceLogResponse { AttendanceLogs = attendanceLogs };
         }
 
-        //public AttendanceInputParams GetAttendance(AttendanceInputParams model)
-        //{
-        //    //string connectionString = model.conStr.ToString();
-        //    string connectionString = _configuration["ConnectionStrings:attandanceStr"].ToString();
+        private static readonly object _logLock = new object();
 
-        //    try
-        //    {
-        //        using (SqlConnection conn = new SqlConnection(connectionString))
-        //        {
-        //            using (SqlCommand cmd = new SqlCommand("usp_CalculateMonthlyAttendance_WithShifts", conn))
-        //            {
-        //                cmd.CommandType = CommandType.StoredProcedure;
+        private void Logdata(string eventType, string message)
+        {
+            try
+            {
+                string projectRoot = _configuration["LogSettings:LogDirectory"];
+                string logDirectory = Path.Combine(projectRoot, "Logs");
+                string logFilePath = Path.Combine(logDirectory, "Logdata.txt");
 
-        //                // Add parameters
-        //                cmd.Parameters.AddWithValue("@Year", model.Year);
-        //                cmd.Parameters.AddWithValue("@Month", model.Month);
-        //                cmd.Parameters.AddWithValue("@Day", model.Day);
-        //                cmd.Parameters.AddWithValue("@UserId", model.UserId);
-        //                cmd.Parameters.AddWithValue("@IsManual", false);
-        //                cmd.Parameters.AddWithValue("@AttendanceStatus", AttendanceStatus.Approved.ToString());
+                if (!Directory.Exists(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
 
-        //                conn.Open();
+                lock (_logLock)
+                {
+                    using (StreamWriter writer = new StreamWriter(logFilePath, true))
+                    {
+                        writer.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{eventType}] {message}");
+                        writer.Flush();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    if (OperatingSystem.IsWindows())
+                    {
+                        string source = "HRMSAppLogger";
+                        if (!EventLog.SourceExists(source))
+                        {
+                            EventLog.CreateEventSource(source, "Application");
+                        }
+                        EventLog.WriteEntry(source, $"Log write failed: {ex.Message}", EventLogEntryType.Error);
+                    }
+                }
+                catch
+                {
+                    // Silent fail
+                }
+            }
+        }
 
-        //                using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
-        //                {
-        //                    DataSet dataSet = new DataSet();
-        //                    adapter.Fill(dataSet);
 
-        //                    if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
-        //                    {
-        //                        var row = dataSet.Tables[0].Rows[0];
-        //                        string status = row["Status"].ToString();
-        //                        string message = row["Message"].ToString();
-
-        //                        model.Status = status;
-        //                        model.Message = message;
-        //                        model.IsSuccess = status.Equals("Success", StringComparison.OrdinalIgnoreCase);
-        //                    }
-        //                    else
-        //                    {
-        //                        model.Message = "No response from the stored procedure.";
-        //                        model.IsSuccess = false;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        model.Message = "Error: " + ex.Message;
-        //        model.IsSuccess = false;
-        //    }
-
-        //    return model;
-        //}
 
         public AttendanceInputParams GetAttendance(AttendanceInputParams model)
         {
             string connectionString = _configuration["ConnectionStrings:conStr"];
+            Logdata("Attendance fetching started: {Date}", $"{model.Year}{model.Month}{model.Day}");
 
             try
             {
@@ -2699,20 +2697,28 @@ namespace HRMS.API.BusinessLayer
                         {
                             model.Message = "Attendance calculated successfully.";
                             model.IsSuccess = true;
+                            Logdata("Attendance fetching completed: {Date}", $"{model.Year}{model.Month}{model.Day}");
+
                         }
                         else
                         {
                             model.Message = "No attendance data returned.";
                             model.IsSuccess = false;
+                            Logdata("No attendance data: {Date}", $"{model.Year}{model.Month}{model.Day}");
+
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
+                string date = $"{model.Year}{model.Month:D2}{model.Day:D2}";
+                string errorMessage = $"Error during attendance fetching for date {date}: {ex.Message}";
+                Logdata("ERROR", errorMessage);
                 model.Message = "Error: " + ex.Message;
                 model.IsSuccess = false;
             }
+
 
             return model;
         }
@@ -3871,7 +3877,7 @@ namespace HRMS.API.BusinessLayer
 
 
 
-        
+
         private static bool? TryParseBool(string? boolString)
         {
             if (boolString == null) return null;
@@ -5065,7 +5071,7 @@ namespace HRMS.API.BusinessLayer
             return ShiftTypeID;
         }
 
- 
+
 
 
         public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber)
