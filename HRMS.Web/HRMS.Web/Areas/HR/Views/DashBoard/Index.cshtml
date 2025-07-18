@@ -326,6 +326,69 @@
         </div>
     </div>
 </div>
+@if (Model?.EmployeeHierarchy != null && Model.EmployeeHierarchy.Any())
+{
+    <div class="row">
+        <div class="col col-lg-12 order-0 mb-4 anim" style="--delay: .1s">
+            <div class="card">
+                <div class="card-header pb-0 p-3">
+                    <h6 class="mb-0">Reporting Structure</h6>
+                </div>
+                <div class="p-3">
+                    <div class="employee-hierarchy">
+                        @{
+
+                            void RenderEmployee(HRMS.Models.DashBoard.HierarchyEmployee employee, int level)
+                            {
+                                <div class="hierarchy-node" style="margin-left: @(level * 30)px;">
+                                    <div class="employee-card">
+                                        <div class="employee-info">
+                                            <div class="employee-photo">
+                                                <img src="@(string.IsNullOrEmpty(employee.ProfilePhoto) ?
+                                                         HRMS.Models.Common.Constants.NoImagePath : employee.ProfilePhoto)"
+                                                     alt="@employee.EmployeeName"
+                                                     class="img-thumbnail"
+                                                     style="width:50px;height:50px;"
+                                                     onerror="this.onerror=null; this.src='@HRMS.Models.Common.Constants.NoImagePath'">
+                                            </div>
+                                            <div class="employee-details">
+                                                <h6>@employee.EmployeeName</h6>
+                                                <p>@employee.Designation</p>
+                                                <p>@employee.Department</p>
+                                                <small>Employee ID: @employee.EmployeNumber</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (employee.Subordinates != null && employee.Subordinates.Any())
+                                    {
+                                        <div class="subordinates">
+                                            @foreach (var subordinate in employee.Subordinates)
+                                            {
+                                                RenderEmployee(subordinate, level + 1);
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            // Start rendering from root level (Level 1)
+                            var rootEmployees = Model.EmployeeHierarchy.Where(e => e.Level == 1).ToList();
+                            foreach (var employee in rootEmployees)
+                            {
+                                <div class="hierarchy-root">
+                                    @{
+                                        RenderEmployee(employee, 0);
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 
 <script>

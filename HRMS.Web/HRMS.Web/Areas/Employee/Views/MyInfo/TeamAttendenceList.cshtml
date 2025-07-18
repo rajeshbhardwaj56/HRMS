@@ -71,6 +71,10 @@
 		cursor: pointer;
 	}
 
+	.WO {
+		background-color: #1c5db1;
+		cursor: pointer;
+	}
 	.table-warning {
 		background-color: #fff3cd;
 		color: #856404;
@@ -218,8 +222,17 @@
 		
 
 		<!-- Export Button -->
-		<div>
-			<button id="export-btn" class="btn btn-primary" style="height: 38px;">Export Attendance</button>
+		<div class="d-flex align-items-center">
+			<label for="export-from-date" class="me-2 mb-0">From:</label>
+			<input type="date" id="export-from-date" class="form-control" style="width: 150px;"
+				   title="Select start date for export">
+			<label for="export-to-date" class="me-2 mb-0 ms-2">To:</label>
+			<input type="date" id="export-to-date" class="form-control" style="width: 150px;"
+				   title="Select end date for export">
+			<button id="export-btn" class="btn btn-primary ms-2" style="height: 38px;"
+					title="Export attendance for selected date range">
+				Export Attendance
+			</button>
 		</div>
 
 	</div>
@@ -322,7 +335,7 @@
 		dayKeys.forEach(day => {
 		  let status = record.attendanceByDay[day];
 		  if (status === "Sa" || status === "S") status = "H";
-		  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" : "";
+		  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "WO" ? "WO" : "";
 		  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${status}</span></td>`;
 		});
 		row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td></tr>`;
@@ -501,13 +514,38 @@
 		});
 	  });
 
-	  $("#export-btn").on("click", function () {
+	$("#export-btn").on("click", function () {
+
+				  const fromDate = $("#export-from-date").val();
+		const toDate = $("#export-to-date").val();
+
+		if (!fromDate || !toDate) {
+			alert("Please select both 'From' and 'To' dates.");
+			return;
+		}
+			  const fromDateObj = new Date(fromDate);
+		const toDateObj = new Date(toDate);
+
+		// Check if To Date is before From Date
+		if (toDateObj < fromDateObj) {
+			alert("'To Date' cannot be before 'From Date'. Please select valid dates.");
+			return;
+		}
+		const jobLocationId = parseInt($("#jobLocationDropdown").val()) || 0;
 		const $btn = $(this);
-		const url = `/employee/MyInfo/ExportAttendance?Year=${getSelectedYear()}&Month=${getSelectedMonth()}&jobLocationId=${parseInt($("#jobLocationDropdown").val()) || 0}`;
+
+		
+		const url = `/employee/MyInfo/ExportAttendance?FromDate=${fromDate}&ToDate=${toDate}&JobLocationID=${jobLocationId}`;
+
 		$btn.prop("disabled", true).text("Please wait...");
 		const $iframe = $("<iframe>").hide().attr("src", url).appendTo("body");
-		setTimeout(() => { $btn.prop("disabled", false).text("Export Attendance"); $iframe.remove(); }, 6000);
-	  });
-	});
+
+		setTimeout(() => {
+			$btn.prop("disabled", false).text("Export Attendance");
+			$iframe.remove();
+		}, 6000);
+
+	 });
+});
 </script>
 

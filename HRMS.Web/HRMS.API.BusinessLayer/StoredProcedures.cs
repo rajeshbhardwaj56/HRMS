@@ -148,6 +148,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_GetShiftTypesByCompany = "usp_GetShiftTypesByCompany";
 
         public const string usp_GetWeekOffDatesForEmployee = "usp_GetWeekOffDatesForEmployee";
+        public const string usp_ExportAttendanceDeviceLog = "usp_ExportAttendanceDeviceLog";
 
 
     }

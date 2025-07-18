@@ -92,6 +92,15 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetTeamAttendanceForCalendar(model));
             return response;
         }
+
+        [HttpPost]
+        public IActionResult GetExportAttendanceForCalendar(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetExportAttendanceForCalendar(model));
+            return response;
+        }
+
         [HttpPost]
         public IActionResult GetApprovedAttendance(AttendanceInputParams model)
         {

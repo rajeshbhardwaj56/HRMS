@@ -11,12 +11,12 @@ namespace HRMS.Models.Common
     public class AttendanceInputParams
     {
         public int AttendanceStatusId { get; set; }
-        public int ID { get; set; } 
-        public int Year { get; set; } 
-        public int Month { get; set; } 
-        public int? Day { get; set; } 
-        public int? Page { get; set; } 
-        public int? PageSize { get; set; } 
+        public int ID { get; set; }
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int? Day { get; set; }
+        public int? Page { get; set; }
+        public int? PageSize { get; set; }
         public long UserId { get; set; }
         public bool? IsSuccess { get; set; }
         public string? Message { get; set; }
@@ -25,6 +25,8 @@ namespace HRMS.Models.Common
         public long? JobLocationID { get; set; }
         public string? conStr { get; set; }
         public string? SearchTerm { get; set; } = string.Empty;
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
 
     }
     public class Attendance

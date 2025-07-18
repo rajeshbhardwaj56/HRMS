@@ -2028,9 +2028,32 @@ namespace HRMS.API.BusinessLayer
                        }).ToList().FirstOrDefault();
                 dashBoardModel.RecordPresent = TotalRecordPresent.RecordPresent;
 
+                if (dataSet.Tables.Count > 8)
+                {
+                    var hierarchyTable = dataSet.Tables[8];
+                    var flatList = hierarchyTable.AsEnumerable()
+                        .Select(row => new HierarchyEmployee
+                        {
+                            EmployeNumber = row.Field<string>("EmployeNumber") ?? string.Empty,
+                            EmployeeID = row.IsNull("EmployeeID") ? 0 : row.Field<long>("EmployeeID"),
+                            EmployeeName = row.Field<string>("EmployeeName") ?? string.Empty,
+                            ManagerName = row.Field<string>("ManagerName") ?? string.Empty,
+                            Designation = row.Field<string>("Designation") ?? string.Empty,
+                            Department = row.Field<string>("Department") ?? string.Empty,
+                            ProfilePhoto = row.Field<string>("ProfilePhoto") ?? string.Empty,
+                            Level = row.IsNull("Level") ? 0 : row.Field<int>("Level"),
+                            Path = row.Field<string>("Path") ?? string.Empty,
+                            Subordinate = row.Field<int?>("SubordinateCount") ?? 0
+                        })
+                        .ToList();
+
+                    dashBoardModel.EmployeeHierarchy = BuildHierarchyTree(flatList);
+                }
+
+
                 if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.HR)
                 {
-                    var CompanyDetails = dataSet.Tables[8].AsEnumerable()
+                    var CompanyDetails = dataSet.Tables[9].AsEnumerable()
                            .Select(dataRow => new DashBoardModel
                            {
                                CountsOfCompanies = dataRow.Field<int>("TotalCompanies"),
@@ -2038,10 +2061,10 @@ namespace HRMS.API.BusinessLayer
                     dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
 
                 }
-                
-           
 
-                
+
+
+
                 if (dashBoardModel == null)
                 {
                     dashBoardModel = new DashBoardModel();
@@ -2065,6 +2088,51 @@ namespace HRMS.API.BusinessLayer
             dashBoardModel.leaveResults = GetlLeavesSummary(objmodel);
             return dashBoardModel;
         }
+
+
+
+        private List<HierarchyEmployee> BuildHierarchyTree(List<HierarchyEmployee> flatList)
+        {
+            var pathLookup = flatList.ToDictionary(e => e.Path);
+            var hierarchy = new List<HierarchyEmployee>();
+
+            foreach (var employee in flatList)
+            {
+                var parentPath = GetParentPath(employee.Path);
+
+                if (!string.IsNullOrEmpty(parentPath) && pathLookup.ContainsKey(parentPath))
+                {
+                    var parent = pathLookup[parentPath];
+                    if (parent.Subordinates == null)
+                        parent.Subordinates = new List<HierarchyEmployee>();
+
+                    parent.Subordinates.Add(employee);
+                }
+                else
+                {
+                    
+                    hierarchy.Add(employee);
+                }
+            }
+
+            return hierarchy;
+        }
+
+        private string GetParentPath(string path)
+        {
+            if (string.IsNullOrEmpty(path) || path == "/")
+                return null;
+
+            var parts = path.Trim('/').Split('/');
+            if (parts.Length <= 1)
+                return null;
+
+            
+            return "/" + string.Join("/", parts.Take(parts.Length - 1));
+        }
+ 
+
+     
         #endregion
 
         #region AttendenceList
@@ -2816,6 +2884,69 @@ namespace HRMS.API.BusinessLayer
         }
 
 
+        public AttendanceWithHolidaysVM GetExportAttendanceForCalendar(AttendanceInputParams model)
+        {
+            List<AttendanceViewModel> attendanceList = new List<AttendanceViewModel>();
+            int totalRecords = 0;
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@FromDate", model.FromDate),
+        new SqlParameter("@ToDate", model.ToDate),
+        new SqlParameter("@UserId", model.UserId),
+        new SqlParameter("@RoleId", model.RoleId),
+        new SqlParameter("@PageNumber", model.Page),
+        new SqlParameter("@PageSize", model.PageSize),
+        new SqlParameter("@SearchTerm", model.SearchTerm),
+        new SqlParameter("@JobLocationID", model.JobLocationID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ExportAttendanceDeviceLog, sqlParameters);
+
+            if (dataSet.Tables.Count > 0)
+            {
+                // First result set: Attendance data
+                attendanceList = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow =>
+                    {
+                        var attendance = new AttendanceViewModel
+                        {
+                            EmployeeId = dataRow.Field<long?>("EmployeeID"),
+                            EmployeNumber = dataRow.Field<string>("EmployeNumber"),
+                            JobLocationName = dataRow.Field<string>("JobLocationName"),
+                            EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
+                            EmployeeName = dataRow.Field<string>("EmployeeName"),
+                            TotalWorkingDays = dataRow.Field<int>("TotalWorkingDays"),
+                            PresentDays = dataRow.Field<decimal>("PresentDays"),
+                            TotalLeaves = dataRow.Field<decimal>("TotalLeaves"),
+                            AttendanceByDay = new Dictionary<string, string>()
+                        };
+
+                        foreach (DataColumn column in dataSet.Tables[0].Columns)
+                        {
+                            string columnName = column.ColumnName;
+                            if (columnName.Contains("_"))
+                            {
+                                attendance.AttendanceByDay[columnName] = dataRow[columnName]?.ToString() ?? "N/A";
+                            }
+                        }
+
+                        return attendance;
+                    }).ToList();
+            }
+
+            // Second result set: TotalRecords
+            if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
+            {
+                int.TryParse(dataSet.Tables[1].Rows[0]["TotalRecords"].ToString(), out totalRecords);
+            }
+
+            return new AttendanceWithHolidaysVM
+            {
+                Attendances = attendanceList,
+                TotalRecords = totalRecords
+            };
+        }
         public AttendanceDetailsVM FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
         {
             AttendanceDetailsVM result = new AttendanceDetailsVM();

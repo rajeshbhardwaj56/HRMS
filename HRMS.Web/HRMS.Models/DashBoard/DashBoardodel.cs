@@ -85,10 +85,10 @@ namespace HRMS.Models.DashBoard
         public string? ContactPersonRelationship { get; set; } = string.Empty;
         public string? ITSkillsKnowledge { get; set; } = string.Empty;
         public int HolidayCount { get; set; }
-        public decimal TotalLeave { get; set; } 
-        public long? LeavePolicyId { get; set; } 
-        public double CarryForword { get; set; } 
-        public int? RecordPresent { get; set; } 
+        public decimal TotalLeave { get; set; }
+        public long? LeavePolicyId { get; set; }
+        public double CarryForword { get; set; }
+        public int? RecordPresent { get; set; }
 
         public List<EmployeeDetails> EmployeeDetails { get; set; }
         public List<HolidayModel> HolidayList { get; set; }
@@ -97,6 +97,23 @@ namespace HRMS.Models.DashBoard
         public LeaveResults leaveResults { get; set; } = new LeaveResults();
         public List<WhatsHappening> WhatsHappening { get; set; }
 
+        public List<HierarchyEmployee> EmployeeHierarchy { get; set; } = new List<HierarchyEmployee>();
+
+    }
+
+    public class HierarchyEmployee
+    {
+        public string? EmployeNumber { get; set; }
+        public long EmployeeID { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? ManagerName { get; set; }
+        public string? Designation { get; set; }
+        public string? Department { get; set; }
+        public string? ProfilePhoto { get; set; }
+        public int? Subordinate { get; set; }
+        public int Level { get; set; }
+        public string? Path { get; set; }
+        public List<HierarchyEmployee> Subordinates { get; set; } = new List<HierarchyEmployee>();
     }
     public class EmployeeDetails
     {

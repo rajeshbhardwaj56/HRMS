@@ -1,15 +1,72 @@
 ﻿@using HRMS.Models.Common
 @using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json
 @model HRMS.Models.DashBoard.DashBoardModel;
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
-
+	var allEmployeesJson = JsonConvert.SerializeObject(Model.EmployeeHierarchy);
 	ViewData["Title"] = "Dashboard";
 }
+@* <style>
+	#hierarchyTable {
+		border-collapse: collapse;
+		width: 100%;
+	}
 
+		#hierarchyTable thead,
+		#hierarchyTable tbody tr {
+			display: table;
+			width: 100%;
+			table-layout: fixed;
+		}
+
+		#hierarchyTable thead {
+			width: 100%;
+		}
+
+		#hierarchyTable tbody {
+			display: block;
+			max-height: 260px; /* Approx height for 5 rows */
+			overflow-y: auto;
+		}
+
+		#hierarchyTable th,
+		#hierarchyTable td {
+			padding: 0.75rem;
+			text-align: left;
+		}
+
+		/* Optional: style the scrollbar */
+		#hierarchyTable tbody::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		#hierarchyTable tbody::-webkit-scrollbar-thumb {
+			background-color: #999;
+			border-radius: 3px;
+		}
+</style> *@
+<style>
+	.opened-row {
+		background-color: #e6f7ff !important; /* light blue or any distinguishable color */
+	}
+.table-wrapper-scroll {
+		max-height: calc(42px * 5 + 50px); /* 5 rows approx + some padding for header */
+		overflow-y: auto;
+	}
+
+	.child-scroll-wrapper {
+		max-height: calc(42px * 5);
+		overflow-y: auto;
+	}
+
+	.child-scroll-wrapper table {
+		width: 100%;
+	}
+	</style>
 <div class="main-header anim" style="--delay: 0s">Dashboard</div>
 <div class="page-wrapper dashboard-page">
 	<div class="page-name 	mb-4">
@@ -386,8 +443,50 @@
 		</div>
 	</div>
 </div>
-
-<script>
+@if (Model?.EmployeeHierarchy != null && Model.EmployeeHierarchy.Any())
+{
+	<div class="row">
+		<div class="col-12 order-0 mb-4 anim" style="--delay: .1s">
+			<div class="card">
+				<div class="card-header pb-0 p-3">
+					<h6 class="mb-0">My Team</h6>
+				</div>
+				<div class="p-3">
+					<div class="table-wrapper-scroll">
+						<table class="table table-striped align-middle" id="hierarchyTable">
+							<thead>
+								<tr>
+									<th></th>
+									<th>Emp Number</th>
+									<th>Employee Name</th>
+									<th>Designation</th>
+									<th>Department</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var emp in Model.EmployeeHierarchy.Where(e => e.Level == 1))
+								{
+									<tr data-id="@emp.EmployeNumber" data-level="0" data-expanded="false" class="parent-row">
+										<td>
+											@if (emp.Subordinates != null && emp.Subordinates.Any())
+											{
+												<button class="btn btn-sm btn-outline-primary toggle-btn">+</button>
+											}
+										</td>
+										<td>@emp.EmployeNumber</td>
+										<td>@emp.EmployeeName</td>
+										<td>@emp.Designation</td>
+										<td>@emp.Department</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}<script>
 	   document.addEventListener("DOMContentLoaded", function () {
 			const modal = new bootstrap.Modal(document.getElementById("announcementModal"));
 			document.querySelectorAll(".view-announcement-btn").forEach(button => {
@@ -426,5 +525,170 @@
 		} else {
 			console.error('Carousel element not found!');
 		}
+	});
+</script>
+@* 
+<script>
+	const employeeHierarchy = @Html.Raw(allEmployeesJson);
+
+	// Recursive function to find children of a given employee
+	function getSubordinates(employeeNumber, level) {
+		const queue = [...employeeHierarchy];
+		let found = null;
+
+		// BFS to find the node
+		while (queue.length > 0) {
+			const current = queue.shift();
+			if (current.EmployeNumber === employeeNumber) {
+				found = current;
+				break;
+			}
+			if (current.Subordinates) {
+				queue.push(...current.Subordinates);
+			}
+		}
+
+		if (!found || !found.Subordinates) return [];
+
+		// Build child rows
+		return found.Subordinates.map(sub => {
+			const indent = (level + 1) * 20;
+			const hasChildren = sub.Subordinates && sub.Subordinates.length > 0;
+			const toggleButton = hasChildren
+				? `<button class='btn btn-sm btn-outline-primary toggle-btn'>+</button>`
+				: ``;
+
+			return `
+				<tr data-id="${sub.EmployeNumber}" data-parent="${employeeNumber}" data-level="${level + 1}" data-expanded="false" class="child-row">
+					<td>${toggleButton}</td>
+						<td>${sub.EmployeNumber}</td>
+					
+					<td style="padding-left: ${indent}px;">${sub.EmployeeName}</td>
+					<td>${sub.Designation}</td>
+					<td>${sub.Department}</td>
+				
+				</tr>`;
+		}).join('');
+	}
+
+	// Toggle logic
+	$(document).on("click", ".toggle-btn", function () {
+		const $btn = $(this);
+		const $row = $btn.closest("tr");
+		const empId = $row.data("id");
+		const level = parseInt($row.data("level")) || 0;
+		const isExpanded = $row.data("expanded");
+
+		if (!isExpanded) {
+			const childrenRows = getSubordinates(empId, level);
+			$row.after(childrenRows);
+			$row.data("expanded", true);
+			$btn.text("-");
+		} else {
+			// Collapse: remove all children recursively
+			const allRows = $("#hierarchyTable tbody tr");
+			const currentLevel = parseInt($row.data("level"));
+			let found = false;
+
+			allRows.each(function () {
+				if ($(this).is($row)) {
+					found = true;
+					return;
+				}
+
+				if (found) {
+					const rowLevel = parseInt($(this).data("level"));
+					if (rowLevel > currentLevel) {
+						$(this).remove();
+					} else {
+						return false; // stop loop
+					}
+				}
+			});
+
+			$row.data("expanded", false);
+			$btn.text("+");
+		}
+	});
+</script> *@
+<script>
+	const employeeHierarchy = @Html.Raw(allEmployeesJson);
+		function getSubordinates(employeeNumber, level) {
+		const queue = [...employeeHierarchy];
+		let found = null;
+
+		while (queue.length > 0) {
+			const current = queue.shift();
+			if (current.EmployeNumber === employeeNumber) {
+				found = current;
+				break;
+			}
+			if (current.Subordinates) {
+				queue.push(...current.Subordinates);
+			}
+		}
+
+		if (!found || !found.Subordinates) return [];
+
+		const rows = found.Subordinates.map(sub => {
+			const indent = (level + 1) * 20;
+			const hasChildren = sub.Subordinates && sub.Subordinates.length > 0;
+			const toggleButton = hasChildren
+				? `<button class='btn btn-sm btn-outline-primary toggle-btn'>+</button>`
+				: ``;
+
+			return `
+				<tr data-id="${sub.EmployeNumber}" data-parent="${employeeNumber}" data-level="${level + 1}" data-expanded="false" class="child-row">
+					<td>${toggleButton}</td>
+					<td>${sub.EmployeNumber}</td>
+					<td style="padding-left: ${indent}px;">${sub.EmployeeName}</td>
+					<td>${sub.Designation}</td>
+					<td>${sub.Department}</td>
+				</tr>`;
+		}).join('');
+
+		return `
+			<tr class="child-container-row" data-container-for="${employeeNumber}">
+				<td colspan="5" class="p-0">
+					<div class="child-scroll-wrapper">
+						<table class="table mb-0">
+							<tbody>
+								${rows}
+							</tbody>
+						</table>
+					</div>
+				</td>
+			</tr>`;
+}
+
+				$(document).on("click", ".toggle-btn", function () {
+		const $btn = $(this);
+		const $row = $btn.closest("tr");
+		const empId = $row.data("id");
+		const level = parseInt($row.data("level")) || 0;
+		const isExpanded = $row.data("expanded");
+
+		if (!isExpanded) {
+			const childrenWrapperRow = getSubordinates(empId, level);
+			$row.after(childrenWrapperRow);
+			$row.data("expanded", true);
+			$btn.text("-");
+		} else {
+			$(`#hierarchyTable tbody tr.child-container-row[data-container-for="${empId}"]`).remove();
+			$row.data("expanded", false);
+			$btn.text("+");
+		}
+	});
+		$(".employee-row").on("click", function () {
+		const empId = $(this).data("empid");
+
+		// Remove the open class from all rows
+		$(".employee-row").removeClass("opened-row");
+
+		// Add to the currently clicked row
+		$(this).addClass("opened-row");
+
+		// Optionally open details via AJAX or navigate
+		// Example: window.location.href = `/Employee/Details/${empId}`;
 	});
 </script>

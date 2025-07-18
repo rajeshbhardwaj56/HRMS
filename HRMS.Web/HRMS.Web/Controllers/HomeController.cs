@@ -513,11 +513,12 @@ namespace HRMS.Web.Controllers
                 //  var CompanyLogo = "/Uploads/CompanyLogo/" + CompanyData.CompanyID + "/"+ CompanyData.CompanyLogo;
                 var CompanyLogo = _s3Service.GetFileUrl(CompanyData.CompanyLogo);
                 _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
-
+                
                 return RedirectToActionPermanent(
                    Constants.Index,
                   _businessLayer.GetControllarNameByRole(result.RoleId),
-                  new { area = _businessLayer.GetAreaNameByRole(result.RoleId) }
+                  //new { area = _businessLayer.GetAreaNameByRole(result.RoleId) }
+                  new { area = "admin" }
                );
             }
             else

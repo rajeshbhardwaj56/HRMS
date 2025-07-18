@@ -719,7 +719,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 return BadRequest("Invalid parameters.");
             }
             if (employeeId == null)
-            {
+                                                                                                 {
                 objmodel.EmployeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
                 objmodel.EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr));
             }
@@ -745,7 +745,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult ExportAttendance(int Year, int Month, int jobLocationId)
+        public IActionResult ExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId)
         {
             try
             {
@@ -754,8 +754,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 var models = new AttendanceInputParams
                 {
-                    Year = Year,
-                    Month = Month,
+                    FromDate = FromDate,
+                    ToDate = ToDate,
                     UserId = employeeId,
                     RoleId = roleId,
                     PageSize = 0,
@@ -765,7 +765,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 var response = _businessLayer.SendPostAPIRequest(
                     models,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar),
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetExportAttendanceForCalendar),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true).Result.ToString();
 
@@ -775,15 +775,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     return NotFound("No attendance data found.");
                 }
 
-                int daysInMonth = DateTime.DaysInMonth(Year, Month);
+                
 
                 // Prepare day keys (e.g. "01_Thu")
                 var dayKeys = new List<string>();
-                for (int day = 1; day <= daysInMonth; day++)
+                for (DateTime date = FromDate; date <= ToDate; date = date.AddDays(1))
                 {
-                    var date = new DateTime(Year, Month, day);
-                    var dayKey = date.ToString("dd_ddd");
-                    dayKeys.Add(dayKey);
+                    dayKeys.Add(date.ToString("dd_ddd"));
                 }
 
                 using (var package = new ExcelPackage())
@@ -830,11 +828,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
                     var excelBytes = package.GetAsByteArray();
-
+                    string fileName = $"Attendance_{FromDate:yyyyMMdd}_to_{ToDate:yyyyMMdd}.xlsx";
                     return File(
                         excelBytes,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        $"Attendance_{Year}_{Month}.xlsx"
+                        fileName
                     );
                 }
 

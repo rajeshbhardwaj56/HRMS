@@ -324,6 +324,7 @@ namespace HRMS.Models.Common
         public const string GetShiftTypeList = "GetShiftTypeList"; 
 
         public const string GetLeaveWeekOffDates = "GetLeaveWeekOffDates";
+        public const string GetExportAttendanceForCalendar = "GetExportAttendanceForCalendar";
 
 
     }

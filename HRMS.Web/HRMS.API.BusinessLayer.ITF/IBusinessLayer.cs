@@ -80,6 +80,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public AttendanceInputParams GetAttendance(AttendanceInputParams model);
         public MonthlyViewAttendance GetAttendanceForMonthlyViewCalendar(AttendanceInputParams model);
         public AttendanceWithHolidaysVM GetTeamAttendanceForCalendar(AttendanceInputParams model);
+        public AttendanceWithHolidaysVM GetExportAttendanceForCalendar(AttendanceInputParams model);
         public Result AddUpdateAttendace(Attendance att);
         public Results GetAttendenceListID(Attendance model);
         public AttendanceLogResponse GetAttendanceDeviceLogs(AttendanceDeviceLog model);
