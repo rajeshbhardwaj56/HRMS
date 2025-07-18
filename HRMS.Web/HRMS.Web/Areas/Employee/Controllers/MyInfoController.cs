@@ -1010,7 +1010,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
 
             leaveSummary.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID));
-            leaveSummary.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.UserID));
+            leaveSummary.UserID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID));
             leaveSummary.CompanyID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
 
             var employeeDetails = GetEmployeeDetails(leaveSummary.CompanyID, leaveSummary.EmployeeID);

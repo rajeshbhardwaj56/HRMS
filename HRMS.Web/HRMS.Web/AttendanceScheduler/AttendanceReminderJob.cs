@@ -5,25 +5,31 @@ using Microsoft.Extensions.Configuration;
 using Quartz;
 using Newtonsoft.Json;
 using HRMS.Models.Employee;
+using DocumentFormat.OpenXml.EMMA;
+using System.Diagnostics;
 
 namespace HRMS.Web.AttendanceScheduler
 {
     public class AttendanceReminderJob : IJob
     {
+        private readonly ILogger<AttendanceReminderJob> _logger;
         IBusinessLayer _businessLayer;
         IConfiguration _configuration;
-        public AttendanceReminderJob(IConfiguration configuration, IBusinessLayer businessLayer)
+        public AttendanceReminderJob(ILogger<AttendanceReminderJob> logger,IConfiguration configuration, IBusinessLayer businessLayer)
         {
+            _logger = logger;
             _businessLayer = businessLayer;
             _configuration = configuration;
         }
         public async Task Execute(IJobExecutionContext context)
         {
+
             AttendanceInputParams models = new AttendanceInputParams();
             DateTime previousDay = DateTime.Now.AddDays(-1);
             models.Year = previousDay.Year;
             models.Month = previousDay.Month;
-            models.Day = previousDay.Day;  
+            models.Day = previousDay.Day;
+
             var response = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetAttendance), "", true).Result.ToString();
             var result = JsonConvert.DeserializeObject<dynamic>(response.ToString());
 
@@ -53,5 +59,6 @@ namespace HRMS.Web.AttendanceScheduler
                 emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
             }
         }
+    
     }
 }
