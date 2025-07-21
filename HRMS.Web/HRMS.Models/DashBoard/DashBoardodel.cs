@@ -111,6 +111,7 @@ namespace HRMS.Models.DashBoard
         public string? Department { get; set; }
         public string? ProfilePhoto { get; set; }
         public int? Subordinate { get; set; }
+        public int? TotalSubordinateCount { get; set; }
         public int Level { get; set; }
         public string? Path { get; set; }
         public List<HierarchyEmployee> Subordinates { get; set; } = new List<HierarchyEmployee>();
@@ -140,10 +141,10 @@ namespace HRMS.Models.DashBoard
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public string? IconImage { get; set; }
-        
+
     }
     public class AttendanceModel
-    {    
+    {
         public DateTime? Day { get; set; }
         public int? Present { get; set; }
         public int? Absent { get; set; }
@@ -151,6 +152,22 @@ namespace HRMS.Models.DashBoard
         public Dictionary<string, int> PresentByLocation { get; set; } = new();
         public Dictionary<string, int> AbsentByLocation { get; set; } = new();
         public Dictionary<string, int> LeaveByLocation { get; set; } = new();
+
+        // For detailed team attendance report
+        public long? EmployeeId { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? EmployeeNumber { get; set; }
+        public string? ManagerName { get; set; }
+        public string? Designation { get; set; }
+        public string? Department { get; set; }
+        public int? Level { get; set; }
+        public string? AttendanceStatus { get; set; }
+        public DateTime? ReferenceDate { get; set; }
+        public int? TotalPresent { get; set; }
+        public int? TotalAbsent { get; set; }
+        public int? TotalLeaves { get; set; }
+        public int? TotalHoliday { get; set; }
+        public int? TotalWeekOff { get; set; }
 
     }
 

@@ -1954,43 +1954,76 @@ namespace HRMS.API.BusinessLayer
 
                 dashBoardModel.AttendanceModel = new List<AttendanceModel>();
 
-                foreach (DataRow row in attendanceTable.Rows)
+                bool isDetailedReport = attendanceTable.Columns.Contains("EmployeeName");
+                if (isDetailedReport)
                 {
-                    var attendance = new AttendanceModel
+                    foreach (DataRow row in attendanceTable.Rows)
                     {
-                        Day = row.Field<DateTime>("Day"),
-                        Present = row.Field<int>("Present"),
-                        Absent = row.Field<int>("Absent"),
-                        Leaves = row.Field<int>("Leave"),
-                        PresentByLocation = new Dictionary<string, int>(),
-                        AbsentByLocation = new Dictionary<string, int>()
-                    };
+                        if (row.Field<int>("Level") == 1)
+                        {
 
-                    foreach (DataColumn column in attendanceTable.Columns)
-                    {
-                        if (column.ColumnName.EndsWith("_Present"))
-                        {
-                            var location = column.ColumnName.Replace("_Present", "");
-                            int present = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
-                            attendance.PresentByLocation[location] = present;
-                        }
-                        else if (column.ColumnName.EndsWith("_Absent"))
-                        {
-                            var location = column.ColumnName.Replace("_Absent", "");
-                            int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
-                            attendance.AbsentByLocation[location] = absent;
-                        }
-                        else if (column.ColumnName.EndsWith("_Leave"))
-                        {
-                            var location = column.ColumnName.Replace("_Leave", "");
-                            int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
-                            attendance.LeaveByLocation[location] = absent;
+
+                            var attendance = new AttendanceModel
+                            {
+                                EmployeeId = row.Field<long>("EmployeeID"),
+                                EmployeeNumber = row.Field<string>("EmployeNumber"),
+                                EmployeeName = row.Field<string>("EmployeeName"),
+                                ManagerName = row.Field<string>("ManagerName"),
+                                Designation = row.Field<string>("Designation"),
+                                Department = row.Field<string>("Department"),
+                                Level = row.Field<int>("Level"),
+                                AttendanceStatus = row.Field<string>("AttendanceStatus"),
+                                ReferenceDate = row.Field<DateTime>("ReferenceDate"),
+                                TotalPresent = row.Field<int>("TotalPresent"),
+                                TotalAbsent = row.Field<int>("TotalAbsent"),
+                                TotalLeaves = row.Field<int>("TotalLeave"),
+                                TotalHoliday = row.Field<int>("TotalHoliday"),
+                                TotalWeekOff = row.Field<int>("TotalWeekOff")
+                            };
+
+                            dashBoardModel.AttendanceModel.Add(attendance);
                         }
                     }
+                    }
+                else
+                {
+                    foreach (DataRow row in attendanceTable.Rows)
+                    {
+                        var attendance = new AttendanceModel
+                        {
+                            Day = row.Field<DateTime>("Day"),
+                            Present = row.Field<int>("Present"),
+                            Absent = row.Field<int>("Absent"),
+                            Leaves = row.Field<int>("Leave"),
+                            PresentByLocation = new Dictionary<string, int>(),
+                            AbsentByLocation = new Dictionary<string, int>()
+                        };
 
-                    dashBoardModel.AttendanceModel.Add(attendance);
+                        foreach (DataColumn column in attendanceTable.Columns)
+                        {
+                            if (column.ColumnName.EndsWith("_Present"))
+                            {
+                                var location = column.ColumnName.Replace("_Present", "");
+                                int present = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                                attendance.PresentByLocation[location] = present;
+                            }
+                            else if (column.ColumnName.EndsWith("_Absent"))
+                            {
+                                var location = column.ColumnName.Replace("_Absent", "");
+                                int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                                attendance.AbsentByLocation[location] = absent;
+                            }
+                            else if (column.ColumnName.EndsWith("_Leave"))
+                            {
+                                var location = column.ColumnName.Replace("_Leave", "");
+                                int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                                attendance.LeaveByLocation[location] = absent;
+                            }
+                        }
+
+                        dashBoardModel.AttendanceModel.Add(attendance);
+                    }
                 }
-
 
                 dashBoardModel.EmployeeDetails = dataSet.Tables[3].AsEnumerable()
      .Select(dataRow => new EmployeeDetails
@@ -2049,7 +2082,8 @@ namespace HRMS.API.BusinessLayer
                             ProfilePhoto = row.Field<string>("ProfilePhoto") ?? string.Empty,
                             Level = row.IsNull("Level") ? 0 : row.Field<int>("Level"),
                             Path = row.Field<string>("Path") ?? string.Empty,
-                            Subordinate = row.Field<int?>("SubordinateCount") ?? 0
+                            Subordinate = row.Field<int?>("SubordinateCount") ?? 0,
+                            TotalSubordinateCount = row.Field<int?>("TotalSubordinateCount") ?? 0
                         })
                         .ToList();
 
