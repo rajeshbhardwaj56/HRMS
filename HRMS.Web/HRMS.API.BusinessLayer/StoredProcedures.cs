@@ -152,6 +152,8 @@ namespace HRMS.API.BusinessLayer
         public const string usp_GetTeamAttendanceForApproval = "usp_GetTeamAttendanceForApproval";
         public const string usp_SaveOrUpdateAttendanceStatus = "usp_SaveOrUpdateAttendanceStatus";
 
+        public const string usp_GetFirstLevelEmployees = "usp_GetFirstLevelEmployees";
+
 
     }
 }

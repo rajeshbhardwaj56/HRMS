@@ -1984,7 +1984,7 @@ namespace HRMS.API.BusinessLayer
                             dashBoardModel.AttendanceModel.Add(attendance);
                         }
                     }
-                    }
+                }
                 else
                 {
                     foreach (DataRow row in attendanceTable.Rows)
@@ -2150,7 +2150,7 @@ namespace HRMS.API.BusinessLayer
                 }
                 else
                 {
-                    
+
                     hierarchy.Add(employee);
                 }
             }
@@ -2167,12 +2167,12 @@ namespace HRMS.API.BusinessLayer
             if (parts.Length <= 1)
                 return null;
 
-            
+
             return "/" + string.Join("/", parts.Take(parts.Length - 1));
         }
- 
 
-     
+
+
         #endregion
 
         #region AttendenceList
@@ -5459,7 +5459,40 @@ namespace HRMS.API.BusinessLayer
 
         #endregion Attendance Approval
 
+        #region LastLevelEmployeeDropdown
 
+        public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model)
+        {
+            List<LastLevelEmployeeDropdown> lastLevel = new List<LastLevelEmployeeDropdown>();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID),
+    };
+
+           
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetFirstLevelEmployees, sqlParameters);
+
+                if (dataSet != null && dataSet.Tables.Count > 0)
+                {
+                    foreach (DataRow row in dataSet.Tables[0].Rows)
+                    {
+                    lastLevel.Add(new LastLevelEmployeeDropdown
+                        {
+                            EmployeeID = row.Field<long>("EmployeeID"),
+                            EmployeeNumber = row.Field<string>("EmployeNumber"),
+                            EmployeeName = row.Field<string>("EmployeeName"),
+                            
+                            
+                        });
+                    }
+                }
+
+                return lastLevel;
+            
+           
+        }
+
+        #endregion LastLevelEmployeeDropdown
     }
 
 }

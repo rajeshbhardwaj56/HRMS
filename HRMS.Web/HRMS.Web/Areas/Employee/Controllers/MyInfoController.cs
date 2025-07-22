@@ -1,4 +1,5 @@
-﻿using System.ServiceModel.Channels;
+﻿using System;
+using System.ServiceModel.Channels;
 using System.Text;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.EMMA;
@@ -1074,7 +1075,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 }
                 for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
                 {
-                   
+
                     bool isWeekend = weekOffDates.Contains(date.Date);
 
                     bool isHoliday = Holidaylist.Any(h => date >= h.FromDate.Date && date <= h.ToDate.Date);
@@ -1290,9 +1291,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var data = _businessLayer.SendPostAPIRequest(model.leaveResults.leaveSummaryModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLeave), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             string messageData = "";
             var result = JsonConvert.DeserializeObject<Result>(data);
-         if (!string.IsNullOrEmpty(result.Message) &&
-    result.Message.Contains("Leave status Added/Modified successfully", StringComparison.OrdinalIgnoreCase))
-{
+            if (!string.IsNullOrEmpty(result.Message) &&
+       result.Message.Contains("Leave status Added/Modified successfully", StringComparison.OrdinalIgnoreCase))
+            {
 
                 EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
                 employeeobj.EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID));
@@ -1305,10 +1306,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
 
                 var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
-                if (!string.IsNullOrEmpty(Manager1Email)&& Manager1Email.Contains("@"))
+                if (!string.IsNullOrEmpty(Manager1Email) && Manager1Email.Contains("@"))
                 {
                     var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
-            
+
                     sendEmailProperties sendEmailProperties = new sendEmailProperties
                     {
 
@@ -1353,7 +1354,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                  messageData = "Leave applied successfully.";
+                messageData = "Leave applied successfully.";
             }
             else
             {
@@ -1361,12 +1362,28 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 messageData = "Some thing went wrong";
             }
 
-                return Json(new { isValid = true, message = messageData });
+            return Json(new { isValid = true, message = messageData });
+
+        }
+
+
+ 
+       
+        [HttpPost]
+        public JsonResult GetLastLevelEmployeeDropdown()
+        {
+            var employeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            LastLevelEmployeeDropdownParams lastLevelParams = new LastLevelEmployeeDropdownParams();
+            
+            lastLevelParams.EmployeeID = employeeID;
+            var data = _businessLayer.SendPostAPIRequest(lastLevelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLastLevelEmployeeDropdown), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var model =JsonConvert.DeserializeObject<List<LastLevelEmployeeDropdown>>(data);
+            return Json(new { data = model });
 
         }
 
         #endregion Apply Leave
-        
+
 
 
         #region Approve Leave

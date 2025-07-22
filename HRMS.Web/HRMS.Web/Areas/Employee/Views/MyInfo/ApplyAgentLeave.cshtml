@@ -15,7 +15,7 @@
 	var CountryData = @Model.employeeModel.Countries;
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
-	ViewData["Title"] = "Apply Leave";
+	ViewData["Title"] = "Apply Agent Leave";
 	var ProfilePhoto = "";
 	if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
 	{
@@ -105,6 +105,8 @@
 					{
 						@Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyyy")
 						;
+
+
 						DateTime zeroTime = new DateTime(1, 1, 1);
 						DateTime TodayDate = DateTime.Now;
 						DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
@@ -630,6 +632,58 @@
 	};
 </script>
 <script>
+
+
+	$(document).ready(function(){
+	getLastLevelEmployees();
+	});
+
+		function getLastLevelEmployees() {
+		$('#loadingIndicator').show();
+
+		$.ajax({
+			url: '/YourController/GetLastLevelEmployeeDropdown',
+			type: 'POST',
+			contentType: 'application/json',
+			dataType: 'json',
+			success: function(response) {
+				if (response.success) {
+					
+					populateDropdown(response.data);
+				} else {
+					
+					showError(response.message || "Failed to load employees");
+				}
+			},
+			error: function(xhr, status, error) {
+				
+				showError("Request failed: " + error);
+			},
+			complete: function() {
+				
+				$('#loadingIndicator').hide();
+			}
+		});
+	}
+
+		function populateDropdown(employees) {
+		var $dropdown = $('#employeeDropdown');
+		$dropdown.empty().append($('<option>').val('').text('Select Employee'));
+
+		$.each(employees, function(i, employee) {
+			$dropdown.append($('<option>').val(employee.EmployeeID).text(
+				employee.EmployeeNumber + ' - ' + employee.EmployeeName
+			));
+		});
+	}
+	function showError(message) {
+		$('#errorMessage').text(message).show();
+		setTimeout(function() {
+			$('#errorMessage').fadeOut();
+		}, 5000);
+	}
+
+
 	function PanPostedFilePreview(event) {
 		const file = event.target.files[0];
 		if (file) {
@@ -806,57 +860,6 @@
 		toggleLeaveDurationVisibility();
 		toggleExpectedDeliveryDate();
 	});
-
-
-	$(document).ready(function(){
-	getLastLevelEmployees();
-	});
-
-		function getLastLevelEmployees() {
-		$('#loadingIndicator').show();
-
-		$.ajax({
-			url: 'GetLastLevelEmployeeDropdown/',
-			type: 'POST',
-			contentType: 'application/json',
-			dataType: 'json',
-			success: function(response) {
-				if (response) {
-
-					populateDropdown(response.data);
-				} else {
-
-					showError("Failed to load employees");
-				}
-			},
-			error: function(xhr, status, error) {
-
-				showError("Request failed: " + error);
-			},
-			complete: function() {
-
-				$('#loadingIndicator').hide();
-			}
-		});
-	}
-
-		function populateDropdown(employees) {
-		var $dropdown = $('#employeeDropdown');
-		$dropdown.empty().append($('<option>').val('').text('Select Employee'));
-
-		$.each(employees, function(i, employee) {
-			$dropdown.append($('<option>').val(employee.EmployeeID).text(
-				employee.EmployeeNumber + ' - ' + employee.EmployeeName
-			));
-		});
-	}
-	function showError(message) {
-		$('#errorMessage').text(message).show();
-		setTimeout(function() {
-			$('#errorMessage').fadeOut();
-		}, 5000);
-	}
-
 
 </script>
 

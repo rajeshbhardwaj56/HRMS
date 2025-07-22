@@ -153,6 +153,9 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result SaveOrUpdateAttendanceStatus(SaveAttendanceStatus att);
         public Result SaveOrUpdateBulk(List<SaveAttendanceStatus> entries);
         #endregion Attendance Approval
+        #region LastLevelEmployeeDropdown
+        public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model );
+        #endregion LastLevelEmployeeDropdown
 
     }
 }

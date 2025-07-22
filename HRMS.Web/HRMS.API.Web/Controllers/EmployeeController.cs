@@ -403,5 +403,12 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
+        [HttpPost]
+        public IActionResult GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLastLevelEmployeeDropdown(model));
+            return response;
+        }
     }
 }

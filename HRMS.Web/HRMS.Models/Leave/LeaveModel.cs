@@ -106,5 +106,18 @@ namespace HRMS.Models.Leave
         public long LeaveSummaryID { get; set; }
         public string? Message { get; set; }
     }
-    
+
+    public class LastLevelEmployeeDropdownParams
+    {
+        public long EmployeeID { get; set; }
+    }
+    public class LastLevelEmployeeDropdown
+    {
+        public string? EmployeeNumber { get; set; }
+        public long EmployeeID { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? EmployeeType { get; set; }
+        public string? ManagerName { get; set; }
+        
+    }
 }

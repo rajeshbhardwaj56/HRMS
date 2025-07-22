@@ -158,7 +158,7 @@ namespace HRMS.Models.Common
         public const string AttendenceList = "AttendenceList";
         public const string Common = "Common";
         public const string ShiftType = "ShiftType";
-
+        
 
     }
 
@@ -331,6 +331,8 @@ namespace HRMS.Models.Common
 
         public const string GetLeaveWeekOffDates = "GetLeaveWeekOffDates";
         public const string GetExportAttendanceForCalendar = "GetExportAttendanceForCalendar";
+
+        public const string GetLastLevelEmployeeDropdown = "GetLastLevelEmployeeDropdown";
 
 
     }
