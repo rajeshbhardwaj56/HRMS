@@ -3022,6 +3022,9 @@ namespace HRMS.API.BusinessLayer
                     attendanceStatus.LastLogDate = row.Field<DateTime?>("LastLogDate");
                     attendanceStatus.HoursWorked = row.Field<TimeSpan?>("HoursWorked");
                     attendanceStatus.AttendanceStatus = row.Field<string>("AttendanceStatus");
+                    attendanceStatus.DialerTime = row.Field<string>("DialerTime");
+                    attendanceStatus.Remarks = row.Field<string>("Remarks");
+
                     break;
 
                 case "Holiday":
@@ -5293,6 +5296,168 @@ namespace HRMS.API.BusinessLayer
                 .ToList() ?? new List<DateTime>();
         }
 
+        #region Attendance Approval
+        public AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model)
+        {
+            List<AttendanceViewModel> attendanceList = new List<AttendanceViewModel>();
+            int totalRecords = 0;
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+  {
+
+      new SqlParameter("@UserId", model.UserId),
+      new SqlParameter("@RoleId", model.RoleId),
+      new SqlParameter("@PageNumber", model.Page),
+      new SqlParameter("@PageSize", model.PageSize),
+      new SqlParameter("@SearchTerm", model.SearchTerm),
+  };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetTeamAttendanceForApproval, sqlParameters);
+
+            if (dataSet.Tables.Count > 0)
+            {
+                // First result set: Attendance data
+                attendanceList = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow =>
+                    {
+                        var attendance = new AttendanceViewModel
+                        {
+                            EmployeeId = dataRow.Field<long?>("EmployeeID"),
+                            EmployeNumber = dataRow.Field<string>("EmployeNumber"),
+                            JobLocationName = dataRow.Field<string>("JobLocationName"),
+                            EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
+                            EmployeeName = dataRow.Field<string>("EmployeeName"),
+                            WorkDate = dataRow.Field<DateTime>("WorkDate"),
+
+                        };
+                        return attendance;
+                    }).ToList();
+            }
+
+            // Second result set: TotalRecords
+            if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
+            {
+                int.TryParse(dataSet.Tables[1].Rows[0]["TotalRecords"].ToString(), out totalRecords);
+            }
+
+            return new AttendanceWithHolidaysVM
+            {
+                Attendances = attendanceList,
+                TotalRecords = totalRecords
+            };
+        }
+
+        public Result SaveOrUpdateAttendanceStatus(SaveAttendanceStatus att)
+        {
+            Result model = new Result();
+
+            try
+            {
+                List<SqlParameter> sqlParameters = new List<SqlParameter>
+      {
+          new SqlParameter("@EmployeeId", att.EmployeeId),
+          new SqlParameter("@EmployeeNumber", att.UserId),
+          new SqlParameter("@WorkDate", att.WorkDate.ToString("yyyy-MM-dd HH:mm:ss")),
+          new SqlParameter("@Status", att.AttendanceStatus),
+          new SqlParameter("@DialerTime", string.IsNullOrEmpty(att.DialerTime) ? (object)DBNull.Value : att.DialerTime),
+          new SqlParameter("@Remarks", string.IsNullOrEmpty(att.Remarks) ? (object)DBNull.Value : att.Remarks),
+      };
+
+                // Call the stored procedure and get result
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_SaveOrUpdateAttendanceStatus, sqlParameters
+                );
+
+                if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+                {
+                    var row = dataSet.Tables[0].Rows[0];
+                    model.PKNo = Convert.ToInt64(row["Id"]);
+                    model.Message = row["Message"].ToString();
+                }
+                else
+                {
+                    model.PKNo = 0;
+                    model.Message = "No result returned from database.";
+                }
+            }
+            catch (Exception ex)
+            {
+                model.PKNo = -1;
+                model.Message = "Error: " + ex.Message;
+            }
+
+            return model;
+        }
+        public Result SaveOrUpdateBulk(List<SaveAttendanceStatus> entries)
+        {
+            var result = new Result();
+
+            try
+            {
+                var dt = ToAttendanceDataTable(entries);
+
+                using (var conn = new SqlConnection(_configuration["ConnectionStrings:conStr"]))
+                {
+                    conn.Open();
+
+                    // 1. Bulk copy to staging
+                    using (var bulk = new SqlBulkCopy(conn))
+                    {
+                        bulk.DestinationTableName = "tbl_AttendanceDeviceLog_Staging";
+                        bulk.WriteToServer(dt);
+                    }
+
+                    // 2. Merge from staging to main table
+                    using (var cmd = new SqlCommand("usp_MergeAttendanceFromStaging", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+
+                result.Message = $"Successfully saved attendance records.";
+            }
+            catch (Exception ex)
+            {
+                result.Message = "Bulk insert failed: " + ex.Message;
+            }
+
+            return result;
+        }
+
+        private DataTable ToAttendanceDataTable(List<SaveAttendanceStatus> entries)
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("UserId", typeof(string));
+            dt.Columns.Add("AttendanceStatus", typeof(string));
+            dt.Columns.Add("DialerTime", typeof(string));
+            dt.Columns.Add("Remarks", typeof(string));
+            dt.Columns.Add("WorkDate", typeof(DateTime));
+            dt.Columns.Add("EmployeeId", typeof(long));
+            dt.Columns.Add("UpdatedDate", typeof(DateTime));
+            dt.Columns.Add("UpdatedByUserID", typeof(long));
+
+            foreach (var e in entries)
+            {
+                dt.Rows.Add(
+     e.UserId,
+     e.AttendanceStatus ?? string.Empty,
+     e.DialerTime ?? string.Empty,
+     e.Remarks ?? string.Empty,
+     e.WorkDate,
+     e.EmployeeId,
+     e.UpdatedDate,
+     e.UpdatedByUserID
+ );
+
+            }
+
+            return dt;
+        }
+
+
+        #endregion Attendance Approval
 
 
     }

@@ -141,7 +141,8 @@ namespace HRMS.Models.Common
         MyTeam = 19,
         FormPermission = 20,
         WeekOffRoster = 26,
-      
+        AttendanceApproval = 27
+
     }
 
 
@@ -273,8 +274,13 @@ namespace HRMS.Models.Common
         public const string GetEmployeeDetails = "GetEmployeeDetails";
         public const string FetchAttendanceHolidayAndLeaveInfo = "FetchAttendanceHolidayAndLeaveInfo";
         public const string GetJobLocationsByCompany = "GetJobLocationsByCompany";
-        
-        
+ 
+        public const string SaveOrUpdateBulk = "SaveOrUpdateBulk";
+        public const string SaveOrUpdateAttendanceStatus = "SaveOrUpdateAttendanceStatus";
+        public const string GetTeamAttendanceForApproval = "GetTeamAttendanceForApproval";
+
+
+
         public const string GetAllWhatsHappeningDetails = "GetAllWhatsHappeningDetails";
         public const string AddUpdateWhatsHappeningDetails = "AddUpdateWhatsHappeningDetails";
         public const string DeleteWhatsHappening = "DeleteWhatsHappening";

@@ -259,6 +259,20 @@
                                         </li>
                                     }
                                 }
+
+                                @if (Model.FormPermissionList.Any(x => x.FormID == 27 && x.IsFormPermissions && x.FormLevel == 2))
+                                {
+
+                                    <a class="  hrms-menu-title d-flex align-items-center  @(currentController == "Attendance" && currentAction == "TeamAttendenceApprovalList" ? "hrms-active" : "")"
+                                       asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                                       asp-controller="Attendance"
+                                       asp-action="TeamAttendenceApprovalList">
+                                        <i class="bi bi-person-circle hrms-menu-title1"></i>
+                                        <span class="hrms-menu-label ms-3">Attendance Approval</span>
+                                    </a>
+
+                                }
+
                                 @if (Model.FormPermissionList.Any(x => x.FormID == 7 && x.IsFormPermissions && x.FormLevel == 2))
                                 {
                                      

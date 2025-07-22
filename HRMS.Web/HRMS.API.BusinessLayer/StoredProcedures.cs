@@ -149,6 +149,8 @@ namespace HRMS.API.BusinessLayer
 
         public const string usp_GetWeekOffDatesForEmployee = "usp_GetWeekOffDatesForEmployee";
         public const string usp_ExportAttendanceDeviceLog = "usp_ExportAttendanceDeviceLog";
+        public const string usp_GetTeamAttendanceForApproval = "usp_GetTeamAttendanceForApproval";
+        public const string usp_SaveOrUpdateAttendanceStatus = "usp_SaveOrUpdateAttendanceStatus";
 
 
     }

@@ -172,6 +172,30 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.AddUpdateCompOffAttendace(objmodel));
             return response;
         }
-        
+        [HttpPost]
+        public IActionResult GetTeamAttendanceForApproval(AttendanceInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetTeamAttendanceForApproval(objmodel));
+            return response;
+        }
+
+
+        [HttpPost]
+        public IActionResult SaveOrUpdateAttendanceStatus(SaveAttendanceStatus att)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.SaveOrUpdateAttendanceStatus(att));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult SaveOrUpdateBulk(List<SaveAttendanceStatus> attstatus)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.SaveOrUpdateBulk(attstatus));
+            return response;
+        }
+
     }
 }

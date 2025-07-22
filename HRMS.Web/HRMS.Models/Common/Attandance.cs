@@ -70,6 +70,7 @@ namespace HRMS.Models.Common
         public string JobLocationName { get; set; }
         public int TotalWorkingDays { get; set; }
         public decimal PresentDays { get; set; }
+        public DateTime? WorkDate { get; set; }
         public decimal TotalLeaves { get; set; }
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
     }
@@ -146,7 +147,7 @@ namespace HRMS.Models.Common
         public DateTime? LastLogDate { get; set; }
         public TimeSpan? HoursWorked { get; set; }
         public string AttendanceStatus { get; set; }
-
+         
         // Holiday fields
         public string HolidayName { get; set; }
         public string Description { get; set; }
@@ -160,6 +161,8 @@ namespace HRMS.Models.Common
         public string Reason { get; set; }
         public long? LeaveTypeID { get; set; }
         public string? LeaveStatusID { get; set; }
+        public string? DialerTime { get; set; }
+        public string? Remarks { get; set; }
     }
 
     public class AttendanceDetailsInputParams
@@ -169,6 +172,19 @@ namespace HRMS.Models.Common
         public long EmployeeId { get; set; } 
     }
 
+    public class SaveAttendanceStatus
+    {
+        public string UserId { get; set; }
+        public DateTime WorkDate { get; set; }
+        public long EmployeeId { get; set; }
+        public string? Remarks { get; set; }
+        public string DialerTime { get; set; }
+        public string AttendanceStatus { get; set; }
+        public DateTime UpdatedDate { get; set; }
+        public long UpdatedByUserID { get; set; }
 
 
     }
+
+
+}
