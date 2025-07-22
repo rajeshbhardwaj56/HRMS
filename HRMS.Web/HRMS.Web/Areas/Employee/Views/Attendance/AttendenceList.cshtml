@@ -624,7 +624,6 @@
 			type: 'POST',
 			data: { Year: year, Month: month },
 			success: function(response) {
-				console.log(response);
 			  $("#employeeFullName").text(response.employeeFullName);
 			  let events = [];
 			  if (response && response.data && Array.isArray(response.data.dailyStatuses)) {
@@ -796,24 +795,60 @@
 					switch (data.recordType) {
 						case "Attendance":
 							const { startFormatted, endFormatted } = formatDateOrTime(data.firstLogDate, data.lastLogDate);
+							  const first = new Date(data.firstLogDate), last = new Date(data.lastLogDate);
+			  const sameDay = first.toDateString() === last.toDateString();
+						const getStatusColor = (status) => {
+			switch (status?.toLowerCase()) {
+				case 'present':
+					return '#28a745'; // Green
+				case 'absent':
+					return '#dc3545'; // Red
+				case 'leave':
+					return '#ffc107'; // Yellow
+				case 'half day':
+					return '#05397b'; // Blue
+				default:
+					return '#6c757d'; // Grey fallback
+			}
+		};
 
-							html = `
-								<div class="card shadow-sm border-0">
-									<div class="card-body">
-										<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
-										<div class="row mb-2">
-											<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
-											<div class="col-md-6"><strong>Status:</strong> <span class="badge bg-success">${data.attendanceStatus ?? '-'}</span></div>
-										</div>
-										<div class="row mb-2">
-											<div class="col-md-6"><strong>Check-in:</strong> ${startFormatted}</div>
-											<div class="col-md-6"><strong>Check-out:</strong> ${endFormatted}</div>
-										</div>
-										<div class="row">
-											<div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
-										</div>
-									</div>
-								</div>`;
+
+						html = `
+		<div class="card shadow-sm border-0">
+		  <div class="card-body">
+			<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
+
+			<div class="row mb-2">
+			  <div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
+			 <div class="col-md-6">
+			<strong>Status:</strong>
+			<span class="badge" style="background-color: ${getStatusColor(data.attendanceStatus)}; color: white;">
+			  ${data.attendanceStatus ?? '-'}
+			</span>
+		  </div>
+		</div>
+
+			<div class="row mb-2">
+			  <div class="col-md-6"><strong>Check-in:</strong> ${sameDay ? formatTimeOnly(data.firstLogDate) : formatDateTime(data.firstLogDate)}</div>
+			  <div class="col-md-6"><strong>Check-out:</strong> ${sameDay ? formatTimeOnly(data.lastLogDate) : formatDateTime(data.lastLogDate)}</div>
+			</div>
+
+			<div class="row">
+			  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
+			</div>
+
+				<div class="row">
+		  <div class="col-md-6"><strong>DialerTime:</strong> ${data.dialerTime ? data.dialerTime : '-'}</div>
+		</div>
+
+		<div class="row">
+		  <div class="col-md-6"><strong>Remarks:</strong> ${data.remarks ? data.remarks : '-'}</div>
+		</div>
+
+		  </div>
+		</div>
+		`;
+
 							break;
 
 						case "Holiday":
