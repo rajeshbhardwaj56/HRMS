@@ -891,7 +891,9 @@
 				}
 			});
 		}
-
+			function formatTimeOnly(dateStr) {
+		  return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		}
 		// Format time as "Xh Ym" (e.g., "2h 30m")
 		function formatSqlTimeToHoursMinutes(timeStr) {
 			if (!timeStr || typeof timeStr !== 'string') return '-';

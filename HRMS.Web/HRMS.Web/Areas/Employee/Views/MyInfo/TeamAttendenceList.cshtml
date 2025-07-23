@@ -486,12 +486,30 @@
 		}
 	  });
 
-	  $(document).on("click", "#attendance-data td", function () {
+		$(document).on("click", "#attendance-data td", function () {
 		const $td = $(this);
-		const rawDateKey = $td.data("date");
+		const rawDateKey = $td.data("date"); // e.g., "01P", "15A"
 		if (!rawDateKey) return;
-		const fullDate = `${getSelectedYear()}-${String(getSelectedMonth()).padStart(2, '0')}-${String(rawDateKey.substr(0, 2)).padStart(2, '0')}`;
-		const empId = $td.data("empid"), empNo = $td.data("empno");
+
+		const day = parseInt(rawDateKey.substr(0, 2)); // Extract first two characters as day
+		const selectedMonth = getSelectedMonth(); // Current "visual" month in UI (1-12)
+		const selectedYear = getSelectedYear(); // Current selected year
+
+		let finalMonth = selectedMonth;
+		let finalYear = selectedYear;
+
+		// If day is between 21 and 31, it's part of the **previous month**
+		if (day >= 21) {
+			finalMonth = selectedMonth - 1;
+			if (finalMonth === 0) {
+				finalMonth = 12;
+				finalYear = selectedYear - 1;
+			}
+		}
+
+		const fullDate = `${finalYear}-${String(finalMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+		const empId = $td.data("empid"),
+			empNo = $td.data("empno");
 		if (!empId || !empNo) return;
 
 		$("#attendanceDetailModal").modal("show");
