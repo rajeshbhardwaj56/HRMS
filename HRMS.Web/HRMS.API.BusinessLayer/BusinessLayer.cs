@@ -1837,7 +1837,9 @@ namespace HRMS.API.BusinessLayer
                                   EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
                                   EmployeeName = dataRow.Field<string>("EmployeeName"),
                                   AppliedByNumber = dataRow.Field<string>("AppliedByNumber"),
-                                  AppliedByName = dataRow.Field<string>("AppliedByName")
+                                  AppliedByName = dataRow.Field<string>("AppliedByName"),
+                                  JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                  Gender = dataRow.Field<int>("Gender")
                               }).ToList();
 
             // result.leaveTypes = GetLeaveTypes(model).leaveTypes;

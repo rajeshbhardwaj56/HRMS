@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.Employee.Controllers
@@ -1387,16 +1388,27 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         #endregion Apply Leave
         #region Agent Leave
-        public IActionResult ApplyAgentLeave(string id, string jobLocationId, string genderId)
+        public IActionResult ApplyAgentLeave(string id, string jobLocationId, string genderId, string employeeId)
         {
+            long empID = 0;
+            int genID = 0;
+            long jobID = 0;
+            if (!string.IsNullOrEmpty(employeeId))
+            {
+                long.TryParse(employeeId, out empID);
+                int.TryParse(genderId, out genID);
+                long.TryParse(jobLocationId, out jobID);
+
+            }
+
 
             var model = new MyInfoInputParams
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
-                EmployeeID = GetSessionLong(Constants.EmployeeID),
-                GenderId = GetSessionInt(Constants.Gender),
-                JobLocationTypeID = GetSessionInt(Constants.JobLocationID),
-                UserID = GetSessionLong(Constants.UserID),
+                EmployeeID = string.IsNullOrEmpty(employeeId)? GetSessionLong(Constants.EmployeeID):empID,
+                GenderId = string.IsNullOrEmpty(genderId)? GetSessionInt(Constants.Gender) :genID,
+                JobLocationTypeID = string.IsNullOrEmpty(jobLocationId)? GetSessionInt(Constants.JobLocationID) : jobID,
+                UserID = GetSessionLong(Constants.UserID) ,
                 CompanyID = GetSessionLong(Constants.CompanyID)
             };
             var RoleId = GetSessionInt(Constants.RoleID);

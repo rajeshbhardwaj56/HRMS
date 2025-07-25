@@ -340,7 +340,7 @@
 																				@if (item.LeaveStatusID != (int)LeaveStatus.Approved && item.LeaveStatusID != (int)LeaveStatus.Cancelled)
 																				{
 																					<td>
-																						<a href="~/employee/MyInfo/ApplyAgentLeave/?id=@(item.EncryptedIdentity)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+																						<a href="~/employee/MyInfo/ApplyAgentLeave/?id=@(item.EncryptedIdentity)&jobLocationId=@(item.JobLocationID)&genderId=@(item.Gender)&employeeId=@(item.EmployeeID)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
 
 																						<form action="/employee/MyInfo/DeleteAgentLeavesSummary" method="post" style="display:inline;">
 																							<input type="hidden" name="id" value="@item.EncryptedIdentity" />
@@ -610,6 +610,7 @@
 		}
 
 	    function populateAgentDropdown(employees) {
+			debugger;
 		const $dropdown = $('#agentTypeDropdown');
 		$dropdown.empty();
 		$dropdown.append($('<option>').val('').text('-- Select Agent --'));
