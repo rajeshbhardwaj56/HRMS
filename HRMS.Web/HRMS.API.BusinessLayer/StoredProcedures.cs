@@ -153,6 +153,9 @@ namespace HRMS.API.BusinessLayer
         public const string usp_SaveOrUpdateAttendanceStatus = "usp_SaveOrUpdateAttendanceStatus";
 
         public const string usp_GetFirstLevelEmployees = "usp_GetFirstLevelEmployees";
+        public const string usp_Get_AgentLeavesSummary = "usp_Get_AgentLeavesSummary";
+        public const string usp_Get_AgentLeavesSummaryForApproval = "usp_Get_AgentLeavesSummaryForApproval";
+
 
 
     }

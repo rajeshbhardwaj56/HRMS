@@ -307,11 +307,12 @@
 									<thead style=" position: sticky; top: 0; background: white; z-index: 1;">
 									<tr>
 										<th>Emp No</th>
+										<th>Emp Name</th>
 										<th>Status</th>
 										<th>Present</th>
 										<th>Absent</th>
 										<th>Leave</th>
-										<th>Holiday</th>
+@* 										<th>Holiday</th> *@
 										<th>WeekOff</th>
 									</tr>
 								</thead>
@@ -323,6 +324,7 @@
 												<div>@item.EmployeeNumber</div>
 @* 												<small class="text-muted">@item.Designation</small> *@
 											</td>
+												<th class="text-start">@item.EmployeeName</th>
 											<td>
 												<span class="badge @GetStatusBadgeClass(item.AttendanceStatus)">
 													@item.AttendanceStatus
@@ -331,7 +333,7 @@
 											<td>@item.TotalPresent</td>
 											<td>@item.TotalAbsent</td>
 											<td>@item.TotalLeaves</td>
-											<td>@item.TotalHoliday</td>
+										@* 	<td>@item.TotalHoliday</td> *@
 											<td>@item.TotalWeekOff</td>
 
 										</tr>

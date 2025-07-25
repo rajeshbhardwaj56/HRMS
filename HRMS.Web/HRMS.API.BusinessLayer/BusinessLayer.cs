@@ -1678,12 +1678,14 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@ReportingToEmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@RoleId", model.RoleId));
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_LeaveForApprovals, sqlParameter);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AgentLeavesSummaryForApproval, sqlParameter);
             result.leavesSummary = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeaveSummaryModel
                               {
                                   EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
                                   EmployeeName = dataRow.Field<string>("EmployeeName"),
+                                  AppliedByNumber = dataRow.Field<string>("AppliedByNumber"),
+                                  AppliedByName = dataRow.Field<string>("AppliedByName"),
                                   LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
                                   LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
                                   LeaveTypeID = dataRow.Field<long>("LeaveTypeID"),
@@ -1803,7 +1805,49 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+        public LeaveResults GetAgentLeaveSummary(MyInfoInputParams model)
+        {
+            LeaveResults result = new LeaveResults();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AgentLeavesSummary, sqlParameter);
+            result.leavesSummary = dataSet.Tables[0].AsEnumerable()
+                              .Select(dataRow => new LeaveSummaryModel
+                              {
+                                  LeaveSummaryID = dataRow.Field<long>("LeaveSummaryID"),
+                                  LeaveStatusID = dataRow.Field<long>("LeaveStatusID"),
+                                  LeaveTypeID = dataRow.Field<long>("LeaveTypeID"),
+                                  LeaveDurationTypeID = dataRow.Field<long>("LeaveDurationTypeID"),
+                                  LeaveStatusName = dataRow.Field<string>("LeaveStatusName"),
+                                  Reason = dataRow.Field<string>("Reason"),
+                                  RequestDate = dataRow.Field<DateTime>("RequestDate"),
+                                  StartDate = dataRow.Field<DateTime>("StartDate"),
+                                  EndDate = dataRow.Field<DateTime>("EndDate"),
+                                  LeaveTypeName = dataRow.Field<string>("LeaveTypeName"),
+                                  LeaveDurationTypeName = dataRow.Field<string>("LeaveDurationTypeName"),
+                                  UploadCertificate = dataRow.Field<string>("UploadCertificate"),
+                                  ExpectedDeliveryDate = dataRow.Field<DateTime?>("ExpectedDeliveryDate"),
+                                  NoOfDays = dataRow.Field<decimal>("NoOfDays"),
+                                  IsActive = dataRow.Field<bool>("IsActive"),
+                                  IsDeleted = dataRow.Field<bool>("IsDeleted"),
+                                  EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                  ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
+                                  EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
+                                  EmployeeName = dataRow.Field<string>("EmployeeName"),
+                                  AppliedByNumber = dataRow.Field<string>("AppliedByNumber"),
+                                  AppliedByName = dataRow.Field<string>("AppliedByName")
+                              }).ToList();
 
+            // result.leaveTypes = GetLeaveTypes(model).leaveTypes;
+            result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
+            if (model.LeaveSummaryID > 0)
+            {
+                result.leaveSummaryModel = result.leavesSummary.Where(x => x.LeaveSummaryID == model.LeaveSummaryID).FirstOrDefault();
+            }
+            return result;
+        }
 
         public LeaveResults GetLeaveDurationTypes(MyInfoInputParams model)
         {
@@ -1853,7 +1897,6 @@ namespace HRMS.API.BusinessLayer
             string message = outputMessage.Value.ToString();
             return message;
         }
-
 
         #endregion
 
@@ -2379,6 +2422,42 @@ namespace HRMS.API.BusinessLayer
                 serializer.Serialize(writer, obj, ns);
                 return stream.ToString();
             }
+        }
+
+
+        public MyInfoResults GetMyAgentInfo(MyInfoInputParams model)
+        {
+            MyInfoResults myInfoResults = new MyInfoResults();
+            HolidayInputParams holidayobj = new HolidayInputParams();
+            myInfoResults.leaveResults = GetAgentLeaveSummary(model);
+            EmployeeInputParams employeeInputParams = new EmployeeInputParams();
+            employeeInputParams.EmployeeID = model.EmployeeID;
+            employeeInputParams.CompanyID = model.CompanyID;
+            holidayobj.CompanyID = model.CompanyID;
+            holidayobj.EmployeeID = model.EmployeeID;
+            var data = GetAllEmployees(employeeInputParams);
+            myInfoResults.employeeModel = data.employeeModel;
+            var holiday = GetAllHolidayList(holidayobj);
+            myInfoResults.HolidayModel = holiday.Holiday;
+            myInfoResults.employmentHistory = data.employeeModel.EmploymentHistory;
+            LeavePolicyModel models = new LeavePolicyModel();
+            models.CompanyID = model.CompanyID;
+            models.LeavePolicyID = data.employeeModel.LeavePolicyID ?? 0;
+            myInfoResults.LeavePolicyDetails = GetSelectLeavePolicies(models);
+            myInfoResults.employeeBankDetail = GetEmploymentBankDetails(new EmploymentBankDetailInputParams
+            {
+                EmployeeID = model.EmployeeID,
+                UserID = model.UserID
+            });
+            myInfoResults.employeeSeparationDetail = GetEmploymentSeparationDetails(new EmploymentSeparationInputParams
+            {
+                EmployeeID = model.EmployeeID,
+                UserID = model.UserID
+            });
+            myInfoResults.employmentDetail = GetEmploymentDetailsByEmployee(new EmploymentDetailInputParams() { EmployeeID = model.EmployeeID, CompanyID = model.CompanyID });
+            myInfoResults.CampOffLeaveCount = GetCampOffLeaveCount(model.EmployeeID, model.JobLocationTypeID);
+            myInfoResults.leaveResults.leaveTypes = GetLeaveTypes(model).leaveTypes;
+            return myInfoResults;
         }
         public MyInfoResults GetMyInfo(MyInfoInputParams model)
         {
@@ -5481,6 +5560,8 @@ namespace HRMS.API.BusinessLayer
                             EmployeeID = row.Field<long>("EmployeeID"),
                             EmployeeNumber = row.Field<string>("EmployeNumber"),
                             EmployeeName = row.Field<string>("EmployeeName"),
+                        Gender = row.Field<int>("Gender"),
+                        JobLocationID = row.Field<long>("JobLocationID"),
                             
                             
                         });

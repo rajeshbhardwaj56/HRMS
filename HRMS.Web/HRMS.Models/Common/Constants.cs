@@ -55,6 +55,7 @@ namespace HRMS.Models.Common
         public const string SelectDesignation = "-- Select Designation --";
         public const string SelectLeavePolicy = "-- Select Leave Policy --";
         public const string SelectLeaveType = "-- Select Leave Type --";
+        public const string SelectAgentType = "-- Select Agent Type --";
         public const string SelectLeaveDurationType = "-- Select --";
         public const string SelectShiftType = "-- Select Shift Type --";
         public const string Languages = "Languages";
@@ -89,6 +90,7 @@ namespace HRMS.Models.Common
         public const string JobLocationID = "JobLocationID";
         public const string DepartmentID = "DepartmentID";
         public const string ApplyLeave = "ApplyLeave";
+        public const string ApplyAgentLeave = "ApplyAgentLeave";
         public const string ApproveLeave = "ApproveLeave";
 
 
@@ -231,6 +233,7 @@ namespace HRMS.Models.Common
         public const string GetAllLeavePolicys = "GetAllLeavePolicys";
         public const string GetlLeavesSummary = "GetlLeavesSummary";
         public const string GetMyInfo = "GetMyInfo";
+        public const string GetMyAgentInfo = "GetMyAgentInfo";
         public const string AddUpdateLeave = "AddUpdateLeave";
         public const string GetLeaveDurationTypes = "GetLeaveDurationTypes";
         public const string GetLeaveTypes = "GetLeaveTypes";

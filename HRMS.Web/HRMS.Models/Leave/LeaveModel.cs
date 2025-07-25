@@ -51,6 +51,8 @@ namespace HRMS.Models.Leave
         public long CompanyID { get; set; }
         public long LeavePolicyID { get; set; }
         public string EmployeeNumber { get; set; } = string.Empty;
+        public string AppliedByNumber { get; set; } = string.Empty;
+        public string AppliedByName { get; set; } = string.Empty;
         public bool IsApproved { get; set; } = false;
         public string ApproveRejectComment { get; set; } = string.Empty;
         public string OfficialEmailID { get; set; } = string.Empty;
@@ -118,6 +120,8 @@ namespace HRMS.Models.Leave
         public string? EmployeeName { get; set; }
         public string? EmployeeType { get; set; }
         public string? ManagerName { get; set; }
+        public int? Gender { get; set; }
+        public long? JobLocationID { get; set; }
         
     }
 }
