@@ -16,7 +16,7 @@
     bool IsLeaveSubmenuActive()
     {
         var action = ViewContext.RouteData.Values["action"]?.ToString();
-        return action == "ApplyLeave" || action =="ApproveLeave";
+        return action == "ApplyLeave" || action == "ApplyAgentLeave" || action == "ApproveLeave";
     }
 
     bool IsAttendanceSubmenuActive()
@@ -379,6 +379,22 @@
                                         </li>
                                     }
                                 }
+                                @if (Model.FormPermissionList.Where(x => x.FormID == 28 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+                                {
+                                    if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
+                                    LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                                    {
+                                        <li>
+                                            <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApplyAgentLeave" ? "hrms-active" : "")"
+                                               asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
+                                               asp-controller="myinfo"
+                                               asp-action="ApplyAgentLeave">
+                                                <i class="bi bi-journal-plus me-2"></i> Apply Agent Leave
+
+                                            </a>
+                                        </li>
+                                    }
+                                }
                                 @if (Model.FormPermissionList.Where(x => x.FormID == 25 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                                 {
                                     <li>
@@ -495,7 +511,7 @@
     }
  
     <div class="sidebar-footer">
-        &copy; 2024 - Protalk HRMS.Web
+        &copy; @DateTime.Now.Year - Protalk HRMS.Web
 
     </div>
 </div>

@@ -45,6 +45,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
         public Results GetAllLeavePolicies(LeavePolicyInputParans model);
         public MyInfoResults GetMyInfo(MyInfoInputParams model);
+        public MyInfoResults GetMyAgentInfo(MyInfoInputParams model);
         public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails);
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
         public Result AddUpdateEmploymentBankDetails(EmploymentBankDetail employmentBankDetails);
@@ -153,6 +154,9 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result SaveOrUpdateAttendanceStatus(SaveAttendanceStatus att);
         public Result SaveOrUpdateBulk(List<SaveAttendanceStatus> entries);
         #endregion Attendance Approval
+        #region LastLevelEmployeeDropdown
+        public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model );
+        #endregion LastLevelEmployeeDropdown
 
     }
 }

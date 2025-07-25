@@ -99,7 +99,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetMyInfo(model));
             return response;
         }
-
+        [HttpPost]
+        public IActionResult GetMyAgentInfo(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetMyAgentInfo(model));
+            return response;
+        }
         [HttpPost]
         public IActionResult AddUpdateEmploymentDetails(EmploymentDetail model)
         {
@@ -403,5 +409,12 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
+        [HttpPost]
+        public IActionResult GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLastLevelEmployeeDropdown(model));
+            return response;
+        }
     }
 }

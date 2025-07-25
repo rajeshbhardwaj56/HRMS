@@ -87,63 +87,13 @@
 </style>
 
 
-<section class="upper-section d-flex">
-
-	<div class="container-fluid">
-		<div class="profile-header d-flex ">
-			<div class="profile-header-img">
-				<img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="rounded-circle fixed z-5" />
-			</div>
-			<div class="profile-header-small-info">
-				<h2>@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
-				<p class="joiningDate">
-					<b>Joining Date:</b> &nbsp;
-					@if (Model.employmentDetail.JoiningDate != null)
-					{
-						@Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyyy")
-						;
-
-
-						DateTime zeroTime = new DateTime(1, 1, 1);
-						DateTime TodayDate = DateTime.Now;
-						DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
-						TimeSpan span = TodayDate - JoiningDate.Date;
-						int years = (zeroTime + span).Year - 1;
-						var Month = (TodayDate - JoiningDate.AddYears(years));
-						var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
-						<span>@(years)y - @(Days)d</span>
-
-					}
-
-					else
-					{
-						<span class="Joiningnotavailable">Joining date not available. Please contact your administrator.</span>
-					}
-				</p>
-
-
-				<div class="myinfo-menu">
-					<ul class="nav nav-tabs leave-section-tabs" id="myTab1" role="tablist">
-					
-							<li class="nav-item" role="presentation">
-								<a class="nav-link section-link active" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
-							</li>
-						
-
-					  
-					</ul>
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
 <section class="lower-section">
 	<div class="container-fluid">
 		<div class="row">
 		
 
 
-			<div class="col-md-12 py-4">
+			<div class="col-md-12 ">
 				<div class="tab-content" id="myTabContentSection">
 					<div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
 						<div class="row">
@@ -181,6 +131,8 @@
 																						<th class="first" style="visibility:hidden"> </th>
 																						<th>Emp No</th>
 																						<th>  Name</th>
+																						<th>Applied By Number</th>
+																						<th>Applied By Name</th>
 																						<th>From Date</th>
 																						<th>To Date</th>
 																						<th>Type</th>
@@ -214,7 +166,9 @@
 																					<tr>
 																						<th class="first" style="visibility:hidden"> </th>
 																						<th>Emp No</th>
-																						<th>  Name</th>
+																						<th>Name</th>
+																						<th>Applied By Number</th>
+																						<th>Applied By Name</th>
 																						<th>From Date</th>
 																						<th>To Date</th>
 																						<th>Type</th>
@@ -248,6 +202,10 @@
 																				<thead>
 																					<tr>
 																						<th class="first" style="visibility:hidden"> </th>
+																						<th>Emp No</th>
+																						<th>  Name</th>
+																						<th>Applied By Number</th>
+																						<th>Applied By Name</th>
 																						<th>Emp No</th>
 																						<th>  Name</th>
 																						<th>From Date</th>
@@ -288,6 +246,8 @@
 																						<th class="first" style="visibility:hidden"> </th>
 																						<th>Emp No</th>
 																						<th>  Name</th>
+																						<th>Applied By Number</th>
+																						<th>Applied By Name</th>
 																						<th>From Date</th>
 																						<th>To Date</th>
 																						<th>Type</th>
@@ -999,6 +959,8 @@
 				{ "data": "leaveSummaryID", "autoWidth": true, },
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "employeeName", "autoWidth": true },
+				{ "data": "appliedByNumber", "autoWidth": true },
+				{ "data": "appliedByName", "autoWidth": true },
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
@@ -1072,6 +1034,8 @@
 				{ "data": "leaveSummaryID", "autoWidth": true, },
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "employeeName", "autoWidth": true },
+				{ "data": "appliedByNumber", "autoWidth": true },
+				{ "data": "appliedByName", "autoWidth": true },
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
@@ -1136,6 +1100,8 @@
 				{ "data": "leaveSummaryID", "autoWidth": true, },
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "employeeName", "autoWidth": true },
+				{ "data": "appliedByNumber", "autoWidth": true },
+				{ "data": "appliedByName", "autoWidth": true },
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
@@ -1202,6 +1168,8 @@
 				{ "data": "leaveSummaryID", "autoWidth": true, },
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "employeeName", "autoWidth": true },
+				{ "data": "appliedByNumber", "autoWidth": true },
+				{ "data": "appliedByName", "autoWidth": true },
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
