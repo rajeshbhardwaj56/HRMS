@@ -137,7 +137,7 @@
 																				<label for="leavetype" class="">Leave Type:</label>
 																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
 																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
-																				@* @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID) *@
+																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID, new { id = "EmployeeIdHidden" })
 																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
 																				@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
 																				@Html.HiddenFor(x => x.CampOffLeaveCount)
@@ -412,7 +412,7 @@
 	
 	$(document).ready(function() {
 		var leaveSummaryID;
-
+		debugger;
 		// File preview functions
 		function UploadCertificatePreview(event) {
 		const file = event.target.files[0];
@@ -580,9 +580,9 @@
 		initializeAgentDropdown();
 		setupEventListeners();
 		toggleUIElements();
-		// Core Functions
+	
 		function initializeAgentDropdown() {
-		 debugger;
+
 			$.ajax({
 				url: '/employee/myinfo/GetLastLevelEmployeeDropdown/',
 				type: 'POST',
@@ -628,14 +628,16 @@
 		}
 
 		function setupEventListeners() {
-			debugger;
+	
 			$('#agentTypeDropdown').change(function() {
+			debugger;
 				const selectedEmployeeId = $(this).val();
 				const selectedOption = $(this).find('option:selected');
 		const genderId = selectedOption.data('gender-id');
 		const jobLocationId = selectedOption.data('job-location-id');
 		$('#GenderIdHidden').val(genderId);
 		$('#JobLocationIdHidden').val(jobLocationId);
+		  $('#EmployeeIdHidden').val(selectedEmployeeId);
 				 if (!selectedEmployeeId) {
 				 	$('#leaveTypeDropdown').empty().append('<option value="">Select Leave Type</option>');
 				 	return;
@@ -653,9 +655,9 @@
 					success: function(response) {
 						if (response && response.leaveTypes) {
 							populateLeaveTypeDropdown(response.leaveTypes);
-							if (isEditMode && initialLeaveTypeID) {
-								$('#leaveTypeDropdown').val(initialLeaveTypeID).trigger('change');
-							}
+							 if (isEditMode && initialLeaveTypeID) {
+							 	$('#leaveTypeDropdown').val(initialLeaveTypeID).trigger('change');
+							 }
 						} else {
 							showError("Failed to load leave types");
 						}
@@ -671,7 +673,7 @@
 
 			// Leave type change handler
 			$('#leaveTypeDropdown').change(function() {
-				debugger;
+
 				const selectedLeaveTypeId = parseInt(this.value);
 				if (selectedLeaveTypeId === @Convert.ToInt32(LeaveType.LeaveWithOutPay)) {
 					$("#leaveDurationContainer").hide();
@@ -690,7 +692,6 @@
 				toggleUIElements();
 			});
 
-			// Leave duration change handler
 			$('#leaveDurationDropdown').change(toggleUIElements);
 		}
 
@@ -756,50 +757,15 @@
 					.includes(selectedLeaveTypeText)
 			);
 
-			$('#expectedDeliveryDateContainer').toggle(
-				selectedLeaveTypeText === 'Maternity Leave'
-			);
+			if (selectedLeaveTypeText === 'Maternity Leave') {
+		$('#expectedDeliveryDateContainer').show();
+		$('#leaveResults_leaveSummaryModel_ExpectedDeliveryDate').attr('required', true);
+	} else {
+		$('#expectedDeliveryDateContainer').hide();
+		$('#leaveResults_leaveSummaryModel_ExpectedDeliveryDate').val('').removeAttr('required');
+	}
 		}
-		$('#agentTypeDropdown').change(function() {
-			debugger;
-				const selectedEmployeeId = $(this).val();
-				const selectedOption = $(this).find('option:selected');
-		const genderId = selectedOption.data('gender-id');
-		const jobLocationId = selectedOption.data('job-location-id');
-		$('#GenderIdHidden').val(genderId);
-		$('#JobLocationIdHidden').val(jobLocationId);
-				 if (!selectedEmployeeId) {
-					$('#leaveTypeDropdown').empty().append('<option value="">Select Leave Type</option>');
-					return;
-				 }
-
-
-				$.ajax({
-					url: '/employee/myinfo/GetApplyLeaveData',
-					type: 'POST',
-					data: {
-				employeeId: selectedEmployeeId,
-				genderId: genderId,
-				jobLocationId: jobLocationId
-			},
-					success: function(response) {
-						if (response && response.leaveTypes) {
-							populateLeaveTypeDropdown(response.leaveTypes);
-							if (isEditMode && initialLeaveTypeID) {
-								$('#leaveTypeDropdown').val(initialLeaveTypeID).trigger('change');
-							}
-						} else {
-							showError("Failed to load leave types");
-						}
-					},
-					error: function() {
-						showError("Request failed");
-					},
-					complete: function() {
-						$('#loadingIndicator').hide();
-					}
-				});
-			});
+	
 		function showError(message) {
 			const responseMessage = document.getElementById("responseMessage");
 			responseMessage.textContent = message;
