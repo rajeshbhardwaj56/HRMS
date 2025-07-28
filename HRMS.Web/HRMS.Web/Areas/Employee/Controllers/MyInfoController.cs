@@ -1405,7 +1405,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var model = new MyInfoInputParams
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
-                EmployeeID = string.IsNullOrEmpty(employeeId)? GetSessionLong(Constants.EmployeeID):empID,
+                EmployeeID = string.IsNullOrEmpty(employeeId)? GetSessionLong(Constants.EmployeeID): Convert.ToInt64(_businessLayer.DecodeStringBase64(employeeId)),
                 GenderId = string.IsNullOrEmpty(genderId)? GetSessionInt(Constants.Gender) :genID,
                 JobLocationTypeID = string.IsNullOrEmpty(jobLocationId)? GetSessionInt(Constants.JobLocationID) : jobID,
                 UserID = GetSessionLong(Constants.UserID) ,
@@ -1429,6 +1429,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 foreach (var leave in results.leaveResults.leavesSummary)
                 {
                     leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                    leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
+                    //leave.EncryptedGender = _businessLayer.EncodeStringBase64(leave.Gender.ToString());
+                    leave.EncryptedLocation= _businessLayer.EncodeStringBase64(leave.JobLocationID.ToString());
 
                     if (!string.IsNullOrEmpty(leave.UploadCertificate))
                         leave.UploadCertificate = _s3Service.GetFileUrl(leave.UploadCertificate);
@@ -1507,7 +1510,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 endDate = startDate;
             }
-
             var currentYearDate = GetAprilFirstDate();
 
             if ((int)LeaveDay.HalfDay != leaveSummary.LeaveDurationTypeID && startDate > endDate)

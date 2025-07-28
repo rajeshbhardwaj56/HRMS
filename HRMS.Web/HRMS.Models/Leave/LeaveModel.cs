@@ -28,6 +28,9 @@ namespace HRMS.Models.Leave
     public class LeaveSummaryModel
     {
         public string EncryptedIdentity { get; set; } = string.Empty;
+        public string EncryptedGender { get; set; } = string.Empty;
+        public string EncryptedLocation { get; set; } = string.Empty;
+        public string Encrypted { get; set; } = string.Empty;
         public long LeaveSummaryID { get; set; }
         public long LeaveStatusID { get; set; }
         public string LeaveStatusName { get; set; } = string.Empty;
