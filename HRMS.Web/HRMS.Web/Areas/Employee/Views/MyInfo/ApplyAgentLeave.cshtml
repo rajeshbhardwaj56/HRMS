@@ -412,7 +412,7 @@
 	
 	$(document).ready(function() {
 		var leaveSummaryID;
-		debugger;
+	
 		// File preview functions
 		function UploadCertificatePreview(event) {
 		const file = event.target.files[0];
@@ -575,7 +575,9 @@
 		var isEditMode = @(Model.leaveResults.leaveSummaryModel.LeaveSummaryID > 0 ? "true" : "false");
 		var initialEmployeeID = '@Model.leaveResults.leaveSummaryModel.EmployeeID';
 		var initialLeaveTypeID = '@Model.leaveResults.leaveSummaryModel.LeaveTypeID';
-
+			if (isEditMode) {
+		$('#agentTypeDropdown').prop('disabled', true);
+	}
 		// Initialize UI
 		initializeAgentDropdown();
 		setupEventListeners();
@@ -630,14 +632,13 @@
 		function setupEventListeners() {
 	
 			$('#agentTypeDropdown').change(function() {
-			debugger;
 				const selectedEmployeeId = $(this).val();
 				const selectedOption = $(this).find('option:selected');
 		const genderId = selectedOption.data('gender-id');
 		const jobLocationId = selectedOption.data('job-location-id');
 		$('#GenderIdHidden').val(genderId);
 		$('#JobLocationIdHidden').val(jobLocationId);
-		  $('#EmployeeIdHidden').val(selectedEmployeeId);
+		
 				 if (!selectedEmployeeId) {
 				 	$('#leaveTypeDropdown').empty().append('<option value="">Select Leave Type</option>');
 				 	return;
