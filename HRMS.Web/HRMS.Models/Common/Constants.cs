@@ -143,7 +143,9 @@ namespace HRMS.Models.Common
         MyTeam = 19,
         FormPermission = 20,
         WeekOffRoster = 26,
-        AttendanceApproval = 27
+        AttendanceApproval = 27,
+        ApproveLeave=25,
+        ApplyAgentLeave=28
 
     }
 

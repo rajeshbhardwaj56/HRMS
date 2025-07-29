@@ -11,6 +11,8 @@ namespace HRMS.Web.BusinessLayer.S3
         string GetFileUrl(string key);
         string ExtractKeyFromUrl(string fileUrl);
         void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey);
+        public Stream GetFileStream(string key);
+
     }
 
     public class S3Service : IS3Service
@@ -29,6 +31,29 @@ namespace HRMS.Web.BusinessLayer.S3
             _bucketName = configuration["AWS:BucketName"];
             _s3Client = new AmazonS3Client(_accessKey, _secretKey, RegionEndpoint.GetBySystemName(_region));
         }
+
+        public Stream GetFileStream(string key)
+        {
+            try
+            {
+                var request = new GetObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = key
+                };
+
+                var response = _s3Client.GetObjectAsync(request).Result;
+                // Returns the file as a stream
+                return response.ResponseStream;
+            }
+            catch (AmazonS3Exception ex)
+            {
+                // Log if file not found or access denied
+                Console.WriteLine($"S3 error: {ex.Message}");
+                return null;
+            }
+        }
+
         public string UploadFile(IFormFile file, string fileName)
         {
             string extension = Path.GetExtension(fileName);
@@ -96,12 +121,12 @@ namespace HRMS.Web.BusinessLayer.S3
                         var extension = Path.GetExtension(file.FileName)?.ToLower();
                         var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff", ".tif", ".heic", ".heif" };
                         if (imageExtensions.Contains(extension))
-                        {                          
+                        {
                             var compressedFile = CompressImage(file);
                             uploadedKey = UploadFile(compressedFile, compressedFile.FileName);
                         }
                         else
-                        {                            
+                        {
                             uploadedKey = UploadFile(file, file.FileName);
                         }
                         if (!string.IsNullOrEmpty(uploadedKey)) break;
@@ -111,18 +136,18 @@ namespace HRMS.Web.BusinessLayer.S3
         }
         public static IFormFile CompressImage(IFormFile originalFile)
         {
-           
+
             using var inputStream = originalFile.OpenReadStream();
             using var image = new MagickImage(inputStream);
 
-          
+
             if (image.Width > 1200)
             {
                 int newHeight = (int)(image.Height * (1200.0 / image.Width));
                 image.Resize(1200, (uint)newHeight);
             }
 
-            
+
             byte[] compressedBytes;
             using (var ms = new MemoryStream())
             {
@@ -147,5 +172,6 @@ namespace HRMS.Web.BusinessLayer.S3
             outputStream.Position = 0;
             return compressedFile;
         }
+      
     }
 }
