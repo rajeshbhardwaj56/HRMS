@@ -207,6 +207,7 @@ namespace HRMS.Models.Common
         public const string GetPolicyCategoryList = "GetPolicyCategoryList";
         public const string DeletePolicyCategory = "DeletePolicyCategory";
         public const string PolicyCategoryDetails = "PolicyCategoryDetails";
+        public const string AddAcknowledgePolicy = "AddAcknowledgePolicy";
 
 
 

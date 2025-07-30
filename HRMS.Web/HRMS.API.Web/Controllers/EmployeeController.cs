@@ -1,4 +1,5 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Models.ExportEmployeeExcel;
@@ -414,6 +415,14 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetLastLevelEmployeeDropdown(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult AddAcknowledgePolicy(AcknowledgePolicyModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddAcknowledgePolicy(model));
             return response;
         }
     }

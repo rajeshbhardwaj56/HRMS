@@ -758,13 +758,10 @@
 					.includes(selectedLeaveTypeText)
 			);
 
-			if (selectedLeaveTypeText === 'Maternity Leave') {
-		$('#expectedDeliveryDateContainer').show();
-		$('#leaveResults_leaveSummaryModel_ExpectedDeliveryDate').attr('required', true);
-	} else {
-		$('#expectedDeliveryDateContainer').hide();
-		$('#leaveResults_leaveSummaryModel_ExpectedDeliveryDate').val('').removeAttr('required');
-	}
+			$('#expectedDeliveryDateContainer').toggle(
+				selectedLeaveTypeText === 'Maternity Leave'
+			);
+		
 		}
 	
 		function showError(message) {

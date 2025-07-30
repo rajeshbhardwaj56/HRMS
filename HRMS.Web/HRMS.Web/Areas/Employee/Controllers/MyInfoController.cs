@@ -390,7 +390,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leaveSummaryData = _businessLayer.SendPostAPIRequest(myInfoInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetlLeavesSummary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             return leaveSummaryData;
         }
-
         private string GetHolidayData(long companyID)
         {
             HolidayInputParams myInfoInputParams = new HolidayInputParams
@@ -496,8 +495,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             return totalAccruedLeave;
         }
-
-        // Helper method: Gets the 21st-based accrual period start for any given date
+       
         private DateTime GetAccrualPeriodStart(DateTime date)
         {
             if (date.Day >= 21)
@@ -654,6 +652,40 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
 
+
+        [HttpGet]
+        public IActionResult ViewPolicyDocument(string id)
+        {
+            
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+            var stream = _s3Service.GetFileStream(id); 
+            if (stream == null)
+                return NotFound();
+            var extension = Path.GetExtension(id).ToLower();
+            var mimeType = "application/octet-stream";
+
+            switch (extension)
+            {
+                case ".pdf":
+                    mimeType = "application/pdf";
+                    break;
+                case ".jpg":
+                case ".jpeg":
+                    mimeType = "image/jpeg";
+                    break;
+                case ".png":
+                    mimeType = "image/png";
+                    break;
+                case ".webp":
+                    mimeType = "image/webp";
+                    break;
+            }
+
+            return File(stream, mimeType);
+        }
+
+
         [HttpGet]
         public IActionResult PolicyCategoryDetails()
         {
@@ -661,20 +693,42 @@ namespace HRMS.Web.Areas.Employee.Controllers
             model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.PolicyCategoryDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var detailsList = JsonConvert.DeserializeObject<List<LeavePolicyDetailsModel>>(data);
-
-
             if (detailsList != null)
             {
                 foreach (var item in detailsList)
                 {
                     if (!string.IsNullOrEmpty(item.PolicyDocument))
                     {
-                        item.PolicyDocument = _s3Service.GetFileUrl(item.PolicyDocument);
+                        item.PolicyDocument = Url.Action("ViewPolicyDocument", "MyInfo", new { id = item.PolicyDocument });
+
                     }
                 }
             }
             return View(detailsList);
         }
+
+        [HttpPost]
+        public JsonResult AcknowledgePolicy(long policyId)
+        {
+
+            var employeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            AcknowledgePolicyModel model = new AcknowledgePolicyModel { Id = policyId, EmployeeId = employeeID };
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddAcknowledgePolicy), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);
+            if (result.ErrorCode == "ALREADY_ACK")
+            {
+                return Json(new { success = false, alreadyAcknowledged = true, message = result.Message });
+            }
+            else if (!string.IsNullOrEmpty(result.ErrorCode))
+            {
+                return Json(new { success = false, message = result.Message });
+            }
+            else
+            {
+                return Json(new { success = true, message = result.Message, pkNo = result.PKNo });
+            }
+        }
+
         [HttpGet]
         public IActionResult TeamAttendenceList()
         {
@@ -1390,15 +1444,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
         #region Agent Leave
         public IActionResult ApplyAgentLeave(string id, string jobLocationId, string genderId, string employeeId)
         {
-            long empID = 0;
+
             int genID = 0;
             long jobID = 0;
             if (!string.IsNullOrEmpty(employeeId))
             {
-                long.TryParse(employeeId, out empID);
+         
                 int.TryParse(genderId, out genID);
                 long.TryParse(jobLocationId, out jobID);
 
+            }
+            var RoleId = GetSessionInt(Constants.RoleID);
+            var formEmployeeID = GetSessionLong(Constants.EmployeeID);
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(formEmployeeID, (int)PageName.ApplyAgentLeave);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
             }
 
 
@@ -1411,7 +1474,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 UserID = GetSessionLong(Constants.UserID) ,
                 CompanyID = GetSessionLong(Constants.CompanyID)
             };
-            var RoleId = GetSessionInt(Constants.RoleID);
+           
 
 
 
@@ -1503,6 +1566,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         public IActionResult ApplyAgentLeave(MyInfoResults model, List<IFormFile> postedFiles)
         {
+           
             var leaveSummary = model.leaveResults.leaveSummaryModel;
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
@@ -2032,7 +2096,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             };
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, (int)PageName.MyInfo);
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, (int)PageName.ApproveLeave);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();

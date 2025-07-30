@@ -31,8 +31,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParams model);
         public Results GetAllActiveEmployees(EmployeeInputParams model);
-
-
         public Result AddUpdateTemplate(TemplateModel model);
         public Results GetAllTemplates(TemplateInputParams model);
         public Result AddUpdateCompany(CompanyModel model);
@@ -76,6 +74,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetPolicyCategoryList(PolicyCategoryInputParams model);
         public string DeletePolicyCategory(PolicyCategoryInputParams model);
         public List<LeavePolicyDetailsModel> PolicyCategoryDetails(PolicyCategoryInputParams model);
+        public Result AddAcknowledgePolicy(AcknowledgePolicyModel model);
         public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
         public L2ManagerDetail GetL2ManagerDetails(L2ManagerInputParams model);
         public AttendanceInputParams GetAttendance(AttendanceInputParams model);

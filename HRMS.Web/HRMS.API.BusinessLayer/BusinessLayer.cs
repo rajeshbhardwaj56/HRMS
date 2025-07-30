@@ -1424,7 +1424,6 @@ namespace HRMS.API.BusinessLayer
                                     Annual_MaximumMedicalLeaveAllocationAllowed = dataRow.Field<int>("Annual_MaximumMedicalLeaveAllocationAllowed"),
                                     Maternity_MaximumLeaveAllocationAllowed = dataRow.Field<int>("Maternity_MaximumLeaveAllocationAllowed"),
                                     Maternity_ApplicableAfterWorkingDays = dataRow.Field<int>("Maternity_ApplicableAfterWorkingDays"),
-
                                     Maternity_ApplyBeforeHowManyDays = dataRow.Field<int>("Maternity_ApplyBeforeHowManyDays"),
                                     Maternity_MedicalDocument = dataRow.Field<bool>("Maternity_MedicalDocument"),
                                     Adoption_MaximumLeaveAllocationAllowed = dataRow.Field<int>("Adoption_MaximumLeaveAllocationAllowed"),
@@ -1866,7 +1865,6 @@ namespace HRMS.API.BusinessLayer
 
             return result;
         }
-
 
         public LeaveResults GetLeaveTypes(MyInfoInputParams model)
         {
@@ -2770,7 +2768,30 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+        public Result AddAcknowledgePolicy(AcknowledgePolicyModel pAck)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@EmployeeId", pAck.EmployeeId));
+            sqlParameter.Add(new SqlParameter("@PolicyId", pAck.Id));
 
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Add_AcknowledgePolicy, sqlParameter);
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var dataRow = dataSet.Tables[0].Rows[0];
+
+                model = new Result
+                {
+                    PKNo = dataRow["PKNo"] != DBNull.Value ? Convert.ToInt64(dataRow["PKNo"]) : (long?)null,
+                    UserID = dataRow["UserID"] != DBNull.Value ? Convert.ToInt64(dataRow["UserID"]) : (long?)null,
+                    Message = dataRow["Message"]?.ToString(),
+                    ErrorCode = dataRow["ErrorCode"]?.ToString(),
+                    IsResetPasswordRequired = dataRow["IsResetPasswordRequired"] != DBNull.Value && Convert.ToBoolean(dataRow["IsResetPasswordRequired"]),
+                    Data = dataRow["Data"] != DBNull.Value ? dataRow["Data"] : null
+                };
+            }
+            return model;
+        }
         #endregion
 
 
