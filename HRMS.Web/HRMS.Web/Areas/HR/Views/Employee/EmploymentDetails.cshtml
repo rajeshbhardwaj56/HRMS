@@ -49,14 +49,14 @@
                     @* @Html.ValidationMessageFor(m => m.JoiningDate) *@
                 </div>
                 <div class="col-md-4 form-group">
-                    <label>Official Email <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "text", @required = "required" })
+                    <label>Official Email </label>
+                    @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "text" })
                 </div>
 
 
                 <div class="col-md-4 form-group">
-                    <label>Official Contact No <span class="Mandetory">*</span> (123-456-7890)</label>
-                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control  mobile-mask", @required = "required" })
+                    <label>Official Contact No  (123-456-7890)</label>
+                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control  mobile-mask" })
 
                 </div>
                 <div class="col-md-4 form-group">

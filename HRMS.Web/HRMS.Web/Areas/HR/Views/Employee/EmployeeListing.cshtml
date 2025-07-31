@@ -37,7 +37,6 @@
 				<th>Emp No</th>
 				<th>First Name</th>
 				<th>Surname</th>
-				<th>Email</th>
 				<th>Designation </th>
 				<th>Department</th>
 				<th>Manager</th>
@@ -83,6 +82,7 @@
 <script type="text/javascript">
 	$(document).ready(function () {
 		$('#tblEmployeeListing').DataTable({
+	
 			"processing": true,
 			"serverSide": true,
 			"ajax": {
@@ -114,7 +114,7 @@
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "firstName", "autoWidth": true },
 				{ "data": "surname", "autoWidth": true },
-				{ "data": "personalEmailAddress", "autoWidth": true },
+				
 				{ "data": "designationName", "autoWidth": true },
 				{ "data": "departmentName", "autoWidth": true },
 				{ "data": "managerName", "autoWidth": true },
@@ -154,7 +154,7 @@
 				'</div>';
 
 			var moveToActiveEmployee = '<div class="table-data-feature">' +
-				'<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Edit">' +
+				'<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Official Detail Edit">' +
 				'<img src="/assets/img/ReadyStatus.svg" width="20" height="20" />' +
 				'</a>' +
 				'</div>';

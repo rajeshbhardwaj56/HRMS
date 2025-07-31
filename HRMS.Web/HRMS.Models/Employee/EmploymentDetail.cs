@@ -29,8 +29,8 @@ namespace HRMS.Models.Employee
         public long ShiftTypeID { get; set; }
         public long JobLocationID { get; set; }
         public long ReportingToIDL1 { get; set; }
-        public string OfficialEmailID { get; set; } = string.Empty;
-        public string OfficialContactNo { get; set; } = string.Empty;
+        public string? OfficialEmailID { get; set; } = string.Empty;
+        public string? OfficialContactNo { get; set; } = string.Empty;
         public string DesignationName { get; set; } = string.Empty;
         public string DepartmentName { get; set; } = string.Empty;
         public string SubDepartmentName { get; set; } = string.Empty;

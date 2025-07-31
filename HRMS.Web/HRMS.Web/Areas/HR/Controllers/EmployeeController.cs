@@ -90,13 +90,15 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol,  string sortDir)
         {
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             employee.DisplayStart = iDisplayStart;
             employee.DisplayLength = iDisplayLength;
+            employee.SortCol = sortCol;
+            employee.SortDir = sortDir;
             employee.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
             var data = _businessLayer.SendPostAPIRequest(
                 employee,

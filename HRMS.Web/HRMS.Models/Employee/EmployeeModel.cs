@@ -21,6 +21,10 @@ namespace HRMS.Models.Employee
         public int? DisplayLength { get; set; } = 0;
         public string? Searching { get; set; }
        
+        public string? SortDir { get; set; }
+
+        public string? SortCol { get; set; }
+
     }
 
 

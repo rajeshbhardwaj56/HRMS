@@ -12,7 +12,6 @@
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 
-
     bool IsLeaveSubmenuActive()
     {
         var action = ViewContext.RouteData.Values["action"]?.ToString();
@@ -22,9 +21,10 @@
     bool IsAttendanceSubmenuActive()
     {
         var action = ViewContext.RouteData.Values["action"]?.ToString();
+       
         return action == "AttendenceList" || action == "ApprovedAttendance"
             || action == "TeamAttendenceList" || action == "MyAttendanceList"
-            || action == "CompOffApplication" || action == "ApproveCompOff"
+            || action == "CompOffApplication" || action == "ApproveCompOff" || action == "TeamAttendenceApprovalList"
            ;
     }
     bool IsAdminSubmenuActive()
@@ -263,11 +263,11 @@
                                 @if (Model.FormPermissionList.Any(x => x.FormID == 27 && x.IsFormPermissions && x.FormLevel == 2))
                                 {
 
-                                    <a class="  hrms-menu-title d-flex align-items-center  @(currentController == "Attendance" && currentAction == "TeamAttendenceApprovalList" ? "hrms-active" : "")"
+                                    <a class="  hrms-sidebar-link  @(ViewContext.RouteData.Values["action"]?.ToString() == "TeamAttendenceApprovalList" ? "hrms-active" : "")"
                                        asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
                                        asp-controller="Attendance"
                                        asp-action="TeamAttendenceApprovalList">
-                                        <i class="bi bi-person-circle hrms-menu-title1"></i>
+                                        <i class="bi bi-clipboard-check hrms-menu-title1"></i>
                                         <span class="hrms-menu-label ms-3">Attendance Approval</span>
                                     </a>
 

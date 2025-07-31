@@ -142,8 +142,8 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@CompanyID", model.CompanyID),
             new SqlParameter("@EmployeeID", model.EmployeeID),
             new SqlParameter("@RoleID", model.RoleID),
-            new SqlParameter("@SortCol", "EmployeeID"), // 🔹 Default Sorting
-            new SqlParameter("@SortDir", "DESC"),
+            new SqlParameter("@SortCol", model.SortCol ), // 🔹 Default Sorting
+            new SqlParameter("@SortDir", model.SortDir),
             new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching),
             new SqlParameter("@DisplayStart", model.DisplayStart),
             new SqlParameter("@DisplayLength", model.DisplayLength)
