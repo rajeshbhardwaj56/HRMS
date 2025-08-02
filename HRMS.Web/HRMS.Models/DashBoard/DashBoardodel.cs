@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Leave;
+﻿using HRMS.Models.Employee;
+using HRMS.Models.Leave;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,11 @@ namespace HRMS.Models.DashBoard
         public DateTime? JobSeprationDate { get; set; }
         public long NoOfEmployees { get; set; }
         public long NoOfCompanies { get; set; }
-        public int CountsOfCompanies { get; set; }
+        public long CountsOfCompanies { get; set; }
+
+        public int? TotalSeniorCore { get; set; }
+        public int? TotalFieldTracer { get; set; }
+        public int? TotalCCE { get; set; }
         public long NoOfLeaves { get; set; }
         public double Salary { get; set; }
         public string? CorrespondenceAddress { get; set; } = string.Empty;
@@ -112,6 +117,7 @@ namespace HRMS.Models.DashBoard
         public string? ProfilePhoto { get; set; }
         public int? Subordinate { get; set; }
         public int? TotalSubordinateCount { get; set; }
+        public long? RoleID { get; set; }
         public int Level { get; set; }
         public string? Path { get; set; }
         public List<HierarchyEmployee> Subordinates { get; set; } = new List<HierarchyEmployee>();
@@ -119,10 +125,9 @@ namespace HRMS.Models.DashBoard
     public class EmployeeDetails
     {
         public long? EmployeeId { get; set; }
-        public string FirstName { get; set; }
-
-        public string MiddelName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? MiddelName { get; set; }
+        public string? LastName { get; set; }
         public DateTime? DOB { get; set; }
         public string EmployeePhoto { get; set; }
         public string? DesignationName { get; set; }
@@ -131,6 +136,20 @@ namespace HRMS.Models.DashBoard
         public string? ManagerName { get; set; }
         public string? EmployeeNumber { get; set; }
 
+
+    }
+    public class EmployeeDashboardResponse
+    {
+        public List<EmployeeDetails> Employees { get; set; } = new List<EmployeeDetails>();
+        public List<EmploymentTypesList> EmploymentTypesList { get; set; } = new List<EmploymentTypesList>();
+        public List<LocationList> LocationList { get; set; } = new List<LocationList>();
+        public List<SubDepartmentList> SubDepartmentList { get; set; } = new List<SubDepartmentList>();
+        public List<ManagersList> ManagerList { get; set; } = new List<ManagersList>();
+    }
+    public class ManagersList
+    {
+        public long? EmployeeID { get; set; }
+        public string? FullName { get; set; }
     }
 
     public class WhatsHappening

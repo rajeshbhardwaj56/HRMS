@@ -96,7 +96,8 @@
         <div class="table-responsive py-3">
             <table id="tblRejected" class="table table-striped body-text" style="width:100%">
                 <thead>
-                    <tr>                   
+                    <tr>
+                        
                         <th>Employee Name</th>
                         <th>Attendance Date</th>
                         <th>First Log</th>
@@ -127,16 +128,16 @@
         let rejectedLoaded = false;
 
         $(document).ready(function () {
-            // Initialize tables
+           
             notAppliedTable = initNotAppliedTable();
             appliedTable = initAppliedTable();
             rejectedTable = initRejectedTable();
 
-            // Load data for default active tab (Not Applied)
+            
             loadNotAppliedData();
             notAppliedLoaded = true;
 
-            // Tab change event
+          
             $('#compOffTabs button').on('shown.bs.tab', function (e) {
                 const target = $(e.target).attr("aria-controls");
 
@@ -168,9 +169,6 @@
             $('#selectAll').prop('checked', allChecked);
         });
 
-       
-        
-           
             $('#submitRequest').click(() => submitCompOffRequest('not-applied'));
            
         });
@@ -204,12 +202,7 @@
                 ]
             });
         }
-
-
-               
-
-
-
+            
         function initAppliedTable() {
             return $('#tblApplied').DataTable({
                 columns: [

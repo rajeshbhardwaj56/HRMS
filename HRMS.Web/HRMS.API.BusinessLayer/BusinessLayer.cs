@@ -142,11 +142,14 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@CompanyID", model.CompanyID),
             new SqlParameter("@EmployeeID", model.EmployeeID),
             new SqlParameter("@RoleID", model.RoleID),
-            new SqlParameter("@SortCol", model.SortCol ), // 🔹 Default Sorting
+            new SqlParameter("@SortCol", model.SortCol ),
             new SqlParameter("@SortDir", model.SortDir),
             new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching),
             new SqlParameter("@DisplayStart", model.DisplayStart),
-            new SqlParameter("@DisplayLength", model.DisplayLength)
+            new SqlParameter("@DisplayLength", model.DisplayLength),
+            new SqlParameter("@LocationID", model.LocationID),
+            new SqlParameter("@SubDepartmentID", model.SubDepartmentID),
+            new SqlParameter("@EmployeeTypeID", model.EmployeeTypeID)
         };
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetails, sqlParameter);
 
@@ -336,6 +339,44 @@ namespace HRMS.API.BusinessLayer
                         result.employeeModel.EmploymentDetail = new List<EmploymentDetail>();
                     }
 
+
+
+                }
+                result.employeeModel.SubDepartmentList = dataSet.Tables[1].AsEnumerable()
+                           .Select(dataRow => new SubDepartmentList
+                           {
+                               SubDepartmentID = dataRow.Field<long>("SubDepartmentID"),
+                               Name = dataRow.Field<string>("Name"),
+
+                           }).ToList();
+                if (result.employeeModel.SubDepartmentList == null)
+                {
+                    result.employeeModel.SubDepartmentList = new List<SubDepartmentList>();
+                }
+
+                result.employeeModel.LocationList = dataSet.Tables[2].AsEnumerable()
+                           .Select(dataRow => new LocationList
+                           {
+                               JobLocationID = dataRow.Field<long>("JobLocationID"),
+                               Name = dataRow.Field<string>("Name"),
+
+                           }).ToList();
+                if (result.employeeModel.EmploymentTypesList == null)
+                {
+                    result.employeeModel.EmploymentTypesList = new List<EmploymentTypesList>();
+                }
+
+
+                result.employeeModel.EmploymentTypesList = dataSet.Tables[3].AsEnumerable()
+                             .Select(dataRow => new EmploymentTypesList
+                             {
+                                 EmployeeTypeId = dataRow.Field<long>("EmployeeTypeID"),
+                                 Name = dataRow.Field<string>("Name"),
+
+                             }).ToList();
+                if (result.employeeModel.EmploymentTypesList == null)
+                {
+                    result.employeeModel.EmploymentTypesList = new List<EmploymentTypesList>();
                 }
             }
             catch (Exception ex)
@@ -1983,15 +2024,7 @@ namespace HRMS.API.BusinessLayer
                                       NoOfEmployees = dataRow.Field<int>("NoOfEmployees"),
                                   }).ToList().FirstOrDefault();
 
-                //dashBoardModel.AttendanceModel = dataSet.Tables[2].AsEnumerable()
-                //              .Select(dataRow => new AttendanceModel
-                //              {
-                //                  Day = dataRow.Field<DateTime>("Day"),
-                //                  Present = dataRow.Field<int>("Present"),
-                //                  Absent = dataRow.Field<int>("Absent"),
-
-                //              }).ToList();
-
+             
 
                 var attendanceTable = dataSet.Tables[2];
 
@@ -2126,15 +2159,18 @@ namespace HRMS.API.BusinessLayer
                             Level = row.IsNull("Level") ? 0 : row.Field<int>("Level"),
                             Path = row.Field<string>("Path") ?? string.Empty,
                             Subordinate = row.Field<int?>("SubordinateCount") ?? 0,
-                            TotalSubordinateCount = row.Field<int?>("TotalSubordinateCount") ?? 0
+                            TotalSubordinateCount = row.Field<int?>("TotalSubordinateCount") ?? 0,
+                            RoleID = row.Field<long?>("RoleID") ?? 0
                         })
                         .ToList();
-
-                    dashBoardModel.EmployeeHierarchy = BuildHierarchyTree(flatList);
+                 
+                       
+                        dashBoardModel.EmployeeHierarchy = BuildCombinedHierarchy(flatList);
+                    
                 }
 
 
-                if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.HR)
+                if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.HR || model.RoleID == (int)Roles.Admin)
                 {
                     var CompanyDetails = dataSet.Tables[9].AsEnumerable()
                            .Select(dataRow => new DashBoardModel
@@ -2142,9 +2178,24 @@ namespace HRMS.API.BusinessLayer
                                CountsOfCompanies = dataRow.Field<int>("TotalCompanies"),
                            }).ToList().FirstOrDefault();
                     dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
+                   
 
                 }
 
+                if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.Admin)
+                {
+                    var Employment = dataSet.Tables[10].AsEnumerable()
+                           .Select(dataRow => new DashBoardModel
+                           {
+                               TotalSeniorCore = dataRow.Field<int>("TotalSeniorCore"),
+                               TotalFieldTracer = dataRow.Field<int>("TotalCCE"),
+                               TotalCCE = dataRow.Field<int>("TotalFieldTracer"),
+                           }).ToList().FirstOrDefault();
+                    dashBoardModel.TotalSeniorCore = Employment.TotalSeniorCore;
+                    dashBoardModel.TotalFieldTracer = Employment.TotalCCE;
+                    dashBoardModel.TotalCCE = Employment.TotalFieldTracer;
+
+                }
 
 
 
@@ -2172,7 +2223,40 @@ namespace HRMS.API.BusinessLayer
             return dashBoardModel;
         }
 
+        public List<HierarchyEmployee> BuildCombinedHierarchy(List<HierarchyEmployee> flatList)
+        {
+            var combined = new List<HierarchyEmployee>();
 
+            // 1. Add the full tree first
+            combined.AddRange(BuildHierarchyTree(flatList));
+
+            // 2. Identify all nodes that have children (potential subtree roots)
+            var parentPaths = flatList
+                .Where(e => flatList.Any(x => GetParentPath(x.Path) == e.Path))
+                .Select(e => e.Path)
+                .Distinct()
+                .ToList();
+
+            // 3. Generate and add subtrees for each parent node
+            foreach (var path in parentPaths)
+            {
+                // Get the parent node and its direct children
+                var subtreeNodes = flatList
+                    .Where(e => e.Path == path || GetParentPath(e.Path) == path)
+                    .ToList();
+
+                // Build the subtree using the same method
+                var subtree = BuildHierarchyTree(subtreeNodes);
+
+                // Only add if we got results (should always be true)
+                if (subtree.Any())
+                {
+                    combined.AddRange(subtree);
+                }
+            }
+
+            return combined;
+        }
 
         private List<HierarchyEmployee> BuildHierarchyTree(List<HierarchyEmployee> flatList)
         {
@@ -2616,43 +2700,92 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public List<EmployeeDetails> GetEmployeeListByManagerID(EmployeeInputParams model)
+        public EmployeeDashboardResponse GetEmployeeListByManagerID(EmployeeInputParams model)
         {
-            List<EmployeeDetails> dashBoardModel = new List<EmployeeDetails>();
+            var response = new EmployeeDashboardResponse();
 
             try
             {
-                List<SqlParameter> sqlParameter = new List<SqlParameter>();
-                sqlParameter.Add(new SqlParameter("@ReportingUserID", model.EmployeeID));
-                sqlParameter.Add(new SqlParameter("@RoleID", model.RoleID));
-                //sqlParameter.Add(new SqlParameter("@SortCol", "EmployeeNumber"));
-                //sqlParameter.Add(new SqlParameter("@SortDir", "DESC"));
-                //sqlParameter.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
-                //sqlParameter.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
-                //sqlParameter.Add(new SqlParameter("@DisplayLength", model.DisplayLength));
+                List<SqlParameter> sqlParameter = new List<SqlParameter>
+        {
+            new SqlParameter("@ReportingUserID", model.EmployeeID),
+            new SqlParameter("@RoleID", model.RoleID),
+             new SqlParameter("@LocationID", model.LocationID),
+            new SqlParameter("@SubDepartmentID", model.SubDepartmentID),
+            new SqlParameter("@EmployeeTypeID", model.EmployeeTypeID),
+            new SqlParameter("@ManagerID", model.ManagerID)
+        };
+
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeListByManagerIDs, sqlParameter);
 
+                // Table 0: Employee list
+                if (dataSet.Tables.Count > 0)
+                {
+                    response.Employees = dataSet.Tables[0].AsEnumerable()
+                        .Select(row => new EmployeeDetails
+                        {
+                            EmployeeId = row.Field<long>("EmployeeId"),
+                            EmployeeNumber = row.Field<string>("EmployeNumber"),
+                            ManagerName = row.Field<string>("ManagerName"),
+                            FirstName = row.Field<string>("EmployeeFirstName"),
+                            MiddelName = row.Field<string>("EmployeeMiddelName"),
+                            LastName = row.Field<string>("EmployeeLastName"),
+                            EmployeePhoto = row.Field<string>("EmployeePhoto"),
+                            DepartmentName = row.Field<string>("DepartmentName"),
+                            DesignationName = row.Field<string>("DesignationName")
+                        }).ToList();
+                }
 
-                dashBoardModel = dataSet.Tables[0].AsEnumerable()
-                                  .Select(dataRow => new EmployeeDetails
-                                  {
-                                      EmployeeId = dataRow.Field<long>("EmployeeId"),
-                                      EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
-                                      ManagerName = dataRow.Field<string>("ManagerName"),
-                                      FirstName = dataRow.Field<string>("EmployeeFirstName"),
-                                      MiddelName = dataRow.Field<string>("EmployeeMiddelName"),
-                                      LastName = dataRow.Field<string>("EmployeeLastName"),
-                                      EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
-                                      DepartmentName = dataRow.Field<string>("DepartmentName"),
-                                      DesignationName = dataRow.Field<string>("DesignationName"),
-                                  }).ToList();
+                // Table 1: SubDepartments
+                if (dataSet.Tables.Count > 1)
+                {
+                    response.SubDepartmentList = dataSet.Tables[1].AsEnumerable()
+                        .Select(row => new SubDepartmentList
+                        {
+                            SubDepartmentID = row.Field<long>("SubDepartmentID"),
+                            Name = row.Field<string>("Name")
+                        }).ToList();
+                }
 
+                // Table 2: Locations
+                if (dataSet.Tables.Count > 2)
+                {
+                    response.LocationList = dataSet.Tables[2].AsEnumerable()
+                        .Select(row => new LocationList
+                        {
+                            JobLocationID = row.Field<long>("JobLocationID"),
+                            Name = row.Field<string>("Name")
+                        }).ToList();
+                }
+
+                // Table 3: Employment Types
+                if (dataSet.Tables.Count > 3)
+                {
+                    response.EmploymentTypesList = dataSet.Tables[3].AsEnumerable()
+                        .Select(row => new EmploymentTypesList
+                        {
+                            EmployeeTypeId = row.Field<long>("EmployeeTypeID"),
+                            Name = row.Field<string>("Name")
+                        }).ToList();
+                }
+
+                // Table 4: Managers List
+                if (dataSet.Tables.Count > 4)
+                {
+                    response.ManagerList = dataSet.Tables[4].AsEnumerable()
+                        .Select(row => new ManagersList
+                        {
+                            EmployeeID = row.Field<long>("EmployeeID"),
+                            FullName = row.Field<string>("FullName")
+                        }).ToList();
+                }
             }
             catch (Exception ex)
             {
-
+                // Log exception
             }
-            return dashBoardModel;
+
+            return response;
         }
 
 

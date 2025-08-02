@@ -17,6 +17,33 @@
     var Err = TempData["Error"];
 }
 <div class="main-header anim">Employee List</div>
+<div class="row mb-2">
+    <div class="col-md-3">
+        <label>Sub Department</label>
+        <select id="subDepartmentFilter" class="form-control form-control-sm">
+            <option value="">All</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label>Job Location</label>
+        <select id="locationFilter" class="form-control form-control-sm">
+            <option value="">All</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label>Employee Type</label>
+        <select id="employeeTypeFilter" class="form-control form-control-sm">
+            <option value="">All</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label>Manager</label>
+        <select id="managerFilter" class="form-control form-control-sm">
+            <option value="">All</option>
+        </select>
+    </div>
+</div>
+
 <div class="table-responsive py-3">
     <table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
         <thead>
@@ -26,7 +53,6 @@
                 <th>Emp No</th>
                 <th> Name</th>                          
                 <th>Manager  </th>
-       
                 <th>Designation</th>
                 <th>Department</th>
             </tr>
@@ -35,22 +61,67 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function () {       
-        $('#tblLeavesForReject').DataTable({
-            //     "processing": true,
-            // "serverSide": true,
+    $(document).ready(function () {
+
+    function populateDropdown(selector, data) {
+        if (!data) return;
+          const currentValue = $(selector).val();
+
+        $(selector).empty().append('<option value="">All</option>');
+
+        $.each(data, function (i, item) {
+            let value, text;
+
+            if (selector === '#subDepartmentFilter') {
+                value = item.subDepartmentID;
+                text = item.name;
+            } else if (selector === '#locationFilter') {
+                value = item.jobLocationID;
+                text = item.name;
+            } else if (selector === '#employeeTypeFilter') {
+                value = item.employeeTypeId;
+                text = item.name;
+            } else if (selector === '#managerFilter') {
+                value = item.employeeID;
+                text = item.fullName;
+            }
+
+            $(selector).append($('<option>', {
+                value: value,
+                text: text
+            }));
+        });
+         if (currentValue) {
+        $(selector).val(currentValue);
+    }
+    }
+
+      $('#subDepartmentFilter, #locationFilter, #employeeTypeFilter, #managerFilter').on('change', function () {
+
+        table.ajax.reload();
+        });
+        
+      var table = $('#tblLeavesForReject').DataTable({
+        
             "ajax": {
                 "url": "GetTeamEmployeeList/",
                 "type": "POST",
-                "datatype": "json"
-                 //    "data": function (d) {
-                 //     return {
-                 //         sEcho: d.draw,
-                 //         iDisplayStart: d.start,
-                 //         iDisplayLength: d.length,
-                 //         sSearch: d.search.value
-                 //     };
-                 // }
+                "datatype": "json",
+                "data": function (d) {
+            d.subDeptFilter = $('#subDepartmentFilter').val();
+            d.empTypeFilter = $('#employeeTypeFilter').val();
+            d.locationFilter = $('#locationFilter').val();
+            d.managerFilter = $('#managerFilter').val();
+        },
+                  "dataSrc": function (json) {
+                    
+                    populateDropdown('#subDepartmentFilter', json.subDepartments);
+                    populateDropdown('#locationFilter', json.locations);
+                    populateDropdown('#employeeTypeFilter', json.employeeTypes);
+                    populateDropdown('#managerFilter', json.managers);
+
+                    return json.data;
+                }
             },
             "ordering": true,
             "paging": true,
@@ -86,7 +157,7 @@
             ],
              "columnDefs": [
                  {
-                    target: 2,
+                    target: [2],
                     visible: false,
                     searchable: false
                 },

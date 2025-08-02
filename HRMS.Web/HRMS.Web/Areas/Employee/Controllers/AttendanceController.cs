@@ -58,7 +58,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
         public IActionResult Index(string id)
         {
-    
+
             Attendance model = new Attendance();
             if (!string.IsNullOrEmpty(id))
             {
@@ -155,7 +155,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpGet]
         public IActionResult MyAttendanceList()
         {
-            
+
             var ManagerL1 = HttpContext.Session.GetString(Constants.Manager1Name).ToString();
             var ManagerL2 = HttpContext.Session.GetString(Constants.Manager2Name).ToString();
             ViewBag.ManagerL1 = ManagerL1;
@@ -199,7 +199,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public IActionResult MyAttendance(Attendance AttendenceListModel)
         {
-             
+
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
             var UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             AttendenceListModel.UserId = UserId;
@@ -239,7 +239,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
                 if (!string.IsNullOrEmpty(Manager1Email))
                 {
-                    var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName)); 
+                    var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
                     sendEmailProperties sendEmailProperties = new sendEmailProperties
                     {
 
@@ -434,7 +434,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var emailList = new List<string>();
             string subject = string.Empty;
             string body = string.Empty;
-            var actions= actionText.Equals("approve", StringComparison.OrdinalIgnoreCase) ? "approved" : "rejected";
+            var actions = actionText.Equals("approve", StringComparison.OrdinalIgnoreCase) ? "approved" : "rejected";
             switch (attendanceModel.AttendanceStatusId)
             {
                 case (int)AttendanceStatusId.L1Approved:
@@ -528,7 +528,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                             approvesStatus = "L1 manager";
                         }
 
-                            emailList.Add(employeeResult.PersonalEmailAddress);
+                        emailList.Add(employeeResult.PersonalEmailAddress);
                         subject = "Attendance request status";
                         body = $@"
 Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {approvesStatus}.
@@ -909,17 +909,17 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             else
             {
                 if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
-            {
-                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                    ? (int)AttendanceStatusId.L1Approved
-                    : (int)AttendanceStatusId.L2Approved;
-            }
-            else
-            {
-                attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
-                    ? (int)AttendanceStatusId.L1Rejected
-                    : (int)AttendanceStatusId.L2Rejected;
-            }
+                {
+                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                        ? (int)AttendanceStatusId.L1Approved
+                        : (int)AttendanceStatusId.L2Approved;
+                }
+                else
+                {
+                    attendanceModel.AttendanceStatusId = status == AttendanceStatusId.Pending.ToString()
+                        ? (int)AttendanceStatusId.L1Rejected
+                        : (int)AttendanceStatusId.L2Rejected;
+                }
             }
 
 
@@ -1204,6 +1204,147 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
 
         #endregion Attendance Approval
+
+
+        #region CompOff
+        [HttpGet]
+        public IActionResult AgentCompOffApplication()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult GetCompOffAttendanceLogs(long attendanceStatus)
+        {
+            CompOffAttendanceInputParams inputParams = new CompOffAttendanceInputParams
+            {
+                EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
+                JobLocationTypeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.JobLocationID)),
+                AttendanceStatus = attendanceStatus,
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                inputParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetCompOffAttendanceList),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var model = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data);
+
+            return Json(new { data = model });
+        }
+
+        [HttpPost]
+        public IActionResult SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
+        {
+            var result = new Result();
+            EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();
+            try
+            {
+                var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                foreach (var attendance in submission.Logs)
+                {
+                    var compOff = new CompOffAttendanceRequestModel
+                    {
+                        AttendanceId = attendance.AttendanceId,
+                        EmployeeId = attendance.EmployeeId,
+                        WorkDate = attendance.AttendanceDate,
+                        FirstLogDate = attendance.FirstLog,
+                        LastLogDate = attendance.LastLog,
+                        HoursWorked = attendance.HoursWorked,
+                        Comments = submission.Comment,
+                        ModifiedBy = userId,
+                        CreatedBy = attendance.CreatedBy ?? userId,
+                        IsDeleted = false,
+                        AttendanceStatusId = (int)AttendanceStatusId.Pending,
+
+
+                    };
+                    employeeobj.EmployeeID = attendance.EmployeeId;
+                    var responseString = _businessLayer.SendPostAPIRequest(compOff, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateCompOffAttendace),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result?.ToString();
+
+                    if (!string.IsNullOrWhiteSpace(responseString))
+                    {
+
+                        var employeeApiResponse = _businessLayer.SendPostAPIRequest(
+            employeeobj,
+            _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
+            HttpContext.Session.GetString(Constants.SessionBearerToken),
+            true
+        ).Result.ToString();
+
+                        var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
+
+                        result = JsonConvert.DeserializeObject<Result>(responseString);
+                        if (!string.IsNullOrEmpty(result?.Message) && result.Message.ToLower().Contains("error"))
+                            break;
+                        var managerEmail = HttpContext.Session.GetString(Constants.Manager1Email);
+                        if (!string.IsNullOrEmpty(managerEmail))
+                        {
+                            var Name = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+                            sendEmailProperties sendEmailProperties = new sendEmailProperties
+                            {
+
+                                emailSubject = "Send a request for CompOff Attendance approval",
+                                emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+           {Name} has sent a request for attendance approval.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Email</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeNumber}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.EmployeeName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.PersonalEmailAddress}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{employeeResult.DepartmentName}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+
+            
+
+          <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>
+        </div>"
+                            };
+                            sendEmailProperties.EmailToList.Add(managerEmail);
+                            emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
+
+                        }
+                    }
+                    else
+                    {
+                        result.Message = "No response from API.";
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = "Error while submitting comp-off requests: " + ex.Message;
+            }
+
+            return Json(new { message = result?.Message ?? "Comp-Off requests submitted successfully." });
+        }
+
+       
+        #endregion Agent CompOff
+
+
 
     }
 

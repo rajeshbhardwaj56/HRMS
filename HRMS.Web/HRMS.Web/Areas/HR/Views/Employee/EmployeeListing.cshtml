@@ -27,7 +27,29 @@
 	</section>
 </div>
 <div class="table-responsive py-3">
-
+	<div class="row mb-2">
+		<div class="col-md-3">
+			<label for="subDeptFilter">Sub-Department:</label>
+			<select id="subDeptFilter" class="form-control">
+				<option value="">All</option>
+				
+			</select>
+		</div>
+		<div class="col-md-3">
+			<label for="empTypeFilter">Employee Type:</label>
+			<select id="empTypeFilter" class="form-control">
+				<option value="">All</option>
+			
+			</select>
+		</div>
+		<div class="col-md-3">
+			<label for="locationFilter">Location:</label>
+			<select id="locationFilter" class="form-control">
+				<option value="">All</option>
+			
+			</select>
+		</div>
+	</div>
 	<table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
 		<thead>
 			<tr>
@@ -81,6 +103,12 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
+			$('#subDeptFilter, #empTypeFilter, #locationFilter').on('change', function () {
+		$('#tblEmployeeListing').DataTable().ajax.reload();
+	});
+
+
+
 		$('#tblEmployeeListing').DataTable({
 	
 			"processing": true,
@@ -94,9 +122,57 @@
 						sEcho: d.draw,
 						iDisplayStart: d.start,
 						iDisplayLength: d.length,
-						sSearch: d.search.value
+						sSearch: d.search.value,
+						subDeptFilter: $('#subDeptFilter').val(),
+		empTypeFilter: $('#empTypeFilter').val(),
+		locationFilter: $('#locationFilter').val()
 					};
-				}
+				},
+				"dataSrc": function (json) {
+			var empTypeDropdown = $('#empTypeFilter');
+	var subDeptDropdown = $('#subDeptFilter');
+	var locationDropdown = $('#locationFilter');
+
+	var selectedEmpType = empTypeDropdown.val();
+	var selectedSubDept = subDeptDropdown.val();
+	var selectedLocation = locationDropdown.val();
+
+
+	empTypeDropdown.empty().append('<option value="">All</option>');
+	if (json.employmentTypes && json.employmentTypes.length) {
+		$.each(json.employmentTypes, function (index, item) {
+			empTypeDropdown.append(
+				$('<option></option>').val(item.employeeTypeId).text(item.name)
+			);
+		});
+	}
+	empTypeDropdown.val(selectedEmpType);
+
+
+	subDeptDropdown.empty().append('<option value="">All</option>');
+	if (json.subDepartmentTypes && json.subDepartmentTypes.length) {
+		$.each(json.subDepartmentTypes, function (index, item) {
+			subDeptDropdown.append(
+				$('<option></option>').val(item.subDepartmentTypeId).text(item.name)
+			);
+		});
+	}
+	subDeptDropdown.val(selectedSubDept);
+
+
+	locationDropdown.empty().append('<option value="">All</option>');
+	if (json.locationTypes && json.locationTypes.length) {
+		$.each(json.locationTypes, function (index, item) {
+			locationDropdown.append(
+				$('<option></option>').val(item.locationTypeId).text(item.name)
+			);
+		});
+	}
+	locationDropdown.val(selectedLocation);
+
+
+				return json.data;
+			}
 			},
 			"ordering": true,
 			"paging": true,

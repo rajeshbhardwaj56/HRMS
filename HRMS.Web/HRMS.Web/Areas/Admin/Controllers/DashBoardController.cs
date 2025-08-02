@@ -135,7 +135,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     //   model.TotalLeave = (decimal)approvedLeaveTotal;            // Leaves already taken
                     model.NoOfLeaves = Convert.ToInt64(remainingLeave);        // Leaves remaining (available)
                     ViewBag.NoOfLeaves = remainingLeave;        // Leaves remaining (available)
-
+                    ViewBag.RoleID = roleId;
                     // Optional: Pass consecutive allowed days to ViewBag for UI use
                     ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
                 }

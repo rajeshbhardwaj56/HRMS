@@ -598,32 +598,44 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult GetTeamEmployeeList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public JsonResult GetTeamEmployeeList(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string subDeptFilter,
+    string empTypeFilter,
+    string locationFilter,string managerFilter)
         {
             try
             {
-                List<EmployeeDetails> employeeDetails = new List<EmployeeDetails>();
+                EmployeeDashboardResponse employeeDetails = new EmployeeDashboardResponse();
                 EmployeeInputParams model = new EmployeeInputParams();
                 model.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-                model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));       
+                model.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+                model.SubDepartmentID = string.IsNullOrEmpty(subDeptFilter) ? 0 : Convert.ToInt64(subDeptFilter);
+                model.EmployeeTypeID = string.IsNullOrEmpty(empTypeFilter) ? 0 : Convert.ToInt64(empTypeFilter);
+                model.LocationID = string.IsNullOrEmpty(locationFilter) ? 0 : Convert.ToInt64(locationFilter);
+                model.ManagerID = string.IsNullOrEmpty(managerFilter) ? 0 : Convert.ToInt64(managerFilter);
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeListByManagerID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                employeeDetails = JsonConvert.DeserializeObject<List<EmployeeDetails>>(data);
+                employeeDetails = JsonConvert.DeserializeObject<EmployeeDashboardResponse>(data);
 
 
-                if (employeeDetails == null || employeeDetails.Count == 0)
+                if (employeeDetails == null || employeeDetails.Employees == null || employeeDetails.Employees.Count == 0)
                 {
                     return Json(new { data = new List<object>(), message = "No employees found" });
                 }
                 else
                 {
-                    employeeDetails.ForEach(x =>
+                    employeeDetails.Employees.ForEach(x =>
                     {
                         x.EmployeePhoto = string.IsNullOrEmpty(x.EmployeePhoto)
-                            ? "/assets/img/No_image.png"   //Use default image if profile photo is missing
+                            ? "/assets/img/No_image.png"   
                             : _s3Service.GetFileUrl(x.EmployeePhoto);
                     });
                 }
-                return Json(new { data = employeeDetails });
+                return Json(new { data = employeeDetails.Employees,
+                    subDepartments = employeeDetails.SubDepartmentList,
+                    locations = employeeDetails.LocationList,
+                    employeeTypes = employeeDetails.EmploymentTypesList,
+                    managers = employeeDetails.ManagerList
+                });
+
             }
             catch (Exception ex)
             {

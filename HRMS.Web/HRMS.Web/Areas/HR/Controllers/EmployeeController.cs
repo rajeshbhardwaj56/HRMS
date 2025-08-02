@@ -90,7 +90,9 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol,  string sortDir)
+        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol,  string sortDir, string subDeptFilter,
+    string empTypeFilter,
+    string locationFilter)
         {
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -100,6 +102,9 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.SortCol = sortCol;
             employee.SortDir = sortDir;
             employee.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
+            employee.SubDepartmentID = string.IsNullOrEmpty(subDeptFilter) ? 0 : Convert.ToInt64(subDeptFilter);
+            employee.EmployeeTypeID = string.IsNullOrEmpty(empTypeFilter) ? 0 : Convert.ToInt64(empTypeFilter);
+            employee.LocationID = string.IsNullOrEmpty(locationFilter) ? 0 : Convert.ToInt64(locationFilter);
             var data = _businessLayer.SendPostAPIRequest(
                 employee,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees),
@@ -121,6 +126,21 @@ namespace HRMS.Web.Areas.HR.Controllers
                 draw = sEcho,
                 recordsTotal = results.Employees.Select(x => x.TotalRecords).FirstOrDefault() ?? 0,
                 recordsFiltered = results.Employees.Select(x => x.FilteredRecords).FirstOrDefault() ?? 0,
+                employmentTypes = results.employeeModel.EmploymentTypesList.Select(j => new
+                {
+                    employeeTypeId = j.EmployeeTypeId,
+                    name = j.Name
+                }),
+                subDepartmentTypes = results.employeeModel.SubDepartmentList.Select(j => new
+                {
+                    subDepartmentTypeId = j.SubDepartmentID,
+                    name = j.Name
+                }),
+                locationTypes = results.employeeModel.LocationList.Select(j => new
+                {
+                    locationTypeId = j.JobLocationID,
+                    name = j.Name
+                }),
                 data = results.Employees
             });
         }

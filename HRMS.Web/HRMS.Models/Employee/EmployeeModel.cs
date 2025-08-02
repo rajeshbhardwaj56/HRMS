@@ -17,6 +17,10 @@ namespace HRMS.Models.Employee
         public long CompanyID { get; set; }
         public long EmployeeID { get; set; }
         public long RoleID { get; set; }
+        public long? LocationID { get; set; } = 0;
+        public long? SubDepartmentID { get; set; } = 0;
+        public long? EmployeeTypeID { get; set; } = 0;
+        public long? ManagerID { get; set; } = 0;
         public int? DisplayStart { get; set; } = 0;
         public int? DisplayLength { get; set; } = 0;
         public string? Searching { get; set; }
@@ -30,7 +34,7 @@ namespace HRMS.Models.Employee
 
     public class EmployeeModel
 
-    { 
+    {
         public string EncryptedIdentity { get; set; } = string.Empty;
         public string EncodedDesignationID { get; set; } = string.Empty;
         public string EncodedDepartmentIDID { get; set; } = string.Empty;
@@ -49,7 +53,7 @@ namespace HRMS.Models.Employee
         public long CorrespondenceCountryID { get; set; }
         public string? EmailAddress { get; set; } = string.Empty;
         public string? Landline { get; set; } = string.Empty;
-      
+
         public string? Mobile { get; set; } = string.Empty;
         public string? Telephone { get; set; } = string.Empty;
         public string? PersonalEmailAddress { get; set; } = string.Empty;
@@ -132,6 +136,11 @@ namespace HRMS.Models.Employee
         public List<EmploymentHistory> EmploymentHistory { get; set; } = new List<EmploymentHistory>();
         public List<EmploymentDetail> EmploymentDetail { get; set; } = new List<EmploymentDetail>();
         public List<Reference> References { get; set; } = new List<Reference>();
+        public List<EmploymentTypesList> EmploymentTypesList { get; set; } = new List<EmploymentTypesList>();
+        public List<LocationList> LocationList { get; set; } = new List<LocationList>();
+        public List<SubDepartmentList> SubDepartmentList { get; set; } = new List<SubDepartmentList>();
+
+
 
         // Master Details
         public List<SelectListItem> Languages = new List<SelectListItem>();
@@ -140,6 +149,22 @@ namespace HRMS.Models.Employee
         public List<SelectListItem> EmploymentTypes = new List<SelectListItem>();
         public List<SelectListItem> Departments = new List<SelectListItem>();
 
+    }
+
+    public class EmploymentTypesList
+    {
+        public long? EmployeeTypeId { get; set; }
+        public string? Name { get; set; }
+    }
+    public class SubDepartmentList
+    {
+        public long? SubDepartmentID { get; set; }
+        public string? Name { get; set; }
+    }
+    public class LocationList
+    {
+        public long? JobLocationID { get; set; }
+        public string? Name { get; set; }
     }
     public class ReportingStatus
     {

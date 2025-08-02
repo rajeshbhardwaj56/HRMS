@@ -68,7 +68,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeleteLeavePolicyDetails(LeavePolicyDetailsInputParams model);
         public Results GetAllCompaniesList(EmployeeInputParams model);
         public Results GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model);
-        public List<EmployeeDetails> GetEmployeeListByManagerID(EmployeeInputParams model);
+        public EmployeeDashboardResponse GetEmployeeListByManagerID(EmployeeInputParams model);
         public Result AddUpdatePolicyCategory(PolicyCategoryModel LeavePolicyModel);
         public Results GetAllPolicyCategory(PolicyCategoryInputParams model);
         public Results GetPolicyCategoryList(PolicyCategoryInputParams model);

@@ -59,17 +59,13 @@ namespace HRMS.Models.Employee
         public string EmployeNumber { get; set; } = string.Empty;
         public string CompanyAbbr { get; set; } = string.Empty;
         public long CompanyID { get; set; } = 0;
-
-
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> PayrollTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> JobLocations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Designations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> EmployeeList { get; set; } = new List<SelectListItem>();
-
         public List<SelectListItem> LeavePolicyList { get; set; } = new List<SelectListItem>();
-
         public List<SelectListItem> RoleList { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> ShiftTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> SubDepartments { get; set; } = new List<SelectListItem>();
