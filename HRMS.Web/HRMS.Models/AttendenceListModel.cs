@@ -120,6 +120,7 @@ namespace HRMS.Models.AttendenceList
 
     public class CompOffLogSubmission
     {
+        public long? EmployeeId { get; set; }
         public List<CompOffLogItem> Logs { get; set; }
         public string? Comment { get; set; }
     }

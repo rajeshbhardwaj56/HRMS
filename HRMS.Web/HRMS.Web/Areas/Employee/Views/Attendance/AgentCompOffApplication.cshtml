@@ -29,7 +29,15 @@
             <div class="tab-pane fade" id="compOff1" role="tabpanel" aria-labelledby="compOff1-tab">
                 <div class="compoff-group-box anim">
                     <div class="tabsInfo" id="">
-    <h3>Comp-Off Attendance </h3>
+    <h3>Agent Comp-Off Attendance </h3>
+                        <div class="mb-3">
+                            <label for="agentDropdown" class="form-label">Select Agent:</label>
+                            <select id="agentTypeDropdown" class="form-select" style="max-width: 300px;">
+                                <option value="">-- Select Agent --</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+
 <nav>
     <div class="nav nav-tabs mb-3 " id="compOffTabs" role="tablist">
         <button class="nav-link active" id="not-applied-tab" data-bs-toggle="tab" data-bs-target="#not-applied" type="button" role="tab" aria-controls="not-applied" aria-selected="true">Not Applied</button>
@@ -126,21 +134,74 @@
         let notAppliedLoaded = false;
         let appliedLoaded = false;
         let rejectedLoaded = false;
+        let selectedEmployeeId = null;
+        let selectedJobLocationId = null;
+
+         function populateAgentDropdown(employees) {
+        const $dropdown = $('#agentTypeDropdown');
+        $dropdown.empty();
+        $dropdown.append($('<option>').val('').text('-- Select Agent --'));
+
+        employees.forEach(emp => {
+            $dropdown.append(
+                $('<option>')
+                    .val(emp.employeeID)
+                    .text(`${emp.employeeNumber} - ${emp.employeeName}`)
+                    .attr('data-gender-id', emp.gender)
+                    .attr('data-job-location-id', emp.jobLocationID)
+            );
+        });
+         $dropdown.on('change', function() {
+                  const $selectedOption = $(this).find(':selected');
+        selectedEmployeeId = $selectedOption.val();
+        selectedJobLocationId = $selectedOption.data('job-location-id');       
+
+
+            if (notAppliedLoaded) loadNotAppliedData();
+            if (appliedLoaded) loadAppliedData();
+            if (rejectedLoaded) loadRejectedData();
+        });
+
+
+        }
+
+
 
         $(document).ready(function () {
-           
+                initializeAgentDropdown();
+
+            function initializeAgentDropdown() {
+            $.ajax({
+                url: '/employee/myinfo/GetLastLevelEmployeeDropdown/',
+                type: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.data) {
+
+                        populateAgentDropdown(response.data);
+                       
+                    } else {
+                        showError("Failed to load employees");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showError("Request failed: " + error);
+                },
+                complete: function() {
+                    $('#loadingIndicator').hide();
+                }
+            });
+        }   
             notAppliedTable = initNotAppliedTable();
             appliedTable = initAppliedTable();
             rejectedTable = initRejectedTable();
-
-            
             loadNotAppliedData();
             notAppliedLoaded = true;
 
           
             $('#compOffTabs button').on('shown.bs.tab', function (e) {
                 const target = $(e.target).attr("aria-controls");
-
                 if (target === 'not-applied' && !notAppliedLoaded) {
                     loadNotAppliedData();
                     notAppliedLoaded = true;
@@ -265,8 +326,12 @@
         function loadNotAppliedData() {
             $.ajax({
                 type: "POST",
-                url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
-                data: { attendanceStatus: 6 },
+                url: '@Url.Action("GetAgentCompOffAttendanceLogs", "Attendance")',
+                 data: {
+                attendanceStatus: 6,
+                employeeId: selectedEmployeeId ,
+                jobLocationId: selectedJobLocationId 
+            },
                 success: function (response) {
                     notAppliedTable.clear().rows.add(response.data).draw();
                 }
@@ -277,7 +342,9 @@
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
-                data: { attendanceStatus: 1 },
+                data: { attendanceStatus: 1,
+                employeeId: selectedEmployeeId ,
+                jobLocationId: selectedJobLocationId },
                 success: function (response) {
                     appliedTable.clear().rows.add(response.data).draw();
                 }
@@ -288,7 +355,9 @@
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
-                data: { attendanceStatus: 3 },
+                data: { attendanceStatus: 3,
+                employeeId: selectedEmployeeId ,
+                jobLocationId: selectedJobLocationId },
                 success: function (response) {
                     rejectedTable.clear().rows.add(response.data).draw();
                 }
@@ -337,16 +406,17 @@
 
             $.ajax({
                 type: "POST",
-                url: '@Url.Action("SubmitCompOffRequest", "Attendance")',
+                url: '@Url.Action("SubmitAgentCompOffRequest", "Attendance")',
                 contentType: "application/json",
                 data: JSON.stringify({
+                     EmployeeID: selectedEmployeeId,
                     Logs: selectedLogs,
                     Comment: comment
                 }),
                 success: function (response) {
                    
                         toastMessage('Success' , 'Comp-off request submitted successfully!');
-                       // alert("Comp-off request submitted successfully!");
+    
                         $('#approvalComment').val('');
                         $('#approvalCommentRejected').val('');                       
                         if (notAppliedLoaded) loadNotAppliedData();

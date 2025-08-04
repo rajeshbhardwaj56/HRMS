@@ -1206,19 +1206,27 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         #endregion Attendance Approval
 
 
-        #region CompOff
+        #region AgentCompOff
         [HttpGet]
         public IActionResult AgentCompOffApplication()
         {
             return View();
         }
         [HttpPost]
-        public JsonResult GetCompOffAttendanceLogs(long attendanceStatus)
+        public JsonResult GetAgentCompOffAttendanceLogs(long attendanceStatus, string employeeId, string jobLocationId)
         {
+            long empID = 0;
+            long jobID = 0;
+            if (!string.IsNullOrEmpty(employeeId))
+                long.TryParse(employeeId, out empID);             
+                long.TryParse(jobLocationId, out jobID);
+
+            {
+            }
             CompOffAttendanceInputParams inputParams = new CompOffAttendanceInputParams
             {
-                EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
-                JobLocationTypeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.JobLocationID)),
+                EmployeeID = empID,
+                JobLocationTypeID = jobID,
                 AttendanceStatus = attendanceStatus,
             };
 
@@ -1235,7 +1243,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         }
 
         [HttpPost]
-        public IActionResult SubmitCompOffRequest([FromBody] CompOffLogSubmission submission)
+        public IActionResult SubmitAgentCompOffRequest([FromBody] CompOffLogSubmission submission)
         {
             var result = new Result();
             EmployeePersonalDetailsById employeeobj = new EmployeePersonalDetailsById();

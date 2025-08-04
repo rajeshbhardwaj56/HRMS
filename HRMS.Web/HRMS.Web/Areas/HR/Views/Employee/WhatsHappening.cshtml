@@ -12,19 +12,7 @@
 <div class="main-header anim" style="--delay: 0s">
     Whats Happening  
 </div>
-<div class="table-responsive py-3">
-    <table id="tblWhatshappeningDetailsListing" class="table table-striped body-text" style="width:100%">
-        <thead>
-            <tr>
-                <th class="first" style="visibility:hidden"></th>
-                <th>Title</th>
-                <th>Date</th>
-                <th>Image</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-    </table>
-</div>
+<div class="row" id="whatsHappeningGridContainer"></div>
 <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -47,95 +35,68 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function () {
-        $('#tblWhatshappeningDetailsListing').DataTable({
-            "ajax": {
-                "url": "Whatshappening/",
-                "type": "POST",
-                "datatype": "json",
-                "dataSrc": function (json) {
-                    console.log(json);
-                    return json.data;
+       $(document).ready(function () {
+        $.ajax({
+            url: "Whatshappening/",
+            type: "POST",
+            dataType: "json",
+            success: function (json) {
+                if (json && json.data) {
+                    renderGrid(json.data);
                 }
-            },
-            "ordering": true,
-            "paging": true,
-            "searching": true,
-            "info": true,
-            "columns": [
-                { "data": "whatsHappeningID", "autoWidth": true, "visible": false },
-                { "data": "title", "autoWidth": true },
-                {
-                    "data": "fromDate",
-                    "autoWidth": true,
-                    "render": function (data, type, row) {
-                        return formatDate(data);
-                    }
-                },
-                {
-                    "data": "iconImage",
-                    "autoWidth": true,
-                    "render": function (data, type, row) {
-                        return data ? `<img src="${data}" alt="${row.title}" style="width: 50px; height: 50px;"/>` : 'No Image';
-                    }
-                },
-                {
-                    "mRender": function (data, type, row) {
-                        return `
-            <button class="btn btn-light btn-sm border border-secondary border-2 view-announcement-btn"
-                    data-id="${row.whatsHappeningID}"
-                    data-title="${row.title}"
-      data-description="${row.description.replace(/<\/?p>/g, '')}"
-
-                          data-fromdate="${formatDate(row.fromDate)}"
-                                    data-todate="${formatDate(row.toDate)}"
-                    data-image="${row.iconImage}">
-                View Announcement
-            </button>
-            <a href="javascript:void(0)" class="px-2">
-              
-            </a>`;
-                    }
-
-                }
-            ],
-            "responsive": true
+            }
         });
-                  $(document).on('click', '#Closepopopup', function () {
 
-                               $('#announcementModal').modal('hide');
-                       });
+        function renderGrid(data) {
+            var container = $("#whatsHappeningGridContainer");
+            container.empty();
 
-        // Modal Event Listener
+            data.forEach(item => {
+                const card = `
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <img src="${item.iconImage || '~/assets/images/no-image.png'}" class="card-img-top" alt="${item.title}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">${item.title}</h5>
+                                <p class="card-text"><b>Date:</b> ${formatDate(item.fromDate)}</p>
+                                <button class="btn btn-outline-primary view-announcement-btn"
+                                    data-id="${item.whatsHappeningID}"
+                                    data-title="${item.title}"
+                                    data-description="${item.description.replace(/<\/?p>/g, '')}"
+                                    data-fromdate="${formatDate(item.fromDate)}"
+                                    data-todate="${formatDate(item.toDate)}"
+                                    data-image="${item.iconImage}">
+                                    View Announcement
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(card);
+            });
+        }
+
         $(document).on('click', '.view-announcement-btn', function () {
-            var title = $(this).data('title');
-            var description = $(this).data('description');
-            var fromDate = $(this).data('fromdate');
-            var toDate = $(this).data('todate');
-            var image = $(this).data('image');
-
-            $('#modalTitle').text(title);
-$('#modalDescription').html(description.replace(/<\/?p>/g, ''));
-
-            $('#modalFromDate').text(fromDate);
-            $('#modalToDate').text(toDate);
-            $('#modalImage').attr('src', image);
-
+            $('#modalTitle').text($(this).data('title'));
+            $('#modalDescription').html($(this).data('description'));
+            $('#modalFromDate').text($(this).data('fromdate'));
+            $('#modalToDate').text($(this).data('todate'));
+            $('#modalImage').attr('src', $(this).data('image'));
             $('#announcementModal').modal('show');
+        });
+
+        $(document).on('click', '#Closepopopup', function () {
+            $('#announcementModal').modal('hide');
         });
 
         function formatDate(dateStr) {
             if (!dateStr) return "";
-
             let date = new Date(dateStr);
-            let day = date.getDate(); 
+            let day = date.getDate();
             let monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             let month = monthNames[date.getMonth()];
             let year = date.getFullYear();
-
             return `${day} ${month} ${year}`;
         }
-
-
     });
 </script>

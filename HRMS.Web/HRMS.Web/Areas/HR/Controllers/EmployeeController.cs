@@ -457,7 +457,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
             {
                 UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
-            };
+            };  
             if (!string.IsNullOrEmpty(id))
             {
                 id = _businessLayer.DecodeStringBase64(id);
