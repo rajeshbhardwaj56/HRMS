@@ -2029,6 +2029,7 @@ namespace HRMS.API.BusinessLayer
                 var attendanceTable = dataSet.Tables[2];
                 dashBoardModel.AttendanceModel = new List<AttendanceModel>();
 
+
                 // Check if role ID is 2 or 5
                 bool includeLevel2 = model.RoleID == 2 || model.RoleID == 5;
 

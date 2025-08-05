@@ -6,10 +6,12 @@
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	ViewData["Title"] = "Team Attendance Report";
 }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
 	span.L.status-badge {
 		background: #053470;
 	}
+
 	.crm-loader-overlay {
 		position: fixed;
 		top: 0;
@@ -79,6 +81,7 @@
 		background-color: #1c5db1;
 		cursor: pointer;
 	}
+
 	.table-warning {
 		background-color: #fff3cd;
 		color: #856404;
@@ -107,51 +110,42 @@
 		float: right;
 	}
 
-	.filter-class {
-		background-color: #ffffff;
-		border-radius: 8px;
-		padding: 12px 20px;
-		box-shadow: 0 0 8px rgba(0,0,0,0.1);
-		margin: 0 auto; /* center horizontally */
-		float: right;
+	.filter-collapse-btn {
+		background: #f0f0f0;
+		border: 1px solid #ddd;
+		padding: 5px 15px;
+		border-radius: 4px;
+		cursor: pointer;
+		margin-bottom: 10px;
+		display: inline-block;
+		font-weight: 500;
 	}
 
-	.filter-label {
-		font-weight: 600;
-		color: #444;
-		font-size: 14px;
-		white-space: nowrap;
-	}
-
-	.form-select {
-		border: 1.5px solid #ced4da;
-		border-radius: 6px;
-		font-size: 14px;
-		padding: 5px 10px;
-		transition: border-color 0.3s ease;
-	}
-
-		.form-select:focus {
-			border-color: #0d6efd;
-			box-shadow: 0 0 4px rgba(13, 110, 253, 0.5);
-			outline: none;
+		.filter-collapse-btn i {
+			margin-right: 5px;
+			transition: transform 0.3s ease;
 		}
 
-	button#export-btn {
-		background: #05397b;
-		color: white;
-		padding: 6px;
-		margin-left: 14px;
+		.filter-collapse-btn.collapsed i {
+			transform: rotate(0deg);
+		}
+
+		.filter-collapse-btn:not(.collapsed) i {
+			transform: rotate(180deg);
+		}
+
+	.filters-container {
+		transition: height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+		overflow: hidden;
 	}
 
-	.Show-filter-class {
-		background-color: #ffffff;
-		border-radius: 8px;
-		padding: 12px 20px;
-		box-shadow: 0 0 8px rgba(0,0,0,0.1);
-		margin: 0 auto; /* center horizontally */
-		float: left;
-		margin-top: 23px;
+		.filters-container.collapsed {
+			height: 0 !important;
+			padding-top: 0 !important;
+			padding-bottom: 0 !important;
+			margin-bottom: 0 !important;
+			overflow: hidden;
+		}
 	}
 </style>
 <div id="crm-loader" class="crm-loader-overlay d-none">
@@ -166,13 +160,11 @@
 <div class=" ">
 	<div class="main-header anim" style="--delay: 0s">Team Attendance Report</div>
 	<!-- Filters Row -->
-	<div class="card shadow-sm mb-3">
-		<div class="card-header d-flex justify-content-between align-items-center">
-			<h5 class="mb-0">Filters</h5>
-			<button id="toggle-filters" class="btn btn-sm btn-outline-primary">
-				<i class="fa fa-chevron-up"></i> Collapse
-			</button>
-		</div>
+
+	<div class="filter-collapse-btn" id="filterToggle">
+		<i class="fas fa-chevron-up"></i> Filters
+	</div>
+	<div class="filters-container" id="filtersContainer">
 	<div class="d-flex flex-wrap align-items-end gap-3 mb-4 mt-4 p-3 rounded shadow-sm bg-white">
 		<div class="d-flex align-items-center">
 			<label for="page-size-select" class="me-2 mb-0">Show:</label>
@@ -227,11 +219,7 @@
 		</div>
 
 		<!-- Page Size -->
-
-
 		<!-- Job Location Dropdown -->
-		
-
 		<!-- Export Button -->
 		<div class="d-flex align-items-center">
 			<label for="export-from-date" class="me-2 mb-0">From:</label>
@@ -290,275 +278,304 @@
 	</div>
 </div>
 
+<script>
+	$(document).ready(function() {
+		const filterToggle = $('#filterToggle');
+		const filtersContainer = $('#filtersContainer');
 
+		// Calculate initial height and set it
+		const initialHeight = filtersContainer.outerHeight();
+		filtersContainer.css('height', initialHeight + 'px');
+
+		// Toggle filters visibility
+		filterToggle.click(function() {
+			$(this).toggleClass('collapsed');
+
+			if (filtersContainer.hasClass('collapsed')) {
+				// Expanding
+				filtersContainer.css('height', initialHeight + 'px');
+				setTimeout(() => {
+					filtersContainer.removeClass('collapsed');
+				}, 300); // Match this with your CSS transition duration
+			} else {
+				// Collapsing
+				filtersContainer.addClass('collapsed');
+				filtersContainer.css('height', '0');
+			}
+		});
+
+		// Optional: Remember state
+		if(localStorage.getItem('filtersCollapsed') === 'true') {
+			filterToggle.addClass('collapsed');
+			filtersContainer.addClass('collapsed').css('height', '0');
+		}
+
+		filterToggle.on('click', function() {
+			localStorage.setItem('filtersCollapsed', $(this).hasClass('collapsed'));
+		});
+	});
+</script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
-	let currentPage = 1;
-	let pageSize = 20;
-	let totalPages = 1;
-	let isLoading = false;
+		let currentPage = 1;
+		let pageSize = 20;
+		let totalPages = 1;
+		let isLoading = false;
 
-	function showLoading() {
-	  $("#crm-loader").removeClass("d-none");
-	}
+		function showLoading() {
+		  $("#crm-loader").removeClass("d-none");
+		}
 
-	function hideLoading() {
-	  $("#crm-loader").addClass("d-none");
-	}
+		function hideLoading() {
+		  $("#crm-loader").addClass("d-none");
+		}
 
-	function populateYearDropdown(startYear = 2024) {
-	  const currentYear = new Date().getFullYear();
-	  const $yearSelect = $("#year-select").empty();
-	  for (let year = currentYear; year >= startYear; year--) {
-		$yearSelect.append(`<option value="${year}" ${year === currentYear ? "selected" : ""}>${year}</option>`);
-	  }
-	}
-
-	function selectCurrentMonth() {
-	  $("#month-select").val(new Date().getMonth() + 1);
-	}
-
-	function getSelectedYear() {
-	  return parseInt($("#year-select").val());
-	}
-
-	function getSelectedMonth() {
-	  return parseInt($("#month-select").val());
-	}
-
-	function renderAttendanceTable(response) {
-	  const data = response?.data?.attendances;
-	  if (!data?.length) return;
-
-	  const tbody = $("#attendance-data").empty();
-	  const thead = $("#header-row").empty();
-	  const firstRecord = data[0];
-	  const dayKeys = Object.keys(firstRecord.attendanceByDay);
-
-	  let headerHtml = `<th>Emp No</th><th>  Name</th><th>  Location</th>`;
-	  dayKeys.forEach(day => headerHtml += `<th>${day.replace("_", " ")}</th>`);
-	  headerHtml += `<th>  Working Days</th><th>Present Days</th><th>  Leaves</th>`;
-	  thead.html(headerHtml);
-
-	  data.forEach(record => {
-		let row = `<tr><td>${record.employeNumber}</td><td>${record.employeeName}</td><td>${record.jobLocationName}</td>`;
-		dayKeys.forEach(day => {
-		  let status = record.attendanceByDay[day];
-		  if (status === "Sa" || status === "S") status = "H";
-		  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "WO" ? "WO" : "";
-		  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${status}</span></td>`;
-		});
-		row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td></tr>`;
-		tbody.append(row);
-	  });
-	}
-
-	function renderPagination(current, total) {
-	  const $pagination = $("#pagination-container").empty();
-	  const maxPages = 3;
-	  let start = Math.max(1, current - Math.floor(maxPages / 2));
-	  let end = Math.min(total, start + maxPages - 1);
-	  if (end - start < maxPages - 1) start = Math.max(1, end - maxPages + 1);
-
-	  let html = '<nav><ul class="pagination justify-content-center">';
-	  html += `<li class="page-item ${current === 1 ? "disabled" : ""}"><a class="page-link" href="#" data-page="${current - 1}">Previous</a></li>`;
-	  for (let i = start; i <= end; i++) {
-		html += `<li class="page-item ${i === current ? "active" : ""}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
-	  }
-	  html += `<li class="page-item ${current === total ? "disabled" : ""}"><a class="page-link" href="#" data-page="${current + 1}">Next</a></li></ul></nav>`;
-	  $pagination.html(html);
-	}
-
-	function fetchAttendanceData(year, month, page, search = "", overridePageSize = null, jobLocationId = 0) {
-	  if (isLoading) return;
-	  isLoading = true;
-	  showLoading();
-	  const effectivePageSize = overridePageSize ?? pageSize;
-
-	  $.ajax({
-		url: '/employee/MyInfo/TeamAttendenceCalendarList',
-		type: 'GET',
-		data: { Year: year, Month: month, Page: page, PageSize: effectivePageSize, SearchTerm: search, JobLocationID: jobLocationId },
-		dataType: 'json',
-		success: function (res) {
-		  const jobList = res.data.joblocationList;
-		  const $ddl = $('#jobLocationDropdown');
-		  const selectedId = $ddl.val();
-		  $ddl.empty().append('<option value="">-- Select Job Location --</option>');
-		  $.each(jobList, (i, loc) => $ddl.append(`<option value="${loc.jobLocationID}">${loc.jobLocationName}</option>`));
-		  $ddl.val(selectedId);
-
-		  const total = res.data.totalRecords || 0;
-		  if (!total) {
-			$("#attendance-data").html(`<tr><td colspan="100%" class="text-center text-muted">No records found</td></tr>`);
-			$("#pagination").empty();
-			$("#record-range-info").text("No records to display.");
-			isLoading = false;
-			hideLoading();
-			return;
+		function populateYearDropdown(startYear = 2024) {
+		  const currentYear = new Date().getFullYear();
+		  const $yearSelect = $("#year-select").empty();
+		  for (let year = currentYear; year >= startYear; year--) {
+			$yearSelect.append(`<option value="${year}" ${year === currentYear ? "selected" : ""}>${year}</option>`);
 		  }
-
-		  totalPages = Math.ceil(total / pageSize);
-		  renderAttendanceTable(res);
-		  renderPagination(page, totalPages);
-
-		  const start = (page - 1) * pageSize + 1;
-		  const end = Math.min(page * pageSize, total);
-		  $("#record-range-info").text(`Showing ${start} to ${end} of ${total.toLocaleString()} entries`);
-		  hideLoading();
-		  isLoading = false;
-		},
-		error: function (xhr, status, error) {
-		  console.error("Error fetching attendance data:", error);
-		  hideLoading();
-		  isLoading = false;
 		}
-	  });
-	}
 
-	function formatDate(dateStr) {
-	  return new Date(dateStr).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-	}
-
-	function formatDateTime(dateStr) {
-	  return new Date(dateStr).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-	}
-
-	function formatTimeOnly(dateStr) {
-	  return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-	}
-
-	function formatSqlTimeToHoursMinutes(timeStr) {
-	  if (!timeStr || typeof timeStr !== 'string') return '-';
-	  const parts = timeStr.split(':');
-	  if (parts.length < 2) return '-';
-	  const hours = parseInt(parts[0], 10);
-	  const minutes = parseInt(parts[1], 10);
-	  return `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m` : ''}`.trim() || '0m';
-	}
-
-	$(document).ready(function () {
-	  populateYearDropdown();
-	  selectCurrentMonth();
-	  fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
-
-	  $("#year-select, #month-select").on("change", () => {
-		currentPage = 1;
-		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
-	  });
-
-	  $('#jobLocationDropdown').on('change', function () {
-		currentPage = 1;
-		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($(this).val()) || 0);
-	  });
-
-		 let searchTimer;
-
-	$("#search-box").on("keyup", function () {
-		clearTimeout(searchTimer); // Purana timer clear karo
-
-		const text = $(this).val().trim();
-		currentPage = 1;
-		const override = text === "" ? null : 0;
-
-		// Minimum character limit (optional but useful)
-		if (text.length === 0 || text.length >= 2) {
-			searchTimer = setTimeout(function () {
-				fetchAttendanceData(
-					getSelectedYear(),
-					getSelectedMonth(),
-					currentPage,
-					text,
-					override,
-					parseInt($("#jobLocationDropdown").val()) || 0
-				);
-			}, 300); // debounce delay: 300ms
+		function selectCurrentMonth() {
+		  $("#month-select").val(new Date().getMonth() + 1);
 		}
-	});
 
+		function getSelectedYear() {
+		  return parseInt($("#year-select").val());
+		}
 
-	  $("#page-size-select").on("change", function () {
-		pageSize = parseInt($(this).val());
-		currentPage = 1;
-		fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
-	  });
+		function getSelectedMonth() {
+		  return parseInt($("#month-select").val());
+		}
 
+		function renderAttendanceTable(response) {
+		  const data = response?.data?.attendances;
+		  if (!data?.length) return;
 
-		document.getElementById("toggle-filters").addEventListener("click", function () {
-			const container = document.getElementById("filter-container");
-			const icon = this.querySelector("i");
-			if (container.style.display === "none") {
-				container.style.display = "block";
-				this.innerHTML = '<i class="fa fa-chevron-up"></i> Collapse';
-			} else {
-				container.style.display = "none";
-				this.innerHTML = '<i class="fa fa-chevron-down"></i> Expand';
+		  const tbody = $("#attendance-data").empty();
+		  const thead = $("#header-row").empty();
+		  const firstRecord = data[0];
+		  const dayKeys = Object.keys(firstRecord.attendanceByDay);
+
+		  let headerHtml = `<th>Emp No</th><th>  Name</th><th>  Location</th>`;
+		  dayKeys.forEach(day => headerHtml += `<th>${day.replace("_", " ")}</th>`);
+		  headerHtml += `<th>  Working Days</th><th>Present Days</th><th>  Leaves</th>`;
+		  thead.html(headerHtml);
+
+		  data.forEach(record => {
+			let row = `<tr><td>${record.employeNumber}</td><td>${record.employeeName}</td><td>${record.jobLocationName}</td>`;
+			dayKeys.forEach(day => {
+			  let status = record.attendanceByDay[day];
+			  if (status === "Sa" || status === "S") status = "H";
+			  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "WO" ? "WO" : "";
+			  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${status}</span></td>`;
+			});
+			row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td></tr>`;
+			tbody.append(row);
+		  });
+		}
+
+		function renderPagination(current, total) {
+		  const $pagination = $("#pagination-container").empty();
+		  const maxPages = 3;
+		  let start = Math.max(1, current - Math.floor(maxPages / 2));
+		  let end = Math.min(total, start + maxPages - 1);
+		  if (end - start < maxPages - 1) start = Math.max(1, end - maxPages + 1);
+
+		  let html = '<nav><ul class="pagination justify-content-center">';
+		  html += `<li class="page-item ${current === 1 ? "disabled" : ""}"><a class="page-link" href="#" data-page="${current - 1}">Previous</a></li>`;
+		  for (let i = start; i <= end; i++) {
+			html += `<li class="page-item ${i === current ? "active" : ""}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+		  }
+		  html += `<li class="page-item ${current === total ? "disabled" : ""}"><a class="page-link" href="#" data-page="${current + 1}">Next</a></li></ul></nav>`;
+		  $pagination.html(html);
+		}
+
+		function fetchAttendanceData(year, month, page, search = "", overridePageSize = null, jobLocationId = 0) {
+		  if (isLoading) return;
+		  isLoading = true;
+		  showLoading();
+		  const effectivePageSize = overridePageSize ?? pageSize;
+
+		  $.ajax({
+			url: '/employee/MyInfo/TeamAttendenceCalendarList',
+			type: 'GET',
+			data: { Year: year, Month: month, Page: page, PageSize: effectivePageSize, SearchTerm: search, JobLocationID: jobLocationId },
+			dataType: 'json',
+			success: function (res) {
+			  const jobList = res.data.joblocationList;
+			  const $ddl = $('#jobLocationDropdown');
+			  const selectedId = $ddl.val();
+			  $ddl.empty().append('<option value="">-- Select Job Location --</option>');
+			  $.each(jobList, (i, loc) => $ddl.append(`<option value="${loc.jobLocationID}">${loc.jobLocationName}</option>`));
+			  $ddl.val(selectedId);
+
+			  const total = res.data.totalRecords || 0;
+			  if (!total) {
+				$("#attendance-data").html(`<tr><td colspan="100%" class="text-center text-muted">No records found</td></tr>`);
+				$("#pagination").empty();
+				$("#record-range-info").text("No records to display.");
+				isLoading = false;
+				hideLoading();
+				return;
+			  }
+
+			  totalPages = Math.ceil(total / pageSize);
+			  renderAttendanceTable(res);
+			  renderPagination(page, totalPages);
+
+			  const start = (page - 1) * pageSize + 1;
+			  const end = Math.min(page * pageSize, total);
+			  $("#record-range-info").text(`Showing ${start} to ${end} of ${total.toLocaleString()} entries`);
+			  hideLoading();
+			  isLoading = false;
+			},
+			error: function (xhr, status, error) {
+			  console.error("Error fetching attendance data:", error);
+			  hideLoading();
+			  isLoading = false;
+			}
+		  });
+		}
+
+		function formatDate(dateStr) {
+		  return new Date(dateStr).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+		}
+
+		function formatDateTime(dateStr) {
+		  return new Date(dateStr).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+		}
+
+		function formatTimeOnly(dateStr) {
+		  return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		}
+
+		function formatSqlTimeToHoursMinutes(timeStr) {
+		  if (!timeStr || typeof timeStr !== 'string') return '-';
+		  const parts = timeStr.split(':');
+		  if (parts.length < 2) return '-';
+		  const hours = parseInt(parts[0], 10);
+		  const minutes = parseInt(parts[1], 10);
+		  return `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m` : ''}`.trim() || '0m';
+		}
+
+		$(document).ready(function () {
+		  populateYearDropdown();
+		  selectCurrentMonth();
+		  fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
+
+		  $("#year-select, #month-select").on("change", () => {
+			currentPage = 1;
+			fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
+		  });
+
+		  $('#jobLocationDropdown').on('change', function () {
+			currentPage = 1;
+			fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($(this).val()) || 0);
+		  });
+
+			 let searchTimer;
+
+		$("#search-box").on("keyup", function () {
+			clearTimeout(searchTimer); // Purana timer clear karo
+
+			const text = $(this).val().trim();
+			currentPage = 1;
+			const override = text === "" ? null : 0;
+
+			// Minimum character limit (optional but useful)
+			if (text.length === 0 || text.length >= 2) {
+				searchTimer = setTimeout(function () {
+					fetchAttendanceData(
+						getSelectedYear(),
+						getSelectedMonth(),
+						currentPage,
+						text,
+						override,
+						parseInt($("#jobLocationDropdown").val()) || 0
+					);
+				}, 300); // debounce delay: 300ms
 			}
 		});
-	  $("#pagination-container").on("click", "a.page-link", function (e) {
-		e.preventDefault();
-		const page = $(this).data("page");
-		if (page && page !== currentPage && page >= 1 && page <= totalPages) {
-		  currentPage = page;
-		  fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
-		}
-	  });
 
-		$(document).on("click", "#attendance-data td", function () {
-		const $td = $(this);
-		const rawDateKey = $td.data("date"); // e.g., "01P", "15A"
-		if (!rawDateKey) return;
 
-		const day = parseInt(rawDateKey.substr(0, 2)); // Extract first two characters as day
-		const selectedMonth = getSelectedMonth(); // Current "visual" month in UI (1-12)
-		const selectedYear = getSelectedYear(); // Current selected year
+		  $("#page-size-select").on("change", function () {
+			pageSize = parseInt($(this).val());
+			currentPage = 1;
+			fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
+		  });
 
-		let finalMonth = selectedMonth;
-		let finalYear = selectedYear;
-
-		// If day is between 21 and 31, it's part of the **previous month**
-		if (day >= 21) {
-			finalMonth = selectedMonth - 1;
-			if (finalMonth === 0) {
-				finalMonth = 12;
-				finalYear = selectedYear - 1;
+		  $("#pagination-container").on("click", "a.page-link", function (e) {
+			e.preventDefault();
+			const page = $(this).data("page");
+			if (page && page !== currentPage && page >= 1 && page <= totalPages) {
+			  currentPage = page;
+			  fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0);
 			}
-		}
+		  });
 
-		const fullDate = `${finalYear}-${String(finalMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-		const empId = $td.data("empid"),
-			empNo = $td.data("empno");
-		if (!empId || !empNo) return;
+			$(document).on("click", "#attendance-data td", function () {
+			const $td = $(this);
+			const rawDateKey = $td.data("date"); // e.g., "01P", "15A"
+			if (!rawDateKey) return;
 
-		$("#attendanceDetailModal").modal("show");
-		$("#attendanceDetailBody").html("Loading...");
+			const day = parseInt(rawDateKey.substr(0, 2)); // Extract first two characters as day
+			const selectedMonth = getSelectedMonth(); // Current "visual" month in UI (1-12)
+			const selectedYear = getSelectedYear(); // Current selected year
 
-		$.get('/employee/MyInfo/GetAttendanceDetails', { date: fullDate, employeeId: empId, employeeNo: empNo }, function (data) {
-		  let html = "";
-		  switch (data.recordType) {
-			case "Attendance":
-		const first = new Date(data.firstLogDate), last = new Date(data.lastLogDate);
-		const sameDay = first.toDateString() === last.toDateString();
+			let finalMonth = selectedMonth;
+			let finalYear = selectedYear;
 
-		const getStatusColor = (status) => {
+			// If day is between 21 and 31, it's part of the **previous month**
+			if (day >= 21) {
+				finalMonth = selectedMonth - 1;
+				if (finalMonth === 0) {
+					finalMonth = 12;
+					finalYear = selectedYear - 1;
+				}
+			}
+
+			const fullDate = `${finalYear}-${String(finalMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+			const empId = $td.data("empid"),
+				empNo = $td.data("empno");
+			if (!empId || !empNo) return;
+
+			$("#attendanceDetailModal").modal("show");
+			$("#attendanceDetailBody").html("Loading...");
+
+			$.get('/employee/MyInfo/GetAttendanceDetails', { date: fullDate, employeeId: empId, employeeNo: empNo }, function (data) {
+			  let html = "";
+			  switch (data.recordType) {
+				case "Attendance":
+				  const first = new Date(data.firstLogDate), last = new Date(data.lastLogDate);
+				  const sameDay = first.toDateString() === last.toDateString();
+						const getStatusColor = (status) => {
 			switch (status?.toLowerCase()) {
-				case 'present': return '#28a745'; // Green
-				case 'absent': return '#dc3545'; // Red
-				case 'leave': return '#ffc107'; // Yellow
-				case 'half day': return '#05397b'; // Blue
-				default: return '#6c757d'; // Grey fallback
+				case 'present':
+					return '#28a745'; // Green
+				case 'absent':
+					return '#dc3545'; // Red
+				case 'leave':
+					return '#ffc107'; // Yellow
+				case 'half day':
+					return '#05397b'; // Blue
+				default:
+					return '#6c757d'; // Grey fallback
 			}
 		};
 
-		html = `
-	<!-- 👣 Biometric Attendance Card -->
-	<div class="card shadow-sm border-0 mb-3">
-	  <div class="card-body">
-		<h5 class="card-title text-primary">👣 Biometric Attendance</h5>
-		<div class="row mb-2">
-		  <div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
-		  <div class="col-md-6">
+
+						html = `
+		<div class="card shadow-sm border-0">
+		  <div class="card-body">
+			<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
+
+			<div class="row mb-2">
+			  <div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
+			 <div class="col-md-6">
 			<strong>Status:</strong>
 			<span class="badge" style="background-color: ${getStatusColor(data.attendanceStatus)}; color: white;">
 			  ${data.attendanceStatus ?? '-'}
@@ -566,75 +583,72 @@
 		  </div>
 		</div>
 
-		<div class="row mb-2">
-		  <div class="col-md-6"><strong>Check-in:</strong> ${sameDay ? formatTimeOnly(data.firstLogDate) : formatDateTime(data.firstLogDate)}</div>
-		  <div class="col-md-6"><strong>Check-out:</strong> ${sameDay ? formatTimeOnly(data.lastLogDate) : formatDateTime(data.lastLogDate)}</div>
+			<div class="row mb-2">
+			  <div class="col-md-6"><strong>Check-in:</strong> ${sameDay ? formatTimeOnly(data.firstLogDate) : formatDateTime(data.firstLogDate)}</div>
+			  <div class="col-md-6"><strong>Check-out:</strong> ${sameDay ? formatTimeOnly(data.lastLogDate) : formatDateTime(data.lastLogDate)}</div>
+			</div>
+
+			<div class="row">
+			  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
+			</div>
+
+					<div class="row">
+			  <div class="col-md-6"><strong>DialerTime:</strong> ${data.dialerTime ? data.dialerTime : '-'}</div>
+			</div>
+
+			<div class="row">
+			  <div class="col-md-6"><strong>Remarks:</strong> ${data.remarks ? data.remarks : '-'}</div>
+			</div>
+
+		  </div>
 		</div>
+		`;
+					  break;
+				case "Holiday":
+				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div></div></div>`;
+				  break;
+				case "Leave":
+				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div></div></div>`;
+				  break;
+				default:
+				  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>`;
+			  }
+			  $("#attendanceDetailBody").html(html);
+			});
+		  });
 
-		<div class="row mb-2">
-		  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
-		 
-		</div>
-	  </div>
-	</div>
+		$("#export-btn").on("click", function () {
 
-	<!-- ☎️ Dialer Attendance Card -->
-	<div class="card shadow-sm border-0">
-	  <div class="card-body">
-		<h5 class="card-title text-info">☎️ Dialer Attendance</h5>
-		<div class="row">
-		  <div class="col-md-6"><strong>Dialer Time:</strong> ${data.dialerTime ?? '-'}</div>
-			   <div class="col-md-6"><strong>Remarks:</strong> ${data.remarks ?? '-'}</div>
-		</div>
-	  </div>
-	</div>
-	`;
-		break;
-			case "Holiday":
-			  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div></div></div>`;
-			  break;
-			case "Leave":
-			  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div></div></div>`;
-			  break;
-			default:
-			  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>`;
-		  }
-		  $("#attendanceDetailBody").html(html);
-		});
-	  });
+					  const fromDate = $("#export-from-date").val();
+			const toDate = $("#export-to-date").val();
 
-	$("#export-btn").on("click", function () {
+			if (!fromDate || !toDate) {
+				alert("Please select both 'From' and 'To' dates.");
+				return;
+			}
+				  const fromDateObj = new Date(fromDate);
+			const toDateObj = new Date(toDate);
 
-				  const fromDate = $("#export-from-date").val();
-		const toDate = $("#export-to-date").val();
+			// Check if To Date is before From Date
+			if (toDateObj < fromDateObj) {
+				alert("'To Date' cannot be before 'From Date'. Please select valid dates.");
+				return;
+			}
+			const jobLocationId = parseInt($("#jobLocationDropdown").val()) || 0;
+			const $btn = $(this);
 
-		if (!fromDate || !toDate) {
-			alert("Please select both 'From' and 'To' dates.");
-			return;
-		}
-			  const fromDateObj = new Date(fromDate);
-		const toDateObj = new Date(toDate);
 
-		// Check if To Date is before From Date
-		if (toDateObj < fromDateObj) {
-			alert("'To Date' cannot be before 'From Date'. Please select valid dates.");
-			return;
-		}
-		const jobLocationId = parseInt($("#jobLocationDropdown").val()) || 0;
-		const $btn = $(this);
+			const url = `/employee/MyInfo/ExportAttendance?FromDate=${fromDate}&ToDate=${toDate}&JobLocationID=${jobLocationId}`;
 
-		
-		const url = `/employee/MyInfo/ExportAttendance?FromDate=${fromDate}&ToDate=${toDate}&JobLocationID=${jobLocationId}`;
+			$btn.prop("disabled", true).text("Please wait...");
+			const $iframe = $("<iframe>").hide().attr("src", url).appendTo("body");
 
-		$btn.prop("disabled", true).text("Please wait...");
-		const $iframe = $("<iframe>").hide().attr("src", url).appendTo("body");
+			setTimeout(() => {
+				$btn.prop("disabled", false).text("Export Attendance");
+				$iframe.remove();
+			}, 6000);
 
-		setTimeout(() => {
-			$btn.prop("disabled", false).text("Export Attendance");
-			$iframe.remove();
-		}, 6000);
-
-	 });
-});
+		 });
+	});
 </script>
 

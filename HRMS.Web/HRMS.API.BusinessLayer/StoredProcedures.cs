@@ -8,8 +8,9 @@ namespace HRMS.API.BusinessLayer
 {
     internal class StoredProcedures
     {
-        public const string usp_GetDeviceLogsByMonth = "usp_GetDeviceLogsByMonth";
 
+
+        public const string usp_GetDeviceLogsByMonth = "usp_GetDeviceLogsByMonth";
 
         public const string usp_LoginUser = "usp_LoginUser";
         public const string usp_Get_Counteres = "usp_Get_Counteres";

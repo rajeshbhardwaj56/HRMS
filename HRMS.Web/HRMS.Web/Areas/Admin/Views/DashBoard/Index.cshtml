@@ -321,13 +321,10 @@
 													<td>@item.Present</td>
 													<td>@item.Absent</td>
 													<td>@item.Leaves</td>
-
 												</tr>
 											}
 										}
 									}
-
-
 								</tbody>
 							</table>
 						}
@@ -350,7 +347,9 @@
 								</thead>
 								<tbody>
 									@foreach (var item in Model.AttendanceModel)
-									{
+										{
+											if (item.Level != null)
+											{
 										<tr>
 											<td>
 												<div>@item.EmployeeNumber</div>
@@ -369,7 +368,7 @@
 											<td>@item.TotalWeekOff</td>
 
 										</tr>
-									}
+									}}
 								</tbody>
 							</table>
 							</div>

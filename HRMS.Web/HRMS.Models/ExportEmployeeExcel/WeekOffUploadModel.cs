@@ -24,6 +24,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public DateTime? WeekOff9 { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? RosterMonth { get; set; }
+     
         public long? ModifiedBy { get; set; }
         public long? ShiftTypeId { get; set; }
         public int? TotalCount { get; set; }
@@ -34,6 +35,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public string? EmployeeNumberWithOutAbbr { get; set; }
         public int? SelectedMonth { get; set; }
         public int? SelectedYear { get; set; }
+        public DateTime? WeekStartDate { get; set; }
         public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
     }
 

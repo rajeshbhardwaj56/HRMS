@@ -13,12 +13,7 @@
     if (Model.WeekOff1.HasValue) initialDate = Model.WeekOff1;
     else if (Model.WeekOff2.HasValue) initialDate = Model.WeekOff2;
     else if (Model.WeekOff3.HasValue) initialDate = Model.WeekOff3;
-    else if (Model.WeekOff4.HasValue) initialDate = Model.WeekOff4;
-    else if (Model.WeekOff5.HasValue) initialDate = Model.WeekOff5;
-    else if (Model.WeekOff6.HasValue) initialDate = Model.WeekOff6;
-    else if (Model.WeekOff7.HasValue) initialDate = Model.WeekOff7;
-    else if (Model.WeekOff8.HasValue) initialDate = Model.WeekOff8;
-    else if (Model.WeekOff9.HasValue) initialDate = Model.WeekOff9;
+    
 
     initialDate ??= DateTime.Today;
 
@@ -26,7 +21,7 @@
     var selectedYear = initialDate.Value.Year;
     int currentYear = DateTime.Today.Year;
  
-
+        
 }
  
 
@@ -39,25 +34,20 @@
                     <label>Select Year</label>
                     <select id="yearSelect" class="form-select">
                         @{
-                            for (int y = currentYear - 0; y <= currentYear + 1; y++)
+                            for (int y = currentYear; y <= currentYear + 1; y++)
                             {
                                 <option value="@y" @(y == selectedYear ? "selected" : "")>@y</option>
                             }
                         }
                     </select>
                 </div>
+
                 <div class="col-md-3 form-group">
-                    <label>Select Month</label>
-                    <select id="monthSelect" class="form-select">
-                        @{
-                            for (int m = 1; m <= 12; m++)
-                            {
-                                var monthName = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m);
-                                <option value="@m" @(m == selectedMonth ? "selected" : "")>@monthName</option>
-                            }
-                        }
-                    </select>
+                    <label>Select Week<span class="Mandetory">*</span></label>
+                    <select id="weekDropdown" class="form-select" required></select>
                 </div>
+
+          
                 <div class="col-md-3 form-group position-relative">
                     <label>Select Employee<span class="Mandetory">*</span></label>
 
@@ -67,7 +57,6 @@
                              HRMS.Models.Common.Constants.SelectEmployee,
                              new { @class = " select2", @required = "required" }
                              )
-
                 </div>
 
                 <div class="col-md-3 form-group position-relative" Id="Shiftlist" style="display:none">
@@ -79,6 +68,7 @@
             </div>
             @Html.HiddenFor(m => m.SelectedMonth, new { id = "HiddenSelectedMonth" })
             @Html.HiddenFor(m => m.SelectedYear, new { id = "HiddenSelectedYear" })
+            @Html.HiddenFor(m => m.WeekStartDate, new { id = "WeekStartDateHidden" })
 
             @Html.HiddenFor(model => model.ShiftTypeId, new { @id = "HiddenShiftTypeId" })
             @Html.HiddenFor(model => model.EmployeeNumberWithOutAbbr, new { @id = "EmployeeNumberWithOutAbbr" })
@@ -93,7 +83,7 @@
 		
 
             <div class="row d-flex">
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 1 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff1, "{0:yyyy-MM-dd}", new
                         {
@@ -102,7 +92,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),  
                         })
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 2 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff2, "{0:yyyy-MM-dd}", new
                         {
@@ -111,7 +101,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label>WeekOff 3 <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.WeekOff3, "{0:yyyy-MM-dd}", new
                         {
@@ -120,60 +110,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-6 form-group">
-                    <label>WeekOff 4 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff4, "{0:yyyy-MM-dd}", new
-                        {
-                            @class = "form-control",
-                            @type = "date",
-                            min = firstDay.ToString("yyyy-MM-dd"),
-                        })
-                </div>
-                <div class="col-md-6 form-group">
-                    <label>WeekOff 5 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff5, "{0:yyyy-MM-dd}", new
-                        {
-                            @class = "form-control",
-                            @type = "date",
-                            min = firstDay.ToString("yyyy-MM-dd"),
-                        })
-                </div>
-                <div class="col-md-6 form-group">
-                    <label>WeekOff 6 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff6, "{0:yyyy-MM-dd}", new
-                        {
-                            @class = "form-control",
-                            @type = "date",
-                            min = firstDay.ToString("yyyy-MM-dd"),
-                        })
-                </div>
-                <div class="col-md-6 form-group">
-                    <label>WeekOff 7 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff7, "{0:yyyy-MM-dd}", new
-                        {
-                            @class = "form-control",
-                            @type = "date",
-                            min = firstDay.ToString("yyyy-MM-dd"),
-                        })
-                </div>
-                 <div class="col-md-6 form-group">
-                    <label>WeekOff 8 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff8, "{0:yyyy-MM-dd}", new
-                        {
-                            @class = "form-control",
-                            @type = "date",
-                            min = firstDay.ToString("yyyy-MM-dd"),
-                        })
-                </div>
-                <div class="col-md-6 form-group">
-                    <label>WeekOff 9 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff9, "{0:yyyy-MM-dd}", new
-                        {
-                            @class = "form-control",
-                            @type = "date",
-                            min = firstDay.ToString("yyyy-MM-dd"),
-                        })
-                </div>
+         
             </div>
 
 
@@ -192,15 +129,133 @@
 
 
 <script>
-    $('form').on('submit', function () {
-        const selectedMonth = $('#monthSelect').val();
-        const selectedYear = $('#yearSelect').val();
+    function convertToISO(dateStr) {
+        const parts = dateStr.split(' ');
+        const day = parts[0];
+        const month = {
+            Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+            Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+        }[parts[1]];
+        const year = parts[2];
+        return `${year}-${month}-${day.padStart(2, '0')}`;
+    }
 
-        $('#HiddenSelectedMonth').val(selectedMonth);
+
+    function populateWeekDropdown(year) {
+        const weekDropdown = $('#weekDropdown');
+        weekDropdown.empty();
+        weekDropdown.append($('<option>').val('').text('-- Select Week --'));
+
+        const weekRanges = getWeekRanges(year);
+        const today = new Date();
+        let selectedValue = null;
+
+
+        weekRanges.forEach(w => {
+            const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
+            const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
+
+
+              const start = new Date(convertToISO(w.startDate));
+        const end = new Date(convertToISO(w.endDate));
+
+
+        if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && today >= start && today <= end) {
+            selectedValue = value;
+        }
+
+            weekDropdown.append($('<option>').val(value).text(label));
+        });
+
+         if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && selectedValue) {
+        weekDropdown.val(selectedValue).trigger('change');
+    }
+    }
+
+
+           function getWeekRanges(year) {
+        const weeks = [];
+        const firstMonday = getFirstMondayOfYear(year);
+
+        let current = new Date(firstMonday);
+        let week = 1;
+
+        while (current.getFullYear() === year) {
+            const start = new Date(current);
+            const end = new Date(current);
+            end.setDate(end.getDate() + 6);
+
+            weeks.push({
+                weekNumber: week,
+                startDate: formatDate(start),
+                endDate: formatDate(end)
+            });
+
+            current.setDate(current.getDate() + 7);
+            week++;
+        }
+
+      
+        const start = new Date(current);
+        const end = new Date(current);
+        end.setDate(end.getDate() + 6);
+        if (start.getFullYear() === year) {
+            weeks.push({
+                weekNumber: week,
+                startDate: formatDate(start),
+                endDate: formatDate(end)
+            });
+        }
+
+        return weeks;
+    }
+
+    function getFirstMondayOfYear(year) {
+        const date = new Date(year, 0, 1); // Jan 1
+        const day = date.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+        const diff = (day === 0) ? 1 : (8 - day); // days to next Monday
+        date.setDate(date.getDate() + (day === 1 ? 0 : diff));
+        return date;
+    }
+
+    function formatDate(date) {
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+
+
+
+
+    $('form').on('submit', function () {
+
+    const selectedWeekValue = $('#weekDropdown').val();
+        const selectedYear = $('#yearSelect').val();
+          if (selectedWeekValue) {
+        const parts = selectedWeekValue.split('|');
+        if (parts.length === 3) {
+            const startDate = convertToISO(parts[1]);
+            $('#WeekStartDateHidden').val(startDate);
+        }
+    }
+       
+
         $('#HiddenSelectedYear').val(selectedYear);
+      
     });
 
     $(document).ready(function () {
+
+           const selectedYear = parseInt($('#yearSelect').val());
+    populateWeekDropdown(selectedYear);
+
+    
+    $('#yearSelect').on('change', function () {
+        const newYear = parseInt($(this).val());
+        populateWeekDropdown(newYear);
+    });
            $('.select2, .select1').each(function () {
         let placeholderText = $(this).hasClass('select2') ? 'Select Employee' : 'Select Shift';
 
@@ -280,34 +335,36 @@
 
     });
 
-    
 
-        updateDatePickers();
+           $('#weekDropdown').on('change', function () {
+        const selectedValue = $(this).val();
+        if (!selectedValue) return;
 
-        $('#monthSelect, #yearSelect').on('change', function () {
-            updateDatePickers();
-        });
-    });
+        const parts = selectedValue.split('|');
+        if (parts.length !== 3) return;
 
-       function updateDatePickers() {
-        const month = parseInt($('#monthSelect').val());
-        const year = parseInt($('#yearSelect').val());
+        const startDate = convertToISO(parts[1]);
+        const endDate = convertToISO(parts[2]);
 
-        const firstDay = new Date(year, month - 1, 1);
-        const lastDay = new Date(year, month, 0);
-
-        const minDateStr = firstDay.toISOString().split('T')[0];
-        const maxDateStr = lastDay.toISOString().split('T')[0];
+        // Set start date in hidden input
+        $('#WeekStartDateHidden').val(startDate);
 
         $('input[type="date"]').each(function () {
-            $(this).attr('min', minDateStr);
-            $(this).attr('max', maxDateStr);
+            $(this).attr('min', startDate);
+            $(this).attr('max', endDate);
 
-            const currentValue = $(this).val();
-            if (currentValue && (currentValue < minDateStr || currentValue > maxDateStr)) {
+            const currentVal = $(this).val();
+            if (currentVal < startDate || currentVal > endDate) {
                 $(this).val('');
             }
         });
-    }
+    });
+
+    
+
+      
+    });
+
+   
 
 </script>
