@@ -522,14 +522,14 @@
 			const rawDateKey = $td.data("date"); // e.g., "01P", "15A"
 			if (!rawDateKey) return;
 
-			const day = parseInt(rawDateKey.substr(0, 2)); // Extract first two characters as day
-			const selectedMonth = getSelectedMonth(); // Current "visual" month in UI (1-12)
-			const selectedYear = getSelectedYear(); // Current selected year
+			const day = parseInt(rawDateKey.substr(0, 2)); 
+			const selectedMonth = getSelectedMonth(); 
+			const selectedYear = getSelectedYear(); 
 
 			let finalMonth = selectedMonth;
 			let finalYear = selectedYear;
 
-			// If day is between 21 and 31, it's part of the **previous month**
+			
 			if (day >= 21) {
 				finalMonth = selectedMonth - 1;
 				if (finalMonth === 0) {
@@ -569,13 +569,13 @@
 
 
 						html = `
-		<div class="card shadow-sm border-0">
-		  <div class="card-body">
-			<h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
-
-			<div class="row mb-2">
-			  <div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
-			 <div class="col-md-6">
+	<!-- 👣 Biometric Attendance Card -->
+	<div class="card shadow-sm border-0 mb-3">
+	  <div class="card-body">
+		<h5 class="card-title text-primary">👣 Biometric Attendance</h5>
+		<div class="row mb-2">
+		  <div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
+		  <div class="col-md-6">
 			<strong>Status:</strong>
 			<span class="badge" style="background-color: ${getStatusColor(data.attendanceStatus)}; color: white;">
 			  ${data.attendanceStatus ?? '-'}
@@ -583,26 +583,29 @@
 		  </div>
 		</div>
 
-			<div class="row mb-2">
-			  <div class="col-md-6"><strong>Check-in:</strong> ${sameDay ? formatTimeOnly(data.firstLogDate) : formatDateTime(data.firstLogDate)}</div>
-			  <div class="col-md-6"><strong>Check-out:</strong> ${sameDay ? formatTimeOnly(data.lastLogDate) : formatDateTime(data.lastLogDate)}</div>
-			</div>
-
-			<div class="row">
-			  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
-			</div>
-
-					<div class="row">
-			  <div class="col-md-6"><strong>DialerTime:</strong> ${data.dialerTime ? data.dialerTime : '-'}</div>
-			</div>
-
-			<div class="row">
-			  <div class="col-md-6"><strong>Remarks:</strong> ${data.remarks ? data.remarks : '-'}</div>
-			</div>
-
-		  </div>
+		<div class="row mb-2">
+		  <div class="col-md-6"><strong>Check-in:</strong> ${sameDay ? formatTimeOnly(data.firstLogDate) : formatDateTime(data.firstLogDate)}</div>
+		  <div class="col-md-6"><strong>Check-out:</strong> ${sameDay ? formatTimeOnly(data.lastLogDate) : formatDateTime(data.lastLogDate)}</div>
 		</div>
-		`;
+
+		<div class="row mb-2">
+		  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
+
+		</div>
+	  </div>
+	</div>
+
+	<!-- ☎️ Dialer Attendance Card -->
+	<div class="card shadow-sm border-0">
+	  <div class="card-body">
+		<h5 class="card-title text-info">☎️ Dialer Attendance</h5>
+		<div class="row">
+		  <div class="col-md-6"><strong>Dialer Time:</strong> ${data.dialerTime ?? '-'}</div>
+			   <div class="col-md-6"><strong>Remarks:</strong> ${data.remarks ?? '-'}</div>
+		</div>
+	  </div>
+	</div>
+	`;
 					  break;
 				case "Holiday":
 				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div></div></div>`;

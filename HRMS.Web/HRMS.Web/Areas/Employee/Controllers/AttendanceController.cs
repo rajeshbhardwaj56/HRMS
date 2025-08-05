@@ -1218,10 +1218,9 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             long empID = 0;
             long jobID = 0;
             if (!string.IsNullOrEmpty(employeeId))
-                long.TryParse(employeeId, out empID);             
-                long.TryParse(jobLocationId, out jobID);
-
             {
+                long.TryParse(employeeId, out empID);
+                long.TryParse(jobLocationId, out jobID);
             }
             CompOffAttendanceInputParams inputParams = new CompOffAttendanceInputParams
             {

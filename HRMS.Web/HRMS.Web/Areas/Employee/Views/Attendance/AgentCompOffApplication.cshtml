@@ -341,7 +341,7 @@
         function loadAppliedData() {
             $.ajax({
                 type: "POST",
-                url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
+                url: '@Url.Action("GetAgentCompOffAttendanceLogs", "Attendance")',
                 data: { attendanceStatus: 1,
                 employeeId: selectedEmployeeId ,
                 jobLocationId: selectedJobLocationId },
@@ -354,7 +354,7 @@
         function loadRejectedData() {
             $.ajax({
                 type: "POST",
-                url: '@Url.Action("GetCompOffAttendanceLogs", "Attendance")',
+                url: '@Url.Action("GetAgentCompOffAttendanceLogs", "Attendance")',
                 data: { attendanceStatus: 3,
                 employeeId: selectedEmployeeId ,
                 jobLocationId: selectedJobLocationId },
