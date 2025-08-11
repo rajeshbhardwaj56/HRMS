@@ -53,7 +53,7 @@ namespace HRMS.API.DataLayer
                                 cmdSql.Parameters.AddRange(pParams.ToArray());
                             }
                             cmdSql.CommandType = CommandType.StoredProcedure;
-                            cmdSql.CommandTimeout = 0; //--- 120 for 2 min and 0 for infinite
+                            cmdSql.CommandTimeout = 0; 
                             daSql.SelectCommand = cmdSql;
                             daSql.Fill(dataSet);
                             return dataSet;
@@ -61,9 +61,9 @@ namespace HRMS.API.DataLayer
                         catch (Exception ex)
                         {
                             Console.WriteLine(conLocal + ex.Message);
-                            //ex.Message = ex.Message+ conLocal;
+
                             throw new Exception(conLocal + conStr + ex.Message);
-                            // throw ex;
+                       
                         }
                         finally
                         {

@@ -357,7 +357,6 @@
 
                                 @if (Model.FormPermissionList.Where(x => x.FormID == 23 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                                 {
-
                                     <li>
                                         <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ApproveCompOff" ? "hrms-active" : "")"
                                         asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
@@ -402,7 +401,7 @@
                                         </li>
                                     }
                                 }
-                            @*     @if (Model.FormPermissionList.Where(x => x.FormID == 28 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+                                 @if (Model.FormPermissionList.Where(x => x.FormID == 28 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                                 {
                                   
                                         <li>
@@ -415,7 +414,7 @@
                                             </a>
                                         </li>
                                    
-                                } *@
+                                } 
                                 @if (Model.FormPermissionList.Where(x => x.FormID == 25 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                                 {
                                     <li>
@@ -424,7 +423,6 @@
                                         asp-controller="myinfo"
                                         asp-action="ApproveLeave">
                                             <i class="bi bi-file-earmark-check me-2"></i>Approve Leave
-
                                         </a>
                                     </li>
                                 }

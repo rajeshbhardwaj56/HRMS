@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using System;
 using System.Linq;
 
@@ -1098,7 +1099,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
             var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
-            var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); // Assuming this exists
+            var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); 
             var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
             ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
             return View();
@@ -1138,35 +1139,80 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         }
 
         [HttpPost]
-        public IActionResult SaveAttendanceStatus(string EmployeeNumber, string Status, string Time, string Remarks, DateTime WorkDate)
+        public IActionResult GetAttendanceApprovalList(
+    string sEcho,
+    int iDisplayStart,
+    int iDisplayLength,
+    string sSearch,
+    string SortCol,
+    string SortDir)
         {
-            var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            var empNumber = _businessLayer.DecodeStringBase64(EmployeeNumber);
-            SaveAttendanceStatus models = new SaveAttendanceStatus
+            long reportingToId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+            var model = new AttendanceInputParams
             {
-                EmployeeId = employeeId,
-                UpdatedByUserID = employeeId,
-                UpdatedDate = DateTime.Now,
-                UserId = empNumber,
-                DialerTime = Time ?? "",
+                UserId = reportingToId,
+                RoleId = roleId,
+                SortCol = string.IsNullOrEmpty(SortCol) ? "WorkDate" : SortCol,
+                SortDir = string.IsNullOrEmpty(SortDir) ? "DESC" : SortDir,
+                DisplayStart = iDisplayStart,
+                DisplayLength = iDisplayLength,
+                SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch
+            };
+
+            var apiResponse = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.AttendenceList,
+                    APIApiActionConstants.GetTeamAttendanceForApproval),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result;
+
+            var attendanceData = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(apiResponse.ToString());
+
+            return Json(new
+            {
+                draw = sEcho,
+                recordsTotal = attendanceData.TotalRecords,
+                recordsFiltered = attendanceData.TotalRecords,
+                data = attendanceData.Attendances.Select(a => new
+                {
+                    employeeId = a.EmployeeId,
+                    employeNumber = a.EmployeNumber,
+                    workDate = a.WorkDate,
+                    attendanceStatus = a.Status,
+                    remarks = a.Remarks,
+                    id = a.EmployeeId 
+                })
+            });
+        }
+        [HttpPost]
+        public IActionResult SaveAttendanceStatus(string EmployeeId, string Status, string Remarks, DateTime WorkDate)
+        {
+          
+            var employeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(EmployeeId)); 
+            var updatedByUserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+            SaveTeamAttendanceStatus model = new SaveTeamAttendanceStatus
+            {
+                EmployeeId = employeeId, 
+                UserID = updatedByUserId, 
                 WorkDate = WorkDate,
                 AttendanceStatus = Status,
-                Remarks = Remarks ?? ""
+                Remarks = string.IsNullOrEmpty(Remarks) ? "" : Remarks
             };
-            AttendanceWithHolidaysVM model = new AttendanceWithHolidaysVM();
 
-            var data = _businessLayer.SendPostAPIRequest(models, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.SaveOrUpdateAttendanceStatus), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var dataModel = JsonConvert.DeserializeObject<Result>(data);
-            if (dataModel != null)
-            {
-                if (dataModel.UserID != 0)
-                {
-                    return Json(new { data = dataModel });
+            var apiUrl = _businessLayer.GetFormattedAPIUrl(
+                APIControllarsConstants.AttendenceList,
+                APIApiActionConstants.SaveOrUpdateAttendanceStatus
+            );
 
-                }
-            }
+            var response = _businessLayer.SendPostAPIRequest(
+                model, apiUrl, HttpContext.Session.GetString(Constants.SessionBearerToken), true
+            ).Result.ToString();
 
+            var dataModel = JsonConvert.DeserializeObject<Result>(response);
 
             return Json(new { data = dataModel });
         }

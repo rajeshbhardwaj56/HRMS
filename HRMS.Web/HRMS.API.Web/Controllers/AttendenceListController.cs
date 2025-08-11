@@ -182,7 +182,7 @@ namespace HRMS.API.Web.Controllers
 
 
         [HttpPost]
-        public IActionResult SaveOrUpdateAttendanceStatus(SaveAttendanceStatus att)
+        public IActionResult SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.SaveOrUpdateAttendanceStatus(att));

@@ -19,10 +19,19 @@
 		width: 100%;
 		height: 100%;
 		background-color: rgba(255, 255, 255, 0.6);
-		z-index: 1050; /* Above modals and Bootstrap elements */
+		z-index: 1050; 
 		display: flex;
 		justify-content: center;
 		align-items: center;
+	}
+
+	.small-table table {
+		font-size: 8px; /* adjust as needed */
+	}
+
+	.small-table th,
+	.small-table td {
+		padding: 4px 6px; /* optional, reduces table padding */
 	}
 
 	span.Pending.status-badge {
@@ -48,6 +57,7 @@
 	.HD {
 		background: #04336f;
 		cursor: pointer;
+		font-size: 0.5rem;
 		/* border-radius: 27px; */
 	}
 
@@ -65,23 +75,37 @@
 	.P {
 		background-color: #28a745;
 		cursor: pointer;
+		font-size: 0.5rem;
 	}
 
 	.A {
 		background-color: #dc3545;
 		cursor: pointer;
+		font-size: 0.5rem;
 	}
 
 	.H {
 		background-color: #1c5db1;
 		cursor: pointer;
+		font-size: 0.5rem;
 	}
 
 	.WO {
 		background-color: #1c5db1;
 		cursor: pointer;
+		font-size: 0.5rem;
 	}
 
+	.L {
+		background-color: #1c5db1;
+		cursor: pointer;
+		font-size: 0.5rem;
+	}
+	.ECO {
+		background-color: #1c5db1;
+		cursor: pointer;
+		font-size: 0.5rem;
+	}
 	.table-warning {
 		background-color: #fff3cd;
 		color: #856404;
@@ -237,7 +261,7 @@
 	</div>
 	</div>
 
-	<div class="table-container">
+	<div class="table-container small-table">
 
 		<table class="table table-bordered table-hover">
 
@@ -370,7 +394,7 @@
 			dayKeys.forEach(day => {
 			  let status = record.attendanceByDay[day];
 			  if (status === "Sa" || status === "S") status = "H";
-			  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "WO" ? "WO" : "";
+			  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "ECO" ? "ECO" :  status === "WO" ? "WO" : "";
 			  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${status}</span></td>`;
 			});
 			row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td></tr>`;
@@ -463,6 +487,47 @@
 		}
 
 		$(document).ready(function () {
+
+				$(document).on("click", "#saveStatusChange", function () {
+					
+		const status = $("#statusSelect").val();
+		const remarks = $("#statusComment").val();
+		const workDate = $("#attendanceDetailModal").data("workdate"); 
+		const employeeId = $("#attendanceDetailModal").data("employeeid");
+
+		if (!status) {
+			alert("Please select a status before saving.");
+			return;
+		}
+
+		$.ajax({
+			url: '/employee/Attendance/SaveAttendanceStatus',
+			type: 'POST',
+			data: {
+				 EmployeeId: employeeId,
+				Status: status,
+				Remarks: remarks,
+				WorkDate: workDate
+			},
+			success: function (response) {
+				debugger;
+				if ( response.data.pkNo > 0) {
+					alert("Attendance status updated successfully!");
+					$("#attendanceDetailModal").modal("hide");
+					
+					fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
+				} else {
+					alert(response.data?.Message || "Failed to update attendance.");
+				}
+			},
+			error: function (xhr, status, error) {
+				alert("Error while saving status: " + error);
+			}
+		});
+	});
+
+
+
 		  populateYearDropdown();
 		  selectCurrentMonth();
 		  fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
@@ -480,13 +545,13 @@
 			 let searchTimer;
 
 		$("#search-box").on("keyup", function () {
-			clearTimeout(searchTimer); // Purana timer clear karo
+			clearTimeout(searchTimer); 
 
 			const text = $(this).val().trim();
 			currentPage = 1;
 			const override = text === "" ? null : 0;
 
-			// Minimum character limit (optional but useful)
+		
 			if (text.length === 0 || text.length >= 2) {
 				searchTimer = setTimeout(function () {
 					fetchAttendanceData(
@@ -497,11 +562,9 @@
 						override,
 						parseInt($("#jobLocationDropdown").val()) || 0
 					);
-				}, 300); // debounce delay: 300ms
+				}, 300); 
 			}
 		});
-
-
 		  $("#page-size-select").on("change", function () {
 			pageSize = parseInt($(this).val());
 			currentPage = 1;
@@ -517,9 +580,10 @@
 			}
 		  });
 
+
 			$(document).on("click", "#attendance-data td", function () {
 			const $td = $(this);
-			const rawDateKey = $td.data("date"); // e.g., "01P", "15A"
+			const rawDateKey = $td.data("date"); 
 			if (!rawDateKey) return;
 
 			const day = parseInt(rawDateKey.substr(0, 2)); 
@@ -543,11 +607,48 @@
 				empNo = $td.data("empno");
 			if (!empId || !empNo) return;
 
-			$("#attendanceDetailModal").modal("show");
+			$("#attendanceDetailModal")
+	.data("workdate", fullDate)     
+	.data("employeeid", empId)      
+	.modal("show");
 			$("#attendanceDetailBody").html("Loading...");
 
 			$.get('/employee/MyInfo/GetAttendanceDetails', { date: fullDate, employeeId: empId, employeeNo: empNo }, function (data) {
 			  let html = "";
+
+			   const getStatusColor = (status) => {
+		switch (status?.toLowerCase()) {
+			case 'present': return '#28a745'; 
+			case 'absent': return '#dc3545';  
+			case 'leave': return '#ffc107';  
+			case 'half day': return '#05397b'; 
+			default: return '#6c757d';       
+		}
+	};
+
+	const renderStatusEditor = () => `
+		<div class="row mb-2">
+			<div class="col-md-6">
+				<label for="statusSelect"><strong>Change Status:</strong></label>
+				<select class="form-control" id="statusSelect">
+					<option value="">Select status</option>
+					<option value="P">Present</option>
+					<option value="A">Absent</option>					
+					<option value="HD">Half Day</option>
+					<option value="WO">Week Off</option>
+				</select>
+			</div>
+			<div class="col-md-6">
+				<label for="statusComment"><strong>Comment:</strong></label>
+				<textarea class="form-control" id="statusComment" placeholder="Write comment..."></textarea>
+			</div>
+		</div>
+		<div class="text-end mt-2">
+			<button class="btn btn-primary" id="saveStatusChange">💾 Save Status</button>
+		</div>
+	`;
+
+
 			  switch (data.recordType) {
 				case "Attendance":
 				  const first = new Date(data.firstLogDate), last = new Date(data.lastLogDate);
@@ -569,10 +670,10 @@
 
 
 						html = `
-	<!-- 👣 Biometric Attendance Card -->
+	
 	<div class="card shadow-sm border-0 mb-3">
 	  <div class="card-body">
-		<h5 class="card-title text-primary">👣 Biometric Attendance</h5>
+	
 		<div class="row mb-2">
 		  <div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
 		  <div class="col-md-6">
@@ -592,34 +693,24 @@
 		  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
 
 		</div>
+		  ${renderStatusEditor()}
 	  </div>
 	</div>
 
-	<!-- ☎️ Dialer Attendance Card -->
-	<div class="card shadow-sm border-0">
-	  <div class="card-body">
-		<h5 class="card-title text-info">☎️ Dialer Attendance</h5>
-		<div class="row">
-		  <div class="col-md-6"><strong>Dialer Time:</strong> ${data.dialerTime ?? '-'}</div>
-			   <div class="col-md-6"><strong>Remarks:</strong> ${data.remarks ?? '-'}</div>
-		</div>
-	  </div>
-	</div>
 	`;
 					  break;
 				case "Holiday":
-				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div></div></div>`;
+				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusEditor()}</div></div>`;
 				  break;
 				case "Leave":
-				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div></div></div>`;
+				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>   ${renderStatusEditor()}</div></div>`;
 				  break;
 				default:
-				  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>`;
+				  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>${renderStatusEditor()}`;
 			  }
 			  $("#attendanceDetailBody").html(html);
 			});
 		  });
-
 		$("#export-btn").on("click", function () {
 
 					  const fromDate = $("#export-from-date").val();

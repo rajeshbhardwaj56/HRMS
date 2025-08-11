@@ -89,6 +89,14 @@
 </style>
 @* <div class="main-header anim" style="--delay: 0s">My Info</div> *@
 
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+<!-- jQuery (required) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <section class="lower-section">
 	<div class="container-fluid">
@@ -251,7 +259,6 @@
 																			<div class="col-lg-12">
 																				<label for="Reason" class="">Reason:</label>
 																				<div class="input-group">
-																					@*  <span class="input-group-text body-text">Reason</span> *@
 																					@Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required" })
 																				</div>
 																			</div>
@@ -262,8 +269,7 @@
 																	</form>
 																</div>
 															</div>
-														</div>
-														
+														</div>								
 													</div>
 
 												</div>
@@ -272,14 +278,13 @@
 													<div class="row">
 														<div class="col-12 col-lg-12">
 															<div class="table-responsive">
-																<table class="table table-striped body-text dataTable no-footer">
+																<table id="tblLeaveSummary" class="table table-striped body-text dataTable no-footer">
 																	<thead>
 																		<tr>
-																					<th>Emp No</th>
-																						<th>Name</th>
-
-																						<th>Applied By Number</th>
-																						<th>Applied By Name</th>
+																		    <th>Emp No</th>
+																		    <th>Name</th>
+																		    <th>Applied By Number</th>
+																			<th>Applied By Name</th>
 																			<th>Request Date</th>
 																			<th>Start Date</th>
 																			<th>End Date</th>
@@ -411,6 +416,18 @@
 <script>
 	
 	$(document).ready(function() {
+		
+		$('#tblLeaveSummary').DataTable({
+			"paging": true,
+			"lengthChange": true,
+			"searching": true,
+			"ordering": true,
+			"info": true,
+			"autoWidth": false,
+			"responsive": true
+		});
+
+
 		var leaveSummaryID;
 	
 		// File preview functions

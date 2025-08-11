@@ -69,7 +69,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
             var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
 
-            // Update Employee Photos URLs
+          
             if (model?.EmployeeDetails != null)
             {
                 foreach (var employee in model.EmployeeDetails.Where(x => !string.IsNullOrEmpty(x.EmployeePhoto)))
@@ -78,7 +78,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
             }
 
-            // Update WhatsHappening Icon URLs
+          
             if (model?.WhatsHappening != null)
             {
                 foreach (var item in model.WhatsHappening.Where(x => !string.IsNullOrEmpty(x.IconImage)))

@@ -146,7 +146,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_BulkUploadWeekOffRoster = "usp_BulkUploadWeekOffRoster";
         public const string usp_GetWeekOffRoster = "usp_GetWeekOffRoster";
         public const string usp_DeleteWeekOffRoster = "usp_DeleteWeekOffRoster";
-        public const string usp_GetShiftTypeByName   = "usp_GetShiftTypeByName";
+        public const string usp_GetShiftTypeByName = "usp_GetShiftTypeByName";
         public const string usp_GetShiftTypesByCompany = "usp_GetShiftTypesByCompany";
 
         public const string usp_GetWeekOffDatesForEmployee = "usp_GetWeekOffDatesForEmployee";
@@ -157,6 +157,10 @@ namespace HRMS.API.BusinessLayer
         public const string usp_GetFirstLevelEmployees = "usp_GetFirstLevelEmployees";
         public const string usp_Get_AgentLeavesSummary = "usp_Get_AgentLeavesSummary";
         public const string usp_Get_AgentLeavesSummaryForApproval = "usp_Get_AgentLeavesSummaryForApproval";
+
+        public const string usp_GetAttendanceForApprovalImmediateApprove = "usp_GetAttendanceForApprovalImmediateApprove";
+
+
 
 
 

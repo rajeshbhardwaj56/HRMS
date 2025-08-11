@@ -28,6 +28,12 @@ namespace HRMS.Models.Common
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
 
+        public int? DisplayStart { get; set; }    // @DisplayStart
+        public int? DisplayLength { get; set; }
+        public string? SortCol { get; set; }      // @SortCol
+        public string? SortDir { get; set; }
+
+
     }
     public class Attendance
     {
@@ -63,15 +69,19 @@ namespace HRMS.Models.Common
     public class AttendanceViewModel
     {
         public long? EmployeeId { get; set; }
-        public string EmployeNumber { get; set; }
-        public string EncryptedIdentity { get; set; }
-        public string EmployeeNumberWithoutAbbr { get; set; }
-        public string EmployeeName { get; set; }
-        public string JobLocationName { get; set; }
+        public string? EmployeNumber { get; set; }
+        public string? EncryptedIdentity { get; set; }
+        public string? EmployeeNumberWithoutAbbr { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? JobLocationName { get; set; }
         public int TotalWorkingDays { get; set; }
         public decimal PresentDays { get; set; }
         public DateTime? WorkDate { get; set; }
+        public string? Status { get; set; }
+        public string? Remarks { get; set; }
+   
         public decimal TotalLeaves { get; set; }
+        
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
     }
 
@@ -174,17 +184,26 @@ namespace HRMS.Models.Common
 
     public class SaveAttendanceStatus
     {
-        public string UserId { get; set; }
-        public DateTime WorkDate { get; set; }
-        public long EmployeeId { get; set; }
+        public string? UserId { get; set; }
+        public DateTime? WorkDate { get; set; }
+        public long? EmployeeId { get; set; }
+        public long? UserID { get; set; }
         public string? Remarks { get; set; }
-        public string DialerTime { get; set; }
-        public string AttendanceStatus { get; set; }
-        public DateTime UpdatedDate { get; set; }
-        public long UpdatedByUserID { get; set; }
+        public string? DialerTime { get; set; }
+        public string? AttendanceStatus { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public long? UpdatedByUserID { get; set; }
 
 
     }
-
+    public class SaveTeamAttendanceStatus
+    {
+        public DateTime? WorkDate { get; set; }
+        public long? EmployeeId { get; set; }
+        public long? UserID { get; set; }
+        public string? Remarks { get; set; }
+        public string? AttendanceStatus { get; set; }
+   
+    }
 
 }

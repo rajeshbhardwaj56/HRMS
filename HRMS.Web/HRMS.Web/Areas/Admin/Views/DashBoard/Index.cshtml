@@ -9,8 +9,8 @@
 	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
 	var allEmployeesJson = JsonConvert.SerializeObject(Model.EmployeeHierarchy);
 	ViewData["Title"] = "Dashboard";
-	var roleId = ViewBag.RoleID != null ? Convert.ToInt64(ViewBag.RoleID) : 0;
-	var myEmployeeList = (roleId == 2)
+	var roleId = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+	var myEmployeeList = (roleId == 2 || roleId == 5)
 		? Model.EmployeeHierarchy.Where(e => e.Level == 1 || e.Level == 2)
 		: Model.EmployeeHierarchy.Where(e => e.Level == 1);
 }
@@ -23,7 +23,7 @@
 			"LEAVE" => "bg-info",
 			"HOLIDAY" => "bg-warning",
 			"WEEK OFF" => "bg-secondary",
-			_ => "bg-danger", // Default for ABSENT or others
+			_ => "bg-danger", 
 		};
 	}
 }
@@ -210,7 +210,7 @@
 		}
 
 
-		@if (ViewBag.RoleID != null && (long)ViewBag.RoleID != 2 && (long)ViewBag.RoleID != 5)
+		@if (RoleName != null && RoleName != Convert.ToInt64(Roles.Admin) && RoleName != Convert.ToInt64(Roles.SuperAdmin))
 						{
 		<div class="col-xl-3 col-sm-6 col-12">
 			<div class="card board1 fill3 ">
@@ -247,7 +247,7 @@
 				</div>
 				<div class="timeOff">
 					<ul>
-						@if (ViewBag.RoleID != null && (long)ViewBag.RoleID != 2 && (long)ViewBag.RoleID != 5)
+						@if (RoleName != null && RoleName != Convert.ToInt64(Roles.Admin) && RoleName != Convert.ToInt64(Roles.SuperAdmin))
 						{
 							<li>
 								<div class="timeOffCard">
@@ -549,7 +549,6 @@
 									<th>Designation</th>
 									<th>Department</th>
 									<th>Subordinates (Total/Immediate)</th>
-
 								</tr>
 							</thead>
 							<tbody>
@@ -590,7 +589,7 @@
 					const description = this.getAttribute("data-description");  // Use data-description directly
 
 					document.getElementById("modalTitle").innerText = title;
-					document.getElementById("modalDescription").innerHTML = description;  // Set description directly
+					document.getElementById("modalDescription").innerHTML = description;  
 					document.getElementById("modalFromDate").innerText = fromDate;
 					document.getElementById("modalToDate").innerText = toDate;
 					document.getElementById("modalImage").src = image;

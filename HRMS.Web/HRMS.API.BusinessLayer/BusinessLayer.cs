@@ -2230,28 +2230,34 @@ namespace HRMS.API.BusinessLayer
         {
             var combined = new List<HierarchyEmployee>();
 
-            // 1. Add the full tree first
+
             combined.AddRange(BuildHierarchyTree(flatList));
 
-            // 2. Identify all nodes that have children (potential subtree roots)
-            var parentPaths = flatList
-                .Where(e => flatList.Any(x => GetParentPath(x.Path) == e.Path))
+            var level2Paths = flatList
+         .Where(e => e.Path.Trim('/').Split('/').Length == 2)
+         .ToList();
+
+            var parentPaths = level2Paths
+                .Where(level2Path =>
+                    flatList.Any(x => GetParentPathLevel2(x.Path) == level2Path.Path) // has children
+                    ||
+                    !flatList.Any(x => GetParentPathLevel2(x.Path) == level2Path.Path) // no one reports
+                )
                 .Select(e => e.Path)
                 .Distinct()
                 .ToList();
 
-            // 3. Generate and add subtrees for each parent node
+
             foreach (var path in parentPaths)
             {
-                // Get the parent node and its direct children
+              
                 var subtreeNodes = flatList
                     .Where(e => e.Path == path || GetParentPath(e.Path) == path)
                     .ToList();
 
-                // Build the subtree using the same method
                 var subtree = BuildHierarchyTree(subtreeNodes);
 
-                // Only add if we got results (should always be true)
+              
                 if (subtree.Any())
                 {
                     combined.AddRange(subtree);
@@ -2296,12 +2302,20 @@ namespace HRMS.API.BusinessLayer
             var parts = path.Trim('/').Split('/');
             if (parts.Length <= 1)
                 return null;
-
-
             return "/" + string.Join("/", parts.Take(parts.Length - 1));
         }
 
+       private string GetParentPathLevel2(string path)
+{
+    if (string.IsNullOrEmpty(path) || path == "/")
+        return null;
 
+    var parts = path.Trim('/').Split('/');
+    if (parts.Length <= 1)
+        return null;
+
+    return "/" + string.Join("/", parts.Take(parts.Length - 1));
+}
 
         #endregion
 
@@ -5537,45 +5551,45 @@ namespace HRMS.API.BusinessLayer
         #region Attendance Approval
         public AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model)
         {
-            List<AttendanceViewModel> attendanceList = new List<AttendanceViewModel>();
+            var attendanceList = new List<AttendanceViewModel>();
             int totalRecords = 0;
 
-            List<SqlParameter> sqlParameters = new List<SqlParameter>
-  {
+            var sqlParameters = new List<SqlParameter>
+    {
+       new SqlParameter("@ReportingToID", model.UserId),
+new SqlParameter("@RoleID", model.RoleId),
+new SqlParameter("@SortCol", model.SortCol ?? "WorkDate"),
+new SqlParameter("@SortDir", model.SortDir ?? "DESC"),
+new SqlParameter("@Searching", model.SearchTerm ?? (object)DBNull.Value),
+new SqlParameter("@DisplayStart", model.DisplayStart),
+new SqlParameter("@DisplayLength", model.DisplayLength)
+    };
 
-      new SqlParameter("@UserId", model.UserId),
-      new SqlParameter("@RoleId", model.RoleId),
-      new SqlParameter("@PageNumber", model.Page),
-      new SqlParameter("@PageSize", model.PageSize),
-      new SqlParameter("@SearchTerm", model.SearchTerm),
-  };
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetAttendanceForApprovalImmediateApprove,
+                sqlParameters
+            );
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetTeamAttendanceForApproval, sqlParameters);
-
-            if (dataSet.Tables.Count > 0)
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                // First result set: Attendance data
                 attendanceList = dataSet.Tables[0].AsEnumerable()
-                    .Select(dataRow =>
+                    .Select(row => new AttendanceViewModel
                     {
-                        var attendance = new AttendanceViewModel
-                        {
-                            EmployeeId = dataRow.Field<long?>("EmployeeID"),
-                            EmployeNumber = dataRow.Field<string>("EmployeNumber"),
-                            JobLocationName = dataRow.Field<string>("JobLocationName"),
-                            EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
-                            EmployeeName = dataRow.Field<string>("EmployeeName"),
-                            WorkDate = dataRow.Field<DateTime>("WorkDate"),
-
-                        };
-                        return attendance;
-                    }).ToList();
+                        EmployeeId = row.Field<long?>("EmployeeID"),
+                        EmployeNumber = row.Field<string>("EmployeNumber"),
+                       
+                      
+                       
+                        WorkDate = row.Field<DateTime>("WorkDate"),
+                        Status = row.Field<string>("AttendanceStatus"),        
+                        Remarks = row.Field<string>("Remarks")       
+                    })
+                    .ToList();
             }
 
-            // Second result set: TotalRecords
             if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
             {
-                int.TryParse(dataSet.Tables[1].Rows[0]["TotalRecords"].ToString(), out totalRecords);
+                int.TryParse(dataSet.Tables[1].Rows[0]["TotalRecords"]?.ToString(), out totalRecords);
             }
 
             return new AttendanceWithHolidaysVM
@@ -5585,7 +5599,8 @@ namespace HRMS.API.BusinessLayer
             };
         }
 
-        public Result SaveOrUpdateAttendanceStatus(SaveAttendanceStatus att)
+
+        public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
         {
             Result model = new Result();
 
@@ -5594,10 +5609,9 @@ namespace HRMS.API.BusinessLayer
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
       {
           new SqlParameter("@EmployeeId", att.EmployeeId),
-          new SqlParameter("@EmployeeNumber", att.UserId),
-          new SqlParameter("@WorkDate", att.WorkDate.ToString("yyyy-MM-dd HH:mm:ss")),
+          new SqlParameter("@WorkDate", att.WorkDate),
           new SqlParameter("@Status", att.AttendanceStatus),
-          new SqlParameter("@DialerTime", string.IsNullOrEmpty(att.DialerTime) ? (object)DBNull.Value : att.DialerTime),
+          new SqlParameter("@UserID ", att.UserID),
           new SqlParameter("@Remarks", string.IsNullOrEmpty(att.Remarks) ? (object)DBNull.Value : att.Remarks),
       };
 
