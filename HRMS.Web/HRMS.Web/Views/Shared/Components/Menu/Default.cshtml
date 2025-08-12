@@ -339,7 +339,7 @@
                                         </li>
                                     }
                                 }
-                                @if (Model.FormPermissionList.Where(x => x.FormID == 22 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+                             @*    @if (Model.FormPermissionList.Where(x => x.FormID == 22 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                                 {
                                     if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
                                     LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
@@ -353,7 +353,7 @@
                                             </a>
                                         </li>
                                     }
-                                }
+                                } *@
 
                                 @if (Model.FormPermissionList.Where(x => x.FormID == 23 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                                 {
