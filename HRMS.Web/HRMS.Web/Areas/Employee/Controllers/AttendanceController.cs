@@ -1180,10 +1180,11 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 {
                     employeeId = a.EmployeeId,
                     employeNumber = a.EmployeNumber,
+                    employeeName=a.EmployeeName ,
                     workDate = a.WorkDate,
                     attendanceStatus = a.Status,
                     remarks = a.Remarks,
-                    id = a.EmployeeId 
+                    id = a.ID 
                 })
             });
         }
@@ -1197,9 +1198,10 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             SaveTeamAttendanceStatus model = new SaveTeamAttendanceStatus
             {
                 EmployeeId = employeeId, 
-                UserID = updatedByUserId, 
+                UserID = updatedByUserId,
                 WorkDate = WorkDate,
                 AttendanceStatus = Status,
+                ApprovedByAdmin = false,
                 Remarks = string.IsNullOrEmpty(Remarks) ? "" : Remarks
             };
 
@@ -1218,34 +1220,76 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         }
 
 
+
+
+
+
         [HttpPost]
-        public IActionResult SaveBulkAttendanceStatus([FromBody] List<SaveAttendanceStatus> entries)
+        public  IActionResult SaveBulkAttendanceStatus([FromBody] List<AttendanceRecordDto> records)
         {
-            var result = new Result();
-            var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            foreach (var entry in entries)
+            var currentEmployeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+            try
             {
-                entry.UserId = _businessLayer.DecodeStringBase64(entry.UserId);
-                entry.EmployeeId = employeeId;
-                entry.UpdatedByUserID = employeeId;
-                entry.UpdatedDate = DateTime.Now;
-            }
-            var data = _businessLayer.SendPostAPIRequest(entries, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.SaveOrUpdateBulk), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var dataModel = JsonConvert.DeserializeObject<Result>(data);
-            if (dataModel != null)
-            {
-                if (dataModel.UserID != 0)
+                foreach (var record in records)
                 {
-                    return Json(new { data = dataModel });
+                    
+                    if (record.EmployeeId == null || record.WorkDate == null)
+                    {
+                        return BadRequest(new
+                        {
+                            success = false,
+                            message = "EmployeeId and WorkDate are required fields"
+                        });
+                    }
 
+                    var attendanceRequest = new SaveTeamAttendanceStatus
+                    {
+                        EmployeeId = record.EmployeeId,
+                         ID =record.ID,
+                        UserID = currentEmployeeId,
+                        WorkDate = record.WorkDate.Value,
+                        AttendanceStatus = record.AttendanceStatus ?? "Approved",
+                        Remarks = record.Remarks ?? "Approved by manager",
+                        ApprovedByAdmin = true
+                    };
+                    var apiUrl = _businessLayer.GetFormattedAPIUrl(
+                            APIControllarsConstants.AttendenceList,
+                            APIApiActionConstants.SaveOrUpdateAttendanceStatus
+                        );
+                    var apiResponse =  _businessLayer.SendPostAPIRequest(
+                        attendanceRequest,
+                        apiUrl,
+                        HttpContext.Session.GetString(Constants.SessionBearerToken), true
+            ).Result.ToString();
+
+                    var responseModel = JsonConvert.DeserializeObject<Result>(apiResponse);
+
+                    if (responseModel == null || responseModel.PKNo <= 0)
+                    {
+                        return StatusCode(500, new
+                        {
+                            success = false,
+                            message = responseModel?.Message ?? "Error processing attendance record"
+                        });
+                    }
                 }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"{records.Count} attendance records processed successfully"
+                });
             }
-
-            return Json(result);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"An error occurred: {ex.Message}"
+                });
+            }
         }
-
-
 
 
 

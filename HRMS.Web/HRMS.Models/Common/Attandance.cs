@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Leave;
+﻿using HRMS.Models.AttendenceList;
+using HRMS.Models.Leave;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace HRMS.Models.Common
         public bool? IsDeleted { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? CreatedDate { get; set; }
- 
+
 
 
         public List<SelectListItem> Employeelist = new List<SelectListItem>();
@@ -68,6 +69,7 @@ namespace HRMS.Models.Common
 
     public class AttendanceViewModel
     {
+        public long? ID { get; set; }
         public long? EmployeeId { get; set; }
         public string? EmployeNumber { get; set; }
         public string? EncryptedIdentity { get; set; }
@@ -79,9 +81,9 @@ namespace HRMS.Models.Common
         public DateTime? WorkDate { get; set; }
         public string? Status { get; set; }
         public string? Remarks { get; set; }
-   
+
         public decimal TotalLeaves { get; set; }
-        
+
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
     }
 
@@ -151,13 +153,13 @@ namespace HRMS.Models.Common
         public string RecordType { get; set; }  // 
         // Attendance fields
         public long? ID { get; set; }
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
         public DateTime? WorkDate { get; set; }
         public DateTime? FirstLogDate { get; set; }
         public DateTime? LastLogDate { get; set; }
         public TimeSpan? HoursWorked { get; set; }
         public string AttendanceStatus { get; set; }
-         
+
         // Holiday fields
         public string HolidayName { get; set; }
         public string Description { get; set; }
@@ -179,7 +181,7 @@ namespace HRMS.Models.Common
     {
         public DateTime SelectedDate { get; set; }
         public string EmployeeNumber { get; set; }
-        public long EmployeeId { get; set; } 
+        public long EmployeeId { get; set; }
     }
 
     public class SaveAttendanceStatus
@@ -194,16 +196,26 @@ namespace HRMS.Models.Common
         public DateTime? UpdatedDate { get; set; }
         public long? UpdatedByUserID { get; set; }
 
-
     }
     public class SaveTeamAttendanceStatus
     {
         public DateTime? WorkDate { get; set; }
         public long? EmployeeId { get; set; }
+        public long? ID { get; set; }
         public long? UserID { get; set; }
         public string? Remarks { get; set; }
         public string? AttendanceStatus { get; set; }
-   
+        public bool? ApprovedByAdmin { get; set; }
     }
 
+    public class AttendanceRecordDto
+    {
+        public long? ID { get; set; }
+        public long? EmployeeId { get; set; }
+        public DateTime? WorkDate { get; set; }
+        public string? Remarks { get; set; }
+        public string? AttendanceStatus { get; set; }
+        public bool? ApprovedByAdmin { get; set; }
+
+    }
 }

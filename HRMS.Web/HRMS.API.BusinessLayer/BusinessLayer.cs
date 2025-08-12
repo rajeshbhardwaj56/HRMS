@@ -5576,7 +5576,9 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                     .Select(row => new AttendanceViewModel
                     {
                         EmployeeId = row.Field<long?>("EmployeeID"),
+                        ID = row.Field<long?>("ID"),
                         EmployeNumber = row.Field<string>("EmployeNumber"),
+                        EmployeeName = row.Field<string>("EmployeeName"),
                        
                       
                        
@@ -5603,19 +5605,20 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
         {
             Result model = new Result();
-
             try
             {
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
       {
+          new SqlParameter("@ID", att.ID),
           new SqlParameter("@EmployeeId", att.EmployeeId),
           new SqlParameter("@WorkDate", att.WorkDate),
           new SqlParameter("@Status", att.AttendanceStatus),
           new SqlParameter("@UserID ", att.UserID),
+          new SqlParameter("@ApprovedByAdmin ", att.ApprovedByAdmin),
           new SqlParameter("@Remarks", string.IsNullOrEmpty(att.Remarks) ? (object)DBNull.Value : att.Remarks),
       };
 
-                // Call the stored procedure and get result
+                
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(
                     StoredProcedures.usp_SaveOrUpdateAttendanceStatus, sqlParameters
                 );

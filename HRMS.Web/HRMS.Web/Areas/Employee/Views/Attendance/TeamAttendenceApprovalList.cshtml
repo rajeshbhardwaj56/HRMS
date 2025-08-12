@@ -11,12 +11,10 @@
 </div>
 
 <div class="mb-3">
- @*    <button id="btnApproveSelected" class="btn btn-success btn-sm">
-        Approve Selected
-    </button> *@
-    <button >
+    <button id="btnApproveSelected" class="btn btn-success btn-sm">
         Approve Selected
     </button>
+  
 </div>
 
 <div class="table-responsive py-3">
@@ -26,6 +24,7 @@
                 <th><input type="checkbox" id="selectAll" /></th>
                 <th style="display:none;">Employee ID</th>
                 <th>Emp No</th>
+                <th>Emp Name</th>
                 <th>Work Date</th>
                 <th>Status</th>
                 <th>Remarks</th>
@@ -35,7 +34,7 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function () {
+       $(document).ready(function () {
         var table = $('#tblAttendanceApproval').DataTable({
             processing: true,
             serverSide: true,
@@ -58,48 +57,102 @@
                     data: "id",
                     orderable: false,
                     render: function (data) {
-                        return '<input type="checkbox" class="selectRow" value="' + data + '">';
+                        return '<input type="checkbox" class="row-select" value="' + data + '">';
                     }
                 },
                 { data: "employeeId", visible: false },
                 { data: "employeNumber" },
-                { data: "workDate" },
+                { data: "employeeName" },
+                { data: "workDate",
+                  render: function(data) {
+            
+            if (data) {
+                return new Date(data).toLocaleDateString();
+               
+            }
+            return '';
+        }},
                 { data: "attendanceStatus" },
                 { data: "remarks" }
             ]
         });
 
-        // Select/Deselect all checkboxes
         $('#selectAll').on('click', function () {
-            $('.selectRow').prop('checked', this.checked);
+            $('.row-select').prop('checked', this.checked);
         });
 
-        // Approve Selected
-        $('#btnApproveSelected').on('click', function () {
-            var selectedIds = [];
-            $('.selectRow:checked').each(function () {
-                selectedIds.push($(this).val());
+           $('#btnApproveSelected').on('click', function () {
+        const table = $('#tblAttendanceApproval').DataTable();
+        const selectedRecords = [];
+        const checkedRows = $('#tblAttendanceApproval .row-select:checked');
+
+        
+        checkedRows.each(function () {
+
+            const rowData = table.row($(this).closest('tr')).data();
+            selectedRecords.push({
+                ID:rowData.id,
+                EmployeeId: rowData.employeeId,
+                WorkDate: rowData.workDate, 
+                AttendanceStatus: rowData.attendanceStatus,
+                Remarks: rowData.remarks || "Approved by manager"
             });
+        });
 
-            if (selectedIds.length === 0) {
-                alert("Please select at least one record.");
-                return;
-            }
+        if (selectedRecords.length === 0) {
+            toastEMessage('Error', 'Please select at least one attendance record');
+            return;
+        }
 
-            $.ajax({
-                url: '@Url.Action("BulkApproveAttendance", "Attendance", new { area = "Admin" })',
-                type: 'POST',
-                data: JSON.stringify(selectedIds),
-                contentType: 'application/json',
-                success: function (res) {
-                    if (res.success) {
-                        alert("Selected records approved successfully.");
-                        table.ajax.reload();
-                    } else {
-                        alert(res.message || "An error occurred.");
-                    }
+       
+        const $button = $(this);
+        $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SaveBulkAttendanceStatus", "Attendance", new { area = "Employee" })',
+            contentType: "application/json",
+            data: JSON.stringify(selectedRecords),
+            success: function (response) {
+                if (response.success) {
+                    toastMessage('Success', response.message);
+                    table.ajax.reload(null, false); 
+                } else {
+                    toastEMessage('Error', response.message || 'Failed to approve records');
                 }
-            });
+            },
+            error: function (xhr) {
+                const errorMsg = xhr.responseJSON?.message || 'Server error occurred';
+                toastEMessage('Error', errorMsg);
+            },
+            complete: function () {
+                $button.prop('disabled', false).text('Approve Selected');
+                $('#selectAll').prop('checked', false);
+            }
         });
     });
+
+
+    });
+
+         function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
+
+         function toastMessage(type , message)
+            {
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
 </script>

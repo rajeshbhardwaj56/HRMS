@@ -58,7 +58,7 @@
 		background: #04336f;
 		cursor: pointer;
 		font-size: 0.5rem;
-		/* border-radius: 27px; */
+
 	}
 
 	.status-badge {
@@ -67,7 +67,7 @@
 		border-radius: 12px;
 		font-weight: 600;
 		color: white;
-		font-size: 0.9rem;
+		font-size: 0.5rem;
 		min-width: 22px;
 		text-align: center;
 	}
@@ -307,28 +307,28 @@
 		const filterToggle = $('#filterToggle');
 		const filtersContainer = $('#filtersContainer');
 
-		// Calculate initial height and set it
+		
 		const initialHeight = filtersContainer.outerHeight();
 		filtersContainer.css('height', initialHeight + 'px');
 
-		// Toggle filters visibility
+	
 		filterToggle.click(function() {
 			$(this).toggleClass('collapsed');
 
 			if (filtersContainer.hasClass('collapsed')) {
-				// Expanding
+				
 				filtersContainer.css('height', initialHeight + 'px');
 				setTimeout(() => {
 					filtersContainer.removeClass('collapsed');
-				}, 300); // Match this with your CSS transition duration
+				}, 300); 
 			} else {
-				// Collapsing
+		
 				filtersContainer.addClass('collapsed');
 				filtersContainer.css('height', '0');
 			}
 		});
 
-		// Optional: Remember state
+		
 		if(localStorage.getItem('filtersCollapsed') === 'true') {
 			filterToggle.addClass('collapsed');
 			filtersContainer.addClass('collapsed').css('height', '0');
