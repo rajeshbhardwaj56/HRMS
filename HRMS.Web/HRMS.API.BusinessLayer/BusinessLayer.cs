@@ -5578,10 +5578,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                         EmployeeId = row.Field<long?>("EmployeeID"),
                         ID = row.Field<long?>("ID"),
                         EmployeNumber = row.Field<string>("EmployeNumber"),
-                        EmployeeName = row.Field<string>("EmployeeName"),
-                       
-                      
-                       
+                        EmployeeName = row.Field<string>("EmployeeName"),                                                               
                         WorkDate = row.Field<DateTime>("WorkDate"),
                         Status = row.Field<string>("AttendanceStatus"),        
                         Remarks = row.Field<string>("Remarks")       
@@ -5615,6 +5612,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
           new SqlParameter("@Status", att.AttendanceStatus),
           new SqlParameter("@UserID ", att.UserID),
           new SqlParameter("@ApprovedByAdmin ", att.ApprovedByAdmin),
+          new SqlParameter("@ApprovedStatus ", att.ApprovedStatus),
           new SqlParameter("@Remarks", string.IsNullOrEmpty(att.Remarks) ? (object)DBNull.Value : att.Remarks),
       };
 

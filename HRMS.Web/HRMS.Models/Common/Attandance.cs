@@ -206,6 +206,8 @@ namespace HRMS.Models.Common
         public string? Remarks { get; set; }
         public string? AttendanceStatus { get; set; }
         public bool? ApprovedByAdmin { get; set; }
+
+        public int? ApprovedStatus { get; set; }
     }
 
     public class AttendanceRecordDto
@@ -216,6 +218,7 @@ namespace HRMS.Models.Common
         public string? Remarks { get; set; }
         public string? AttendanceStatus { get; set; }
         public bool? ApprovedByAdmin { get; set; }
+        public int? ApprovedStatus { get; set; }
 
     }
 }

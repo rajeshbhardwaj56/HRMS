@@ -242,9 +242,7 @@
 			</select>
 		</div>
 
-		<!-- Page Size -->
-		<!-- Job Location Dropdown -->
-		<!-- Export Button -->
+	
 		<div class="d-flex align-items-center">
 			<label for="export-from-date" class="me-2 mb-0">From:</label>
 			<input type="date" id="export-from-date" class="form-control" style="width: 150px;"
@@ -499,7 +497,11 @@
 			alert("Please select a status before saving.");
 			return;
 		}
-
+		if(!remarks)
+		{
+			alert("Please enter comment before saving..");
+			return;
+		}
 		$.ajax({
 			url: '/employee/Attendance/SaveAttendanceStatus',
 			type: 'POST',
@@ -510,7 +512,7 @@
 				WorkDate: workDate
 			},
 			success: function (response) {
-				debugger;
+		
 				if ( response.data.pkNo > 0) {
 					alert("Attendance status updated successfully!");
 					$("#attendanceDetailModal").modal("hide");

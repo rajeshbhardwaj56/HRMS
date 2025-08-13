@@ -10,11 +10,16 @@
     Attendance Approval List
 </div>
 
-<div class="mb-3">
-    <button id="btnApproveSelected" class="btn btn-success btn-sm">
-        Approve Selected
+<div class="mb-3 d-flex gap-2">
+    <select id="ddlAttendanceStatus" class="form-select form-select-sm" style="width:auto;">
+        <option value="">-- Select Status --</option>
+        <option value="1">Approved</option>
+        <option value="2">Rejected</option>
+    </select>
+
+    <button id="btnUpdateSelected" class="btn btn-primary btn-sm">
+        Update Selected
     </button>
-  
 </div>
 
 <div class="table-responsive py-3">
@@ -81,11 +86,17 @@
             $('.row-select').prop('checked', this.checked);
         });
 
-           $('#btnApproveSelected').on('click', function () {
+           $('#btnUpdateSelected').on('click', function () {
         const table = $('#tblAttendanceApproval').DataTable();
+        const selectedStatus = $('#ddlAttendanceStatus').val();
         const selectedRecords = [];
         const checkedRows = $('#tblAttendanceApproval .row-select:checked');
 
+        
+    if (!selectedStatus) {
+        toastEMessage('Error', 'Please select a status (Approved/Rejected)');
+        return;
+    }
         
         checkedRows.each(function () {
 
@@ -95,7 +106,8 @@
                 EmployeeId: rowData.employeeId,
                 WorkDate: rowData.workDate, 
                 AttendanceStatus: rowData.attendanceStatus,
-                Remarks: rowData.remarks || "Approved by manager"
+                Remarks: rowData.remarks,
+                ApprovedStatus: selectedStatus,
             });
         });
 

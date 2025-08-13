@@ -1246,12 +1246,14 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                     var attendanceRequest = new SaveTeamAttendanceStatus
                     {
                         EmployeeId = record.EmployeeId,
-                         ID =record.ID,
+                        ID =record.ID,
                         UserID = currentEmployeeId,
                         WorkDate = record.WorkDate.Value,
-                        AttendanceStatus = record.AttendanceStatus ?? "Approved",
-                        Remarks = record.Remarks ?? "Approved by manager",
-                        ApprovedByAdmin = true
+                        AttendanceStatus = record.AttendanceStatus ,
+                        Remarks = record.Remarks, 
+                        ApprovedByAdmin = true,
+                        ApprovedStatus =record.ApprovedStatus 
+
                     };
                     var apiUrl = _businessLayer.GetFormattedAPIUrl(
                             APIControllarsConstants.AttendenceList,
