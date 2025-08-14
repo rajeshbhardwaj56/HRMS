@@ -609,7 +609,7 @@
 				dataType: 'json',
 				success: function(response) {
 					if (response && response.data) {
-				debugger;
+			
 						populateAgentDropdown(response.data);
 						if (isEditMode && initialEmployeeID) {
 							$('#agentTypeDropdown').val(initialEmployeeID).trigger('change');

@@ -643,7 +643,7 @@
 
 		  if (currentView === 'agendaWeek') {
 			if (item.firstLogDate) {
-			  // Time-bound event for week view
+			  
 			  return { 
 				start: item.firstLogDate.replace(' ', 'T'),
 				end: item.lastLogDate ? item.lastLogDate.replace(' ', 'T') : null,
@@ -659,7 +659,6 @@
 			  };
 			}
 		  } else {
-			// Month view: all-day event
 			return {
 			  title: item.status,
 			  start: item.date,

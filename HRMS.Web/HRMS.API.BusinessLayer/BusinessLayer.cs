@@ -2029,50 +2029,88 @@ namespace HRMS.API.BusinessLayer
                 var attendanceTable = dataSet.Tables[2];
                 dashBoardModel.AttendanceModel = new List<AttendanceModel>();
 
-
-                // Check if role ID is 2 or 5
-                bool includeLevel2 = model.RoleID == 2 || model.RoleID == 5;
-
-                foreach (DataRow row in attendanceTable.Rows)
+                bool isDetailedReport = attendanceTable.Columns.Contains("EmployeeName");
+                if (isDetailedReport)
                 {
-                    int level = row.Field<int>("Level");
+                    bool includeLevel2 = model.RoleID == 2 || model.RoleID == 5;
 
-                    // Include Level 1 for all, and Level 2 only if role is 2 or 5
-                    if (level == 1 || (includeLevel2 && level == 2))
+                    foreach (DataRow row in attendanceTable.Rows)
+                    {
+                        int level = row.Field<int>("Level");
+                        if (level == 1 || (includeLevel2 && level == 2))
+                        {
+                            var attendance = new AttendanceModel
+                            {
+                                EmployeeId = row.Field<long>("EmployeeID"),
+                                EmployeeNumber = row.Field<string>("EmployeNumber"),
+                                EmployeeName = row.Field<string>("EmployeeName"),
+                                ManagerName = row.Field<string>("ManagerName"),
+                                Designation = row.Field<string>("Designation"),
+                                Department = row.Field<string>("Department"),
+                                Level = level,
+                                AttendanceStatus = row.Field<string>("AttendanceStatus"),
+                                ReferenceDate = row.Field<DateTime>("ReferenceDate"),
+                                TotalPresent = row.Field<int>("TotalPresent"),
+                                TotalAbsent = row.Field<int>("TotalAbsent"),
+                                TotalLeaves = row.Field<int>("TotalLeave"),
+                                TotalHoliday = row.Field<int>("TotalHoliday"),
+                                TotalWeekOff = row.Field<int>("TotalWeekOff")
+                            };
+
+                            dashBoardModel.AttendanceModel.Add(attendance);
+                        }
+                    }
+
+                }
+                else
+                {
+                    foreach (DataRow row in attendanceTable.Rows)
                     {
                         var attendance = new AttendanceModel
                         {
-                            EmployeeId = row.Field<long>("EmployeeID"),
-                            EmployeeNumber = row.Field<string>("EmployeNumber"),
-                            EmployeeName = row.Field<string>("EmployeeName"),
-                            ManagerName = row.Field<string>("ManagerName"),
-                            Designation = row.Field<string>("Designation"),
-                            Department = row.Field<string>("Department"),
-                            Level = level,
-                            AttendanceStatus = row.Field<string>("AttendanceStatus"),
-                            ReferenceDate = row.Field<DateTime>("ReferenceDate"),
-                            TotalPresent = row.Field<int>("TotalPresent"),
-                            TotalAbsent = row.Field<int>("TotalAbsent"),
-                            TotalLeaves = row.Field<int>("TotalLeave"),
-                            TotalHoliday = row.Field<int>("TotalHoliday"),
-                            TotalWeekOff = row.Field<int>("TotalWeekOff")
+                            Day = row.Field<DateTime>("Day"),
+                            Present = row.Field<int>("Present"),
+                            Absent = row.Field<int>("Absent"),
+                            Leaves = row.Field<int>("Leave"),
+                            PresentByLocation = new Dictionary<string, int>(),
+                            AbsentByLocation = new Dictionary<string, int>()
                         };
+
+                        foreach (DataColumn column in attendanceTable.Columns)
+                        {
+                            if (column.ColumnName.EndsWith("_Present"))
+                            {
+                                var location = column.ColumnName.Replace("_Present", "");
+                                int present = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                                attendance.PresentByLocation[location] = present;
+                            }
+                            else if (column.ColumnName.EndsWith("_Absent"))
+                            {
+                                var location = column.ColumnName.Replace("_Absent", "");
+                                int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                                attendance.AbsentByLocation[location] = absent;
+                            }
+                            else if (column.ColumnName.EndsWith("_Leave"))
+                            {
+                                var location = column.ColumnName.Replace("_Leave", "");
+                                int absent = row.IsNull(column) ? 0 : Convert.ToInt32(row[column]);
+                                attendance.LeaveByLocation[location] = absent;
+                            }
+                        }
 
                         dashBoardModel.AttendanceModel.Add(attendance);
                     }
                 }
 
-
-
-                dashBoardModel.EmployeeDetails = dataSet.Tables[3].AsEnumerable()
-     .Select(dataRow => new EmployeeDetails
-     {
-         EmployeeId = dataRow.Field<long>("EmployeeId"),
-         FirstName = dataRow.Field<string>("EmployeeFirstName"),
-         LastName = dataRow.Field<string>("EmployeeLastName"),
-         DOB = dataRow.Field<DateTime?>("EmployeeDOB"),  // Nullable DateTime
-         EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
-     }).ToList();
+                    dashBoardModel.EmployeeDetails = dataSet.Tables[3].AsEnumerable()
+         .Select(dataRow => new EmployeeDetails
+         {
+             EmployeeId = dataRow.Field<long>("EmployeeId"),
+             FirstName = dataRow.Field<string>("EmployeeFirstName"),
+             LastName = dataRow.Field<string>("EmployeeLastName"),
+             DOB = dataRow.Field<DateTime?>("EmployeeDOB"),  // Nullable DateTime
+             EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
+         }).ToList();
 
 
                 var LeaveDetails = dataSet.Tables[4].AsEnumerable()

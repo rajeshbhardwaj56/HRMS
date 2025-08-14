@@ -121,7 +121,14 @@ namespace HRMS.Models.Common
         Manager,
         SuperAdmin = 5
     }
-       public enum PageName
+
+    public enum EmploymentType
+    {
+        CCE = 4,
+        FieldTracker = 5,
+       
+    }
+    public enum PageName
     {
         EmployeeListing = 2,
         MyInfo=3,

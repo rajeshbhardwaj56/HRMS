@@ -1,10 +1,12 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using HRMS.Models.Common
+@using Microsoft.AspNetCore.Http
 @using Microsoft.Extensions.Configuration
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject IConfiguration _configuration
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	ViewData["Title"] = "Team Attendance Report";
+	
 }
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
@@ -26,12 +28,12 @@
 	}
 
 	.small-table table {
-		font-size: 8px; /* adjust as needed */
+		font-size: 8px; 
 	}
 
 	.small-table th,
 	.small-table td {
-		padding: 4px 6px; /* optional, reduces table padding */
+		padding: 4px 6px; 
 	}
 
 	span.Pending.status-badge {
@@ -209,17 +211,17 @@
 				   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
 			</div>
 		</div>
-		<!-- Search Input -->
+
 		<div class="d-flex align-items-center" style="min-width: 300px;">
 			<label for="search-box" class="me-2 mb-0">Search:</label>
 			<input type="text" id="search-box" class="form-control" placeholder="Search by name or employee no..." style="max-width: 300px;">
 		</div>
 
-		<!-- Year Selector -->
+	
 		<div class="d-flex align-items-center">
 			<label for="year-select" class="me-2 mb-0">Year:</label>
 			<select id="year-select" class="form-select" style="width: 120px;">
-				<!-- Dynamically populated -->
+				
 			</select>
 		</div>
 
@@ -268,8 +270,8 @@
 				<tr id="header-row">
 					<th>Employee ID</th>
 					<th>Emp No</th>
-					<th>  Name</th>
-					<th>  Location </th>
+					<th>Name</th>
+					<th>Location </th>
 				</tr>
 			</thead>
 			<tbody id="attendance-data">
@@ -299,7 +301,7 @@
 		</div>
 	</div>
 </div>
-
+<input type="hidden" id="hdnRoleName" value="@Convert.ToInt64(Context.Session.GetString(Constants.RoleID))" />
 <script>
 	$(document).ready(function() {
 		const filterToggle = $('#filterToggle');
@@ -484,22 +486,72 @@
 		  return `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m` : ''}`.trim() || '0m';
 		}
 
+		function exportAttendance() {
+		const fromDate = $("#export-from-date").val();
+		const toDate = $("#export-to-date").val();
+		
+		if (!fromDate || !toDate) {
+			alert("Please select both 'From' and 'To' dates.");
+			return;
+		}
+
+		const fromDateObj = new Date(fromDate);
+		const toDateObj = new Date(toDate);
+
+		
+		if (toDateObj < fromDateObj) {
+			alert("'To Date' cannot be before 'From Date'. Please select valid dates.");
+			return;
+		}
+		const jobLocationId = parseInt($("#jobLocationDropdown").val()) || 0;
+		const url = `/employee/MyInfo/ExportAttendance?FromDate=${fromDate}&ToDate=${toDate}&JobLocationID=${jobLocationId}`;
+		const $btn = $("#export-btn");
+		$btn.prop("disabled", true).text("Please wait...");
+
+	
+		const $iframe = $("<iframe>").hide().attr("src", url).appendTo("body");
+
+		
+		setTimeout(() => {
+			$btn.prop("disabled", false).text("Export Attendance");
+			$iframe.remove();
+		}, 6000);
+	}
+		function toastEMessage(type, message) {
+		$.toast({
+			heading: type,
+			text: message,
+			showHideTransition: 'slide',
+			icon: 'error',
+			position: 'top-right',
+		});
+	}
+
+	function toastMessage(type, message) {
+		$.toast({
+			heading: type,
+			text: message,
+			showHideTransition: 'slide',
+			icon: 'success',
+			position: 'top-right',
+		});
+	}
 		$(document).ready(function () {
 
-				$(document).on("click", "#saveStatusChange", function () {
-					
+				$(document).on("submit", "#statusForm", function (e) {
+					 e.preventDefault();
 		const status = $("#statusSelect").val();
 		const remarks = $("#statusComment").val();
 		const workDate = $("#attendanceDetailModal").data("workdate"); 
 		const employeeId = $("#attendanceDetailModal").data("employeeid");
 
 		if (!status) {
-			alert("Please select a status before saving.");
+			 toastEMessage('Error', "Please select a status before saving.");
 			return;
 		}
 		if(!remarks)
 		{
-			alert("Please enter comment before saving..");
+			toastEMessage('Error',"Please enter comment before saving..");
 			return;
 		}
 		$.ajax({
@@ -514,16 +566,16 @@
 			success: function (response) {
 		
 				if ( response.data.pkNo > 0) {
-					alert("Attendance status updated successfully!");
+					toastMessage( 'Success',"Attendance status updated successfully!");
 					$("#attendanceDetailModal").modal("hide");
 					
 					fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
 				} else {
-					alert(response.data?.Message || "Failed to update attendance.");
+					toastEMessage('Error', "Failed to update attendance.");
 				}
 			},
 			error: function (xhr, status, error) {
-				alert("Error while saving status: " + error);
+				toastEMessage('Error', "Failed to update attendance.");
 			}
 		});
 	});
@@ -618,8 +670,8 @@
 			$.get('/employee/MyInfo/GetAttendanceDetails', { date: fullDate, employeeId: empId, employeeNo: empNo }, function (data) {
 			  let html = "";
 
-			   const getStatusColor = (status) => {
-		switch (status?.toLowerCase()) {
+			const getStatusColor = (status) => {
+		    switch (status?.toLowerCase()) {
 			case 'present': return '#28a745'; 
 			case 'absent': return '#dc3545';  
 			case 'leave': return '#ffc107';  
@@ -628,11 +680,47 @@
 		}
 	};
 
-	const renderStatusEditor = () => `
+	const today = new Date();
+
+		function canEditStatus(workDateStr) {
+		
+			const RoleName = parseInt(document.getElementById('hdnRoleName').value);
+			if (RoleName === 5) {
+		return true;
+	}
+
+		const workDate = new Date(workDateStr); 
+
+		if (workDate > today) return false;
+		
+		let payrollStart, payrollEnd, cutoffDate;
+
+		if (workDate.getDate() >= 21) {			
+			payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
+			payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
+			cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 25);
+		} else {
+			
+			payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
+			payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
+			cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 25);
+		}
+
+		
+		return today <= cutoffDate;
+	}
+
+
+	const renderStatusEditor = (fullDate) => 
+	{
+	if (!canEditStatus(fullDate)) return ""; // Don't render editor if not allowed
+
+	return `
+	<form id="statusForm">
 		<div class="row mb-2">
 			<div class="col-md-6">
 				<label for="statusSelect"><strong>Change Status:</strong></label>
-				<select class="form-control" id="statusSelect">
+				<select class="form-control" id="statusSelect" required>
 					<option value="">Select status</option>
 					<option value="P">Present</option>
 					<option value="A">Absent</option>					
@@ -642,13 +730,15 @@
 			</div>
 			<div class="col-md-6">
 				<label for="statusComment"><strong>Comment:</strong></label>
-				<textarea class="form-control" id="statusComment" placeholder="Write comment..."></textarea>
+				<textarea class="form-control" id="statusComment" placeholder="Write comment..."required></textarea>
 			</div>
 		</div>
 		<div class="text-end mt-2">
 			<button class="btn btn-primary" id="saveStatusChange">💾 Save Status</button>
 		</div>
+		</form>
 	`;
+	};
 
 
 			  switch (data.recordType) {
@@ -695,56 +785,28 @@
 		  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
 
 		</div>
-		  ${renderStatusEditor()}
+		  ${renderStatusEditor(fullDate)}
 	  </div>
 	</div>
 
 	`;
 					  break;
 				case "Holiday":
-				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusEditor()}</div></div>`;
+				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusEditor(fullDate)}</div></div>`;
 				  break;
 				case "Leave":
-				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>   ${renderStatusEditor()}</div></div>`;
+				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>   ${renderStatusEditor(fullDate)}</div></div>`;
 				  break;
 				default:
-				  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>${renderStatusEditor()}`;
+				  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>${renderStatusEditor(fullDate)}`;
 			  }
 			  $("#attendanceDetailBody").html(html);
 			});
 		  });
-		$("#export-btn").on("click", function () {
-
-					  const fromDate = $("#export-from-date").val();
-			const toDate = $("#export-to-date").val();
-
-			if (!fromDate || !toDate) {
-				alert("Please select both 'From' and 'To' dates.");
-				return;
-			}
-				  const fromDateObj = new Date(fromDate);
-			const toDateObj = new Date(toDate);
-
-			// Check if To Date is before From Date
-			if (toDateObj < fromDateObj) {
-				alert("'To Date' cannot be before 'From Date'. Please select valid dates.");
-				return;
-			}
-			const jobLocationId = parseInt($("#jobLocationDropdown").val()) || 0;
-			const $btn = $(this);
 
 
-			const url = `/employee/MyInfo/ExportAttendance?FromDate=${fromDate}&ToDate=${toDate}&JobLocationID=${jobLocationId}`;
-
-			$btn.prop("disabled", true).text("Please wait...");
-			const $iframe = $("<iframe>").hide().attr("src", url).appendTo("body");
-
-			setTimeout(() => {
-				$btn.prop("disabled", false).text("Export Attendance");
-				$iframe.remove();
-			}, 6000);
-
-		 });
+		
+		$("#export-btn").on("click", exportAttendance);
 	});
 </script>
 

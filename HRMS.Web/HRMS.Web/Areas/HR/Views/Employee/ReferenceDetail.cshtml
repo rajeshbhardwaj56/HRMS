@@ -157,7 +157,7 @@
         }
                 $.post('/HR/Employee/DeleteReferenceDetail', { encodedId: id }, function (response) {
                     if (response.success) {
-                        debugger;
+                     
                           const currentReferenceId = $('#ReferenceDetailID').val();
             if (currentReferenceId == id) {
                 $('#ReferenceDetailID').val('');
