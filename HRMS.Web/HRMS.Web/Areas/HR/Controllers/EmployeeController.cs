@@ -1172,8 +1172,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             if (!string.IsNullOrEmpty(response))
             {
-
-
                 return Json(new { success = true, message = response });
             }
 
@@ -1189,8 +1187,8 @@ namespace HRMS.Web.Areas.HR.Controllers
                 EmployeeID = decodedEmployeeId
             };
             return View(model);
-        }
 
+        }
         [HttpPost]
         public JsonResult GetReferenceDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
         {
@@ -1443,19 +1441,19 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             var employeeId = GetSessionInt(Constants.EmployeeID);
             var roleId = GetSessionInt(Constants.RoleID);
-            // Check if the user has permission for Employee Listing
+            
             var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.WeekOffRoster);
-            // If no permission and not an admin
+            
             if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
             {
-                // Check if user has permission for My Team page
+                
                 var teamPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
-                // Redirect to My Team page if user is not an employee and has permission
+               
                 if (roleId != (int)Roles.Employee && teamPermission.HasPermission > 0)
                 {
                     return RedirectToAction("GetTeamEmployeeList", "MyInfo", new { area = "employee" });
                 }
-                // Else, log the user out and redirect to home
+                
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
@@ -1612,9 +1610,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     return Unauthorized(new { success = false, message = "Session expired. Please log in again." });
                 }
-
                 var employeeId = Convert.ToInt64(employeeIdString);
-
                 if (model.EmployeeNumberWithOutAbbr == null)
                 {
                     model.EmployeeNumber = model.EmployeeIdWithEmployeeNo.Split('_')[1];
@@ -1623,8 +1619,8 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     model.EmployeeNumber = model.EmployeeNumberWithOutAbbr;
                 }
-                int currentDay = DateTime.Today.Day;
-                model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
+                //int currentDay = DateTime.Today.Day;
+                //model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
 
                 var weekOffUploadModel = new WeekOffUploadModelList
                     {
@@ -1703,15 +1699,15 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             var errors = new List<string>();
 
-            // ✅ Build a dictionary: EmployeeNumber => List of row numbers where it appears
+          
             var employeeNumberToRows = new Dictionary<string, List<int>>();
             for (int i = 0; i < models.Count; i++)
             {
                 var item = models[i];
-                var rowNum = i + 2; // Excel rows start at 2
+                var rowNum = i + 2; 
 
                 if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
-                    continue; // skip invalid or empty EmployeeNumber
+                    continue; 
 
                 var key = item.EmployeeNumber;
                 if (!employeeNumberToRows.ContainsKey(key))
@@ -1720,7 +1716,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employeeNumberToRows[key].Add(rowNum);
             }
 
-            // ✅ Report duplicates with their row numbers
+            
             var duplicatesWithRows = employeeNumberToRows
                 .Where(kvp => kvp.Value.Count > 1)
                 .ToList();
@@ -1742,21 +1738,20 @@ namespace HRMS.Web.Areas.HR.Controllers
                 if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
                 {
                     errors.Add($"Row {rowNum}: Missing or invalid EmployeeNumber.");
-                    continue; // Skip further checks if EmployeeNumber is missing
+                    continue; 
                 }
 
-                // ✅ Collect week-off dates into one list
+             
                 var weekOffDates = new List<DateTime>();
-                AddDateIfValid(weekOffDates, item.WeekOff1, rowNum, "WeekOff1", errors);
-                AddDateIfValid(weekOffDates, item.WeekOff2, rowNum, "WeekOff2", errors);
-                AddDateIfValid(weekOffDates, item.WeekOff3, rowNum, "WeekOff3", errors);
-                AddDateIfValid(weekOffDates, item.WeekOff4, rowNum, "WeekOff4", errors);
-
-                // ✅ Check that at least one date was filled
+                AddDateIfValid(weekOffDates, item.DayOff1, rowNum, "DayOff1", errors);
+                AddDateIfValid(weekOffDates, item.DayOff2, rowNum, "DayOff2", errors);
+                AddDateIfValid(weekOffDates, item.DayOff3, rowNum, "DayOff3", errors);
+               
+             
                 if (!weekOffDates.Any())
                     errors.Add($"Row {rowNum}: At least one WeekOff date must be filled in.");
 
-                // ✅ Check for duplicate dates within this row
+               
                 var duplicateDates = weekOffDates
                     .GroupBy(d => d)
                     .Where(g => g.Count() > 1)

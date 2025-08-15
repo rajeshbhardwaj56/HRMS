@@ -35,24 +35,10 @@
 				<select class="form-select custom-select" id="yearDropdown"></select>
 			</div>
 		</div>
-		<div class="col-md-2">
-			<label for="monthDropdown">Month</label>
+		<div class="col-md-4">
+			<label for="dayDropdown">Day</label>
 			<div class="custom-select-wrapper">
-				<select class="form-select custom-select" id="monthDropdown">
-					<option value="">--Months--</option>
-					<option value="1">January</option>
-					<option value="2">February</option>
-					<option value="3">March</option>
-					<option value="4">April</option>
-					<option value="5">May</option>
-					<option value="6">June</option>
-					<option value="7">July</option>
-					<option value="8">August</option>
-					<option value="9">September</option>
-					<option value="10">October</option>
-					<option value="11">November</option>
-					<option value="12">December</option>
-				</select>
+				<select class="form-select custom-select" id="weekDropdown"></select>
 			</div>
 		</div>
 	</div>
@@ -65,12 +51,6 @@
 				<th>WeekOff 1</th>
 				<th>WeekOff 2</th>
 				<th>WeekOff 3</th>
-				<th>WeekOff 4</th>
-				<th>WeekOff 5</th>
-				<th>WeekOff 6</th>
-				<th>WeekOff 7</th>
-				<th>WeekOff 8</th>
-				<th>WeekOff 9</th>
 				<th>Modified By</th>
 				<th>ModifiedDate</th>
 				<th>Action</th>
@@ -80,6 +60,100 @@
 </div>
 
 <script type="text/javascript">
+
+	 function populateWeekDropdown(year) {
+		const weekDropdown = $('#weekDropdown');
+		weekDropdown.empty();
+		weekDropdown.append($('<option>').val('').text('-- Select Week --'));
+
+		const weekRanges = getWeekRanges(year);
+		const today = new Date();
+		let selectedValue = null;
+
+
+		weekRanges.forEach(w => {
+			const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
+			const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
+
+
+			  const start = new Date(convertToISO(w.startDate));
+		const end = new Date(convertToISO(w.endDate));
+
+
+		if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && today >= start && today <= end) {
+			selectedValue = value;
+		}
+
+			weekDropdown.append($('<option>').val(value).text(label));
+		});
+
+		 if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && selectedValue) {
+		weekDropdown.val(selectedValue).trigger('change');
+	}
+	}
+
+	 function getWeekRanges(year) {
+		const weeks = [];
+		const firstMonday = getFirstMondayOfYear(year);
+
+		let current = new Date(firstMonday);
+		let week = 1;
+
+		while (current.getFullYear() === year) {
+			const start = new Date(current);
+			const end = new Date(current);
+			end.setDate(end.getDate() + 6);
+
+			weeks.push({
+				weekNumber: week,
+				startDate: formatDate(start),
+				endDate: formatDate(end)
+			});
+
+			current.setDate(current.getDate() + 7);
+			week++;
+		}
+
+
+		const start = new Date(current);
+		const end = new Date(current);
+		end.setDate(end.getDate() + 6);
+		if (start.getFullYear() === year) {
+			weeks.push({
+				weekNumber: week,
+				startDate: formatDate(start),
+				endDate: formatDate(end)
+			});
+		}
+
+		return weeks;
+	}
+	   function getFirstMondayOfYear(year) {
+		const date = new Date(year, 0, 1); // Jan 1
+		const day = date.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+		const diff = (day === 0) ? 1 : (8 - day); // days to next Monday
+		date.setDate(date.getDate() + (day === 1 ? 0 : diff));
+		return date;
+	}
+
+	   function formatDate(date) {
+		return date.toLocaleDateString('en-GB', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric'
+		});
+	}
+	 function convertToISO(dateStr) {
+		const parts = dateStr.split(' ');
+		const day = parts[0];
+		const month = {
+			Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+			Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+		}[parts[1]];
+		const year = parts[2];
+		return `${year}-${month}-${day.padStart(2, '0')}`;
+	}
+
 	$(document).ready(function () {
 		// Populate year dropdown and set current year/month
 		var currentDate = new Date();
@@ -92,8 +166,9 @@
 			var selected = (y === currentYear) ? 'selected' : '';
 			yearDropdown.append('<option value="' + y + '" ' + selected + '>' + y + '</option>');
 		}
-
-		$('#monthDropdown').val(currentMonth);
+		const selectedYear = parseInt($('#yearDropdown').val());
+	    populateWeekDropdown(selectedYear);
+	
 
 		// Initialize DataTable
 		var table = $('#tblEmployeeWeekOffListing').DataTable({
@@ -199,7 +274,7 @@
 		});
 
 		// Reload table when dropdowns change
-		$('#yearDropdown, #monthDropdown').change(function () {
+		$('#yearDropdown, #weekDropdown').change(function () {
 			table.ajax.reload();
 		});
 	});

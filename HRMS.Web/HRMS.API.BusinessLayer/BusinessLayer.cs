@@ -2024,8 +2024,6 @@ namespace HRMS.API.BusinessLayer
                                       NoOfEmployees = dataRow.Field<int>("NoOfEmployees"),
                                   }).ToList().FirstOrDefault();
 
-
-
                 var attendanceTable = dataSet.Tables[2];
                 dashBoardModel.AttendanceModel = new List<AttendanceModel>();
 
@@ -5356,41 +5354,28 @@ namespace HRMS.API.BusinessLayer
         public DataTable CreateWeekOffDataTable(List<WeekOffUploadModel> models)
         {
             var dt = new DataTable();
-            dt.Columns.Add("EmployeeNumber", typeof(string)); // Corrected: should be string
-            dt.Columns.Add("WeekOff1", typeof(DateTime));
-            dt.Columns.Add("WeekOff2", typeof(DateTime));
-            dt.Columns.Add("WeekOff3", typeof(DateTime));
-            dt.Columns.Add("WeekOff4", typeof(DateTime));
-            dt.Columns.Add("WeekOff5", typeof(DateTime));
-            dt.Columns.Add("WeekOff6", typeof(DateTime));
-            dt.Columns.Add("WeekOff7", typeof(DateTime));
-            dt.Columns.Add("WeekOff8", typeof(DateTime));
-            dt.Columns.Add("WeekOff9", typeof(DateTime));
+            dt.Columns.Add("EmployeeNumber", typeof(string));
+            dt.Columns.Add("WeekStartDate", typeof(DateTime));
+            dt.Columns.Add("DayOff1", typeof(DateTime));
+            dt.Columns.Add("DayOff2", typeof(DateTime));
+            dt.Columns.Add("DayOff3", typeof(DateTime));
             dt.Columns.Add("ShiftId", typeof(long));
-            dt.Columns.Add("RosterMonth", typeof(DateTime));
 
             foreach (var item in models)
             {
                 var row = dt.NewRow();
-
-                // EmployeeNumber fallback logic: choose EmployeeNumber if not null/empty, else EmployeeNumberWithOutAbbr
+              
                 var employeeNumber = !string.IsNullOrWhiteSpace(item.EmployeeNumber)
                     ? item.EmployeeNumber
                     : item.EmployeeNumberWithOutAbbr ?? string.Empty;
 
                 row["EmployeeNumber"] = employeeNumber;
 
-                row["WeekOff1"] = item.WeekOff1 ?? (object)DBNull.Value;
-                row["WeekOff2"] = item.WeekOff2 ?? (object)DBNull.Value;
-                row["WeekOff3"] = item.WeekOff3 ?? (object)DBNull.Value;
-                row["WeekOff4"] = item.WeekOff4 ?? (object)DBNull.Value;
-                row["WeekOff5"] = item.WeekOff5 ?? (object)DBNull.Value;
-                row["WeekOff6"] = item.WeekOff6 ?? (object)DBNull.Value;
-                row["WeekOff7"] = item.WeekOff7 ?? (object)DBNull.Value;
-                row["WeekOff8"] = item.WeekOff8 ?? (object)DBNull.Value;
-                row["WeekOff9"] = item.WeekOff9 ?? (object)DBNull.Value;
-                row["ShiftId"] = item.ShiftTypeId ?? 0; // Assuming ShiftTypeId is long (non-nullable), else use ?? 0 if ShiftTypeId is nullable long?
-                row["RosterMonth"] = item.RosterMonth ?? (object)DBNull.Value;
+                row["WeekStartDate"] = item.WeekStartDate ?? (object)DBNull.Value;
+                row["DayOff1"] = item.DayOff1 ?? (object)DBNull.Value;
+                row["DayOff2"] = item.DayOff2 ?? (object)DBNull.Value;
+                row["DayOff3"] = item.DayOff3 ?? (object)DBNull.Value;
+                row["ShiftId"] = item.ShiftTypeId ?? 0;
                 dt.Rows.Add(row);
             }
 

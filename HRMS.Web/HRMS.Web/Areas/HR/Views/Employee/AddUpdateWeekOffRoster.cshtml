@@ -10,9 +10,9 @@
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	ViewData["Title"] = "WeekOff Upload  List";
     DateTime? initialDate = null;
-    if (Model.WeekOff1.HasValue) initialDate = Model.WeekOff1;
-    else if (Model.WeekOff2.HasValue) initialDate = Model.WeekOff2;
-    else if (Model.WeekOff3.HasValue) initialDate = Model.WeekOff3;
+    if (Model.DayOff1.HasValue) initialDate = Model.DayOff1;
+    else if (Model.DayOff2.HasValue) initialDate = Model.DayOff2;
+    else if (Model.DayOff3.HasValue) initialDate = Model.DayOff3;
     
 
     initialDate ??= DateTime.Today;
@@ -20,8 +20,8 @@
     var selectedMonth = initialDate.Value.Month;
     var selectedYear = initialDate.Value.Year;
     int currentYear = DateTime.Today.Year;
- 
-        
+
+    
 }
  
 
@@ -42,10 +42,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-3 form-group">
-                    <label>Select Week<span class="Mandetory">*</span></label>
-                    <select id="weekDropdown" class="form-select" required></select>
-                </div>
+               
 
           
                 <div class="col-md-3 form-group position-relative">
@@ -64,6 +61,10 @@
 
                     <select id="ShiftTypeId" class="form-select"></select>
 
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Select Week<span class="Mandetory">*</span></label>
+                    <select id="weekDropdown" class="form-select" required></select>
                 </div>
             </div>
             @Html.HiddenFor(m => m.SelectedMonth, new { id = "HiddenSelectedMonth" })
@@ -85,7 +86,7 @@
             <div class="row d-flex">
                 <div class="col-md-4 form-group">
                     <label>WeekOff 1 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff1, "{0:yyyy-MM-dd}", new
+                    @Html.TextBoxFor(a => a.DayOff1, "{0:yyyy-MM-dd}", new
                         {
                             @class = "form-control",
                             @type = "date",
@@ -94,7 +95,7 @@
                 </div>
                 <div class="col-md-4 form-group">
                     <label>WeekOff 2 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff2, "{0:yyyy-MM-dd}", new
+                    @Html.TextBoxFor(a => a.DayOff2, "{0:yyyy-MM-dd}", new
                         {
                             @class = "form-control",
                             @type = "date",
@@ -103,7 +104,7 @@
                 </div>
                 <div class="col-md-4 form-group">
                     <label>WeekOff 3 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.WeekOff3, "{0:yyyy-MM-dd}", new
+                    @Html.TextBoxFor(a => a.DayOff3, "{0:yyyy-MM-dd}", new
                         {
                             @class = "form-control",
                             @type = "date",

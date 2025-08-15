@@ -13,6 +13,10 @@ namespace HRMS.Models.ExportEmployeeExcel
         public string? EmployeeNumber { get; set; }
         public long? EmployeeId { get; set; }
         public string? EmployeeIdWithEmployeeNo { get; set; }
+        public DateTime? WeekStartDate { get; set; }
+        public DateTime? DayOff1 { get; set; }
+        public DateTime? DayOff2 { get; set; }
+        public DateTime? DayOff3 { get; set; }
         public DateTime? WeekOff1 { get; set; }
         public DateTime? WeekOff2 { get; set; }
         public DateTime? WeekOff3 { get; set; }
@@ -34,8 +38,9 @@ namespace HRMS.Models.ExportEmployeeExcel
         public string? EmployeeNumberWithOutAbbr { get; set; }
         public int? SelectedMonth { get; set; }
         public int? SelectedYear { get; set; }
-        public DateTime? WeekStartDate { get; set; }
         public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
+
+
     }
 
     public class WeekOffUploadModelList
