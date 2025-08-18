@@ -1357,7 +1357,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
         [HttpPost]
-        public async Task<IActionResult> UploadRosterExcel(IFormFile file, int month, int year)
+        public async Task<IActionResult> UploadRosterExcel(IFormFile file, int month, DateTime week)
         {
             string tempFilePath = null;
             try
@@ -1374,7 +1374,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var dataTable = ReadExcelToDataTable(tempFilePath);
 
                 // Convert DataTable to strongly-typed model list
-                var modelList =await ConvertDataTableToModelList(dataTable, month, year);
+                var modelList =await ConvertDataTableToModelList(dataTable, month, week);
 
                 // Validate model list
                 var validationError = ValidateModelList(modelList);
@@ -1455,7 +1455,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return dt;
         }
-        private async Task<List<WeekOffUploadModel>> ConvertDataTableToModelList(DataTable dt, int month, int year)
+        private async Task<List<WeekOffUploadModel>> ConvertDataTableToModelList(DataTable dt, int month, DateTime  weekStartDate)
         {
             var list = new List<WeekOffUploadModel>();
 
@@ -1466,15 +1466,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     var model = new WeekOffUploadModel
                     {
                         EmployeeNumber = row["EmployeeNumber"]?.ToString() ?? "0",
-                        WeekOff1 = ParseDateIfColumnExists(dt, row, "WeekOff1"),
-                        WeekOff2 = ParseDateIfColumnExists(dt, row, "WeekOff2"),
-                        WeekOff3 = ParseDateIfColumnExists(dt, row, "WeekOff3"),
-                        WeekOff4 = ParseDateIfColumnExists(dt, row, "WeekOff4"),
-                        WeekOff5 = ParseDateIfColumnExists(dt, row, "WeekOff5"),
-                        WeekOff6 = ParseDateIfColumnExists(dt, row, "WeekOff6"),
-                        WeekOff7 = ParseDateIfColumnExists(dt, row, "WeekOff7"),
-                        WeekOff8 = ParseDateIfColumnExists(dt, row, "WeekOff8"),
-                        WeekOff9 = ParseDateIfColumnExists(dt, row, "WeekOff9"), // will remain null if column is missing
+                        DayOff1 = ParseDateIfColumnExists(dt, row, "DayOff1"),
+                        DayOff2 = ParseDateIfColumnExists(dt, row, "DayOff2"),
+                         // will remain null if column is missing
                         ShiftTypeId = 0 // default
                     };
 
@@ -1504,7 +1498,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         }
                     }
                     int currentDay = DateTime.Today.Day;
-                    model.RosterMonth = new DateTime(year, month, currentDay);
+                    model.WeekStartDate = weekStartDate;
                     list.Add(model);
                 }
             }
@@ -1576,34 +1570,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 var weekOffDates = new List<DateTime>();
 
-                // ✅ Loop-based validation for WeekOff1-4
+               
                 var mandatoryWeekOffs = new List<(DateTime? Date, string FieldName)>
         {
-            (item.WeekOff1, "WeekOff1"),
-            (item.WeekOff2, "WeekOff2"),
-            (item.WeekOff3, "WeekOff3"),
-            (item.WeekOff4, "WeekOff4")
+            (item.DayOff1, "DayOff1"),
+           
         };
 
-                //foreach (var (date, fieldName) in mandatoryWeekOffs)
-                //{
-                //    if (!date.HasValue)
-                //    {
-                //        errors.Add($"Row {rowNum}: {fieldName} must not be empty.");
-                //    }
-                //    else
-                //    {
-                //        AddDateIfValid(weekOffDates, date, rowNum, fieldName, errors);
-                //    }
-                //}
-
-                // ✅ WeekOff5 is optional, so only validate if provided
-                //if (item.WeekOff5.HasValue)
-                //{
-                //    AddDateIfValid(weekOffDates, item.WeekOff5, rowNum, "WeekOff5", errors);
-                //}
-
-                // ✅ Check for duplicate dates within this row
+             
+               
                 var duplicateDates = weekOffDates
                     .GroupBy(d => d)
                     .Where(g => g.Count() > 1)

@@ -36,7 +36,7 @@
 			</div>
 		</div>
 		<div class="col-md-4">
-			<label for="dayDropdown">Day</label>
+			<label for="dayDropdown">Week</label>
 			<div class="custom-select-wrapper">
 				<select class="form-select custom-select" id="weekDropdown"></select>
 			</div>
@@ -50,16 +50,18 @@
 				<th>Employee Name</th>
 				<th>WeekOff 1</th>
 				<th>WeekOff 2</th>
-				<th>WeekOff 3</th>
+		@* 		<th>WeekOff 3</th> *@
 				<th>Modified By</th>
 				<th>ModifiedDate</th>
-				<th>Action</th>
+				@* <th>Action</th> *@
 			</tr>
 		</thead>
 	</table>
 </div>
 
 <script type="text/javascript">
+	let weekVal = null;
+	let selectCurrentWeek = true;
 
 	 function populateWeekDropdown(year) {
 		const weekDropdown = $('#weekDropdown');
@@ -80,18 +82,24 @@
 		const end = new Date(convertToISO(w.endDate));
 
 
-		if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && today >= start && today <= end) {
+		  if (today >= start && today <= end) {
 			selectedValue = value;
 		}
+
+
+		
 
 			weekDropdown.append($('<option>').val(value).text(label));
 		});
 
-		 if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && selectedValue) {
-		weekDropdown.val(selectedValue).trigger('change');
-	}
-	}
 
+		if (selectCurrentWeek && selectedValue) {
+		weekDropdown.val(selectedValue).trigger('change');
+		weekVal = selectedValue; // store it for DataTable ajax
+		selectCurrentWeek = false; // only auto-select once
+	}
+	}
+	
 	 function getWeekRanges(year) {
 		const weeks = [];
 		const firstMonday = getFirstMondayOfYear(year);
@@ -148,7 +156,7 @@
 		const day = parts[0];
 		const month = {
 			Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
-			Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+			Jul: '07', Aug: '08', Sept: '09', Oct: '10', Nov: '11', Dec: '12'
 		}[parts[1]];
 		const year = parts[2];
 		return `${year}-${month}-${day.padStart(2, '0')}`;
@@ -180,6 +188,12 @@
 				"datatype": "json",
 				"data": function (d) {
 					var pageNumber = Math.floor(d.start / d.length) + 1;
+					var weekStart = null
+	if (weekVal) {
+		var parts = weekVal.split('|');
+		weekStart = convertToISO(parts[1]); 
+		
+	}
 					return {
 						sEcho: d.draw,
 						iDisplayStart: d.start,
@@ -188,7 +202,7 @@
 						PageNumber: pageNumber,
 						PageSize: d.length,
 						Year: $('#yearDropdown').val(),
-						Month: $('#monthDropdown').val()
+						WeekStartDate: weekStart,
 					};
 				}
 			},
@@ -201,70 +215,42 @@
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "employeeName", "autoWidth": true },
 				{
-					"data": "weekOff1", "autoWidth": true,
+					"data": "dayOff1", "autoWidth": true,
 					"render": function (data) { return formatDateCell(data); }
 				},
 				{
-					"data": "weekOff2", "autoWidth": true,
+					"data": "dayOff2", "autoWidth": true,
 					"render": function (data) { return formatDateCell(data); }
 				},
-				{
-					"data": "weekOff3", "autoWidth": true,
-					"render": function (data) { return formatDateCell(data); }
-				},
-				{
-					"data": "weekOff4", "autoWidth": true,
-					"render": function (data) { return formatDateCell(data); }
-				},
-				{
-					"data": "weekOff5", "autoWidth": true,
-					"render": function (data) { return formatDateCell(data); }
-				},
-				{
-					"data": "weekOff6", "autoWidth": true,
-					"render": function (data) { return formatDateCell(data); }
-				},
-				{
-					"data": "weekOff7", "autoWidth": true,
-					"render": function (data) { return formatDateCell(data); }
-				},
-				{
-					"data": "weekOff8", "autoWidth": true,
-					"render": function (data) { return formatDateCell(data); }
-				},
-				{
-					"data": "weekOff9", "autoWidth": true,
-					"render": function (data) { return formatDateCell(data); }
-				},
-
-
-
-
-
+				// {
+				// 	"data": "dayOff3", "autoWidth": true,
+				// 	"render": function (data) { return formatDateCell(data); }
+				// },
+				
 				{ "data": "modifiedName", "autoWidth": true },
 				{
 					"data": "modifiedDate", "autoWidth": true,
 					"render": function (data) { return formatDateTimeCell(data); }
 				},
-				{
-					"data": null,
-					"render": function (data, type, row) {
-						var linkEdit = '<div class="table-data-feature">' +
-							'<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity + '&emp=' + row.encryptedEmployeeId + '" title="Edit">' +
-							'<img src="/assets/img/edit.png" width="20" height="20" />' +
-							'</a></div>';
+	// 			{
+	// 				"data": null,
+	// 				"render": function (data, type, row) {
+	// 					var linkEdit = '<div class="table-data-feature">' +
+	// 						'<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity + '&emp=' + row.encryptedEmployeeId + '" title="Edit">' +
+	// 						'<img src="/assets/img/edit.png" width="20" height="20" />' +
+	// 						'</a></div>';
 
-					var DeleteRecord = '<div class="table-data-feature">' +
-	'<a data-toggle="tooltip" data-placement="top" class="item delete-button" href="DeleteWeekOffRoster?id=' + row.encryptedIdentity + '" title="Delete">' +
-	'<img src="/assets/img/delete.png" width="20" height="20" />' +
-	'</a></div>';
+	// 				var DeleteRecord = '<div class="table-data-feature">' +
+	// '<a data-toggle="tooltip" data-placement="top" class="item delete-button" href="DeleteWeekOffRoster?id=' + row.encryptedIdentity + '" title="Delete">' +
+	// '<img src="/assets/img/delete.png" width="20" height="20" />' +
+	// '</a></div>';
 
 
-						return linkEdit + DeleteRecord;
-					},
-					"orderable": false,
-					"className": "Edit-Button"
-				}
+	// 					return linkEdit + DeleteRecord;
+	// 				},
+	// 				"orderable": false,
+	// 				"className": "Edit-Button"
+	// 			}
 			],
 			"columnDefs": [
 				{ "targets": [0], "orderable": false, "visible": false },
@@ -275,6 +261,7 @@
 
 		// Reload table when dropdowns change
 		$('#yearDropdown, #weekDropdown').change(function () {
+			weekVal = $('#weekDropdown').val();
 			table.ajax.reload();
 		});
 	});

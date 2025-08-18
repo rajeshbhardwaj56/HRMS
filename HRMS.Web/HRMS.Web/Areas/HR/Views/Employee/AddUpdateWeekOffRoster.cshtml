@@ -102,16 +102,7 @@
                             min = firstDay.ToString("yyyy-MM-dd"),
                         })
                 </div>
-                <div class="col-md-4 form-group">
-                    <label>WeekOff 3 <span class="Mandetory">*</span></label>
-                    @Html.TextBoxFor(a => a.DayOff3, "{0:yyyy-MM-dd}", new
-                        {
-                            @class = "form-control",
-                            @type = "date",
-                            min = firstDay.ToString("yyyy-MM-dd"),
-                        })
-                </div>
-         
+     
             </div>
 
 
@@ -135,7 +126,7 @@
         const day = parts[0];
         const month = {
             Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
-            Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+            Jul: '07', Aug: '08', Sept: '09', Oct: '10', Nov: '11', Dec: '12'
         }[parts[1]];
         const year = parts[2];
         return `${year}-${month}-${day.padStart(2, '0')}`;
@@ -338,6 +329,7 @@
 
 
            $('#weekDropdown').on('change', function () {
+
         const selectedValue = $(this).val();
         if (!selectedValue) return;
 

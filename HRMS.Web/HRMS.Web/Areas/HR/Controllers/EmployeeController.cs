@@ -1463,12 +1463,12 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch, int Year, int Month)
+        public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch, int Year, DateTime WeekStartDate)
         {
             WeekOfInputParams employee = new WeekOfInputParams();
             employee.PageNumber = PageNumber;
             employee.PageSize = PageSize;
-            employee.Month = Month;
+            employee.WeekStartDate = WeekStartDate;
             employee.Year = Year;
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID)); ;

@@ -9,7 +9,7 @@ namespace HRMS.Models.ExportEmployeeExcel
 {
     public class WeekOffUploadModel
     {
-        public int? Id { get; set; }
+        public long? Id { get; set; }
         public string? EmployeeNumber { get; set; }
         public long? EmployeeId { get; set; }
         public string? EmployeeIdWithEmployeeNo { get; set; }
@@ -17,17 +17,9 @@ namespace HRMS.Models.ExportEmployeeExcel
         public DateTime? DayOff1 { get; set; }
         public DateTime? DayOff2 { get; set; }
         public DateTime? DayOff3 { get; set; }
-        public DateTime? WeekOff1 { get; set; }
-        public DateTime? WeekOff2 { get; set; }
-        public DateTime? WeekOff3 { get; set; }
-        public DateTime? WeekOff4 { get; set; }
-        public DateTime? WeekOff5 { get; set; }
-        public DateTime? WeekOff6 { get; set; }
-        public DateTime? WeekOff7 { get; set; }
-        public DateTime? WeekOff8 { get; set; }
-        public DateTime? WeekOff9 { get; set; }
+       
         public DateTime? ModifiedDate { get; set; }
-        public DateTime? RosterMonth { get; set; }
+       
         public long? ModifiedBy { get; set; }
         public long? ShiftTypeId { get; set; }
         public int? TotalCount { get; set; }
@@ -60,6 +52,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public int? PageSize { get; set; } = 0;
         public int? RoleId { get; set; } = 0;
         public string? SearchTerm { get; set; }
+        public DateTime? WeekStartDate { get; set; }
     }
     public class WeekOfEmployeeId
     {
