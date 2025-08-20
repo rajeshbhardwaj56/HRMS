@@ -53,7 +53,7 @@
 		@* 		<th>WeekOff 3</th> *@
 				<th>Modified By</th>
 				<th>ModifiedDate</th>
-				@* <th>Action</th> *@
+				 <th>Action</th>
 			</tr>
 		</thead>
 	</table>
@@ -232,25 +232,25 @@
 					"data": "modifiedDate", "autoWidth": true,
 					"render": function (data) { return formatDateTimeCell(data); }
 				},
-	// 			{
-	// 				"data": null,
-	// 				"render": function (data, type, row) {
-	// 					var linkEdit = '<div class="table-data-feature">' +
-	// 						'<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity + '&emp=' + row.encryptedEmployeeId + '" title="Edit">' +
-	// 						'<img src="/assets/img/edit.png" width="20" height="20" />' +
-	// 						'</a></div>';
+			{
+					"data": null,
+					"render": function (data, type, row) {
+	 					var linkEdit = '<div class="table-data-feature">' +
+	 						'<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity + '&emp=' + row.encryptedEmployeeId + '" title="Edit">' +
+	 						'<img src="/assets/img/edit.png" width="20" height="20" />' +
+							'</a></div>';
 
-	// 				var DeleteRecord = '<div class="table-data-feature">' +
-	// '<a data-toggle="tooltip" data-placement="top" class="item delete-button" href="DeleteWeekOffRoster?id=' + row.encryptedIdentity + '" title="Delete">' +
-	// '<img src="/assets/img/delete.png" width="20" height="20" />' +
-	// '</a></div>';
+					var DeleteRecord = '<div class="table-data-feature">' +
+	 '<a data-toggle="tooltip" data-placement="top" class="item delete-button" href="DeleteWeekOffRoster?id=' + row.encryptedIdentity + '" title="Delete">' +
+ '<img src="/assets/img/delete.png" width="20" height="20" />' +
+	 '</a></div>';
 
 
-	// 					return linkEdit + DeleteRecord;
-	// 				},
-	// 				"orderable": false,
-	// 				"className": "Edit-Button"
-	// 			}
+	 					return linkEdit + DeleteRecord;
+	 				},
+	 				"orderable": false,
+	 				"className": "Edit-Button"
+	 			}
 			],
 			"columnDefs": [
 				{ "targets": [0], "orderable": false, "visible": false },

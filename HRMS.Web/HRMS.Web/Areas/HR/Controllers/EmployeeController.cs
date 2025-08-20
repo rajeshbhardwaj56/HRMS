@@ -1738,18 +1738,47 @@ namespace HRMS.Web.Areas.HR.Controllers
                 if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
                 {
                     errors.Add($"Row {rowNum}: Missing or invalid EmployeeNumber.");
+                    continue;
+                }
+                if (!item.WeekStartDate.HasValue)
+                {
+                    errors.Add($"Row {rowNum}: WeekStartDate is missing.");
+                    continue;
+                }
+                var weekStart = item.WeekStartDate.Value.Date;
+                var weekEnd = weekStart.AddDays(6);
+                if (!item.DayOff1.HasValue)
+                {
+                    errors.Add($"Row {rowNum}: DayOff1 is mandatory.");
                     continue; 
                 }
 
-             
                 var weekOffDates = new List<DateTime>();
-                AddDateIfValid(weekOffDates, item.DayOff1, rowNum, "DayOff1", errors);
-                AddDateIfValid(weekOffDates, item.DayOff2, rowNum, "DayOff2", errors);
-                AddDateIfValid(weekOffDates, item.DayOff3, rowNum, "DayOff3", errors);
+                var fields = new Dictionary<string, DateTime?>()
+        {
+            { "DayOff1", item.DayOff1 },
+            { "DayOff2", item.DayOff2 },
+
+        };
+                foreach (var kvp in fields)
+                {
+                    if (kvp.Value.HasValue)
+                    {
+                        var date = kvp.Value.Value.Date;
+
+
+                        if (date < weekStart || date > weekEnd)
+                        {
+                            errors.Add($"Row {rowNum}: {kvp.Key} ({date:yyyy-MM-dd}) is outside the week range {weekStart:yyyy-MM-dd} to {weekEnd:yyyy-MM-dd}.");
+                        }
+                        else
+                        {
+                            weekOffDates.Add(date);
+                        }
+                    }
+                }
+
                
-             
-                if (!weekOffDates.Any())
-                    errors.Add($"Row {rowNum}: At least one WeekOff date must be filled in.");
 
                
                 var duplicateDates = weekOffDates

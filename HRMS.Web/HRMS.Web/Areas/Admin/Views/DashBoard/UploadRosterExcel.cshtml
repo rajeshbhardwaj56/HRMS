@@ -46,6 +46,7 @@
 </style>
 
 <div class="main-header anim" style="--delay: 0s">Import Employee Roster</div>
+<form id="uploadForm">
 <div class="row mb-3">
 	
 	<div class="col-md-3">
@@ -73,7 +74,7 @@
 					</a>
 				</span>
 			</div>
-						<form id="uploadForm">
+						
 							<div class="mb-3">
 					<input type="file" class="form-control" id="excelFile" accept=".xls,.xlsx" required style=" width: 500px;">
 							</div>
@@ -108,13 +109,16 @@
 
 
 		weekRanges.forEach(w => {
-			const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
-			const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
+			
 
 
 	    const start = new Date(convertToISO(w.startDate));
 		const end = new Date(convertToISO(w.endDate));
 
+		if (end < today) return;
+
+		const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
+		const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
 
 		  if (today >= start && today <= end) {
 			selectedValue = value;
@@ -227,7 +231,18 @@
 			resultMessage.innerHTML = '<div class="alert alert-danger">Please select a file.</div>';
 			return;
 		}
+		const selectedYears = document.getElementById("yearDropdown").value;
+	if (!selectedYears) {
+		resultMessage.innerHTML = '<div class="alert alert-danger">Please select a Year.</div>';
+		return;
+	}
 
+
+	const weekValues = document.getElementById("weekDropdown").value;
+	if (!weekValues) {
+		resultMessage.innerHTML = '<div class="alert alert-danger">Please select a Week.</div>';
+		return;
+	}
 		uploadButton.innerHTML = 'Please wait...';
 		uploadButton.disabled = true;
 

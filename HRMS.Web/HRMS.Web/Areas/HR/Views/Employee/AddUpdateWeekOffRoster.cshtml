@@ -40,11 +40,7 @@
                             }
                         }
                     </select>
-                </div>
-
-               
-
-          
+                </div>            
                 <div class="col-md-3 form-group position-relative">
                     <label>Select Employee<span class="Mandetory">*</span></label>
 
@@ -132,7 +128,9 @@
         return `${year}-${month}-${day.padStart(2, '0')}`;
     }
 
-
+    function normalizeToDateOnly(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
     function populateWeekDropdown(year) {
         const weekDropdown = $('#weekDropdown');
         weekDropdown.empty();
@@ -148,7 +146,7 @@
             const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
 
 
-              const start = new Date(convertToISO(w.startDate));
+         const start = new Date(convertToISO(w.startDate));
         const end = new Date(convertToISO(w.endDate));
 
 
@@ -159,13 +157,40 @@
             weekDropdown.append($('<option>').val(value).text(label));
         });
 
-         if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && selectedValue) {
+         const existingStartDate = $('#WeekStartDateHidden').val();
+                if (existingStartDate) {
+        
+        const datePart = existingStartDate.split(' ')[0]; 
+    const parts = datePart.split('/'); 
+
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // JS months are 0-based
+    const year = parseInt(parts[2], 10);
+
+   
+        const existingDate = normalizeToDateOnly(new Date(year, month, day));
+
+       
+        weekRanges.forEach(w => {
+             const start = normalizeToDateOnly(new Date(convertToISO(w.startDate)));
+        const end = normalizeToDateOnly(new Date(convertToISO(w.endDate)));
+
+           
+            if (existingDate >= start && existingDate <= end) {
+                const editValue = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
+    $('#weekDropdown').val(editValue);
+    $('#weekDropdown').trigger('change'); // ensures min/max re-applies
+            }
+        });
+    }
+
+          if (!existingStartDate && typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && selectedValue) {
         weekDropdown.val(selectedValue).trigger('change');
     }
     }
 
 
-           function getWeekRanges(year) {
+    function getWeekRanges(year) {
         const weeks = [];
         const firstMonday = getFirstMondayOfYear(year);
 
@@ -339,7 +364,7 @@
         const startDate = convertToISO(parts[1]);
         const endDate = convertToISO(parts[2]);
 
-        // Set start date in hidden input
+        
         $('#WeekStartDateHidden').val(startDate);
 
         $('input[type="date"]').each(function () {

@@ -5446,7 +5446,7 @@ namespace HRMS.API.BusinessLayer
                                       EmployeeName = dataRow.Field<string?>("EmployeeName"),
                                       TotalCount = dataRow.Field<int?>("TotalCount"),
                                       EmployeeId = dataRow.Field<long?>("EmployeeId"),
-                                      EmployeeNumberWithOutAbbr = dataRow.Field<string?>("EmployeeNumberWithOutAbbr")
+                                      EmployeeNumberWithOutAbbr = dataRow.Field<string?>(columnName: "EmployeeNumberWithOutAbbr")
 
                                   }).ToList();
 
@@ -5474,10 +5474,10 @@ namespace HRMS.API.BusinessLayer
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                var row = dataSet.Tables[0].Rows[0];
+                var row = dataSet.Tables[0].Rows[index: 0];   
                 int status = Convert.ToInt32(row["Status"]);
                 string message = row["Message"].ToString();
-
+                                   
                 // Return in format like "1|Success message" or "0|Failure message"
                 return message;
             }

@@ -1525,60 +1525,62 @@ namespace HRMS.Web.Areas.Admin.Controllers
         private string ValidateModelList(List<WeekOffUploadModel> models)
         {
             var errors = new List<string>();
-
-            // ✅ Detect duplicate EmployeeNumbers with their rows
+            
             var employeeNumberToRows = new Dictionary<string, List<int>>();
             for (int i = 0; i < models.Count; i++)
             {
                 var item = models[i];
-                var rowNum = i + 2; // Excel rows start at 2
-
-                if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
-                    continue; // skip invalid or empty EmployeeNumber
-
-                if (!employeeNumberToRows.ContainsKey(item.EmployeeNumber))
-                    employeeNumberToRows[item.EmployeeNumber] = new List<int>();
-
-                employeeNumberToRows[item.EmployeeNumber].Add(rowNum);
-            }
-
-            // ✅ Report duplicates with their row numbers
-            var duplicatesWithRows = employeeNumberToRows
-                .Where(kvp => kvp.Value.Count > 1)
-                .ToList();
-
-            if (duplicatesWithRows.Any())
-            {
-                var details = duplicatesWithRows
-                    .Select(kvp => $"EmployeeNumber '{kvp.Key}' at rows {string.Join(", ", kvp.Value)}")
-                    .ToList();
-
-                errors.Add($"Duplicate EmployeeNumber(s) found:\n{string.Join("\n", details)}");
-            }
-
-            // ✅ Validate each row
-            for (int i = 0; i < models.Count; i++)
-            {
-                var item = models[i];
-                var rowNum = i + 2; // Excel row
-
+                var rowNum = i + 2;
                 if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
                 {
                     errors.Add($"Row {rowNum}: Missing or invalid EmployeeNumber.");
-                    continue; // Skip further checks if EmployeeNumber is missing
+                    continue;
                 }
 
-                var weekOffDates = new List<DateTime>();
+                if (!item.WeekStartDate.HasValue)
+                {
+                    errors.Add($"Row {rowNum}: WeekStartDate is missing.");
+                    continue;
+                }
 
-               
-                var mandatoryWeekOffs = new List<(DateTime? Date, string FieldName)>
+                var weekStart = item.WeekStartDate.Value.Date;
+                var weekEnd = weekStart.AddDays(6); 
+
+              
+                if (!item.DayOff1.HasValue)
+                {
+                    errors.Add($"Row {rowNum}: DayOff1 is mandatory.");
+                    continue; 
+                }
+
+                
+                var weekOffDates = new List<DateTime>();
+                var fields = new Dictionary<string, DateTime?>()
         {
-            (item.DayOff1, "DayOff1"),
-           
+            { "DayOff1", item.DayOff1 },
+            { "DayOff2", item.DayOff2 },
+         
         };
 
-             
-               
+                foreach (var kvp in fields)
+                {
+                    if (kvp.Value.HasValue)
+                    {
+                        var date = kvp.Value.Value.Date;
+
+                        
+                        if (date < weekStart || date > weekEnd)
+                        {
+                            errors.Add($"Row {rowNum}: {kvp.Key} ({date:yyyy-MM-dd}) is outside the week range {weekStart:yyyy-MM-dd} to {weekEnd:yyyy-MM-dd}.");
+                        }
+                        else
+                        {
+                            weekOffDates.Add(date);
+                        }
+                    }
+                }
+
+                // --- Rule 3: No duplicate dayoffs ---
                 var duplicateDates = weekOffDates
                     .GroupBy(d => d)
                     .Where(g => g.Count() > 1)
@@ -1586,8 +1588,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     .ToList();
 
                 if (duplicateDates.Any())
+                {
                     errors.Add($"Row {rowNum}: Duplicate WeekOff dates found: {string.Join(", ", duplicateDates)}.");
+                }
             }
+
+            
 
             return errors.Any() ? string.Join("\n", errors) : null;
         }
