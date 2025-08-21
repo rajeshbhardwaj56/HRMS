@@ -689,9 +689,19 @@
 		return true;
 	}
 
-		const workDate = new Date(workDateStr); 
 
-		if (workDate > today) return false;
+	
+	 const todayIST = new Date(
+		new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+	);
+
+		function parseISTDate(dateStr) {
+		const [year, month, day] = dateStr.split("-").map(Number);
+		return new Date(year, month - 1, day); 
+	}
+		const workDate = parseISTDate(workDateStr);
+
+		if (workDate > todayIST) return false;
 		
 		let payrollStart, payrollEnd, cutoffDate;
 
@@ -707,7 +717,7 @@
 		}
 
 		
-		return today <= cutoffDate;
+		return todayIST  <= cutoffDate;
 	}
 
 

@@ -181,7 +181,9 @@
                     success: function (response) {
                                   const currentFormLangId = $('#EmployeesFamilyDetailID').val();
              if (currentFormLangId == encodedId) {
+                   $('#familyForm')[0].reset();
                  $('#EmployeesFamilyDetailID').val('');
+              
              }
                         $('#familyGrid').DataTable().ajax.reload();
                       toastMessage('Success', 'Deleted successfully');

@@ -2162,10 +2162,24 @@ namespace HRMS.API.BusinessLayer
                             RoleID = row.Field<long?>("RoleID") ?? 0
                         })
                         .ToList();
-                 
-                       
-                        dashBoardModel.EmployeeHierarchy = BuildCombinedHierarchy(flatList);
-                    
+
+                    var hierarchy = BuildCombinedHierarchy(flatList);
+
+                    if (model.RoleID == 2 || model.RoleID == 5)
+                    {
+                        
+                        var extraSubordinates = hierarchy
+                            .SelectMany(e => e.Subordinates ?? new List<HierarchyEmployee>())
+                            .ToList();
+
+                        dashBoardModel.EmployeeHierarchy = hierarchy
+                            .Concat(extraSubordinates)
+                            .ToList();
+                    }
+                    else
+                    {
+                        dashBoardModel.EmployeeHierarchy = hierarchy;
+                    }
                 }
 
 
@@ -2193,7 +2207,7 @@ namespace HRMS.API.BusinessLayer
                     dashBoardModel.TotalSeniorCore = Employment.TotalSeniorCore;
                     dashBoardModel.TotalFieldTracer = Employment.TotalCCE;
                     dashBoardModel.TotalCCE = Employment.TotalFieldTracer;
-
+                        
                 }
                 if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.Admin)
                 {
@@ -2262,50 +2276,21 @@ namespace HRMS.API.BusinessLayer
             return dashBoardModel;
         }
 
+
         public List<HierarchyEmployee> BuildCombinedHierarchy(List<HierarchyEmployee> flatList)
         {
-            var combined = new List<HierarchyEmployee>();
+            if (flatList == null || flatList.Count == 0)
+                return new List<HierarchyEmployee>();
 
-
-            combined.AddRange(BuildHierarchyTree(flatList));
-
-            var level2Paths = flatList
-         .Where(e => e.Path.Trim('/').Split('/').Length == 2)
-         .ToList();
-
-            var parentPaths = level2Paths
-                .Where(level2Path =>
-                    flatList.Any(x => GetParentPathLevel2(x.Path) == level2Path.Path) // has children
-                    ||
-                    !flatList.Any(x => GetParentPathLevel2(x.Path) == level2Path.Path) // no one reports
-                )
-                .Select(e => e.Path)
-                .Distinct()
-                .ToList();
-
-
-            foreach (var path in parentPaths)
-            {
-              
-                var subtreeNodes = flatList
-                    .Where(e => e.Path == path || GetParentPath(e.Path) == path)
-                    .ToList();
-
-                var subtree = BuildHierarchyTree(subtreeNodes);
-
-              
-                if (subtree.Any())
-                {
-                    combined.AddRange(subtree);
-                }
-            }
+           
+            var combined = BuildHierarchyTree(flatList);
 
             return combined;
         }
 
         private List<HierarchyEmployee> BuildHierarchyTree(List<HierarchyEmployee> flatList)
         {
-            var pathLookup = flatList.ToDictionary(e => e.Path);
+            var pathLookup = flatList.ToDictionary(e => e.Path, e => e);
             var hierarchy = new List<HierarchyEmployee>();
 
             foreach (var employee in flatList)
@@ -2318,16 +2303,23 @@ namespace HRMS.API.BusinessLayer
                     if (parent.Subordinates == null)
                         parent.Subordinates = new List<HierarchyEmployee>();
 
-                    parent.Subordinates.Add(employee);
+                    // prevent duplicate children
+                    if (!parent.Subordinates.Any(s => s.Path == employee.Path))
+                    {
+                        parent.Subordinates.Add(employee);
+                    }
                 }
                 else
                 {
-
-                    hierarchy.Add(employee);
+                    // only add top-level nodes once
+                    if (!hierarchy.Any(h => h.Path == employee.Path))
+                    {
+                        hierarchy.Add(employee);
+                    }
                 }
             }
 
-            return hierarchy;
+            return hierarchy; 
         }
 
         private string GetParentPath(string path)
@@ -2338,20 +2330,106 @@ namespace HRMS.API.BusinessLayer
             var parts = path.Trim('/').Split('/');
             if (parts.Length <= 1)
                 return null;
+
             return "/" + string.Join("/", parts.Take(parts.Length - 1));
         }
 
-       private string GetParentPathLevel2(string path)
-{
-    if (string.IsNullOrEmpty(path) || path == "/")
-        return null;
 
-    var parts = path.Trim('/').Split('/');
-    if (parts.Length <= 1)
-        return null;
 
-    return "/" + string.Join("/", parts.Take(parts.Length - 1));
-}
+
+
+
+
+        //        public List<HierarchyEmployee> BuildCombinedHierarchy(List<HierarchyEmployee> flatList)
+        //        {
+        //            var combined = new List<HierarchyEmployee>();
+
+
+        //            combined.AddRange(BuildHierarchyTree(flatList));
+
+        //            var level2Paths = flatList
+        //         .Where(e => e.Path.Trim('/').Split('/').Length == 2)
+        //         .ToList();
+
+        //            var parentPaths = level2Paths
+        //                .Where(level2Path =>
+        //                    flatList.Any(x => GetParentPathLevel2(x.Path) == level2Path.Path) // has children
+        //                    ||
+        //                    !flatList.Any(x => GetParentPathLevel2(x.Path) == level2Path.Path) // no one reports
+        //                )
+        //                .Select(e => e.Path)
+        //                .Distinct()
+        //                .ToList();
+
+
+        //            foreach (var path in parentPaths)
+        //            {
+
+        //                var subtreeNodes = flatList
+        //                    .Where(e => e.Path == path || GetParentPath(e.Path) == path)
+        //                    .ToList();
+
+        //                var subtree = BuildHierarchyTree(subtreeNodes);
+
+
+        //                if (subtree.Any())
+        //                {
+        //                    combined.AddRange(subtree);
+        //                }
+        //            }
+
+        //            return combined;
+        //        }
+
+        //        private List<HierarchyEmployee> BuildHierarchyTree(List<HierarchyEmployee> flatList)
+        //        {
+        //            var pathLookup = flatList.ToDictionary(e => e.Path);
+        //            var hierarchy = new List<HierarchyEmployee>();
+
+        //            foreach (var employee in flatList)
+        //            {
+        //                var parentPath = GetParentPath(employee.Path);
+
+        //                if (!string.IsNullOrEmpty(parentPath) && pathLookup.ContainsKey(parentPath))
+        //                {
+        //                    var parent = pathLookup[parentPath];
+        //                    if (parent.Subordinates == null)
+        //                        parent.Subordinates = new List<HierarchyEmployee>();
+
+        //                    parent.Subordinates.Add(employee);
+        //                }
+        //                else
+        //                {
+
+        //                    hierarchy.Add(employee);
+        //                }
+        //            }
+
+        //            return hierarchy;
+        //        }
+
+        //        private string GetParentPath(string path)
+        //        {
+        //            if (string.IsNullOrEmpty(path) || path == "/")
+        //                return null;
+
+        //            var parts = path.Trim('/').Split('/');
+        //            if (parts.Length <= 1)
+        //                return null;
+        //            return "/" + string.Join("/", parts.Take(parts.Length - 1));
+        //        }
+
+        //       private string GetParentPathLevel2(string path)
+        //{
+        //    if (string.IsNullOrEmpty(path) || path == "/")
+        //        return null;
+
+        //    var parts = path.Trim('/').Split('/');
+        //    if (parts.Length <= 1)
+        //        return null;
+
+        //    return "/" + string.Join("/", parts.Take(parts.Length - 1));
+        //}
 
         #endregion
 

@@ -30,24 +30,35 @@
 	<div class="row mb-2">
 		<div class="col-md-3">
 			<label for="subDeptFilter">Sub-Department:</label>
+			<div class="position-relative">
 			<select id="subDeptFilter" class="form-control">
 				<option value="">All</option>
 				
 			</select>
+			<i class="fa fa-chevron-down position-absolute"
+			   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+		</div>
 		</div>
 		<div class="col-md-3">
 			<label for="empTypeFilter">Employee Type:</label>
+			<div class="position-relative">
 			<select id="empTypeFilter" class="form-control">
 				<option value="">All</option>
 			
 			</select>
+				<i class="fa fa-chevron-down position-absolute"
+				   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+			</div>
 		</div>
 		<div class="col-md-3">
 			<label for="locationFilter">Location:</label>
+		 <div class="position-relative">
 			<select id="locationFilter" class="form-control">
 				<option value="">All</option>
-			
-			</select>
+			</select>   
+		  <i class="fa fa-chevron-down position-absolute"
+		   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+	     </div>
 		</div>
 	</div>
 	<table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">

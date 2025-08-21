@@ -69,9 +69,9 @@
                     <div class="position-relative">
                         @Html.DropDownListFor(x => x.DepartmentID, Model.Departments, HRMS.Models.Common.Constants.SelectDepartment, new
                             {
-                                @class = "form-control pe-4", // Add padding to avoid text overlap with the icon
+                                @class = "form-control pe-4", 
                                 @required = "required",
-                                //@onchange = "fetchSubDepartments(this.value)"
+                               
                             })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
@@ -85,7 +85,7 @@
 
 
 
-                <div id="divsubDepartment" class="col-md-4 form-group position-relative" style="display: @(Model.SubDepartmentID != null && Model.SubDepartmentID != 0 ? "block" : "none")">
+                <div id="divsubDepartment" class="col-md-4 form-group position-relative">
                     <label>Sub Department <span class="Mandetory">*</span></label>
                     <div class="position-relative">
                         @Html.DropDownListFor(x => x.SubDepartmentID, Model.SubDepartments, HRMS.Models.Common.Constants.SubDepartment, new

@@ -136,7 +136,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     model.NoOfLeaves = Convert.ToInt64(remainingLeave);        // Leaves remaining (available)
                     ViewBag.NoOfLeaves = remainingLeave;        // Leaves remaining (available)
                     ViewBag.RoleID = roleId;
-                    // Optional: Pass consecutive allowed days to ViewBag for UI use
+                    
                     ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
                 }
             }
@@ -927,7 +927,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     else if (SubDepartmentDictionaries != null)
                                     {
-                                        string combinedKey = $"{departmentNameValue}_{cellValue}";
+                                        string combinedKey = $"{cellValue}";
 
                                         var matchedSubDept = SubDepartmentDictionaries
                                             .FirstOrDefault(kvp => kvp.Key.Trim().Equals(combinedKey, StringComparison.OrdinalIgnoreCase));
