@@ -364,6 +364,7 @@
 																						<td>
 																							<form action="/employee/MyInfo/UpdateAgentLeaveStatus" method="post" style="display:inline;">
 																								<input type="hidden" name="id" value="@item.EncryptedIdentity" />
+																								<input type="hidden" name="empId" value="@item.Encrypted" />
 																								<button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to cancel this leave?');">
 																									<i class="fa fa-close" style="font-size:22px;color:red"></i>
 																								</button>

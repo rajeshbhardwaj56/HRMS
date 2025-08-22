@@ -392,6 +392,7 @@
 		  data.forEach(record => {
 			let row = `<tr><td>${record.employeNumber}</td><td>${record.employeeName}</td><td>${record.jobLocationName}</td>`;
 			dayKeys.forEach(day => {
+				
 			  let status = record.attendanceByDay[day];
 			  if (status === "Sa" || status === "S") status = "H";
 			  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "ECO" ? "ECO" :  status === "WO" ? "WO" : "";
@@ -676,6 +677,7 @@
 			case 'absent': return '#dc3545';  
 			case 'leave': return '#ffc107';  
 			case 'half day': return '#05397b'; 
+			case 'pending': return '#fd7e14';
 			default: return '#6c757d';       
 		}
 	};

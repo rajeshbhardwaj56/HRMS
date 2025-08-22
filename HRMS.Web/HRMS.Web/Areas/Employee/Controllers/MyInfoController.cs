@@ -400,7 +400,17 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return holidayData;
         }
 
+        private string GetAgentHolidayData(long companyID,long employeeID)
+        {
+            HolidayInputParams myInfoInputParams = new HolidayInputParams
+            {
+                CompanyID = companyID,
+                EmployeeID = employeeID
+            };
 
+            var holidayData = _businessLayer.SendPostAPIRequest(myInfoInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            return holidayData;
+        }
         public DateTime GetAprilFirstDate()
         {
             DateTime now = DateTime.Now;
@@ -545,12 +555,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
                        WebControllarsConstants.MyInfo);
         }
         [HttpPost]
-        public IActionResult UpdateAgentLeaveStatus(string id)
+        public IActionResult UpdateAgentLeaveStatus(string id,string empId)
         {
             UpdateLeaveStatus model = new UpdateLeaveStatus()
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
-                EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID)),
+                EmployeeID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(empId)),
                 NewLeaveStatusID = (int)LeaveStatus.Cancelled,
             };
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.UpdateLeaveStatus), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -701,6 +711,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             PolicyCategoryInputParams model = new PolicyCategoryInputParams();
             model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            model.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.PolicyCategoryDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var detailsList = JsonConvert.DeserializeObject<List<LeavePolicyDetailsModel>>(data);
             if (detailsList != null)
@@ -1646,7 +1657,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 || leaveSummary.LeaveTypeID == (int)LeaveType.Paternity
                 || leaveSummary.LeaveTypeID == (int)LeaveType.MedicalLeave)
             {
-                var holidaydata = GetHolidayData(leaveSummary.CompanyID);
+                var holidaydata = GetAgentHolidayData(leaveSummary.CompanyID, leaveSummary.EmployeeID);
                 var holidaydataList = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(holidaydata);
                 Holidaylist = holidaydataList.Holiday.ToList();
             }
@@ -2077,10 +2088,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
                 }
             }
-
+            var filteredLeaveTypes = results?.leaveResults?.leaveTypes;
+            if (results?.CampOffLeaveCount <= 0)
+            {
+                filteredLeaveTypes = filteredLeaveTypes?
+                    .Where(lt => !lt.Text.Equals("Compensatory Off", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
             return Json(new
             {
-                leaveTypes = results?.leaveResults?.leaveTypes,
+                leaveTypes = filteredLeaveTypes,
                 totalApprovedLeave = approvedLeaveTotal,
                 totalAnnualLeave = totalLeaveWithCarryForward,
                 consecutiveDaysAllowed = leavePolicy?.Annual_MaximumConsecutiveLeavesAllowed ?? 0

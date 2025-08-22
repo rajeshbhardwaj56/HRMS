@@ -32,7 +32,7 @@
             <div class="row mb-3">
                 <div class="col-md-3 form-group">
                     <label>Select Year</label>
-                    <select id="yearSelect" class="form-select">
+                    <select id="yearSelect" class="form-select" @(isEditMode ? "disabled" : "")>
                         @{
                             for (int y = currentYear; y <= currentYear + 1; y++)
                             {
@@ -43,24 +43,35 @@
                 </div>
                 <div class="col-md-3 form-group position-relative">
                     <label>Select Employee<span class="Mandetory">*</span></label>
-
+                    @if (isEditMode)
+                    {
+                        @Html.DropDownListFor(
+                                 x => x.EmployeeIdWithEmployeeNo,
+                                 Model.Employee,
+                                 HRMS.Models.Common.Constants.SelectEmployee,
+                                 new { @class = "select2", @required = "required", disabled = "disabled" }
+                                 )
+                    }
+                    else
+                    {
                     @Html.DropDownListFor(
                              x => x.EmployeeIdWithEmployeeNo,
                              Model.Employee,
                              HRMS.Models.Common.Constants.SelectEmployee,
                              new { @class = " select2", @required = "required" }
                              )
+                    }
                 </div>
 
                 <div class="col-md-3 form-group position-relative" Id="Shiftlist" style="display:none">
                     <label>Select Shift Type<span class="Mandetory">*</span></label>
 
-                    <select id="ShiftTypeId" class="form-select"></select>
+                    <select id="ShiftTypeId" class="form-select" @(isEditMode ? "disabled" : "")></select>
 
                 </div>
                 <div class="col-md-4 form-group">
                     <label>Select Week<span class="Mandetory">*</span></label>
-                    <select id="weekDropdown" class="form-select" required></select>
+                    <select id="weekDropdown" class="form-select" required @(isEditMode ? "disabled" : "")></select>
                 </div>
             </div>
             @Html.HiddenFor(m => m.SelectedMonth, new { id = "HiddenSelectedMonth" })
@@ -311,7 +322,11 @@
     });
 
     $(document).ready(function () {
-
+         if (isEditMode) {
+        $('#yearSelect').prop('disabled', true);
+        $('#weekDropdown').prop('disabled', true);
+         $('#ShiftTypeId').prop('disabled', true);
+    }
            const selectedYear = parseInt($('#yearSelect').val());
     populateWeekDropdown(selectedYear);
 

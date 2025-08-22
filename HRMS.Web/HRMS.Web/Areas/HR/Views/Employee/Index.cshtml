@@ -227,7 +227,14 @@
 
 				<div class="col-md-4 form-group">
 					<label>Date of Birth <span class="Mandetory">*</span></label>
-					@Html.TextBoxFor(a => a.DateOfBirth, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
+					@Html.TextBoxFor(a => a.DateOfBirth, "{0:yyyy-MM-dd}", new
+						{
+							@class = "form-control",
+							@type = "date",
+							@required = "required",
+                            @min = "1900-01-01",
+							@max = DateTime.Now.ToString("yyyy-MM-dd")
+						})
 					@* @Html.ValidationMessageFor(m => m.DateOfBirth) *@
 				</div>
 

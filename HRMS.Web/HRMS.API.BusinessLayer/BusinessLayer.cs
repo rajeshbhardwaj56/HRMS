@@ -3016,6 +3016,7 @@ namespace HRMS.API.BusinessLayer
             List<LeavePolicyDetailsModel> result = new List<LeavePolicyDetailsModel>();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@CompanyID", model.CompanyID));
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_DistinctPolicyCategoryDetails, sqlParameter);
 
             result = dataSet.Tables[0].AsEnumerable()
@@ -3028,6 +3029,7 @@ namespace HRMS.API.BusinessLayer
                                PolicyDocument = dataRow.Field<string>("PolicyDocument"),
                                Description = dataRow.Field<string>("Description"),
                                PolicyCategoryId = dataRow.Field<long>("PolicyCategoryId"),
+                               IsAcknowledged = dataRow.Field<bool>("IsAcknowledged"),
                            }).ToList();
             return result;
         }

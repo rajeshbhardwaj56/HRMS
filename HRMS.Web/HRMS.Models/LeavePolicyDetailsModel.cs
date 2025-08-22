@@ -25,6 +25,7 @@ namespace HRMS.Models
         public string? PolicyDocument { get; set; }
         public long PolicyCategoryId { get; set; }
         public string? PolicyCategoryName { get; set; }
+        public bool IsAcknowledged { get; set; }
         public List<CompanyModel> Companies { get; set; }
         public List<PolicyCategoryModel> PolicyList { get; set; } = new List<PolicyCategoryModel>();
     }

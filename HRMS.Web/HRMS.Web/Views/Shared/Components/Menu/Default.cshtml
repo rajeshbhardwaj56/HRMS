@@ -23,7 +23,7 @@
         var action = ViewContext.RouteData.Values["action"]?.ToString();
        
         return action == "AttendenceList" || action == "ApprovedAttendance"
-            || action == "TeamAttendenceList" || action == "MyAttendanceList"
+            || action == "TeamAttendenceList" 
             || action == "CompOffApplication" || action == "ApproveCompOff" || action == "AgentCompOffApplication" || action == "TeamAttendenceApprovalList"
            ;
     }
@@ -308,22 +308,7 @@
 
 
 
-                                @if (Model.FormPermissionList.Any(x => x.FormID == 17 && x.IsFormPermissions && x.FormLevel == 2))
-                                {
-                                    if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
-                                    LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
-                                    {
-                                        <li>
-                                            <a class="hrms-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MyAttendanceList" ? "hrms-active" : "")"
-                                            asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)"
-                                            asp-controller="Attendance"
-                                            asp-action="MyAttendanceList">
-                                                <i class="bi bi-pencil-square"></i> Attendance Correction
-                                            </a>
-                                        </li>
-                                    }
-                                }
-
+                               
                                 @if (Model.FormPermissionList.Where(x => x.FormID == 22 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
                                 {
                                     if (LoginRole != Convert.ToInt64(HRMS.Models.Common.Roles.Admin) &&
