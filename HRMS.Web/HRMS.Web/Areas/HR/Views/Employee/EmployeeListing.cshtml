@@ -129,11 +129,15 @@
 				"type": "POST",
 				"datatype": "json",
 				"data": function (d) {
+					var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'employeeID';
+	var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
 					return {
 						sEcho: d.draw,
 						iDisplayStart: d.start,
 						iDisplayLength: d.length,
 						sSearch: d.search.value,
+						sortCol: sortColumn, 
+		                sortDir: sortDirection,  
 						subDeptFilter: $('#subDeptFilter').val(),
 		empTypeFilter: $('#empTypeFilter').val(),
 		locationFilter: $('#locationFilter').val()
@@ -189,6 +193,7 @@
 			"paging": true,
 			"searching": true,
 			"info": true,
+			 "order": [[2, "desc"]],
 			"columns": [
 				{ "data": "employeeID", "autoWidth": true, "visible": false },
 				{
@@ -204,9 +209,9 @@
 				
 				{ "data": "designationName", "autoWidth": true },
 				{ "data": "departmentName", "autoWidth": true },
-				{ "data": "managerName", "autoWidth": true },
+				{ "data": "managerName", "autoWidth": true  },
 				{
-	  "data": null,
+	  "data": "shiftTypeID",
 	  "autoWidth": true,
 	  "render": function (data, type, row) {
 		if (row.shiftStartTime) {

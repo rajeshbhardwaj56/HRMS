@@ -141,7 +141,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var employeeMiddleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName));
             var employeeLastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname));
             var EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr));
-            // Concatenate full name
+            
             var employeeFullName = string.Join(" ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
             ViewBag.employeeFullName = employeeFullName;
             AttendanceInputParams models = new AttendanceInputParams();
@@ -1144,18 +1144,29 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
     int iDisplayStart,
     int iDisplayLength,
     string sSearch,
-    string SortCol,
-    string SortDir)
+    string sortCol,
+    string sortDir)
         {
             long reportingToId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+            var columnMapping = new Dictionary<string, string>
+    {
+        {"employeeID", "EmployeeID"},
+        {"workDate", "WorkDate"},
+        {"employeNumber", "EmployeNumber"},
+        {"attendanceStatus", "AttendanceStatus"},
+        {"remarks", "Remarks"}
+    };
+
+
 
             var model = new AttendanceInputParams
             {
                 UserId = reportingToId,
                 RoleId = roleId,
-                SortCol = string.IsNullOrEmpty(SortCol) ? "WorkDate" : SortCol,
-                SortDir = string.IsNullOrEmpty(SortDir) ? "DESC" : SortDir,
+                SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "EmployeeID",
+                SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper(),
                 DisplayStart = iDisplayStart,
                 DisplayLength = iDisplayLength,
                 SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch

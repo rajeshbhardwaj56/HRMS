@@ -2,17 +2,17 @@
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 
 @{
-    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Attendance Approval List";
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Attendance Approval List";
 }
 
-<div class="main-header anim" style="--delay: 0s">
-    Attendance Approval List
+<div class="main-header anim mb-4" style="--delay: 0s">
+	Attendance Approval List
 </div>
 
-<div class="mb-3 d-flex gap-2">
-    <select id="ddlAttendanceStatus" class="form-select form-select-sm" style="width:auto;">
-        <option value="">-- Select Status --</option>
+<div class="mb-3 d-flex gap-2 align-items-center">
+    <select id="ddlAttendanceStatus" class="form-select form-select-sm" style="width:150px;">
+        <option value="">Select Status</option>
         <option value="1">Approve</option>
         <option value="2">Reject</option>
     </select>
@@ -22,149 +22,175 @@
     </button>
 </div>
 
-<div class="table-responsive py-3">
-    <table id="tblAttendanceApproval" class="table table-striped body-text" style="width:100%">
-        <thead>
-            <tr>
-                <th><input type="checkbox" id="selectAll" /></th>
-                <th style="display:none;">Employee ID</th>
-                <th>Emp No</th>
-                <th>Emp Name</th>
-                <th>Work Date</th>
-                <th>Status</th>
-                <th>Remarks</th>
-            </tr>
-        </thead>
-    </table>
-</div>
+    <div class="table-responsive py-3">
+        <table id="tblAttendanceApproval" class="table table-striped body-text" style="width:100%">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th style="display:none;">Employee ID</th>
+                    <th>Emp No</th>
+                    <th>Emp Name</th>
+                    <th>Work Date</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
 
-<script type="text/javascript">
-       $(document).ready(function () {
-        var table = $('#tblAttendanceApproval').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: '@Url.Action("GetAttendanceApprovalList", "Attendance", new { area = "Employee" })',
-                type: 'POST',
-                data: function (d) {
-                    return {
-                        sEcho: d.draw,
-                        iDisplayStart: d.start,
-                        iDisplayLength: d.length,
-                        sSearch: d.search.value,
-                        SortCol: d.columns[d.order[0].column].data,
-                        SortDir: d.order[0].dir
-                    };
-                }
-            },
-            columns: [
-                {
-                    data: "id",
-                    orderable: false,
-                    render: function (data) {
-                        return '<input type="checkbox" class="row-select" value="' + data + '">';
-                    }
-                },
-                { data: "employeeId", visible: false },
-                { data: "employeNumber" },
-                { data: "employeeName" },
-                { data: "workDate",
-                  render: function(data) {
-            
-            if (data) {
-                return new Date(data).toLocaleDateString();
-               
-            }
-            return '';
-        }},
-                { data: "attendanceStatus" },
-                { data: "remarks" }
-            ]
-        });
+    <script type="text/javascript">
 
-        $('#selectAll').on('click', function () {
-            $('.row-select').prop('checked', this.checked);
-        });
-
-           $('#btnUpdateSelected').on('click', function () {
-        const table = $('#tblAttendanceApproval').DataTable();
-        const selectedStatus = $('#ddlAttendanceStatus').val();
-        const selectedRecords = [];
-        const checkedRows = $('#tblAttendanceApproval .row-select:checked');
-
-        
-    if (!selectedStatus) {
-        toastEMessage('Error', 'Please select a status (Approved/Rejected)');
-        return;
-    }
-        
-        checkedRows.each(function () {
-
-            const rowData = table.row($(this).closest('tr')).data();
-            selectedRecords.push({
-                ID:rowData.id,
-                EmployeeId: rowData.employeeId,
-                WorkDate: rowData.workDate, 
-                AttendanceStatus: rowData.attendanceStatus,
-                Remarks: rowData.remarks,
-                ApprovedStatus: selectedStatus,
-            });
-        });
-
-        if (selectedRecords.length === 0) {
-            toastEMessage('Error', 'Please select at least one attendance record');
-            return;
-        }
-
-       
-        const $button = $(this);
-        $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
-
-        $.ajax({
-            type: "POST",
-            url: '@Url.Action("SaveBulkAttendanceStatus", "Attendance", new { area = "Employee" })',
-            contentType: "application/json",
-            data: JSON.stringify(selectedRecords),
-            success: function (response) {
-                if (response.success) {
-                    toastMessage('Success', response.message);
-                    table.ajax.reload(null, false); 
-                } else {
-                    toastEMessage('Error', response.message || 'Failed to approve records');
-                }
-            },
-            error: function (xhr) {
-                const errorMsg = xhr.responseJSON?.message || 'Server error occurred';
-                toastEMessage('Error', errorMsg);
-            },
-            complete: function () {
-                $button.prop('disabled', false).text('Approve Selected');
-                $('#selectAll').prop('checked', false);
-            }
-        });
-    });
+	   $(document).ready(function ()
+	   {
+			var table = $('#tblAttendanceApproval').DataTable(
+			{
+				  processing: true,
+				  serverSide: true,
+				  ordering: true,
+				  paging: true,
+				  searching: true,
+				ajax:{
+				      url: '@Url.Action("GetAttendanceApprovalList", "Attendance", new { area = "Employee" })',
+				      type: 'POST',
+				      datatype: 'json',
+				      data: function (d)
+				      {
+                          var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'employeNumber';
+					    var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
+					    return {
+						        sEcho: d.draw,
+						        iDisplayStart: d.start,
+						        iDisplayLength: d.length,
+						        sSearch: d.search.value,
+						        sortCol: sortColumn,
+						        sortDir: sortDirection
+					    };
+				      }
+			    },
+			   columns: [
+                           {
+                                data: "id",
+                                 render: function (data) {
+                                 return '<input type="checkbox" class="row-select" value="' + data + '">';
+                                 }
+                           },
+                           { data: "employeeId", visible: false },
+                           { data: "employeNumber" },
+                           { data: "employeeName" },
+                           {
+                              data: "workDate",
+						       render: function (data)
+						       {
+                                    if (data) {
+                                            return new Date(data).toLocaleDateString();
+                                           }
+                                    return '';
+                               }
+                           },
+                           { data: "attendanceStatus" },
+                           { data: "remarks" }
+			   ],
+			   columnDefs: [
+				         { "targets": [0], "orderable": false, },
+				         { "targets": [1], "orderable": false, }
+					],
+					responsive: true,
+                    order: []
+		   });
 
 
-    });
 
-         function toastEMessage(type , message){
-          $.toast({
-                    heading: 'Error',
-                    text: message,
-                    showHideTransition: 'slide',
-                    icon: 'error',
-                    position: 'top-right',
-                });
-        }
+		$('#selectAll').on('click', function () {
+			$('.row-select').prop('checked', this.checked);
+		});
 
-         function toastMessage(type , message)
-            {
-                    $.toast({
-                    heading: type,
-                    text: message,
-                    showHideTransition: 'slide',
-                    icon: 'success',
-                    position: 'top-right',
-                });
-            }
-</script>
+		$('#btnUpdateSelected').on('click', function ()
+	   {
+			   const table = $('#tblAttendanceApproval').DataTable();
+			   const selectedStatus = $('#ddlAttendanceStatus').val();
+			   const selectedRecords = [];
+			  const checkedRows = $('#tblAttendanceApproval .row-select:checked');
+
+
+		 if (!selectedStatus)
+		 {
+		   toastEMessage('Error', 'Please select a status (Approved/Rejected)');
+			  return;
+		 }
+
+		checkedRows.each(function ()
+			{
+			 const rowData = table.row($(this).closest('tr')).data();
+				selectedRecords.push(
+			{
+				ID:rowData.id,
+				EmployeeId: rowData.employeeId,
+				WorkDate: rowData.workDate,
+				AttendanceStatus: rowData.attendanceStatus,
+				Remarks: rowData.remarks,
+				ApprovedStatus: selectedStatus,
+			});
+		});
+
+			if (selectedRecords.length === 0)
+			{
+			 toastEMessage('Error', 'Please select at least one attendance record');
+			 return;
+		    }
+
+
+		const $button = $(this);
+		$button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+		$.ajax({
+			type: "POST",
+			url: '@Url.Action("SaveBulkAttendanceStatus", "Attendance", new { area = "Employee" })',
+			contentType: "application/json",
+			data: JSON.stringify(selectedRecords),
+			success: function (response) {
+				if (response.success) {
+					toastMessage('Success', response.message);
+					table.ajax.reload(null, false);
+				} else {
+					toastEMessage('Error', response.message || 'Failed to approve records');
+				}
+			},
+			error: function (xhr) {
+				const errorMsg = xhr.responseJSON?.message || 'Server error occurred';
+				toastEMessage('Error', errorMsg);
+			},
+			complete: function ()
+			{
+				$button.prop('disabled', false).text('Approve Selected');
+				$('#selectAll').prop('checked', false);
+			}
+		});
+	});
+
+
+	});
+
+	function toastEMessage(type, message)
+	{
+		$.toast(
+			{
+					heading: 'Error',
+					text: message,
+					showHideTransition: 'slide',
+					icon: 'error',
+					position: 'top-right',
+			});
+	}
+
+	function toastMessage(type , message)
+		 {
+			  $.toast(
+				{
+					heading: type,
+					text: message,
+					showHideTransition: 'slide',
+					icon: 'success',
+					position: 'top-right',
+				});
+		 }
+    </script>

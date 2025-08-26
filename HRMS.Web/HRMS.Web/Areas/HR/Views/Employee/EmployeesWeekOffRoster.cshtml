@@ -193,7 +193,9 @@
 		var parts = weekVal.split('|');
 		weekStart = convertToISO(parts[1]); 
 		
-	}
+					}
+                    var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'employeNumber';
+                    var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
 					return {
 						sEcho: d.draw,
 						iDisplayStart: d.start,
@@ -203,6 +205,8 @@
 						PageSize: d.length,
 						Year: $('#yearDropdown').val(),
 						WeekStartDate: weekStart,
+                        sortCol: sortColumn,
+                        sortDir: sortDirection
 					};
 				}
 			},
@@ -253,8 +257,8 @@
 	 			}
 			],
 			"columnDefs": [
-				{ "targets": [0], "orderable": false, "visible": false },
-				{ "targets": [1], "orderable": false }
+				{ "targets": [0], "orderable": false, "visible": false }
+				
 			],
 			"responsive": true
 		});

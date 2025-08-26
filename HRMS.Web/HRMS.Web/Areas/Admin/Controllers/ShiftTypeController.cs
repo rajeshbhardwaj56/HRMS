@@ -41,13 +41,28 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult ShiftTypeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public JsonResult ShiftTypeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol,
+    string sortDir)
         {
-          ShiftTypeInputParans shiftTypeParams = new ShiftTypeInputParans();
+            var columnMapping = new Dictionary<string, string>
+    {
+        {"shiftTypeID", "shiftTypeID"},
+        {"shiftTypeName", "ShiftTypeName"},
+        {"startTime", "startTime"},
+        {"endTime", "endTime"},
+        {"autoAttendance", "autoAttendance"}
+    
+    };
+
+            ShiftTypeInputParans shiftTypeParams = new ShiftTypeInputParans();
             shiftTypeParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             shiftTypeParams.DisplayStart = iDisplayStart;
             shiftTypeParams.DisplayLength = iDisplayLength;
             shiftTypeParams.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
+            shiftTypeParams.SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "shiftTypeID";
+            shiftTypeParams.SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper();
+
+
             var data = _businessLayer.SendPostAPIRequest(shiftTypeParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             return Json(new {

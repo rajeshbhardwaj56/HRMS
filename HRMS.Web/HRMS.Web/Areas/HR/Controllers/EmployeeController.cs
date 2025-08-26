@@ -29,11 +29,13 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Style;
 using System;
+using System.Collections.Specialized;
 using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography.Xml;
 using System.Text;
+using System.Web;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.HR.Controllers
@@ -96,11 +98,31 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+
+            var columnMapping = new Dictionary<string, string>
+    {
+        {"employeeID", "EmployeeID"},
+        {"employeeNumber", "EmployeeNumber"},
+        {"firstName", "FirstName"},
+        {"surname", "Surname"}, 
+        {"designationName", "Designation"},
+        {"departmentName", "Department"},
+        {"shift", "Shift"},
+        {"payrollTypeName", "PayrollType"},
+        {"mobile", "Mobile"},
+        {"jobLocation", "JobLocation"}, 
+        {"isActive", "IsActive"}
+    };
+
+           
+
+
             employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             employee.DisplayStart = iDisplayStart;
             employee.DisplayLength = iDisplayLength;
-            employee.SortCol = sortCol;
-            employee.SortDir = sortDir;
+            employee.SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "EmployeeID";
+            employee.SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper();
             employee.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
             employee.SubDepartmentID = string.IsNullOrEmpty(subDeptFilter) ? 0 : Convert.ToInt64(subDeptFilter);
             employee.EmployeeTypeID = string.IsNullOrEmpty(empTypeFilter) ? 0 : Convert.ToInt64(empTypeFilter);
@@ -1463,16 +1485,34 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch, int Year, DateTime WeekStartDate)
+        public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch, int Year, DateTime WeekStartDate, string sortCol,
+    string sortDir)
         {
             WeekOfInputParams employee = new WeekOfInputParams();
+
+            var columnMapping = new Dictionary<string, string>
+    {
+        {"employeeID", "EmployeeID"},
+        {"employeeName", "EmployeeName"},
+        {"employeNumber", "EmployeNumber"},
+        {"weekStartDate", "WeekStartDate"},
+        {"modifiedName", "ModifiedName"},
+        {"dayOff1", "DayOff1"},
+        {"dayOff2", "DayOff2"},
+        {"modifiedDate", "ModifiedDate"},
+    };
+
+
             employee.PageNumber = PageNumber;
             employee.PageSize = PageSize;
             employee.WeekStartDate = WeekStartDate;
             employee.Year = Year;
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            employee.RoleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID)); ;
+            employee.RoleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID)); 
             employee.SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch;
+            employee.SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "EmployeeID";
+            employee.SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper();
+
             var data = _businessLayer.SendPostAPIRequest(
                 employee,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesWeekOffRoster),
@@ -1525,7 +1565,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
             if (emp == null)
             {
-                Employeemodel.EmployeeID = 0;
+                Employeemodel.ManagerID  = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID )); ;
             }
             else
             {

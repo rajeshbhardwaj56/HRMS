@@ -47,52 +47,53 @@
 
 <div class="main-header anim" style="--delay: 0s">Import Employee Roster</div>
 <form id="uploadForm">
-<div class="row mb-3">
-	
-	<div class="col-md-3">
-		<label for="yearSelect" class="form-label">Year</label>
-		<select id="yearDropdown" class="form-select" required></select>
-	</div>
-	<div class="col-md-4">
-		<label for="weekSelect" class="form-label">Week</label>
-		<select id="weekDropdown" class="form-select" required></select>
-	</div>
-</div>
+    <div class="row mb-3">
+
+        <div class="col-md-3">
+            <label for="yearSelect" class="form-label">Year</label>
+            <select id="yearDropdown" class="form-select" required></select>
+        </div>
+        <div class="col-md-4">
+            <label for="weekSelect" class="form-label">Week</label>
+            <select id="weekDropdown" class="form-select" required></select>
+        </div>
+    </div>
 
 
-<div class="Container">
-	<div class="group-box anim" style="--delay: .3s">
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
 
 
-		<div class="card-body" style=" height: 150px;">
-			<h4 class="mb-0 titleweekof">Upload Week-Off Excel</h4>
-			<div class="importemployee-section">
-				<div class="small-header">Import Employee</div>
-				<span>
-					<a class="UploadExcel" href="/assets/downloadexcel/weekely_roaster.xlsx" download>
-						Download Sample File
-					</a>
-				</span>
-			</div>
-						
-							<div class="mb-3">
-					<input type="file" class="form-control" id="excelFile" accept=".xls,.xlsx" required style=" width: 500px;">
-							</div>
-				<button type="submit" id="uploadButton"  class="btn btn-primary ">Upload</button>
-						</form>
+            <div class="card-body" ">
+                <h4 class="mb-0 titleweekof">Upload Week-Off Excel</h4>
+                <div class="importemployee-section">
+                    <div class="small-header">Import Employee</div>
+                    <span>
+                        <a class="UploadExcel" href="/assets/downloadexcel/weekely_roaster.xlsx" download>
+                            Download Sample File
+                        </a>
+                    </span>
+                </div>
 
-						<div class="mt-4">
-							<div id="progressBar" class="progress d-none">
-								<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-									 style="width: 0%"></div>
-							</div>
-							<div id="resultMessage" class="mt-3"></div>
-						</div>
-					</div>
-				</div>
-				 
-	</div>
+                <div class="d-flex align-items-center mb-3"  style="max-width: 600px;">
+                    <input type="file" class="form-control me-2" id="excelFile" accept=".xls,.xlsx" required >
+                    <button type="submit" id="uploadButton" class="btn btn-primary ">Upload</button>
+                </div>
+               
+                <div class="mt-4">
+                    <div id="progressBar" class="progress d-none  mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                             style="width: 0%"></div>
+                    </div>
+                    <div id="resultMessage" class="mt-2"></div>
+                </div>
+            </div>
+        </div>
 
+    </div>
+</form>
+
+				
 <script>
 	
 	 let weekVal = null;
@@ -109,14 +110,12 @@
 
 
 		weekRanges.forEach(w => {
-			
-
-
 	    const start = new Date(convertToISO(w.startDate));
 		const end = new Date(convertToISO(w.endDate));
 
-		if (end < today) return;
-
+            if ((today >= start && today <= end) || end < today) {
+                return;
+            }
 		const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
 		const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
 
@@ -124,21 +123,19 @@
 			selectedValue = value;
 		}
 
-
-
-
 			weekDropdown.append($('<option>').val(value).text(label));
 		});
 
 
 		if (selectCurrentWeek && selectedValue) {
 		weekDropdown.val(selectedValue).trigger('change');
-		weekVal = selectedValue; // store it for DataTable ajax
-		selectCurrentWeek = false; // only auto-select once
+		weekVal = selectedValue; 
+		selectCurrentWeek = false; 
 	}
 	}
 
-	 function getWeekRanges(year) {
+	function getWeekRanges(year) {
+
 		const weeks = [];
 		const firstMonday = getFirstMondayOfYear(year);
 
@@ -175,9 +172,9 @@
 		return weeks;
 	}
 	   function getFirstMondayOfYear(year) {
-		const date = new Date(year, 0, 1); // Jan 1
-		const day = date.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
-		const diff = (day === 0) ? 1 : (8 - day); // days to next Monday
+		const date = new Date(year, 0, 1); 
+		const day = date.getDay(); 
+		const diff = (day === 0) ? 1 : (8 - day);
 		date.setDate(date.getDate() + (day === 1 ? 0 : diff));
 		return date;
 	}

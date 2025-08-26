@@ -53,10 +53,14 @@ namespace HRMS.Models.ExportEmployeeExcel
         public int? RoleId { get; set; } = 0;
         public string? SearchTerm { get; set; }
         public DateTime? WeekStartDate { get; set; }
+
+        public string? SortCol { get; set; }      // @SortCol
+        public string? SortDir { get; set; }
     }
     public class WeekOfEmployeeId
     {
-        public long EmployeeID { get; set; }
+        public long? EmployeeID { get; set; }
+        public long? ManagerID { get; set; }
     }
     public class WeekOffUploadDeleteModel
     {

@@ -2474,6 +2474,7 @@ namespace HRMS.API.BusinessLayer
             List<SelectListItem> model = new List<SelectListItem>();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmployeeID", Employeemodel.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@ManagerID", Employeemodel.ManagerID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_Employees, sqlParameter);
             model = dataSet.Tables[0].AsEnumerable()
                            .Select(dataRow => new SelectListItem
@@ -2536,8 +2537,8 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameters.Add(new SqlParameter("@ShiftTypeID", model.ShiftTypeID));
-            sqlParameters.Add(new SqlParameter("@SortCol", "ShiftTypeID"));
-            sqlParameters.Add(new SqlParameter("@SortDir", "DESC"));
+            sqlParameters.Add(new SqlParameter("@SortCol", model.SortCol ));
+            sqlParameters.Add(new SqlParameter("@SortDir", model.SortDir));
             sqlParameters.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
             sqlParameters.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
             sqlParameters.Add(new SqlParameter("@DisplayLength", model.DisplayLength));
@@ -5498,7 +5499,7 @@ namespace HRMS.API.BusinessLayer
             try
             {
                 List<SqlParameter> sqlParameter = new List<SqlParameter>
-        {
+        {       
             new SqlParameter("@ReportingToID", model.EmployeeID),
             new SqlParameter("@RecordID", model.Id),
             new SqlParameter("@SearchTerm", string.IsNullOrEmpty(model.SearchTerm) ? DBNull.Value : (object)model.SearchTerm),
@@ -5506,7 +5507,9 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@Year", model.Year),
             new SqlParameter("@PageNumber", model.PageNumber),
             new SqlParameter("@PageSize", model.PageSize),
-            new SqlParameter("@RoleId", model.RoleId)
+            new SqlParameter("@RoleId", model.RoleId),
+         new SqlParameter("@SortCol", model.SortCol ?? "WeekStartDate"),
+new SqlParameter("@SortDir", model.SortDir ?? "DESC")
 
         };
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetWeekOffRoster, sqlParameter);
@@ -5683,9 +5686,9 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                     .ToList();
             }
 
-            if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                int.TryParse(dataSet.Tables[1].Rows[0]["TotalRecords"]?.ToString(), out totalRecords);
+                int.TryParse(dataSet.Tables[0].Rows[0]["TotalRecords"]?.ToString(), out totalRecords);
             }
 
             return new AttendanceWithHolidaysVM
@@ -5810,6 +5813,10 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         #endregion Attendance Approval
 
         #region LastLevelEmployeeDropdown
+
+
+      
+
 
         public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model)
         {
