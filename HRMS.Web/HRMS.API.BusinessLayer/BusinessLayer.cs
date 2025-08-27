@@ -2100,15 +2100,15 @@ namespace HRMS.API.BusinessLayer
                     }
                 }
 
-                    dashBoardModel.EmployeeDetails = dataSet.Tables[3].AsEnumerable()
-         .Select(dataRow => new EmployeeDetails
-         {
-             EmployeeId = dataRow.Field<long>("EmployeeId"),
-             FirstName = dataRow.Field<string>("EmployeeFirstName"),
-             LastName = dataRow.Field<string>("EmployeeLastName"),
-             DOB = dataRow.Field<DateTime?>("EmployeeDOB"),  // Nullable DateTime
-             EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
-         }).ToList();
+                dashBoardModel.EmployeeDetails = dataSet.Tables[3].AsEnumerable()
+     .Select(dataRow => new EmployeeDetails
+     {
+         EmployeeId = dataRow.Field<long>("EmployeeId"),
+         FirstName = dataRow.Field<string>("EmployeeFirstName"),
+         LastName = dataRow.Field<string>("EmployeeLastName"),
+         DOB = dataRow.Field<DateTime?>("EmployeeDOB"),  // Nullable DateTime
+         EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
+     }).ToList();
 
 
                 var LeaveDetails = dataSet.Tables[4].AsEnumerable()
@@ -2167,7 +2167,7 @@ namespace HRMS.API.BusinessLayer
 
                     if (model.RoleID == 2 || model.RoleID == 5)
                     {
-                        
+
                         var extraSubordinates = hierarchy
                             .SelectMany(e => e.Subordinates ?? new List<HierarchyEmployee>())
                             .ToList();
@@ -2191,7 +2191,7 @@ namespace HRMS.API.BusinessLayer
                                CountsOfCompanies = dataRow.Field<int>("TotalCompanies"),
                            }).ToList().FirstOrDefault();
                     dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
-                   
+
 
                 }
 
@@ -2207,7 +2207,7 @@ namespace HRMS.API.BusinessLayer
                     dashBoardModel.TotalSeniorCore = Employment.TotalSeniorCore;
                     dashBoardModel.TotalFieldTracer = Employment.TotalCCE;
                     dashBoardModel.TotalCCE = Employment.TotalFieldTracer;
-                        
+
                 }
                 if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.Admin)
                 {
@@ -2252,7 +2252,7 @@ namespace HRMS.API.BusinessLayer
 
                 }
 
-                    if (dashBoardModel == null)
+                if (dashBoardModel == null)
                 {
                     dashBoardModel = new DashBoardModel();
                 }
@@ -2282,7 +2282,7 @@ namespace HRMS.API.BusinessLayer
             if (flatList == null || flatList.Count == 0)
                 return new List<HierarchyEmployee>();
 
-           
+
             var combined = BuildHierarchyTree(flatList);
 
             return combined;
@@ -2319,7 +2319,7 @@ namespace HRMS.API.BusinessLayer
                 }
             }
 
-            return hierarchy; 
+            return hierarchy;
         }
 
         private string GetParentPath(string path)
@@ -2537,7 +2537,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             sqlParameters.Add(new SqlParameter("@CompanyID", model.CompanyID));
             sqlParameters.Add(new SqlParameter("@ShiftTypeID", model.ShiftTypeID));
-            sqlParameters.Add(new SqlParameter("@SortCol", model.SortCol ));
+            sqlParameters.Add(new SqlParameter("@SortCol", model.SortCol));
             sqlParameters.Add(new SqlParameter("@SortDir", model.SortDir));
             sqlParameters.Add(new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching));
             sqlParameters.Add(new SqlParameter("@DisplayStart", model.DisplayStart));
@@ -5445,7 +5445,7 @@ namespace HRMS.API.BusinessLayer
             foreach (var item in models)
             {
                 var row = dt.NewRow();
-              
+
                 var employeeNumber = !string.IsNullOrWhiteSpace(item.EmployeeNumber)
                     ? item.EmployeeNumber
                     : item.EmployeeNumberWithOutAbbr ?? string.Empty;
@@ -5499,7 +5499,7 @@ namespace HRMS.API.BusinessLayer
             try
             {
                 List<SqlParameter> sqlParameter = new List<SqlParameter>
-        {       
+        {
             new SqlParameter("@ReportingToID", model.EmployeeID),
             new SqlParameter("@RecordID", model.Id),
             new SqlParameter("@SearchTerm", string.IsNullOrEmpty(model.SearchTerm) ? DBNull.Value : (object)model.SearchTerm),
@@ -5523,7 +5523,7 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
                                       WeekStartDate = dataRow.Field<DateTime?>("WeekStartDate"),
                                       DayOff1 = dataRow.Field<DateTime?>("DayOff1"),
                                       DayOff2 = dataRow.Field<DateTime?>("DayOff2"),
-                                      DayOff3 = dataRow.Field<DateTime?>("DayOff3"),                                  
+                                      DayOff3 = dataRow.Field<DateTime?>("DayOff3"),
                                       ModifiedDate = dataRow.Field<DateTime?>("ModifiedDate"),
                                       ModifiedName = dataRow.Field<string?>("ModifiedName"),
                                       EmployeeName = dataRow.Field<string?>("EmployeeName"),
@@ -5557,10 +5557,10 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                var row = dataSet.Tables[0].Rows[index: 0];   
+                var row = dataSet.Tables[0].Rows[index: 0];
                 int status = Convert.ToInt32(row["Status"]);
                 string message = row["Message"].ToString();
-                                   
+
                 // Return in format like "1|Success message" or "0|Failure message"
                 return message;
             }
@@ -5678,10 +5678,10 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                         EmployeeId = row.Field<long?>("EmployeeID"),
                         ID = row.Field<long?>("ID"),
                         EmployeNumber = row.Field<string>("EmployeNumber"),
-                        EmployeeName = row.Field<string>("EmployeeName"),                                                               
+                        EmployeeName = row.Field<string>("EmployeeName"),
                         WorkDate = row.Field<DateTime>("WorkDate"),
-                        Status = row.Field<string>("AttendanceStatus"),        
-                        Remarks = row.Field<string>("Remarks")       
+                        Status = row.Field<string>("AttendanceStatus"),
+                        Remarks = row.Field<string>("Remarks")
                     })
                     .ToList();
             }
@@ -5716,7 +5716,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
           new SqlParameter("@Remarks", string.IsNullOrEmpty(att.Remarks) ? (object)DBNull.Value : att.Remarks),
       };
 
-                
+
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(
                     StoredProcedures.usp_SaveOrUpdateAttendanceStatus, sqlParameters
                 );
@@ -5815,7 +5815,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         #region LastLevelEmployeeDropdown
 
 
-      
+
 
 
         public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model)
@@ -5826,30 +5826,35 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         new SqlParameter("@EmployeeID", model.EmployeeID),
     };
 
-           
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetFirstLevelEmployees, sqlParameters);
 
-                if (dataSet != null && dataSet.Tables.Count > 0)
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetFirstLevelEmployees, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
                 {
-                    foreach (DataRow row in dataSet.Tables[0].Rows)
-                    {
                     lastLevel.Add(new LastLevelEmployeeDropdown
-                        {
-                            EmployeeID = row.Field<long>("EmployeeID"),
-                            EmployeeNumber = row.Field<string>("EmployeNumber"),
-                            EmployeeName = row.Field<string>("EmployeeName"),
+                    {
+                        EmployeeID = row.Field<long>("EmployeeID"),
+                        EmployeeNumber = row.Field<string>("EmployeNumber"),
+                        EmployeeName = row.Field<string>("EmployeeName"),
                         Gender = row.Field<int>("Gender"),
                         JobLocationID = row.Field<long>("JobLocationID"),
-                            
-                            
-                        });
-                    }
-                }
 
-                return lastLevel;
-            
-           
+
+                    });
+                }
+            }
+
+            return lastLevel;
+
+
         }
+
+
+        public 
+
+
 
         #endregion LastLevelEmployeeDropdown
     }

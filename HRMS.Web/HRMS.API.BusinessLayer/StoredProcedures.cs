@@ -160,6 +160,9 @@ namespace HRMS.API.BusinessLayer
 
         public const string usp_GetAttendanceForApprovalImmediateApprove = "usp_GetAttendanceForApprovalImmediateApprove";
 
+        public const string usp_Get_EmployeesWithoutWeekOffRoster = "usp_Get_EmployeesWithoutWeekOffRoster";
+        public const string usp_Get_EmployeesHierarchyUnderManager = "usp_Get_EmployeesHierarchyUnderManager";
+
 
 
 
