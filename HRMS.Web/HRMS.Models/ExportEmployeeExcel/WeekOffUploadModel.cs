@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HRMS.Models.DashBoard;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HRMS.Models.ExportEmployeeExcel
@@ -68,6 +69,26 @@ namespace HRMS.Models.ExportEmployeeExcel
         public long ModifiedBy { get; set; }
     }
     
+    public class UpcomingWeekOffRosterParams
+    {
+        public DateTime? WeekStartDate { get; set; }
+    }
+
+    public class UpcomingWeekOffRoster
+    {
+        public long ManagerID { get; set; }
+        public long EmployeeID { get; set; }
+        public string? ManagerName { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? EmployeeNumber { get; set; }
+        public string? Employee { get; set; }
+        public string? ManagerEmailID { get; set; }
+        public int Level { get; set; }
+        public string? Path { get; set; }
+        public List<UpcomingWeekOffRoster> Subordinates { get; set; } = new List<UpcomingWeekOffRoster>();
+
+    }
+
     public class EmployeeShiftModel
     {
         public long ShiftTypeID { get; set; }

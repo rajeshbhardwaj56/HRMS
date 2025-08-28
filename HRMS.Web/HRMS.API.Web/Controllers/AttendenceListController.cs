@@ -3,6 +3,7 @@ using HRMS.Models;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -197,5 +198,13 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult GetEmployeesWithoutUpcomingWeekOffRoster(UpcomingWeekOffRosterParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeesWithoutUpcomingWeekOffRoster(model));
+            return response;
+        }
     }
 }

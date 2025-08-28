@@ -340,6 +340,7 @@ namespace HRMS.Models.Common
         public const string UploadRosterWeekOff = "UploadRosterWeekOff";
         public const string GetEmployeesWeekOffRoster = "GetEmployeesWeekOffRoster";
         public const string DeleteWeekOffRoster = "DeleteWeekOffRoster"; 
+        public const string GetEmployeesWithoutUpcomingWeekOffRoster = "GetEmployeesWithoutUpcomingWeekOffRoster"; 
         public const string GetShiftTypeList = "GetShiftTypeList"; 
 
         public const string GetLeaveWeekOffDates = "GetLeaveWeekOffDates";

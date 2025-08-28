@@ -142,7 +142,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var employeeLastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname));
             var EmployeeNumber = Convert.ToString(HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr));
             
-            var employeeFullName = string.Join(" ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
+            var employeeFullName = string.Join(separator: " ", new[] { employeeName, employeeMiddleName, employeeLastName }.Where(name => !string.IsNullOrWhiteSpace(name)));
             ViewBag.employeeFullName = employeeFullName;
             AttendanceInputParams models = new AttendanceInputParams();
             models.Year = objmodel.Year;
