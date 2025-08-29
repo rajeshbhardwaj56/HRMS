@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 using HRMS.API.BusinessLayer.ITF;
@@ -3288,7 +3289,8 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@PageNumber", model.Page),
         new SqlParameter("@PageSize", model.PageSize),
         new SqlParameter("@SearchTerm", model.SearchTerm),
-        new SqlParameter("@JobLocationID", model.JobLocationID)
+        new SqlParameter("@JobLocationID", model.JobLocationID),
+        new SqlParameter("@ManagerFilterID", model.ManagerID)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetTeamAttendanceDeviceLog, sqlParameters);
@@ -3306,6 +3308,8 @@ namespace HRMS.API.BusinessLayer
                             JobLocationName = dataRow.Field<string>("JobLocationName"),
                             EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
+                            ManagerName = dataRow.Field<string>("ManagerName"),
+                            ManagerManagerName = dataRow.Field<string>("ManagerManagerName"),
                             TotalWorkingDays = dataRow.Field<int>("TotalWorkingDays"),
                             PresentDays = dataRow.Field<decimal>("PresentDays"),
                             TotalLeaves = dataRow.Field<decimal>("TotalLeaves"),
@@ -3353,7 +3357,8 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@PageNumber", model.Page),
         new SqlParameter("@PageSize", model.PageSize),
         new SqlParameter("@SearchTerm", model.SearchTerm),
-        new SqlParameter("@JobLocationID", model.JobLocationID)
+        new SqlParameter("@JobLocationID", model.JobLocationID),
+        new SqlParameter("@ManagerFilterID", model.ManagerID)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ExportAttendanceDeviceLog, sqlParameters);
@@ -3374,6 +3379,8 @@ namespace HRMS.API.BusinessLayer
                             TotalWorkingDays = dataRow.Field<int>("TotalWorkingDays"),
                             PresentDays = dataRow.Field<decimal>("PresentDays"),
                             TotalLeaves = dataRow.Field<decimal>("TotalLeaves"),
+                            ManagerName = dataRow.Field<string>("ManagerName"),
+                            ManagerManagerName = dataRow.Field<string>("ManagerManagerName"),
                             AttendanceByDay = new Dictionary<string, string>()
                         };
 
@@ -5899,10 +5906,6 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
         #region LastLevelEmployeeDropdown
 
-
-
-
-
         public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model)
         {
             List<LastLevelEmployeeDropdown> lastLevel = new List<LastLevelEmployeeDropdown>();
@@ -5938,7 +5941,29 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
 
        
+        public List<Managers> GetManagerDropdown(Managers model)
+        {
+            List<Managers> obj = new List<Managers>();
+            var sqlParameters = new List<SqlParameter>
+            {
+                 new SqlParameter("@ManagerID", model.ManagerID )
+             };
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Manager_Hierarchy_List, sqlParameters);
+            if (dataSet.Tables.Count > 0)
+            {
+                obj = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new Managers
+                {
+                    EmployeeID = dataRow.Field<long>("EmployeeID"),
+                    EmployeNumber = dataRow.Field<string>("EmployeNumber"),
+                    EmployeeName = dataRow.Field<string>("EmployeeName")
 
+
+                })
+                .ToList();
+            }
+            return obj;
+        }
 
         #endregion 
     }

@@ -152,9 +152,13 @@ namespace HRMS.API.BusinessLayer.ITF
         AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model);
         public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att);
         public Result SaveOrUpdateBulk(List<SaveAttendanceStatus> entries);
+
+
         #endregion Attendance Approval
         #region LastLevelEmployeeDropdown
-        public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model );
+        public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model);
+
+        public List<Managers> GetManagerDropdown(Managers  model);
         #endregion LastLevelEmployeeDropdown
 
     }

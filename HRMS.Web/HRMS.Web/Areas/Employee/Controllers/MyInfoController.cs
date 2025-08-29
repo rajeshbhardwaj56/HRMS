@@ -768,7 +768,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize, string SearchTerm, int jobLocationId)
+        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize, string SearchTerm, int jobLocationId, long managerId)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
@@ -782,7 +782,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 PageSize = PageSize,
                 Page = Page,
                 SearchTerm = SearchTerm,
-                JobLocationID = jobLocationId
+                JobLocationID = jobLocationId,
+                ManagerID = managerId
             };
             AttendanceWithHolidaysVM model = new AttendanceWithHolidaysVM();
 
@@ -795,9 +796,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             });
             var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             Joblcoations modeldata = new Joblcoations();
+            Managers managermodeldata = new Managers();
+            managermodeldata.ManagerID = employeeId;
+            var managerobjdata = _businessLayer.SendPostAPIRequest(managermodeldata, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetManagerDropdown), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            model.ManagerList = JsonConvert.DeserializeObject<List<Managers>>(managerobjdata);
             modeldata.CompanyId = CompanyID;
             var objdata = _businessLayer.SendPostAPIRequest(modeldata, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetJobLocationsByCompany), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             model.JoblocationList = JsonConvert.DeserializeObject<List<Joblcoations>>(objdata);
+            
             return Json(new { data = model });
         }
 
@@ -837,7 +843,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult ExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId)
+        public IActionResult ExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId ,long ManagerId)
         {
             try
             {
@@ -852,7 +858,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     RoleId = roleId,
                     PageSize = 0,
                     Page = 1,
-                    JobLocationID = jobLocationId
+                    JobLocationID = jobLocationId,
+                    ManagerID = ManagerId
                 };
 
                 var response = _businessLayer.SendPostAPIRequest(
@@ -886,6 +893,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.Add("TotalWorkingDays");
                     headers.Add("PresentDays");
                     headers.Add("TotalLeaves");
+                    headers.Add("Manager");
+                    headers.Add("ManagerManager");
 
                     for (int i = 0; i < headers.Count; i++)
                     {
@@ -913,6 +922,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         worksheet.Cells[rowIndex, 3 + dayKeys.Count].Value = record.TotalWorkingDays.ToString() ?? "-";
                         worksheet.Cells[rowIndex, 4 + dayKeys.Count].Value = record.PresentDays.ToString() ?? "-";
                         worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.ManagerName.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.ManagerManagerName.ToString() ?? "-";
 
                         rowIndex++;
                     }

@@ -166,6 +166,13 @@ namespace HRMS.API.Web.Controllers.Common
             return response;
         }
 
+        [HttpPost]
+        public IActionResult GetManagerDropdown(Managers model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetManagerDropdown(model));
+            return response;
+        }
         #endregion Page Permission
 
         #region Exception

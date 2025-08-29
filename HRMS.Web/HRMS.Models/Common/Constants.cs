@@ -347,6 +347,7 @@ namespace HRMS.Models.Common
         public const string GetExportAttendanceForCalendar = "GetExportAttendanceForCalendar";
 
         public const string GetLastLevelEmployeeDropdown = "GetLastLevelEmployeeDropdown";
+        public const string GetManagerDropdown = "GetManagerDropdown";
 
 
     }

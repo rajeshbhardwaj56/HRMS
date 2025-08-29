@@ -24,6 +24,7 @@ namespace HRMS.Models.Common
         public string? Status { get; set; }
         public long? RoleId { get; set; }
         public long? JobLocationID { get; set; }
+        public long? ManagerID { get; set; }
         public string? conStr { get; set; }
         public string? SearchTerm { get; set; } = string.Empty;
         public DateTime? FromDate { get; set; }
@@ -72,6 +73,8 @@ namespace HRMS.Models.Common
         public long? ID { get; set; }
         public long? EmployeeId { get; set; }
         public string? EmployeNumber { get; set; }
+        public string? ManagerManagerName { get; set; }
+        public string? ManagerName { get; set; }
         public string? EncryptedIdentity { get; set; }
         public string? EmployeeNumberWithoutAbbr { get; set; }
         public string? EmployeeName { get; set; }
@@ -141,11 +144,11 @@ namespace HRMS.Models.Common
     {
         public List<AttendanceViewModel> Attendances { get; set; } = new List<AttendanceViewModel>();
         public int TotalRecords { get; set; }
-        public List<Joblcoations> JoblocationList { get; set; }
+        public List<Joblcoations> JoblocationList { get; set; } = new List<Joblcoations>();
+        public List<Managers> ManagerList { get; set; } = new List<Managers>();
+
+
     }
-
-
-
 
 
     public class AttendanceDetailsVM
