@@ -204,6 +204,7 @@ namespace HRMS.Models.Common
     {
         public DateTime? WorkDate { get; set; }
         public long? EmployeeId { get; set; }
+        public long? ManagerId { get; set; }
         public long? ID { get; set; }
         public long? UserID { get; set; }
         public string? Remarks { get; set; }

@@ -1458,9 +1458,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
         private async Task<List<WeekOffUploadModel>> ConvertDataTableToModelList(DataTable dt, int month, DateTime  weekStartDate)
         {
             var list = new List<WeekOffUploadModel>();
-
+            
             try
             {
+
                 foreach (DataRow row in dt.Rows)
                 {
                     var model = new WeekOffUploadModel
@@ -1468,10 +1469,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         EmployeeNumber = row["EmployeeNumber"]?.ToString() ?? "0",
                         DayOff1 = ParseDateIfColumnExists(dt, row, "DayOff1"),
                         DayOff2 = ParseDateIfColumnExists(dt, row, "DayOff2"),
-                         // will remain null if column is missing
+                        // will remain null if column is missing
                         ShiftTypeId = 0 // default
                     };
 
+                    
                     var shiftName = row.Table.Columns.Contains("Shift") ? row["Shift"]?.ToString() : null;
                     if (!string.IsNullOrWhiteSpace(shiftName))
                     {
@@ -1524,6 +1526,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         private string ValidateModelList(List<WeekOffUploadModel> models)
         {
+
+            var session = HttpContext.Session;
+            var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
+            var inputParams = new WeekOfInputParams
+            {
+                EmployeeID = employeeId,
+
+            };
+            var EmployeesHierarchyUnderManager = _businessLayer.SendPostAPIRequest(inputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesHierarchyUnderManager), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var EmployeesHierarchyUnderManagerDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmployeesHierarchyUnderManager);
             var errors = new List<string>();
             
             var employeeNumberToRows = new Dictionary<string, List<int>>();
@@ -1536,7 +1548,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     errors.Add($"Row {rowNum}: Missing or invalid EmployeeNumber.");
                     continue;
                 }
-
+                var empNumberLower = item.EmployeeNumber.Trim().ToLower();
+                if (!EmployeesHierarchyUnderManagerDictionaries.ContainsKey(empNumberLower))
+                {
+                    errors.Add($"Row {rowNum}: EmployeeNumber '{item.EmployeeNumber}' does not exist under the current manager.");
+                    continue;
+                }
                 if (!item.WeekStartDate.HasValue)
                 {
                     errors.Add($"Row {rowNum}: WeekStartDate is missing.");

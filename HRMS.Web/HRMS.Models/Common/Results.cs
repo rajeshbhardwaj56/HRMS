@@ -57,6 +57,7 @@ namespace HRMS.Models.Common
         public string Message { get; set; } = string.Empty;
         public string ErrorCode { get; set; } = string.Empty;
         public bool IsResetPasswordRequired { get; set; }
+        public bool IsManager { get; set; }
         public object Data { get; set; }
     }
 }

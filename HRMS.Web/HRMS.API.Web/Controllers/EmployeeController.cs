@@ -386,6 +386,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.UploadRosterWeekOff(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult GetEmployeesHierarchyUnderManager(WeekOfInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeesHierarchyUnderManager(model));
+            return response;
+        }
 
         [HttpGet]
         public IActionResult GetShiftTypeId(string ShiftTypeName)

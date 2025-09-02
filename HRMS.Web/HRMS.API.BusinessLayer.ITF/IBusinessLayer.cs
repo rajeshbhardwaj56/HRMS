@@ -139,7 +139,7 @@ namespace HRMS.API.BusinessLayer.ITF
         #region Exception Handling
         void InsertException(ExceptionLogModel model);
         #endregion Exception Handling
-
+        public Dictionary<string, long> GetEmployeesHierarchyUnderManager(WeekOfInputParams model);
         public bool UploadRosterWeekOff(WeekOffUploadModelList model);
         public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model);
         public List<UpcomingWeekOffRoster> GetEmployeesWithoutUpcomingWeekOffRoster(UpcomingWeekOffRosterParams model);

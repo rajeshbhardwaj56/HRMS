@@ -76,17 +76,20 @@ namespace HRMS.Models.ExportEmployeeExcel
 
     public class UpcomingWeekOffRoster
     {
-        public long ManagerID { get; set; }
         public long EmployeeID { get; set; }
-        public string? ManagerName { get; set; }
-        public string? EmployeeName { get; set; }
-        public string? EmployeeNumber { get; set; }
-        public string? Employee { get; set; }
-        public string? ManagerEmailID { get; set; }
-        public int Level { get; set; }
-        public string? Path { get; set; }
-        public List<UpcomingWeekOffRoster> Subordinates { get; set; } = new List<UpcomingWeekOffRoster>();
+        public string EmployeeNumber { get; set; } = string.Empty;
+        public string EmployeeName { get; set; } = string.Empty;
 
+        public long ManagerID { get; set; }
+        public string ManagerName { get; set; } = string.Empty;
+        public string ImmediateManagerName { get; set; } = string.Empty;
+        public string ManagerEmailID { get; set; } = string.Empty;
+
+        public int Level { get; set; }
+        public string Path { get; set; } = string.Empty;
+
+        // Aggregated employees
+        public List<UpcomingWeekOffRoster> Employees { get; set; } = new List<UpcomingWeekOffRoster>();
     }
 
     public class EmployeeShiftModel

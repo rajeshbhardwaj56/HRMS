@@ -1205,10 +1205,11 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
           
             var employeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(EmployeeId)); 
             var updatedByUserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-
+            var managerId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)); 
             SaveTeamAttendanceStatus model = new SaveTeamAttendanceStatus
             {
                 EmployeeId = employeeId, 
+                ManagerId = managerId, 
                 UserID = updatedByUserId,
                 WorkDate = WorkDate,
                 AttendanceStatus = Status,

@@ -2278,50 +2278,8 @@ namespace HRMS.API.BusinessLayer
         }
 
 
-        public List<UpcomingWeekOffRoster> BuildCombinedHierarchyWeekOff(List<UpcomingWeekOffRoster> flatList)
-        {
-            if (flatList == null || flatList.Count == 0)
-                return new List<UpcomingWeekOffRoster>();
 
 
-            var combined = BuildHierarchyTreeWeekOff(flatList);
-
-            return combined;
-        }
-
-        private List<UpcomingWeekOffRoster> BuildHierarchyTreeWeekOff(List<UpcomingWeekOffRoster> flatList)
-        {
-            var pathLookup = flatList.ToDictionary(e => e.Path, e => e);
-            var hierarchy = new List<UpcomingWeekOffRoster>();
-
-            foreach (var employee in flatList)
-            {
-                var parentPath = GetParentPath(employee.Path);
-
-                if (!string.IsNullOrEmpty(parentPath) && pathLookup.ContainsKey(parentPath))
-                {
-                    var parent = pathLookup[parentPath];
-                    if (parent.Subordinates == null)
-                        parent.Subordinates = new List<UpcomingWeekOffRoster>();
-
-                    // prevent duplicate children
-                    if (!parent.Subordinates.Any(s => s.Path == employee.Path))
-                    {
-                        parent.Subordinates.Add(employee);
-                    }
-                }
-                else
-                {
-                    // only add top-level nodes once
-                    if (!hierarchy.Any(h => h.Path == employee.Path))
-                    {
-                        hierarchy.Add(employee);
-                    }
-                }
-            }
-
-            return hierarchy;
-        }
 
 
         public List<HierarchyEmployee> BuildCombinedHierarchy(List<HierarchyEmployee> flatList)
@@ -5622,43 +5580,77 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
             return "0|Delete failed: No response from stored procedure.";
         }
 
+        public Dictionary<string, long> GetEmployeesHierarchyUnderManager(WeekOfInputParams model)
+        {
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeesHierarchyUnderManager, sqlParameter);
 
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                return dataSet.Tables[0].AsEnumerable()
+                            .ToDictionary(row => row.Field<string>("EmployeNumber").ToLower(), // Convert Name to lowercase
+                                          row => row.Field<long>("EmployeeID"));
+            }
+
+            return new Dictionary<string, long>(); // Return empty dictionary if no data
+        }
         public List<UpcomingWeekOffRoster> GetEmployeesWithoutUpcomingWeekOffRoster(UpcomingWeekOffRosterParams model)
         {
             List<UpcomingWeekOffRoster> upcomingWeekOffRosters = new List<UpcomingWeekOffRoster>();
             List<SqlParameter> sqlParameters = new List<SqlParameter>()
-            {
-             new SqlParameter("@WeekStartDate",model.WeekStartDate)
-            };
+    {
+        new SqlParameter("@WeekStartDate", model.WeekStartDate)
+    };
 
-            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeesWithoutWeekOffRoster, sqlParameters);
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_Get_EmployeesWithoutWeekOffRoster,
+                sqlParameters
+            );
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
                 var hierarchyTable = dataSet.Tables[0];
+
+               
                 var flatList = hierarchyTable.AsEnumerable()
-                         .Select(row => new UpcomingWeekOffRoster
-                         {
-                             EmployeeNumber = row.Field<string>("EmployeeNumber") ?? string.Empty,
-                             EmployeeID = row.IsNull("EmployeeID") ? 0 : row.Field<long>("EmployeeID"),
-                             EmployeeName = row.Field<string>("EmployeeName") ?? string.Empty,
-                             ManagerName = row.Field<string>("ManagerName") ?? string.Empty,
-                             ManagerEmailID = row.Field<string>("ManagerEmailID") ?? string.Empty,
-                             ManagerID = row.IsNull("ManagerID") ? 0 : row.Field<long>("ManagerID"),
-                             Level = row.IsNull("Level") ? 0 : row.Field<int>("Level"),
-                             Path = row.Field<string>("Path") ?? string.Empty,
-                             
-                         })
-                         .ToList();
+                    .Select(row => new UpcomingWeekOffRoster
+                    {
+                        EmployeeNumber = row.Field<string>("EmployeeNumber") ?? string.Empty,
+                        EmployeeID = row.IsNull("EmployeeID") ? 0 : row.Field<long>("EmployeeID"),
+                        EmployeeName = row.Field<string>("EmployeeName") ?? string.Empty,
+                        ManagerName = row.Field<string>("ManagerName") ?? string.Empty,
+                        ImmediateManagerName = row.Field<string>("ImmediateManagerName") ?? string.Empty,
+                        ManagerEmailID = row.Field<string>("ManagerEmailID") ?? string.Empty,
+                        ManagerID = row.IsNull("ManagerID") ? 0 : row.Field<long>("ManagerID"),
+                        Level = row.IsNull("Level") ? 0 : row.Field<int>("Level"),
+                        Path = row.Field<string>("Path") ?? string.Empty
+                    })
+                    .ToList();
 
-                var hierarchy = BuildCombinedHierarchyWeekOff(flatList);
-                upcomingWeekOffRosters = hierarchy;
-
+               
+                upcomingWeekOffRosters = flatList
+                    .GroupBy(x => new { x.ManagerID, x.ManagerName, x.ManagerEmailID })
+                    .Select(g => new UpcomingWeekOffRoster
+                    {
+                        ManagerID = g.Key.ManagerID,
+                        ManagerName = g.Key.ManagerName,
+                        ManagerEmailID = g.Key.ManagerEmailID,
+                        Employees = g.Select(emp => new UpcomingWeekOffRoster
+                        {
+                            EmployeeID = emp.EmployeeID,
+                            EmployeeNumber = emp.EmployeeNumber,
+                            EmployeeName = emp.EmployeeName,
+                            ImmediateManagerName = emp.ImmediateManagerName,
+                            Level = emp.Level,
+                            Path = emp.Path
+                        }).ToList()
+                    })
+                    .ToList();
             }
 
             return upcomingWeekOffRosters;
         }
-
         public long GetShiftTypeId(string ShiftTypeName)
 
         {
@@ -5800,6 +5792,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
       {
           new SqlParameter("@ID", att.ID),
           new SqlParameter("@EmployeeId", att.EmployeeId),
+          new SqlParameter("@ManagerID", att.ManagerId),
           new SqlParameter("@WorkDate", att.WorkDate),
           new SqlParameter("@Status", att.AttendanceStatus),
           new SqlParameter("@UserID ", att.UserID),
@@ -5818,6 +5811,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                     var row = dataSet.Tables[0].Rows[0];
                     model.PKNo = Convert.ToInt64(row["Id"]);
                     model.Message = row["Message"].ToString();
+                    model.IsManager = row["IsManager"] != DBNull.Value && Convert.ToBoolean(row["IsManager"]);
                 }
                 else
                 {
