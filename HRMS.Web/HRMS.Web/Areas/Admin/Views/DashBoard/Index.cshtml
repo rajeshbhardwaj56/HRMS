@@ -242,48 +242,7 @@
 
 
     <div class="row">
-        <div class="col col-lg-4 order-0 mb-4 anim " style="--delay: .1s">
-            <div class="card main-box">
-                <div class="card-header pb-0 p-3">
-                    <h6 class="mb-0">Time Off</h6>
-                </div>
-                <div class="timeOff">
-                    <ul>
-                        @if (RoleName != null && RoleName != Convert.ToInt64(Roles.Admin) && RoleName != Convert.ToInt64(Roles.SuperAdmin))
-                        {
-                            <li>
-                                <div class="timeOffCard">
-                                    <h5>Leave Balance</h5>
-                                    <h2>@ViewBag.NoOfLeaves</h2>
-                                    <span>Available</span>
-                                </div>
-                            </li>
-                        }
-                        <li>
-                            <div class="timeOffCard ">
-                                <h5>Upcoming Holiday</h5>
-                                @if (Model?.HolidayList != null && Model.HolidayList.Any())
-                                {
-                                    foreach (var item in Model.HolidayList)
-                                    {
-                                        <h5 class="card-title">@item.HolidayName</h5>
-                                        @item.FromDate.ToString("dd/MM/yyyy")
-                                    }
 
-                                }
-                                else
-                                {
-                                    <p>No Record Found</p>
-                                }
-                            </div>
-                        </li>
-                    </ul>
-                    @*  <div class="applyLeave">
-                        <a href="./leave_application.html" class="leaveapp btn btn-primary btn-download">Apply for Leave</a>
-                        </div> *@
-                </div>
-            </div>
-        </div>
 
         <div class="col col-lg-8 order-0 mb-4 anim" style="--delay: .1s">
             <div class="card">
@@ -387,7 +346,48 @@
         </div>
 
 
+        <div class="col col-lg-4 order-0 mb-4 anim " style="--delay: .1s">
+            <div class="card main-box">
+                <div class="card-header pb-0 p-3">
+                    <h6 class="mb-0">Time Off</h6>
+                </div>
+                <div class="timeOff">
+                    <ul>
+                        @if (RoleName != null && RoleName != Convert.ToInt64(Roles.Admin) && RoleName != Convert.ToInt64(Roles.SuperAdmin))
+                        {
+                            <li>
+                                <div class="timeOffCard">
+                                    <h5>Leave Balance</h5>
+                                    <h2>@ViewBag.NoOfLeaves</h2>
+                                    <span>Available</span>
+                                </div>
+                            </li>
+                        }
+                        <li>
+                            <div class="timeOffCard ">
+                                <h5>Upcoming Holiday</h5>
+                                @if (Model?.HolidayList != null && Model.HolidayList.Any())
+                                {
+                                    foreach (var item in Model.HolidayList)
+                                    {
+                                        <h5 class="card-title">@item.HolidayName</h5>
+                                        @item.FromDate.ToString("dd/MM/yyyy")
+                                    }
 
+                                }
+                                else
+                                {
+                                    <p>No Record Found</p>
+                                }
+                            </div>
+                        </li>
+                    </ul>
+                    @*  <div class="applyLeave">
+                    <a href="./leave_application.html" class="leaveapp btn btn-primary btn-download">Apply for Leave</a>
+                    </div> *@
+                </div>
+            </div>
+        </div>
 
     </div>
 
