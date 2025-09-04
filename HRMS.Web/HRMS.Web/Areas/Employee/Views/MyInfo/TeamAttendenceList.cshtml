@@ -397,7 +397,7 @@
 
 		  let headerHtml = `<th>Emp No</th><th>  Name</th><th>  Location</th>`;
 		  dayKeys.forEach(day => headerHtml += `<th>${day.replace("_", " ")}</th>`);
-            headerHtml += `<th>  Working Days</th><th>Present Days</th><th>  Leaves</th><th>Manager</th><th>  ManagerManager</th>`;
+            headerHtml += `<th>  Working Days</th><th>Present Days</th><th>  Leaves</th><th>ManagerLevel1</th><th>  ManagerLevel2</th>`;
 		  thead.html(headerHtml);
 
 		  data.forEach(record => {

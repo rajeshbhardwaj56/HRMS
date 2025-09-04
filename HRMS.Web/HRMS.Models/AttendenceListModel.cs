@@ -135,6 +135,14 @@ namespace HRMS.Models.AttendenceList
         public TimeSpan? HoursWorked { get; set; }
         public long? CreatedBy { get; set; }
     }
+
+
+    public class EmployeeData
+    {
+        public string? EmployeeNumber { get; set; } = string.Empty;
+        public string? EmployeeName { get; set; } = string.Empty;
+        public bool IsManager { get; set; }
+    }
 }
 
 

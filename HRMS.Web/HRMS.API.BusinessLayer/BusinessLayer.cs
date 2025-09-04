@@ -5811,7 +5811,18 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                     var row = dataSet.Tables[0].Rows[0];
                     model.PKNo = Convert.ToInt64(row["Id"]);
                     model.Message = row["Message"].ToString();
-                    model.IsManager = row["IsManager"] != DBNull.Value && Convert.ToBoolean(row["IsManager"]);
+                    model.Data = new EmployeeData
+                    {
+                        EmployeeNumber = row.Table.Columns.Contains("EmployeeNumber") && row["EmployeeNumber"] != DBNull.Value
+                                   ? row["EmployeeNumber"].ToString()
+                                   : string.Empty,
+                        EmployeeName = row.Table.Columns.Contains("EmployeeName") && row["EmployeeName"] != DBNull.Value
+                                   ? row["EmployeeName"].ToString()
+                                   : string.Empty,
+                        IsManager = row.Table.Columns.Contains("IsManager") && row["IsManager"] != DBNull.Value
+                                   && Convert.ToBoolean(row["IsManager"])
+                    };
+                  
                 }
                 else
                 {

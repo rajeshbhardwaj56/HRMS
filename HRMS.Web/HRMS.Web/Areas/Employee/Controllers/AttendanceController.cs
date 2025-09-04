@@ -1227,8 +1227,70 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             ).Result.ToString();
 
             var dataModel = JsonConvert.DeserializeObject<Result>(response);
+            var Manager1Email = HttpContext.Session.GetString(Constants.Manager1Email).ToString();
+            
+            if (!string.IsNullOrEmpty(Manager1Email) && Manager1Email.Contains("@"))
+            {
+                EmployeeData employeeData = null;
+                if (dataModel.Data != null)
+                {
+                    // If Data is JSON string
+                    if (dataModel.Data is string jsonString)
+                    {
+                        employeeData = JsonConvert.DeserializeObject<EmployeeData>(jsonString);
+                    }
+                    else
+                    {
+                        // If Data is already JToken or object
+                        employeeData = JsonConvert.DeserializeObject<EmployeeData>(
+                            dataModel.Data.ToString()
+                        );
+                    }
+                }
 
-            return Json(new { data = dataModel });
+                if (employeeData != null && employeeData.IsManager)
+                {
+                    var ManagerName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+                    var ManagerEmployeeNumber = HttpContext.Session.GetString(Constants.EmployeeNumber).ToString();
+
+                    sendEmailProperties sendEmailProperties = new sendEmailProperties
+                    {
+                        emailSubject = "Send a Request for Attendance Approval",
+                        emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+           {ManagerName} has sent a request for attendance approval of its team member.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>EmployeeNumber </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>EmployeeName</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>ManagerName</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>ManagerEmployeeNumber</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                         <td style='border: 1px solid #000; padding: 8px;'>{employeeData?.EmployeeNumber}</td>
+                <td style='border: 1px solid #000; padding: 8px;'>{employeeData?.EmployeeName}</td>
+                <td style='border: 1px solid #000; padding: 8px;'>{ManagerName}</td>
+                <td style='border: 1px solid #000; padding: 8px;'>{ManagerEmployeeNumber}</td>
+                    </tr>
+                </tbody>
+            </table><br/>            
+            <p style='color: #000; font-size: 13px;'>
+             Protalk Solutions is an ISO 27001:2022 certified. <br/>
+             This email and its attachments are confidential and intended solely for the use of the individual or entity addressed. Protalk Solutions prioritizes the security and privacy of information, adhering to the Information Security Management System (ISMS) standards, and leading cybersecurity practices.
+             We enforce a robust data retention and deletion policy, ensuring all sensitive data is securely handled and automatically removed after the retention period, in strict compliance with applicable laws. If you are not the intended recipient or responsible for delivering this message, any unauthorized use, dissemination, copying, or action taken based on its contents is prohibited. If you received in error, please notify us immediately at <a href=""mailto:it.protalk@protalkbiz.com"">it.protalk@protalkbiz.com</a>  to resolve the matter.
+            </p>
+        </div>"
+                    };
+                    sendEmailProperties.EmailToList.Add(Manager1Email);
+                    emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
+                }
+            }
+                return Json(new { data = dataModel });
         }
 
 

@@ -116,10 +116,19 @@ builder.Services.AddSingleton<QuartzJobRunner>();
  builder.Services.AddSingleton<IJobFactory, JobFactory>();
 builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 builder.Services.TryAddTransient<AttendanceReminderJob>();
+builder.Services.AddTransient<WeeklyFridayJob>();
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(AttendanceReminderJob),
     cronExpression: "0 32 02 * * ?"));
+builder.Services.AddSingleton(new JobSchedule(
+    jobType: typeof(WeeklyFridayJob),
+   cronExpression: "0 0 10 ? * FRI *"
+));
 
+//builder.Services.AddSingleton(new JobSchedule(
+//    jobType: typeof(WeeklyFridayJob),
+//    cronExpression: "0 0/1 * * * ?"   // every 1 minute
+//));
 
 var app = builder.Build();
 
