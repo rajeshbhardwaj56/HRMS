@@ -747,6 +747,18 @@
 	}
 
 
+                const getStatusColors = (status) => {
+                    switch (status?.toLowerCase()) {
+						case 'present': return '#28a745'; // Green 
+						case 'absent': return '#dc3545'; // Red 
+						case 'leave': return '#ffc107'; // Yellow 
+						case 'half day': return '#05397b'; // Blue 
+						default: return '#6c757d'; // Grey fallback 
+					}
+				};
+
+
+
 	const renderStatusEditor = (fullDate) => 
 	{
 	if (!canEditStatus(fullDate)) return ""; // Don't render editor if not allowed
@@ -776,6 +788,44 @@
 	`;
 	};
 
+				function renderStatusChanges(changes) {
+
+                    if (!changes || changes.length === 0) return "";
+
+                    let rows = changes.map(c => `
+    <tr>
+      <td>${formatDateTime(c.insertedDate)}</td>
+      <td> <span class="badge" style="background-color: ${getStatusColors(c.attendanceStatus)}; color: white;">
+            ${c.attendanceStatus ?? '-'}
+          </span></td>
+      <td>${c.remarks ?? '-'}</td>
+      <td>${c.insertedByUserName ?? '-'}</td>
+      <td>${c.approvedByUserName ?? '-'}</td>
+      <td>${c.statusState ?? '-'}</td>
+    </tr>
+  `).join("");
+
+                    return `
+    <div class="mt-3">
+      <h6>Updated Status</h6>
+      <table class="table table-sm table-bordered">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Attendance Type</th>
+            <th>Remarks</th>
+            <th>Applied By</th>
+            <th>Approved By</th>
+            <th>Approval State </th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+                }
 
 			  switch (data.recordType) {
 				case "Attendance":
@@ -821,6 +871,7 @@
 		  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
 
 		</div>
+		  ${renderStatusChanges(data.statusChanges)}
 		  ${renderStatusEditor(fullDate)}
 	  </div>
 	</div>
@@ -828,14 +879,29 @@
 	`;
 					  break;
 				case "Holiday":
-				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusEditor(fullDate)}</div></div>`;
+                      html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusChanges(data.statusChanges)}  ${renderStatusEditor(fullDate)}</div></div>`;
 				  break;
 				case "Leave":
-				  html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>   ${renderStatusEditor(fullDate)}</div></div>`;
-				  break;
-				default:
-				  html = `<div class="alert alert-warning text-center"><i class="bi bi-info-circle-fill"></i> No attendance record found for this day.</div>${renderStatusEditor(fullDate)}`;
-			  }
+                      html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>  ${renderStatusChanges(data.statusChanges)}  ${renderStatusEditor(fullDate)}</div></div>`;
+					  break;
+                  default:
+                      if (!data.statusChanges || data.statusChanges.length === 0) {
+      
+                          html = `
+              <div class="alert alert-warning text-center">
+                <i class="bi bi-info-circle-fill"></i> No attendance record found for this day.
+              </div>
+              ${renderStatusEditor(fullDate)}
+            `;
+                      } else {
+                        
+                          html = `
+            
+              ${renderStatusChanges(data.statusChanges)}
+			    ${renderStatusEditor(fullDate)}
+            `;
+                      }
+              }
 			  $("#attendanceDetailBody").html(html);
 			});
 		  });

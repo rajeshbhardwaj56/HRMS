@@ -3379,56 +3379,83 @@ namespace HRMS.API.BusinessLayer
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDailyAttendanceDetails, sqlParameters);
 
-            if (dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
-            {
+            if (dataSet == null || dataSet.Tables.Count == 0)
                 return result;
+
+
+            if (dataSet.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+                var attendanceStatus = new AttendanceDetailsVM
+                {
+                    RecordType = row.Field<string>("RecordType")
+                };
+
+                switch (attendanceStatus.RecordType)
+                {
+                    case "Attendance":
+                        attendanceStatus.UserId = row.Field<string>("UserId");
+                        attendanceStatus.WorkDate = row.Field<DateTime?>("WorkDate");
+                        attendanceStatus.FirstLogDate = row.Field<DateTime?>("FirstLogDate");
+                        attendanceStatus.LastLogDate = row.Field<DateTime?>("LastLogDate");
+                        attendanceStatus.HoursWorked = row.Field<TimeSpan?>("HoursWorked");
+                        attendanceStatus.AttendanceStatus = row.Field<string>("AttendanceStatus");
+                        attendanceStatus.DialerTime = row.Field<string>("DialerTime");
+                        attendanceStatus.Remarks = row.Field<string>("Remarks");
+
+                        break;
+
+                    case "Holiday":
+                        attendanceStatus.HolidayName = row.Field<string>("HolidayName");
+                        attendanceStatus.Description = row.Field<string>("Description");
+                        attendanceStatus.FromDate = row.Field<DateTime?>("FromDate");
+                        attendanceStatus.ToDate = row.Field<DateTime?>("ToDate");
+                        break;
+
+                    case "Leave":
+                        attendanceStatus.EmployeeID = row.Field<long?>("EmployeeID");
+                        attendanceStatus.StartDate = row.Field<DateTime?>("StartDate");
+                        attendanceStatus.EndDate = row.Field<DateTime?>("EndDate");
+                        attendanceStatus.Reason = row.Field<string>("Reason");
+                        attendanceStatus.LeaveStatusID = row.Field<string?>("LeaveStatusID");
+                        break;
+
+                    case "No Record Found":
+                    default:
+
+                        break;
+                }
+
+                result = attendanceStatus;
             }
 
-            var dt = dataSet.Tables[0];
-            var row = dt.Rows[0];
 
-            var attendanceStatus = new AttendanceDetailsVM
+            if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
             {
-                RecordType = row.Field<string>("RecordType")
-            };
+                result.StatusChanges = new List<StatusChangeVM>();
 
-            // Map based on RecordType
-            switch (attendanceStatus.RecordType)
-            {
-                case "Attendance":
-                    attendanceStatus.UserId = row.Field<string>("UserId");
-                    attendanceStatus.WorkDate = row.Field<DateTime?>("WorkDate");
-                    attendanceStatus.FirstLogDate = row.Field<DateTime?>("FirstLogDate");
-                    attendanceStatus.LastLogDate = row.Field<DateTime?>("LastLogDate");
-                    attendanceStatus.HoursWorked = row.Field<TimeSpan?>("HoursWorked");
-                    attendanceStatus.AttendanceStatus = row.Field<string>("AttendanceStatus");
-                    attendanceStatus.DialerTime = row.Field<string>("DialerTime");
-                    attendanceStatus.Remarks = row.Field<string>("Remarks");
+                foreach (DataRow row in dataSet.Tables[1].Rows)
+                {
+                    var sc = new StatusChangeVM
+                    {
+                        RecordType = row.Field<string>("RecordType"),
+                        EmployeeID = row.Field<long?>("EmployeeID"),
+                        EmployeeNumber = row.Field<string>("EmployeeNumber"),
+                        WorkDate = row.Field<DateTime?>("WorkDate"),
+                        AttendanceStatus = row.Field<string>("AttendanceStatus"),
+                        Remarks = row.Field<string>("Remarks"),
+                        StatusState = row.Field<string>("StatusState"),
+                        InsertedDate = row.Field<DateTime?>("InsertedDate"),
+                        InsertedByUserName = row.Field<string>("InsertedByUserName"),
+                        ModifiedDate = row.Field<DateTime?>("ModifiedDate"),
+                        UpdatedByUserName = row.Field<string>("UpdatedByUserName"),
+                        ApprovedByUserName = row.Field<string>("ApprovedByUserName")
+                    };
 
-                    break;
-
-                case "Holiday":
-                    attendanceStatus.HolidayName = row.Field<string>("HolidayName");
-                    attendanceStatus.Description = row.Field<string>("Description");
-                    attendanceStatus.FromDate = row.Field<DateTime?>("FromDate");
-                    attendanceStatus.ToDate = row.Field<DateTime?>("ToDate");
-                    break;
-
-                case "Leave":
-                    attendanceStatus.EmployeeID = row.Field<long?>("EmployeeID");
-                    attendanceStatus.StartDate = row.Field<DateTime?>("StartDate");
-                    attendanceStatus.EndDate = row.Field<DateTime?>("EndDate");
-                    attendanceStatus.Reason = row.Field<string>("Reason");
-                    attendanceStatus.LeaveStatusID = row.Field<string?>("LeaveStatusID");
-                    break;
-
-                case "No Record Found":
-                default:
-                    // No extra data available
-                    break;
+                    result.StatusChanges.Add(sc);
+                }
             }
 
-            result = attendanceStatus;
 
             return result;
         }

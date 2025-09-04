@@ -730,7 +730,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
         [HttpPost]
         public JsonResult AcknowledgePolicy(long policyId)
         {
-
             var employeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             AcknowledgePolicyModel model = new AcknowledgePolicyModel { Id = policyId, EmployeeId = employeeID };
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddAcknowledgePolicy), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -893,8 +892,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.Add("TotalWorkingDays");
                     headers.Add("PresentDays");
                     headers.Add("TotalLeaves");
-                    headers.Add("Manager");
-                    headers.Add("ManagerManager");
+                    headers.Add("ManagerLevel1");
+                    headers.Add("ManagerLevel2");
 
                     for (int i = 0; i < headers.Count; i++)
                     {

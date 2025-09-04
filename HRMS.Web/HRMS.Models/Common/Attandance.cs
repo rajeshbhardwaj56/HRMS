@@ -178,7 +178,25 @@ namespace HRMS.Models.Common
         public string? LeaveStatusID { get; set; }
         public string? DialerTime { get; set; }
         public string? Remarks { get; set; }
+        public List<StatusChangeVM> StatusChanges { get; set; }=new List<StatusChangeVM>();
     }
+
+    public class StatusChangeVM
+    {
+        public string? RecordType { get; set; }
+        public long? EmployeeID { get; set; }
+        public string? EmployeeNumber { get; set; }
+        public DateTime? WorkDate { get; set; }
+        public string? AttendanceStatus { get; set; }
+        public string? Remarks { get; set; }
+        public string? StatusState { get; set; }
+        public DateTime? InsertedDate { get; set; }
+        public string? InsertedByUserName { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public string? UpdatedByUserName { get; set; }
+        public string? ApprovedByUserName { get; set; }
+    }
+
 
     public class AttendanceDetailsInputParams
     {

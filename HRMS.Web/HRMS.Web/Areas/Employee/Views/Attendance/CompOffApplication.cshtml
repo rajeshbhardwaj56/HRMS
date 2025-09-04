@@ -315,7 +315,7 @@
             } else if (tabType === 'rejected') {
                 tableSelector = '#tblRejected';
             } else {
-                alert("Comp-off can only be applied from 'Not Applied' or 'Rejected' tabs.");
+                alert("Comp-off can only be applied from 'Not Applied' tab.");
                 return;
             }
 
@@ -341,7 +341,8 @@
                 alert("Please enter a comment.");
                 return;
             }
-
+            const $btn = $("#btnSubmitCompOff"); // <-- make sure your button has this ID
+            $btn.prop("disabled", true);
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("SubmitCompOffRequest", "Attendance")',
@@ -367,6 +368,10 @@
                 },
               error: function () {
                     toastEMessage('Error','Comp-off request not submitted ');
+                },
+                 complete: function () {
+                    
+                    $btn.prop("disabled", false);
                 }
             });
         }
