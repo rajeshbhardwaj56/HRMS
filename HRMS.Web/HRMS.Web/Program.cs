@@ -119,7 +119,7 @@ builder.Services.TryAddTransient<AttendanceReminderJob>();
 builder.Services.AddTransient<WeeklyFridayJob>();
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(AttendanceReminderJob),
-    cronExpression: "0 32 02 * * ?"));
+    cronExpression: "0 32 10 * * ?"));
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(WeeklyFridayJob),
    cronExpression: "0 0 10 ? * FRI *"
