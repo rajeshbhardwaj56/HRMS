@@ -118,7 +118,10 @@ builder.Services.TryAddTransient<AttendanceReminderJob>();
 builder.Services.AddTransient<WeeklyFridayJob>();
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(AttendanceReminderJob),
-    cronExpression: "0 32 10 * * ?"));
+    cronExpression: "0 32 10 * * ?",
+    timeZone: TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+));
+
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(WeeklyFridayJob),
    cronExpression: "0 0 10 ? * FRI *"
