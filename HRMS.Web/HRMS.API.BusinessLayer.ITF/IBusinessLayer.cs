@@ -145,6 +145,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<UpcomingWeekOffRoster> GetEmployeesWithoutUpcomingWeekOffRoster(UpcomingWeekOffRosterParams model);
         public List<DateTime> GetLeaveWeekOffDates(LeaveWeekOfInputParams model);
         public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model);
+        public List<HolidayCompanyList> GetCompanyHolidayList(HolidayInputparams model);
         public long GetShiftTypeId(string ShiftTypeName);
         public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber);
 

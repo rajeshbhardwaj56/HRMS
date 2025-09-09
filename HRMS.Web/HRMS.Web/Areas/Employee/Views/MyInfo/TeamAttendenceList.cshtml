@@ -878,6 +878,22 @@
 
 	`;
 					  break;
+                  case "WeekOff":
+                      html = `
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <h5 class="card-title mb-3 text-primary">
+                🗓️ Week Off
+            </h5>
+        
+            <div class="mb-2">
+                <strong>Week Off Date:</strong> ${formatDate(data.fromDate)}
+            </div>
+            ${renderStatusChanges(data.statusChanges)}
+            ${renderStatusEditor(fullDate)}
+        </div>
+    </div>`;
+                      break;
 				case "Holiday":
                       html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusChanges(data.statusChanges)}  ${renderStatusEditor(fullDate)}</div></div>`;
 				  break;

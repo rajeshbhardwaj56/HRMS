@@ -81,7 +81,6 @@ builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-    // This lambda determines whether user consent for non-essential cookies is needed for a given request.  
     options.CheckConsentNeeded = context => true;
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
@@ -110,7 +109,7 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 
 
-//Scheduker
+
 IServiceCollection service = builder.Services.AddHostedService<QuartzHostedService>();
 builder.Services.AddSingleton<QuartzJobRunner>();
  builder.Services.AddSingleton<IJobFactory, JobFactory>();

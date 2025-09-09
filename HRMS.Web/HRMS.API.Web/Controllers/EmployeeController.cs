@@ -424,6 +424,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetLastLevelEmployeeDropdown(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult GetCompanyHoliday(HolidayInputparams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetCompanyHolidayList(model));
+            return response;
+        }
 
         [HttpPost]
         public IActionResult AddAcknowledgePolicy(AcknowledgePolicyModel model)

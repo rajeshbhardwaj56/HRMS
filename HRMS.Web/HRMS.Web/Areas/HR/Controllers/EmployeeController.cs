@@ -114,10 +114,6 @@ namespace HRMS.Web.Areas.HR.Controllers
         {"jobLocation", "JobLocation"}, 
         {"isActive", "IsActive"}
     };
-
-           
-
-
             employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             employee.DisplayStart = iDisplayStart;
             employee.DisplayLength = iDisplayLength;
@@ -1668,12 +1664,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                         CreatedBy = employeeId
                     };
 
-                var validationError = ValidateModelList(weekOffUploadModel.WeekOffList);
+                var validationError = ValidateModelList(weekOffUploadModel.WeekOffList, model.WeekStartDate );
                 if (!string.IsNullOrEmpty(validationError))
                 {
                     TempData[Constants.toastType] = Constants.toastTypeError;
                     TempData[Constants.toastMessage] = validationError;
-                    return RedirectToAction(WebControllarsConstants.EmployeesWeekOffRoster, WebControllarsConstants.Employee);
+                    return RedirectToAction(WebControllarsConstants.AddUpdateWeekOffRoster, WebControllarsConstants.Employee);
                 }
 
                 var apiUrl = _businessLayer.GetFormattedAPIUrl(
@@ -1728,70 +1724,65 @@ namespace HRMS.Web.Areas.HR.Controllers
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteWeekOffRoster), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             if (data != null)
             {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = data;
             }
             return RedirectToActionPermanent(WebControllarsConstants.EmployeesWeekOffRoster , WebControllarsConstants.Employee);
         }
 
 
-        private string ValidateModelList(List<WeekOffUploadModel> models)
+        private string ValidateModelList(List<WeekOffUploadModel> models, DateTime? week)
         {
+
+            var session = HttpContext.Session;
+            var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
+            var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID));
+            var inputParams = new WeekOfInputParams
+            {
+                EmployeeID = employeeId,
+
+            };
+            var holidayParams = new HolidayInputparams
+            {
+                CompanyID = companyId,
+            };
+            var EmployeesHierarchyUnderManager = _businessLayer.SendPostAPIRequest(inputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesHierarchyUnderManager), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var EmployeesHierarchyUnderManagerDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmployeesHierarchyUnderManager);
+            var holidaymodelList = _businessLayer.SendPostAPIRequest(holidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetCompanyHoliday), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var holidayList = JsonConvert.DeserializeObject<List<HolidayCompanyList>>(holidaymodelList);
             var errors = new List<string>();
 
-          
             var employeeNumberToRows = new Dictionary<string, List<int>>();
             for (int i = 0; i < models.Count; i++)
             {
                 var item = models[i];
-                var rowNum = i + 2; 
-
-                if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
-                    continue; 
-
-                var key = item.EmployeeNumber;
-                if (!employeeNumberToRows.ContainsKey(key))
-                    employeeNumberToRows[key] = new List<int>();
-
-                employeeNumberToRows[key].Add(rowNum);
-            }
-
-            
-            var duplicatesWithRows = employeeNumberToRows
-                .Where(kvp => kvp.Value.Count > 1)
-                .ToList();
-
-            if (duplicatesWithRows.Any())
-            {
-                var details = duplicatesWithRows
-                    .Select(kvp => $"EmployeeNumber '{kvp.Key}' at rows {string.Join(", ", kvp.Value)}")
-                    .ToList();
-
-                errors.Add($"Duplicate EmployeeNumber(s) found:\n{string.Join("\n", details)}");
-            }
-
-            for (int i = 0; i < models.Count; i++)
-            {
-                var item = models[i];
-                var rowNum = i + 2; // Excel row
-
+                var rowNum = i + 2;
                 if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
                 {
                     errors.Add($"Row {rowNum}: Missing or invalid EmployeeNumber.");
                     continue;
                 }
+                var empNumberLower = item.EmployeeNumber.Trim().ToLower();
+                if (!EmployeesHierarchyUnderManagerDictionaries.ContainsKey(empNumberLower))
+                {
+                    errors.Add($"Row {rowNum}: EmployeeNumber '{item.EmployeeNumber}' does not exist under the current manager.");
+                    continue;
+                }
+                var jobLocationTypeId = EmployeesHierarchyUnderManagerDictionaries[empNumberLower];
                 if (!item.WeekStartDate.HasValue)
                 {
                     errors.Add($"Row {rowNum}: WeekStartDate is missing.");
                     continue;
                 }
+
                 var weekStart = item.WeekStartDate.Value.Date;
                 var weekEnd = weekStart.AddDays(6);
                 if (!item.DayOff1.HasValue)
                 {
                     errors.Add($"Row {rowNum}: DayOff1 is mandatory.");
-                    continue; 
+                    continue;
                 }
+
 
                 var weekOffDates = new List<DateTime>();
                 var fields = new Dictionary<string, DateTime?>()
@@ -1800,6 +1791,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             { "DayOff2", item.DayOff2 },
 
         };
+
                 foreach (var kvp in fields)
                 {
                     if (kvp.Value.HasValue)
@@ -1809,18 +1801,28 @@ namespace HRMS.Web.Areas.HR.Controllers
 
                         if (date < weekStart || date > weekEnd)
                         {
-                            errors.Add($"Row {rowNum}: {kvp.Key} ({date:yyyy-MM-dd}) is outside the week range {weekStart:yyyy-MM-dd} to {weekEnd:yyyy-MM-dd}.");
+                            errors.Add($"Date ({date:yyyy-MM-dd}) is outside the week range {weekStart:yyyy-MM-dd} to {weekEnd:yyyy-MM-dd}.");
                         }
                         else
                         {
-                            weekOffDates.Add(date);
+                            var holiday = holidayList.FirstOrDefault(h =>
+               h.JobLocationTypeID == jobLocationTypeId &&
+               h.FromDate <= date && h.ToDate >= date &&
+               h.Status == true);
+
+                            if (holiday != null)
+                            {
+                                errors.Add($"Date: ({date:yyyy-MM-dd}) falls on a holiday.");
+                            }
+                            else
+                            {
+                                weekOffDates.Add(date);
+                            }
                         }
                     }
                 }
 
-               
 
-               
                 var duplicateDates = weekOffDates
                     .GroupBy(d => d)
                     .Where(g => g.Count() > 1)
@@ -1828,8 +1830,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                     .ToList();
 
                 if (duplicateDates.Any())
+                {
                     errors.Add($"Row {rowNum}: Duplicate WeekOff dates found: {string.Join(", ", duplicateDates)}.");
+                }
             }
+
+
 
             return errors.Any() ? string.Join("\n", errors) : null;
         }

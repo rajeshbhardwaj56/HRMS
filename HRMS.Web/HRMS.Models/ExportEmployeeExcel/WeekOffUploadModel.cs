@@ -42,6 +42,20 @@ namespace HRMS.Models.ExportEmployeeExcel
         public long CreatedBy { get; set; }
     }
 
+    public class HolidayInputparams
+    {
+        public long? CompanyID { get; set; }
+    }
+
+    public class HolidayCompanyList
+
+    {
+        public long? HolidayID { get; set; }
+        public bool? Status { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+        public long? JobLocationTypeID { get; set; }
+    }
 
     public class WeekOfInputParams
     {

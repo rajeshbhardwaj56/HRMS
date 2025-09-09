@@ -3404,7 +3404,11 @@ namespace HRMS.API.BusinessLayer
                         attendanceStatus.Remarks = row.Field<string>("Remarks");
 
                         break;
+                    case "WeekOff":
 
+                        attendanceStatus.FromDate = row.Field<DateTime?>("MatchingDayOff");
+                        attendanceStatus.ToDate = row.Field<DateTime?>("WeekStartDate");
+                        break;
                     case "Holiday":
                         attendanceStatus.HolidayName = row.Field<string>("HolidayName");
                         attendanceStatus.Description = row.Field<string>("Description");
@@ -5616,11 +5620,11 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
             if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
                 return dataSet.Tables[0].AsEnumerable()
-                            .ToDictionary(row => row.Field<string>("EmployeNumber").ToLower(), // Convert Name to lowercase
-                                          row => row.Field<long>("EmployeeID"));
+                            .ToDictionary(row => row.Field<string>("EmployeNumber").ToLower(),
+                                          row => row.Field<long>("JobLocationID"));
             }
 
-            return new Dictionary<string, long>(); // Return empty dictionary if no data
+            return new Dictionary<string, long>();
         }
         public List<UpcomingWeekOffRoster> GetEmployeesWithoutUpcomingWeekOffRoster(UpcomingWeekOffRosterParams model)
         {
@@ -5639,7 +5643,7 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
             {
                 var hierarchyTable = dataSet.Tables[0];
 
-               
+
                 var flatList = hierarchyTable.AsEnumerable()
                     .Select(row => new UpcomingWeekOffRoster
                     {
@@ -5655,7 +5659,7 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
                     })
                     .ToList();
 
-               
+
                 upcomingWeekOffRosters = flatList
                     .GroupBy(x => new { x.ManagerID, x.ManagerName, x.ManagerEmailID })
                     .Select(g => new UpcomingWeekOffRoster
@@ -5849,7 +5853,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                         IsManager = row.Table.Columns.Contains("IsManager") && row["IsManager"] != DBNull.Value
                                    && Convert.ToBoolean(row["IsManager"])
                     };
-                  
+
                 }
                 else
                 {
@@ -5972,7 +5976,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         }
 
 
-       
+
         public List<Managers> GetManagerDropdown(Managers model)
         {
             List<Managers> obj = new List<Managers>();
@@ -5996,6 +6000,41 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
             }
             return obj;
         }
+
+
+
+        public List<HolidayCompanyList> GetCompanyHolidayList(HolidayInputparams model)
+        {
+            List<HolidayCompanyList> holidayList = new List<HolidayCompanyList>();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+              new SqlParameter("@CompanyID",model.CompanyID)
+            };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidaysByCompany, sqlParameters);
+            if (dataSet.Tables.Count > 0)
+            {
+                holidayList = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new HolidayCompanyList
+                {
+                    HolidayID = dataRow.Field<long>("HolidayID"),
+                    Status = dataRow.Field<bool>("Status"),
+                    FromDate = dataRow.Field<DateTime>("FromDate"),
+                    ToDate = dataRow.Field<DateTime>("ToDate"),
+                    JobLocationTypeID = dataRow.Field<long>("JobLocationTypeID")
+
+
+                })
+                .ToList();
+            }
+
+            return holidayList;
+
+        }
+
+
+
 
         #endregion 
     }

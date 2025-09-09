@@ -1377,7 +1377,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var modelList =await ConvertDataTableToModelList(dataTable, month, week);
 
                 // Validate model list
-                var validationError = ValidateModelList(modelList);
+                var validationError = ValidateModelList(modelList, week);
                 if (!string.IsNullOrEmpty(validationError))
                     return BadRequest(new
                     {
@@ -1524,18 +1524,25 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
 
 
-        private string ValidateModelList(List<WeekOffUploadModel> models)
+        private string ValidateModelList(List<WeekOffUploadModel> models, DateTime week)
         {
 
             var session = HttpContext.Session;
             var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
+            var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID ));
             var inputParams = new WeekOfInputParams
             {
                 EmployeeID = employeeId,
 
             };
+            var holidayParams = new HolidayInputparams
+            {
+                CompanyID = companyId,
+            };
             var EmployeesHierarchyUnderManager = _businessLayer.SendPostAPIRequest(inputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesHierarchyUnderManager), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var EmployeesHierarchyUnderManagerDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmployeesHierarchyUnderManager);
+            var holidaymodelList = _businessLayer.SendPostAPIRequest(holidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetCompanyHoliday), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var holidayList = JsonConvert.DeserializeObject<List<HolidayCompanyList>>(holidaymodelList);
             var errors = new List<string>();
             
             var employeeNumberToRows = new Dictionary<string, List<int>>();
@@ -1554,6 +1561,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     errors.Add($"Row {rowNum}: EmployeeNumber '{item.EmployeeNumber}' does not exist under the current manager.");
                     continue;
                 }
+                var jobLocationTypeId = EmployeesHierarchyUnderManagerDictionaries[empNumberLower];
                 if (!item.WeekStartDate.HasValue)
                 {
                     errors.Add($"Row {rowNum}: WeekStartDate is missing.");
@@ -1561,9 +1569,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
 
                 var weekStart = item.WeekStartDate.Value.Date;
-                var weekEnd = weekStart.AddDays(6); 
-
-              
+                var weekEnd = weekStart.AddDays(6);               
                 if (!item.DayOff1.HasValue)
                 {
                     errors.Add($"Row {rowNum}: DayOff1 is mandatory.");
@@ -1592,12 +1598,24 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         }
                         else
                         {
-                            weekOffDates.Add(date);
+                            var holiday = holidayList.FirstOrDefault(h =>
+               h.JobLocationTypeID == jobLocationTypeId &&
+               h.FromDate <= date && h.ToDate >= date &&
+               h.Status == true);
+
+                            if (holiday != null)
+                            {
+                                errors.Add($"Row {rowNum}: {kvp.Key} ({date:yyyy-MM-dd}) falls on a holiday ");
+                            }
+                            else
+                            {
+                                weekOffDates.Add(date);
+                            }
                         }
                     }
                 }
 
-                // --- Rule 3: No duplicate dayoffs ---
+           
                 var duplicateDates = weekOffDates
                     .GroupBy(d => d)
                     .Where(g => g.Count() > 1)
@@ -1615,9 +1633,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return errors.Any() ? string.Join("\n", errors) : null;
         }
 
-        /// <summary>
-        /// Adds a date to the list if it's valid and not unreasonable, otherwise records an error.
-        /// </summary>
+     
         private void AddDateIfValid(List<DateTime> dates, DateTime? date, int rowNum, string fieldName, List<string> errors)
         {
             if (date.HasValue)

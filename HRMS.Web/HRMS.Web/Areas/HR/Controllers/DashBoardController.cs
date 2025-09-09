@@ -136,7 +136,6 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             DateTime today = DateTime.Today;
 
-            // Fiscal year starts from March 21st of current or previous year
             DateTime fiscalYearStart;
             DateTime fiscalYearEnd;
 
@@ -162,7 +161,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             if (joinDate < fiscalYearStart)
                 joinDate = fiscalYearStart;
 
-            // Start from the accrual period containing the join date
+            // Start from the accrual period containing the join date 
             DateTime accrualPeriodStart = GetAccrualPeriodStart(joinDate);
             DateTime accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1); // 20th of next month
 
@@ -179,7 +178,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     totalAccruedLeave += monthlyAccrual;
                 }
 
-                // Move to next accrual period
+                // Move to next accrual period  
                 accrualPeriodStart = accrualPeriodStart.AddMonths(1);
                 accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
             }

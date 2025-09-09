@@ -177,6 +177,7 @@ namespace HRMS.Models.Common
     {
 
         public const string EmployeesWeekOffRoster = "EmployeesWeekOffRoster";
+        public const string AddUpdateWeekOffRoster = "AddUpdateWeekOffRoster";
         public const string PolicyCategoryListing = "PolicyCategoryListing";
         public const string LeavePolicyDetailsListing = "LeavePolicyDetailsListing";
         public const string LeavePolicyListing = "LeavePolicyListing";
@@ -349,6 +350,7 @@ namespace HRMS.Models.Common
 
         public const string GetLastLevelEmployeeDropdown = "GetLastLevelEmployeeDropdown";
         public const string GetManagerDropdown = "GetManagerDropdown";
+        public const string GetCompanyHoliday = "GetCompanyHoliday";
 
 
     }
