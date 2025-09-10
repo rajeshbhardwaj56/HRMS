@@ -17,6 +17,7 @@ namespace HRMS.Models.Common
         public List<SelectListItem> Currencies { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Languages { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
+       
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<EmployeeModel> Employees { get; set; } = new List<EmployeeModel>();
         public EmployeeModel employeeModel { get; set; } = new EmployeeModel();

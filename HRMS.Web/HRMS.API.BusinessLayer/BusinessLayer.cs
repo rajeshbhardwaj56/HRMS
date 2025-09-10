@@ -150,7 +150,8 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@DisplayLength", model.DisplayLength),
             new SqlParameter("@LocationID", model.LocationID),
             new SqlParameter("@SubDepartmentID", model.SubDepartmentID),
-            new SqlParameter("@EmployeeTypeID", model.EmployeeTypeID)
+            new SqlParameter("@EmployeeTypeID", model.EmployeeTypeID),
+            new SqlParameter("@IsActive", model.IsActive)
         };
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_EmployeeDetails, sqlParameter);
 
@@ -216,6 +217,7 @@ namespace HRMS.API.BusinessLayer
                                       DesignationName = dataRow.Field<string>("Designation"),
                                       DepartmentName = dataRow.Field<string>("Department"),
                                       EmployeeNumber = dataRow.Field<string>("EmployeeNumber"),
+                                      EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                                       OfficialEmailID = dataRow.Field<string>("OfficialEmail"),
                                       ManagerName = dataRow.Field<string>("ManagerName"),
                                       PayrollTypeName = dataRow.Field<string>("PayrollType"),
@@ -225,6 +227,7 @@ namespace HRMS.API.BusinessLayer
                                       ShiftStartTime = dataRow.Field<string>("ShiftStartTime"),
                                       Shift = dataRow.Field<string>("Shift"),
                                       JobLocation = dataRow.Field<string>("JobLocation"),
+                                      JobLocationID = dataRow.Field<long>("JobLocationID"),
 
                                   }).ToList();
 
@@ -362,12 +365,11 @@ namespace HRMS.API.BusinessLayer
                                Name = dataRow.Field<string>("Name"),
 
                            }).ToList();
-                if (result.employeeModel.EmploymentTypesList == null)
+                if (result.employeeModel.LocationList == null)
                 {
-                    result.employeeModel.EmploymentTypesList = new List<EmploymentTypesList>();
+                    result.employeeModel.LocationList = new List<LocationList>();
                 }
-
-
+            
                 result.employeeModel.EmploymentTypesList = dataSet.Tables[3].AsEnumerable()
                              .Select(dataRow => new EmploymentTypesList
                              {
@@ -3345,7 +3347,7 @@ namespace HRMS.API.BusinessLayer
                         foreach (DataColumn column in dataSet.Tables[0].Columns)
                         {
                             string columnName = column.ColumnName;
-                            if (columnName.Contains("_"))
+                            if (columnName.Contains("-"))
                             {
                                 attendance.AttendanceByDay[columnName] = dataRow[columnName]?.ToString() ?? "N/A";
                             }

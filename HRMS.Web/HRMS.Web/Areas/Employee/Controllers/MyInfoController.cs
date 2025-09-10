@@ -842,7 +842,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult ExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId ,long ManagerId)
+        public IActionResult ExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId ,long? ManagerId)
         {
             try
             {
@@ -858,7 +858,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     PageSize = 0,
                     Page = 1,
                     JobLocationID = jobLocationId,
-                    ManagerID = ManagerId
+                    ManagerID = ManagerId??0
                 };
 
                 var response = _businessLayer.SendPostAPIRequest(
@@ -872,14 +872,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 {
                     return NotFound("No attendance data found.");
                 }
-
-                
-
                 // Prepare day keys (e.g. "01_Thu")
                 var dayKeys = new List<string>();
                 for (DateTime date = FromDate; date <= ToDate; date = date.AddDays(1))
                 {
-                    dayKeys.Add(date.ToString("dd_ddd"));
+                    dayKeys.Add(date.ToString("dd-MM-yyyy"));
                 }
 
                 using (var package = new ExcelPackage())
@@ -1039,7 +1036,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 }
                 else
                 {
-                    // Calculate accrual
+                  
                     DateTime joinDate = results.employmentDetail.JoiningDate.Value;
                     double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
 
@@ -1865,9 +1862,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining" });
                     }
                     CampOffEligible modeldata = new CampOffEligible();
-                    modeldata.JobLocationTypeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.JobLocationID));
+                    modeldata.JobLocationTypeID = employeeDetails.JobLocationID;
                     modeldata.EmployeeID = leaveSummary.EmployeeID;
-                    modeldata.EmployeeNumber = Convert.ToString(_context.HttpContext.Session.GetString(Constants.EmployeeNumberWithoutAbbr)); ;
+                    modeldata.EmployeeNumber = employeeDetails.EmployeeNumberWithoutAbbr;
                     modeldata.StartDate = model.leaveResults.leaveSummaryModel.StartDate.ToString("yyyy-MM-dd");
                     modeldata.EndDate = model.leaveResults.leaveSummaryModel.EndDate.ToString("yyyy-MM-dd");
                     modeldata.RequestedLeaveDays = leaveSummary.NoOfDays;

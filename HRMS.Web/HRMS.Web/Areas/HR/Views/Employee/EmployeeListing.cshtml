@@ -27,40 +27,52 @@
 	</section>
 </div>
 <div class="table-responsive py-3">
-	<div class="row mb-2">
-		<div class="col-md-3">
-			<label for="subDeptFilter">Sub-Department:</label>
-			<div class="position-relative">
-			<select id="subDeptFilter" class="form-control">
-				<option value="">All</option>
-				
-			</select>
-			<i class="fa fa-chevron-down position-absolute"
-			   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-		</div>
-		</div>
-		<div class="col-md-3">
-			<label for="empTypeFilter">Employee Type:</label>
-			<div class="position-relative">
-			<select id="empTypeFilter" class="form-control">
-				<option value="">All</option>
-			
-			</select>
-				<i class="fa fa-chevron-down position-absolute"
-				   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-			</div>
-		</div>
-		<div class="col-md-3">
-			<label for="locationFilter">Location:</label>
-		 <div class="position-relative">
-			<select id="locationFilter" class="form-control">
-				<option value="">All</option>
-			</select>   
-		  <i class="fa fa-chevron-down position-absolute"
-		   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-	     </div>
-		</div>
-	</div>
+    <div class="row mb-2">
+        <div class="col-md-3">
+            <label for="subDeptFilter">Sub-Department:</label>
+            <div class="position-relative">
+                <select id="subDeptFilter" class="form-control">
+                    <option value="">All</option>
+
+                </select>
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="empTypeFilter">Employee Type:</label>
+            <div class="position-relative">
+                <select id="empTypeFilter" class="form-control">
+                    <option value="">All</option>
+
+                </select>
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="locationFilter">Location:</label>
+            <div class="position-relative">
+                <select id="locationFilter" class="form-control">
+                    <option value="">All</option>
+                </select>
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="statusFilter">Status:</label>
+            <div class="position-relative">
+                <select id="statusFilter" class="form-control">
+                    <option value="">All</option>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+        </div>
+    </div>
 	<table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
 		<thead>
 			<tr>
@@ -114,7 +126,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
-			$('#subDeptFilter, #empTypeFilter, #locationFilter').on('change', function () {
+        $('#subDeptFilter, #empTypeFilter, #locationFilter,#statusFilter').on('change', function () {
 		$('#tblEmployeeListing').DataTable().ajax.reload();
 	});
 
@@ -130,7 +142,7 @@
 				"datatype": "json",
 				"data": function (d) {
 					var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'employeeID';
-	var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
+	                var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
 					return {
 						sEcho: d.draw,
 						iDisplayStart: d.start,
@@ -139,18 +151,21 @@
 						sortCol: sortColumn, 
 		                sortDir: sortDirection,  
 						subDeptFilter: $('#subDeptFilter').val(),
-		empTypeFilter: $('#empTypeFilter').val(),
-		locationFilter: $('#locationFilter').val()
+		                empTypeFilter: $('#empTypeFilter').val(),
+		                locationFilter: $('#locationFilter').val(),
+		                statusFilter: $('#statusFilter').val()
 					};
 				},
 				"dataSrc": function (json) {
 			var empTypeDropdown = $('#empTypeFilter');
 	var subDeptDropdown = $('#subDeptFilter');
 	var locationDropdown = $('#locationFilter');
+	var statusDropdown = $('#statusFilter');
 
 	var selectedEmpType = empTypeDropdown.val();
 	var selectedSubDept = subDeptDropdown.val();
 	var selectedLocation = locationDropdown.val();
+	var selectedStatus = statusDropdown.val();
 
 
 	empTypeDropdown.empty().append('<option value="">All</option>');
@@ -184,6 +199,9 @@
 		});
 	}
 	locationDropdown.val(selectedLocation);
+
+                   
+                    statusDropdown.val(selectedStatus);
 
 
 				return json.data;

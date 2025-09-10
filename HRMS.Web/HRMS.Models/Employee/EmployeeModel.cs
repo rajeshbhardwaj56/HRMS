@@ -20,6 +20,8 @@ namespace HRMS.Models.Employee
         public long? LocationID { get; set; } = 0;
         public long? SubDepartmentID { get; set; } = 0;
         public long? EmployeeTypeID { get; set; } = 0;
+
+        public bool? IsActive { get; set; } = null;
         public long? ManagerID { get; set; } = 0;
         public int? DisplayStart { get; set; } = 0;
         public int? DisplayLength { get; set; } = 0;
@@ -110,6 +112,7 @@ namespace HRMS.Models.Employee
         public string? ReportingToNameL2 { get; set; } = string.Empty;
         public string? PayrollTypeName { get; set; } = string.Empty;
         public string? EmployeeNumber { get; set; } = string.Empty;
+        public string? EmployeeNumberWithoutAbbr { get; set; } = string.Empty;
         public string OfficialEmailID { get; set; } = string.Empty;
 
         public string? ClientName { get; set; } = string.Empty;
@@ -139,6 +142,7 @@ namespace HRMS.Models.Employee
         public List<EmploymentTypesList> EmploymentTypesList { get; set; } = new List<EmploymentTypesList>();
         public List<LocationList> LocationList { get; set; } = new List<LocationList>();
         public List<SubDepartmentList> SubDepartmentList { get; set; } = new List<SubDepartmentList>();
+        public List<StatusList> StatusList { get; set; } = new List<StatusList>();
 
 
 
@@ -159,6 +163,11 @@ namespace HRMS.Models.Employee
     public class SubDepartmentList
     {
         public long? SubDepartmentID { get; set; }
+        public string? Name { get; set; }
+    }
+    public class StatusList
+    {
+        public long? StatusID { get; set; }
         public string? Name { get; set; }
     }
     public class LocationList

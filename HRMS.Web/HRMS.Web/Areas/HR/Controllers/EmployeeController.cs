@@ -94,7 +94,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         [AllowAnonymous]
         public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol,  string sortDir, string subDeptFilter,
     string empTypeFilter,
-    string locationFilter)
+    string locationFilter, string statusFilter)
         {
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
@@ -123,6 +123,14 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.SubDepartmentID = string.IsNullOrEmpty(subDeptFilter) ? 0 : Convert.ToInt64(subDeptFilter);
             employee.EmployeeTypeID = string.IsNullOrEmpty(empTypeFilter) ? 0 : Convert.ToInt64(empTypeFilter);
             employee.LocationID = string.IsNullOrEmpty(locationFilter) ? 0 : Convert.ToInt64(locationFilter);
+            if (string.IsNullOrEmpty(statusFilter))
+            {
+                employee.IsActive = null; 
+            }
+            else
+            {
+                employee.IsActive = statusFilter == "1"; 
+            }
             var data = _businessLayer.SendPostAPIRequest(
                 employee,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees),
@@ -159,6 +167,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     locationTypeId = j.JobLocationID,
                     name = j.Name
                 }),
+               
                 data = results.Employees
             });
         }

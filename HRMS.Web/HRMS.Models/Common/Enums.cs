@@ -48,8 +48,6 @@ namespace HRMS.Models.Common
     {
         CompOff = 1,
         OtherLeaves =2,
-        
-
     }
 
     public enum AttendanceStatusId
