@@ -458,7 +458,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             if (today.Year == 2025)
             {
                 // ✅ Special case: 2025 fiscal year is from 21 May 2025 to 20 March 2026
-                fiscalYearStart = new DateTime(2025, 5, 21);
+                fiscalYearStart = new DateTime(2025, 9, 21);
                 fiscalYearEnd = new DateTime(2026, 3, 20);
             }
             else
