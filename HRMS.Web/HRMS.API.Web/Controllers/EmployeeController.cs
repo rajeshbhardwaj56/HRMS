@@ -264,7 +264,7 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.AddUpdateEducationDetail(model));
-            return response;
+            return response;   
         }
         [HttpPost]
         public IActionResult DeleteEducationDetail(EducationDetailParams model)

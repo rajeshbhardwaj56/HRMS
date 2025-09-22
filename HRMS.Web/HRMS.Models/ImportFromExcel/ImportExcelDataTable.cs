@@ -87,11 +87,17 @@ namespace HRMS.Models.ImportFromExcel
         public string? AON { get; set; }
         public string? PreviousExperience { get; set; }
         public string? Status { get; set; }
+        public string? SourcingType { get; set; }
+        public string? RefereeName { get; set; }
+        public string? MobileNumberOfReferee { get; set; }
+        public string? DocumentationStatus { get; set; }
+        public string? LOB { get; set; }
         public string? ExcelFile { get; set; }
         public string? InsertedByUserID { get; set; }
         public string? CompanyName { get; set; }
         public string? ReportingToIDL2Name { get; set; }
 
+        
 
     }
     public class ImportExcelDataTableType
@@ -184,6 +190,11 @@ namespace HRMS.Models.ImportFromExcel
         public DateTime? EmailSentToITDate { get; set; }
         public bool? IsActive { get; set; }
         public  string? ReportingToIDL1EmployeeNumber { get; set; }
+        public  string? SourcingType { get; set; }
+        public  string? RefereeName { get; set; }
+        public  string? MobileNumberReferee { get; set; }
+        public  string? DocumentationStatus { get; set; }
+        public  string? LOB { get; set; }
     }
 
     public class CompanyInfo

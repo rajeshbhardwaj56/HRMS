@@ -22,7 +22,6 @@ using HRMS.Models.ShiftType;
 using HRMS.Models.Template;
 using HRMS.Models.User;
 using HRMS.Models.WhatsHappeningModel;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -235,7 +234,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     result.employeeModel = result.Employees.FirstOrDefault();
 
-                    //////////////////////// FamilyDetails
+                    
                     result.employeeModel.FamilyDetails = dataSet.Tables[1].AsEnumerable()
                                  .Select(dataRow => new FamilyDetail
                                  {
@@ -315,7 +314,6 @@ namespace HRMS.API.BusinessLayer
                     }
 
 
-                    //////////////////////// References
                     result.employeeModel.References = dataSet.Tables[5].AsEnumerable()
                                .Select(dataRow => new Reference
                                {
@@ -330,7 +328,7 @@ namespace HRMS.API.BusinessLayer
                         result.employeeModel.References = new List<Reference>();
                     }
 
-                    //////////////////////// References
+
                     result.employeeModel.EmploymentDetail = dataSet.Tables[6].AsEnumerable()
                                .Select(dataRow => new EmploymentDetail
                                {
@@ -960,6 +958,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@ShiftTypeID", employmentDetails.ShiftTypeID));
             sqlParameter.Add(new SqlParameter("@EmployeeNumber", employmentDetails.EmployeNumber));
             sqlParameter.Add(new SqlParameter("@ESINumber", employmentDetails.ESINumber));
+            sqlParameter.Add(new SqlParameter("@LOB", employmentDetails.LOB));
             sqlParameter.Add(new SqlParameter("@ESIRegistrationDate", employmentDetails.ESIRegistrationDate));
             sqlParameter.Add(new SqlParameter("@DateOfJoiningOnroll", employmentDetails.DateOfJoiningOnroll));
             sqlParameter.Add(new SqlParameter("@DateOfJoiningTraining", employmentDetails.DateOfJoiningTraining));
@@ -1165,6 +1164,7 @@ namespace HRMS.API.BusinessLayer
                                 SubDepartmentID = dataRow.Field<long>("SubDepartmentID"),
                                 ShiftTypeID = dataRow.Field<long>("ShiftTypeID"),
                                 ESINumber = dataRow.Field<string>("ESINumber"),
+                                LOB = dataRow.Field<string>("LOB"),
                                 ESIRegistrationDate = dataRow.Field<DateTime?>("ESIRegistrationDate"),
                                 DateOfJoiningOnroll = dataRow.Field<DateTime?>("DateOfJoiningOnroll"),
                                 DateOfJoiningTraining = dataRow.Field<DateTime?>("DateOfJoiningTraining"),
@@ -2109,7 +2109,7 @@ namespace HRMS.API.BusinessLayer
          EmployeeId = dataRow.Field<long>("EmployeeId"),
          FirstName = dataRow.Field<string>("EmployeeFirstName"),
          LastName = dataRow.Field<string>("EmployeeLastName"),
-         DOB = dataRow.Field<DateTime?>("EmployeeDOB"),  // Nullable DateTime
+         DOB = dataRow.Field<DateTime?>("EmployeeDOB"),  
          EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
      }).ToList();
 
@@ -2170,11 +2170,9 @@ namespace HRMS.API.BusinessLayer
 
                     if (model.RoleID == 2 || model.RoleID == 5)
                     {
-
                         var extraSubordinates = hierarchy
                             .SelectMany(e => e.Subordinates ?? new List<HierarchyEmployee>())
                             .ToList();
-
                         dashBoardModel.EmployeeHierarchy = hierarchy
                             .Concat(extraSubordinates)
                             .ToList();
@@ -2184,8 +2182,6 @@ namespace HRMS.API.BusinessLayer
                         dashBoardModel.EmployeeHierarchy = hierarchy;
                     }
                 }
-
-
                 if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.HR || model.RoleID == (int)Roles.Admin)
                 {
                     var CompanyDetails = dataSet.Tables[9].AsEnumerable()
@@ -2194,8 +2190,6 @@ namespace HRMS.API.BusinessLayer
                                CountsOfCompanies = dataRow.Field<int>("TotalCompanies"),
                            }).ToList().FirstOrDefault();
                     dashBoardModel.CountsOfCompanies = CompanyDetails.CountsOfCompanies;
-
-
                 }
 
                 if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.Admin)
@@ -2203,13 +2197,13 @@ namespace HRMS.API.BusinessLayer
                     var Employment = dataSet.Tables[10].AsEnumerable()
                            .Select(dataRow => new DashBoardModel
                            {
-                               TotalSeniorCore = dataRow.Field<int>("TotalSeniorCore"),
-                               TotalFieldTracer = dataRow.Field<int>("TotalCCE"),
-                               TotalCCE = dataRow.Field<int>("TotalFieldTracer"),
+                               TotalSeniorCore = dataRow.Field<int?>("TotalSeniorCore"),
+                               TotalCCE = dataRow.Field<int?>("TotalCCE")
+                               
                            }).ToList().FirstOrDefault();
                     dashBoardModel.TotalSeniorCore = Employment.TotalSeniorCore;
-                    dashBoardModel.TotalFieldTracer = Employment.TotalCCE;
-                    dashBoardModel.TotalCCE = Employment.TotalFieldTracer;
+                    dashBoardModel.TotalCCE = Employment.TotalCCE;
+                 
 
                 }
                 if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.Admin)
@@ -2310,7 +2304,7 @@ namespace HRMS.API.BusinessLayer
                     if (parent.Subordinates == null)
                         parent.Subordinates = new List<HierarchyEmployee>();
 
-                    // prevent duplicate children
+
                     if (!parent.Subordinates.Any(s => s.Path == employee.Path))
                     {
                         parent.Subordinates.Add(employee);
@@ -2318,7 +2312,6 @@ namespace HRMS.API.BusinessLayer
                 }
                 else
                 {
-                    // only add top-level nodes once
                     if (!hierarchy.Any(h => h.Path == employee.Path))
                     {
                         hierarchy.Add(employee);
@@ -4156,7 +4149,7 @@ namespace HRMS.API.BusinessLayer
                     MiddleName = item.MiddleName,
                     Surname = item.Surname,
                     CorrespondenceAddress = item.PresentAddress,
-                    CorrespondenceCity = item.PresentCity,
+                    CorrespondenceCity = item.PresentCity,   
                     CorrespondencePinCode = item.PresentPinCode,
                     CorrespondenceState = item.PresentState,
                     CorrespondenceCountryID = Convert.ToInt64(item.PresentCountryName),
@@ -4234,7 +4227,12 @@ namespace HRMS.API.BusinessLayer
                     MailReceivedFromAndDate = item.MailReceivedFromAndDate,
                     EmailSentToITDate = TryParseDate(item.DateOfEmailSentToITForIDDeletion),
                     IsActive = item.Status == "1",
-                    ReportingToIDL1EmployeeNumber = item.EmpCodeofReportingManager
+                    ReportingToIDL1EmployeeNumber = item.EmpCodeofReportingManager,
+                    SourcingType = item.SourcingType,
+                    RefereeName = item.RefereeName,
+                    MobileNumberReferee = item.MobileNumberOfReferee,
+                    DocumentationStatus = item.DocumentationStatus,
+                    LOB = item.LOB
                 }).ToList();
                 var employeeDataTable = ConvertToDataTable(employeeList);
                 var parameters = new List<SqlParameter>
@@ -4357,6 +4355,11 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("EmailSentToITDate", typeof(DateTime));
             table.Columns.Add("IsActive", typeof(bool));
             table.Columns.Add("ReportingToIDL1EmployeeNumber", typeof(string));
+            table.Columns.Add("SourcingType", typeof(string));
+            table.Columns.Add("RefereeName", typeof(string));
+            table.Columns.Add("MobileNumberReferee", typeof(string));
+            table.Columns.Add("DocumentationStatus", typeof(string));
+            table.Columns.Add("LOB", typeof(string));
             foreach (var emp in employees)
             {
                 table.Rows.Add(
@@ -4446,7 +4449,13 @@ namespace HRMS.API.BusinessLayer
                     emp.MailReceivedFromAndDate,
                     emp.EmailSentToITDate,
                     emp.IsActive,
-                  emp.ReportingToIDL1EmployeeNumber
+                    emp.ReportingToIDL1EmployeeNumber,
+                    emp.SourcingType,
+                    emp.RefereeName,
+                    emp.MobileNumberReferee,
+                    emp.DocumentationStatus,
+                    emp.LOB
+
                 );
             }
 

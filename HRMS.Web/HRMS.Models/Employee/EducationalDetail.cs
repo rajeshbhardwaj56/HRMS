@@ -11,7 +11,7 @@ namespace HRMS.Models.Employee
         public long EmployeeID { get; set; }
         public long EducationDetailID { get; set; }
     }
-    public class EducationalDetail
+    public class    EducationalDetail
     {
         //public string EncodedEducationDetailID { get; set; } = string.Empty;
         public long? EducationDetailID { get; set; }

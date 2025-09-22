@@ -218,6 +218,10 @@
                     <label>Date of Joining (OJT)</label>
                     @Html.TextBoxFor(a => a.DateOfJoiningOJT, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
                 </div>
+                <div class="col-md-4 form-group">
+                    <label>LOB</label>
+                    @Html.TextBoxFor(a=>a.LOB,new {@class="form-control", @type="text"}) 
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <input type="submit" value="Submit" class="btn btn-success" />

@@ -50,6 +50,8 @@ namespace HRMS.Models.Employee
         public long ReportingToIDL2 { get; set; }
         public string ClientName { get; set; } = string.Empty;
         public string? ESINumber { get; set; } = string.Empty;
+
+        public string? LOB { get; set; } = string.Empty;
         public DateTime? ESIRegistrationDate { get; set; }
         public DateTime? DateOfJoiningOnroll { get; set; } 
         public DateTime? DateOfJoiningTraining { get; set; }

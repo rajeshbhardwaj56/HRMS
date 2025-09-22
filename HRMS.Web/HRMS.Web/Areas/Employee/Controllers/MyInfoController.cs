@@ -7,11 +7,9 @@ using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HRMS.Models;
-using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
-using HRMS.Models.FormPermission;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
@@ -976,15 +974,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             };
             var RoleId = GetSessionInt(Constants.RoleID);
 
-            //var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, (int)PageName.MyInfo);
-            //if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
-            //{
-            //    HttpContext.Session.Clear();
-            //    HttpContext.SignOutAsync();
-            //    return RedirectToAction("Index", "Home", new { area = "" });
-            //}
-
-            // Call API
+          
             var jsonData = _businessLayer.SendPostAPIRequest(
                 model,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetMyInfo),
@@ -1147,7 +1137,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 Holidaylist = holidaydataList.Holiday.ToList();
             }
 
-            // Count weekends and holidays only once for leave types that need it
+           
             bool needsWeekendHolidayCount = leaveSummary.LeaveTypeID == (int)LeaveType.Paternity
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel //Privilage Leave
                                            || leaveSummary.LeaveTypeID == (int)LeaveType.MedicalLeave

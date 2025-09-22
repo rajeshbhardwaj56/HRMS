@@ -14,7 +14,7 @@ var Confbuilder = new ConfigurationBuilder()
            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 IConfigurationRoot Configuration = Confbuilder.Build();
-// Add services to the container.
+
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IDataLayer, DataLayer>();
@@ -23,7 +23,7 @@ builder.Services.AddSingleton<IJWTAuthentication, JWTAuthentication>();
 builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
 builder.Services.AddSingleton<IJWTAuthentication, JWTAuthentication>();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -42,10 +42,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 var app = builder.Build();
 
-app.UseExceptionHandler("/error"); // Add this
+app.UseExceptionHandler("/error"); 
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
+
 {
     app.UseSwagger();
     app.UseSwaggerUI();

@@ -374,7 +374,6 @@ namespace HRMS.Web.Controllers
                 CompanyLoginModel model = new CompanyLoginModel();
                 {
                     model.CompanyID = Convert.ToInt64(CompanyId);
-
                     var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
                     model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
                 }
@@ -516,8 +515,7 @@ namespace HRMS.Web.Controllers
                 
                 return RedirectToActionPermanent(
                    Constants.Index,
-                  _businessLayer.GetControllarNameByRole(result.RoleId),
-                  //new { area = _businessLayer.GetAreaNameByRole(result.RoleId) }
+                  _businessLayer.GetControllarNameByRole(result.RoleId),                
                   new { area = "admin" }
                );
             }
