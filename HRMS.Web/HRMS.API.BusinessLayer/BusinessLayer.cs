@@ -81,6 +81,7 @@ namespace HRMS.API.BusinessLayer
                                    IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired"),
                                    JobLocationID = dataRow.Field<long>("JobLocationID"),
                                    DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                   IsFirstLoginPasswordReset = dataRow.Field<bool>("IsFirstLoginPasswordReset"),
                                }).ToList().FirstOrDefault();
             }
             return loginUser;

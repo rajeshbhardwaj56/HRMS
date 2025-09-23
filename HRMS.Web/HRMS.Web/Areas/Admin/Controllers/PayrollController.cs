@@ -17,8 +17,5 @@ namespace HRMS.Web.Areas.Admin.Controllers
             _configuration = configuration;
             _businessLayer = businessLayer;
         }
-     
-       
-
     }
 }

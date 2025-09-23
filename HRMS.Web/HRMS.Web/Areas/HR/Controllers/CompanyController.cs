@@ -39,7 +39,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 		{
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
-
             var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.CompanyListing);
             if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
             {

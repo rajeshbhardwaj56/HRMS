@@ -466,58 +466,73 @@ namespace HRMS.Web.Controllers
             var result = JsonConvert.DeserializeObject<LoginUser>(data);
             if (result != null && !string.IsNullOrEmpty(result.token))
             {
-                EmployeeInputParams objmodel = new EmployeeInputParams();
-                objmodel.CompanyID = result.CompanyID;
-                _context.HttpContext.Session.SetString(Constants.SessionBearerToken, result.token);
-                _context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
-                _context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());
-                _context.HttpContext.Session.SetString(Constants.EmployeeID, result.EmployeeID.ToString());
-                _context.HttpContext.Session.SetString(Constants.Gender, result.GenderId.ToString());
-                _context.HttpContext.Session.SetString(Constants.RoleID, result.RoleId.ToString());
-                _context.HttpContext.Session.SetString(Constants.Manager1Name, result.Manager1Name.ToString());
-                _context.HttpContext.Session.SetString(Constants.Manager1Email, result.Manager1Email.ToString());
-                _context.HttpContext.Session.SetString(Constants.Manager2Name, result.Manager2Name.ToString());
-                _context.HttpContext.Session.SetString(Constants.EmployeeNumber, result.EmployeeNumber.ToString());
-                _context.HttpContext.Session.SetString(Constants.EmployeeNumberWithoutAbbr, result.EmployeeNumberWithoutAbbr.ToString());
-                _context.HttpContext.Session.SetString(Constants.Manager2Email, result.Manager2Email.ToString());
-                _context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
-                var identity = new ClaimsIdentity(new[] {
+                if (result.IsFirstLoginPasswordReset)
+                {
+
+                    EmployeeInputParams objmodel = new EmployeeInputParams();
+                    objmodel.CompanyID = result.CompanyID;
+                    _context.HttpContext.Session.SetString(Constants.SessionBearerToken, result.token);
+                    _context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.EmployeeID, result.EmployeeID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.Gender, result.GenderId.ToString());
+                    _context.HttpContext.Session.SetString(Constants.RoleID, result.RoleId.ToString());
+                    _context.HttpContext.Session.SetString(Constants.Manager1Name, result.Manager1Name.ToString());
+                    _context.HttpContext.Session.SetString(Constants.Manager1Email, result.Manager1Email.ToString());
+                    _context.HttpContext.Session.SetString(Constants.Manager2Name, result.Manager2Name.ToString());
+                    _context.HttpContext.Session.SetString(Constants.EmployeeNumber, result.EmployeeNumber.ToString());
+                    _context.HttpContext.Session.SetString(Constants.EmployeeNumberWithoutAbbr, result.EmployeeNumberWithoutAbbr.ToString());
+                    _context.HttpContext.Session.SetString(Constants.Manager2Email, result.Manager2Email.ToString());
+                    _context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
+                    var identity = new ClaimsIdentity(new[] {
                     new Claim(ClaimTypes.Name, result.UserID.ToString()),
                      new Claim(ClaimTypes.Role,  result.Role)
                 }, CookieAuthenticationDefaults.AuthenticationScheme);
-                var principal = new ClaimsPrincipal(identity);
-                var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
-                var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel);
-                if (string.IsNullOrEmpty(model.ProfilePhoto))
-                {
-                    model.ProfilePhoto = "";
-                    _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+                    var principal = new ClaimsPrincipal(identity);
+                    var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                    DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
+                    var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel);
+                    if (string.IsNullOrEmpty(model.ProfilePhoto))
+                    {
+                        model.ProfilePhoto = "";
+                        _context.HttpContext.Session.SetString(Constants.ProfilePhoto, model.ProfilePhoto);
+                    }
+                    else
+                    {
+                        var ProfilePhoto = _s3Service.GetFileUrl(model.ProfilePhoto);
+                        _context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
+                    }
+                    _context.HttpContext.Session.SetString(Constants.FirstName, model.FirstName);
+                    _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName ?? string.Empty);
+                    _context.HttpContext.Session.SetString(Constants.Surname, model.Surname ?? string.Empty);
+                    _context.HttpContext.Session.SetString(Constants.OfficialEmailID, model.OfficialEmailID ?? string.Empty);
+                    _context.HttpContext.Session.SetString(Constants.JobLocationID, model.JobLocationID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.DepartmentID, model.DepartmentID.ToString());
+                    var CompanyDatas = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas);
+                    var CompanyData = results.companyModel;
+                    //  var CompanyLogo = "/Uploads/CompanyLogo/" + CompanyData.CompanyID + "/"+ CompanyData.CompanyLogo;
+                    var CompanyLogo = _s3Service.GetFileUrl(CompanyData.CompanyLogo);
+                    _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
+
+                    return RedirectToActionPermanent(
+                       Constants.Index,
+                      _businessLayer.GetControllarNameByRole(result.RoleId),
+                      new { area = "admin" }
+                   );
                 }
+
                 else
                 {
-                    var ProfilePhoto = _s3Service.GetFileUrl(model.ProfilePhoto);
-                    _context.HttpContext.Session.SetString(Constants.ProfilePhoto, ProfilePhoto.ToString());
+                    _context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.EmployeeID, result.EmployeeID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.EmployeeNumber, result.EmployeeNumber.ToString());
+                    // redirect to ChangePassword page
+                    return RedirectToAction("ChangePassword", "Home", new { area = "" });
+
                 }
-                _context.HttpContext.Session.SetString(Constants.FirstName, model.FirstName);
-                _context.HttpContext.Session.SetString(Constants.MiddleName, model.MiddleName ?? string.Empty);
-                _context.HttpContext.Session.SetString(Constants.Surname, model.Surname ?? string.Empty);
-                _context.HttpContext.Session.SetString(Constants.OfficialEmailID, model.OfficialEmailID ?? string.Empty);
-                _context.HttpContext.Session.SetString(Constants.JobLocationID, model.JobLocationID.ToString());
-                _context.HttpContext.Session.SetString(Constants.DepartmentID, model.DepartmentID.ToString());
-                var CompanyDatas = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(CompanyDatas);
-                var CompanyData = results.companyModel;
-                //  var CompanyLogo = "/Uploads/CompanyLogo/" + CompanyData.CompanyID + "/"+ CompanyData.CompanyLogo;
-                var CompanyLogo = _s3Service.GetFileUrl(CompanyData.CompanyLogo);
-                _context.HttpContext.Session.SetString(Constants.CompanyLogo, CompanyLogo.ToString());
-                
-                return RedirectToActionPermanent(
-                   Constants.Index,
-                  _businessLayer.GetControllarNameByRole(result.RoleId),                
-                  new { area = "admin" }
-               );
             }
             else
             {
