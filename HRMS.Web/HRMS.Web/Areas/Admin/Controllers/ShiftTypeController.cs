@@ -108,7 +108,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 if (shiftTypeModel.ShiftTypeID > 0)
                 {
                     return RedirectToActionPermanent(WebControllarsConstants.ShiftTypeListing, WebControllarsConstants.ShiftType);
-                    //return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.ShiftType, new { id = shiftTypeModel.ShiftTypeID.ToString() });
                 }
                 else
                 {

@@ -275,10 +275,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 // Calculate maximum available leave left to accrue
                 double maxAvailable = maxAnnualLeaveLimit - approvedLeaveTotal;
 
-                // Cap accrued leave so it doesn’t exceed max available
+              
                 accruedLeave = Math.Min(accruedLeave, maxAvailable);
 
-                // Add carry forward if policy allows, but ensure capped
+
                 if (leavePolicy.Annual_IsCarryForward)
                 {
                     double carryForward = Convert.ToDouble(GetEmployeeDetails(leaveRecord.CompanyID, leaveRecord.EmployeeID)?.CarryForword ?? 0);

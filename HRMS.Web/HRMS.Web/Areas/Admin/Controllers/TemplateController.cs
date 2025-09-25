@@ -246,7 +246,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 {
                     Template.FooterImage = _s3Service.GetFileUrl(Template.FooterImage);
                 }
-            }
+            }  
 
             return View(Template);
         }

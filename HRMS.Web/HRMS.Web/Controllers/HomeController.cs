@@ -227,8 +227,6 @@ namespace HRMS.Web.Controllers
 
             return View(model);
         }
-
-
         public ActionResult ResetPassword(string Id, string dt, string cm, string um)
         {
             ResetPasswordModel objmodel = new ResetPasswordModel();

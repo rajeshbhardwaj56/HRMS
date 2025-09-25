@@ -62,7 +62,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.LeavePolicy.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.LeavePolicyID.ToString()));
-
             return Json(new { data = results.LeavePolicy });
 
         }

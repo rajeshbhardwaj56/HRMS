@@ -35,7 +35,9 @@
 	.opened-row {
 	background-color: #e6f7ff !important;
 	}
-
+    .carousel-item {
+        min-height: 250px; /* or whatever fits */
+    }
 	.table-wrapper-scroll {
 	max-height: calc(42px * 5 + 50px); 
 	overflow-y: auto;
@@ -442,7 +444,7 @@
                     <h6 class="mb-0">Celebrations</h6>
                 </div>
                 <div class="card-carousel overflow-hidden h-100 p-0">
-                    <div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel">
+                    <div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel" data-bs-interval="2000">
 
                         <div class="carousel-indicators">
                             @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
