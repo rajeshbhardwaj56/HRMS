@@ -20,7 +20,7 @@ namespace HRMS.Models
         public string? HolidayName { get; set; }
         public DateTime ToDate { get; set; }
         public DateTime FromDate { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public bool Status { get; set; } = true;
         public long JobLocationTypeID { get; set; }
         public string? Location { get; set; }

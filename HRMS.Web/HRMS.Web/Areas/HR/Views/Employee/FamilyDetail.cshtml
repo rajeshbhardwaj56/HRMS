@@ -71,7 +71,6 @@
     <script>
           function toastMessage(type , message)
             {
-
                     $.toast({
                     heading: type,
                     text: message,
@@ -81,7 +80,7 @@
                 });
             }
                 $('#familyForm').on('submit', function (e) {
-            e.preventDefault();
+              e.preventDefault();
 
             var form = $(this);
             var formData = form.serialize();

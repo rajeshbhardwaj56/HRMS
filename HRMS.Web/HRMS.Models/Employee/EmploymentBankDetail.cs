@@ -26,6 +26,19 @@ namespace HRMS.Models.Employee
         public string? AadharCardNo { get; set; } = string.Empty;
         public string? PanCardImage { get; set; } = string.Empty;
         public string? AadhaarCardImage { get; set; } = string.Empty;
-        public long UserID { get; set; } 
+        public long UserID { get; set; }
+    }
+
+
+    public class SalarySlipViewModel
+    {
+        public long EmployeeID { get; set; }
+        public string? EmployeeNumber { get; set; }
+        public decimal? GrossSalary { get; set; }
+        public decimal? BasicSalary { get; set; }
+        public decimal? HRA { get; set; }
+        public decimal? PF { get; set; }
+        public decimal? ESI { get; set; }
+        public decimal? InHandSalary { get; set; }
     }
 }

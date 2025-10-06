@@ -1,0 +1,205 @@
+﻿@using HRMS.Models.PayRoll
+@model EmployeeMonthlySalaryModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Edit Salary";
+   
+}
+<div class="main-header anim">
+    Edit Salary
+</div>
+
+<form asp-action="EditSalary" method="post">
+
+    @Html.HiddenFor(m => m.MonthlySalaryID)
+    @Html.HiddenFor(m => m.UpdatedByUserID)
+
+    <div class="row group-box anim">
+
+        <div class="col-md-3">
+            <label>Gross Salary</label>
+            @Html.TextBoxFor(m => m.GrossSalary, new
+            {
+                @class = "form-control",
+                type = "number",
+                step = "0.01",
+                min = "0",      
+                
+            })
+        </div>
+        <div class="col-md-3">
+            <label>Payroll Type</label>
+            @Html.TextBoxFor(m => m.PayrollTypeName, new { @class = "form-control", type = "text", id = "PayrollTypeName", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>Basic Salary</label>
+            @Html.TextBoxFor(m => m.BasicSalary, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>HRA</label>
+            @Html.TextBoxFor(m => m.HRA, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>Conveyance Allowance</label>
+            @Html.TextBoxFor(m => m.ConveyanceAllowance, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+
+        <div class="col-md-3">
+            <label>Special Allowance</label>
+            @Html.TextBoxFor(m => m.SpecialAllowance, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>PF</label>
+            @Html.TextBoxFor(m => m.PF, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>ESI</label>
+            @Html.TextBoxFor(m => m.ESI, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>LWF</label>
+            @Html.TextBoxFor(m => m.LWF, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+
+        <div class="col-md-3">
+            <label>PTax</label>
+            @Html.TextBoxFor(m => m.PTax, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>TDS</label>
+            @Html.TextBoxFor(m => m.TDS, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+
+        <div class="col-md-3">
+            <label>Employer PF</label>
+            @Html.TextBoxFor(m => m.EmployerPF, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>Employer ESI</label>
+            @Html.TextBoxFor(m => m.EmployerESI, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>Employer LWF</label>
+            @Html.TextBoxFor(m => m.EmployerLWF, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+
+        <div class="col-md-3">
+            <label>Gratuity</label>
+            @Html.TextBoxFor(m => m.Gratuity, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>Total Earnings</label>
+            @Html.TextBoxFor(m => m.TotalEarnings, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>Total Deductions</label>
+            @Html.TextBoxFor(m => m.TotalDeductions, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>In Hand Salary</label>
+            @Html.TextBoxFor(m => m.InHandSalary, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+        <div class="col-md-3">
+            <label>Cost To Company</label>
+            @Html.TextBoxFor(m => m.CostToCompany, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+        </div>
+
+        <div class="col-md-6">
+                <label>Status</label>
+                @Html.TextBoxFor(m => m.Status, new { @class = "form-control" })
+            </div>
+        <div class="col-md-6">
+            <label>Remarks</label>
+            @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control", rows = 2 })
+        </div>
+
+        <div class="col-md-12 mt-3">
+            <button type="submit" class="btn btn-success">Save</button>
+            <a asp-action="MonthlySalary" class="btn btn-danger">Cancel</a>
+        </div>
+    </div>
+</form>
+@section Scripts{
+    <script>
+$(document).ready(function(){
+
+    function calculateSalary() {
+        var gross = parseFloat($('#GrossSalary').val()) || 0;
+        var type = $('#PayrollTypeName').val();
+
+        var basic = 0, hra = 0, conveyance = 0, special = 0;
+        var pf = 0, esi = 0, lwf = 0, ptax = 0, tds = 0;
+        var employerPF = 0, employerESI = 0, employerLWF = 0, gratuity = 0;
+        var totalEarnings = 0, totalDeductions = 0, inHand = 0, ctc = 0;
+
+        if(!type){
+            alert('Invalid Payroll Type');
+            return;
+        }
+
+
+        if(type === 'NAPS' || type === 'NATS'){
+            basic = gross;
+        }
+     
+        else if(type === 'OJT'){
+            basic = gross;
+            esi = (gross <= 21000) ? Math.ceil(gross * 0.0075) : 0;
+            employerESI = (gross <= 21000) ? Math.ceil(gross * 0.0325) : 0;
+        }
+
+        else if(type === 'Regular'){
+            basic = Math.round(gross * 0.50);
+            hra = Math.round(gross * 0.25);
+            conveyance = Math.round(gross * 0.10);
+            special = gross - (basic + hra + conveyance);
+
+            pf = (gross <= 15000) ? Math.round(gross * 0.12) : Math.round(15000 * 0.12);
+            esi = ((gross - conveyance) <= 21000) ? Math.ceil((gross - conveyance) * 0.0075) : 0;
+            lwf = 5;
+            ptax = (gross > 25000) ? 200 : 0;
+            tds = 0;
+
+            employerPF = (gross <= 15000) ? Math.round(gross * 0.13) : Math.round(15000 * 0.13);
+            employerESI = ((gross - conveyance) <= 21000) ? Math.ceil((gross - conveyance) * 0.0325) : 0;
+            employerLWF = 20;
+        }
+
+        gratuity = 0;
+        totalEarnings = gross;
+        totalDeductions = pf + esi + lwf + ptax + tds;
+        inHand = totalEarnings - totalDeductions;
+        ctc = gross + employerPF + employerESI + employerLWF + gratuity;
+
+        // Set values to inputs
+        $('#BasicSalary').val(basic);
+        $('#HRA').val(hra);
+        $('#ConveyanceAllowance').val(conveyance);
+        $('#SpecialAllowance').val(special);
+
+        $('#PF').val(pf);
+        $('#ESI').val(esi);
+        $('#LWF').val(lwf);
+        $('#PTax').val(ptax);
+        $('#TDS').val(tds);
+
+        $('#EmployerPF').val(employerPF);
+        $('#EmployerESI').val(employerESI);
+        $('#EmployerLWF').val(employerLWF);
+        $('#Gratuity').val(gratuity);
+
+        $('#TotalEarnings').val(totalEarnings);
+        $('#TotalDeductions').val(totalDeductions);
+        $('#InHandSalary').val(inHand);
+        $('#CostToCompany').val(ctc);
+    }
+
+
+    $('#GrossSalary, #PayrollTypeName').on('input change', calculateSalary);
+
+  
+    calculateSalary();
+});
+    </script>
+}

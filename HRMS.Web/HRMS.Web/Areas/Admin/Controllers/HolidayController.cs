@@ -40,7 +40,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
-            return View(results);
+            return View(results);     
         }
 
         [HttpPost]
@@ -62,10 +62,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     jobLocationName = j.Text
                 })
             });
-
-
-
-
         }
 
         public IActionResult Index(string id)

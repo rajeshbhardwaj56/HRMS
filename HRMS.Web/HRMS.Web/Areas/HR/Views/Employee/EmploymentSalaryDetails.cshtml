@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Salary Slip</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+
+        .salary-slip {
+            border: 2px solid #444;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+            .header h2 {
+                margin: 0;
+                color: #2c3e50;
+            }
+
+        .employee-info, .salary-details {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+            .employee-info td, .salary-details th, .salary-details td {
+                border: 1px solid #999;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .salary-details th {
+                background-color: #f0f0f0;
+                text-align: left;
+            }
+
+        .totals {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="salary-slip">
+        <div class="header">
+            <h2>Company Name Pvt. Ltd.</h2>
+            <p><strong>Salary Slip for September 2025</strong></p>
+        </div>
+
+        <!-- Employee Info -->
+        <table class="employee-info">
+            <tr>
+                <td><strong>Employee ID</strong></td>
+                <td>EMP123</td>
+                <td><strong>Employee Name</strong></td>
+                <td>John Doe</td>
+            </tr>
+            <tr>
+                <td><strong>Designation</strong></td>
+                <td>Software Engineer</td>
+                <td><strong>Department</strong></td>
+                <td>IT</td>
+            </tr>
+            <tr>
+                <td><strong>Bank A/C</strong></td>
+                <td>XXXX-1234</td>
+                <td><strong>PAN</strong></td>
+                <td>ABCDE1234F</td>
+            </tr>
+        </table>
+
+        <!-- Salary Details -->
+        <table class="salary-details">
+            <thead>
+                <tr>
+                    <th>Earnings</th>
+                    <th>Amount (₹)</th>
+                    <th>Deductions</th>
+                    <th>Amount (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Basic Salary</td>
+                    <td>15,000</td>
+                    <td>PF</td>
+                    <td>1,800</td>
+                </tr>
+                <tr>
+                    <td>HRA</td>
+                    <td>6,000</td>
+                    <td>ESI</td>
+                    <td>300</td>
+                </tr>
+                <tr>
+                    <td>Conveyance Allowance</td>
+                    <td>2,000</td>
+                    <td>Professional Tax</td>
+                    <td>200</td>
+                </tr>
+                <tr>
+                    <td>Special Allowance</td>
+                    <td>5,000</td>
+                    <td>TDS</td>
+                    <td>500</td>
+                </tr>
+                <tr>
+                    <td><strong>Total Earnings</strong></td>
+                    <td><strong>28,000</strong></td>
+                    <td><strong>Total Deductions</strong></td>
+                    <td><strong>2,800</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="totals">Net Pay (In Hand): <strong>₹25,200</strong></p>
+
+        <div class="footer">
+            <p>This is a computer-generated payslip and does not require a signature.</p>
+        </div>
+    </div>
+</body>
+</html>

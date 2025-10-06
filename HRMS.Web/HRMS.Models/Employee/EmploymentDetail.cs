@@ -59,6 +59,7 @@ namespace HRMS.Models.Employee
         public DateTime? DateOfJoiningOJT { get; set; }
         public int RoleId { get; set; }
         public string EmployeNumber { get; set; } = string.Empty;
+        public decimal? GrossSalary { get; set; } = 0m;
         public string CompanyAbbr { get; set; } = string.Empty;
         public long CompanyID { get; set; } = 0;
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();

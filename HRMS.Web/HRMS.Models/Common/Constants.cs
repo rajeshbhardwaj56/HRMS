@@ -169,6 +169,7 @@ namespace HRMS.Models.Common
         public const string AttendenceList = "AttendenceList";
         public const string Common = "Common";
         public const string ShiftType = "ShiftType";
+        public const string Payroll = "Payroll";
         
 
     }
@@ -289,7 +290,7 @@ namespace HRMS.Models.Common
         public const string GetEmployeeDetails = "GetEmployeeDetails";
         public const string FetchAttendanceHolidayAndLeaveInfo = "FetchAttendanceHolidayAndLeaveInfo";
         public const string GetJobLocationsByCompany = "GetJobLocationsByCompany";
- 
+
         public const string SaveOrUpdateBulk = "SaveOrUpdateBulk";
         public const string SaveOrUpdateAttendanceStatus = "SaveOrUpdateAttendanceStatus";
         public const string GetTeamAttendanceForApproval = "GetTeamAttendanceForApproval";
@@ -341,9 +342,9 @@ namespace HRMS.Models.Common
         public const string InsertException = "InsertException";
         public const string UploadRosterWeekOff = "UploadRosterWeekOff";
         public const string GetEmployeesWeekOffRoster = "GetEmployeesWeekOffRoster";
-        public const string DeleteWeekOffRoster = "DeleteWeekOffRoster"; 
-        public const string GetEmployeesWithoutUpcomingWeekOffRoster = "GetEmployeesWithoutUpcomingWeekOffRoster"; 
-        public const string GetShiftTypeList = "GetShiftTypeList"; 
+        public const string DeleteWeekOffRoster = "DeleteWeekOffRoster";
+        public const string GetEmployeesWithoutUpcomingWeekOffRoster = "GetEmployeesWithoutUpcomingWeekOffRoster";
+        public const string GetShiftTypeList = "GetShiftTypeList";
 
         public const string GetLeaveWeekOffDates = "GetLeaveWeekOffDates";
         public const string GetExportAttendanceForCalendar = "GetExportAttendanceForCalendar";
@@ -352,6 +353,9 @@ namespace HRMS.Models.Common
         public const string GetManagerDropdown = "GetManagerDropdown";
         public const string GetCompanyHoliday = "GetCompanyHoliday";
 
+
+        public const string GetEmployeesMonthlySalary = "GetEmployeesMonthlySalary";
+        public const string AddUpdateEmployeeMonthlySalary = "AddUpdateEmployeeMonthlySalary";
 
     }
 
@@ -364,6 +368,5 @@ namespace HRMS.Models.Common
         public const string TabTimeOff = "TabTimeOff";
         public const string TabLeaveInfo = "TabLeaveInfo";
         public const string attendance = "attendance";
-
     }
 }

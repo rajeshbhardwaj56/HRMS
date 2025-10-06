@@ -1,0 +1,89 @@
+﻿@using HRMS.Models.PayRoll
+
+@model SalaryDetails
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Salary Details";
+   
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    Salary Details
+</div>
+
+<div class="Container">
+    <div class="group-box anim" style="--delay: .3s">
+        <div class="small-header">
+            Employee Salary Slip
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Employee Name:</strong> @Model.EmployeeName
+            </div>
+            <div class="col-md-6">
+                <strong>Employee Number:</strong> @Model.EmployeeNumber
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Salary Month/Year:</strong> @Model.SalaryMonth / @Model.SalaryYear
+            </div>
+            <div class="col-md-6">
+                <strong>Payroll Type:</strong> @Model.PayrollTypeName
+               
+            </div>
+        </div>
+
+        <table class="table table-bordered table-striped">
+            <thead style="background-color:#044a8c; color:white;">
+                <tr>
+                    <th>Earnings</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Gross Salary</td><td>@Model.GrossSalary</td></tr>
+                <tr><td>Basic Salary</td><td>@Model.BasicSalary</td></tr>
+                <tr><td>HRA</td><td>@Model.HRA</td></tr>
+                <tr><td>Conveyance Allowance</td><td>@Model.ConveyanceAllowance</td></tr>
+                <tr><td>Special Allowance</td><td>@Model.SpecialAllowance</td></tr>
+                <tr><td>Total Earnings</td><td>@Model.TotalEarnings</td></tr>
+            </tbody>
+        </table>
+
+        <table class="table table-bordered table-striped mt-3">
+            <thead style="background-color:#044a8c; color:white;">
+                <tr>
+                    <th>Deductions</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>PF</td><td>@Model.PF</td></tr>
+                <tr><td>ESI</td><td>@Model.ESI</td></tr>
+                <tr><td>LWF</td><td>@Model.LWF</td></tr>
+                <tr><td>Professional Tax</td><td>@Model.PTax</td></tr>
+                <tr><td>TDS</td><td>@Model.TDS</td></tr>
+                <tr><td>Total Deductions</td><td>@Model.TotalDeductions</td></tr>
+            </tbody>
+        </table>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <strong>In-Hand Salary:</strong> <span class="text-success">@Model.InHandSalary</span>
+            </div>
+            <div class="col-md-6">
+                <strong>Cost To Company:</strong> @Model.CostToCompany
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12 text-end">
+                <a href="@Url.Action("MonthlySalary", "Payroll" )" class="btn btn-secondary">Back</a>
+            </div>
+        </div>
+    </div>
+</div>

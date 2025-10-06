@@ -10,7 +10,7 @@ namespace HRMS.Models.ShiftType
         public int? DisplayStart { get; set; } = 0;
         public int? DisplayLength { get; set; } = 0;
         public string? Searching { get; set; }
-        public string? SortCol { get; set; }      // @SortCol
+        public string? SortCol { get; set; }    
         public string? SortDir { get; set; }
     }
 

@@ -64,12 +64,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 RoleID = roleId,
                 JobLocationId = jobLocationId
             };
-
             var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
             var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
-            var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
-
-          
+            var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());         
             if (model?.EmployeeDetails != null)
             {
                 foreach (var employee in model.EmployeeDetails.Where(x => !string.IsNullOrEmpty(x.EmployeePhoto)))
@@ -169,7 +166,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (today.Year == 2025)
             {
                 // ✅ Special case: 2025 fiscal year is from 21 May 2025 to 20 March 2026
-                fiscalYearStart = new DateTime(2025, 9, 21);
+                fiscalYearStart = new DateTime(2025, 8, 21);
                 fiscalYearEnd = new DateTime(2026, 3, 20);
             }
             else
@@ -210,7 +207,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 accrualPeriodStart = accrualPeriodStart.AddMonths(1);
                 accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
             }
-
             return totalAccruedLeave;
         }
 
@@ -255,7 +251,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             message = "Some rows contain errors.",
                             errorTable = htmlTable
                         });
-                    }
+                    }  
                     else
                     {
                         return Json(new
@@ -978,7 +974,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var html = new System.Text.StringBuilder();
                 html.Append("<table border='1'>");
                 html.Append("<thead><tr>");
-
                 html.Append("<th>Error Location</th>");
                 html.Append("<th>Error Message</th>");
                 html.Append("</tr></thead>");

@@ -28,8 +28,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
         IBusinessLayer _businessLayer; private IHostingEnvironment Environment;
         private readonly IS3Service _s3Service;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-
-
         public TemplateController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IConverter pdfConverter)
         {
             Environment = _environment;
@@ -69,7 +67,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (results?.Template != null)
             {
                 results.Template.ForEach(x =>
-
             {
                 x.HeaderImage = string.IsNullOrEmpty(x.HeaderImage)
                     ? "/assets/img/No_image.png"
@@ -218,10 +215,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return View(Template);
         }
 
-
-
-
-
         public IActionResult PreviewAndPrint(string id)
         {
             TemplateModel Template = new TemplateModel();
@@ -253,7 +246,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         public IActionResult PrintTemplate(string id)
         {
-            var templateModel = GetTemplateData(id); // Fetch template data
+            var templateModel = GetTemplateData(id); 
 
             string htmlContent = $@"
         <html>

@@ -562,7 +562,26 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="announcementModalLabel">Announcement Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="rounded mb-3" alt="Announcement Image">
+                <h5 id="modalTitle"></h5>
+                <p id="modalDescription"></p>
+                <p><b>From Date:</b> <span id="modalFromDate"></span></p>
+                <p><b>To Date:</b> <span id="modalToDate"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondaryannouncement" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 	<script>
 		 document.addEventListener("DOMContentLoaded", function () {

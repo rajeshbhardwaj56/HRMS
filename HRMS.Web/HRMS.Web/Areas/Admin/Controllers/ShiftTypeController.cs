@@ -61,8 +61,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             shiftTypeParams.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
             shiftTypeParams.SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "shiftTypeID";
             shiftTypeParams.SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper();
-
-
             var data = _businessLayer.SendPostAPIRequest(shiftTypeParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             return Json(new {
@@ -75,7 +73,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             ShiftTypeModel shiftTypeModel = new ShiftTypeModel();
             shiftTypeModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             if (!string.IsNullOrEmpty(id))
             {
                 shiftTypeModel.ShiftTypeID = Convert.ToInt64(id);

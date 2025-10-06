@@ -18,6 +18,7 @@ using HRMS.Models.ImportFromExcel;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
+using HRMS.Models.PayRoll;
 using HRMS.Models.ShiftType;
 using HRMS.Models.Template;
 using HRMS.Models.User;
@@ -235,7 +236,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     result.employeeModel = result.Employees.FirstOrDefault();
 
-                    
+
                     result.employeeModel.FamilyDetails = dataSet.Tables[1].AsEnumerable()
                                  .Select(dataRow => new FamilyDetail
                                  {
@@ -368,7 +369,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     result.employeeModel.LocationList = new List<LocationList>();
                 }
-            
+
                 result.employeeModel.EmploymentTypesList = dataSet.Tables[3].AsEnumerable()
                              .Select(dataRow => new EmploymentTypesList
                              {
@@ -960,6 +961,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@EmployeeNumber", employmentDetails.EmployeNumber));
             sqlParameter.Add(new SqlParameter("@ESINumber", employmentDetails.ESINumber));
             sqlParameter.Add(new SqlParameter("@LOB", employmentDetails.LOB));
+            sqlParameter.Add(new SqlParameter("@GrossSalary", employmentDetails.GrossSalary));
             sqlParameter.Add(new SqlParameter("@ESIRegistrationDate", employmentDetails.ESIRegistrationDate));
             sqlParameter.Add(new SqlParameter("@DateOfJoiningOnroll", employmentDetails.DateOfJoiningOnroll));
             sqlParameter.Add(new SqlParameter("@DateOfJoiningTraining", employmentDetails.DateOfJoiningTraining));
@@ -2110,7 +2112,7 @@ namespace HRMS.API.BusinessLayer
          EmployeeId = dataRow.Field<long>("EmployeeId"),
          FirstName = dataRow.Field<string>("EmployeeFirstName"),
          LastName = dataRow.Field<string>("EmployeeLastName"),
-         DOB = dataRow.Field<DateTime?>("EmployeeDOB"),  
+         DOB = dataRow.Field<DateTime?>("EmployeeDOB"),
          EmployeePhoto = dataRow.Field<string>("EmployeePhoto"),
      }).ToList();
 
@@ -2200,11 +2202,11 @@ namespace HRMS.API.BusinessLayer
                            {
                                TotalSeniorCore = dataRow.Field<int?>("TotalSeniorCore"),
                                TotalCCE = dataRow.Field<int?>("TotalCCE")
-                               
+
                            }).ToList().FirstOrDefault();
                     dashBoardModel.TotalSeniorCore = Employment.TotalSeniorCore;
                     dashBoardModel.TotalCCE = Employment.TotalCCE;
-                 
+
 
                 }
                 if (model.RoleID == (int)Roles.SuperAdmin || model.RoleID == (int)Roles.Admin)
@@ -4150,7 +4152,7 @@ namespace HRMS.API.BusinessLayer
                     MiddleName = item.MiddleName,
                     Surname = item.Surname,
                     CorrespondenceAddress = item.PresentAddress,
-                    CorrespondenceCity = item.PresentCity,   
+                    CorrespondenceCity = item.PresentCity,
                     CorrespondencePinCode = item.PresentPinCode,
                     CorrespondenceState = item.PresentState,
                     CorrespondenceCountryID = Convert.ToInt64(item.PresentCountryName),
@@ -6048,7 +6050,132 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
 
 
-        #endregion 
+        #endregion
+
+
+
+        #region Payroll
+        public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model)
+        {
+            List<SalaryDetails> result = new List<SalaryDetails>();
+            try
+            {
+                List<SqlParameter> sqlParameter = new List<SqlParameter>
+        {
+            new SqlParameter("@CompanyID", model.CompanyID),
+            new SqlParameter("@EmployeeID", model.EmployeeID ?? 0),
+            new SqlParameter("@MonthlySalaryID", model.MonthlySalaryID),
+            new SqlParameter("@Year", model.Year),
+            new SqlParameter("@Month", model.Month),
+            new SqlParameter("@SortCol", model.SortCol ?? "EmployeeID"),
+            new SqlParameter("@SortDir", model.SortDir ?? "DESC"),
+            new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching),
+            new SqlParameter("@DisplayStart", model.DisplayStart ?? 0),
+            new SqlParameter("@DisplayLength", model.DisplayLength ?? 10)
+        };
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_GetMonthlySalary", sqlParameter);
+                if (dataSet != null && dataSet.Tables.Count > 0)
+                {
+                    result = dataSet.Tables[0].AsEnumerable()
+                        .Select(dataRow => new SalaryDetails
+                        {
+                            MonthlySalaryID = dataRow.Field<long>("MonthlySalaryID"),
+                            EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
+                            EmployeeName = dataRow.Field<string>("EmployeeName"),
+                            EmployeeID = dataRow.Field<long>("EmployeeID"),
+                            CompanyID = dataRow.Field<long>("CompanyID"),
+                            PayrollTypeID = dataRow.Field<long>("PayrollTypeID"),
+                            PayrollTypeName = dataRow.Field<string?>("PayrollTypeName"),
+                            SalaryMonth = dataRow.Field<int>("SalaryMonth"),
+                            SalaryYear = dataRow.Field<int>("SalaryYear"),
+                            GrossSalary = dataRow.Field<decimal>("GrossSalary"),
+                            BasicSalary = dataRow.Field<decimal>("BasicSalary"),
+                            HRA = dataRow.Field<decimal>("HRA"),
+                            ConveyanceAllowance = dataRow.Field<decimal>("ConveyanceAllowance"),
+                            SpecialAllowance = dataRow.Field<decimal>("SpecialAllowance"),
+                            PF = dataRow.Field<decimal>("PF"),
+                            ESI = dataRow.Field<decimal>("ESI"),
+                            LWF = dataRow.Field<decimal>("LWF"),
+                            PTax = dataRow.Field<decimal>("PTax"),
+                            TDS = dataRow.Field<decimal>("TDS"),
+                            EmployerPF = dataRow.Field<decimal>("EmployerPF"),
+                            EmployerESI = dataRow.Field<decimal>("EmployerESI"),
+                            EmployerLWF = dataRow.Field<decimal>("EmployerLWF"),
+                            Gratuity = dataRow.Field<decimal>("Gratuity"),
+                            TotalEarnings = dataRow.Field<decimal>("TotalEarnings"),
+                            TotalDeductions = dataRow.Field<decimal>("TotalDeductions"),
+                            InHandSalary = dataRow.Field<decimal>("InHandSalary"),
+                            CostToCompany = dataRow.Field<decimal>("CostToCompany"),
+                            Status = dataRow.Field<string?>("Status"),
+
+                            Remarks = dataRow.Field<string?>("Remarks"),
+                            IsActive = dataRow.Field<bool>("IsActive"),
+
+                        }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+            return result;
+        }
+
+        public Result AddUpdateEmployeeMonthlySalary(EmployeeMonthlySalaryModel salaryModel)
+        {
+            Result result = new Result();
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@MonthlySalaryID", salaryModel.MonthlySalaryID),
+        new SqlParameter("@GrossSalary", salaryModel.GrossSalary),
+        new SqlParameter("@BasicSalary", salaryModel.BasicSalary),
+        new SqlParameter("@HRA", salaryModel.HRA),
+        new SqlParameter("@ConveyanceAllowance", salaryModel.ConveyanceAllowance),
+        new SqlParameter("@SpecialAllowance", salaryModel.SpecialAllowance),
+        new SqlParameter("@PF", salaryModel.PF),
+        new SqlParameter("@ESI", salaryModel.ESI),
+        new SqlParameter("@LWF", salaryModel.LWF),
+        new SqlParameter("@PTax", salaryModel.PTax),
+        new SqlParameter("@TDS", salaryModel.TDS),
+        new SqlParameter("@EmployerPF", salaryModel.EmployerPF),
+        new SqlParameter("@EmployerESI", salaryModel.EmployerESI),
+        new SqlParameter("@EmployerLWF", salaryModel.EmployerLWF),
+        new SqlParameter("@Gratuity", salaryModel.Gratuity),
+        new SqlParameter("@TotalEarnings", salaryModel.TotalEarnings),
+        new SqlParameter("@TotalDeductions", salaryModel.TotalDeductions),
+        new SqlParameter("@InHandSalary", salaryModel.InHandSalary),
+        new SqlParameter("@CostToCompany", salaryModel.CostToCompany),
+        new SqlParameter("@Status", salaryModel.Status ?? (object)DBNull.Value),
+        new SqlParameter("@Remarks", salaryModel.Remarks ?? (object)DBNull.Value),
+        new SqlParameter("@UpdatedByUserID", salaryModel.UpdatedByUserID)
+    };
+
+            
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_UpdateEmployeeMonthlySalary,
+                sqlParameters
+            );            
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                result = dataSet.Tables[0].AsEnumerable()
+                         .Select(row => new Result
+                         {
+                             Message = row.Field<string>("Result")
+                         })
+                         .FirstOrDefault();
+            }
+
+            return result;
+        }
+
+
+
+        #endregion Payroll
     }
+
 
 }

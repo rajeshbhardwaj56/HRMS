@@ -15,6 +15,7 @@ using HRMS.Models.WhatsHappeningModel;
 using HRMS.Models.ExportEmployeeExcel;
 using Microsoft.AspNetCore.Mvc;
 using HRMS.Models.FormPermission;
+using HRMS.Models.PayRoll;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -159,8 +160,15 @@ namespace HRMS.API.BusinessLayer.ITF
         #region LastLevelEmployeeDropdown
         public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model);
 
-        public List<Managers> GetManagerDropdown(Managers  model);
+        public List<Managers> GetManagerDropdown(Managers model);
         #endregion LastLevelEmployeeDropdown
 
+
+
+        #region Payroll
+        public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model);
+
+        public Result AddUpdateEmployeeMonthlySalary(EmployeeMonthlySalaryModel salaryModel);
+        #endregion Payroll
     }
 }

@@ -28,7 +28,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             _configuration =
             _configuration = configuration;
             Environment = hostingEnvironment;
-
         }
         public IActionResult Index(String id)
         {

@@ -453,7 +453,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
 
                 model.CompanyID = Convert.ToInt64(CompanyID);
-
                 var Companydata = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
                 model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(Companydata).companyLoginModel;
             }
@@ -855,10 +854,6 @@ namespace HRMS.Web.Areas.HR.Controllers
                     TempData[HRMS.Models.Common.Constants.toastMessage] = "Failed to save Employee Separation details.";
                 }
             }
-
-
-
-
             return View(employmentSeparationDetail);
         }
 
@@ -1740,6 +1735,19 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
 
+        #region EmploymentSalaryDetails
+        public IActionResult EmploymentSalaryDetails(string id)
+        {
+            var employee = _businessLayer.DecodeStringBase64(id);
+            var model = new SalarySlipViewModel
+            {
+                EmployeeID = long.Parse(employee),
+               
+            };
+            return View(model);
+        }
+        #endregion EmploymentSalaryDetails
+
         private string ValidateModelList(List<WeekOffUploadModel> models, DateTime? week)
         {
 
@@ -1849,9 +1857,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             return errors.Any() ? string.Join("\n", errors) : null;
         }
 
-        /// <summary>
-        /// Adds a date to the list if it's valid and not unreasonable, otherwise records an error.
-        /// </summary>
+       
         private void AddDateIfValid(List<DateTime> dates, DateTime? date, int rowNum, string fieldName, List<string> errors)
         {
             if (date.HasValue)

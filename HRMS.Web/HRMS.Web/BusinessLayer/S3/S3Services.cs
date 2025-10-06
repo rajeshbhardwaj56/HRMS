@@ -85,9 +85,7 @@ namespace HRMS.Web.BusinessLayer.S3
                 BucketName = _bucketName,
                 Key = key
             };
-
             var response = _s3Client.DeleteObjectAsync(deleteRequest).GetAwaiter().GetResult();
-
             return response.HttpStatusCode == System.Net.HttpStatusCode.NoContent;
         }
         public string GetFileUrl(string key)

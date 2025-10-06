@@ -99,7 +99,7 @@
 
 				<div class="col-md-4 form-group">
 					<label>Surname <span class="Mandetory">*</span></label>
-					@Html.TextBoxFor(a => a.Surname, new { @class = "form-control", @required = "required" })
+					@Html.TextBoxFor(a => a.Surname, new { @class = "form-control" })
 				</div>
 
 
@@ -232,7 +232,7 @@
 							@class = "form-control",
 							@type = "date",
 							@required = "required",
-                            @min = "1900-01-01",
+							@min = "1900-01-01",
 							@max = DateTime.Now.ToString("yyyy-MM-dd")
 						})
 					@* @Html.ValidationMessageFor(m => m.DateOfBirth) *@
@@ -600,7 +600,7 @@
 		}
 	}
 	$(document).ready(function () {
-	    $('.mobile-mask').mask('(0000)-000-000');
+		$('.mobile-mask').mask('(0000)-000-000');
 	});
 
  

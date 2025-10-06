@@ -178,7 +178,6 @@ namespace HRMS.Web.Areas.HR.Controllers
                     totalAccruedLeave += monthlyAccrual;
                 }
 
-                // Move to next accrual period  
                 accrualPeriodStart = accrualPeriodStart.AddMonths(1);
                 accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
             }

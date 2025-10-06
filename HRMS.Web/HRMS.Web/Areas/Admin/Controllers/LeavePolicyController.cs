@@ -58,7 +58,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             LeavePolicyInputParans leavePolicyParams = new LeavePolicyInputParans();
             leavePolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.LeavePolicy.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.LeavePolicyID.ToString()));
@@ -69,9 +68,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult Index(string id)
         {
             LeavePolicyModel leavePolicyModel = new LeavePolicyModel();
-            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            
-                 
+            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));                 
             if (!string.IsNullOrEmpty(id))
             {
                 id = _businessLayer.DecodeStringBase64(id);
@@ -147,6 +144,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(id))
             {
+
                 id = _businessLayer.DecodeStringBase64(id);
                 leavePolicyModel.Id = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
