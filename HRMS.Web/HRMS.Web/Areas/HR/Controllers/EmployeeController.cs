@@ -166,8 +166,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     locationTypeId = j.JobLocationID,
                     name = j.Name
-                }),
-               
+                }),               
                 data = results.Employees
             });
         }
@@ -176,18 +175,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             EmployeeModel employee = new EmployeeModel();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            if (string.IsNullOrEmpty(id))
-            {
-                employee.FamilyDetails.Add(new FamilyDetail());
-                employee.EducationalDetails.Add(new EducationalDetail());
-                employee.LanguageDetails.Add(new LanguageDetail());
-                employee.EmploymentHistory.Add(new EmploymentHistory());
-                employee.References = new List<HRMS.Models.Employee.Reference>() {
-                    new HRMS.Models.Employee.Reference(),
-                    new HRMS.Models.Employee.Reference()
-                };
-            }
-            else
+            if (!string.IsNullOrEmpty(id))
             {
                 var encrpt = id;
                 id = _businessLayer.DecodeStringBase64(id);
@@ -207,18 +195,9 @@ namespace HRMS.Web.Areas.HR.Controllers
                     employee.PanCardImage = _s3Service.GetFileUrl(employee.PanCardImage);
                 }
                 employee.EncryptedIdentity = encrpt;
-                if (employee.References == null || employee.References.Count == 0)
-                {
-                    employee.References = new List<HRMS.Models.Employee.Reference>() {
-                    new HRMS.Models.Employee.Reference(),
-                    new HRMS.Models.Employee.Reference()
-                    };
-                }
-                else if (employee.References.Count == 1)
-                {
-                    employee.References.Add(new HRMS.Models.Employee.Reference());
-                }
-                ;
+                employee.EncodedDesignationID= _businessLayer.EncodeStringBase64(employee.DesignationID.ToString());
+                employee.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(employee.DepartmentID.ToString());
+
             }
 
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);

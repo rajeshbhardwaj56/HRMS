@@ -218,6 +218,7 @@ namespace HRMS.Models.Common
         public const string PolicyCategoryDetails = "PolicyCategoryDetails";
         public const string AddAcknowledgePolicy = "AddAcknowledgePolicy";
         public const string GetEmployeesHierarchyUnderManager = "GetEmployeesHierarchyUnderManager";
+        public const string GetEmployeeForLeaveEdit = "GetEmployeeForLeaveEdit";
 
 
 

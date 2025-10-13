@@ -210,7 +210,7 @@
 			"paging": true,
 			"searching": true,
 			"info": true,
-			 "order": [[2, "desc"]],
+			 "order": [[0, "desc"]],
 			"columns": [
 				{ "data": "employeeID", "autoWidth": true, "visible": false },
 				{
@@ -262,13 +262,9 @@
 				'</a>' +
 				'</div>';
 
-			var moveToActiveEmployee = '<div class="table-data-feature">' +
-				'<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Official Detail Edit">' +
-				'<img src="/assets/img/ReadyStatus.svg" width="20" height="20" />' +
-				'</a>' +
-				'</div>';
+			
 
-			return linkEdit + moveToActiveEmployee;
+			return linkEdit ;
 		},
 		"orderable": false,
 		"className": "Edit-Button" // <-- Add your custom class here
@@ -276,7 +272,7 @@
 
 			],
 			"columnDefs": [
-				{ "targets": [0], "orderable": false, "visible": false },
+				{ "targets": [0], "orderable": true, "visible": false },
 				{ "targets": [1], "orderable": false }
 			],
 			"responsive": true

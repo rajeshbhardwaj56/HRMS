@@ -1996,16 +1996,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpPost]
-        public JsonResult GetLastLevelEmployeeDropdown()
+        public JsonResult GetLastLevelEmployeeDropdown(string searchTerm)
         {
             var employeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             LastLevelEmployeeDropdownParams lastLevelParams = new LastLevelEmployeeDropdownParams();
             lastLevelParams.EmployeeID = employeeID;
+            lastLevelParams.SearchTerm = searchTerm;
             var data = _businessLayer.SendPostAPIRequest(lastLevelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLastLevelEmployeeDropdown), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<List<LastLevelEmployeeDropdown>>(data);
             return Json(new { data = model });
 
         }
+
+
+        [HttpPost]
+        public JsonResult GetEmployeeForLeaveEdit(long employeeId)
+        {
+            LastLevelEmployeeDropdownParams model = new LastLevelEmployeeDropdownParams
+            {
+                EmployeeID = employeeId
+            };            
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeeForLeaveEdit), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var  employee = JsonConvert.DeserializeObject<LastLevelEmployeeDropdown>(data);
+            return Json(new { employee });
+        }
+
+
+
 
         [HttpPost]
         public JsonResult GetApplyLeaveData(string employeeId, string jobLocationId, string genderId)
@@ -2099,10 +2116,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 consecutiveDaysAllowed = leavePolicy?.Annual_MaximumConsecutiveLeavesAllowed ?? 0
             });
         }
+
+
+
+
+
         #endregion Agent Leave
 
 
-       
+
 
         #region Approve Leave
         public IActionResult ApproveLeave(string id)

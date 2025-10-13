@@ -73,9 +73,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 {
                     employee.EmployeePhoto = _s3Service.GetFileUrl(employee.EmployeePhoto);
                 }
-            }
-
-          
+            }          
             if (model?.WhatsHappening != null)
             {
                 foreach (var item in model.WhatsHappening.Where(x => !string.IsNullOrEmpty(x.IconImage)))

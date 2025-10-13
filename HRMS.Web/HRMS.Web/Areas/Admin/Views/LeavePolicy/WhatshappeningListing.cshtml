@@ -36,8 +36,7 @@
                 "url": "WhatshappeningListings/",
                 "type": "POST",
                 "datatype": "json",
-                "dataSrc": function (json) {
-                     
+                "dataSrc": function (json) {                     
                     return json.data;
                 }
             },
@@ -120,15 +119,12 @@
         });
 
      
-        // Add confirmation alert for delete action
+        
         $(document).on('click', '.delete-btn', function (e) {          
-            e.preventDefault(); // Prevent default behavior of the link
-            var deleteUrl = $(this).attr('href'); // Get the href value for the delete URL
-            var rowId = $(this).data('id'); // Get the ID from the data attribute
-
-            // Display confirmation alert
-            if (confirm(`Are you sure you want to delete this?`)) {
-                // If confirmed, redirect to the delete URL
+            e.preventDefault(); 
+            var deleteUrl = $(this).attr('href'); 
+            var rowId = $(this).data('id');             
+            if (confirm(`Are you sure you want to delete this?`)) {                
                 window.location.href = deleteUrl;
             }
         });

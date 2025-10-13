@@ -35,23 +35,19 @@ namespace HRMS.Models.PayRoll
         public decimal HRA { get; set; }
         public decimal ConveyanceAllowance { get; set; }
         public decimal SpecialAllowance { get; set; }
-
         public decimal PF { get; set; }
         public decimal ESI { get; set; }
         public decimal LWF { get; set; }
         public decimal PTax { get; set; }
         public decimal TDS { get; set; }
-
         public decimal EmployerPF { get; set; }
         public decimal EmployerESI { get; set; }
         public decimal EmployerLWF { get; set; }
         public decimal Gratuity { get; set; }
-
         public decimal TotalEarnings { get; set; }
         public decimal TotalDeductions { get; set; }
         public decimal InHandSalary { get; set; }
         public decimal CostToCompany { get; set; }
-
         public string? Status { get; set; }
         public string? EmployeeNumber { get; set; }
         public string? EmployeeName { get; set; }

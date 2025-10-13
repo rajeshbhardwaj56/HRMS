@@ -425,6 +425,17 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpPost]
+        public IActionResult GetEmployeeForLeaveEdit(LastLevelEmployeeDropdownParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeeForLeaveEdit(model));
+            return response;
+        }
+
+
+
+
+        [HttpPost]
         public IActionResult GetCompanyHoliday(HolidayInputparams model)
         {
             IActionResult response = Unauthorized();

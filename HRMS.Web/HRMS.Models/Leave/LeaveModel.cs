@@ -115,7 +115,8 @@ namespace HRMS.Models.Leave
 
     public class LastLevelEmployeeDropdownParams
     {
-        public long EmployeeID { get; set; }
+        public long? EmployeeID { get; set; }
+        public string? SearchTerm { get; set; }
     }
     public class LastLevelEmployeeDropdown
     {

@@ -398,7 +398,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             objModel.CreatedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-
             var data = _businessLayer.SendPostAPIRequest(objModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);         
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;

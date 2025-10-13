@@ -229,7 +229,6 @@ namespace HRMS.API.BusinessLayer
                                       Shift = dataRow.Field<string>("Shift"),
                                       JobLocation = dataRow.Field<string>("JobLocation"),
                                       JobLocationID = dataRow.Field<long>("JobLocationID"),
-
                                   }).ToList();
 
                 if (model.EmployeeID > 0)
@@ -5962,6 +5961,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
             List<SqlParameter> sqlParameters = new List<SqlParameter>()
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
+        new SqlParameter("@SearchTerm", string.IsNullOrEmpty(model.SearchTerm) ? DBNull.Value : model.SearchTerm)
     };
 
 
@@ -5989,7 +5989,32 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
         }
 
+        public LastLevelEmployeeDropdown GetEmployeeForLeaveEdit(LastLevelEmployeeDropdownParams model)
+        {
+            LastLevelEmployeeDropdown employee = new LastLevelEmployeeDropdown();
 
+            var sqlParameters = new List<SqlParameter>()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID )
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetEmployeeForLeaveEdit, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+                employee = new LastLevelEmployeeDropdown
+                {
+                    EmployeeID = row.Field<long>("EmployeeID"),
+                    EmployeeNumber = row.Field<string>("EmployeeNumber"),
+                    EmployeeName = row.Field<string>("EmployeeName"),
+                    Gender = row.Field<int>("Gender"),
+                    JobLocationID = row.Field<long>("JobLocationID")
+                };
+            }
+
+            return employee;
+        }
 
         public List<Managers> GetManagerDropdown(Managers model)
         {

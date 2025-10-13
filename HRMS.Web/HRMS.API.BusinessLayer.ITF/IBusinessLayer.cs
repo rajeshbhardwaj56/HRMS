@@ -161,6 +161,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model);
 
         public List<Managers> GetManagerDropdown(Managers model);
+
+        public LastLevelEmployeeDropdown GetEmployeeForLeaveEdit(LastLevelEmployeeDropdownParams model);
         #endregion LastLevelEmployeeDropdown
 
 

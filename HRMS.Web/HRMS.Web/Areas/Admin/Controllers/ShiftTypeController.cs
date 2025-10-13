@@ -98,7 +98,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 shiftTypeModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
                 var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.AddUpdateShiftType), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var results = JsonConvert.DeserializeObject<Result>(data);
 

@@ -44,23 +44,18 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 CompanyID = companyId,
                 EmployeeID = 0
             };
-
             var data = _businessLayer.SendPostAPIRequest(
                 salaryInputParams,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Payroll, APIApiActionConstants.GetEmployeesMonthlySalary),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
-
-
-
             var model = JsonConvert.DeserializeObject<List<SalaryDetails>>(data);
             if (model.Any())
             {
                 model.ForEach(x => { x.EncryptedSalaryID = _businessLayer.EncodeStringBase64(x.MonthlySalaryID.ToString()); });
 
             }
-
             return Json(new
             {
                 draw = sEcho,
@@ -148,7 +143,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             // Set UpdatedByUserID from session
             salaryDetails.UpdatedByUserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-
             return View(salaryDetails);
         }
 
@@ -166,10 +160,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result;
-
-
             var result = JsonConvert.DeserializeObject<Result>(apiResponse?.ToString() ?? "{}");
-
             if (result != null && !string.IsNullOrEmpty(result.Message) &&
                 result.Message.Contains("success", StringComparison.OrdinalIgnoreCase))
             {

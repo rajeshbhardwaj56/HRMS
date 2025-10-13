@@ -25,7 +25,6 @@ namespace HRMS.Web.Controllers
         private readonly IHttpContextAccessor _context;
         private IConfiguration _configuration;
         private IS3Service _s3Service;
-
         IBusinessLayer _businessLayer;
         public HomeController(ILogger<HomeController> logger, IBusinessLayer businessLayer, IHttpContextAccessor context, IConfiguration configuration, IS3Service s3Service)
         {
@@ -45,7 +44,6 @@ namespace HRMS.Web.Controllers
             {
                 var companyId = _configuration["CompanyDetails:CompanyId"];
                 model.CompanyID = Convert.ToInt64(companyId);
-
                 var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
                 model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
             }
@@ -104,10 +102,7 @@ namespace HRMS.Web.Controllers
                 if (userModel != null)
                 {
                     if (userModel.EmployeeID > 0)
-                    {
-
-
-                        // Get the configuration values
+                    {                        // Get the configuration values
                         var rootUrl = _configuration["AppSettings:RootUrl"];
                         var resetPasswordUrl = _configuration["AppSettings:ResetPasswordURL"]; // Should have {0}, {1}, {2}
 
@@ -159,7 +154,7 @@ namespace HRMS.Web.Controllers
             </p>
         </div>"
                         };
-                        // Add recipient email
+                        
                         if ((userModel.RoleID == (int)Roles.Employee) && string.IsNullOrEmpty(userModel.Email))
                         {
                             sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
@@ -175,10 +170,7 @@ namespace HRMS.Web.Controllers
                                 sendEmailProperties.EmailToList.Add(userModel.Email);
                             }
                         }
-
-                        // Send email
                         emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
-
                         if (response.responseCode == "200")
                         {
                             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
@@ -221,7 +213,6 @@ namespace HRMS.Web.Controllers
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = "An error occurred, please try again later.";
 
-                // Log the error (Optional: If using logging in your project)
                 Console.WriteLine($"Error in ForgotPassword: {ex.Message}");
             }
 
@@ -236,7 +227,6 @@ namespace HRMS.Web.Controllers
                 {
                     var companyId = _configuration["CompanyDetails:CompanyId"];
                     model.CompanyID = Convert.ToInt64(companyId);
-
                     var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
                     model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data).companyLoginModel;
                 }

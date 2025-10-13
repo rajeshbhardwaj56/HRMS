@@ -78,8 +78,5 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
-        
-       
-
     }
 }
