@@ -44,7 +44,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
    
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
-
             return Json(new { data = model });
 
         }
@@ -68,21 +67,22 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult Index(Attendance AttendenceListModel)
         {
             AttendenceListModel.WorkDate = AttendenceListModel.FirstLogDate;
-                var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var result = JsonConvert.DeserializeObject<Result>(data);
+            var data = _businessLayer.SendPostAPIRequest(AttendenceListModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.AddUpdateAttendace), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);
 
-                if (AttendenceListModel.ID > 0)
-                {
+            if (AttendenceListModel.ID > 0)
+            {
 
-                    return RedirectToAction("AttendenceListing");/*Constants.Index, WebControllarsConstants.AttendenceList, new { id = AttendenceListModel.ID.ToString() });*/
+                return RedirectToAction("AttendenceListing");/*Constants.Index, WebControllarsConstants.AttendenceList, new { id = AttendenceListModel.ID.ToString() });*/
 
-                }
-                else
-                {
-                    return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.Attendance);
+            }
+            else
+            {
+                return RedirectToActionPermanent(WebControllarsConstants.AttendenceListing, WebControllarsConstants.Attendance);
 
-                }        
+            }
         }
+      
         public HRMS.Models.Common.Results GetAllEmployees(long EmployeeID)
         {
             HRMS.Models.Common.Results result = null;

@@ -394,7 +394,6 @@ namespace HRMS.Web.Controllers
                 string responseData = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
 
                 var result = JsonConvert.DeserializeObject<Result>(responseData);
-
                 if (result?.UserID < 0)
                 {
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypetWarning;

@@ -61,7 +61,6 @@ namespace HRMS.API.DataLayer
                         catch (Exception ex)
                         {
                             Console.WriteLine(conLocal + ex.Message);
-
                             throw new Exception(conLocal + conStr + ex.Message);
                        
                         }
@@ -99,7 +98,7 @@ namespace HRMS.API.DataLayer
                         {
                             if (conLocal.State == ConnectionState.Closed)
                             {
-                                conLocal.Open();
+                                conLocal.Open();  
                             }
                             if (pParams != null)
                             {
@@ -142,7 +141,6 @@ namespace HRMS.API.DataLayer
             StringBuilder queryBuilder = new StringBuilder(pStoredProcedureName);
             using (SqlConnection conLocal = new SqlConnection(conStr))
             {
-
                 using (SqlCommand cmdSql = new SqlCommand(queryBuilder.ToString(), conLocal))
                 {
                     try

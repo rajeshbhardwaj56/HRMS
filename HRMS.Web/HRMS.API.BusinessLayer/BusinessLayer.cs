@@ -1773,9 +1773,15 @@ namespace HRMS.API.BusinessLayer
         public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel)
         {
             Result model = new Result();
+            var oldData = GetLeaveSummaryByID(leaveSummaryModel.LeaveSummaryID);
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
-            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", leaveSummaryModel.LeaveSummaryID));
+            var leaveSummaryIDParam = new SqlParameter("@LeaveSummaryID", SqlDbType.BigInt);
+            leaveSummaryIDParam.Direction = ParameterDirection.Output;
+            leaveSummaryIDParam.Value = leaveSummaryModel.LeaveSummaryID; // 0 for new insert
+            sqlParameter.Add(leaveSummaryIDParam);
+
+            
             sqlParameter.Add(new SqlParameter("@EmployeeID", leaveSummaryModel.EmployeeID));
             sqlParameter.Add(new SqlParameter("@LeaveStatusID", leaveSummaryModel.LeaveStatusID));
             sqlParameter.Add(new SqlParameter("@LeaveDurationTypeID", leaveSummaryModel.LeaveDurationTypeID));
@@ -1795,6 +1801,22 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@CampOff", leaveSummaryModel.CampOff ?? Convert.ToInt32(CompOff.OtherLeaves)));
             SqlParameterCollection pOutputParams = null;
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
+            var outputID = Convert.ToInt64(pOutputParams["@LeaveSummaryID"].Value);
+            var newData = GetLeaveSummaryByID(
+       Convert.ToInt64(pOutputParams["@LeaveSummaryID"].Value)
+   );
+            string editMode = leaveSummaryModel.LeaveSummaryID == 0 ? "Add" : "Edit";
+            TrackLogAudit(
+                oldData,
+                newData,
+                editMode,
+                leaveSummaryModel.UserID,
+                "LeaveSummary",
+                "tbl_LeaveSummary",
+                 Convert.ToInt64(pOutputParams["@LeaveSummaryID"].Value),
+                "tbl_LeaveSummary_Log",
+                "Leave Summary Details"
+            );
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -1849,6 +1871,7 @@ namespace HRMS.API.BusinessLayer
             }
             return result;
         }
+
 
         public LeaveResults GetAgentLeaveSummary(MyInfoInputParams model)
         {
@@ -5721,7 +5744,6 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
 
 
 
-
         public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>
@@ -5746,13 +5768,6 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
 
             return model;
         }
-
-
-
-
-
-
-
 
         public List<DateTime> GetLeaveWeekOffDates(LeaveWeekOfInputParams model)
         {
@@ -6133,10 +6148,8 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                             InHandSalary = dataRow.Field<decimal>("InHandSalary"),
                             CostToCompany = dataRow.Field<decimal>("CostToCompany"),
                             Status = dataRow.Field<string?>("Status"),
-
                             Remarks = dataRow.Field<string?>("Remarks"),
                             IsActive = dataRow.Field<bool>("IsActive"),
-
                         }).ToList();
                 }
             }
@@ -6179,11 +6192,11 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         new SqlParameter("@UpdatedByUserID", salaryModel.UpdatedByUserID)
     };
 
-            
+
             var dataSet = DataLayer.GetDataSetByStoredProcedure(
                 StoredProcedures.usp_UpdateEmployeeMonthlySalary,
                 sqlParameters
-            );            
+            );
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
                 result = dataSet.Tables[0].AsEnumerable()
@@ -6199,8 +6212,108 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
 
 
+
+
+
         #endregion Payroll
+
+
+        #region Logs
+        public void LogChangeAsJson(
+     long userId,
+     string module,
+     string table,
+     long primaryKey,
+     string columnName,
+     string oldValue,
+     string newValue,
+     string mode,
+     string newTableName,
+     string sectionName)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@UserID", userId),
+        new SqlParameter("@ModuleName", module),
+        new SqlParameter("@TableName", table),
+        new SqlParameter("@PrimaryKey", primaryKey),
+        new SqlParameter("@ColumnName", (object)columnName ?? DBNull.Value),
+        new SqlParameter("@OldValue", (object)oldValue ?? DBNull.Value),
+        new SqlParameter("@NewValue", (object)newValue ?? DBNull.Value),
+        new SqlParameter("@EditMode", mode),
+        new SqlParameter("@NewTableName", newTableName),
+        new SqlParameter("@SectionName", sectionName)
+    };
+
+           
+            DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertAuditLog, sqlParameters);
+        }
+
+        public void TrackLogAudit(
+            DataTable oldData,
+            DataTable newData,
+            string editMode,
+            long userId,
+            string moduleName,
+            string tableName,
+            long recordId,
+            string logTable,
+            string description)
+        {
+            if (newData == null || newData.Rows.Count == 0)
+                return;
+
+            DataRow newRow = newData.Rows[0];
+            DataRow oldRow = (oldData != null && oldData.Rows.Count > 0) ? oldData.Rows[0] : null;
+
+            var changeLog = new List<Dictionary<string, object>>();
+            foreach (DataColumn col in newData.Columns)
+            {
+                string colName = col.ColumnName;
+                string newVal = newRow[colName] == DBNull.Value ? null : Convert.ToString(newRow[colName]);
+                string oldVal = oldRow == null ? null : (oldRow[colName] == DBNull.Value ? null : Convert.ToString(oldRow[colName]));
+
+                if (editMode == "Add" || oldVal != newVal || (colName == "ModifiedByName" || colName == "ModifiedByID"))
+                {
+                    changeLog.Add(new Dictionary<string, object>
+            {
+                { "ColumnName", colName },
+                { "OldValue", oldVal },
+                { "NewValue", newVal }
+            });
+                }
+            }
+
+            if (changeLog.Count > 0)
+            {
+                string jsonData = JsonConvert.SerializeObject(changeLog);
+                LogChangeAsJson(userId, moduleName, tableName, recordId, null, null, jsonData, editMode, logTable, description);
+            }
+        }
+
+        public DataTable GetLeaveSummaryByID(long? leaveSummaryID)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@LeaveSummaryID", leaveSummaryID)
+    };
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetLeaveSummaryByID, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0)
+                return dataSet.Tables[0];
+
+            return new DataTable();
+        }
+        #endregion Logs
+
+        #region LeaveLogs
+
+
+        #endregion LeaveLogs
     }
+
+
 
 
 }

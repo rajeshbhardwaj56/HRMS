@@ -66,14 +66,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
             };
             var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
             var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
-            var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());         
+            var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
             if (model?.EmployeeDetails != null)
             {
                 foreach (var employee in model.EmployeeDetails.Where(x => !string.IsNullOrEmpty(x.EmployeePhoto)))
                 {
                     employee.EmployeePhoto = _s3Service.GetFileUrl(employee.EmployeePhoto);
                 }
-            }          
+            }
             if (model?.WhatsHappening != null)
             {
                 foreach (var item in model.WhatsHappening.Where(x => !string.IsNullOrEmpty(x.IconImage)))

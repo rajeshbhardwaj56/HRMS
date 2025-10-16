@@ -170,5 +170,11 @@ namespace HRMS.API.BusinessLayer
         public const string usp_GetMonthlySalary = "usp_GetMonthlySalary";
         public const string usp_UpdateEmployeeMonthlySalary = "usp_UpdateEmployeeMonthlySalary";
         #endregion Payroll
+
+
+        #region Logs
+        public const string usp_InsertAuditLog = "usp_InsertAuditLog";
+        public const string usp_GetLeaveSummaryByID = "usp_GetLeaveSummaryByID";
+        #endregion Logs
     }
 }
