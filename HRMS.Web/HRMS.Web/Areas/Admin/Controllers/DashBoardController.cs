@@ -139,8 +139,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return View(model);
         }
 
-
-
         private LeavePolicyModel GetLeavePolicyData(long companyId, long leavePolicyId)
         {
             var leavePolicyModel = new LeavePolicyModel { CompanyID = companyId, LeavePolicyID = leavePolicyId };
@@ -150,14 +148,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
         {
-            DateTime today = DateTime.Today;
-
-            // Fiscal year starts from March 21st of current or previous year
-            //DateTime fiscalYearStart = new DateTime(today.Month > 3 || (today.Month == 3 && today.Day >= 21)
-            //                                        ? today.Year : today.Year - 1, 3, 21);
-            //DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // Ends on March 20th next year
-
-
+            DateTime today = DateTime.Today;        
             DateTime fiscalYearStart;
             DateTime fiscalYearEnd;
 
@@ -207,8 +198,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             return totalAccruedLeave;
         }
-
-        // Helper method: Gets the 21st-based accrual period start for any given date
         private DateTime GetAccrualPeriodStart(DateTime date)
         {
             if (date.Day >= 21)
@@ -281,7 +270,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 errorDataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
             }
             errorDataTable.Columns.Add("ErrorColumn", typeof(string));
-            errorDataTable.Columns.Add("ErrorMessage", typeof(string));
+            errorDataTable.Columns.Add("ErrorMessage", typeof(string));          
             using (var package = new ExcelPackage(stream))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.FirstOrDefault();
@@ -341,6 +330,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     {
                         string columnName = prop.Name;
                         string cellValue = worksheet.Cells[row, columnIndexMap[columnName]].Text?.Trim();
+                        if (!string.IsNullOrEmpty(cellValue))
+                        {
+                            string normalized = cellValue.Trim().ToLowerInvariant();
+                            if (normalized == "n/a" || normalized == "#n/a" || normalized == "na" || normalized == "-")
+                            {
+                                cellValue = string.Empty;
+                            }
+                        }
                         try
                         {
                             switch (columnName)
@@ -371,10 +368,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         {
                                             prop.SetValue(item, dob.ToString("yyyy-MM-dd"));
                                         }
+                                        else
+                                        {
+                                            AddErrorRow(errorDataTable, columnName, $"Row {row}: Invalid Date Format.");
+                                            hasError = true;
+                                        }
                                     }
                                     else
                                     {
-                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: DateOfBirth is mandatory.");
+                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: Date of birth is mandatory.");
                                         hasError = true;
                                     }
                                     break;
@@ -383,7 +385,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     {
                                         prop.SetValue(item, cellValue);
                                     }
-                                    else
+                                    else  
                                     {
                                         AddErrorRow(errorDataTable, columnName, $"Row {row}: FirstName is mandatory.");
                                         hasError = true;
@@ -507,8 +509,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     else
                                     {
-                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: IsRelativesWorkingWithCompany is mandatory.");
-                                        hasError = true;
+                                        prop.SetValue(item, "No");
                                     }
                                     break;
                                 case "IsReferredByExistingEmployee":
@@ -526,8 +527,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     else
                                     {
-                                        AddErrorRow(errorDataTable, columnName, $"Row {row}: IsReferredByExistingEmployee is mandatory.");
-                                        hasError = true;
+                                        // If nothing is entered, default to "No"
+                                        prop.SetValue(item, "No");
                                     }
                                     break;
 
@@ -589,17 +590,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     break;
                                 case "SubDepartmentName":
-                                    string departmentNameValue = worksheet.Cells[row, columnIndexMap["DepartmentName"]].Text?.Trim();
+                                    
 
-                                    if (string.IsNullOrWhiteSpace(cellValue) || string.IsNullOrWhiteSpace(departmentNameValue))
+                                    if (string.IsNullOrWhiteSpace(cellValue))
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: Both DepartmentName and SubDepartmentName are required.");
+                                        AddError(errorDataTable, columnName, $"Row {row}: SubDepartmentName is required.");
                                         hasError = true;
                                     }
                                     else if (SubDepartmentDictionaries != null)
                                     {
                                         string combinedKey = $"{cellValue}";
-
                                         var matchedSubDept = SubDepartmentDictionaries
                                             .FirstOrDefault(kvp => kvp.Key.Trim().Equals(combinedKey, StringComparison.OrdinalIgnoreCase));
 
@@ -608,8 +608,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                                         if (SubDepartmentNameId == 0)
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: SubDepartment  not found in master data.");
-                                            hasError = true;
+                                           
+                                            item.NewSubDepartmentName = cellValue;
                                         }
                                     }
                                     else
@@ -618,6 +618,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
+
                                 case "DesignationName":
                                     if (string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -814,6 +815,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             if (importList.Any() && errorDataTable.Rows.Count == 0)
             {
+
+              
+
                 var employeeList = importList.Select(item => new ImportExcelDataTable
                 {
                     CompanyName = (item.CompanyName),
@@ -901,6 +905,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     MobileNumberOfReferee = item.MobileNumberOfReferee,
                     DocumentationStatus = item.DocumentationStatus,
                     LOB = item.LOB,
+                    NewSubDepartmentName = item.NewSubDepartmentName
                 }).ToList();
                 var companyNameModel = new BulkEmployeeImportModel
                 {
@@ -947,7 +952,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var excludeHeaders = new List<string> {  "InsertedByUserID",
         "ExcelFile",
         "CompanyName",
-        "ReportingToIDL2Name" };
+        "ReportingToIDL2Name" ,"NewSubDepartmentName"};
             string Normalize(string input) =>
                 string.Concat(input.Where(c => !char.IsWhiteSpace(c))).ToLowerInvariant();
             var expectedProperties = targetType.GetProperties()

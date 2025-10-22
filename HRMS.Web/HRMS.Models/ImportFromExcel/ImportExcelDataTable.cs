@@ -92,6 +92,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? MobileNumberOfReferee { get; set; }
         public string? DocumentationStatus { get; set; }
         public string? LOB { get; set; }
+        public string? NewSubDepartmentName { get; set; }
         public string? ExcelFile { get; set; }
         public string? InsertedByUserID { get; set; }
         public string? CompanyName { get; set; }
@@ -195,6 +196,7 @@ namespace HRMS.Models.ImportFromExcel
         public  string? MobileNumberReferee { get; set; }
         public  string? DocumentationStatus { get; set; }
         public  string? LOB { get; set; }
+        public  string? NewSubDepartmentName { get; set; }
     }
 
     public class CompanyInfo

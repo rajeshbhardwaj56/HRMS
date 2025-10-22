@@ -221,7 +221,7 @@
                     }
                 </ul>
 
-                @*<ul class="hrms-menu-group">
+                <ul class="hrms-menu-group">
 
                     @if (Model.FormPermissionList.Any(x => x.FormID == 29 && x.IsFormPermissions && x.FormLevel == 2))
                     {
@@ -235,7 +235,7 @@
                             </a>
                         </li>
                      }
-                </ul>*@
+                </ul>
 
 
 
@@ -244,7 +244,6 @@
                     @if (Model.FormPermissionList.Any(x => x.FormID == 26 && x.IsFormPermissions && x.FormLevel == 2))
                     {
                         <li>
-
                             <a class="hrms-menu-title d-flex align-items-center   @(currentController == "Employee" && currentAction == "EmployeesWeekOffRoster" ? "hrms-active" : "")"
                                asp-area="@(HRMS.Models.Common.Constants.ManageHR)"
                                asp-controller="employee"
@@ -252,9 +251,7 @@
                                 <i class="bi bi-people-fill  hrms-menu-title1"></i>
                                 <span style="margin-left: 12px;"> Employee Roster</span>
                             </a>
-
                         </li>
-
                     }
                 </ul>
                 <ul class="hrms-menu-group">

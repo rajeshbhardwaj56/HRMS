@@ -4257,7 +4257,8 @@ namespace HRMS.API.BusinessLayer
                     RefereeName = item.RefereeName,
                     MobileNumberReferee = item.MobileNumberOfReferee,
                     DocumentationStatus = item.DocumentationStatus,
-                    LOB = item.LOB
+                    LOB = item.LOB,
+                    NewSubDepartmentName = item.NewSubDepartmentName
                 }).ToList();
                 var employeeDataTable = ConvertToDataTable(employeeList);
                 var parameters = new List<SqlParameter>
@@ -4385,6 +4386,7 @@ namespace HRMS.API.BusinessLayer
             table.Columns.Add("MobileNumberReferee", typeof(string));
             table.Columns.Add("DocumentationStatus", typeof(string));
             table.Columns.Add("LOB", typeof(string));
+            table.Columns.Add("NewSubDepartmentName", typeof(string));
             foreach (var emp in employees)
             {
                 table.Rows.Add(
@@ -4479,7 +4481,8 @@ namespace HRMS.API.BusinessLayer
                     emp.RefereeName,
                     emp.MobileNumberReferee,
                     emp.DocumentationStatus,
-                    emp.LOB
+                    emp.LOB,
+                    emp.NewSubDepartmentName
 
                 );
             }

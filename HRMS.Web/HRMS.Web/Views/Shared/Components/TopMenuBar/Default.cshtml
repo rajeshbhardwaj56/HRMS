@@ -39,18 +39,15 @@
 			{
 				<li class="nav-list__item"><a class='nav-link' asp-area="@(HRMS.Models.Common.Constants.ManageAdmin)" asp-controller="DashBoard" asp-action="Index">Dashboard</a></li>
 			}
-
 			@if (Model.FormPermissionList.Where(x => x.FormID == 18 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
 			{
 				<li class="nav-list__item"><a class='nav-link' asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="MyInfo" asp-action="Support">Support</a></li>
 
 			}
-
 			@if (Model.FormPermissionList.Where(x => x.FormID == 21 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
 			{
 				<li class="nav-list__item"><a class='nav-link' asp-area="employee" asp-controller="MyInfo" asp-action="PolicyCategoryDetails"> Policies </a></li>
 			}
-
 			@if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.Admin) || LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
 			{
 				<div class="user-settings dropdown">
@@ -109,8 +106,6 @@
 								{
 									<li class="nav-list__item submenu--triggers"><a class='nav-link' asp-area="admin" asp-controller="Template" asp-action="TemplateListing">Templates </a></li>
 								}
-								
-							
 							</ul>
 						</div>
 					</div>
