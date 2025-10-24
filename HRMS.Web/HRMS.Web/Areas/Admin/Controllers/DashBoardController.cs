@@ -750,9 +750,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                                     }
                                     break;
-                                case "AgeOnNetwork":
-                                    if (!string.IsNullOrEmpty(cellValue))
-                                    {
+                                case "AON":
+                                   
                                         if (int.TryParse(cellValue, out int aonValue))
                                         {
                                             prop.SetValue(item, aonValue.ToString());
@@ -761,12 +760,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         {
                                             prop.SetValue(item, "0");
                                         }
-                                    }
-                                    else
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: AON is required.");
-                                        hasError = true;
-                                    }
+                                   
                                     break;
                                 case "Gender":
                                     if (!string.IsNullOrEmpty(cellValue))

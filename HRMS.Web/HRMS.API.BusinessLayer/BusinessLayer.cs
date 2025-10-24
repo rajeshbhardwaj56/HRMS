@@ -1776,12 +1776,8 @@ namespace HRMS.API.BusinessLayer
             var oldData = GetLeaveSummaryByID(leaveSummaryModel.LeaveSummaryID);
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
-            var leaveSummaryIDParam = new SqlParameter("@LeaveSummaryID", SqlDbType.BigInt);
-            leaveSummaryIDParam.Direction = ParameterDirection.Output;
-            leaveSummaryIDParam.Value = leaveSummaryModel.LeaveSummaryID; // 0 for new insert
-            sqlParameter.Add(leaveSummaryIDParam);
-
-            
+ 
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", leaveSummaryModel.LeaveSummaryID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", leaveSummaryModel.EmployeeID));
             sqlParameter.Add(new SqlParameter("@LeaveStatusID", leaveSummaryModel.LeaveStatusID));
             sqlParameter.Add(new SqlParameter("@LeaveDurationTypeID", leaveSummaryModel.LeaveDurationTypeID));
@@ -1800,23 +1796,9 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@ChildDOB", leaveSummaryModel.ChildDOB ?? (object)DBNull.Value));
             sqlParameter.Add(new SqlParameter("@CampOff", leaveSummaryModel.CampOff ?? Convert.ToInt32(CompOff.OtherLeaves)));
             SqlParameterCollection pOutputParams = null;
+
+
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_LeaveSummary, sqlParameter, ref pOutputParams);
-            var outputID = Convert.ToInt64(pOutputParams["@LeaveSummaryID"].Value);
-            var newData = GetLeaveSummaryByID(
-       Convert.ToInt64(pOutputParams["@LeaveSummaryID"].Value)
-   );
-            string editMode = leaveSummaryModel.LeaveSummaryID == 0 ? "Add" : "Edit";
-            TrackLogAudit(
-                oldData,
-                newData,
-                editMode,
-                leaveSummaryModel.UserID,
-                "LeaveSummary",
-                "tbl_LeaveSummary",
-                 Convert.ToInt64(pOutputParams["@LeaveSummaryID"].Value),
-                "tbl_LeaveSummary_Log",
-                "Leave Summary Details"
-            );
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
@@ -1825,10 +1807,30 @@ namespace HRMS.API.BusinessLayer
                         new Result()
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo = Convert.ToInt64(pOutputParams["@LeaveSummaryID"].Value)
+                            PKNo = Convert.ToInt64(dataRow.Field<long>("LeaveSummaryID"))
                         }
                    ).ToList().FirstOrDefault();
             }
+
+            long leaveSummaryId = model.PKNo ?? 0; 
+
+            var newData = GetLeaveSummaryByID(
+      leaveSummaryId);
+
+            string editMode = leaveSummaryModel.LeaveSummaryID == 0 ? "Add" : "Edit";
+            TrackLogAudit(
+                oldData,
+                newData,
+                editMode,
+                leaveSummaryModel.UserID,
+                "LeaveSummary",
+                "tbl_LeaveSummary",
+                 leaveSummaryId,
+                "tbl_LeaveSummary_Log",
+                "Leave Summary Details"
+            );
+
+           
             return model;
         }
 

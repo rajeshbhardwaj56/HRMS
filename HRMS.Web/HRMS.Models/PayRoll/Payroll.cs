@@ -62,6 +62,8 @@ namespace HRMS.Models.PayRoll
 
     public class EmployeeMonthlySalaryModel
     {
+        public string? EmployeeNumber { get; set; }
+        public string? EmployeeName { get; set; }
         public long? MonthlySalaryID { get; set; }
         public decimal? GrossSalary { get; set; }
         public decimal? BasicSalary { get; set; }

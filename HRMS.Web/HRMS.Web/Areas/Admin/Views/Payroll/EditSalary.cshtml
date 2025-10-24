@@ -6,9 +6,18 @@
     ViewData["Title"] = "Edit Salary";
    
 }
+
+
 <div class="main-header anim">
-    Edit Salary
+
+    <div class="header-left">
+        Edit Salary -  @Model.EmployeeName (@Model.EmployeeNumber)
+    </div>
+
 </div>
+    
+
+
 
 <form asp-action="EditSalary" method="post">
 
