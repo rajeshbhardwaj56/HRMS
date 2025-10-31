@@ -1540,9 +1540,24 @@ namespace HRMS.Web.Areas.HR.Controllers
                     true
                 ).Result.ToString();
                 modeldata = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(getdata).FirstOrDefault();
-                modeldata.EmployeeIdWithEmployeeNo = modeldata.EmployeeId.ToString();
+                if (modeldata != null)
+                {
+                    modeldata.EmployeeIdWithEmployeeNo = modeldata.EmployeeId?.ToString();
+
+
+                    if (modeldata.WeekStartDate.HasValue)
+                    {
+
+                        modeldata.WeekStartDate = DateTime.ParseExact(
+                            modeldata.WeekStartDate.Value.ToString("yyyy-MM-dd"),
+                            "yyyy-MM-dd",
+                            System.Globalization.CultureInfo.InvariantCulture
+                        );
+                    }
+
+                }
             }
-            if (emp == null)
+                if (emp == null)
             {
                 Employeemodel.ManagerID  = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID )); ;
             }

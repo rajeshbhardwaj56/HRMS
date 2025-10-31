@@ -1775,8 +1775,6 @@ namespace HRMS.API.BusinessLayer
             Result model = new Result();
             var oldData = GetLeaveSummaryByID(leaveSummaryModel.LeaveSummaryID);
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-
- 
             sqlParameter.Add(new SqlParameter("@LeaveSummaryID", leaveSummaryModel.LeaveSummaryID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", leaveSummaryModel.EmployeeID));
             sqlParameter.Add(new SqlParameter("@LeaveStatusID", leaveSummaryModel.LeaveStatusID));
@@ -1812,7 +1810,7 @@ namespace HRMS.API.BusinessLayer
                    ).ToList().FirstOrDefault();
             }
 
-            long leaveSummaryId = model.PKNo ?? 0; 
+            long leaveSummaryId = model.PKNo ?? 0;
 
             var newData = GetLeaveSummaryByID(
       leaveSummaryId);
@@ -1830,7 +1828,7 @@ namespace HRMS.API.BusinessLayer
                 "Leave Summary Details"
             );
 
-           
+
             return model;
         }
 
@@ -5628,7 +5626,7 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
 
         public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model)
         {
-            // Prepare parameters
+                
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@Id", model.RecordId),
@@ -5850,8 +5848,8 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
         {
             Result model = new Result();
-            try
-            {
+            
+                var oldData = GetAttendanceStatusChangesByID(att.ID);
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
       {
           new SqlParameter("@ID", att.ID),
@@ -5893,12 +5891,25 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                     model.PKNo = 0;
                     model.Message = "No result returned from database.";
                 }
-            }
-            catch (Exception ex)
-            {
-                model.PKNo = -1;
-                model.Message = "Error: " + ex.Message;
-            }
+
+            long attendanceStatusId = model.PKNo ?? 0;
+            var newData = GetAttendanceStatusChangesByID(
+    attendanceStatusId);
+
+            string editMode = att.ID == 0 ? "Add" : "Edit";
+            TrackLogAudit(
+                oldData,
+                newData,
+                editMode,
+                att.UserID??0,
+                "AttendenceStatusChange",
+                "tbl_AttendanceStatusChanges",
+                 attendanceStatusId,
+                "tbl_AttendanceStatusChanges_Log",
+                "Attendance Summary Details"
+            );
+
+
 
             return model;
         }
@@ -6250,7 +6261,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         new SqlParameter("@SectionName", sectionName)
     };
 
-           
+
             DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_InsertAuditLog, sqlParameters);
         }
 
@@ -6278,7 +6289,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                 string newVal = newRow[colName] == DBNull.Value ? null : Convert.ToString(newRow[colName]);
                 string oldVal = oldRow == null ? null : (oldRow[colName] == DBNull.Value ? null : Convert.ToString(oldRow[colName]));
 
-                if (editMode == "Add" || oldVal != newVal || (colName == "ModifiedByName" || colName == "ModifiedByID"))
+                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID")
                 {
                     changeLog.Add(new Dictionary<string, object>
             {
@@ -6296,8 +6307,17 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
             }
         }
 
-        public DataTable GetLeaveSummaryByID(long? leaveSummaryID)
+
+
+
+
+        #endregion Logs
+
+
+        #region GetByIDLogs
+        private DataTable GetLeaveSummaryByID(long? leaveSummaryID)
         {
+
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@LeaveSummaryID", leaveSummaryID)
@@ -6310,12 +6330,24 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
             return new DataTable();
         }
-        #endregion Logs
 
-        #region LeaveLogs
+        private DataTable GetAttendanceStatusChangesByID(long? attendanceStatusID)
+        {
+            long finalAttendanceStatusID = attendanceStatusID ?? 0;
 
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ID", finalAttendanceStatusID)
+    };
 
-        #endregion LeaveLogs
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceStatusChangesByIDLog, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0)
+                return dataSet.Tables[0];
+
+            return new DataTable();
+        }
+        #endregion GetByIDLogs
     }
 
 

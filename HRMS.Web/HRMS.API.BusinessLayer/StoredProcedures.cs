@@ -175,6 +175,7 @@ namespace HRMS.API.BusinessLayer
         #region Logs
         public const string usp_InsertAuditLog = "usp_InsertAuditLog";
         public const string usp_GetLeaveSummaryByID = "usp_GetLeaveSummaryByID";
+        public const string usp_GetAttendanceStatusChangesByIDLog = "usp_GetAttendanceStatusChangesByIDLog";
         #endregion Logs
     }
 }

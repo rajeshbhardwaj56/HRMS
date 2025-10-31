@@ -478,7 +478,7 @@
 		 });
 	 }
 
-			 function ApproveRejectcompOff(isApproved) {
+		function ApproveRejectcompOff(isApproved) {
 		const ApproveRejectComment = $("#ApproveRejectComment").val();
 		const approveButton = $("#approveButton");
 		const rejectButton = $(".btn-primary");
@@ -524,7 +524,15 @@
 								CloseApproveRejectModel();
 								setTimeout(() => window.location.reload(), 2000);
 								$("#ApproveRejectComment").val("");
-							} else {
+							}
+							else if (json.pkNo == 0)
+							{
+                                showToast(json.message);
+								CloseApproveRejectModel();
+                                setTimeout(() => window.location.reload(), 2000);
+                                $("#ApproveRejectComment").val("");
+							}
+							else {
 								$("#approverejectrequire").text(json.message || "Something went wrong.");
 								CloseApproveRejectModel();
 								window.location.reload();
@@ -562,7 +570,15 @@
 			 position: 'top-right',
 		 });
 	 }
-
+    function showErrorToast(message) {
+        $.toast({
+            heading: 'Warning',
+            text: message,
+            showHideTransition: 'slide',
+            icon: 'warning',
+            position: 'top-right', 
+        });
+    }
 	 function OpenApproveRejectModel(employeeID, Id,attendanceId, firstLogDate, lastLogDate, attendanceStatus, workDate,hoursWorked,comments) {
 
 		 $("#employeeID").val(employeeID);

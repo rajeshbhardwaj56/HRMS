@@ -244,7 +244,9 @@
 
 
     <div class="row">
-        <div class="col col-lg-8 order-0 mb-4 anim" style="--delay: .1s">
+
+
+        <div class="col @(Model?.AttendanceModel?.FirstOrDefault()?.Day != null ? "col-lg-4" : "col-lg-8") order-0 mb-4 anim" style="--delay: .1s">
             <div class="card">
                 <div class="card-header pb-0 p-3">
 
@@ -389,6 +391,87 @@
             </div>
         </div>
 
+        @if (Model?.AttendanceModel?.FirstOrDefault()?.Day != null)
+        {
+            <div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
+                <div class="card">
+                    <div class="card-header pb-0 p-3">
+                        <h6 class="mb-0">Celebrations</h6>
+                    </div>
+                    <div class="card-carousel overflow-hidden h-100 p-0">
+                        <div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel" data-bs-interval="2000">
+
+                            <div class="carousel-indicators">
+                                @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
+                                {
+                                    int index = 0;
+                                    foreach (var item in Model.EmployeeDetails)
+                                    {
+                                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="@index" class="@((index == 0) ? "active" : "")" aria-label="Slide @index"></button>
+                                        index++;
+                                    }
+                                }
+
+                            </div>
+
+
+                            <div class="carousel-inner border-radius-lg h-100">
+                                @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
+                                {
+                                    int index = 0;
+                                    foreach (var item in Model.EmployeeDetails)
+                                    {
+                                        var UserPhoto = @item.EmployeePhoto;
+                                        var isActive = index == 0 ? "active" : "";
+
+                                        <div class="carousel-item h-100 @isActive">
+                                            <div class="carousel-caption d-none d-md-block top-10 text-center">
+                                                <div class="person-img">
+                                                    <div class="ratio ratio-1x1 rounded-circle overflow-hidden">
+                                                        @if (item.EmployeePhoto == null)
+                                                        {
+                                                            <img src="/assets/img/No_image.png" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="card-img-top img-cover" alt="@item.FirstName">
+                                                        }
+                                                        else
+                                                        {
+                                                            <img src="@UserPhoto" class="card-img-top img-cover" alt="@item.FirstName">
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <h6 class="card-title fw-semibold text-light"
+                                                    style="font-size: 0.9rem; line-height: 1.4; letter-spacing: 0.3px; margin-bottom: 0;">
+                                                    @item.FirstName
+                                                </h6>
+                                                @if (item.DOB.HasValue)
+                                                {
+                                                    <p class="card-text">@item.DOB.Value.ToString("MMMM d") - Happy Birthday!</p>
+                                                }
+                                            </div>
+                                        </div>
+                                        index++;
+                                    }
+                                }
+                                else
+                                {
+                                    <p>No Record Found</p>
+                                }
+                            </div>
+
+                            <!-- Controls -->
+                            <button class="carousel-control-prev w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
     </div>
     <div class="row">
         @if (Model?.EmployeeHierarchy != null && Model.EmployeeHierarchy.Any())
@@ -438,82 +521,87 @@
             </div>
         }
 
-        <div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
-            <div class="card">
-                <div class="card-header pb-0 p-3">
-                    <h6 class="mb-0">Celebrations</h6>
-                </div>
-                <div class="card-carousel overflow-hidden h-100 p-0">
-                    <div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel" data-bs-interval="2000">
+        @if (Model?.AttendanceModel?.FirstOrDefault()?.Day == null)
+        {
+            <div class="col col-lg-4 order-0 mb-4 anim" style="--delay: .1s">
+                <div class="card">
+                    <div class="card-header pb-0 p-3">
+                        <h6 class="mb-0">Celebrations</h6>
+                    </div>
+                    <div class="card-carousel overflow-hidden h-100 p-0">
+                        <div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel" data-bs-interval="2000">
 
-                        <div class="carousel-indicators">
-                            @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
-                            {
-                                int index = 0;
-                                foreach (var item in Model.EmployeeDetails)
+                            <div class="carousel-indicators">
+                                @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
                                 {
-                                    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="@index" class="@((index == 0) ? "active" : "")" aria-label="Slide @index"></button>
-                                    index++;
+                                    int index = 0;
+                                    foreach (var item in Model.EmployeeDetails)
+                                    {
+                                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="@index" class="@((index == 0) ? "active" : "")" aria-label="Slide @index"></button>
+                                        index++;
+                                    }
                                 }
-                            }
 
-                        </div>
+                            </div>
 
 
-                        <div class="carousel-inner border-radius-lg h-100">
-                            @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
-                            {
-                                int index = 0;
-                                foreach (var item in Model.EmployeeDetails)
+                            <div class="carousel-inner border-radius-lg h-100">
+                                @if (Model?.EmployeeDetails != null && Model.EmployeeDetails.Any())
                                 {
-                                    var UserPhoto = @item.EmployeePhoto;
-                                    var isActive = index == 0 ? "active" : "";
+                                    int index = 0;
+                                    foreach (var item in Model.EmployeeDetails)
+                                    {
+                                        var UserPhoto = @item.EmployeePhoto;
+                                        var isActive = index == 0 ? "active" : "";
 
-                                    <div class="carousel-item h-100 @isActive">
-                                        <div class="carousel-caption d-none d-md-block top-10 text-center">
-                                            <div class="person-img">
-                                                <div class="ratio ratio-1x1 rounded-circle overflow-hidden">
-                                                    @if (item.EmployeePhoto == null)
-                                                    {
-                                                        <img src="/assets/img/No_image.png" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="card-img-top img-cover" alt="@item.FirstName">
-                                                    }
-                                                    else
-                                                    {
-                                                        <img src="@UserPhoto" class="card-img-top img-cover" alt="@item.FirstName">
-                                                    }
+                                        <div class="carousel-item h-100 @isActive">
+                                            <div class="carousel-caption d-none d-md-block top-10 text-center">
+                                                <div class="person-img">
+                                                    <div class="ratio ratio-1x1 rounded-circle overflow-hidden">
+                                                        @if (item.EmployeePhoto == null)
+                                                        {
+                                                            <img src="/assets/img/No_image.png" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="card-img-top img-cover" alt="@item.FirstName">
+                                                        }
+                                                        else
+                                                        {
+                                                            <img src="@UserPhoto" class="card-img-top img-cover" alt="@item.FirstName">
+                                                        }
+                                                    </div>
                                                 </div>
+                                                <h6 class="card-title fw-semibold text-light"
+                                                    style="font-size: 0.9rem; line-height: 1.4; letter-spacing: 0.3px; margin-bottom: 0;">
+                                                    @item.FirstName
+                                                </h6>
+                                                @if (item.DOB.HasValue)
+                                                {
+                                                    <p class="card-text">@item.DOB.Value.ToString("MMMM d") - Happy Birthday!</p>
+                                                }
                                             </div>
-                                            <h5 class="card-title">@item.FirstName @item.LastName</h5>
-                                            @if (item.DOB.HasValue)
-                                            {
-                                                <p class="card-text">@item.DOB.Value.ToString("MMMM d") - Happy Birthday!</p>
-                                            }
                                         </div>
-                                    </div>
-                                    index++;
+                                        index++;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                <p>No Record Found</p>
-                            }
-                        </div>
+                                else
+                                {
+                                    <p>No Record Found</p>
+                                }
+                            </div>
 
-                        <!-- Controls -->
-                        <button class="carousel-control-prev w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
+                            <!-- Controls -->
+                            <button class="carousel-control-prev w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        }
         </div>
-
-    </div>
 
 
     <div class="row">

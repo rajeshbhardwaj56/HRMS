@@ -935,7 +935,14 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
             var result = JsonConvert.DeserializeObject<Result>(updateApiResponse);
 
-
+            if (result?.PKNo == 0)
+            {
+                return Json(new{
+                    success = false,
+                    message = result.Message,
+                    pkNo=result.PKNo
+                });
+            }
             // Email notifications
             bool isEmailSent = false;
             string emailMessage = string.Empty;
