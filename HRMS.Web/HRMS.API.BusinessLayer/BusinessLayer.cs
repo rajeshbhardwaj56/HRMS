@@ -3453,10 +3453,9 @@ namespace HRMS.API.BusinessLayer
                 result = attendanceStatus;
             }
 
-
             if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
             {
-                result.StatusChanges = new List<StatusChangeVM>();
+                result.StatusChange = new List<StatusChangeVM>();
 
                 foreach (DataRow row in dataSet.Tables[1].Rows)
                 {
@@ -3464,6 +3463,7 @@ namespace HRMS.API.BusinessLayer
                     {
                         RecordType = row.Field<string>("RecordType"),
                         EmployeeID = row.Field<long?>("EmployeeID"),
+                        StatusChangeID = row.Field<long>("StatusChangeID"),
                         EmployeeNumber = row.Field<string>("EmployeeNumber"),
                         WorkDate = row.Field<DateTime?>("WorkDate"),
                         AttendanceStatus = row.Field<string>("AttendanceStatus"),
@@ -3476,7 +3476,10 @@ namespace HRMS.API.BusinessLayer
                         ApprovedByUserName = row.Field<string>("ApprovedByUserName")
                     };
 
-                    result.StatusChanges.Add(sc);
+                    
+                  
+
+                    result.StatusChange.Add(sc);
                 }
             }
 
@@ -5849,7 +5852,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         {
             Result model = new Result();
             
-                var oldData = GetAttendanceStatusChangesByID(att.ID);
+                var oldData = GetAttendanceStatusChangesByID(att.StatusChangeID);
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
       {
           new SqlParameter("@ID", att.ID),
@@ -5896,7 +5899,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
             var newData = GetAttendanceStatusChangesByID(
     attendanceStatusId);
 
-            string editMode = att.ID == 0 ? "Add" : "Edit";
+            string editMode = att.StatusChangeID == 0 ? "Add" : "Edit";
             TrackLogAudit(
                 oldData,
                 newData,

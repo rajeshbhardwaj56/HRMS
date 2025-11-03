@@ -833,8 +833,17 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             var data = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.FetchAttendanceHolidayAndLeaveInfo), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var model = JsonConvert.DeserializeObject<AttendanceDetailsVM>(data);
+            if (model?.StatusChange != null && model.StatusChange.Any())
+            {
+                foreach (var sc in model.StatusChange)
+                {
+                    if (sc.StatusChangeID > 0)
+                    {
+                        sc.EncryptedStatusChangeID = _businessLayer.EncodeStringBase64(sc.StatusChangeID.ToString());
+                    }
+                }
+            }
 
-            // Return JSON (you can return a PartialView if you want HTML)
             return Json(model);
         }
 

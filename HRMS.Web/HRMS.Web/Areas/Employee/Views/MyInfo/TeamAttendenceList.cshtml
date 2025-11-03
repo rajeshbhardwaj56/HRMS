@@ -612,6 +612,8 @@
 		const remarks = $("#statusComment").val();
 		const workDate = $("#attendanceDetailModal").data("workdate"); 
 		const employeeId = $("#attendanceDetailModal").data("employeeid");
+                    const encryptedStatusId = $("#encryptedStatusChangeID").val();
+
 
 		if (!status) {
 			 toastEMessage('Error', "Please select a status before saving.");
@@ -629,7 +631,8 @@
 				 EmployeeId: employeeId,
 				Status: status,
 				Remarks: remarks,
-				WorkDate: workDate
+				WorkDate: workDate,
+                EncryptedStatusChangeID: encryptedStatusId 
 			},
 			success: function (response) {
 		
@@ -798,7 +801,7 @@
 
                 const getStatusColors = (status) => {
                     switch (status?.toLowerCase()) {
-						case 'present': return '#28a745'; // Green 
+						case 'present': return '#28a745';  
 						case 'absent': return '#dc3545'; // Red 
 						case 'leave': return '#ffc107'; // Yellow 
 						case 'half day': return '#05397b'; // Blue 
@@ -810,7 +813,7 @@
 
 	const renderStatusEditor = (fullDate) => 
 	{
-	if (!canEditStatus(fullDate)) return ""; // Don't render editor if not allowed
+	if (!canEditStatus(fullDate)) return ""; 
 
 	return `
 	<form id="statusForm">
@@ -847,6 +850,9 @@
 
                     let rows = changes.map(c => `
     <tr>
+	      <td style="display:none;">
+                <input type="hidden" id="encryptedStatusChangeID" value="${c.encryptedStatusChangeID ?? ''}" />
+            </td>
       <td>${formatDateTime(c.insertedDate)}</td>
       <td> <span class="badge" style="background-color: ${getStatusColors(c.attendanceStatus)}; color: white;">
             ${c.attendanceStatus ?? '-'}
@@ -864,6 +870,7 @@
       <table class="table table-sm table-bordered">
         <thead>
           <tr>
+		        <th style="display:none;">Encrypted ID</th>
             <th>Date</th>
             <th>Attendance Type</th>
             <th>Remarks</th>
@@ -887,15 +894,15 @@
 						const getStatusColor = (status) => {
 			switch (status?.toLowerCase()) {
 				case 'present':
-					return '#28a745'; // Green
+					return '#28a745'; 
 				case 'absent':
-					return '#dc3545'; // Red
+					return '#dc3545'; 
 				case 'leave':
-					return '#ffc107'; // Yellow
+					return '#ffc107'; 
 				case 'half day':
-					return '#05397b'; // Blue
+					return '#05397b'; 
 				default:
-					return '#6c757d'; // Grey fallback
+					return '#6c757d'; 
 			}
 		};
 
@@ -924,7 +931,7 @@
 		  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
 
 		</div>
-		  ${renderStatusChanges(data.statusChanges)}
+		  ${renderStatusChanges(data.statusChange)}
 		  ${renderStatusEditor(fullDate)}
 	  </div>
 	</div>
@@ -942,19 +949,19 @@
             <div class="mb-2">
                 <strong>Week Off Date:</strong> ${formatDate(data.fromDate)}
             </div>
-            ${renderStatusChanges(data.statusChanges)}
+            ${renderStatusChanges(data.statusChange)}
             ${renderStatusEditor(fullDate)}
         </div>
     </div>`;
                       break;
 				case "Holiday":
-                      html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusChanges(data.statusChanges)}  ${renderStatusEditor(fullDate)}</div></div>`;
+                      html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusChanges(data.statusChange)}  ${renderStatusEditor(fullDate)}</div></div>`;
 				  break;
 				case "Leave":
-                      html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>  ${renderStatusChanges(data.statusChanges)}  ${renderStatusEditor(fullDate)}</div></div>`;
+                      html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>  ${renderStatusChanges(data.statusChange)}  ${renderStatusEditor(fullDate)}</div></div>`;
 					  break;
                   default:
-                      if (!data.statusChanges || data.statusChanges.length === 0) {
+                      if (!data.statusChange || data.statusChange.length === 0) {
       
                           html = `
               <div class="alert alert-warning text-center">
@@ -966,7 +973,7 @@
                         
                           html = `
             
-              ${renderStatusChanges(data.statusChanges)}
+              ${renderStatusChanges(data.statusChange)}
 			    ${renderStatusEditor(fullDate)}
             `;
                       }

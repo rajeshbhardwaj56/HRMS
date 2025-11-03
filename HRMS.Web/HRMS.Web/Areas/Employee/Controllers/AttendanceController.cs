@@ -1207,15 +1207,19 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             });
         }
         [HttpPost]
-        public IActionResult SaveAttendanceStatus(string EmployeeId, string Status, string Remarks, DateTime WorkDate)
+        public IActionResult SaveAttendanceStatus(string EmployeeId, string Status, string Remarks, DateTime WorkDate,string? EncryptedStatusChangeID)
         {
           
             var employeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(EmployeeId)); 
+            var statusChangeID = !string.IsNullOrEmpty(EncryptedStatusChangeID)
+    ? Convert.ToInt64(_businessLayer.DecodeStringBase64(EncryptedStatusChangeID))
+    : 0;
             var updatedByUserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var managerId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)); 
             SaveTeamAttendanceStatus model = new SaveTeamAttendanceStatus
             {
-                EmployeeId = employeeId, 
+                EmployeeId = employeeId,
+                StatusChangeID = statusChangeID, 
                 ManagerId = managerId, 
                 UserID = updatedByUserId,
                 WorkDate = WorkDate,
@@ -1328,6 +1332,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                     {
                         EmployeeId = record.EmployeeId,
                         ID =record.ID,
+                        StatusChangeID=record.ID,
                         UserID = currentEmployeeId,
                         WorkDate = record.WorkDate.Value,
                         AttendanceStatus = record.AttendanceStatus ,

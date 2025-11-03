@@ -173,17 +173,19 @@ namespace HRMS.Models.Common
         public long? EmployeeID { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public string Reason { get; set; }
+        public string? Reason { get; set; }
         public long? LeaveTypeID { get; set; }
         public string? LeaveStatusID { get; set; }
         public string? DialerTime { get; set; }
         public string? Remarks { get; set; }
-        public List<StatusChangeVM> StatusChanges { get; set; }=new List<StatusChangeVM>();
+        public List<StatusChangeVM> StatusChange { get; set; } = new List<StatusChangeVM>();
     }
 
     public class StatusChangeVM
     {
         public string? RecordType { get; set; }
+        public long StatusChangeID { get; set; }
+        public string? EncryptedStatusChangeID { get; set; }
         public long? EmployeeID { get; set; }
         public string? EmployeeNumber { get; set; }
         public DateTime? WorkDate { get; set; }
@@ -229,6 +231,7 @@ namespace HRMS.Models.Common
         public string? AttendanceStatus { get; set; }
         public bool? ApprovedByAdmin { get; set; }
 
+        public long? StatusChangeID { get; set; }
         public int? ApprovedStatus { get; set; }
     }
 
