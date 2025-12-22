@@ -115,9 +115,9 @@ namespace HRMS.API.DataLayer
                         catch (Exception ex)
                         {
                             Console.WriteLine(conLocal + ex.Message);
-                            //ex.Message = ex.Message+ conLocal;
+                            
                             throw new Exception(conLocal + conStr + ex.Message);
-                            // throw ex;
+
                         }
                         finally
                         {

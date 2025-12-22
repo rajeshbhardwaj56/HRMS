@@ -126,7 +126,7 @@ namespace HRMS.Models.Common
     {
         CCE = 4,
         FieldTracker = 5,
-       
+        SeniorCore=3
     }
     public enum PageName
     {

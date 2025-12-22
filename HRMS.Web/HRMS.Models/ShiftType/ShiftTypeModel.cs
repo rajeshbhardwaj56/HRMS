@@ -42,6 +42,7 @@ namespace HRMS.Models.ShiftType
         public DateTime UpdatedDate { get; set; }
         public long CreatedByID { get; set; }
         public long ModifiedByID { get; set; }
+        public long? UserID { get; set; }
         public int? TotalRecords { get; set; } = 0;
         public int? FilteredRecords { get; set; } = 0;
 

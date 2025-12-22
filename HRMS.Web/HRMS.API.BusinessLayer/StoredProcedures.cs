@@ -8,10 +8,7 @@ namespace HRMS.API.BusinessLayer
 {
     internal class StoredProcedures
     {
-
-
         public const string usp_GetDeviceLogsByMonth = "usp_GetDeviceLogsByMonth";
-
         public const string usp_LoginUser = "usp_LoginUser";
         public const string usp_Get_Counteres = "usp_Get_Counteres";
         public const string usp_Get_Currencies = "usp_Get_Currencies";
@@ -176,6 +173,22 @@ namespace HRMS.API.BusinessLayer
         public const string usp_InsertAuditLog = "usp_InsertAuditLog";
         public const string usp_GetLeaveSummaryByID = "usp_GetLeaveSummaryByID";
         public const string usp_GetAttendanceStatusChangesByIDLog = "usp_GetAttendanceStatusChangesByIDLog";
+        public const string usp_GetCompOffLeaveApprovalRequestsByIDLog = "usp_GetCompOffLeaveApprovalRequestsByIDLog";
+        public const string usp_ShiftTypeByIDLog = "usp_ShiftTypeByIDLog";
+        public const string usp_WhatsHappeningByIDLog = "usp_WhatsHappeningByIDLog";
+        public const string usp_GetHolidaysByIDLog = "usp_GetHolidaysByIDLog";
+
+        public const string usp_GetEmployeesFamilyDetailsByIDLog = "usp_GetEmployeesFamilyDetailsByIDLog";
+        public const string usp_GetEmployeeBankDetailsByIDLog = "usp_GetEmployeeBankDetailsByIDLog";
+        public const string usp_GetEducationDetailsByIDLog = "usp_GetEducationDetailsByIDLog";
+        public const string usp_GetEmployeesSeparationDetailsByIDLog = "usp_GetEmployeesSeparationDetailsByIDLog";
+        public const string usp_EmploymentHistoryByIDLog = "usp_EmploymentHistoryByIDLog";
+        public const string usp_LanguageDetailsByIDLog = "usp_LanguageDetailsByIDLog";
+        public const string usp_LeavePolicyByIDLog = "usp_LeavePolicyByIDLog";
+        public const string usp_ReferenceDetailsByIDLog = "usp_ReferenceDetailsByIDLog";
+        public const string usp_UserPolicyAcknowledgements = "usp_UserPolicyAcknowledgements";
+        public const string usp_TemplatesByIDLog = "usp_TemplatesByIDLog";
+     
         #endregion Logs
     }
 }

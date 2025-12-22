@@ -41,8 +41,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             //attendenceListParams.Month =1;
             attendenceListParams.Year = DateTime.Now.Year;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-   
+            var data = _businessLayer.SendPostAPIRequest(attendenceListParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetTeamAttendanceForCalendar), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();  
             var model = JsonConvert.DeserializeObject<AttendanceWithHolidays>(data);
             return Json(new { data = model });
 

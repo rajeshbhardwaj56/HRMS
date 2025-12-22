@@ -29,6 +29,7 @@ namespace HRMS.Models
         public DateTime UpdatedDate { get; set; }
         public long CreatedBy { get; set; }
         public long UpdatedBy { get; set; }
+        public long? UserID { get; set; }
         public List<SelectListItem> JobLocationList { get; set; } = new List<SelectListItem>();
     }
 }

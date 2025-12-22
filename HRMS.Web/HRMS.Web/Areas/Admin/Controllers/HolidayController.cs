@@ -68,6 +68,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             HolidayModel HolidayModel = new HolidayModel();
             HolidayModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            
             HolidayModel.FromDate = DateTime.Now;
             HolidayModel.ToDate = DateTime.Now;
             if (!string.IsNullOrEmpty(id))
@@ -103,7 +104,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 HolidayModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
+                HolidayModel.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
                 var data = _businessLayer.SendPostAPIRequest(HolidayModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.AddUpdateHoliday), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 

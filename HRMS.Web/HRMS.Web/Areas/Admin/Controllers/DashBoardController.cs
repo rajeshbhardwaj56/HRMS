@@ -110,7 +110,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     double accruedLeave = 0;
                     double carryForward = 0;
 
-                    // Only calculate accrued leave if approved leave < max limit
+                    
                     if (approvedLeaveTotal < maxAnnualLeaveLimit)
                     {
                         accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);

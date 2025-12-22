@@ -127,16 +127,16 @@
         let rejectedLoaded = false;
 
         $(document).ready(function () {
-            // Initialize tables
+           
             notAppliedTable = initNotAppliedTable();
             appliedTable = initAppliedTable();
             rejectedTable = initRejectedTable();
 
-            // Load data for default active tab (Not Applied)
+            
             loadNotAppliedData();
             notAppliedLoaded = true;
 
-            // Tab change event
+            
             $('#compOffTabs button').on('shown.bs.tab', function (e) {
                 const target = $(e.target).attr("aria-controls");
 
@@ -204,12 +204,7 @@
                 ]
             });
         }
-
-
-               
-
-
-
+             
         function initAppliedTable() {
             return $('#tblApplied').DataTable({
                 columns: [
@@ -341,7 +336,7 @@
                 alert("Please enter a comment.");
                 return;
             }
-            const $btn = $("#btnSubmitCompOff"); // <-- make sure your button has this ID
+            const $btn = $("#btnSubmitCompOff"); 
             $btn.prop("disabled", true);
             $.ajax({
                 type: "POST",
@@ -384,14 +379,10 @@
 
          function formatDateTime(data) {
             if (!data) return "";
-            let date = new Date(data);
-
-            // Format date as dd/mm/yyyy
+            let date = new Date(data);          
             let day = ("0" + date.getDate()).slice(-2);
             let month = ("0" + (date.getMonth() + 1)).slice(-2);
-            let year = date.getFullYear();
-
-            // Format time as hh:mm AM/PM
+            let year = date.getFullYear();           
             let hours = date.getHours();
             let minutes = ("0" + date.getMinutes()).slice(-2);
             let ampm = hours >= 12 ? 'PM' : 'AM';

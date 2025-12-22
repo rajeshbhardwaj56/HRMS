@@ -114,7 +114,6 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmailId", model.EmailId));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_FogotPasswordDetails, sqlParameter);
-
             var data = dataSet.Tables[0].AsEnumerable()
                                   .Select(dataRow => new UserModel
                                   {
@@ -130,6 +129,7 @@ namespace HRMS.API.BusinessLayer
                                       IsActive = dataRow.Field<bool>("IsActive"),
                                       RoleID = dataRow.Field<int>("RoleID"),
                                       Email = dataRow.Field<string>("OfficialEmailID"),
+                                      EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
                                   }).ToList().LastOrDefault();
             results.Data = JsonConvert.SerializeObject(data);
             return results;
@@ -1634,7 +1634,7 @@ namespace HRMS.API.BusinessLayer
         public Result AddUpdateHoliday(HolidayModel HolidayModel)
         {
             Result model = new Result();
-
+            var oldData = GetDataByStoredProcedure(StoredProcedures.usp_GetHolidaysByIDLog, HolidayModel.HolidayID);
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@HolidayID", HolidayModel.HolidayID));
             sqlParameter.Add(new SqlParameter("@HolidayName", HolidayModel.HolidayName));
@@ -1644,6 +1644,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@Status", HolidayModel.Status));
             sqlParameter.Add(new SqlParameter("@Description", HolidayModel.Description));
             sqlParameter.Add(new SqlParameter("@JobLocationTypeID", HolidayModel.JobLocationTypeID));
+            sqlParameter.Add(new SqlParameter("@UserID", HolidayModel.UserID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Holiday, sqlParameter);
 
             if (dataSet.Tables[0].Columns.Contains("Result"))
@@ -1652,10 +1653,27 @@ namespace HRMS.API.BusinessLayer
                    .Select(dataRow =>
                         new Result()
                         {
-                            Message = dataRow.Field<string>("Result").ToString()
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = dataRow.Field<long?>("PKNo")?? 0
                         }
                    ).ToList().FirstOrDefault();
             }
+            long newId = model.PKNo ?? 0;
+
+            var newData = GetDataByStoredProcedure(StoredProcedures.usp_GetHolidaysByIDLog, newId);
+
+            string editMode = HolidayModel.HolidayID == 0 ? "Add" : "Edit";
+            TrackLogAudit(
+                oldData,
+                newData,
+                editMode,
+                HolidayModel.UserID??0,
+                "Holidays",
+                "tbl_Holidays",
+                 newId,
+                "tbl_Holidays_Log",
+                "Holidays Details"
+            );
             return model;
         }
 
@@ -1827,8 +1845,6 @@ namespace HRMS.API.BusinessLayer
                 "tbl_LeaveSummary_Log",
                 "Leave Summary Details"
             );
-
-
             return model;
         }
 
@@ -1871,7 +1887,6 @@ namespace HRMS.API.BusinessLayer
             }
             return result;
         }
-
 
         public LeaveResults GetAgentLeaveSummary(MyInfoInputParams model)
         {
@@ -1948,7 +1963,6 @@ namespace HRMS.API.BusinessLayer
                                   Value = dataRow.Field<long>("LeaveTypeID").ToString(),
                                   Text = dataRow.Field<string>("Name"),
                               }).ToList();
-
             return result;
         }
 
@@ -2605,6 +2619,7 @@ namespace HRMS.API.BusinessLayer
         public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel)
         {
             Result model = new Result();
+            var oldData = GetDataByStoredProcedure(StoredProcedures.usp_ShiftTypeByIDLog, shiftTypeModel.ShiftTypeID);
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
 
             sqlParameters.Add(new SqlParameter("@ShiftTypeID", shiftTypeModel.ShiftTypeID));
@@ -2626,6 +2641,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameters.Add(new SqlParameter("@LastEntryGracePeriod", shiftTypeModel.LastEntryGracePeriod));
             sqlParameters.Add(new SqlParameter("@EarlyExitGracePeriod", shiftTypeModel.EarlyExitGracePeriod));
             sqlParameters.Add(new SqlParameter("@Comments", shiftTypeModel.Comments));
+            sqlParameters.Add(new SqlParameter("@UserID", shiftTypeModel.UserID ));
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ShiftType, sqlParameters);
 
@@ -2635,10 +2651,27 @@ namespace HRMS.API.BusinessLayer
                    .Select(dataRow =>
                         new Result()
                         {
-                            Message = dataRow.Field<string>("Result").ToString()
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = dataRow.Field<long?>("PKNo") ?? 0
                         }
                    ).ToList().FirstOrDefault();
             }
+            long newId = model.PKNo ?? 0;
+
+            var newData = GetDataByStoredProcedure(StoredProcedures.usp_ShiftTypeByIDLog, newId);
+
+            string editMode = shiftTypeModel.ShiftTypeID == 0 ? "Add" : "Edit";
+            TrackLogAudit(
+                oldData,
+                newData,
+                editMode,
+                shiftTypeModel.UserID ?? 0,
+                "ShiftType",
+                "tbl_ShiftType",
+                 newId,
+                "tbl_ShiftType_Log",
+                "ShiftType Details"
+            );
             return model;
         }
         #endregion
@@ -4072,8 +4105,9 @@ namespace HRMS.API.BusinessLayer
         public Result AddUpdateWhatsHappeningDetails(WhatsHappeningModels Model)
         {
             Result model = new Result();
+            var oldData = GetDataByStoredProcedure(StoredProcedures.usp_WhatsHappeningByIDLog, Model.WhatsHappeningID);
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-
+           
             sqlParameter.Add(new SqlParameter("@WhatsHappeningID", Model.WhatsHappeningID));
             sqlParameter.Add(new SqlParameter("@RetWhatsHappeningID", Model.WhatsHappeningID));
             sqlParameter.Add(new SqlParameter("@Title", Model.Title));
@@ -4093,10 +4127,27 @@ namespace HRMS.API.BusinessLayer
                    .Select(dataRow =>
                         new Result()
                         {
-                            Message = dataRow.Field<string>("Result").ToString()
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo=dataRow.Field<long?>("RetWhatsHappeningID")
                         }
                    ).ToList().FirstOrDefault();
             }
+            long newId = model.PKNo ?? 0;
+
+            var newData = GetDataByStoredProcedure(StoredProcedures.usp_WhatsHappeningByIDLog, newId);
+
+            string editMode = Model.WhatsHappeningID == 0 ? "Add" : "Edit";
+            TrackLogAudit(
+                oldData,
+                newData,
+                editMode,
+                Model.CreatedBy ,
+                "WhatsHappening",
+                "tbl_WhatsHappening",
+                 newId,
+                "tbl_WhatsHappening_Log",
+                "WhatsHappening Details"
+            );
             return model;
         }
 
@@ -5414,9 +5465,8 @@ namespace HRMS.API.BusinessLayer
         {
             Result model = new Result();
 
-            try
-            {
-                List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            var oldData = GetCompOffLeaveApprovalRequestsByIDLog(att.ID);
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
                 sqlParameter.Add(new SqlParameter("@RequestID", att.ID));
                 sqlParameter.Add(new SqlParameter("@AttendanceId", att.AttendanceId));
                 sqlParameter.Add(new SqlParameter("@EmployeeId", att.EmployeeId));
@@ -5431,22 +5481,33 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@RoleId", att.RoleId));
 
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
-                if (dataSet.Tables[0].Columns.Contains("Result"))
-                {
-                    model = dataSet.Tables[0].AsEnumerable()
-                        .Select(dataRow =>
-                            new Result()
-                            {
-                                Message = dataRow.Field<string>("Result").ToString(),
-                                PKNo = Convert.ToInt64(dataRow.Field<int>("PKNo"))
-                            }
-                        ).ToList().FirstOrDefault();
-                }
-            }
-            catch (Exception ex)
+            if (dataSet.Tables[0].Columns.Contains("Result"))
             {
-                Console.WriteLine("Error in AddUpdateCompOffAttendace: " + ex.Message);
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow =>
+                        new Result()
+                        {
+                            Message = dataRow.Field<string>("Result").ToString(),
+                            PKNo = Convert.ToInt64(dataRow.Field<long>("PKNo"))
+                        }
+                    ).ToList().FirstOrDefault();
             }
+
+            long newId = model.PKNo ?? 0;
+            var newData = GetCompOffLeaveApprovalRequestsByIDLog(
+    newId);
+            string editMode = att.ID == 0 ? "Add" : "Edit";
+            TrackLogAudit(
+                oldData,
+                newData,
+                editMode,
+                att.ModifiedBy??0,
+                "ComOff",
+                "tbl_CompOffLeaveApprovalRequests ",
+                 newId,
+                "tbl_CompOffLeaveApprovalRequests _Log",
+                "Comp Off Details"
+            );
             return model;
         }
 
@@ -6243,8 +6304,6 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
      string module,
      string table,
      long primaryKey,
-     string columnName,
-     string oldValue,
      string newValue,
      string mode,
      string newTableName,
@@ -6256,8 +6315,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         new SqlParameter("@ModuleName", module),
         new SqlParameter("@TableName", table),
         new SqlParameter("@PrimaryKey", primaryKey),
-        new SqlParameter("@ColumnName", (object)columnName ?? DBNull.Value),
-        new SqlParameter("@OldValue", (object)oldValue ?? DBNull.Value),
+  
         new SqlParameter("@NewValue", (object)newValue ?? DBNull.Value),
         new SqlParameter("@EditMode", mode),
         new SqlParameter("@NewTableName", newTableName),
@@ -6292,7 +6350,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                 string newVal = newRow[colName] == DBNull.Value ? null : Convert.ToString(newRow[colName]);
                 string oldVal = oldRow == null ? null : (oldRow[colName] == DBNull.Value ? null : Convert.ToString(oldRow[colName]));
 
-                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID")
+                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID" || colName == "ModifiedBy" || colName ==  "UpdatedBy")
                 {
                     changeLog.Add(new Dictionary<string, object>
             {
@@ -6306,7 +6364,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
             if (changeLog.Count > 0)
             {
                 string jsonData = JsonConvert.SerializeObject(changeLog);
-                LogChangeAsJson(userId, moduleName, tableName, recordId, null, null, jsonData, editMode, logTable, description);
+                LogChangeAsJson(userId, moduleName, tableName, recordId, jsonData, editMode, logTable, description);
             }
         }
 
@@ -6318,6 +6376,23 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
 
         #region GetByIDLogs
+
+        private DataTable GetDataByStoredProcedure(string storedProcedureName, long? id)
+        {
+            long finalID = id ?? 0;
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ID", finalID)
+    };
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(storedProcedureName, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0)
+                return dataSet.Tables[0];
+
+            return new DataTable();
+        }
         private DataTable GetLeaveSummaryByID(long? leaveSummaryID)
         {
 
@@ -6333,7 +6408,22 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
             return new DataTable();
         }
+        private DataTable GetCompOffLeaveApprovalRequestsByIDLog(long? ID)
+        {
+            long finalID = ID ?? 0;
 
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ID", finalID)
+    };
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetCompOffLeaveApprovalRequestsByIDLog, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0)
+                return dataSet.Tables[0];
+
+            return new DataTable();
+        }
         private DataTable GetAttendanceStatusChangesByID(long? attendanceStatusID)
         {
             long finalAttendanceStatusID = attendanceStatusID ?? 0;
