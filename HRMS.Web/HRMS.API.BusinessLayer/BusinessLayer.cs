@@ -1171,7 +1171,8 @@ namespace HRMS.API.BusinessLayer
                                 DateOfJoiningOnroll = dataRow.Field<DateTime?>("DateOfJoiningOnroll"),
                                 DateOfJoiningTraining = dataRow.Field<DateTime?>("DateOfJoiningTraining"),
                                 DateOfJoiningFloor = dataRow.Field<DateTime?>("DateOfJoiningFloor"),
-                                DateOfJoiningOJT = dataRow.Field<DateTime?>("DateOfJoiningOJT")
+                                DateOfJoiningOJT = dataRow.Field<DateTime?>("DateOfJoiningOJT"),
+                                GrossSalary = dataRow.Field<decimal?>("GrossSalary"),
                             }).ToList().FirstOrDefault();
             if (employmentDetail == null)
             {

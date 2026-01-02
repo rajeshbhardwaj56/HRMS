@@ -117,8 +117,6 @@ builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(WeeklyFridayJob),
    cronExpression: "0 0 10 ? * FRI *"
 ));
-
-
 var app = builder.Build();
 
 var loggerFactory = app.Services.GetService<ILoggerFactory>();

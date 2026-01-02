@@ -313,13 +313,21 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     EmployeeID = 0
                 };
                 var EmploymentDetailsDictionaries = _businessLayer.SendPostAPIRequest(employmentDetailInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetEmploymentDetailsDictionaries), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var employmentDetailsDictionaries = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long>>>(EmploymentDetailsDictionaries);
+                var employmentDetailsDictionaries = JsonConvert
+    .DeserializeObject<Dictionary<string, Dictionary<string, long>>>(EmploymentDetailsDictionaries)
+    .ToDictionary(
+        d => d.Key,
+        d => new Dictionary<string, long>(d.Value, StringComparer.OrdinalIgnoreCase)
+    );
                 EmployeeInputParams employmentSubDepartmentInputParams = new EmployeeInputParams()
                 {
                     CompanyID = companyId ?? 0,
                 };
                 var EmploymentSubDepartment = _businessLayer.SendPostAPIRequest(employmentSubDepartmentInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetSubDepartmentDictionary), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var SubDepartmentDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment);
+                var SubDepartmentDictionaries = new Dictionary<string, long>(
+    JsonConvert.DeserializeObject<Dictionary<string, long>>(EmploymentSubDepartment),
+    StringComparer.OrdinalIgnoreCase
+);
                 for (int row = 2; row <= totalRows; row++)
                 {
                     if (IsRowEmpty(worksheet, row))
@@ -455,17 +463,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddError(errorDataTable, columnName, $"Row {row}: Location is required.");
                                         hasError = true;
                                     }
-                                    else if (employmentDetailsDictionaries.TryGetValue("JobLocations", out var JobLocationNameDict))
+                                    else if (employmentDetailsDictionaries.TryGetValue("JobLocations", out var jobLocationDict))
                                     {
-                                        var matchedPolicy = JobLocationNameDict
-                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-
-                                        JobLocationId = matchedPolicy.Value;
-                                        prop.SetValue(item, JobLocationId.ToString());
-
-                                        if (JobLocationId == 0)
+                                        if (jobLocationDict.TryGetValue(cellValue.Trim(), out var locationId))
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: Location  not found in master data.");
+                                            prop.SetValue(item, locationId.ToString());
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: Location not found in master data.");
                                             hasError = true;
                                         }
                                     }
@@ -478,13 +484,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 case "LeavePolicyName":
                                     if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("LeavePolicies", out var leavePolicyDict))
                                     {
-                                        var matchedPolicy = leavePolicyDict
-                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                        LeavePolicyId = matchedPolicy.Value;
-                                        prop.SetValue(item, LeavePolicyId.ToString());
-                                        if (LeavePolicyId == 0)
+                                        if (leavePolicyDict.TryGetValue(cellValue.Trim(), out var policyId))
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: LeavePolicy  not found in master data.");
+                                            prop.SetValue(item, policyId.ToString());
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: LeavePolicy not found.");
                                             hasError = true;
                                         }
                                     }
@@ -538,23 +544,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName is required.");
                                         hasError = true;
                                     }
-                                    else if (employmentDetailsDictionaries.TryGetValue("PayrollTypes", out var PayrollTypeNameDict))
+                                    else if (employmentDetailsDictionaries.TryGetValue("PayrollTypes", out var payrollDict))
                                     {
-                                        var matchedPolicy = PayrollTypeNameDict
-                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                        PayrollTypeId = matchedPolicy.Value;
-                                        prop.SetValue(item, PayrollTypeId.ToString());
-
-                                        if (PayrollTypeId == 0)
+                                        if (payrollDict.TryGetValue(cellValue.Trim(), out var payrollId))
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName  not found in master data.");
+                                            prop.SetValue(item, payrollId.ToString());
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: PayrollType not found.");
                                             hasError = true;
                                         }
-                                    }
-                                    else
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: PayrollTypeName dictionary is missing or empty.");
-                                        hasError = true;
                                     }
                                     break;
                                 case "DepartmentName":
@@ -565,28 +565,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     else if (employmentDetailsDictionaries.TryGetValue("Departments", out var departmentDict))
                                     {
-                                        var departmentMatch = departmentDict
-                                            .FirstOrDefault(kvp => kvp.Key.Equals(cellValue, StringComparison.OrdinalIgnoreCase));
-                                        if (departmentMatch.Equals(default(KeyValuePair<string, int>)))
+                                        if (departmentDict.TryGetValue(cellValue.Trim(), out var deptId))
                                         {
-                                            departmentMatch = departmentDict
-                                                .FirstOrDefault(kvp => kvp.Key.IndexOf(cellValue, StringComparison.OrdinalIgnoreCase) >= 0);
-                                        }
-                                        if (!departmentMatch.Equals(default(KeyValuePair<string, int>)) && departmentMatch.Value != 0)
-                                        {
-                                            DepartmentId = departmentMatch.Value;
-                                            prop.SetValue(item, DepartmentId.ToString());
+                                            prop.SetValue(item, deptId.ToString());
                                         }
                                         else
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: DepartmentName  not found in master data.");
+                                            AddError(errorDataTable, columnName, $"Row {row}: Department not found.");
                                             hasError = true;
                                         }
-                                    }
-                                    else
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: DepartmentName dictionary is missing or empty.");
-                                        hasError = true;
                                     }
                                     break;
                                 case "SubDepartmentName":
@@ -597,25 +584,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddError(errorDataTable, columnName, $"Row {row}: SubDepartmentName is required.");
                                         hasError = true;
                                     }
-                                    else if (SubDepartmentDictionaries != null)
+                                    else if (SubDepartmentDictionaries.TryGetValue(cellValue.Trim(), out var subDeptId))
                                     {
-                                        string combinedKey = $"{cellValue}";
-                                        var matchedSubDept = SubDepartmentDictionaries
-                                            .FirstOrDefault(kvp => kvp.Key.Trim().Equals(combinedKey, StringComparison.OrdinalIgnoreCase));
-
-                                        SubDepartmentNameId = matchedSubDept.Value;
-                                        prop.SetValue(item, SubDepartmentNameId.ToString());
-
-                                        if (SubDepartmentNameId == 0)
-                                        {
-                                           
-                                            item.NewSubDepartmentName = cellValue;
-                                        }
+                                        prop.SetValue(item, subDeptId.ToString());
                                     }
                                     else
                                     {
-                                        AddError(errorDataTable, columnName, $"Row {row}: SubDepartment dictionary is missing or empty.");
-                                        hasError = true;
+                                        item.NewSubDepartmentName = cellValue; 
                                     }
                                     break;
 
@@ -625,23 +600,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddError(errorDataTable, columnName, $"Row {row}: DesignationName is required.");
                                         hasError = true;
                                     }
-                                    else if (employmentDetailsDictionaries.TryGetValue("Designations", out var DesignationsDict))
+                                    else if (employmentDetailsDictionaries.TryGetValue("Designations", out var designationDict))
                                     {
-                                        var DesignationName = DesignationsDict
-                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                        DesignationsId = DesignationName.Value;
-                                        prop.SetValue(item, DesignationsId.ToString());
-
-                                        if (DesignationsId == 0)
+                                        if (designationDict.TryGetValue(cellValue.Trim(), out var designationId))
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: DesignationName  not found in master data.");
+                                            prop.SetValue(item, designationId.ToString());
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: Designation not found.");
                                             hasError = true;
                                         }
-                                    }
-                                    else
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: DesignationName dictionary is missing or empty.");
-                                        hasError = true;
                                     }
                                     break;
                                 case "Category":
@@ -650,50 +619,56 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         AddError(errorDataTable, columnName, $"Row {row}: Category is required.");
                                         hasError = true;
                                     }
-                                    else if (employmentDetailsDictionaries.TryGetValue("EmploymentTypes", out var EmploymentTypesDict))
+                                    else if (employmentDetailsDictionaries.TryGetValue("EmploymentTypes", out var empTypeDict))
                                     {
-                                        var matchedPolicy = EmploymentTypesDict
-                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-
-                                        EmploymentTypesId = matchedPolicy.Value;
-                                        prop.SetValue(item, EmploymentTypesId.ToString());
-
-                                        if (EmploymentTypesId == 0)
+                                        if (empTypeDict.TryGetValue(cellValue.Trim(), out var empTypeId))
                                         {
-                                            AddError(errorDataTable, columnName, $"Row {row}: Category not found in master data.");
+                                            prop.SetValue(item, empTypeId.ToString());
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: Category not found.");
                                             hasError = true;
                                         }
                                     }
-                                    else
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: Category dictionary is missing or empty.");
-                                        hasError = true;
-                                    }
+                                   
                                     break;
                                 case "ShiftTypeName":
-                                    if (!string.IsNullOrEmpty(cellValue) && employmentDetailsDictionaries.TryGetValue("ShiftTypes", out var ShiftTypeNameDict))
-                                    {
-                                        var matchedPolicy = ShiftTypeNameDict
-                                            .FirstOrDefault(kvp => kvp.Key.Contains(cellValue, StringComparison.OrdinalIgnoreCase));
-                                        ShiftTypeId = matchedPolicy.Value;
-                                        prop.SetValue(item, ShiftTypeId.ToString());
-                                        if (ShiftTypeId == 0)
-                                        {
-                                            AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName  not found in master data.");
-                                            hasError = true;
-                                        }
-                                    }
-                                    else if (!string.IsNullOrEmpty(cellValue))
-                                    {
-                                        AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName dictionary is missing or empty.");
-                                        hasError = true;
-                                    }
-                                    else
+                                    if (string.IsNullOrWhiteSpace(cellValue))
                                     {
                                         AddError(errorDataTable, columnName, $"Row {row}: ShiftTypeName is required.");
                                         hasError = true;
                                     }
+                                    else if (employmentDetailsDictionaries.TryGetValue("ShiftTypes", out var shiftDict))
+                                    {
+                                        string excelShiftCode = cellValue.Trim();
+
+                                        var matchedShift = shiftDict.FirstOrDefault(kvp =>
+                                        {
+                                            var apiShiftCode = kvp.Key
+                                                .Split(' ', '(')[0]   
+                                                .Trim();
+
+                                            return apiShiftCode.Equals(excelShiftCode, StringComparison.OrdinalIgnoreCase);
+                                        });
+
+                                        if (!matchedShift.Equals(default(KeyValuePair<string, long>)))
+                                        {
+                                            prop.SetValue(item, matchedShift.Value.ToString());
+                                        }
+                                        else
+                                        {
+                                            AddError(errorDataTable, columnName, $"Row {row}: ShiftType not found.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        AddError(errorDataTable, columnName, $"Row {row}: ShiftType dictionary is missing or empty.");
+                                        hasError = true;
+                                    }
                                     break;
+
                                 case "NoticeServed":
                                     if (!string.IsNullOrEmpty(cellValue))
                                     {

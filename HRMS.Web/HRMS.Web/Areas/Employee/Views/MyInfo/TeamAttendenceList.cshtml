@@ -373,13 +373,29 @@
 		  $("#crm-loader").addClass("d-none");
 		}
 
-		function populateYearDropdown(startYear = 2024) {
-		  const currentYear = new Date().getFullYear();
-		  const $yearSelect = $("#year-select").empty();
-		  for (let year = currentYear; year >= startYear; year--) {
-			$yearSelect.append(`<option value="${year}" ${year === currentYear ? "selected" : ""}>${year}</option>`);
-		  }
-		}
+    function populateYearDropdown(startYear = 2024) {
+        const today = new Date();
+        let year = today.getFullYear();
+        let month = today.getMonth() + 1; 
+        const day = today.getDate();
+
+        
+        if (day >= 21) {
+            month += 1;
+            if (month > 12) {
+                month = 1;
+                year += 1; 
+            }
+        }
+
+        const $yearSelect = $("#year-select").empty();
+
+        for (let y = year; y >= startYear; y--) {
+            $yearSelect.append(
+                `<option value="${y}" ${y === year ? "selected" : ""}>${y}</option>`
+            );
+        }
+    }
 
 	function selectCurrentMonth() {
         const today = new Date();
