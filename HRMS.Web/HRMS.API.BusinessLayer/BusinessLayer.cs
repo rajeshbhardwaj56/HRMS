@@ -962,10 +962,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@LOB", employmentDetails.LOB));
             sqlParameter.Add(new SqlParameter("@GrossSalary", employmentDetails.GrossSalary));
             sqlParameter.Add(new SqlParameter("@ESIRegistrationDate", employmentDetails.ESIRegistrationDate));
-            sqlParameter.Add(new SqlParameter("@DateOfJoiningOnroll", employmentDetails.DateOfJoiningOnroll));
-            sqlParameter.Add(new SqlParameter("@DateOfJoiningTraining", employmentDetails.DateOfJoiningTraining));
-            sqlParameter.Add(new SqlParameter("@DateOfJoiningFloor", employmentDetails.DateOfJoiningFloor));
-            sqlParameter.Add(new SqlParameter("@DateOfJoiningOJT", employmentDetails.DateOfJoiningOJT));
+
             sqlParameter.Add(new SqlParameter("@RoleID", employmentDetails.RoleId));
             sqlParameter.Add(new SqlParameter("@CompnayID", employmentDetails.CompanyID));
 
