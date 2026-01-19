@@ -92,9 +92,10 @@
 
 
         if (weekRanges.length > 0) {
-            weekDropdown.val(
-                `${weekRanges[0].weekNumber}|${weekRanges[0].startDate}|${weekRanges[0].endDate}`
-            ).trigger('change');
+            const firstValue = `${weekRanges[0].weekNumber}|${weekRanges[0].startDate}|${weekRanges[0].endDate}`;
+
+            weekDropdown.val(firstValue).trigger('change');
+            weekVal = firstValue;   
         }
     }
     function getWeekRanges(year) {
