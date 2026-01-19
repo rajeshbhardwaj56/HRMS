@@ -37,11 +37,17 @@ namespace HRMS.Models.Common
         MaternityLeave = 1,
         Adoption = 2,
         AnnualLeavel = 3,
-        CompOff = 4,
+        CompOff = 9,
         Miscarriage = 5,
         MedicalLeave = 6,
-        Paternity = 7
+        Paternity = 7,
+        LeaveWithOutPay = 8
 
+    }
+    public enum CompOff
+    {
+        CompOff = 1,
+        OtherLeaves =2,
     }
 
     public enum AttendanceStatusId
@@ -50,7 +56,9 @@ namespace HRMS.Models.Common
         L1Approved = 2,
         L1Rejected = 3,
         L2Approved = 4,      
-        L2Rejected = 5     
+        L2Rejected = 5,
+        NotApplied=6,
+        AdminApproved=7,
     }
 
     public enum MaxMedicalLeaveDoc
@@ -63,6 +71,7 @@ namespace HRMS.Models.Common
         L1Approved = 2,
         L2Approve = 3,
         Approved = 4,
-        Cancelled = 5
+        Cancelled = 5,
+        AdminApproved = 7,
     }
 }

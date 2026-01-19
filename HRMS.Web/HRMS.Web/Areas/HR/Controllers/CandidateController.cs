@@ -1,6 +1,7 @@
 ﻿using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Web.BusinessLayer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
@@ -8,6 +9,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 namespace HRMS.Web.Areas.HR.Controllers
 {
     [Area(Constants.ManageHR + "," + RoleConstants.SuperAdmin)]
+    [Authorize]
     public class CandidateController : Controller
     {
 

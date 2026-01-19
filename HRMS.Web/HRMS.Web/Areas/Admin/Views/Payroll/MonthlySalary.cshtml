@@ -1,0 +1,154 @@
+﻿@using HRMS.Models.PayRoll
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+ @model List<HRMS.Models.PayRoll.SalaryDetails>
+    @{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Monthly Salary";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+    }
+
+    <div class="main-header anim" style="--delay: 0s">
+        Monthly Salary List
+    </div>
+    <div class="table-responsive py-3">
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label for="yearDropdown">Year</label>
+                <div class="custom-select-wrapper">
+                    <select class="form-select custom-select" id="yearDropdown"></select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label for="monthDropdown">Month</label>
+                <div class="custom-select-wrapper">
+                    <select class="form-select custom-select" id="monthDropdown"></select>
+                </div>
+            </div>
+        </div>
+        <table id="tblMonthlySalary" class="table table-striped body-text" style="width:100%">
+            <thead>
+                <tr>
+                    <th style="display:none"></th>
+                    <th>Employee Number</th>
+                    <th>Employee Name</th>
+                    <th>Gross Salary</th>
+                    <th>Basic Salary</th>
+                    <th>HRA</th>
+                    <th>Conveyance Allowance</th>
+                    <th>Special Allowance</th>
+                    <th>In-Hand Salary</th>
+                    <th>Cost To Company</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <script type="text/javascript">
+
+      $(document).ready(function () {
+
+
+    populateYearDropdown();
+    populateMonthDropdown();
+    initializeDataTable();
+    registerDropdownChange();
+
+    
+    function populateYearDropdown() {
+        var currentYear = new Date().getFullYear();
+        var startYear = currentYear - 5; 
+        var endYear = currentYear + 1;
+
+        var yearDropdown = $('#yearDropdown');
+        yearDropdown.empty();
+        yearDropdown.append('<option value="">Select Year</option>');
+
+        for (var y = endYear; y >= startYear; y--) {
+            yearDropdown.append(new Option(y, y));
+        }
+
+        yearDropdown.val(currentYear); 
+    }
+
+
+    function populateMonthDropdown() {
+        var months = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        var currentMonth = new Date().getMonth() + 1; 
+        var monthDropdown = $('#monthDropdown');
+        monthDropdown.empty();
+        monthDropdown.append('<option value="">Select Month</option>');
+
+        for (var m = 1; m <= 12; m++) {
+            monthDropdown.append(new Option(months[m - 1], m));
+        }
+
+        monthDropdown.val(currentMonth); 
+    }
+
+  
+    function initializeDataTable() {
+        $('#tblMonthlySalary').DataTable({
+            processing: true,
+            serverSide: true,
+            destroy: true, 
+            ajax: {
+                url: '@Url.Action("MonthlySalary", "Payroll")',
+                type: 'POST',
+                datatype: 'json',
+                data: function (d) {
+                    var sortColumn = d.order?.length ? d.columns[d.order[0].column].data : 'EmployeeID';
+                    var sortDirection = d.order?.length ? d.order[0].dir : 'asc';
+                    return {
+                        sEcho: d.draw,
+                        iDisplayStart: d.start,
+                        iDisplayLength: d.length,
+                        sSearch: d.search.value,
+                        sortCol: sortColumn,
+                        sortDir: sortDirection,
+                        year: $('#yearDropdown').val(),
+                        month: $('#monthDropdown').val()
+                    };
+                }
+            },
+            columns: [
+                { data: "encryptedSalaryID", visible: false },
+                { data: "employeeNumber" },
+                { data: "employeeName" },                
+                { data: "grossSalary" },
+                { data: "basicSalary" },
+                { data: "hra" },
+                { data: "conveyanceAllowance" },
+                { data: "specialAllowance" },
+                { data: "inHandSalary" },
+                { data: "costToCompany" },
+                {
+                    render: function (data, type, row) {
+                        return `<a class="item" href="/admin/Payroll/SalaryDetails?id=${row.encryptedSalaryID}" data-bs-toggle="tooltip" title="View Salary" style="margin-right:8px;">
+                                     <i class="bi bi-eye-fill" style="font-size:18px; color:#044a8c;"></i>
+                                </a>
+                                <a class="item text-success" href="/admin/Payroll/EditSalary?id=${row.encryptedSalaryID}" data-bs-toggle="tooltip" title="Edit Salary">
+                <i class="bi bi-pencil-fill" style="font-size:18px; "></i>
+            </a>`;
+                    }
+                }
+            ],
+            responsive: true
+        });
+    }
+
+    function registerDropdownChange() {
+        $('#yearDropdown, #monthDropdown').change(function () {
+            $('#tblMonthlySalary').DataTable().ajax.reload();
+        });
+    }
+
+});
+    </script>
+   

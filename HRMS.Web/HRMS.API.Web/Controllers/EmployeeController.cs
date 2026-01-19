@@ -1,6 +1,8 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.Leave;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -98,7 +100,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetMyInfo(model));
             return response;
         }
-
+        [HttpPost]
+        public IActionResult GetMyAgentInfo(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetMyAgentInfo(model));
+            return response;
+        }
         [HttpPost]
         public IActionResult AddUpdateEmploymentDetails(EmploymentDetail model)
         {
@@ -218,5 +226,229 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
+        [HttpPost]
+        public IActionResult FetchExportEmployeeExcelSheet(EmployeeInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.FetchExportEmployeeExcelSheet(model));
+            return response;
+        }
+
+
+        [HttpPost]
+        public IActionResult GetValidateCompOffLeave(CampOffEligible model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetValidateCompOffLeave(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult UpdateLeaveStatus(UpdateLeaveStatus model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.UpdateLeaveStatus(model));
+            return response;
+        }
+
+
+        [HttpPost]
+        public IActionResult GetEducationDetails(EducationDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEducationDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateEducationDetail(EducationalDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEducationDetail(model));
+            return response;   
+        }
+        [HttpPost]
+        public IActionResult DeleteEducationDetail(EducationDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteEducationDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetEmploymentHistory(EmploymentHistoryParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmploymentHistory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateEmploymentHistory(EmploymentHistory model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmploymentHistory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteEmploymentHistory(EmploymentHistoryParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteEmploymentHistory(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetReferenceDetails(ReferenceParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetReferenceDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateReferenceDetail(Reference model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateReferenceDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteReferenceDetail(ReferenceParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteReferenceDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetFamilyDetails(FamilyDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetFamilyDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateFamilyDetail(FamilyDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateFamilyDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteFamilyDetail(FamilyDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteFamilyDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetLanguageDetails(LanguageDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLanguageDetails(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateLanguageDetail(LanguageDetail model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateLanguageDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteLanguageDetail(LanguageDetailParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteLanguageDetail(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetEmployeesWeekOffRoster(WeekOfInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeesWeekOffRoster(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetAllEmployeesList(WeekOfEmployeeId Employeemodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAllEmployeesList(Employeemodel));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult DeleteWeekOffRoster(WeekOffUploadDeleteModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.DeleteWeekOffRoster(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult UploadRosterWeekOff(WeekOffUploadModelList model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.UploadRosterWeekOff(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetEmployeesHierarchyUnderManager(WeekOfInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeesHierarchyUnderManager(model));
+            return response;
+        }
+
+        [HttpGet]
+        public IActionResult GetShiftTypeId(string ShiftTypeName)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetShiftTypeId(ShiftTypeName));
+            return response;
+        }
+        [HttpGet]
+        public IActionResult GetShiftTypeList(string employeeNumber)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetShiftTypeList(employeeNumber));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetLeaveWeekOffDates(LeaveWeekOfInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLeaveWeekOffDates(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLastLevelEmployeeDropdown(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetEmployeeForLeaveEdit(LastLevelEmployeeDropdownParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeeForLeaveEdit(model));
+            return response;
+        }
+
+
+
+
+        [HttpPost]
+        public IActionResult GetCompanyHoliday(HolidayInputparams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetCompanyHolidayList(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult AddAcknowledgePolicy(AcknowledgePolicyModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddAcknowledgePolicy(model));
+            return response;
+        }
     }
 }

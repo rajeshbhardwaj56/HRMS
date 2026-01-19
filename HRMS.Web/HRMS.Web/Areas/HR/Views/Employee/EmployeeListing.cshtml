@@ -1,11 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-
+@using HRMS.Models;
+@using HRMS.Models.Common;
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 
 @model HRMS.Models.Common.Results
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
 
 	ViewData["Title"] = "Employee";
 
@@ -15,31 +17,79 @@
 
 <div class="main-header anim" style="--delay: 0s">
 	Employee List
-	<section class="right-button-employee" />
+	<section class="right-button-employee" >
 	<a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a>
 	<a href="~/Admin/Dashboard/ImportExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees</button></a>
+		@if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.HR)|| RoleName == Convert.ToInt64(Roles.SuperAdmin))
+                        {
+	 <button id="export-employee-btn" class="btn btn-addBtn" >Export Employees  </button> 
+						}
 	</section>
 </div>
 <div class="table-responsive py-3">
+    <div class="row mb-2">
+        <div class="col-md-3">
+            <label for="subDeptFilter">Sub-Department:</label>
+            <div class="position-relative">
+                <select id="subDeptFilter" class="form-control">
+                    <option value="">All</option>
 
+                </select>
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="empTypeFilter">Employee Type:</label>
+            <div class="position-relative">
+                <select id="empTypeFilter" class="form-control">
+                    <option value="">All</option>
+
+                </select>
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="locationFilter">Location:</label>
+            <div class="position-relative">
+                <select id="locationFilter" class="form-control">
+                    <option value="">All</option>
+                </select>
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="statusFilter">Status:</label>
+            <div class="position-relative">
+                <select id="statusFilter" class="form-control">
+                    <option value="">All</option>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px; color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+        </div>
+    </div>
 	<table id="tblEmployeeListing" class="table table-striped body-text" style="width:100%">
 		<thead>
 			<tr>
 				<th class="first" style="visibility:hidden"> </th>
 
 				<th>Image</th>
-				<th>Employee Number</th>
+				<th>Emp No</th>
 				<th>First Name</th>
-				<th>Middle Name</th>
 				<th>Surname</th>
-				<th>Email Address</th>
-				<th>Designation  </th>
-				<th>Department  </th>
-				<th>Manager Name</th>
+				<th>Designation </th>
+				<th>Department</th>
+				<th>Manager</th>
 				<th>Shift</th>
 				<th>Payroll</th>
 				<th>Mobile</th>
-				<th>Employee Status</th>
+				<th>Location</th>
+				<th>Status</th>
 				<th>Action</th>
 			</tr>
 		</thead>
@@ -47,8 +97,7 @@
 	</table>
 </div>
 
-<!-- Status Message Modal -->
-<!-- Congratulations Modal -->
+
 <div class="modal fade" id="congratsModal" tabindex="-1" aria-labelledby="congratsModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content text-center p-4" style="border-radius: 1rem; background: #e0f7e9;">
@@ -64,7 +113,7 @@
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content text-center p-4" style="border-radius: 1rem; background: #fdecea;">
 			<div class="modal-body">
-				<h2 class="error-title mb-3">⚠️ Oops! Something went wrong.</h2>
+				<h2 class="error-title mb-3">⚠️ Oops! Alert.</h2>
 				<p id="errorMessage" class="lead text-danger"></p>
 				<button type="button" class="btn btn-danger mt-3" data-bs-dismiss="modal">Close</button>
 			</div>
@@ -76,7 +125,14 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
+        $('#subDeptFilter, #empTypeFilter, #locationFilter,#statusFilter').on('change', function () {
+		$('#tblEmployeeListing').DataTable().ajax.reload();
+	});
+
+
+
 		$('#tblEmployeeListing').DataTable({
+	
 			"processing": true,
 			"serverSide": true,
 			"ajax": {
@@ -84,18 +140,77 @@
 				"type": "POST",
 				"datatype": "json",
 				"data": function (d) {
+					var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'employeeID';
+	                var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
 					return {
 						sEcho: d.draw,
 						iDisplayStart: d.start,
 						iDisplayLength: d.length,
-						sSearch: d.search.value
+						sSearch: d.search.value,
+						sortCol: sortColumn, 
+		                sortDir: sortDirection,  
+						subDeptFilter: $('#subDeptFilter').val(),
+		                empTypeFilter: $('#empTypeFilter').val(),
+		                locationFilter: $('#locationFilter').val(),
+		                statusFilter: $('#statusFilter').val()
 					};
-				}
+				},
+				"dataSrc": function (json) {
+			var empTypeDropdown = $('#empTypeFilter');
+	var subDeptDropdown = $('#subDeptFilter');
+	var locationDropdown = $('#locationFilter');
+	var statusDropdown = $('#statusFilter');
+
+	var selectedEmpType = empTypeDropdown.val();
+	var selectedSubDept = subDeptDropdown.val();
+	var selectedLocation = locationDropdown.val();
+	var selectedStatus = statusDropdown.val();
+
+
+	empTypeDropdown.empty().append('<option value="">All</option>');
+	if (json.employmentTypes && json.employmentTypes.length) {
+		$.each(json.employmentTypes, function (index, item) {
+			empTypeDropdown.append(
+				$('<option></option>').val(item.employeeTypeId).text(item.name)
+			);
+		});
+	}
+	empTypeDropdown.val(selectedEmpType);
+
+
+	subDeptDropdown.empty().append('<option value="">All</option>');
+	if (json.subDepartmentTypes && json.subDepartmentTypes.length) {
+		$.each(json.subDepartmentTypes, function (index, item) {
+			subDeptDropdown.append(
+				$('<option></option>').val(item.subDepartmentTypeId).text(item.name)
+			);
+		});
+	}
+	subDeptDropdown.val(selectedSubDept);
+
+
+	locationDropdown.empty().append('<option value="">All</option>');
+	if (json.locationTypes && json.locationTypes.length) {
+		$.each(json.locationTypes, function (index, item) {
+			locationDropdown.append(
+				$('<option></option>').val(item.locationTypeId).text(item.name)
+			);
+		});
+	}
+	locationDropdown.val(selectedLocation);
+
+                   
+                    statusDropdown.val(selectedStatus);
+
+
+				return json.data;
+			}
 			},
 			"ordering": true,
 			"paging": true,
 			"searching": true,
 			"info": true,
+			 "order": [[0, "desc"]],
 			"columns": [
 				{ "data": "employeeID", "autoWidth": true, "visible": false },
 				{
@@ -107,22 +222,27 @@
 				},
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "firstName", "autoWidth": true },
-				{ "data": "middleName", "autoWidth": true },
 				{ "data": "surname", "autoWidth": true },
-				{ "data": "personalEmailAddress", "autoWidth": true },
+				
 				{ "data": "designationName", "autoWidth": true },
 				{ "data": "departmentName", "autoWidth": true },
-				{ "data": "managerName", "autoWidth": true },
-			   {
-	  "data": null,
+				{ "data": "managerName", "autoWidth": true  },
+				{
+	  "data": "shiftTypeID",
 	  "autoWidth": true,
 	  "render": function (data, type, row) {
-		return `${row.shift} (${row.shiftStartTime} - ${row.shiftEndTime})`;
+		if (row.shiftStartTime) {
+		  return `${row.shift} (${row.shiftStartTime} - ${row.shiftEndTime})`;
+		} else {
+		  return `${row.shift}`;
+		}
 	  }
-	},
+	}
+	,
 
 				{ "data": "payrollTypeName", "autoWidth": true },
 				{ "data": "mobile", "autoWidth": true },
+				{ "data": "jobLocation", "autoWidth": true },
 						{
 		"data": "isActive",
 		"autoWidth": true,
@@ -142,13 +262,9 @@
 				'</a>' +
 				'</div>';
 
-			var moveToActiveEmployee = '<div class="table-data-feature">' +
-				'<a data-toggle="tooltip" data-placement="top" class="item" href="EmploymentDetails?id=' + row.encryptedIdentity + '&DeptId=' + row.encodedDepartmentIDID + '&DegtId=' + row.encodedDesignationID + '" title="Edit">' +
-				'<img src="/assets/img/ReadyStatus.svg" width="20" height="20" />' +
-				'</a>' +
-				'</div>';
+			
 
-			return linkEdit + moveToActiveEmployee;
+			return linkEdit ;
 		},
 		"orderable": false,
 		"className": "Edit-Button" // <-- Add your custom class here
@@ -156,7 +272,7 @@
 
 			],
 			"columnDefs": [
-				{ "targets": [0], "orderable": false, "visible": false },
+				{ "targets": [0], "orderable": true, "visible": false },
 				{ "targets": [1], "orderable": false }
 			],
 			"responsive": true
@@ -211,6 +327,25 @@
 		});
 	});
 
+	$("#export-employee-btn").on("click", function () {
+		const $btn = $(this);
 
+		const url = `/HR/Employee/ExportEmployeeSheet`;
+
+		// Change button text and disable it
+		$btn.prop("disabled", true).text("Please wait...");
+
+		// Create a hidden iframe to trigger download without navigating away
+		const $iframe = $("<iframe>")
+			.hide()
+			.attr("src", url)
+			.appendTo("body");
+
+		// Optional: Re-enable button after some delay (e.g., 5 seconds)
+		setTimeout(() => {
+			$btn.prop("disabled", false).text("Export Employees");
+			$iframe.remove(); // Clean up
+		}, 6000);  
+	});
 
 </script>

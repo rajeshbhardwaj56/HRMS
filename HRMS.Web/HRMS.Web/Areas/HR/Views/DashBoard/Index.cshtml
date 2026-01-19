@@ -18,7 +18,7 @@
     </div>
 
     <div class="row mb-4">
-        @if (RoleName != Convert.ToInt64(Roles.Employee))
+        @if (Model.RecordPresent == 1 || RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.SuperAdmin))
         {
             <div class="col-xl-3 col-sm-6 col-12">
                 <div class="card board1 fill1 " id="RedirectBtn">
@@ -62,7 +62,7 @@
                 <div class="card-body">
                     <div class="card_widget_header">
                         <label>Leaves</label>
-                        <h4>@Convert.ToInt32(@Model.TotalLeave)</h4>
+                        <h4>@Model.TotalLeave</h4>
                     </div>
                     <div class="card_widget_img">
                         <svg width="20px" height="20px" viewBox="0 0 512 512" id="Layer_1" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -108,7 +108,7 @@
                         <li>
                             <div class="timeOffCard">
                                 <h5>Leave Balance</h5>
-                                <h2>@Model.NoOfLeaves</h2>
+                                <h2>@ViewBag.NoOfLeaves</h2>
                                 <span>Available</span>
                             </div>
                         </li>
@@ -151,6 +151,7 @@
                                     <th>Day</th>
                                     <th>Present</th>
                                     <th>Absent</th>
+                                    <th>Leave</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -162,10 +163,11 @@
                                         {
                                             <tr>
                                                 <td>
-                                                    @item.Day.Value.ToString("yyyy-dd-MM")
+                                                    @item.Day.Value.ToString("dd/MM/yyyy")
                                                 </td>
                                                 <td>@item.Present</td>
                                                 <td>@item.Absent</td>
+                                                <td>@item.Leaves</td>
 
                                             </tr>
                                         }
@@ -176,8 +178,7 @@
                             </tbody>
                         </table>
                     </div>
-                    @*                     <a href="" class="viewAll">View All →</a>
- *@                </div>
+                </div>
             </div>
         </div>
 
@@ -267,9 +268,9 @@
                 </div>
                 <div class="p-3">
                     <ul class="list-group body-text">
-                        @if (Model?.WhatsHappening != null && Model.WhatsHappening.Any(x => x.FromDate >= DateTime.Today))
+                        @if (Model?.WhatsHappening != null && Model.WhatsHappening.Any(x => x.ToDate >= DateTime.Today))
                         {
-                            foreach (var item in Model.WhatsHappening.Where(x => x.FromDate >= DateTime.Today))
+                            foreach (var item in Model.WhatsHappening.Where(x => x.ToDate >= DateTime.Today))
                             {
                                 <li class="list-group-item py-3">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -325,6 +326,69 @@
         </div>
     </div>
 </div>
+@if (Model?.EmployeeHierarchy != null && Model.EmployeeHierarchy.Any())
+{
+    <div class="row">
+        <div class="col col-lg-12 order-0 mb-4 anim" style="--delay: .1s">
+            <div class="card">
+                <div class="card-header pb-0 p-3">
+                    <h6 class="mb-0">Reporting Structure</h6>
+                </div>
+                <div class="p-3">
+                    <div class="employee-hierarchy">
+                        @{
+
+                            void RenderEmployee(HRMS.Models.DashBoard.HierarchyEmployee employee, int level)
+                            {
+                                <div class="hierarchy-node" style="margin-left: @(level * 30)px;">
+                                    <div class="employee-card">
+                                        <div class="employee-info">
+                                            <div class="employee-photo">
+                                                <img src="@(string.IsNullOrEmpty(employee.ProfilePhoto) ?
+                                                         HRMS.Models.Common.Constants.NoImagePath : employee.ProfilePhoto)"
+                                                     alt="@employee.EmployeeName"
+                                                     class="img-thumbnail"
+                                                     style="width:50px;height:50px;"
+                                                     onerror="this.onerror=null; this.src='@HRMS.Models.Common.Constants.NoImagePath'">
+                                            </div>
+                                            <div class="employee-details">
+                                                <h6>@employee.EmployeeName</h6>
+                                                <p>@employee.Designation</p>
+                                                <p>@employee.Department</p>
+                                                <small>Employee ID: @employee.EmployeNumber</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (employee.Subordinates != null && employee.Subordinates.Any())
+                                    {
+                                        <div class="subordinates">
+                                            @foreach (var subordinate in employee.Subordinates)
+                                            {
+                                                RenderEmployee(subordinate, level + 1);
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            // Start rendering from root level (Level 1)
+                            var rootEmployees = Model.EmployeeHierarchy.Where(e => e.Level == 1).ToList();
+                            foreach (var employee in rootEmployees)
+                            {
+                                <div class="hierarchy-root">
+                                    @{
+                                        RenderEmployee(employee, 0);
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 
 <script>

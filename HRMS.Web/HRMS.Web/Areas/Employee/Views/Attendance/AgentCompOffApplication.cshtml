@@ -1,0 +1,485 @@
+﻿@using HRMS.Models.Common
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(Constants.AreaName));
+    ViewData["Title"] = "Comp-Off Attendance";
+}
+<style>
+    .fade:not(.show) {
+        opacity: 1;
+    }
+
+    .compoff-group-box
+   {
+        background: var(--theme-bg);
+        /* padding: 20px; */
+        margin: 15px 0px;
+        border-radius: 10px;
+        border: 1px solid #d5e3ff;
+        padding: 20px 20px 45px 20px;
+    }
+</style>
+<section class="lower-section">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="tab-pane fade" id="compOff1" role="tabpanel" aria-labelledby="compOff1-tab">
+                <div class="compoff-group-box anim">
+                    <div class="tabsInfo" id="">
+    <h3>Agent Comp-Off Attendance </h3>
+                        <div class="mb-3">
+                            <label for="agentDropdown" class="form-label">Select Agent:</label>
+                            <select id="agentTypeDropdown" class="form-select" style="max-width: 300px;">
+                                <option value="">-- Select Agent --</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+
+<nav>
+    <div class="nav nav-tabs mb-3 " id="compOffTabs" role="tablist">
+        <button class="nav-link active" id="not-applied-tab" data-bs-toggle="tab" data-bs-target="#not-applied" type="button" role="tab" aria-controls="not-applied" aria-selected="true">Not Applied</button>
+        <button class="nav-link" id="applied-tab" data-bs-toggle="tab" data-bs-target="#applied" type="button" role="tab" aria-controls="applied" aria-selected="false">Applied</button>
+        <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab" aria-controls="rejected" aria-selected="false">Rejected</button>
+    </div>
+</nav>
+</div>
+<div class="tab-content" id="compOffTabContent">
+    <!-- Not Applied Tab -->
+    <div class="tab-pane fade show active" id="not-applied" role="tabpanel" aria-labelledby="not-applied-tab">
+        <div class="table-responsive py-3">
+            <table id="tblNotApplied" class="table table-striped body-text" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" /></th>
+                        <th>Employee Name</th>
+                        <th>Attendance Date</th>
+                        <th>First Log</th>
+                        <th>Last Log</th>
+                        <th>Hours Worked</th>
+                        <th>Manager Name</th>
+                        <th>Status</th>
+                       
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="mb-3">
+            <label for="approvalComment">Comment:</label>
+            <textarea id="approvalComment" class="form-control" rows="3" placeholder="Add your comment..."></textarea>
+        </div>
+
+        <div class="mb-3">
+            <button id="submitRequest" class="btn btn-primary">Apply for Comp-Off</button>
+        </div>
+    </div>
+
+    <!-- Applied Tab -->
+    <div class="tab-pane fade" id="applied" role="tabpanel" aria-labelledby="applied-tab">
+        <div class="table-responsive py-3">
+            <table id="tblApplied" class="table table-striped body-text" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Employee Name</th>
+                        <th>Attendance Date</th>
+                        <th>First Log</th>
+                        <th>Last Log</th>
+                        <th>Hours Worked</th>
+                        <th>Manager Name</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Rejected Tab -->
+    <div class="tab-pane fade" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">
+        <div class="table-responsive py-3">
+            <table id="tblRejected" class="table table-striped body-text" style="width:100%">
+                <thead>
+                    <tr>
+                        
+                        <th>Employee Name</th>
+                        <th>Attendance Date</th>
+                        <th>First Log</th>
+                        <th>Last Log</th>
+                        <th>Hours Worked</th>
+                        <th>Manager Name</th>
+                        <th>Status</th>                       
+                        <th>Rejection Reason</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+                
+            </div>
+        </div>
+    </div>
+    </div>
+</section>
+@section Scripts {
+    <script type="text/javascript">
+        let notAppliedTable, appliedTable, rejectedTable;
+        let notAppliedLoaded = false;
+        let appliedLoaded = false;
+        let rejectedLoaded = false;
+        let selectedEmployeeId = null;
+        let selectedJobLocationId = null;
+
+         function populateAgentDropdown(employees) {
+        const $dropdown = $('#agentTypeDropdown');
+        $dropdown.empty();
+        $dropdown.append($('<option>').val('').text('-- Select Agent --'));
+
+        employees.forEach(emp => {
+            $dropdown.append(
+                $('<option>')
+                    .val(emp.employeeID)
+                    .text(`${emp.employeeNumber} - ${emp.employeeName}`)
+                    .attr('data-gender-id', emp.gender)
+                    .attr('data-job-location-id', emp.jobLocationID)
+            );
+        });
+         $dropdown.on('change', function() {
+                  const $selectedOption = $(this).find(':selected');
+        selectedEmployeeId = $selectedOption.val();
+        selectedJobLocationId = $selectedOption.data('job-location-id');       
+
+
+            if (notAppliedLoaded) loadNotAppliedData();
+            if (appliedLoaded) loadAppliedData();
+            if (rejectedLoaded) loadRejectedData();
+        });
+
+
+        }
+
+
+
+        $(document).ready(function () {
+                initializeAgentDropdown();
+
+            function initializeAgentDropdown() {
+            $.ajax({
+                url: '/employee/myinfo/GetLastLevelEmployeeDropdown/',
+                type: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.data) {
+
+                        populateAgentDropdown(response.data);
+                       
+                    } else {
+                        showError("Failed to load employees");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showError("Request failed: " + error);
+                },
+                complete: function() {
+                    $('#loadingIndicator').hide();
+                }
+            });
+        }   
+            notAppliedTable = initNotAppliedTable();
+            appliedTable = initAppliedTable();
+            rejectedTable = initRejectedTable();
+            loadNotAppliedData();
+            notAppliedLoaded = true;
+
+          
+            $('#compOffTabs button').on('shown.bs.tab', function (e) {
+                const target = $(e.target).attr("aria-controls");
+                if (target === 'not-applied' && !notAppliedLoaded) {
+                    loadNotAppliedData();
+                    notAppliedLoaded = true;
+                }
+                else if (target === 'applied' && !appliedLoaded) {
+                    loadAppliedData();
+                    appliedLoaded = true;
+                }
+                else if (target === 'rejected' && !rejectedLoaded) {
+                    loadRejectedData();
+                    rejectedLoaded = true;
+                }
+            });
+
+           
+            $('#selectAll').on('click', function () {
+                 const isChecked = this.checked;
+               $('#tblNotApplied .row-select').prop('checked', isChecked);
+            });
+
+          
+               
+        $('#tblNotApplied tbody').on('change', '.row-select', function () {
+            const allChecked = $('#tblNotApplied .row-select').length ===
+                              $('#tblNotApplied .row-select:checked').length;
+            $('#selectAll').prop('checked', allChecked);
+        });
+
+            $('#submitRequest').click(() => submitCompOffRequest('not-applied'));
+           
+        });
+
+        function initNotAppliedTable() {
+            return $('#tblNotApplied').DataTable({
+                columns: [
+                    {
+                        data: "attendanceId",
+                        render: function (data) {
+                            return `<input type="checkbox" class="row-select" value="${data}" />`;
+                        },
+                        orderable: false
+                    },
+                    { data: "employeeName" },
+                    {
+                        data: "attendanceDate",
+                        render: formatDate
+                    },
+                    {
+                        data: "firstLogDate",
+                        render: formatDateTime
+                    },
+                    {
+                        data: "lastLogDate",
+                        render: formatDateTime
+                    },
+                    { data: "hoursWorked" },
+                    { data: "managerName" },
+                    { data: "attendanceStatus" }
+                ]
+            });
+        }
+            
+        function initAppliedTable() {
+            return $('#tblApplied').DataTable({
+                columns: [
+                    { data: "employeeName" },
+                    {
+                        data: "attendanceDate",
+                        render: formatDate
+                    },
+                    {
+                        data: "firstLogDate",
+                        render: formatDateTime
+                    },
+                    {
+                        data: "lastLogDate",
+                        render: formatDateTime
+                    },
+                    { data: "hoursWorked" },
+                    { data: "managerName" },
+                    {
+                        data: "attendanceStatus",
+                        render: function(data) {
+                            return '<span class="badge bg-info">' + data + '</span>';
+                        }
+                    },
+                    { data: "comments" }
+                ]
+            });
+        }
+
+        function initRejectedTable() {
+            return $('#tblRejected').DataTable({
+                columns: [
+                   
+                    { data: "employeeName" },
+                    {
+                        data: "attendanceDate",
+                        render: formatDate
+                    },
+                    {
+                        data: "firstLogDate",
+                        render: formatDateTime
+                    },
+                    {
+                        data: "lastLogDate",
+                        render: formatDateTime
+                    },
+                    { data: "hoursWorked" },
+                    { data: "managerName" },
+                    {
+                        data: "attendanceStatus",
+                        render: function(data) {
+                            return '<span class="badge bg-danger">' + data + '</span>';
+                        }
+                    },
+                    { data: "comments" }
+                ]
+            });
+        }
+
+        function loadNotAppliedData() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetAgentCompOffAttendanceLogs", "Attendance")',
+                 data: {
+                attendanceStatus: 6,
+                employeeId: selectedEmployeeId ,
+                jobLocationId: selectedJobLocationId 
+            },
+                success: function (response) {
+                    notAppliedTable.clear().rows.add(response.data).draw();
+                }
+            });
+        }
+
+        function loadAppliedData() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetAgentCompOffAttendanceLogs", "Attendance")',
+                data: { attendanceStatus: 1,
+                employeeId: selectedEmployeeId ,
+                jobLocationId: selectedJobLocationId },
+                success: function (response) {
+                    appliedTable.clear().rows.add(response.data).draw();
+                }
+            });
+        }
+
+        function loadRejectedData() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetAgentCompOffAttendanceLogs", "Attendance")',
+                data: { attendanceStatus: 3,
+                employeeId: selectedEmployeeId ,
+                jobLocationId: selectedJobLocationId },
+                success: function (response) {
+                    rejectedTable.clear().rows.add(response.data).draw();
+                }
+            });
+        }
+
+        function submitCompOffRequest(tabType) {
+            const comment = tabType === 'rejected'
+                ? $('#approvalCommentRejected').val().trim()
+                : $('#approvalComment').val().trim();
+
+            const selectedLogs = [];
+            let tableSelector = '';
+
+            if (tabType === 'not-applied') {
+                tableSelector = '#tblNotApplied';
+            } else if (tabType === 'rejected') {
+                tableSelector = '#tblRejected';
+            } else {
+                alert("Comp-off can only be applied from 'Not Applied' or 'Rejected' tabs.");
+                return;
+            }
+
+           
+            $(`${tableSelector} .row-select:checked`).each(function () {
+                const rowData = $(tableSelector).DataTable().row($(this).closest('tr')).data();
+                selectedLogs.push({
+                    AttendanceId: rowData.attendanceId,
+                    EmployeeId: rowData.employeeId,appliedLoaded,
+					AttendanceDate: rowData.attendanceDate,
+					FirstLog:rowData.firstLogDate,
+					LastLog: rowData.lastLogDate,
+					HoursWorked: rowData.hoursWorked,							
+                });
+            });
+
+            if (selectedLogs.length === 0) {
+                alert("Please select at least one comoff attendance .");
+                return;
+            }
+
+            if (!comment) {
+                alert("Please enter a comment.");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SubmitAgentCompOffRequest", "Attendance")',
+                contentType: "application/json",
+                data: JSON.stringify({
+                     EmployeeID: selectedEmployeeId,
+                    Logs: selectedLogs,
+                    Comment: comment
+                }),
+                success: function (response) {
+                   
+                        toastMessage('Success' , 'Comp-off request submitted successfully!');
+    
+                        $('#approvalComment').val('');
+                        $('#approvalCommentRejected').val('');                       
+                        if (notAppliedLoaded) loadNotAppliedData();
+                        if (appliedLoaded) loadAppliedData();
+                        if (rejectedLoaded) loadRejectedData();
+                        $('#selectAll').prop('checked', false);
+                       
+
+                        $('#applied-tab').tab('show');
+                    
+                },
+              error: function () {
+                    toastEMessage('Error','Comp-off request not submitted ');
+                }
+            });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+
+         function formatDateTime(data) {
+            if (!data) return "";
+            let date = new Date(data);
+
+            // Format date as dd/mm/yyyy
+            let day = ("0" + date.getDate()).slice(-2);
+            let month = ("0" + (date.getMonth() + 1)).slice(-2);
+            let year = date.getFullYear();
+
+            // Format time as hh:mm AM/PM
+            let hours = date.getHours();
+            let minutes = ("0" + date.getMinutes()).slice(-2);
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // handle 0 => 12
+
+            let formattedTime = hours + ':' + minutes + ' ' + ampm;
+
+            return `${day}/${month}/${year} ${formattedTime}`;
+        }
+
+         function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
+
+         function toastMessage(type , message)
+            {
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
+    </script>
+}

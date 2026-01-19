@@ -24,7 +24,10 @@ namespace HRMS.Models.Common
         public string EmployeeNumber { get; set; } = "";
         public string EmployeeNumberWithoutAbbr { get; set; } = "";
         public string CompanyLogo { get; set; } = "";
+        public long JobLocationID { get; set; }
+        public long DepartmentID { get; set; }
         public bool IsResetPasswordRequired { get; set; }
+        public bool IsFirstLoginPasswordReset { get; set; }
 
 
     }

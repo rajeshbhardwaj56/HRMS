@@ -4,6 +4,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.ImportFromExcel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -76,7 +77,6 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetSubDepartmentDictionary(model));
             return response;
         }
-
 
     }
 }

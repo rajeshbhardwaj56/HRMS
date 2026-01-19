@@ -8,7 +8,7 @@
 @inject IConfiguration _configuration
 @model MyInfoResults
 @{
-    SelectListItem selectCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.CorrespondenceCountryID.ToString()).FirstOrDefault();
+	SelectListItem selectCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.CorrespondenceCountryID.ToString()).FirstOrDefault();
 
     SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
     SelectListItem employmentHistoryCountry;
@@ -25,2125 +25,715 @@
     {
         ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
     }
-    var UploadCertificate = "";
-    if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
-    {
-        UploadCertificate =Model.leaveResults.leaveSummaryModel.UploadCertificate;
-    }
-    else
-    {
-        UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
-    }
-    if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
-    }
-    if (Model.leaveResults.leaveSummaryModel.EndDate == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.EndDate = DateTime.Now;
-    }
-    if (Model.leaveResults.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
-    }
-    if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
-    }
-    if (Model.leaveResults.leaveSummaryModel.ChildDOB == DateTime.MinValue)
-    {
-        Model.leaveResults.leaveSummaryModel.ChildDOB = DateTime.Now;
-    }
-    var fullDayValue = (int)LeaveDay.FullDay;
-    var halfDayValue = (int)LeaveDay.HalfDay;
+   
+    
+
+}
+	 
+@functions {
+	public string DisplayValue(string value)
+	{
+		return string.IsNullOrWhiteSpace(value) ? "N/A" : value;
+	}
 }
 <style>
-    .fade:not(.show) {
-    opacity: 0;
-    display: none !important;
-    }
+	.fade:not(.show) {
+		opacity: 0;
+		display: none !important;
+	}
 </style>
-@* <div class="main-header anim" style="--delay: 0s">My Info</div> *@
 
 
 <section class="upper-section d-flex">
 
-    <div class="container-fluid">
-        <div class="profile-header d-flex ">
-            <div class="profile-header-img">
-                <img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="rounded-circle fixed z-5" />
-            </div>
-            <div class="profile-header-small-info">
-                <h2>@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
-                <p class="joiningDate">
-                    <b>Joining Date:</b> &nbsp;
-                    @if (Model.employmentDetail.JoiningDate != null)
-                    {
-                        @Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyyy");
+	<div class="container-fluid">
+		<div class="profile-header d-flex ">
+			<div class="profile-header-img">
+				<img src="@ProfilePhoto" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" class="rounded-circle fixed z-5" />
+			</div>
+			<div class="profile-header-small-info">
+				<h2>@(Model.employeeModel.FirstName) @(Model.employeeModel.MiddleName) @(Model.employeeModel.Surname)</h2>
+				<p class="joiningDate">
+					<b>Joining Date:</b> &nbsp;
+					@if (Model.employmentDetail.JoiningDate != null)
+					{
+						@Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("ddd, dd MMM yyyy")
+						;
+						DateTime zeroTime = new DateTime(1, 1, 1);
+						DateTime TodayDate = DateTime.Now;
+						DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
+						TimeSpan span = TodayDate - JoiningDate.Date;
+						int years = (zeroTime + span).Year - 1;
+						var Month = (TodayDate - JoiningDate.AddYears(years));
+						var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
+						<span>@(years)y - @(Days)d</span>
+
+					}
+
+					else
+					{
+						<span class="Joiningnotavailable">Joining date not available. Please contact your administrator.</span>
+					}
+				</p>
 
 
-                        DateTime zeroTime = new DateTime(1, 1, 1);
-                        DateTime TodayDate = DateTime.Now;
-                        DateTime JoiningDate = Convert.ToDateTime(Model.employmentDetail.JoiningDate);
-                        TimeSpan span = TodayDate - JoiningDate.Date;
-                        int years = (zeroTime + span).Year - 1;
-                        var Month = (TodayDate - JoiningDate.AddYears(years));
-                        var Days = (TodayDate - JoiningDate.AddYears(years)).Days;
-                        <span>@(years)y - @(Days)d</span>
+				<div class="myinfo-menu">
+					<ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
+						<li class="nav-item" role="presentation">
+							<a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabPersonalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabPersonalInfo)" aria-selected="true" tabindex="-1">Personal Info</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Official Detail</a>
+						</li>
+						<li class="nav-item" role="presentation">
+							<a class="nav-link section-link" id="profile-tab2" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabBankInfo)" role="tab" aria-controls="@(MyInfoTabs.TabBankInfo)" aria-selected="false">Bank Detail</a>
+						</li>
+						
 
-                    }
-
-                    else{
-                        <span class="Joiningnotavailable">Joining date not available. Please contact your administrator.</span>
-                    }
-                </p>
-
-
-                <div class="myinfo-menu">
-                    <ul class="nav nav-tabs section-tabs" id="myTab1" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link section-link active" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabPersonalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabPersonalInfo)" aria-selected="true" tabindex="-1">Personal Info</a>
-                        </li>
-                        <li class="nav-item" role="presentation" style="display: none;">
-                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabProfessionalInfo)" role="tab" aria-controls="@(MyInfoTabs.TabProfessionalInfo)" aria-selected="false">Professional Info</a>
-                        </li>
-                        @if (RoleName != Convert.ToInt64(Roles.Employee)  )
-                        {
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" id="leaveApproval-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeavesForApproval)" role="tab" aria-controls="@(MyInfoTabs.TabLeavesForApproval)" aria-selected="false" tabindex="-1">Leaves For Approval</a>
-                            </li>
-                        }
-
-                        @if (Model.employmentDetail.JoiningDate != null  )
-                        {
-                            if (Model.employeeModel.LeavePolicyID > 0)
-                            {
-                                 @if (RoleName != Convert.ToInt64(Roles.Admin)  )
-                        {
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#@(MyInfoTabs.TabLeaveInfo)" role="tab" aria-controls="@(MyInfoTabs.TabLeaveInfo)" aria-selected="false" tabindex="-1">Leave Info</a>
-                                </li>
-                        }
-
-                            }
-                            else
-                            {
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Leave Policy not available. Please contact your administrator.');">Leave Info</a>
-                                </li>
-                            }
-                        }
-                            else{
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link section-link" href="javascript:void(0);" onclick="alert('Joining date not available. Please contact your administrator.');">Leave Info</a>
-                            </li>
-                            }
-
-                        <li class="nav-item" role="presentation" style="display: none;">
-                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#TabTimeOff" role="tab" aria-controls="TabTimeOff" aria-selected="false" tabindex="-1">Time Off</a>
-                        </li>
-                        <li class="nav-item" role="presentation" style="display: none;">
-                            <a class="nav-link section-link" id="Attendance-tab1" data-bs-toggle="tab" data-bs-target="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance</a>
-                        </li>
-                        <li class="nav-item" role="presentation" style="display: none;">
-                            <a class="nav-link section-link" id="home-tab1" data-bs-toggle="tab" data-bs-target="#attendance1" role="tab" aria-controls="attendance" aria-selected="false" tabindex="-1">Salary Portal</a>
-                        </li>
-                        <li class="nav-item" role="presentation" style="display: none;">
-                            <a class="nav-link section-link" id="profile-tab1" data-bs-toggle="tab" data-bs-target="#attendance2" role="tab" aria-controls="attendance" aria-selected="false">Separation</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>
-
 <section class="lower-section">
-    <div class="container-fluid">
-        <div class="row">
-            @*    <div class="col-md-3 py-4">
-
-            <ul class="list-group py-1 pb-4">
-            <li class="list-group-item"><img src="/assets/img/icons/id.png" width="20" height="20" title="Employee ID">&nbsp;&nbsp;ELS0349</li>
-            <li class="list-group-item"><img src="/assets/img/icons/status.png" width="20" height="20" title="Status">&nbsp;&nbsp;Active - Full Time</li>
-            <li class="list-group-item"><img src="/assets/img/icons/designation.png" width="20" height="20" title="Designation">&nbsp;&nbsp;Business Analyst</li>
-            <li class="list-group-item"><img src="/assets/img/icons/department.png" width="20" height="20" title="Department">&nbsp;&nbsp;Operations</li>
-            <li class="list-group-item"><img src="/assets/img/icons/location.png" width="20" height="20" title="Location">&nbsp;&nbsp;Mohali, Punjab</li>
-            </ul>
-            </div> *@
-
-
-            <div class="col-md-12 py-4">
-                <div class="tab-content" id="myTabContentSection">
-                    <div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
-                        <div class="row">
-                            <div class="col-lg-12">
-
-                                <div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
-
-                                    <div class="group-box anim">
-                                        <div class="tabsInfo">
-                                            <form class="body-text" method="post" enctype="multipart/form-data">
-                                                <h3>Personal Info</h3>
-                                                <div class="row">
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Name</h6>
-                                                        @Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>ID</h6>
-                                                        @Model.employmentDetail.EmployeNumber
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Status</h6>
-                                                        @Model.employmentDetail.EmployeeType
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Designation</h6>
-                                                        @Model.employmentDetail.DesignationName
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Department</h6>
-                                                        @Model.employmentDetail.DepartmentName
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Location</h6>
-                                                        @Model.employmentDetail.OfficeLocation
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Date of Birth</h6>
-                                                        @Model.employeeModel.DateOfBirth.Value.ToString("dd-MM-yyyy")
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Place of Birth</h6>
-                                                        @Model.employeeModel.PlaceOfBirth
-                                                    </div>
-
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Manager Name</h6>
-                                                        @Model.employmentDetail.ManagerName
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Manager Email</h6>
-                                                        @Model.employmentDetail.ManagerEmail
-                                                    </div>
-                                                </div>
-
-
-                                                <hr />
-
-
-
-
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 mb-2">
-                                                        <h6>Address of Correspondence</h6>
-                                                        @Model.employeeModel.CorrespondenceAddress
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6> City</h6>
-                                                        @Model.employeeModel.CorrespondenceCity
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Pin</h6>
-                                                        @Model.employeeModel.CorrespondencePinCode
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>State</h6>
-                                                        @Model.employeeModel.CorrespondenceState
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Country</h6>
-                                                        @if (selectCountry != null)
-                                                        {
-                                                            selectCountry.Value.ToString();
-                                                        }
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Landline</h6>
-                                                        @Model.employeeModel.Landline
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Mobile</h6>
-                                                        @Model.employeeModel.Mobile
-                                                    </div>
-                                                    <div class="col-lg-6 col-md-6 mb-2">
-                                                        <h6>Personal Email Address</h6>
-                                                        @Model.employeeModel.PersonalEmailAddress
-                                                    </div>
-                                                </div>
-                                                <hr />
-
-                                                <div class="row">
-                                                    <div class="col-lg-12 col-md-12 mb-2">
-                                                        <h6>Permanent Address</h6>
-                                                        @Model.employeeModel.PermanentAddress
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>City</h6>
-                                                        @Model.employeeModel.PermanentCity
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Pin</h6>
-                                                        @Model.employeeModel.PermanentPinCode
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>State</h6>
-                                                        @Model.employeeModel.PermanentState
-                                                    </div>
-                                                    <div class="col-lg-6 col-md-6 mb-2">
-                                                        <h6>Country</h6>
-                                                        @if (selectPermanentCountry != null)
-                                                        {
-                                                            selectPermanentCountry.Value.ToString();
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <hr />
-                                                <div class="row">
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Contact Person</h6>
-                                                        @Model.employeeModel.ContactPersonName
-
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Contact No</h6>
-                                                        @Model.employeeModel.ContactPersonMobile
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                        <h6>Telephone No</h6>
-                                                        @Model.employeeModel.ContactPersonTelephone
-                                                    </div>
-                                                </div>
-
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane fade" id="@(MyInfoTabs.TabProfessionalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabProfessionalInfo)-tab">
-                                    <div class="group-box anim">
-
-                                        <div class="tabsInfo" id="myTabContent-timeoff">
-                                            <h3>Professional Info</h3>
-                                            @{
-                                                int Index = 0;
-                                                int index = 1;
-                                                if (Model.employmentHistory != null)
-                                                {
-                                                    foreach (var familyDetail in Model.employmentHistory)
-                                                    {
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <div class="row">
-                                                                    <div class="col-md-10">
-                                                                        <b> Employer-@(index)</b>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-md-12">
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-3">
-                                                                                <h6>Company Name</h6>
-                                                                                @Html.HiddenFor(m => m.employmentHistory[Index].EmploymentHistoryID)
-                                                                                @Model.employmentHistory[Index].CompanyName
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                <h6>Employee ID</h6>
-                                                                                @Model.employmentHistory[Index].EmploymentID
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                <h6>From</h6>
-                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].From).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
-                                                                            </div>
-
-                                                                            <div class="col-md-3">
-                                                                                <h6>To</h6>
-                                                                                @Convert.ToDateTime(Model.employmentHistory[Index].To).ToString("dd/M/yyyy", CultureInfo.InvariantCulture)
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-6">
-                                                                                Address/Branch
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                Phone
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-6">
-
-
-                                                                                @Model.employmentHistory[Index].Address
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                @Model.employmentHistory[Index].Phone
-                                                                            </div>
-
-                                                                        </div>
-
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-3">
-                                                                                City
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                State
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                Country
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                Postal Code
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-3">
-                                                                                @Model.employmentHistory[Index].City
-
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                @Model.employmentHistory[Index].State
-                                                                            </div>
-
-                                                                            <div class="col-md-3">
-                                                                                @{
-                                                                                    employmentHistoryCountry = @CountryData.Where(x => x.Value == Model.employmentHistory[Index].CountryID.ToString()).FirstOrDefault();
-                                                                                    if (employmentHistoryCountry != null)
-                                                                                    {
-                                                                                        employmentHistoryCountry.Value.ToString();
-                                                                                    }
-                                                                                }
-                                                                            </div>
-
-                                                                            <div class="col-md-3">
-
-                                                                                @Model.employmentHistory[Index].PostalCode
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-12">
-                                                                                Reasion for Leaving
-                                                                            </div>
-                                                                            <div class="col-md-12">
-                                                                                @Model.employmentHistory[Index].ReasionFoLeaving
-
-                                                                            </div>
-
-                                                                        </div>
-
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-6">
-                                                                                Designition (As per document)
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                Final Gross Salary(as per Company Letter)
-                                                                            </div>
-
-                                                                        </div>
-
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-6">
-                                                                                @Model.employmentHistory[Index].Designition
-
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                @Model.employmentHistory[Index].GrossSalary
-
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-4">
-                                                                                Supervisor Name
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                Supervisor's Designition
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                Supervisor's ContactNo
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].SupervisorName
-
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].SupervisorDesignition
-
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].SupervisorContactNo
-
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-4">
-                                                                                HR Manager Name
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                HR Manager's ContactNo
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                HR Manager's Email
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                        <div class="row">
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].HRName
-
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].HRContactNo
-
-                                                                            </div>
-                                                                            <div class="col-md-4">
-                                                                                @Model.employmentHistory[Index].HRContactNo
-
-                                                                            </div>
-                                                                        </div>
-
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="row">
-                                                                    &nbsp;
-                                                                    <hr style="width:100%" />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        Index++;
-                                                        index++;
-                                                    }
-                                                }
-
-                                            }
-
-
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="@(MyInfoTabs.TabLeavesForApproval)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeavesForApproval)-tab">
-                                    <div class="group-box anim">
-                                        <div class="tabsInfo" id="">
-                                            <h3>Leave Approval Info</h3>
-                                            <nav>
-                                                <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
-                                                    <button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
-                                                        Leaves For Approval
-                                                    </button>
-                                                    <button class="nav-link  " id="leave-approved-tab1" data-bs-toggle="tab" data-bs-target="#leave-approved-tab" type="button" role="tab" aria-controls="leave-approved-tab" aria-selected="false" onclick="LeavesForApproved()">Approved Leaves</button>
-                                                    <button class="nav-link  " id="leave-Reject-tab1" data-bs-toggle="tab" data-bs-target="#leave-Reject-tab" type="button" role="tab" aria-controls="leave-Reject-tab" aria-selected="false" onclick="LeavesForReject()">Rejected Leaves</button>
-                                                </div>
-                                            </nav>
-                                            <div class="tab-content" id="nav-tabContent1">
-                                                <div class="tab-pane fade show active" id="applied-leave-tab" role="tabpanel" aria-labelledby="applied-leave-tab1">
-                                                    <div class="group-box anim">
-                                                        <div class="tabsInfo" id="myTabContent-timeoff">
-                                                            <h3>Leaves For Approval</h3>
-
-                                                        </div>
-                                                        <div role="tabpanel" aria-labelledby="apply-tab">
-                                                            <div class="row">
-                                                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                    <div class="card">
-                                                                        <div class="card-body">
-                                                                            <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th class="first" style="visibility:hidden"> </th>
-                                                                                        <th>Employee Number</th>
-                                                                                        <th>Employee Name</th>
-                                                                                        <th>From Date</th>
-                                                                                        <th>To Date</th>
-                                                                                        <th>Type</th>
-                                                                                        <th>Days</th>
-                                                                                        <th>Status</th>
-                                                                                        <th>Reason</th>
-                                                                                        <th>Action</th>
-                                                                                    </tr>
-                                                                                </thead>
-
-                                                                            </table>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="tab-pane fade" id="leave-approved-tab" role="tabpanel" aria-labelledby="leave-approved-tab1">
-                                                    <div class="group-box anim">
-                                                        <div class="tabsInfo" id="myTabContent-timeoff">
-                                                            <h3>Approved Leaves</h3>
-                                                        </div>
-                                                        <div role="tabpanel" aria-labelledby="apply-tab">
-                                                            <div class="row">
-                                                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                    <div class="card">
-                                                                        <div class="card-body">
-                                                                            <table id="tblLeavesForApproved" class="table table-striped body-text" style="width:100%">
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th class="first" style="visibility:hidden"> </th>
-                                                                                        <th>Employee Number</th>
-                                                                                        <th>Employee Name</th>
-                                                                                        <th>From Date</th>
-                                                                                        <th>To Date</th>
-                                                                                        <th>Type</th>
-                                                                                        <th>Days</th>
-                                                                                        <th>Status</th>
-                                                                                        <th>Reason</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                            </table>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="tab-pane fade" id="leave-Reject-tab" role="tabpanel" aria-labelledby="leave-Reject-tab1">
-
-                                                    <div class="group-box anim">
-                                                        <div class="tabsInfo" id="myTabContent-timeoff">
-                                                            <h3>Rejected Leaves</h3>
-
-                                                        </div>
-                                                        <div role="tabpanel" aria-labelledby="apply-tab">
-                                                            <div class="row">
-                                                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                    <div class="card">
-                                                                        <div class="card-body">
-                                                                            <table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th class="first" style="visibility:hidden"> </th>
-                                                                                        <th>Employee Number</th>
-                                                                                        <th>Employee Name</th>
-                                                                                        <th>From Date</th>
-                                                                                        <th>To Date</th>
-                                                                                        <th>Type</th>
-                                                                                        <th>Days</th>
-                                                                                        <th>Status</th>
-                                                                                        <th>Reason</th>
-                                                                                    </tr>
-                                                                                </thead>
-
-                                                                            </table>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-
-
-
-                                </div>
-
-                                <div class="tab-pane fade" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
-
-                                    <div class="group-box anim">
-                                        <div class="tabsInfo" id="">
-                                            <h3>Leave Info</h3>
-                                            <nav>
-                                                <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
-                                                    <button class="nav-link active" id="apply-leave-tab1" data-bs-toggle="tab" data-bs-target="#apply-leave-tab" type="button" role="tab" aria-controls="apply-leave-tab" aria-selected="true">Apply Leave</button>
-                                                    <button class="nav-link  " id="leave-summary-tab1" data-bs-toggle="tab" data-bs-target="#leave-summary-tab" type="button" role="tab" aria-controls="leave-summary-tab" aria-selected="false">Leave Summary</button>
-                                                </div>
-                                            </nav>
-                                            <div class="tab-content" id="nav-tabContent">
-                                                <div class="tab-pane fade show active" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
-                                                    <div class="row">
-                                                        <div class="col-lg-8">
-
-                                                            <div class="">
-                                                                <div class="">
-                                                                    @*  <form class="body-text" method="post" enctype="multipart/form-data"> *@
-                                                                    <form id="myForm" method="post" enctype="multipart/form-data" action="/employee/myinfo/Index/">
-                                                                        <div id="responseMessage" class="error-message" style=" color: red;font-size: 15px;font-weight: 700;">                                                                        </div>                                                                        <div class="row py-2">
-                                                                            <div class="col-lg-6 col-md-12">
-                                                                                <label for="leavetype" class="">Leave Type:</label>
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
-                                                                                @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
-                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "leaveTypeDropdown" })
-
-                                                                            </div>
-                                                                            <div class="col-lg-6 col-md-12" id="leaveDurationContainer">
-                                                                                <label for="leavetype" class="">Leave Duration:</label>
-                                                                                @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "leaveDurationDropdown" })
-                                                                            </div>
-                                                                            <div class="col-lg-6 col-md-12" id="ChildDOBDateContainer">
-                                                                                <!-- New ID for toggling -->
-                                                                                <label for="datepicker2" class="">Child DOB:</label>
-                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv3">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), })
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
-                                                                            <div class="col-lg-6 col-md-12" id="fromdatetime">
-                                                                                <label for="datepicker1" class="">From:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv1">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <div class="col-lg-6 col-md-12" id="todatetime">
-                                                                                <label for="datepicker2" class="">To:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv2">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="row py-2 halfDayContainer" id="halfDayContainer">
-                                                                            <div class="col-lg-6 col-md-12">
-                                                                                <label for="datepicker1" class="">Date:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv1">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd") })
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-                                                                        </div>
-                                                                        <div class="row py-2 MaternityAdoptionMiscarrageContainer " id="MaternityAdoptionMiscarrageContainer">
-                                                                            <div class="col-lg-6 col-md-12" id="expectedDeliveryDateContainer">
-                                                                                <!-- New ID for toggling -->
-                                                                                <label for="datepicker2" class="">Expected Delivery Date:</label>
-                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
-
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group date" id="datepickerdiv3">
-                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                             <div class="col-lg-6 col-md-12">
-                                                                                <label>Upload Certificate:</label>
-                                                                                <div class="position-relative">
-                                                                                    <div class="input-group ">
-                                                                                        @* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
-
-                                                                                        <input type="file" name="postedFiles" class="form-control body-text" />
-                                                                                        @if (Model.leaveResults.leaveSummaryModel.UploadCertificate != null  && Model.leaveResults.leaveSummaryModel.UploadCertificate != "")
-                                                                                        {
-                                                                                            <p> <i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></p>
-                                                                                        }
-
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div> 
-                                                                            
-                                                                        </div>
-
-                                                                        <div class="row py-3 mb-1">
-                                                                            <div class="col-lg-12">
-                                                                                <label for="Reason" class="">Reason:</label>
-                                                                                <div class="input-group">
-                                                                                    @*  <span class="input-group-text body-text">Reason</span> *@
-                                                                                    @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required" })
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
-                                                                        <a href="~/employee/MyInfo/Index/" class="btn btn-danger" type="reset">Cancel</a>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-4 px-4">
-                                                            <div class="card mb-3" style="height:60px;">
-                                                                <div class="card-body">
-                                                                    <ul class="list-group" style="width:100%;">
-                                                                        <li class="d-flex justify-content-between align-items-center ">
-                                                                            <b>Annual Leave Balance</b>
-                                                                            <span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.TotalLeave/@ViewBag.TotalAnnualLeave</span>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div class="card p-3">
-                                                                <div class="accordion accordion-flush" id="accordionFlushExample">
-                                                                    <div class="accordion-item">
-                                                                        <h2 class="accordion-header" id="flush-headingOne">
-                                                                            <button class="accordion-button collapsed   z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                                                                                Holiday List
-                                                                            </button>
-                                                                        </h2>
-                                                                        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                                                            <div class="mt-3">
-                                                                                <ul class="list-group ">
-                                                                                    @foreach (var item in Model.HolidayModel)
-                                                                                    {
-                                                                                        <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                                            @item.FromDate.ToString("dd-MM-yyyy") -  @item.ToDate.ToString("dd-MM-yyyy")
-                                                                                            <span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
-                                                                                        </li>
-                                                                                    }
-                                                                                </ul>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                                <div class="tab-pane fade" id="leave-summary-tab" role="tabpanel" aria-labelledby="leave-summary-tab1">
-
-                                                    <div class="row">
-                                                        <div class="col-12 col-lg-12">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-striped body-text dataTable no-footer">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Request Date</th>
-                                                                            <th>Start Date</th>
-                                                                            <th>End Date</th>
-                                                                            <th>Type</th>
-                                                                            <th>Days</th>
-                                                                            <th>Status</th>
-                                                                            <th>Actions</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach (var item in Model.leaveResults.leavesSummary)
-                                                                        {
-                                                                            <tr>
-                                                                                <td>@item.RequestDate.ToString("MM/dd/yyyy hh:mm tt")</td>
-                                                                                <td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
-                                                                                <td>@item.EndDate.ToString("dd/M/yyyy")</td>
-                                                                                <td>@item.LeaveTypeName</td>
-                                                                                <td>
-                                                                                    @*                                            <span class="fw-bold text-primary " data-bs-toggle="tooltip" title="You are only apply 3 Consecutive leaves." style="cursor: pointer; margin-left: 5px; background: red; color: white !important;">
-
-                                                                                @item.NoOfDays
-                                                                                </span> *@
-
-                                                                                    @if (@item.LeaveTypeID == (int)LeaveType.AnnualLeavel && @item.NoOfDays > @ViewBag.ConsecutiveAllowedDays)
-                                                                                    {
-                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Exceeding maximum consecutive allowed @ViewBag.ConsecutiveAllowedDays days limit" style="cursor: pointer; background: red; color: white !important;">
-                                                                                            @item.NoOfDays
-                                                                                        </span>
-                                                                                    }
-                                                                                    else if (@item.LeaveTypeID == (int)LeaveType.MedicalLeave && @item.NoOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))
-                                                                                    {
-                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Document required for more than @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) days medical leave" style="cursor: pointer; background: red; color: white !important;">
-                                                                                            @item.NoOfDays
-                                                                                        </span>
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        <span class="fw-bold text-primary">
-                                                                                            @item.NoOfDays
-                                                                                        </span>
-                                                                                    }
-                                                                                </td>
-                                                                                @switch (item.LeaveStatusID)
-                                                                                {
-                                                                                    case (int)LeaveStatus.Approved:
-                                                                                        <td><span class="fw-bold text-success">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.PendingApproval:
-                                                                                        <td><span class="fw-bold text-primary">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.NotApproved:
-                                                                                        <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                    case (int)LeaveStatus.Cancelled:
-                                                                                        <td><span class="fw-bold text-secondary">@item.LeaveStatusName</span></td>
-                                                                                        break;
-                                                                                }
-
-                                                                                @if (item.LeaveStatusID != (int)LeaveStatus.Approved)
-                                                                                {
-                                                                                    <td>
-                                                                                        <a href="~/employee/MyInfo/Index/?id=@(item.EncryptedIdentity)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
-
-                                                                                        <form action="/employee/MyInfo/DeleteLeavesSummary" method="post" style="display:inline;">
-                                                                                            <input type="hidden" name="id" value="@item.EncryptedIdentity" />
-                                                                                            <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
-                                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
-                                                                                            </button>
-                                                                                        </form>
-
-
-                                                                                    </td>
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    <td> </td>
-                                                                                }
-
-                                                                            </tr>
-                                                                        }
-
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-
-                                </div>
-
-
-                                <div class="tab-pane fade" id="@(MyInfoTabs.attendance)" role="tabpanel" aria-labelledby="@(MyInfoTabs.attendance)-tab">
-
-                                    <div class="group-box anim">
-                                        <div class="tabsInfo" id="">
-                                            <h3>Attendance</h3>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12 py-4">
+				<div class="tab-content" id="myTabContentSection">
+					<div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
+						<div class="row">
+							<div class="col-lg-12">
+
+								<div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
+
+									<div class="group-box anim">
+										<div class="tabsInfo">
+											<form class="body-text" method="post" enctype="multipart/form-data">
+												<h3>Personal Info</h3>
+												<div class="row">
+													<div class="col-lg-4 col-md-4 mb-2">
+														<h6>Name</h6>
+														@Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
+													</div>
+													<div class="col-lg-4 col-md-4 mb-2">
+														<h6>Employee Number</h6>
+														@($"PTK {Model.employmentDetail.EmployeNumber}")
+
+													</div>
+													@{
+														string genderText = "";
+														switch (Model.employeeModel.Gender)
+														{
+															case 1:
+																genderText = "Male";
+																break;
+															case 2:
+																genderText = "Female";
+																break;
+															case 3:
+																genderText = "Other";
+																break;
+														}
+													}
+
+													@if (!string.IsNullOrEmpty(genderText))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Gender</h6>
+															@genderText
+														</div>
+													}
+													@if (Model.employeeModel.DateOfBirth.HasValue)
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Date of Birth</h6>
+															@Model.employeeModel.DateOfBirth.Value.ToString("dd/MM/yyyy")
+														</div>
+													}
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PlaceOfBirth))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Place of Birth</h6>
+															@Model.employeeModel.PlaceOfBirth
+														</div>
+													}
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.Landline))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Landline</h6>
+															@Model.employeeModel.Landline
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.Mobile))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Mobile</h6>
+															@Model.employeeModel.Mobile
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PersonalEmailAddress))
+													{
+														<div class="col-lg-6 col-md-6 mb-2">
+															<h6>Personal Email Address</h6>
+															@Model.employeeModel.PersonalEmailAddress
+														</div>
+													}
+												</div>
+												@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceAddress))
+												{
+													<hr />
+												}
+												<div class="row">
+													@if(!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceAddress))
+													{
+													<div class="col-lg-12 col-md-12 mb-2">
+															<h6>Correspondence Address </h6>
+														@Model.employeeModel.CorrespondenceAddress
+													</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceCity))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>City</h6>
+															@Model.employeeModel.CorrespondenceCity
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondencePinCode))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Pin</h6>
+															@Model.employeeModel.CorrespondencePinCode
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceState))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>State</h6>
+															@Model.employeeModel.CorrespondenceState
+														</div>
+													}
+
+													@if (selectCountry != null && !string.IsNullOrWhiteSpace(selectCountry.Value?.ToString()))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Country</h6>
+															@selectCountry.Value.ToString()
+														</div>
+													}													
+												</div>
+												@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
+												{
+													<hr />
+												}
+
+												<div class="row">
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
+													{
+														<div class="col-lg-12 col-md-12 mb-2">
+															<h6>Permanent Address</h6>
+															@Model.employeeModel.PermanentAddress
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentCity))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>City</h6>
+															@Model.employeeModel.PermanentCity
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentPinCode))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Pin</h6>
+															@Model.employeeModel.PermanentPinCode
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentState))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>State</h6>
+															@Model.employeeModel.PermanentState
+														</div>
+													}
+													@if (selectPermanentCountry != null && !string.IsNullOrWhiteSpace(selectPermanentCountry.Value?.ToString()))
+													{
+														<div class="col-lg-6 col-md-6 mb-2">
+															<h6>Country</h6>
+															@selectPermanentCountry.Value.ToString()
+														</div>
+													}
+												</div>
+												<hr />
+												<div class="row">
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonName))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Emergency Contact Person Name</h6>
+															@Model.employeeModel.ContactPersonName
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonMobile))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Emergency Contact No</h6>
+															@Model.employeeModel.ContactPersonMobile
+														</div>
+													}
+
+													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonTelephone))
+													{
+														<div class="col-lg-4 col-md-4 mb-2">
+															<h6>Emergency Telephone No</h6>
+															@Model.employeeModel.ContactPersonTelephone
+														</div>
+													}
+												</div>
+
+											</form>
+										</div>
+									</div>
+								</div>
+
+								<div class="tab-pane fade" id="@(MyInfoTabs.TabProfessionalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabProfessionalInfo)-tab">
+									<div class="group-box anim">
+
+										<div class="tabsInfo" id="myTabContent-timeoff">
+											<h3>Official Details</h3>
+											<div class="row">
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Employee Number</h6>
+													@($"PTK {Model.employmentDetail.EmployeNumber}")
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Official Email</h6>
+													@(string.IsNullOrWhiteSpace(Model.employmentDetail.OfficialEmailID) ? "N/A" : Model.employmentDetail.OfficialEmailID)
+												</div>
+
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Date of Joining</h6>
+													@(Model.employmentDetail.JoiningDate != null ? Convert.ToDateTime(Model.employmentDetail.JoiningDate).ToString("dd/MM/yyyy"):"N/A")
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Date of Joining Training</h6>
+													@(Model.employeeSeparationDetail.DateOfJoiningTraining != null ? Convert.ToDateTime(Model.employeeSeparationDetail.DateOfJoiningTraining).ToString("dd/MM/yyyy") : "N/A")
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Date of Joining Floor</h6>
+													@(Model.employeeSeparationDetail.DateOfJoiningFloor != null ? Convert.ToDateTime(Model.employeeSeparationDetail.DateOfJoiningFloor).ToString("dd/MM/yyyy") : "N/A")
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Employment Type</h6>
+													@Model.employmentDetail.EmployeeType
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Designation</h6>
+													@Model.employmentDetail.DesignationName
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Department</h6>
+													@Model.employmentDetail.DepartmentName
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Sub Department</h6>
+													@Model.employmentDetail.SubDepartmentName
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Office Location</h6>
+													@Model.employmentDetail.OfficeLocation
+												</div>
+												
+
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Manager Name</h6>
+													@Model.employmentDetail.ManagerName
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Manager Email</h6>
+													@Model.employmentDetail.ManagerEmail
+												</div>
+											</div>
+
+										</div>
+									</div>
+								</div>
+
+
+								<div class="tab-pane fade" id="@(MyInfoTabs.TabBankInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabBankInfo)-tab">
+									<div class="group-box anim">
+
+										<div class="tabsInfo" id="myTabContent-timeoff">
+											<h3>Bank Details</h3>
+											<div class="row">
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Bank Name</h6>
+													@DisplayValue(Model.employeeBankDetail?.BankName)
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Bank Account Number</h6>
+													@DisplayValue(Model.employeeBankDetail?.BankAccountNumber)
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>IFSC Code</h6>
+													@DisplayValue(Model.employeeBankDetail?.IFSCCode)
+												</div>	
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>UAN </h6>
+													@DisplayValue(Model.employeeBankDetail?.UANNumber)
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>PAN Number</h6>
+													@Model.employeeModel.PANNo
+												</div>
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>Aadhaar Number</h6>
+													@Model.employeeModel.AadharCardNo
+												</div>	
+												<div class="col-lg-4 col-md-4 mb-2">
+													<h6>ESI Number</h6>
+													@DisplayValue(Model.employmentDetail.ESINumber)
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							
+
+								
+
+
+							
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>
 
 <div class="modal" tabindex="-1" role="dialog" id="ApproveRejectModel">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Leave Request Details</h5>
-                <button type="button" class="close" data-dismiss="modal" onclick="CloseApproveRejectModel();" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Leave Request Details</h5>
+				<button type="button" class="close" data-dismiss="modal" onclick="CloseApproveRejectModel();" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
 
-                <section>
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-12 py-4">
-                                <div class="tab-content" id="myTabContentSection">
-                                    <div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
-                                        <div class="row">
-                                            <div class="col-lg-12">
+				<section>
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-md-12 py-4">
+								<div class="tab-content" id="myTabContentSection">
+									<div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
+										<div class="row">
+											<div class="col-lg-12">
 
-                                                <div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
-                                                    <div class="group-box anim">
-                                                        <div class="tabsInfo">
-                                                            <form class="body-text" method="post" enctype="multipart/form-data">
-                                                                <h3>Employee Info</h3>
-                                                                <div class="row">
-
-
-                                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                                        <h6>Name</h6>
-                                                                        <p id="EmplyoeeName"></p>
-                                                                    </div>
-                                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                                        <h6>ID</h6>
-                                                                        <p id="EmplyoeeNmmber"></p>
-                                                                    </div>
-                                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                                        <h6>Joinind Date</h6>
-                                                                        <p id="EmplyoeeJoiningdate"></p>
-                                                                    </div>
-                                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                                        <h6>Designation</h6>
-                                                                        <p id="EmplyoeeDesignation"></p>
-                                                                    </div>
-                                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                                        <h6>Department</h6>
-                                                                        <p id="EmplyoeeDepartment"></p>
-                                                                    </div>
-                                                                    <div class="col-lg-4 col-md-4 mb-2">
-                                                                        <h6>Email</h6>
-                                                                        <p id="Employeeemail"></p>
-                                                                    </div>
-
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <div class="group-box anim">
-                    <div class="tabsInfo" id="">
-                        <h3>Leave Info</h3>
-
-                        <div class="tab-content" id="nav-tabContent">
-                            <div class="tab-pane fade active show" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
-                                <div class="row">
-                                    <p class="showalert" style="color: red;font-size: 16px;" id="showalert"></p>
-                                    <p class="showDocumentalert" style="color: red;font-size: 16px;" id="showDocumentalert"></p>
-
-                                    <div class="col-lg-8">
-
-                                        <div class="">
-                                            <div class="">
-                                                <form class="body-text" method="post" enctype="multipart/form-data">
-                                                    @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
-                                                    @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
-                                                    @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
-                                                    @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
-                                                    <div class="row py-2">
-                                                        <div class="col-lg-6 col-md-12">
-                                                            <label for="leavetype" class="">Leave Type:</label>
-                                                            @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "adminleaveTypeDropdown", @disabled = "disabled" })
-
-                                                            <p id="adminleaveTypeDropdown1" class="form-control"></p>
-                                                        </div>
-                                                        <div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
-                                                            <label for="leavetype" class="">Leave Duration:</label>
-                                                            @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "adminleaveDurationDropdown", @disabled = "disabled" })
-                                                        </div>
-                                                        <div class="col-lg-6 col-md-12" id="adminChildDOBDateContainer">
-                                                            <!-- New ID for toggling -->
-                                                            <label for="datepicker2" class="">Child DOB:</label>
-                                                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
-                                                            <div class="position-relative">
-                                                                <div class="input-group date" id="datepickerdiv3">
-                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), @disabled = "disabled" })
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row py-2 fullDayContainer" id="adminfullDayContainer">
-                                                        <div class="col-lg-6 col-md-12" id="adminfromdatetime">
-                                                            <label for="datepicker1" class="">From:</label>
-                                                            <div class="position-relative">
-                                                                <div class="input-group date" id="datepickerdiv1">
-                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), id = "adminfromdates", @disabled = "disabled" })
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-6 col-md-12" id="admintodatetime">
-                                                            <label for="datepicker2" class="">To:</label>
-                                                            <div class="position-relative">
-                                                                <div class="input-group date" id="datepickerdiv2">
-                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), id = "admintodates", @disabled = "disabled" })
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="row py-2 halfDayContainer" id="adminhalfDayContainer">
-                                                        <div class="col-lg-6 col-md-12">
-                                                            <label for="datepicker1" class="">Date:</label>
-                                                            <div class="position-relative">
-                                                                <div class="input-group date" id="datepickerdiv1">
-                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), @disabled = "disabled" })
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                    <div class="row py-2 MaternityAdoptionMiscarrageContainer " id="adminMaternityAdoptionMiscarrageContainer">
-                                                        <div class="col-lg-6 col-md-12" id="adminexpectedDeliveryDateContainer">
-                                                            <!-- New ID for toggling -->
-                                                            <label for="datepicker2" class="">Expected Delivery Date:</label>
-                                                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
-
-                                                            <div class="position-relative">
-                                                                <div class="input-group date" id="datepickerdiv3">
-                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), id = "adminExpectedDeliveryDate", @disabled = "disabled" })
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                    <div class="col-lg-6 col-md-12">
-                                                        <label id="LabelUploadCertificate" style="display:none">Upload Certificate:</label>
-                                                        <p id="downloaddocument" style="display:none"></p>
-                                                    </div>
-                                                    <div class="row py-3 mb-1">
-                                                        <div class="col-lg-12">
-                                                            <label for="Reason" class="">Reason:</label>
-                                                            <div class="input-group">
-                                                                @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required", id = "adminReason", @disabled = "disabled" })
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    @if (@RoleName != @Convert.ToInt64(Roles.HR))
-                                                    {
-                                                        <h3>Approval Comment</h3>
-                                                    <p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
-                                                    <p id="approverejectrequire" style="color: red;"></p>
-                                                
-                                                    <div class="modal-footer">
-                                                        <button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-primary">Reject</button>
-                                                        <button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-info">Approve</button>
-
-                                                    </div>
-                                                    }
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 px-4">
-                                        <div class="card mb-3" style="height:60px; display:none" id="AnnualLeaveBalance">
-                                            <div class="card-body">
-                                                <ul class="list-group" style="width:100%;">
-                                                    <li class="d-flex justify-content-between align-items-center ">
-                                                        <b>Annual Leave Balance</b>
-                                                        <span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.UserTotalLeave/@ViewBag.UserTotalAnnualLeave</span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
+												<div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
+													<div class="group-box anim">
+														<div class="tabsInfo">
+															<form class="body-text" method="post" enctype="multipart/form-data">
+																<h3>Employee Info</h3>
+																<div class="row">
 
 
-                                        <div class="card p-3">
-                                            <div class="accordion accordion-flush" id="accordionFlushExample">
-                                                <div class="accordion-item">
-                                                    <h2 class="accordion-header" id="flush-headingOne">
-                                                        <button class="accordion-button collapsed   z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                                                            Holiday List
-                                                        </button>
-                                                    </h2>
-                                                    <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                                        <div class="mt-3">
-                                                            <ul class="list-group ">
-                                                                @foreach (var item in Model.HolidayModel)
-                                                                {
-                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-                                                                        @item.FromDate.ToString("dd-MM-yyyy") -  @item.ToDate.ToString("dd-MM-yyyy")
-                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
-                                                                    </li>
-                                                                }
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+																	<div class="col-lg-4 col-md-4 mb-2">
+																		<h6>Name</h6>
+																		<p id="EmplyoeeName"></p>
+																	</div>
+																	<div class="col-lg-4 col-md-4 mb-2">
+																		<h6>ID</h6>
+																		<p id="EmplyoeeNmmber"></p>
+																	</div>
+																	<div class="col-lg-4 col-md-4 mb-2">
+																		<h6>Joinind Date</h6>
+																		<p id="EmplyoeeJoiningdate"></p>
+																	</div>
+																	<div class="col-lg-4 col-md-4 mb-2">
+																		<h6>Designation</h6>
+																		<p id="EmplyoeeDesignation"></p>
+																	</div>
+																	<div class="col-lg-4 col-md-4 mb-2">
+																		<h6>Department</h6>
+																		<p id="EmplyoeeDepartment"></p>
+																	</div>
+																	<div class="col-lg-4 col-md-4 mb-2">
+																		<h6>Email</h6>
+																		<p id="Employeeemail"></p>
+																	</div>
 
-                                    </div>
-                                </div>
+																</div>
+															</form>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
 
-                            </div>
+									</div>
+								</div>
 
-                        </div>
+							</div>
+						</div>
+					</div>
+				</section>
+				<div class="group-box anim">
+					<div class="tabsInfo" id="">
+						<h3>Leave Info</h3>
 
-                    </div>
-                </div>
+						<div class="tab-content" id="nav-tabContent">
+							<div class="tab-pane fade active show" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
+								<div class="row">
+									<p class="showalert" style="color: red;font-size: 16px;" id="showalert"></p>
+									<p class="showDocumentalert" style="color: red;font-size: 16px;" id="showDocumentalert"></p>
+
+									<div class="col-lg-8">
+
+										<div class="">
+											<div class="">
+												<form class="body-text" method="post" enctype="multipart/form-data">
+													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
+													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
+													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
+													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
+													<div class="row py-2">
+														<div class="col-lg-6 col-md-12">
+															<label for="leavetype" class="">Leave Type:</label>
+															@Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "adminleaveTypeDropdown", @disabled = "disabled" })
+
+															<p id="adminleaveTypeDropdown1" class="form-control"></p>
+														</div>
+														<div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
+															<label for="leavetype" class="">Leave Duration:</label>
+															@Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "adminleaveDurationDropdown", @disabled = "disabled" })
+														</div>
+														<div class="col-lg-6 col-md-12" id="adminChildDOBDateContainer">
+															<!-- New ID for toggling -->
+															<label for="datepicker2" class="">Child DOB:</label>
+															<i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
+															<div class="position-relative">
+																<div class="input-group date" id="datepickerdiv3">
+																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), @disabled = "disabled" })
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="row py-2 fullDayContainer" id="adminfullDayContainer">
+														<div class="col-lg-6 col-md-12" id="adminfromdatetime">
+															<label for="datepicker1" class="">From:</label>
+															<div class="position-relative">
+																<div class="input-group date" id="datepickerdiv1">
+																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), id = "adminfromdates", @disabled = "disabled" })
+																</div>
+															</div>
+														</div>
+														<div class="col-lg-6 col-md-12" id="admintodatetime">
+															<label for="datepicker2" class="">To:</label>
+															<div class="position-relative">
+																<div class="input-group date" id="datepickerdiv2">
+																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), id = "admintodates", @disabled = "disabled" })
+																</div>
+															</div>
+														</div>
+													</div>
+
+													<div class="row py-2 halfDayContainer" id="adminhalfDayContainer">
+														<div class="col-lg-6 col-md-12">
+															<label for="datepicker1" class="">Date:</label>
+															<div class="position-relative">
+																<div class="input-group date" id="datepickerdiv1">
+																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), @disabled = "disabled" })
+																</div>
+															</div>
+														</div>
+
+													</div>
+													<div class="row py-2 MaternityAdoptionMiscarrageContainer " id="adminMaternityAdoptionMiscarrageContainer">
+														<div class="col-lg-6 col-md-12" id="adminexpectedDeliveryDateContainer">
+															<!-- New ID for toggling -->
+															<label for="datepicker2" class="">Expected Delivery Date:</label>
+															<i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
+
+															<div class="position-relative">
+																<div class="input-group date" id="datepickerdiv3">
+																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), id = "adminExpectedDeliveryDate", @disabled = "disabled" })
+																</div>
+															</div>
+														</div>
+
+													</div>
+													<div class="col-lg-6 col-md-12">
+														<label id="LabelUploadCertificate" style="display:none">Upload Certificate:</label>
+														<p id="downloaddocument" style="display:none"></p>
+													</div>
+													<div class="row py-3 mb-1">
+														<div class="col-lg-12">
+															<label for="Reason" class="">Reason:</label>
+															<div class="input-group">
+																@Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required", id = "adminReason", @disabled = "disabled" })
+															</div>
+														</div>
+													</div>
+													@if (@RoleName != @Convert.ToInt64(Roles.HR))
+													{
+														<h3>Approval Comment</h3>
+														<p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
+														<p id="approverejectrequire" style="color: red;"></p>
+
+														<div class="modal-footer">
+															<button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-primary">Reject</button>
+															<button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-info">Approve</button>
+
+														</div>
+													}
+												</form>
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-4 px-4">
+										<div class="card mb-3" style="height:60px; display:none" id="AnnualLeaveBalance">
+											<div class="card-body">
+												<ul class="list-group" style="width:100%;">
+													<li class="d-flex justify-content-between align-items-center ">
+														<b>Annual Leave Balance</b>
+														<span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.UserTotalLeave/@ViewBag.UserTotalAnnualLeave</span>
+													</li>
+												</ul>
+											</div>
+										</div>
 
 
-            </div>
+										<div class="card p-3">
+											<div class="accordion accordion-flush" id="accordionFlushExample">
+												<div class="accordion-item">
+													<h2 class="accordion-header" id="flush-headingOne">
+														<button class="accordion-button collapsed   z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+															Holiday List
+														</button>
+													</h2>
+													<div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+														<div class="mt-3">
+															<ul class="list-group ">
+																@foreach (var item in Model.HolidayModel)
+																{
+																	<li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+																		<span class="small">
+																			@if (item.FromDate.Date == item.ToDate.Date)
+																			{
+																				@item.FromDate.ToString("dd-MMM-yyyy")
+																			}
+																			else
+																			{
+																				@($"{item.FromDate:dd-MMM-yyyy} to {item.ToDate:dd-MMM-yyyy}")
+																			}
+																		</span>
+																		<span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
+																	</li>
+																}
+															</ul>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
 
-        </div>
-    </div>
+									</div>
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+				</div>
+
+
+			</div>
+
+		</div>
+	</div>
 </div>
-<input type="hidden" id="leaveSummaryID" value="" />
 <script type="text/javascript">
-    var leaveSummaryID;
-     function UploadCertificatePreview(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const previewImage = document.getElementById('UploadCertificatePreviewImage');
-            const previewPDF = document.getElementById('UploadCertificatePreviewPDF');
-            const reader = new FileReader();
 
-            reader.onload = function (e) {
-                const result = e.target.result;
-
-                if (file.type.startsWith('image/')) {
-                    previewImage.src = result;
-                    previewImage.style.display = 'block';
-                    previewPDF.style.display = 'none';
-                } else if (file.type === 'application/pdf') {
-                    previewPDF.src = result;
-                    previewPDF.style.display = 'block';
-                    previewImage.style.display = 'none';
-                } else {
-                    alert('Unsupported file type. Please upload an image or PDF.');
-                    previewImage.style.display = 'none';
-                    previewPDF.style.display = 'none';
-                }
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
-    window.onload = function () {
-        const certPath = '@Html.Raw(Model.leaveResults.leaveSummaryModel.UploadCertificate)';
-        const certFilePath = certPath.toLowerCase();
-        const certImg = document.getElementById('UploadCertificatePreviewImage');
-        const certPdf = document.getElementById('UploadCertificatePreviewPDF');
-
-        if (certFilePath.includes('.pdf')) {
-            certPdf.src = certPath;
-            certPdf.style.display = 'block';
-            certImg.style.display = 'none';
-        } else if (certPath) {
-            certImg.src = certPath;
-            certImg.style.display = 'block';
-            certPdf.style.display = 'none';
-        }
-    };
-
-
-    function ApproveRejectLeave(isApproved) {
-         var ApproveRejectComment = $("#ApproveRejectComment").val();
-            if (ApproveRejectComment == "") {
-                $("#approverejectrequire").text('');
-                $("#approverejectrequire").text('Comment required');
-                return;
-            }
-        let actionText = isApproved ? "approve" : "reject";
-        if (confirm(`Are you sure you want to ${actionText} this leave request?`)) {
-            let leaveSummaryID = $("#leaveSummaryID").val();
-           
-            let data = {
-                leaveSummaryID: leaveSummaryID,
-                isApproved: isApproved,
-                ApproveRejectComment: ApproveRejectComment
-            };
-            var urlData = '/employee/myinfo/ApproveRejectLeave/';
-            $.post(urlData, data, function (json) {
-                console.log(json.data);
-                if (json.data && json.data.message) {
-
-                    if (json.data.status == 1) {
-                        $("#approverejectrequire").text('');
-                        $("#approverejectrequire").text(json.data.message);
-
-                    }
-                    else {
-                        $.toast({
-                            heading: 'Success',
-                            text: "Leave status updated successfully.",
-                            showHideTransition: 'slide',
-                            icon: 'success',
-                            position: 'top-right',
-                        });
-                        CloseApproveRejectModel();
-                        AutoReload();
-                        $("#ApproveRejectComment").val("");
-                    }
-                    // $.toast({
-                    //     heading: 'Information',
-                    //     text: ,
-                    //     showHideTransition: 'slide',
-                    //     icon: 'info',
-                    //     position: 'top-right',
-                    // });
-                } else {
-                    $.toast({
-                        heading: 'Success',
-                        text: "Leave status updated successfully.",
-                        showHideTransition: 'slide',
-                        icon: 'success',
-                        position: 'top-right',
-                    });
-                    $("#ApproveRejectComment").val("");
-
-                }
-
-            });
-        }
-    }
-    function OpenApproveRejectModel(employeeID, leaveSummaryID) {
-        $("#leaveSummaryID").val(leaveSummaryID);
-        $.ajax({
-            url: '/employee/myinfo/GetEmployeeLeaveDetails',
-            type: 'GET',
-            data: { employeeID: employeeID },
-            success: function (response) {
-                console.log(response);
-                const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
-                if (response.employeeModel && response.employmentDetail) {
-                    const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
-                    $("#EmplyoeeName").text(names.join(' '));
-                    $("#EmplyoeeNmmber").text(response.employmentDetail.employeNumber);
-                    $("#EmplyoeeDesignation").text(response.employmentDetail.designationName);
-                    $("#EmplyoeeDepartment").text(response.employmentDetail.departmentName);
-                    $("#Employeeemail").text(response.employeeModel.emailAddress);
-                    let joiningDate = new Date(response.employmentDetail.joiningDate);
-                    let day = ("0" + joiningDate.getDate()).slice(-2);
-                    let month = ("0" + (joiningDate.getMonth() + 1)).slice(-2);
-                    let year = joiningDate.getFullYear();
-                    let formattedDate = `${day}-${month}-${year}`;
-                    $("#EmplyoeeJoiningdate").text(formattedDate);
-
-                } else {
-                    console.warn("Employee details not found in response.");
-                }
-                let leavesSummary = response.leaveResults?.leavesSummary || [];
-                $("#adminleaveTypeDropdown").css("display", "none");
-                $("#adminChildDOBDateContainer").css("display", "none");
-                $("#adminexpectedDeliveryDateContainer").css("display", "none");
-                if (Array.isArray(leavesSummary)) {
-                    let leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
-                    console.log(leaveSummary);
-                    if (leaveSummary) {
-                        $("#showalert").text('');
-                        $("#showDocumentalert").text('');
-                        $('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
-                        if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage) || leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)|| leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
-
-                            if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Miscarriage)) {
-                                if (response.leavePolicyDetails.miscarriage_MedicalDocument == true) {
-                                    if (leaveSummary.uploadCertificate == "") {
-                                        $("#showDocumentalert").text(`Document required for miscarriage leave`);
-                                    }
-                                }
-                            }
-
-                            if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Adoption)) {
-                                if (response.leavePolicyDetails.adoption_MedicalDocument == true) {
-                                    if (leaveSummary.uploadCertificate == "") {
-                                        $("#showDocumentalert").text(`Document required for adoption leave`);
-                                    }
-                                }
-                            }
-                            if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MedicalLeave)) {
-                                
-
-                                if (leaveSummary.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && leaveSummary.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)) {
-                                    $("#showalert").text(`Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`);
-                                }
-                            }
-
-                            $("#adminfullDayContainer").css("display", "flex");
-                            $("#admintodatetime").css("display", "block");
-                            let endDate = new Date(leaveSummary.endDate);
-                            let formattedEndDate = endDate.toISOString().split('T')[0];
-                            $('#admintodates').val(formattedEndDate);
-                            let startDate = new Date(leaveSummary.startDate);
-                            let formattedstartDate = startDate.toISOString().split('T')[0];
-                            $('#adminfromdates').val(formattedstartDate);
-                            $('#adminReason').val(leaveSummary.reason);
-                            $('#downloaddocument').html('');
-                            if (leaveSummary.uploadCertificate != "") {
-                                $("#downloaddocument").css("display", "block");
-                                var filedata =leaveSummary.uploadCertificate;
-                                $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
-                            }
-                        }
-                        if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.MaternityLeave)) {
-
-                            if (response.leavePolicyDetails.maternity_MedicalDocument == true) {
-                                if (leaveSummary.uploadCertificate == "") {
-                                    $("#showDocumentalert").text(`Document required for maternity leave`);
-                                }
-                            }
-                            // Assuming `response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays` is in weeks
-                            var weeksBefore = response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays;
-                            var daysBefore = weeksBefore * 7;
-
-                            // Function to remove the time part and keep only the date
-                            function normalizeDate(date) {
-                                var normalizedDate = new Date(date);
-                                normalizedDate.setHours(0, 0, 0, 0); // Set time to midnight (00:00:00)
-                                return normalizedDate;
-                            }
-
-                            // Normalize both dates to remove time part
-                            var startDateNormalized = normalizeDate(leaveSummary.startDate);
-                            var expectedDeliveryDateNormalized = normalizeDate(leaveSummary.expectedDeliveryDate);
-
-                            // Calculate the difference in days
-                            var totalDeliveryDays = (expectedDeliveryDateNormalized - startDateNormalized) / (1000 * 60 * 60 * 24) + 1; // Convert milliseconds to days and add 1 to include both dates
-                            if (totalDeliveryDays > daysBefore) {
-                                $("#showalert").text(`Maternity leave cannot start more than ${daysBefore} days before the expected delivery date`);
-                            }
-
-                            $("#adminfullDayContainer").css("display", "flex");
-                            $("#adminMaternityAdoptionMiscarrageContainer").css("display", "block");
-                            $("#adminexpectedDeliveryDateContainer").css("display", "block");
-                            $("#admintodatetime").css("display", "block");
-                            $("#adminExpectedDeliveryDate").css("display", "block");
-                            let endDate = new Date(leaveSummary.endDate);
-                            let formattedEndDate = endDate.toISOString().split('T')[0];
-                            $('#admintodates').val(formattedEndDate);
-
-                            let startDate = new Date(leaveSummary.startDate);
-                            let formattedstartDate = startDate.toISOString().split('T')[0];
-                            $('#adminfromdates').val(formattedstartDate);
-
-
-                            let ExpectedDeliveryDate = new Date(leaveSummary.expectedDeliveryDate);
-                            let formattedExpectedDeliveryDate = ExpectedDeliveryDate.toISOString().split('T')[0];
-                            $('#adminExpectedDeliveryDate').val(formattedExpectedDeliveryDate);
-
-
-                            $('#adminReason').val(leaveSummary.reason);
-                            if (leaveSummary.uploadCertificate != "") {
-                                $("#downloaddocument").css("display", "block");
-                                $("#LabelUploadCertificate").css("display", "block");
-                                var filedata = leaveSummary.uploadCertificate;
-                                $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
-                            }
-                        }
-                        if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.AnnualLeavel)) {
-
-                            if (leaveSummary.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && leaveSummary.noOfDays > maxConsecutiveDaysAllowed) {
-                                $("#showalert").text(`Employee exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`);
-                            }
-
-
-                            if (response.leavePolicyDetails.annual_MaximumConsecutiveLeavesAllowed == true) {
-                                if (leaveSummary.uploadCertificate == "") {
-                                    $("#showalert").text(`You can't approve leave(s) more than  ${response.leavePolicyDetails.annual_MaximumConsecutiveLeavesAllowed} consecutive leave`);
-                                }
-                            }
-                            $("#adminfullDayContainer").css("display", "flex");
-                            //$("#AnnualLeaveBalance").css("display", "block");
-                            $("#admintodatetime").css("display", "block");
-                            $("#downloaddocument").css("display", "none");
-                            $("#adminChildDOBDateContainer").css("display", "none");
-                            let endDate = new Date(leaveSummary.endDate);
-                            let formattedEndDate = endDate.toISOString().split('T')[0];
-                            $('#admintodates').val(formattedEndDate);
-                            let startDate = new Date(leaveSummary.startDate);
-                            let formattedstartDate = startDate.toISOString().split('T')[0];
-                            $('#adminfromdates').val(formattedstartDate);
-                            $('#adminReason').val(leaveSummary.reason);
-                        }
-                        if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.Paternity)) {
-
-                            if (response.leavePolicyDetails.paternity_medicalDocument == true) {
-                                if (leaveSummary.uploadCertificate == "") {
-                                    //  $("#showalert").text(`Document required for more than ${response.leavePolicyDetails.paternity_maximumLeaveAllocationAllowed} days paternity leave`);
-                                    $("#showDocumentalert").text(`Document required for paternity leave`);
-                                }
-                            }
-                            $("#adminfullDayContainer").css("display", "flex");
-                            $("#admintodatetime").css("display", "block");
-                            $("#adminChildDOBDateContainer").css("display", "block");
-                            $("#downloaddocument").css("display", "none");
-                            let endDate = new Date(leaveSummary.endDate);
-                            let formattedEndDate = endDate.toISOString().split('T')[0];
-                            $('#admintodates').val(formattedEndDate);
-                            let startDate = new Date(leaveSummary.startDate);
-                            let formattedstartDate = startDate.toISOString().split('T')[0];
-                            $('#adminfromdates').val(formattedstartDate);
-                            $('#adminReason').val(leaveSummary.reason);
-                            if (leaveSummary.uploadCertificate != "") {
-                                $("#downloaddocument").css("display", "block");
-                                var filedata =leaveSummary.uploadCertificate;
-                                $('#downloaddocument').html('<a href="' + filedata + '" target="_blank"><i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></a>');
-                            }
-                        }
-
-                    } else {
-                        $('#responseMessage').text('Error: Leave Summary not found.');
-                    }
-                } else {
-                    $('#responseMessage').text('Error: Leave Summary data not found.');
-                }
-            },
-            error: function (xhr, status, error) {
-                $('#responseMessage').text('Error: ' + xhr.responseText);
-            }
-        });
-
-
-        $('#ApproveRejectModel').modal('show');
-    }
-    function CloseApproveRejectModel() {
-        $('#ApproveRejectModel').modal('hide');
-    }
-    function RefreshTable(tableId, urlData) {
-        $.post(urlData, null, function (json) {
-            table = $(tableId).dataTable();
-            oSettings = table.fnSettings();
-
-            table.fnClearTable(this);
-
-            for (var i = 0; i < json.data.length; i++) {
-                table.oApi._fnAddData(oSettings, json.data[i]);
-            }
-
-            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-            table.fnDraw();
-        });
-    }
-    function RefreshTable1(tableId, urlData) {
-        $.post(urlData, null, function (json) {
-            table = $(tableId).dataTable();
-            oSettings = table.fnSettings();
-
-            table.fnClearTable(this);
-
-            for (var i = 0; i < json.data.length; i++) {
-                table.oApi._fnAddData(oSettings, json.data[i]);
-            }
-
-            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-            table.fnDraw();
-        });
-    }
-    function RefreshTable2(tableId, urlData) {
-        $.post(urlData, null, function (json) {
-            table = $(tableId).dataTable();
-            oSettings = table.fnSettings();
-
-            table.fnClearTable(this);
-
-            for (var i = 0; i < json.data.length; i++) {
-                table.oApi._fnAddData(oSettings, json.data[i]);
-            }
-
-            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-            table.fnDraw();
-        });
-    }
-    function AutoReload() {
-        RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
-        if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
-            InitOverviewDataTable();
-        }
-
-
-    }
-    function LeavesForApproved() {
-        $('#leave-approved-tab').css("display", "block");
-        RefreshTable1('#tblLeavesForApproved', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApproved`); //Approved
-
-        if (!$.fn.DataTable.isDataTable('#tblLeavesForApproved')) {
-            InittblLeavesForApproved();
-        }
-    }
-    function LeavesForReject() {
-        $('#leave-Reject-tab').css("display", "block");
-        RefreshTable2('#tblLeavesForReject', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForReject`);//Rejected
-        if (!$.fn.DataTable.isDataTable('#tblLeavesForReject')) {
-            InittblLeavesForReject();
-        }
-    }
-    $(document).ready(function () {
-        if (@RoleName != @Convert.ToInt64(Roles.Employee)  ) {
-            $('#applied-leave-tab1').click();
-            $('#leave-approved-tab').css("display", "none");
-            $('#leave-Reject-tab').css("display", "none");
-
-
-            AutoReload();
-        }
-
-    });
-    function InitOverviewDataTable() {
-        const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
-        oOverviewTable = $('#tblLeavesForApproval').DataTable({
-            "ordering": true,
-            "paging": true,
-            "searching": true,
-            "info": true,
-            "columns": [
-                { "data": "leaveSummaryID", "autoWidth": true, },
-                { "data": "employeeNumber", "autoWidth": true },
-                { "data": "employeeName", "autoWidth": true },
-                { "data": "startDateFormatted", "autoWidth": true },
-                { "data": "endDateFormatted", "autoWidth": true },
-                { "data": "leaveTypeName", "autoWidth": true },
-                { "data": "noOfDays", "autoWidth": true },
-                { "data": "leaveStatusName", "autoWidth": true },
-                { "data": "reason", "autoWidth": true },
-                {
-                    // this is Actions Column
-                    mRender: function (data, type, row) {
-                        var linkEdit = "<a data-toggle='tooltip' data-placement='top' class='item' onclick='OpenApproveRejectModel(" + row.employeeID + ", " + row.leaveSummaryID + ")' href='#' title='' data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
-
-                        return linkEdit;
-                    }
-                },
-            ],
-            "columnDefs": [
-                {
-                    target: 2,
-                    visible: false,
-                    searchable: false
-                },
-
-                {
-
-                    "targets": [0], //first and last not sortable
-                    "orderable": false,
-                    "visible": false
-                },
-
-                {
-
-                    "targets": [1], //first and last not sortable
-                    "orderable": true,
-                    "defaultContent": " "
-                }
-
-            ]
-            , "responsive": true,
-
-            "createdRow": function (row, data, dataIndex) {
-                if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
-                    (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
-
-                    const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
-                                        ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
-                        : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
-
-                    const styledSpan = `
-            <span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
-                ${data.noOfDays}
-            </span>`;
-
-                    $('td:eq(5)', row)
-                        .html(styledSpan) // Replace the cell content with the styled span
-                        .attr('title', tooltipMessage)
-                        .tooltip(); // Initialize tooltip
-                }
-            }
-
-        });
-    }
-    function InittblLeavesForApproved() {
-        const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
-
-        oOverviewTable = $('#tblLeavesForApproved').DataTable({
-            "ordering": true,
-            "paging": true,
-            "searching": true,
-            "info": true,
-            "columns": [
-                { "data": "leaveSummaryID", "autoWidth": true, },
-                { "data": "employeeNumber", "autoWidth": true },
-                { "data": "employeeName", "autoWidth": true },
-                { "data": "startDateFormatted", "autoWidth": true },
-                { "data": "endDateFormatted", "autoWidth": true },
-                { "data": "leaveTypeName", "autoWidth": true },
-                { "data": "noOfDays", "autoWidth": true },
-                { "data": "leaveStatusName", "autoWidth": true },
-                { "data": "reason", "autoWidth": true }
-            ],
-            "columnDefs": [
-                {
-                    target: 2,
-                    visible: false,
-                    searchable: false
-                },
-
-                {
-
-                    "targets": [0], //first and last not sortable
-                    "orderable": false,
-                    "visible": false
-                },
-
-                {
-
-                    "targets": [1], //first and last not sortable
-                    "orderable": true,
-                    "defaultContent": " "
-                }
-
-            ]
-            , "responsive": true,
-
-            "createdRow": function (row, data, dataIndex) {
-                if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
-                    (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
-
-                    const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
-                                            ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
-                        : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
-
-                    const styledSpan = `
-            <span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
-                ${data.noOfDays}
-            </span>`;
-
-                    $('td:eq(5)', row)
-                        .html(styledSpan) // Replace the cell content with the styled span
-                        .attr('title', tooltipMessage)
-                        .tooltip(); // Initialize tooltip
-                }
-            }
-        });
-    }
-    function InittblLeavesForReject() {
-        const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
-
-        oOverviewTable = $('#tblLeavesForReject').DataTable({
-            "ordering": true,
-            "paging": true,
-            "searching": true,
-            "info": true,
-            "columns": [
-                { "data": "leaveSummaryID", "autoWidth": true, },
-                { "data": "employeeNumber", "autoWidth": true },
-                { "data": "employeeName", "autoWidth": true },
-                { "data": "startDateFormatted", "autoWidth": true },
-                { "data": "endDateFormatted", "autoWidth": true },
-                { "data": "leaveTypeName", "autoWidth": true },
-                { "data": "noOfDays", "autoWidth": true },
-                { "data": "leaveStatusName", "autoWidth": true },
-                { "data": "reason", "autoWidth": true }
-            ],
-            "columnDefs": [
-                {
-                    target: 2,
-                    visible: false,
-                    searchable: false
-                },
-
-                {
-
-                    "targets": [0], //first and last not sortable
-                    "orderable": false,
-                    "visible": false
-                },
-
-                {
-
-                    "targets": [1], //first and last not sortable
-                    "orderable": true,
-                    "defaultContent": " "
-                }
-
-            ]
-            , "responsive": true,
-
-            "createdRow": function (row, data, dataIndex) {
-                if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
-                    (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
-
-                    const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
-                                        ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
-                        : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
-
-                    const styledSpan = `
-            <span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
-                ${data.noOfDays}
-            </span>`;
-
-                    $('td:eq(5)', row)
-                        .html(styledSpan) // Replace the cell content with the styled span
-                        .attr('title', tooltipMessage)
-                        .tooltip(); // Initialize tooltip
-                }
-            }
-        });
-    }   
-    $(document).ready(function () {
-        $('[data-bs-toggle="tooltip"]').tooltip();
-    });
-    document.addEventListener('DOMContentLoaded', function () {
-        // Save selected main tab to localStorage
-        var mainTabs = document.querySelectorAll('.nav-link.section-link');
-        mainTabs.forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
-            });
-        });
-
-        // Check if a main tab was previously selected and open it
-        var activeMainTab = localStorage.getItem('selectedMainTab');
-        if (activeMainTab) {
-            var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
-            if (targetMainTab) {
-                var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
-                bootstrapMainTab.show();
-            }
-        }
-
-        // Save selected sub-tab (inside Leave Info) to localStorage
-        var subTabs = document.querySelectorAll('.nav-link');
-        subTabs.forEach(function (subTab) {
-            subTab.addEventListener('click', function () {
-                localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));
-            });
-        });
-
-        // Check if a sub-tab was previously selected and open it
-        var activeSubTab = localStorage.getItem('selectedSubTab');
-        if (activeSubTab) {
-            var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
-            if (targetSubTab) {
-                var bootstrapSubTab = new bootstrap.Tab(targetSubTab);
-                bootstrapSubTab.show();
-            }
-        }
-
-        // Edit button event to activate Apply Leave tab
-        // document.getElementById('editButton').addEventListener('click', function (event) {
-        //     localStorage.removeItem('selectedSubTab');
-        //     localStorage.setItem('selectedSubTab', '#apply-leave-tab');
-        //     var leaveInfoTab = new bootstrap.Tab(document.querySelector('#leaveInfo-tab1'));
-        //     leaveInfoTab.show();
-        //     var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
-        //     applyLeaveTab.show();
-        // });
-        // Select all buttons with the class "edit-button"
-        document.querySelectorAll('.edit-button').forEach(function (button) {
-            button.addEventListener('click', function (event) {
-                event.preventDefault(); // Prevent immediate navigation to allow custom actions
-
-                // Update local storage
-                localStorage.removeItem('selectedSubTab');
-                localStorage.setItem('selectedSubTab', '#apply-leave-tab');
-
-                // Show the "Apply Leave" tab
-                var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
-                applyLeaveTab.show();
-
-                // Navigate to the href link
-                const href = button.getAttribute('href');
-                if (href) {
-                    window.location.href = href; // Perform navigation
-                }
-            });
-        });
-
-
-
-
-    });
-    document.getElementById("myForm").onsubmit = async function (event) {
-        event.preventDefault();       
-        const responseMessage = document.getElementById("responseMessage");
-        responseMessage.textContent = "";
-        responseMessage.className = "";      
-        const formData = new FormData(this);      
-        const response = await fetch(this.action, {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.json();      
-        if (result.isValid) {           
-            $.toast({
-                heading: 'Success',
-                text: result.message,
-                showHideTransition: 'slide',
-                icon: 'success',
-                position: 'top-right',
-            });
-            setTimeout(function () {
-                window.location.href = "/employee/myinfo/Index/";
-            }, 1000);
-            // responseMessage.textContent = result.message;
-            // responseMessage.className = "success-message";
-            // this.reset(); // Optionally reset the form fields
-        } else {
-            // Display error message
-            responseMessage.textContent = result.message;
-            responseMessage.className = "error-message";
-        }
-    };
-</script>
-
-
-@* admin *@
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Define Admin Elements
-        var adminleaveDurationDropdown = document.getElementById("adminleaveDurationDropdown");
-        var adminfullDayContainer = document.getElementById("adminfullDayContainer");
-        var adminhalfDayContainer = document.getElementById("adminhalfDayContainer");
-        var adminleaveTypeDropdown = document.getElementById("adminleaveTypeDropdown");
-        var adminmaternityAdoptionMiscarrageContainer = document.getElementById("adminMaternityAdoptionMiscarrageContainer");
-        var adminleaveDurationContainer = document.getElementById("adminleaveDurationContainer");
-        var admintodatetime = document.getElementById("admintodatetime");
-        var adminfromdatetime = document.getElementById("adminfromdatetime");
-        var adminChildDOBDateContainer = document.getElementById("adminChildDOBDateContainer");
-        var adminexpectedDeliveryDateContainer = document.getElementById("adminexpectedDeliveryDateContainer");
-
-        // Placeholder values
-        var fullDayValue = "1";
-        var halfDayValue = "2";
-
-        // Toggle containers based on admin leave type
-        function admintoggleContainers() {
-            var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
-
-            if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave'].includes(adminselectedLeaveType)) {
-                adminfullDayContainer.style.display = "flex";
-                adminhalfDayContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "none";
-                admintodatetime.style.display = "block";
-            } else if (adminleaveDurationDropdown.value === fullDayValue) {
-                adminfullDayContainer.style.display = "flex";
-                admintodatetime.style.display = fullDayValue === "1" ? "block" : "none";
-                adminfromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
-                adminhalfDayContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "none";
-            } else if (adminleaveDurationDropdown.value === halfDayValue) {
-                adminfullDayContainer.style.display = "flex";
-                adminhalfDayContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "none";
-                admintodatetime.style.display = "none";
-                adminfromdatetime.style.display = "block";
-            } else if (adminselectedLeaveType === 'Paternity Leave') {
-                //adminfullDayContainer.style.display = "flex";
-                adminhalfDayContainer.style.display = "none";
-                adminMaternityAdoptionMiscarrageContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "block";
-            } else {
-                adminfullDayContainer.style.display = "none";
-                adminhalfDayContainer.style.display = "none";
-                adminChildDOBDateContainer.style.display = "none";
-            }
-        }
-
-        // Toggle the maternity/adoption/miscarriage container based on admin leave type
-        function admintoggleMaternityAdoptionMiscarrageContainer() {
-            var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
-            if (['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave'].includes(adminselectedLeaveType)) {
-                adminmaternityAdoptionMiscarrageContainer.style.display = "flex";
-            } else {
-                adminmaternityAdoptionMiscarrageContainer.style.display = "none";
-            }
-        }
-
-        // Toggle expected delivery date based on admin leave type
-        function admintoggleExpectedDeliveryDate() {
-            var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
-            adminexpectedDeliveryDateContainer.style.display = adminselectedLeaveType === 'Maternity Leave' ? "block" : "none";
-        }
-
-        // Toggle leave duration container visibility
-        function admintoggleLeaveDurationVisibility() {
-            var adminselectedLeaveType = adminleaveTypeDropdown.options[adminleaveTypeDropdown.selectedIndex].text;
-            if (['Annual Leave', 'Comp Off', 'Medical Leave'].includes(adminselectedLeaveType)) {
-                adminleaveDurationContainer.style.display = "block";
-                $('#adminleaveDurationDropdown').attr('required', true);
-            } else {
-                adminleaveDurationContainer.style.display = "none";
-                adminleaveDurationDropdown.selectedIndex = 0;
-                $('#adminleaveDurationDropdown').attr('required', false);
-            }
-        }
-
-        // Event listeners for admin functionality
-        adminleaveDurationDropdown.addEventListener("change", admintoggleContainers);
-        adminleaveTypeDropdown.addEventListener("change", function () {
-            admintoggleMaternityAdoptionMiscarrageContainer();
-            admintoggleExpectedDeliveryDate();
-            admintoggleLeaveDurationVisibility();
-            admintoggleContainers();
-        });
-
-        // Initial calls
-        admintoggleContainers();
-        admintoggleMaternityAdoptionMiscarrageContainer();
-        admintoggleLeaveDurationVisibility();
-        admintoggleExpectedDeliveryDate();
-    });
+	
+
+
+
+	  
+
+
+
+ 
+
+	
+
+	$(document).ready(function () {
+		$('[data-bs-toggle="tooltip"]').tooltip();
+	});
+	document.addEventListener('DOMContentLoaded', function () {
+		// Save selected main tab to localStorage
+		var mainTabs = document.querySelectorAll('.nav-link.section-link');
+		mainTabs.forEach(function (tab) {
+			tab.addEventListener('click', function () {
+				localStorage.setItem('selectedMainTab', tab.getAttribute('data-bs-target'));
+			});
+		});
+
+		// Check if a main tab was previously selected and open it
+		var activeMainTab = localStorage.getItem('selectedMainTab');
+		if (activeMainTab) {
+			var targetMainTab = document.querySelector(`[data-bs-target="${activeMainTab}"]`);
+			if (targetMainTab) {
+				var bootstrapMainTab = new bootstrap.Tab(targetMainTab);
+				bootstrapMainTab.show();
+			}
+		}
+
+		// Save selected sub-tab (inside Leave Info) to localStorage
+		var subTabs = document.querySelectorAll('.nav-link');
+		subTabs.forEach(function (subTab) {
+			subTab.addEventListener('click', function () {
+				localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));
+			});
+		});
+
+		// Check if a sub-tab was previously selected and open it
+		var activeSubTab = localStorage.getItem('selectedSubTab');
+		if (activeSubTab) {
+			var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
+			if (targetSubTab) {
+				var bootstrapSubTab = new bootstrap.Tab(targetSubTab);
+				bootstrapSubTab.show();
+			}
+		}
+
+	
+		
+	});
+	
 </script>
 
 
 
 
 
-<script>
-    function PanPostedFilePreview(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const previewImage = document.getElementById('PanpreviewImage');
-            const pdfPreview = document.getElementById('PanpreviewPDF');
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                const result = e.target.result;
-
-                if (file.type.startsWith('image/')) {
-                    previewImage.src = result;
-                    previewImage.style.display = 'block';
-                    pdfPreview.style.display = 'none';
-                } else if (file.type === 'application/pdf') {
-                    pdfPreview.src = result;
-                    pdfPreview.style.display = 'block';
-                    previewImage.style.display = 'none';
-                } else {
-                    alert('Unsupported file type. Please upload an image or a PDF.');
-                    previewImage.style.display = 'none';
-                    pdfPreview.style.display = 'none';
-                }
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
-  
-
-
-    document.addEventListener("DOMContentLoaded", function () {
-        // Define Standard User Elements
-        var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
-        var fullDayContainer = document.getElementById("fullDayContainer");
-        var halfDayContainer = document.getElementById("halfDayContainer");
-        var leaveTypeDropdown = document.getElementById("leaveTypeDropdown");
-        var maternityAdoptionMiscarrageContainer = document.getElementById("MaternityAdoptionMiscarrageContainer");
-        var leaveDurationContainer = document.getElementById("leaveDurationContainer");
-        var todatetime = document.getElementById("todatetime");
-        var fromdatetime = document.getElementById("fromdatetime");
-        var ChildDOBDateContainer = document.getElementById("ChildDOBDateContainer");
-        var expectedDeliveryDateContainer = document.getElementById("expectedDeliveryDateContainer");
-        // Placeholder values
-        var fullDayValue = "1";
-        var halfDayValue = "2";
-
-        function toggleContainers() {
-            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-            if (['Maternity Leave', 'Adoption', 'Miscarriage'].includes(selectedLeaveType)) {
-                fullDayContainer.style.display = "flex";
-                halfDayContainer.style.display = "none";
-                leaveDurationContainer.style.display = "none";
-                leaveDurationDropdown.style.display = "none";
-                ChildDOBDateContainer.style.display = "none";
-                todatetime.style.display = "block";
-                $('#leaveDurationDropdown').attr('required', false);
-            }
-
-            else if (selectedLeaveType === 'Paternity Leave') {
-                fullDayContainer.style.display = "flex";
-                halfDayContainer.style.display = "none";
-                ChildDOBDateContainer.style.display = "block";
-            }
-            else if (selectedLeaveType === 'Medical Leave') {
-                leaveDurationContainer.style.display = "none";
-                ChildDOBDateContainer.style.display = "none";
-                halfDayContainer.style.display = "none";
-                leaveDurationDropdown.selectedIndex = 0;
-                fullDayContainer.style.display = "flex";
-                $('#leaveDurationDropdown').attr('required', false);
-            }
-            else if (selectedLeaveType === 'Annual Leave') {
-                if (leaveDurationDropdown.value === fullDayValue) {
-                    fullDayContainer.style.display = "flex";
-                    todatetime.style.display = fullDayValue === "1" ? "block" : "none";
-                    fromdatetime.style.display = fullDayValue === "1" ? "block" : "block";
-                    halfDayContainer.style.display = "none";
-                    ChildDOBDateContainer.style.display = "none";
-                    return;
-                }
-                else if (leaveDurationDropdown.value === halfDayValue) {
-                    fullDayContainer.style.display = "flex";
-                    halfDayContainer.style.display = "none";
-                    ChildDOBDateContainer.style.display = "none";
-                    todatetime.style.display = "none";
-                    fromdatetime.style.display = "block";
-                    return;
-                }
-                fullDayContainer.style.display = "none";
-                leaveDurationContainer.style.display = "block";
-                leaveDurationDropdown.style.display = "flex";
-                ChildDOBDateContainer.style.display = "none";
-                leaveDurationDropdown.selectedIndex = 0;
-                $('#leaveDurationDropdown').attr('required', true);
-            }
-            else {
-                fullDayContainer.style.display = "none";
-                halfDayContainer.style.display = "none";
-                ChildDOBDateContainer.style.display = "none";
-                leaveDurationContainer.style.display = "none";
-                leaveDurationDropdown.selectedIndex = 0;
-            }
-        }
-
-        function toggleMaternityAdoptionMiscarrageContainer() {
-            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-            maternityAdoptionMiscarrageContainer.style.display =
-                ['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave'].includes(selectedLeaveType) ? "flex" : "none";
-        }
-
-        function toggleExpectedDeliveryDate() {
-            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-            expectedDeliveryDateContainer.style.display = selectedLeaveType === 'Maternity Leave' ? "block" : "none";
-        }
 
 
 
-        function toggleLeaveDurationVisibility() {
-            var selectedLeaveType = leaveTypeDropdown.options[leaveTypeDropdown.selectedIndex].text;
-            if (['Comp Off'].includes(selectedLeaveType)) {
-                leaveDurationContainer.style.display = "block";
-                fullDayContainer.style.display = "none";
-                $('#leaveDurationDropdown').attr('required', true);
-            }
-
-            else {
-               // leaveDurationContainer.style.display = "none";
-              //  leaveDurationDropdown.selectedIndex = 0;
-
-                $('#leaveDurationDropdown').attr('required', false);
-            }
-        }
-
-        // Event listeners for standard user functionality
-        leaveDurationDropdown.addEventListener("change", toggleContainers);
-        leaveTypeDropdown.addEventListener("change", function () {
-            toggleMaternityAdoptionMiscarrageContainer();
-            toggleExpectedDeliveryDate();
-            toggleLeaveDurationVisibility();
-            toggleContainers();
-        });
-
-        // Initial calls
-        toggleContainers();
-        toggleMaternityAdoptionMiscarrageContainer();
-        toggleLeaveDurationVisibility();
-        toggleExpectedDeliveryDate();
-    });
-</script>
 
 
 

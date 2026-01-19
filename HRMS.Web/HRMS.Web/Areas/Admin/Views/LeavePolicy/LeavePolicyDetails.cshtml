@@ -4,7 +4,7 @@
 @model LeavePolicyDetailsModel
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Leave Policy";
+    ViewData["Title"] = "Add Policy";
     var IconImage = "";
     if (!string.IsNullOrEmpty(Model.PolicyDocument))
     {
@@ -15,8 +15,8 @@
         IconImage = HRMS.Models.Common.Constants.NoImagePath;
     }
 } 
-
-<div class="main-header anim" style="--delay: 0s">Leave Policy Details
+ 
+<div class="main-header anim" style="--delay: 0s"> Policy Details
     <a href="/admin/LeavePolicy/PolicyCategoryListing"
        class="btn btn-sm btn-primary addpolicycategory"
        style="font-size: 12px;">
@@ -43,13 +43,12 @@
                     <label>Title <span class="Mandetory">*</span></label>
                     @Html.TextBoxFor(a => a.Title, new { @class = "form-control", @required = "required" })
                 </div>
-
+                
                 <div class="col-md-4 form-group">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label for="PolicyCategoryId" class="mb-0">
                             Policy Category <span class="text-danger">*</span>
-                        </label>
-                      
+                        </label>                     
                     </div>
                     @Html.DropDownList("PolicyCategoryId", new SelectList(Model.PolicyList, "Id", "Name"), "-- Select Category --", new { @class = "form-control", required = "required" })
                 </div>
@@ -59,7 +58,7 @@
                     <div class="form-group">
                         <label> Upload Document (Image/Pdf) <span class="Mandetory">*</span></label>
                         <div class="col-md-4">
-                            <!-- Image Preview -->
+                           
                             <img id="DocumentpreviewImage"
                                  src="@IconImage"
                                  onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
@@ -76,7 +75,8 @@
                             <input type="file"
                                    name="postedFiles"
                                    accept="image/*,.pdf"
-                                   onchange="DocumentpreviewPDFPreview(event)" />
+                                   onchange="DocumentpreviewPDFPreview(event)"
+                                   required />
                         </div>
                     </div>
                 </div>
@@ -121,7 +121,6 @@
                 }
             })
             .then(editor => {
-                console.log('Editor was initialized', editor);
             })
             .catch(error => {
                 console.error(error);

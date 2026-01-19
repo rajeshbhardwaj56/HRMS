@@ -1,44 +1,57 @@
-﻿using Amazon;
-using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
+﻿
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2019.Drawing.Model3D;
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
+using HRMS.Models.FormPermission;
+using HRMS.Models.ImportFromExcel;
+using HRMS.Models.User;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using OfficeOpenXml.Style;
 using System;
+using System.Collections.Specialized;
 using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography.Xml;
 using System.Text;
+using System.Web;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
     [Area(Constants.ManageHR)]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+    [Authorize]
+    //[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
     public class EmployeeController : Controller
     {
-
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
         private IHostingEnvironment Environment;
         private readonly IS3Service _s3Service;
         private readonly IHttpContextAccessor _context;
-        public EmployeeController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public EmployeeController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
         {
             Environment = _environment;
             _configuration = configuration;
@@ -46,22 +59,78 @@ namespace HRMS.Web.Areas.HR.Controllers
             EmailSender.configuration = _configuration;
             _s3Service = s3Service;
             _context = context;
+            _CheckUserFormPermission = CheckUserFormPermission;
+        }
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
         public IActionResult EmployeeListing()
         {
-            HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
-            return View(results);
+            var employeeId = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+            // Check if the user has permission for Employee Listing
+            var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.EmployeeListing);
+            // If no permission and not an admin
+            if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
+            {
+                // Check if user has permission for My Team page
+                var teamPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
+                // Redirect to My Team page if user is not an employee and has permission
+                if (roleId != (int)Roles.Employee && teamPermission.HasPermission > 0)
+                {
+                    return RedirectToAction("GetTeamEmployeeList", "MyInfo", new { area = "employee" });
+                }
+                // Else, log the user out and redirect to home
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            return View(new HRMS.Models.Common.Results());
         }
+
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol, string sortDir, string subDeptFilter,
+    string empTypeFilter,
+    string locationFilter, string statusFilter)
         {
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+
+            var columnMapping = new Dictionary<string, string>
+    {
+        {"employeeID", "EmployeeID"},
+        {"employeeNumber", "EmployeeNumber"},
+        {"firstName", "FirstName"},
+        {"surname", "Surname"},
+        {"designationName", "Designation"},
+        {"departmentName", "Department"},
+        {"shift", "Shift"},
+        {"payrollTypeName", "PayrollType"},
+        {"mobile", "Mobile"},
+        {"jobLocation", "JobLocation"},
+        {"isActive", "IsActive"}
+    };
             employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             employee.DisplayStart = iDisplayStart;
             employee.DisplayLength = iDisplayLength;
+            employee.SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "EmployeeID";
+            employee.SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper();
             employee.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
+            employee.SubDepartmentID = string.IsNullOrEmpty(subDeptFilter) ? 0 : Convert.ToInt64(subDeptFilter);
+            employee.EmployeeTypeID = string.IsNullOrEmpty(empTypeFilter) ? 0 : Convert.ToInt64(empTypeFilter);
+            employee.LocationID = string.IsNullOrEmpty(locationFilter) ? 0 : Convert.ToInt64(locationFilter);
+            if (string.IsNullOrEmpty(statusFilter))
+            {
+                employee.IsActive = null;
+            }
+            else
+            {
+                employee.IsActive = statusFilter == "1";
+            }
             var data = _businessLayer.SendPostAPIRequest(
                 employee,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees),
@@ -75,16 +144,29 @@ namespace HRMS.Web.Areas.HR.Controllers
                 x.EncodedDesignationID = _businessLayer.EncodeStringBase64(x.DesignationID.ToString());
                 x.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(x.DepartmentID.ToString());
                 x.ProfilePhoto = string.IsNullOrEmpty(x.ProfilePhoto)
-                    ? "/assets/img/No_image.png"   //Use default image if profile photo is missing
+                    ? "/assets/img/No_image.png"
                     : _s3Service.GetFileUrl(x.ProfilePhoto);
             });
-
-            //return Json(new { data = results.Employees });
             return Json(new
             {
                 draw = sEcho,
                 recordsTotal = results.Employees.Select(x => x.TotalRecords).FirstOrDefault() ?? 0,
                 recordsFiltered = results.Employees.Select(x => x.FilteredRecords).FirstOrDefault() ?? 0,
+                employmentTypes = results.employeeModel.EmploymentTypesList.Select(j => new
+                {
+                    employeeTypeId = j.EmployeeTypeId,
+                    name = j.Name
+                }),
+                subDepartmentTypes = results.employeeModel.SubDepartmentList.Select(j => new
+                {
+                    subDepartmentTypeId = j.SubDepartmentID,
+                    name = j.Name
+                }),
+                locationTypes = results.employeeModel.LocationList.Select(j => new
+                {
+                    locationTypeId = j.JobLocationID,
+                    name = j.Name
+                }),
                 data = results.Employees
             });
         }
@@ -93,19 +175,9 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             EmployeeModel employee = new EmployeeModel();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            if (string.IsNullOrEmpty(id))
+            if (!string.IsNullOrEmpty(id))
             {
-                employee.FamilyDetails.Add(new FamilyDetail());
-                employee.EducationalDetails.Add(new EducationalDetail());
-                employee.LanguageDetails.Add(new LanguageDetail());
-                employee.EmploymentHistory.Add(new EmploymentHistory());
-                employee.References = new List<HRMS.Models.Employee.Reference>() {
-                    new HRMS.Models.Employee.Reference(),
-                    new HRMS.Models.Employee.Reference()
-                };
-            }
-            else
-            {
+                var encrpt = id;
                 id = _businessLayer.DecodeStringBase64(id);
                 employee.EmployeeID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployees), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -122,19 +194,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     employee.PanCardImage = _s3Service.GetFileUrl(employee.PanCardImage);
                 }
+                employee.EncryptedIdentity = encrpt;
+                employee.EncodedDesignationID = _businessLayer.EncodeStringBase64(employee.DesignationID.ToString());
+                employee.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(employee.DepartmentID.ToString());
 
-                if (employee.References == null || employee.References.Count == 0)
-                {
-                    employee.References = new List<HRMS.Models.Employee.Reference>() {
-                    new HRMS.Models.Employee.Reference(),
-                    new HRMS.Models.Employee.Reference()
-                    };
-                }
-                else if (employee.References.Count == 1)
-                {
-                   employee.References.Add(new HRMS.Models.Employee.Reference());
-                }
-                ;
             }
 
             HRMS.Models.Common.Results results = GetAllResults(employee.CompanyID);
@@ -142,15 +205,14 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.Countries = results.Countries;
             employee.EmploymentTypes = results.EmploymentTypes;
             employee.Departments = results.Departments;
+
             return View(employee);
         }
 
         [HttpPost]
         public IActionResult Index(EmployeeModel employee, List<IFormFile> postedFiles, List<IFormFile> PanPostedFile, List<IFormFile> AadhaarPostedFile)
         {
-            string s3UploadUrl = _configuration["AWS:S3UploadUrl"];
             var results = GetAllResults(employee.CompanyID);
-
             try
             {
                 if (!ModelState.IsValid)
@@ -158,7 +220,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     SetWarningToast("Please check all data and try again.");
                     return ReturnEmployeeViewWithData(employee, results);
                 }
-                ProcessFileUpload(postedFiles, employee.ProfilePhoto, out string newProfileKey);
+                _s3Service.ProcessFileUpload(postedFiles, employee.ProfilePhoto, out string newProfileKey);
                 if (!string.IsNullOrEmpty(newProfileKey))
                 {
                     if (!string.IsNullOrEmpty(employee.ProfilePhoto))
@@ -169,37 +231,8 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else
                 {
-                    employee.ProfilePhoto = ExtractKeyFromUrl(employee.ProfilePhoto);
+                    employee.ProfilePhoto = _s3Service.ExtractKeyFromUrl(employee.ProfilePhoto);
                 }
-
-                ProcessFileUpload(PanPostedFile, employee.PanCardImage, out string newPanKey);
-                if (!string.IsNullOrEmpty(newPanKey))
-                {
-                    if (!string.IsNullOrEmpty(employee.PanCardImage))
-                    {
-                        _s3Service.DeleteFile(employee.PanCardImage);
-                    }
-                    employee.PanCardImage = newPanKey;
-                }
-                else
-                {
-                    employee.PanCardImage = ExtractKeyFromUrl(employee.PanCardImage);
-                }
-
-                ProcessFileUpload(AadhaarPostedFile, employee.AadhaarCardImage, out string newAadhaarKey);
-                if (!string.IsNullOrEmpty(newAadhaarKey))
-                {
-                    if (!string.IsNullOrEmpty(employee.AadhaarCardImage))
-                    {
-                        _s3Service.DeleteFile(employee.AadhaarCardImage);
-                    }
-                    employee.AadhaarCardImage = newAadhaarKey;
-                }
-                else
-                {
-                    employee.AadhaarCardImage = ExtractKeyFromUrl(employee.AadhaarCardImage);
-                }
-
                 var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmployee);
                 var apiResult = _businessLayer.SendPostAPIRequest(employee, apiUrl, HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Result>(apiResult);
@@ -219,31 +252,6 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             return ReturnEmployeeViewWithData(employee, results);
         }
-
-        private void ProcessFileUpload(List<IFormFile> files, string existingKey, out string uploadedKey)
-        {
-            uploadedKey = string.Empty;
-
-            if (files != null && files.Count > 0)
-            {
-                foreach (var file in files)
-                {
-                    if (file?.Length > 0)
-                    {
-                        uploadedKey = _s3Service.UploadFile(file, file.FileName);
-                        if (!string.IsNullOrEmpty(uploadedKey)) break;
-                    }
-                }
-            }
-        }
-        private string ExtractKeyFromUrl(string fileUrl)
-        {
-            if (string.IsNullOrEmpty(fileUrl)) return string.Empty;
-
-            var fileName = fileUrl.Substring(fileUrl.LastIndexOf('/') + 1);
-            return fileName.Split('?')[0];
-        }
-
         private void SetSuccessToast(string message)
         {
             TempData[Constants.toastType] = Constants.toastTypeSuccess;
@@ -349,7 +357,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             try
             {
-                // Prepare the input parameters for L2 manager retrieval
+
                 L2ManagerInputParams input = new L2ManagerInputParams
                 {
                     L1EmployeeID = l1EmployeeId
@@ -383,6 +391,33 @@ namespace HRMS.Web.Areas.HR.Controllers
                 return Json(new { success = false, message = "An error occurred while fetching the L2 manager.", error = ex.Message });
             }
         }
+        [HttpGet]
+        public JsonResult loadForms(int DepartmentId, int EmployeeId)
+        {
+            try
+            {
+                List<FormPermissionViewModel> objmodel = new List<FormPermissionViewModel>();
+                FormPermissionVM objPermission = new FormPermissionVM();
+                objPermission.DepartmentId = DepartmentId;
+                objPermission.EmployeeID = EmployeeId;
+                var response = _businessLayer.SendPostAPIRequest(objPermission, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetUserFormByDepartmentID), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                if (response != null)
+                {
+                    objmodel = JsonConvert.DeserializeObject<List<FormPermissionViewModel>>(response.ToString());
+                }
+
+                return Json(objmodel);
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while loading form permissions.",
+                    error = ex.Message
+                });
+            }
+        }
 
         [HttpGet]
         public ActionResult EmploymentDetails(string id, string DegtId, string DeptId)
@@ -397,7 +432,6 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
 
                 model.CompanyID = Convert.ToInt64(CompanyID);
-
                 var Companydata = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetCompaniesLogo), " ", false).Result.ToString();
                 model = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(Companydata).companyLoginModel;
             }
@@ -445,7 +479,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
         [HttpPost]
-        public ActionResult EmploymentDetails(EmploymentDetail employmentDetail)
+        public ActionResult EmploymentDetails(EmploymentDetail employmentDetail, List<string> SelectedFormIds)
         {
             if (ModelState.IsValid)
             {
@@ -454,9 +488,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.EmployeNumber = employmentDetail.EmployeNumber.Split(employmentDetail.CompanyAbbr)[1];
                 var data = _businessLayer.SendPostAPIRequest(employmentDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 Result result = JsonConvert.DeserializeObject<Result>(data);
-                if (result != null && result.PKNo > 0 && result.Message.Contains("EmailID already Exists in System, please try again with another email.", StringComparison.OrdinalIgnoreCase))
+                if (result != null && result.PKNo > 0
+    && result.Message != null
+    && result.Message.StartsWith("Duplicate Email found:", StringComparison.OrdinalIgnoreCase))
                 {
                     TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+
                     TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
                 }
                 else if (result != null && result.PKNo > 0 && result.Message.Contains("Some error occurred, please try again later.", StringComparison.OrdinalIgnoreCase))
@@ -466,43 +503,169 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 else
                 {
-                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
-                    //sendEmailProperties sendEmailProperties = new sendEmailProperties();
-                    //sendEmailProperties.emailSubject = "Reset Password Email";
-                    //sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> <a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString()), _businessLayer.EncodeStringBase64(CompanyID.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
-                    //sendEmailProperties.EmailToList.Add(employmentDetail.OfficialEmailID);
-                    //emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
-                    //if (response.responseCode == "200")
-                    //{
-                    //    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                    //    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email have been sent, Please reset password for Login.";
-                    //}
-                    //else
-                    //{
-                    //    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                    //    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email sending failed, Please try again later.";
-                    //}
-                }
-                if (result.IsResetPasswordRequired)
-                {
-                    sendEmailProperties sendEmailProperties = new sendEmailProperties();
-                    sendEmailProperties.emailSubject = "Reset Password Email";
-                    sendEmailProperties.emailBody = ("Hi, <br/><br/> Please click on below link to reset password. <br/> " +
-                        "<a target='_blank' href='" + string.Format(_configuration["AppSettings:RootUrl"] + _configuration["AppSettings:ResetPasswordURL"], _businessLayer.EncodeStringBase64((employmentDetail.EmployeeID == null ? "" : employmentDetail.EmployeeID.ToString()).ToString()), _businessLayer.EncodeStringBase64(DateTime.Now.ToString()), _businessLayer.EncodeStringBase64(CompanyID.ToString()), _businessLayer.EncodeStringBase64(employmentDetail.CompanyAbbr + employmentDetail.EmployeNumber.ToString())) + "'> Click here to reset password</a>" + "<br/><br/>");
-                    sendEmailProperties.EmailToList.Add(employmentDetail.OfficialEmailID);
-                    emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
-                    if (response.responseCode == "200")
-                    {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email have been sent, Please reset password for Login.";
-                    }
-                    else
+                    FormPermissionVM objmodel = new FormPermissionVM();
+                    objmodel.EmployeeID = employmentDetail.EmployeeID;
+                    objmodel.SelectedFormIds = SelectedFormIds;
+                    var Permissionsdata = _businessLayer.SendPostAPIRequest(objmodel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.AddUserFormPermissions), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    var Permissionresponse = JsonConvert.DeserializeObject<long>(Permissionsdata);
+                    if (Permissionresponse < 0)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email sending failed, Please try again later.";
+                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try again later";
+                        return View(employmentDetail);
+                    }
+                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                    TempData[HRMS.Models.Common.Constants.toastMessage] = result.Message;
+                    if (result.IsResetPasswordRequired)
+                    {
+                        ChangePasswordModel model = new ChangePasswordModel();
+                        model.EmailId = employmentDetail.CompanyAbbr + employmentDetail.EmployeNumber;
+                        var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetFogotPasswordDetails);
+                        var datamodel = _businessLayer.SendPostAPIRequest(model, apiUrl, null, false).Result.ToString();
+                        var resultdata = JsonConvert.DeserializeObject<Result>(datamodel);
+
+                        if (resultdata == null || resultdata.Data == null)
+                        {
+                            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid response from server.";
+                            return View(model);
+                        }
+
+                        UserModel userModel = JsonConvert.DeserializeObject<UserModel>((string)resultdata.Data);
+
+                        if (userModel != null)
+                        {
+                            if (userModel.EmployeeID > 0)
+                            {
+
+
+                                // Get the configuration values
+                                var rootUrl = _configuration["AppSettings:RootUrl"];
+                                var resetPasswordUrl = _configuration["AppSettings:ResetPasswordURL"]; // Should have {0}, {1}, {2}
+
+
+                                // Encode required parameters
+                                var encodedTimestamp = _businessLayer.EncodeStringBase64(DateTime.Now.ToString());
+                                var encodedCompany = _businessLayer.EncodeStringBase64("YourCompanyValue"); // Replace with actual company ID
+                                                                                                            // Format the Reset Password URL correctly
+                                var formattedResetUrl = string.Format(resetPasswordUrl, _businessLayer.EncodeStringBase64(userModel.EmployeeID == null ? "" : userModel.EmployeeID.ToString()), encodedTimestamp, _businessLayer.EncodeStringBase64(userModel.CompanyID.ToString()), _businessLayer.EncodeStringBase64(userModel.UserName.ToString()));
+
+                                // Prepare email content
+                                sendEmailProperties sendEmailProperties = new sendEmailProperties
+                                {
+                                    emailSubject = "Reset Password",
+                                    emailBody = $@"
+        <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
+            Hi,<br/><br/>
+            Please click on the link below to reset your password.<br/><br/>
+
+            <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
+                <thead style='background-color: #f2f2f2;'>
+                    <tr>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>UserId </th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Name</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Manager</th>
+                        <th style='border: 1px solid #000; padding: 8px; text-align: left;'>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.UserName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.FullName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.ManagerName}</td>
+                        <td style='border: 1px solid #000; padding: 8px;'>{userModel.DepartmentName}</td>
+                    </tr>
+                </tbody>
+            </table><br/>
+
+            <a target='_blank' 
+               href='{rootUrl}{formattedResetUrl}' 
+              >
+                Click here to reset password
+            </a><br/><br/>
+
+            <p style='color: #000; font-size: 13px;'>
+                To no longer receive messages from Eternity Logistics, please click to <strong><a href='http://unsubscribe.eternitylogistics.co/'> Unsubscribe </a></strong>.<br/><br/>
+
+                If you are happy with our services or want to share any feedback, do email us at 
+                <a href='mailto:feedback@eternitylogistics.co' style='color: #000;'>feedback@eternitylogistics.co</a>.<br/><br/>
+
+                All email correspondence is sent only through our official domain: 
+                <strong>@eternitylogistics.co</strong>. Please verify carefully the domain from which the messages are sent to avoid potential scams.<br/><br/>
+
+                <strong>CONFIDENTIALITY NOTICE:</strong> This e-mail message, including all attachments, is for the sole use of the intended recipient(s) and may contain confidential and privileged information. 
+                If you are not the intended recipient, you may NOT use, disclose, copy, or disseminate this information. 
+                Please contact the sender by reply e-mail immediately and destroy all copies of the original message, including all attachments. 
+                This communication is for informational purposes only and is not an offer, solicitation, recommendation, or commitment for any transaction. 
+                Your cooperation is greatly appreciated.
+            </p>
+        </div>"
+                                };
+                                // Add recipient email
+                                if ((userModel.RoleID == (int)Roles.Employee) && string.IsNullOrEmpty(userModel.Email))
+                                {
+                                    sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
+                                }
+                                else
+                                {
+                                    if (string.IsNullOrEmpty(userModel.Email))
+                                    {
+                                        sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
+                                    }
+                                    else
+                                    {
+                                        sendEmailProperties.EmailToList.Add(userModel.Email);
+                                    }
+                                }
+
+                                // Send email
+                                emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
+
+                                if (response.responseCode == "200")
+                                {
+                                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+
+                                    if ((userModel.RoleID == (int)Roles.Employee))
+                                    {
+                                        TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT Team.";
+                                    }
+                                    else
+                                    {
+                                        if (string.IsNullOrEmpty(userModel.Email))
+                                        {
+                                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT Team.";
+
+                                        }
+                                        else
+                                        {
+                                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to your email.";
+
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email sending failed. Please try again later.";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                            TempData[HRMS.Models.Common.Constants.toastMessage] = "Invalid User Please try again.";
+                        }
+
+
+
+
+
                     }
                 }
+
+
+
+
                 EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams();
                 employmentDetailInputParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
                 employmentDetailInputParams.DepartmentID = employmentDetail.DepartmentID;
@@ -539,6 +702,10 @@ namespace HRMS.Web.Areas.HR.Controllers
                 employmentDetail.ShiftTypes = employmentDetailtemp.ShiftTypes;
                 employmentDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentDetail.EmployeeID.ToString());
             }
+
+            //return RedirectToActionPermanent(WebControllarsConstants.EmployeeListing, WebControllarsConstants.Employee );
+
+
             return View(employmentDetail);
         }
 
@@ -559,15 +726,52 @@ namespace HRMS.Web.Areas.HR.Controllers
             var data = _businessLayer.SendPostAPIRequest(employmentBankInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentBankDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             employmentBankDetail = JsonConvert.DeserializeObject<EmploymentBankDetail>(data);
             employmentBankDetail.EncryptedIdentity = _businessLayer.EncodeStringBase64(employmentBankDetail.EmployeeID.ToString());
+            if (!string.IsNullOrEmpty(employmentBankDetail.AadhaarCardImage))
+            {
+                employmentBankDetail.AadhaarCardImage = _s3Service.GetFileUrl(employmentBankDetail.AadhaarCardImage);
+            }
+            if (!string.IsNullOrEmpty(employmentBankDetail.PanCardImage))
+            {
+                employmentBankDetail.PanCardImage = _s3Service.GetFileUrl(employmentBankDetail.PanCardImage);
+            }
+
             return View(employmentBankDetail);
         }
 
         [HttpPost]
-        public ActionResult EmploymentBankDetails(EmploymentBankDetail employmentBankDetail)
+        public ActionResult EmploymentBankDetails(EmploymentBankDetail employmentBankDetail, List<IFormFile> PanPostedFile, List<IFormFile> AadhaarPostedFile)
         {
             if (ModelState.IsValid)
             {
                 employmentBankDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                _s3Service.ProcessFileUpload(PanPostedFile, employmentBankDetail.PanCardImage, out string newPanKey);
+                if (!string.IsNullOrEmpty(newPanKey))
+                {
+                    if (!string.IsNullOrEmpty(employmentBankDetail.PanCardImage))
+                    {
+                        _s3Service.DeleteFile(employmentBankDetail.PanCardImage);
+                    }
+                    employmentBankDetail.PanCardImage = newPanKey;
+                }
+                else
+                {
+                    employmentBankDetail.PanCardImage = _s3Service.ExtractKeyFromUrl(employmentBankDetail.PanCardImage);
+                }
+
+                _s3Service.ProcessFileUpload(AadhaarPostedFile, employmentBankDetail.AadhaarCardImage, out string newAadhaarKey);
+                if (!string.IsNullOrEmpty(newAadhaarKey))
+                {
+                    if (!string.IsNullOrEmpty(employmentBankDetail.AadhaarCardImage))
+                    {
+                        _s3Service.DeleteFile(employmentBankDetail.AadhaarCardImage);
+                    }
+                    employmentBankDetail.AadhaarCardImage = newAadhaarKey;
+                }
+                else
+                {
+                    employmentBankDetail.AadhaarCardImage = _s3Service.ExtractKeyFromUrl(employmentBankDetail.AadhaarCardImage);
+                }
+
                 var data = _businessLayer.SendPostAPIRequest(employmentBankDetail, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentBankDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
 
                 Result result = JsonConvert.DeserializeObject<Result>(data);
@@ -629,15 +833,21 @@ namespace HRMS.Web.Areas.HR.Controllers
                     TempData[HRMS.Models.Common.Constants.toastMessage] = "Failed to save Employee Separation details.";
                 }
             }
-
-
-
-
             return View(employmentSeparationDetail);
         }
 
         public IActionResult Whatshappening()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.Whatshappening);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             HRMS.Models.Common.Results results = new HRMS.Models.Common.Results();
             return View(results);
         }
@@ -657,17 +867,1003 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 
         [HttpGet]
-        public IActionResult InActiveEmployee(int employeeId , int isActive)
+        public IActionResult InActiveEmployee(int employeeId, int isActive)
         {
             ReportingStatus obj = new ReportingStatus();
             obj.EmployeeId = employeeId;
             obj.Status = isActive;
-
             var data = _businessLayer.SendPostAPIRequest(obj, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.CheckEmployeeReporting), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var ReportingData = JsonConvert.DeserializeObject<ReportingStatus>(data);
+            return Ok(new { success = true, data = ReportingData });
+        }
+        [HttpGet]
+        public async Task<IActionResult> ExportEmployeeSheet()
+        {
+            try
+            {
+                var companyIdString = HttpContext.Session.GetString(Constants.CompanyID);
+                if (!long.TryParse(companyIdString, out var companyId))
+                    return BadRequest("Invalid Company ID");
 
-            return Ok(new { success = true,data = ReportingData });
+                var models = new EmployeeInputParams
+                {
+                    CompanyID = companyId
+                };
+
+                var response = await _businessLayer.SendPostAPIRequest(
+                    models,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.FetchExportEmployeeExcelSheet),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true);
+
+                var responseString = response.ToString();
+                var employees = JsonConvert.DeserializeObject<List<ExportEmployeeDetailsExcel>>(responseString);
+
+                if (employees == null || !employees.Any())
+                {
+                    return NotFound("No employee data found.");
+                }
+
+                // Project the data into a flat, exportable structure (anonymous or DTO)
+                var exportData = employees.Select(emp => new
+                {
+                    emp.EmployeeNumber,
+                    emp.CompanyName,
+                    emp.FirstName,
+                    emp.MiddleName,
+                    emp.Surname,
+                    emp.Gender,
+                    DateOfBirth = emp.DateOfBirth?.ToString("yyyy-MM-dd"),
+                    emp.PlaceOfBirth,
+                    emp.EmailAddress,
+                    emp.PersonalEmailAddress,
+                    emp.Mobile,
+                    emp.Landline,
+                    emp.Telephone,
+                    emp.CorrespondenceAddress,
+                    emp.CorrespondenceCity,
+                    emp.CorrespondenceState,
+                    emp.CorrespondencePinCode,
+                    emp.PermanentAddress,
+                    emp.PermanentCity,
+                    emp.PermanentState,
+                    emp.PermanentPinCode,
+                    emp.PANNo,
+                    emp.AadharCardNo,
+                    emp.BloodGroup,
+                    emp.Allergies,
+                    emp.MajorIllnessOrDisability,
+                    emp.AwardsAchievements,
+                    emp.EducationGap,
+                    emp.ExtraCuricuarActivities,
+                    emp.ForiegnCountryVisits,
+                    emp.ContactPersonName,
+                    emp.ContactPersonMobile,
+                    emp.ContactPersonTelephone,
+                    emp.ContactPersonRelationship,
+                    emp.ITSkillsKnowledge,
+                    emp.Designation,
+                    emp.EmployeeType,
+                    emp.Department,
+                    emp.SubDepartment,
+                    emp.JobLocation,
+                    emp.ShiftType,
+                    emp.OfficialEmailID,
+                    emp.OfficialContactNo,
+                    JoiningDate = emp.JoiningDate?.ToString("yyyy-MM-dd"),
+                    emp.ReportingManager,
+                    emp.PolicyName,
+                    emp.PayrollType,
+                    emp.ClientName,
+                    emp.ESINumber,
+                    ESIRegistrationDate = emp.ESIRegistrationDate?.ToString("yyyy-MM-dd"),
+                    emp.BankAccountNumber,
+                    emp.IFSCCode,
+                    emp.BankName,
+                    emp.UANNumber,
+                    DateOfResignation = emp.DateOfResignation?.ToString("yyyy-MM-dd"),
+                    DateOfLeaving = emp.DateOfLeaving?.ToString("yyyy-MM-dd"),
+                    emp.LeavingType,
+                    emp.NoticeServed,
+                    emp.AgeOnNetwork,
+                    emp.PreviousExperience,
+                    DateOfJoiningTraining = emp.DateOfJoiningTraining?.ToString("yyyy-MM-dd"),
+                    DateOfJoiningFloor = emp.DateOfJoiningFloor?.ToString("yyyy-MM-dd"),
+                    DateOfJoiningOJT = emp.DateOfJoiningOJT?.ToString("yyyy-MM-dd"),
+                    DateOfJoiningOnroll = emp.DateOfJoiningOnroll?.ToString("yyyy-MM-dd"),
+                    BackOnFloorDate = emp.BackOnFloorDate?.ToString("yyyy-MM-dd"),
+                    emp.LeavingRemarks,
+                    MailReceivedFromAndDate = emp.MailReceivedFromAndDate?.ToString("yyyy-MM-dd"),
+                    EmailSentToITDate = emp.EmailSentToITDate?.ToString("yyyy-MM-dd"),
+                    Status = emp.Status
+                }).ToList();
+
+                using var package = new ExcelPackage();
+                var worksheet = package.Workbook.Worksheets.Add("Employees");
+
+                // Load data and headers
+                worksheet.Cells["A1"].LoadFromCollection(exportData, PrintHeaders: true);
+
+                // Style header row
+                using (var range = worksheet.Cells[1, 1, 1, exportData[0].GetType().GetProperties().Length])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                }
+
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                var fileContents = package.GetAsByteArray();
+                var fileName = $"EmployeeDetails_{DateTime.Now:yyyyMMdd}.xlsx";
+
+                return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                // Optionally log exception
+                return StatusCode(500, "An error occurred while exporting employee details.");
+            }
         }
 
+
+        [HttpGet]
+        public IActionResult EducationalDetail(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var model = new EducationalDetail
+            {
+                EmployeeID = decodedEmployeeId
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public JsonResult GetEducationDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            EducationDetailParams educationDetailParams = new EducationDetailParams();
+            educationDetailParams.EmployeeID = EmployeeID;
+            var data = _businessLayer.SendPostAPIRequest(educationDetailParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEducationDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<List<EducationalDetail>>(data);
+
+            if (results != null)
+            {
+                results.ForEach(x =>
+                {
+                    if (!string.IsNullOrEmpty(x.CertificateImage))
+                    {
+                        x.CertificateImage = _s3Service.GetFileUrl(x.CertificateImage);
+                    }
+                });
+            }
+            return Json(new
+            {
+                data = results
+            });
+        }
+
+        [HttpPost]
+        public JsonResult EducationalDetail(EducationalDetail eduDetail, List<IFormFile> CertificateFile)
+        {
+            if (ModelState.IsValid)
+            {
+                eduDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+                _s3Service.ProcessFileUpload(CertificateFile, eduDetail.CertificateImage, out string newPanKey);
+                if (!string.IsNullOrEmpty(newPanKey))
+                {
+                    if (!string.IsNullOrEmpty(eduDetail.CertificateImage))
+                    {
+                        _s3Service.DeleteFile(eduDetail.CertificateImage);
+                    }
+                    eduDetail.CertificateImage = newPanKey;
+                }
+                else
+                {
+                    eduDetail.CertificateImage = _s3Service.ExtractKeyFromUrl(eduDetail.CertificateImage);
+                }
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    eduDetail,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEducationDetail),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "Education details saved successfully." });
+                }
+                return Json(new { success = false, message = "Failed to save family details." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+        [HttpPost]
+        public IActionResult DeleteEducationDetail(long encodedId)
+        {
+
+            EducationDetailParams model = new EducationDetailParams
+            {
+                EducationDetailID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEducationDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+
+
+                return Json(new { success = true, message = response });
+            }
+
+            return Json(new { success = false, message = "Failed to delete the record." });
+        }
+
+
+        [HttpGet]
+        public IActionResult FamilyDetail(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var model = new FamilyDetail
+            {
+                EmployeeID = decodedEmployeeId
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public JsonResult GetFamilyDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            FamilyDetailParams familyDetailParams = new FamilyDetailParams();
+            familyDetailParams.EmployeeID = EmployeeID;
+            var data = _businessLayer.SendPostAPIRequest(familyDetailParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetFamilyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<List<FamilyDetail>>(data);
+            return Json(new
+            {
+                data = results
+            });
+        }
+
+        [HttpPost]
+        public JsonResult FamilyDetail(FamilyDetail famDetail)
+        {
+            if (ModelState.IsValid)
+            {
+                famDetail.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    famDetail,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateFamilyDetail),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "Family details saved successfully." });
+                }
+
+                return Json(new { success = false, message = "Failed to save family details." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+        [HttpPost]
+        public IActionResult DeleteFamilyDetail(long encodedId)
+        {
+
+            FamilyDetailParams model = new FamilyDetailParams
+            {
+                EmployeesFamilyDetailID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteFamilyDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+                return Json(new { success = true, message = response });
+            }
+
+            return Json(new { success = false, message = "Failed to delete the record." });
+        }
+
+        [HttpGet]
+        public IActionResult ReferenceDetail(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var model = new HRMS.Models.Employee.Reference
+            {
+                EmployeeID = decodedEmployeeId
+            };
+            return View(model);
+
+        }
+        [HttpPost]
+        public JsonResult GetReferenceDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            ReferenceParams referenceParams = new ReferenceParams
+            {
+                EmployeeID = EmployeeID
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                referenceParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetReferenceDetails),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.Reference>>(data);
+
+            return Json(new { data = results });
+        }
+
+        [HttpPost]
+        public JsonResult ReferenceDetail(HRMS.Models.Employee.Reference reference)
+        {
+            if (ModelState.IsValid)
+            {
+                reference.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    reference,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateReferenceDetail),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "ReferenceDetail details saved successfully." });
+                }
+                return Json(new { success = false, message = "Failed to save reference details." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteReferenceDetail(long encodedId)
+        {
+            ReferenceParams model = new ReferenceParams
+            {
+                ReferenceDetailID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteReferenceDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+
+                return Json(new { success = true, message = response });
+            }
+
+            return Json(new { success = false, message = "Failed to delete the record." });
+        }
+
+
+        [HttpGet]
+        public IActionResult EmploymentHistory(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var results = GetAllResults(companyId);
+            var model = new HRMS.Models.Employee.EmploymentHistory
+            {
+                EmployeeID = decodedEmployeeId,
+                Countries = results.Countries
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult GetEmploymentHistoryDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            var requestParams = new EmploymentHistoryParams
+            {
+                EmployeeID = EmployeeID
+
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                requestParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmploymentHistory),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.EmploymentHistory>>(data);
+
+            return Json(new { data = results });
+        }
+
+        [HttpPost]
+        public JsonResult EmploymentHistory(HRMS.Models.Employee.EmploymentHistory history)
+        {
+            if (ModelState.IsValid)
+            {
+                history.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    history,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateEmploymentHistory),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "Employment history saved successfully." });
+                }
+                return Json(new { success = false, message = "Failed to save employment history." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteEmploymentHistory(long encodedId)
+        {
+            EmploymentHistoryParams model = new EmploymentHistoryParams
+            {
+                EmploymentHistoryID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteEmploymentHistory),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+
+                return Json(new { success = true, message = response });
+            }
+
+            return Json(new { success = false, message = "Failed to delete the record." });
+        }
+
+        [HttpGet]
+        public IActionResult LanguageDetail(string id)
+        {
+            var decodedEmployeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var results = GetAllResults(companyId);
+
+            var model = new HRMS.Models.Employee.LanguageDetail
+            {
+                EmployeeID = decodedEmployeeId,
+                Languages = results.Languages,
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult GetLanguageDetails(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long EmployeeID)
+        {
+            var requestParams = new HRMS.Models.Employee.LanguageDetailParams
+            {
+                EmployeeID = EmployeeID
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                requestParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLanguageDetails),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<List<HRMS.Models.Employee.LanguageDetail>>(data);
+
+            return Json(new { data = results });
+        }
+
+        [HttpPost]
+        public JsonResult LanguageDetail(HRMS.Models.Employee.LanguageDetail language)
+        {
+            if (ModelState.IsValid)
+            {
+                language.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    language,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.AddUpdateLanguageDetail),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (result != null && result.PKNo > 0)
+                {
+                    return Json(new { success = true, message = "Language detail saved successfully." });
+                }
+
+                return Json(new { success = false, message = "Failed to save language detail." });
+            }
+
+            return Json(new { success = false, message = "Validation failed." });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteLanguageDetail(long encodedId)
+        {
+            var model = new HRMS.Models.Employee.LanguageDetailParams
+            {
+                EmployeeLanguageDetailID = encodedId
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteLanguageDetail),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            if (!string.IsNullOrEmpty(response))
+            {
+
+                return Json(new { success = true, message = response });
+            }
+
+            return Json(new { success = false, message = "Failed to delete the record." });
+        }
+
+
+
+
+
+        [HttpGet]
+        public IActionResult EmployeesWeekOffRoster()
+        {
+            var employeeId = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.WeekOffRoster);
+
+            if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
+            {
+
+                var teamPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
+
+                if (roleId != (int)Roles.Employee && teamPermission.HasPermission > 0)
+                {
+                    return RedirectToAction("GetTeamEmployeeList", "MyInfo", new { area = "employee" });
+                }
+
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            return View(new HRMS.Models.Common.Results());
+        }
+
+        [HttpPost]
+        public JsonResult GetEmployeesWeekOffRoster(string sEcho, int PageNumber, int PageSize, string sSearch, int Year, DateTime WeekStartDate, string sortCol,
+    string sortDir)
+        {
+            WeekOfInputParams employee = new WeekOfInputParams();
+
+            var columnMapping = new Dictionary<string, string>
+    {
+        {"employeeID", "EmployeeID"},
+        {"employeeName", "EmployeeName"},
+        {"employeNumber", "EmployeNumber"},
+        {"weekStartDate", "WeekStartDate"},
+        {"modifiedName", "ModifiedName"},
+        {"dayOff1", "DayOff1"},
+        {"dayOff2", "DayOff2"},
+        {"modifiedDate", "ModifiedDate"},
+    };
+
+
+            employee.PageNumber = PageNumber;
+            employee.PageSize = PageSize;
+            employee.WeekStartDate = WeekStartDate;
+            employee.Year = Year;
+            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            employee.RoleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+            employee.SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch;
+            employee.SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "EmployeeID";
+            employee.SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper();
+
+            var data = _businessLayer.SendPostAPIRequest(
+                employee,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesWeekOffRoster),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+            var results = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(data);
+            results.ForEach(x =>
+            {
+                x.EncryptedIdentity = _businessLayer.EncodeStringBase64(x.Id.ToString());
+                x.EncryptedEmployeeId = _businessLayer.EncodeStringBase64(x.EmployeeId.ToString());
+            });
+            return Json(new
+            {
+                draw = sEcho,
+                recordsTotal = results.Select(x => x.TotalCount).FirstOrDefault() ?? 0,
+                recordsFiltered = results.Select(x => x.TotalCount).FirstOrDefault() ?? 0,
+                data = results
+            });
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> AddUpdateWeekOffRoster(string id, string emp)
+        {
+
+            WeekOfEmployeeId Employeemodel = new WeekOfEmployeeId();
+            WeekOffUploadModel modeldata = new WeekOffUploadModel();
+            WeekOfInputParams modeldatas = new WeekOfInputParams();
+
+            if (id == null)
+            {
+                modeldatas.Id = 0;
+            }
+            else
+            {
+                modeldatas.Id = Convert.ToInt32(_businessLayer.DecodeStringBase64(id));
+            }
+
+            if (id != null)
+            {
+                var getdata = _businessLayer.SendPostAPIRequest(
+                    modeldatas,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesWeekOffRoster),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+                modeldata = JsonConvert.DeserializeObject<List<WeekOffUploadModel>>(getdata).FirstOrDefault();
+                if (modeldata != null)
+                {
+                    modeldata.EmployeeIdWithEmployeeNo = modeldata.EmployeeId?.ToString();
+
+
+                    if (modeldata.WeekStartDate.HasValue)
+                    {
+
+                        modeldata.WeekStartDate = DateTime.ParseExact(
+                            modeldata.WeekStartDate.Value.ToString("yyyy-MM-dd"),
+                            "yyyy-MM-dd",
+                            System.Globalization.CultureInfo.InvariantCulture
+                        );
+
+                        modeldata.SelectedYear = modeldata.WeekStartDate.Value.Year;
+                        modeldata.SelectedMonth = modeldata.WeekStartDate.Value.Month;
+                    }
+
+                }
+            }
+            if (emp == null)
+            {
+                Employeemodel.ManagerID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)); ;
+            }
+            else
+            {
+                Employeemodel.EmployeeID = Convert.ToInt64(_businessLayer.DecodeStringBase64(emp));
+            }
+
+            var data = _businessLayer.SendPostAPIRequest(
+                    Employeemodel,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllEmployeesList),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+
+            var employeeList = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
+
+            if (id != null)
+            {
+                if (employeeList != null && employeeList.Count > 0)
+                {
+                    foreach (var item in employeeList)
+                    {
+                        if (!string.IsNullOrEmpty(item.Value) && item.Value.Contains("_"))
+                        {
+                            item.Value = item.Value.Split('_')[0];
+                        }
+                    }
+                }
+
+                modeldata.Employee = employeeList;
+            }
+            else
+            {
+                modeldata.Employee = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
+            }
+
+
+
+            return View(modeldata);
+        }
+
+
+        [HttpGet]
+        public IActionResult GetShiftsByEmployee(string employeeNumber)
+        {
+            if (employeeNumber.Contains("_"))
+            {
+                var parts = employeeNumber.Split('_');
+                if (parts.Length > 1)
+                {
+                    employeeNumber = parts[1]; // assume format like "9_22"
+                }
+            }
+            else
+            {
+                employeeNumber = employeeNumber;
+            }
+            List<EmployeeShiftModel> obj = new List<EmployeeShiftModel>();
+            var session = HttpContext.Session;
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+            var Shiftdata = _businessLayer.SendGetAPIRequest(
+                               $"Employee/GetShiftTypeList?employeeNumber={employeeNumber}",
+                               token,
+                               true).Result.ToString();
+            obj = JsonConvert.DeserializeObject<List<EmployeeShiftModel>>(Shiftdata);
+
+            return Json(obj);
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddUpdateWeekOffRoster(WeekOffUploadModel model)
+        {
+            try
+            {
+                var session = HttpContext.Session;
+                var employeeIdString = session.GetString(Constants.EmployeeID);
+                var token = session.GetString(Constants.SessionBearerToken);
+
+                if (string.IsNullOrEmpty(employeeIdString) || string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized(new { success = false, message = "Session expired. Please log in again." });
+                }
+                var employeeId = Convert.ToInt64(employeeIdString);
+                if (model.EmployeeNumberWithOutAbbr == null)
+                {
+                    model.EmployeeNumber = model.EmployeeIdWithEmployeeNo.Split('_')[1];
+                }
+                else
+                {
+                    model.EmployeeNumber = model.EmployeeNumberWithOutAbbr;
+                }
+                //int currentDay = DateTime.Today.Day;
+                //model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
+
+                var weekOffUploadModel = new WeekOffUploadModelList
+                {
+                    WeekOffList = new List<WeekOffUploadModel> { model },
+                    CreatedBy = employeeId
+                };
+
+                var validationError = ValidateModelList(weekOffUploadModel.WeekOffList, model.WeekStartDate);
+                if (!string.IsNullOrEmpty(validationError))
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = validationError;
+                    return RedirectToAction(WebControllarsConstants.AddUpdateWeekOffRoster, WebControllarsConstants.Employee);
+                }
+
+                var apiUrl = _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.UploadRosterWeekOff
+                );
+
+                var apiResponse = await _businessLayer.SendPostAPIRequest(
+                    weekOffUploadModel, apiUrl, token, true
+                );
+
+                if (apiResponse == null)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Failed to upload data to the server. Please try again later.";
+                }
+                else
+                {
+                    var results = JsonConvert.DeserializeObject<bool>(apiResponse.ToString());
+                    if (results == true)
+                    {
+                        TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                        TempData[Constants.toastMessage] = "Data saved successfully.";
+                    }
+                    else
+                    {
+                        TempData[Constants.toastType] = Constants.toastTypeError;
+                        TempData[Constants.toastMessage] = "Something went wrong. Please try again later.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData[Constants.toastType] = Constants.toastTypeError;
+                TempData[Constants.toastMessage] = "An unexpected error occurred. Please try again later.";
+            }
+
+            return RedirectToAction(WebControllarsConstants.EmployeesWeekOffRoster, WebControllarsConstants.Employee);
+        }
+
+
+        [HttpGet]
+        public IActionResult DeleteWeekOffRoster(string id)
+        {
+            id = _businessLayer.DecodeStringBase64(id);
+            WeekOffUploadDeleteModel model = new WeekOffUploadDeleteModel()
+            {
+                RecordId = Convert.ToInt64(id),
+                ModifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
+
+            };
+            var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.DeleteWeekOffRoster), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            if (data != null)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = data;
+            }
+            return RedirectToActionPermanent(WebControllarsConstants.EmployeesWeekOffRoster, WebControllarsConstants.Employee);
+        }
+
+
+        #region EmploymentSalaryDetails
+        public IActionResult EmploymentSalaryDetails(string id)
+        {
+            var employee = _businessLayer.DecodeStringBase64(id);
+            var model = new SalarySlipViewModel
+            {
+                EmployeeID = long.Parse(employee),
+
+            };
+            return View(model);
+        }
+        #endregion EmploymentSalaryDetails
+
+        private string ValidateModelList(List<WeekOffUploadModel> models, DateTime? week)
+        {
+
+            var session = HttpContext.Session;
+            var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
+            var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID));
+            var inputParams = new WeekOfInputParams
+            {
+                EmployeeID = employeeId,
+
+            };
+            var holidayParams = new HolidayInputparams
+            {
+                CompanyID = companyId,
+            };
+            var EmployeesHierarchyUnderManager = _businessLayer.SendPostAPIRequest(inputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetEmployeesHierarchyUnderManager), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var EmployeesHierarchyUnderManagerDictionaries = JsonConvert.DeserializeObject<Dictionary<string, long>>(EmployeesHierarchyUnderManager);
+            var holidaymodelList = _businessLayer.SendPostAPIRequest(holidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetCompanyHoliday), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var holidayList = JsonConvert.DeserializeObject<List<HolidayCompanyList>>(holidaymodelList);
+            var errors = new List<string>();
+
+            var employeeNumberToRows = new Dictionary<string, List<int>>();
+            for (int i = 0; i < models.Count; i++)
+            {
+                var item = models[i];
+                var rowNum = i + 2;
+                if (string.IsNullOrWhiteSpace(item.EmployeeNumber) || item.EmployeeNumber == "0")
+                {
+                    errors.Add($"Row {rowNum}: Missing or invalid EmployeeNumber.");
+                    continue;
+                }
+                var empNumberLower = item.EmployeeNumber.Trim().ToLower();
+                if (!EmployeesHierarchyUnderManagerDictionaries.ContainsKey(empNumberLower))
+                {
+                    errors.Add($"Row {rowNum}: EmployeeNumber '{item.EmployeeNumber}' does not exist under the current manager.");
+                    continue;
+                }
+                var jobLocationTypeId = EmployeesHierarchyUnderManagerDictionaries[empNumberLower];
+                if (!item.WeekStartDate.HasValue)
+                {
+                    errors.Add($"Row {rowNum}: WeekStartDate is missing.");
+                    continue;
+                }
+
+                var weekStart = item.WeekStartDate.Value.Date;
+                var weekEnd = weekStart.AddDays(6);
+                if (!item.DayOff1.HasValue)
+                {
+                    errors.Add($"Row {rowNum}: DayOff1 is mandatory.");
+                    continue;
+                }
+
+
+                var weekOffDates = new List<DateTime>();
+                var fields = new Dictionary<string, DateTime?>()
+        {
+            { "DayOff1", item.DayOff1 },
+            { "DayOff2", item.DayOff2 },
+
+        };
+
+                foreach (var kvp in fields)
+                {
+                    if (kvp.Value.HasValue)
+                    {
+                        var date = kvp.Value.Value.Date;
+
+
+                        if (date < weekStart || date > weekEnd)
+                        {
+                            errors.Add($"Date ({date:yyyy-MM-dd}) is outside the week range {weekStart:yyyy-MM-dd} to {weekEnd:yyyy-MM-dd}.");
+                        }
+                        else
+                        {
+                            var holiday = holidayList.FirstOrDefault(h =>
+               h.JobLocationTypeID == jobLocationTypeId &&
+               h.FromDate <= date && h.ToDate >= date &&
+               h.Status == true);
+
+                            if (holiday != null)
+                            {
+                                errors.Add($"Date: ({date:yyyy-MM-dd}) falls on a holiday.");
+                            }
+                            else
+                            {
+                                weekOffDates.Add(date);
+                            }
+                        }
+                    }
+                }
+
+
+                var duplicateDates = weekOffDates
+                    .GroupBy(d => d)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key.ToString("yyyy-MM-dd"))
+                    .ToList();
+
+                if (duplicateDates.Any())
+                {
+                    errors.Add($"Row {rowNum}: Duplicate WeekOff dates found: {string.Join(", ", duplicateDates)}.");
+                }
+            }
+
+
+
+            return errors.Any() ? string.Join("\n", errors) : null;
+        }
+
+
+        private void AddDateIfValid(List<DateTime> dates, DateTime? date, int rowNum, string fieldName, List<string> errors)
+        {
+            if (date.HasValue)
+            {
+                if (date.Value.Year < 2000)
+                    errors.Add($"Row {rowNum}: {fieldName} '{date.Value}' is an invalid or unreasonable date.");
+                else
+                    dates.Add(date.Value.Date);  // Always add as date-only (ignores time part)
+            }
+        }
     }
 }

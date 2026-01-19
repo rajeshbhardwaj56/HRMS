@@ -12,16 +12,56 @@ button#DeleteButton {
 
 
 }
+/* Uniform height and padding for select boxes */
+.form-select,
+.select2-container .select2-selection--single {
+    height: 38px !important; /* Bootstrap default input height */
+    padding: 6px 12px !important;
+    font-size: 14px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+/* Ensure Select2 width matches others */
+.select2-container {
+    width: 100% !important;
+}
+
+/* Align label spacing */
+.form-group .form-label,
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* Optional: spacing between elements if needed */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+
+
+span.LeaveApproved {
+    background: #145322;
+    color: white;
+    border-radius: 6px;
+    padding: 3px 8px 4px 8px;
+}
 @media (min-width: 768px) {
     html {
         font-size: 16px;
     }
 }
-
+h4.mb-0.titleweekof {
+    padding-bottom: 14px;
+}
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
-
+.ck-editor__editable {
+    min-height: 300px !important;
+}
 html {
     position: relative;
     min-height: 100%;
@@ -567,7 +607,7 @@ textarea.form-control {
 
 .main-header {
 
-    font-size: 20px;
+    font-size: 15px;
     color: var(--body-bg);
     font-weight: 700;
     padding-bottom: 12px;
@@ -584,7 +624,12 @@ textarea.form-control {
     padding-top: 12px;
     box-shadow: 5px 0px 15px #d0e0ff;
 }
-
+.header-left {
+    color: var(--body-bg);
+    font-weight: 700;
+    display: inline-flex; /* keeps text inline */
+    align-items: center;
+}
 .anim {
     -webkit-animation: bottom 0.8s var(--delay) both;
     animation: bottom 0.8s var(--delay) both;
@@ -1706,5 +1751,63 @@ span.Attendance-status {
 
     100% {
         transform: scale(1);
+    }
+}
+@media (min-width: 768px) and (max-width: 1400px) {
+    a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-holiday {
+        top: 50%;
+        left: 12% !important;
+        background-color: #1c5db1;
+        color: white;
+        font-weight: bold;
+        font-size: 13px !important;
+        width: 91px !important;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+        border: none;
+    }
+    .main-menu > ul {
+        padding: 4px 3px 5px 1px !important;
+        font-size: 15px !important;
+    }
+
+    .header {
+        padding: 0px 0px !important;
+    }
+
+    .main-menu > ul > li > a {
+        padding: 15px 7px 13px 14px !important;
+    }
+    a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-present {
+        top: 50%;
+        left: 12% !important;
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        font-size: 13px !important;
+        width: 91px !important;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+        border: none;
+    }
+
+    a.fc-day-grid-event.fc-h-event.fc-event.fc-start.fc-end.status-absent {
+        top: 50%;
+        left: 12% !important;
+        background-color: #dc3545;
+        color: white;
+        /* border-radius: 50%; */
+        font-weight: bold;
+        font-size: 13px !important;
+        width: 91px !important;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        cursor: pointer;
+        border: none;
     }
 }

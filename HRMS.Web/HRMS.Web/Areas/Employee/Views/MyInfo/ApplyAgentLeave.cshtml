@@ -1,0 +1,813 @@
+﻿@using HRMS.Models;
+@using HRMS.Models.Common;
+@using System.Globalization;
+@using HRMS.Models.MyInfo;
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@model MyInfoResults
+@{
+    SelectListItem selectCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.CorrespondenceCountryID.ToString()).FirstOrDefault();
+
+    SelectListItem selectPermanentCountry = @Model.employeeModel.Countries.Where(x => x.Value == Model.employeeModel.PermanentCountryID.ToString()).FirstOrDefault();
+    SelectListItem employmentHistoryCountry;
+    var CountryData = @Model.employeeModel.Countries;
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+    ViewData["Title"] = "Apply Agent Leave";
+    var ProfilePhoto = "";
+    if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
+    {
+        ProfilePhoto = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.ProfilePhoto);
+    }
+    else
+    {
+        ProfilePhoto = HRMS.Models.Common.Constants.NoImagePath;
+    }
+    var UploadCertificate = "";
+    if (!string.IsNullOrEmpty(Model.leaveResults.leaveSummaryModel.UploadCertificate))
+    {
+        UploadCertificate = Model.leaveResults.leaveSummaryModel.UploadCertificate;
+    }
+    else
+    {
+        UploadCertificate = HRMS.Models.Common.Constants.NoImagePath;
+    }
+    if (Model.leaveResults.leaveSummaryModel.StartDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.StartDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.EndDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.EndDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.HalfDayDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.HalfDayDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.ExpectedDeliveryDate = DateTime.Now;
+    }
+    if (Model.leaveResults.leaveSummaryModel.ChildDOB == DateTime.MinValue)
+    {
+        Model.leaveResults.leaveSummaryModel.ChildDOB = DateTime.Now;
+    }
+    var fullDayValue = (int)LeaveDay.FullDay;
+    var halfDayValue = (int)LeaveDay.HalfDay;
+    var filteredLeaveTypes = Model.leaveResults.leaveTypes;
+
+    if (Model.CampOffLeaveCount <= 0)
+    {
+        filteredLeaveTypes = filteredLeaveTypes
+            .Where(lt => !lt.Text.Equals("Compensatory Off", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+
+}
+
+@functions {
+    public string DisplayValue(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "N/A" : value;
+    }
+}
+<style>
+    .leave-section-tabs {
+        /* background-color: #05397b; */
+        border-radius: 5px 5px 0px 0px;
+        color: white;
+        border: none;
+    }
+
+    .fade:not(.show) {
+        opacity: 0;
+        display: none !important;
+    }
+</style>
+@* <div class="main-header anim" style="--delay: 0s">My Info</div> *@
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+<!-- jQuery (required) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<section class="lower-section">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12 ">
+                <div class="tab-content" id="myTabContentSection">
+                    <div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="tab-pane fade show active" id="@(MyInfoTabs.TabLeaveInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabLeaveInfo)-tab">
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo" id="">
+                                            <h3>Leave Info</h3>
+                                            <nav>
+                                                <div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
+                                                    <button class="nav-link active" id="apply-leave-tab1" data-bs-toggle="tab" data-bs-target="#apply-leave-tab" type="button" role="tab" aria-controls="apply-leave-tab" aria-selected="true">Apply Leave</button>
+                                                    <button class="nav-link  " id="leave-summary-tab1" data-bs-toggle="tab" data-bs-target="#leave-summary-tab" type="button" role="tab" aria-controls="leave-summary-tab" aria-selected="false">Leave Summary</button>
+                                                </div>
+                                            </nav>
+                                            <div class="tab-content" id="nav-tabContent">
+                                                <div class="tab-pane fade show active" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
+                                                    <div class="row">
+                                                        <div class="col-lg-8">
+
+                                                            <div class="">
+                                                                <div class="">
+                                                                    @*  <form class="body-text" method="post" enctype="multipart/form-data"> *@
+                                                                    <form id="myForm" method="post" enctype="multipart/form-data" action="/employee/myinfo/ApplyAgentLeave/">
+
+
+
+                                                                        <div id="responseMessage" class="error-message" style=" color: red;font-size: 15px;font-weight: 700;">                                                                        </div>                                                                        <div class="row py-2">
+    <div class="col-lg-6 col-md-12">
+        <label for="agentTypeDropdown" class="">Agent Name:</label>
+        <select id="agentTypeDropdown" name="leaveResults.leaveSummaryModel.EmployeeID" class="form-control" required>
+        </select>
+
+    </div>
+
+    <div class="col-lg-6 col-md-12">
+        <label for="leavetype" class="">Leave Type:</label>
+        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
+        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
+        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID, new { id = "EmployeeIdHidden" })
+        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
+        @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
+        @Html.HiddenFor(x => x.CampOffLeaveCount)
+        <select id="leaveTypeDropdown" name="leaveResults.leaveSummaryModel.LeaveTypeID" class="form-control" required>
+            <option value="">Select Leave Type</option>
+            @if (Model.leaveResults.leaveSummaryModel.LeaveTypeID > 0)
+            {
+                foreach (var type in filteredLeaveTypes)
+                {
+                    <option value="@type.Value" selected="@(type.Value == Model.leaveResults.leaveSummaryModel.LeaveTypeID.ToString())">
+                        @type.Text
+                    </option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-lg-6 col-md-12" id="leaveDurationContainer">
+        <label for="leavetype" class="">Leave Duration:</label>
+        @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "leaveDurationDropdown" })
+    </div>
+    <div class="col-lg-6 col-md-12" id="ChildDOBDateContainer">
+        <!-- New ID for toggling -->
+        <label for="datepicker2" class="">Child DOB:</label>
+        <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
+        <div class="position-relative">
+            <div class="input-group date" id="datepickerdiv3">
+                @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), })
+            </div>
+        </div>
+    </div>
+</div>
+                                                                        <div class="row py-2 fullDayContainer" id="fullDayContainer">
+                                                                            <div class="col-lg-6 col-md-12" id="fromdatetime">
+                                                                                <label for="datepicker1" class="">From:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv1">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new
+                                                                                            {
+                                                                                                @class = "form-control body-text",
+                                                                                                @type = "date",
+                                                                                                @min = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd")
+                                                                                            })
+
+
+
+
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-lg-6 col-md-12" id="todatetime">
+                                                                                <label for="datepicker2" class="">To:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv2">
+                                                                                        @* 	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), })
+                                                                                        *@
+
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new
+                                                                                            {
+                                                                                                @class = "form-control body-text",
+                                                                                                @type = "date",
+                                                                                                @min = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd")
+                                                                                            })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row py-2 halfDayContainer" id="halfDayContainer">
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label for="datepicker1" class="">Date:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv1">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd") })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div class="row py-2 MaternityAdoptionMiscarrageContainer " id="MaternityAdoptionMiscarrageContainer">
+                                                                            <div class="col-lg-6 col-md-12" id="expectedDeliveryDateContainer">
+                                                                                <!-- New ID for toggling -->
+                                                                                <label for="datepicker2" class="">Expected Delivery Date:</label>
+                                                                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
+
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group date" id="datepickerdiv3">
+                                                                                        @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", })
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                                <label>Upload Certificate:</label>
+                                                                                <div class="position-relative">
+                                                                                    <div class="input-group ">
+                                                                                        @* <img src="@Model.leaveResults.leaveSummaryModel.UploadCertificate" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" style="width:100px; height:100px" />  *@
+
+                                                                                        <input type="file" name="postedFiles" class="form-control body-text" />
+                                                                                        @if (Model.leaveResults.leaveSummaryModel.UploadCertificate != null && Model.leaveResults.leaveSummaryModel.UploadCertificate != "")
+                                                                                        {
+                                                                                            <p> <i class="fa fa-file-pdf-o" style="font-size: 40px; color: red;"></i></p>
+                                                                                        }
+
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                        <div class="row py-3 mb-1">
+                                                                            <div class="col-lg-12">
+                                                                                <label for="Reason" class="">Reason:</label>
+                                                                                <div class="input-group">
+                                                                                    @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required" })
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
+                                                                        <a href="~/employee/MyInfo/ApplyAgentLeave/" class="btn btn-danger" type="reset">Cancel</a>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="tab-pane fade" id="leave-summary-tab" role="tabpanel" aria-labelledby="leave-summary-tab1">
+
+                                                    <div class="row">
+                                                        <div class="col-12 col-lg-12">
+                                                            <div class="table-responsive">
+                                                                <table id="tblLeaveSummary" class="table table-striped body-text dataTable no-footer">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Emp No</th>
+                                                                            <th>Name</th>
+                                                                            <th>Applied By Number</th>
+                                                                            <th>Applied By Name</th>
+                                                                            <th>Request Date</th>
+                                                                            <th>Start Date</th>
+                                                                            <th>End Date</th>
+                                                                            <th>Type</th>
+                                                                            <th>Days</th>
+                                                                            <th>Status</th>
+                                                                            <th>Actions</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach (var item in Model.leaveResults.leavesSummary)
+                                                                        {
+                                                                            <tr>
+                                                                                <td>@item.EmployeeNumber</td>
+                                                                                <td> @item.EmployeeName </td>
+                                                                                <td> @item.AppliedByNumber </td>
+                                                                                <td> @item.AppliedByName </td>
+                                                                                <td>@item.RequestDate.ToString("MM/dd/yyyy hh:mm tt")</td>
+                                                                                <td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
+                                                                                <td>@item.EndDate.ToString("dd/M/yyyy")</td>
+                                                                                <td>@item.LeaveTypeName</td>
+                                                                                <td>
+                                                                                    @if (@item.LeaveTypeID == (int)LeaveType.AnnualLeavel && @item.NoOfDays > @ViewBag.ConsecutiveAllowedDays)
+                                                                                    {
+                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Exceeding maximum consecutive allowed @ViewBag.ConsecutiveAllowedDays days limit" style="cursor: pointer; background: red; color: white !important;">
+                                                                                            @item.NoOfDays
+                                                                                        </span>
+                                                                                    }
+                                                                                    else if (@item.LeaveTypeID == (int)LeaveType.MedicalLeave && @item.NoOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))
+                                                                                    {
+                                                                                        <span class="fw-bold text-primary" data-bs-toggle="tooltip" title="Document required for more than @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) days medical leave" style="cursor: pointer; background: red; color: white !important;">
+                                                                                            @item.NoOfDays
+                                                                                        </span>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <span class="fw-bold text-primary">
+                                                                                            @item.NoOfDays
+                                                                                        </span>
+                                                                                    }
+                                                                                </td>
+                                                                                @switch (item.LeaveStatusID)
+                                                                                {
+                                                                                    case (int)LeaveStatus.Approved:
+                                                                                        <td><span class="fw-bold text-success">@item.LeaveStatusName</span></td>
+                                                                                        break;
+                                                                                    case (int)LeaveStatus.PendingApproval:
+                                                                                        <td><span class="fw-bold text-primary">@item.LeaveStatusName</span></td>
+                                                                                        break;
+                                                                                    case (int)LeaveStatus.NotApproved:
+                                                                                        <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
+                                                                                        break;
+                                                                                    case (int)LeaveStatus.Cancelled:
+                                                                                        <td><span class="fw-bold text-danger">@item.LeaveStatusName</span></td>
+                                                                                        break;
+                                                                                }
+
+                                                                                @if (item.LeaveStatusID != (int)LeaveStatus.Approved && item.LeaveStatusID != (int)LeaveStatus.Cancelled)
+                                                                                {
+                                                                                    <td>
+                                                                                        <a href="~/employee/MyInfo/ApplyAgentLeave/?id=@(item.EncryptedIdentity)&jobLocationId=@(item.JobLocationID)&genderId=@(item.Gender)&employeeId=@(item.Encrypted)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
+
+                                                                                        <form action="/employee/MyInfo/DeleteAgentLeavesSummary" method="post" style="display:inline;">
+                                                                                            <input type="hidden" name="id" value="@item.EncryptedIdentity" />
+                                                                                            <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to delete this item?');">
+                                                                                                <i class="fa fa-close" style="font-size:22px;color:red"></i>
+                                                                                            </button>
+                                                                                        </form>
+
+
+                                                                                    </td>
+                                                                                }
+                                                                                else if (item.LeaveStatusID == (int)LeaveStatus.Approved)
+                                                                                {
+                                                                                    @if (item.StartDate > DateTime.Now)
+                                                                                    {
+                                                                                        <td>
+                                                                                            <form action="/employee/MyInfo/UpdateAgentLeaveStatus" method="post" style="display:inline;">
+                                                                                                <input type="hidden" name="id" value="@item.EncryptedIdentity" />
+                                                                                                <input type="hidden" name="empId" value="@item.Encrypted" />
+                                                                                                <button type="submit" id="DeleteButton" onclick="return confirm('Are you sure you want to cancel this leave?');">
+                                                                                                    <i class="fa fa-close" style="font-size:22px;color:red"></i>
+                                                                                                </button>
+                                                                                            </form>
+                                                                                        </td>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <td>  </td>
+                                                                                    }
+
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <td>  </td>
+                                                                                }
+
+                                                                            </tr>
+                                                                        }
+
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<input type="hidden" id="leaveSummaryID" value="" />
+<input type="hidden" id="leaveTypeID" value="" />
+<input type="hidden" id="GenderIdHidden" name="GenderId" />
+<input type="hidden" id="JobLocationIdHidden" name="JobLocationId" />
+
+
+<script>
+
+	$(document).ready(function() {
+
+		$('#tblLeaveSummary').DataTable({
+			"paging": true,
+			"lengthChange": true,
+			"searching": true,
+			"ordering": true,
+			"info": true,
+			"autoWidth": false,
+			"responsive": true
+		});
+
+
+		var leaveSummaryID;
+
+		// File preview functions
+		function UploadCertificatePreview(event) {
+		const file = event.target.files[0];
+		if (file) {
+			const previewImage = document.getElementById('UploadCertificatePreviewImage');
+			const previewPDF = document.getElementById('UploadCertificatePreviewPDF');
+			const reader = new FileReader();
+
+			reader.onload = function (e) {
+				const result = e.target.result;
+
+				if (file.type.startsWith('image/')) {
+					previewImage.src = result;
+					previewImage.style.display = 'block';
+					previewPDF.style.display = 'none';
+				} else if (file.type === 'application/pdf') {
+					previewPDF.src = result;
+					previewPDF.style.display = 'block';
+					previewImage.style.display = 'none';
+				} else {
+					alert('Unsupported file type. Please upload an image or PDF.');
+					previewImage.style.display = 'none';
+					previewPDF.style.display = 'none';
+				}
+			};
+
+			reader.readAsDataURL(file);
+		}
+	}
+
+		function PanPostedFilePreview(event) {
+		const file = event.target.files[0];
+		if (file) {
+			const previewImage = document.getElementById('PanpreviewImage');
+			const pdfPreview = document.getElementById('PanpreviewPDF');
+			const reader = new FileReader();
+
+			reader.onload = function (e) {
+				const result = e.target.result;
+
+				if (file.type.startsWith('image/')) {
+					previewImage.src = result;
+					previewImage.style.display = 'block';
+					pdfPreview.style.display = 'none';
+				} else if (file.type === 'application/pdf') {
+					pdfPreview.src = result;
+					pdfPreview.style.display = 'block';
+					previewImage.style.display = 'none';
+				} else {
+					alert('Unsupported file type. Please upload an image or a PDF.');
+					previewImage.style.display = 'none';
+					pdfPreview.style.display = 'none';
+				}
+			};
+
+			reader.readAsDataURL(file);
+		}
+	}
+
+		// Initialize on window load
+		window.onload = function () {
+			const certPath = '@Html.Raw(Model.leaveResults.leaveSummaryModel.UploadCertificate)';
+		const certFilePath = certPath.toLowerCase();
+		const certImg = document.getElementById('UploadCertificatePreviewImage');
+		const certPdf = document.getElementById('UploadCertificatePreviewPDF');
+
+		if (certFilePath.includes('.pdf')) {
+			certPdf.src = certPath;
+			certPdf.style.display = 'block';
+			certImg.style.display = 'none';
+		} else if (certPath) {
+			certImg.src = certPath;
+			certImg.style.display = 'block';
+			certPdf.style.display = 'none';
+		}
+		};
+
+		// Tooltip initialization
+		$('[data-bs-toggle="tooltip"]').tooltip();
+
+		// Tab persistence logic
+		var subTabs = document.querySelectorAll('#myTab-timeoff .nav-link');
+		subTabs.forEach(function (subTab) {
+			subTab.addEventListener('click', function () {
+				localStorage.setItem('selectedSubTab', subTab.getAttribute('data-bs-target'));
+			});
+		});
+
+		var activeSubTab = localStorage.getItem('selectedSubTab');
+		if (activeSubTab) {
+			var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
+			if (targetSubTab) {
+				var tab = new bootstrap.Tab(targetSubTab);
+				tab.show();
+			}
+		}
+
+		// Edit button handling
+		document.querySelectorAll('.edit-button').forEach(function (button) {
+			button.addEventListener('click', function (event) {
+				event.preventDefault();
+				localStorage.removeItem('selectedSubTab');
+				localStorage.setItem('selectedSubTab', '#apply-leave-tab');
+				var applyLeaveTab = new bootstrap.Tab(document.querySelector('#apply-leave-tab1'));
+				applyLeaveTab.show();
+				const href = button.getAttribute('href');
+				if (href) window.location.href = href;
+			});
+		});
+
+		// Form submission handling
+		document.getElementById("myForm").onsubmit = async function (event) {
+		event.preventDefault();
+		const responseMessage = document.getElementById("responseMessage");
+		responseMessage.textContent = "";
+		responseMessage.className = "";
+		const formData = new FormData(this);
+		const response = await fetch(this.action, {
+			method: 'POST',
+			body: formData
+		});
+		const result = await response.json();
+		if (result.isValid) {
+			$.toast({
+				heading: 'Success',
+				text: result.message,
+				showHideTransition: 'slide',
+				icon: 'success',
+				position: 'top-right',
+			});
+			setTimeout(function () {
+				window.location.href = "/employee/myinfo/ApplyAgentLeave/";
+			}, 1000);
+			// responseMessage.textContent = result.message;
+			// responseMessage.className = "success-message";
+			// this.reset(); // Optionally reset the form fields
+		} else {
+			// Display error message
+			responseMessage.textContent = result.message;
+			responseMessage.className = "error-message";
+		}
+	};
+
+		// UI Control Variables
+		var agentTypeDropdown = document.getElementById("agentTypeDropdown");
+		var leaveDurationDropdown = document.getElementById("leaveDurationDropdown");
+		var fullDayContainer = document.getElementById("fullDayContainer");
+		var halfDayContainer = document.getElementById("halfDayContainer");
+		var leaveTypeDropdown = document.getElementById("leaveTypeDropdown");
+		var maternityAdoptionMiscarrageContainer = document.getElementById("MaternityAdoptionMiscarrageContainer");
+		var leaveDurationContainer = document.getElementById("leaveDurationContainer");
+		var todatetime = document.getElementById("todatetime");
+		var fromdatetime = document.getElementById("fromdatetime");
+		var ChildDOBDateContainer = document.getElementById("ChildDOBDateContainer");
+		var expectedDeliveryDateContainer = document.getElementById("expectedDeliveryDateContainer");
+
+		// Constants
+		var fullDayValue = "1";
+		var halfDayValue = "2";
+		var isEditMode = @(Model.leaveResults.leaveSummaryModel.LeaveSummaryID > 0 ? "true" : "false");
+		var initialEmployeeID = '@Model.leaveResults.leaveSummaryModel.EmployeeID';
+		var initialLeaveTypeID = '@Model.leaveResults.leaveSummaryModel.LeaveTypeID';
+	//		if (isEditMode) {
+	//	$('#agentTypeDropdown').prop('disabled', true);
+	//}
+		// Initialize UI
+		initializeAgentDropdown();
+		setupEventListeners();
+		toggleUIElements();
+
+
+        function initializeAgentDropdown() {
+            const $dropdown = $('#agentTypeDropdown');
+
+            $dropdown.select2({
+                placeholder: "-- Select Agent --",
+                allowClear: true,
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/employee/myinfo/GetLastLevelEmployeeDropdown/',
+                    type: 'POST',
+                    datatype: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { searchTerm: params.term };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.data.map(emp => ({
+                                id: emp.employeeID,
+                                text: `${emp.employeeNumber} - ${emp.employeeName}`,
+                                genderId: emp.gender,
+                                jobLocationId: emp.jobLocationID
+                            }))
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            $dropdown.on('select2:select', function (e) {
+                const data = e.params.data;
+                $('#GenderIdHidden').val(data.genderId);
+                $('#JobLocationIdHidden').val(data.jobLocationId);
+                loadLeaveTypeDropdown(data.id, data.genderId, data.jobLocationId);
+            });
+
+
+            if (isEditMode && initialEmployeeID) {
+                $.ajax({
+                    url: '/employee/myinfo/GetEmployeeForLeaveEdit',
+                    type: 'POST',
+                    data: { employeeId: initialEmployeeID },
+                    success: function (response) {
+                        if (response && response.employee) {
+                            const emp = response.employee;
+                            const option = new Option(`${emp.employeeNumber} - ${emp.employeeName}`, emp.employeeID, true, true);
+                            $dropdown.append(option).trigger('change');
+
+                            $('#GenderIdHidden').val(emp.gender);
+                            $('#JobLocationIdHidden').val(emp.jobLocationID);
+
+
+                            $dropdown.prop('disabled', true);
+                        }
+                    }
+                });
+            }
+        }
+
+        function preloadSelectedAgent(employeeId, callback) {
+            $.ajax({
+                url: '/employee/myinfo/GetEmployeeById',
+                type: 'POST',
+                data: { employeeId },
+                success: function (response) {
+                    if (response && response.employee) {
+                        const emp = response.employee;
+                        const option = new Option(`${emp.employeeNumber} - ${emp.employeeName}`, emp.employeeID, true, true);
+                        $('#agentTypeDropdown').append(option).trigger('change');
+                        $('#GenderIdHidden').val(emp.gender);
+                        $('#JobLocationIdHidden').val(emp.jobLocationID);
+
+                        if (callback) callback();
+                    }
+                }
+            });
+        }
+
+        function loadLeaveTypeDropdown(employeeId, genderId, jobLocationId) {
+            $.ajax({
+                url: '/employee/myinfo/GetApplyLeaveData',
+                type: 'POST',
+                data: { employeeId, genderId, jobLocationId },
+                success: function (response) {
+                    if (response && response.leaveTypes) {
+                        populateLeaveTypeDropdown(response.leaveTypes);
+                        if (isEditMode && initialLeaveTypeID) {
+                            $('#leaveTypeDropdown').val(initialLeaveTypeID).trigger('change');
+                        }
+                    } else {
+                        showError("Failed to load leave types");
+                    }
+                },
+                error: function () {
+                    showError("Request failed");
+                }
+            });
+        }
+
+
+
+		
+	  
+
+		function setupEventListeners() {
+
+			
+
+			// Leave type change handler
+			$('#leaveTypeDropdown').change(function() {
+
+				const selectedLeaveTypeId = parseInt(this.value);
+				if (selectedLeaveTypeId === @Convert.ToInt32(LeaveType.LeaveWithOutPay)) {
+					$("#leaveDurationContainer").hide();
+					$("#MaternityAdoptionMiscarrageContainer").hide();
+					$("#todatetime").show();
+					$("#fullDayContainer").show();
+				} else if (selectedLeaveTypeId === @Convert.ToInt32(LeaveType.CompOff)) {
+					$("#fullDayContainer").hide();
+					$("#todatetime").hide();
+					$("#leaveDurationContainer").show();
+				} else {
+					$("#fullDayContainer").hide();
+					$("#todatetime").hide();
+					$("#leaveDurationContainer").show();
+				}
+				toggleUIElements();
+			});
+
+			$('#leaveDurationDropdown').change(toggleUIElements);
+		}
+
+		function populateLeaveTypeDropdown(leaveTypes) {
+
+			const $dropdown = $('#leaveTypeDropdown');
+			$dropdown.empty().append('<option value="">Select Leave Type</option>');
+			leaveTypes.forEach(function(type) {
+				$dropdown.append($('<option></option>').val(type.value).text(type.text));
+			});
+		}
+
+		function toggleUIElements() {
+			const selectedLeaveTypeText = $('#leaveTypeDropdown option:selected').text();
+			const leaveDurationValue = $('#leaveDurationDropdown').val();
+
+
+			if (['Maternity Leave', 'Adoption', 'Miscarriage'].includes(selectedLeaveTypeText)) {
+				$('#fullDayContainer').show();
+				$('#halfDayContainer').hide();
+				$('#leaveDurationContainer').hide();
+				$('#ChildDOBDateContainer').hide();
+				$('#todatetime').show();
+				$('#leaveDurationDropdown').prop('required', false);
+			} else if (selectedLeaveTypeText === 'Paternity Leave') {
+				$('#fullDayContainer').show();
+				$('#halfDayContainer').hide();
+				$('#ChildDOBDateContainer').show();
+			} else if (selectedLeaveTypeText === 'Medical Leave') {
+				$('#leaveDurationContainer').hide();
+				$('#ChildDOBDateContainer').hide();
+				$('#halfDayContainer').hide();
+				$('#leaveDurationDropdown').val('').prop('required', false);
+				$('#fullDayContainer').show();
+			} else if (selectedLeaveTypeText === 'Leave Without Pay') {
+				$('#todatetime').show();
+				$('#fromdatetime').show();
+				$('#halfDayContainer').hide();
+				$('#ChildDOBDateContainer').hide();
+				$('#leaveDurationContainer').hide();
+			} else if (leaveDurationValue === fullDayValue) {
+				$('#fullDayContainer').show();
+				$('#todatetime').show();
+				$('#fromdatetime').show();
+				$('#halfDayContainer').hide();
+				$('#ChildDOBDateContainer').hide();
+			} else if (leaveDurationValue === halfDayValue) {
+				$('#fullDayContainer').show();
+				$('#halfDayContainer').hide();
+				$('#ChildDOBDateContainer').hide();
+				$('#todatetime').hide();
+				$('#fromdatetime').show();
+			} else {
+				$('#fullDayContainer').hide();
+				$('#halfDayContainer').hide();
+				$('#ChildDOBDateContainer').hide();
+				$('#leaveDurationContainer').show();
+			}
+
+			
+			$('#MaternityAdoptionMiscarrageContainer').toggle(
+				['Maternity Leave', 'Adoption', 'Miscarriage', 'Medical Leave', 'Paternity Leave']
+					.includes(selectedLeaveTypeText)
+			);
+
+			$('#expectedDeliveryDateContainer').toggle(
+				selectedLeaveTypeText === 'Maternity Leave'
+			);
+
+		}
+
+		function showError(message) {
+			const responseMessage = document.getElementById("responseMessage");
+			responseMessage.textContent = message;
+			responseMessage.className = "error-message";
+			responseMessage.style.display = "block";
+			setTimeout(() => responseMessage.style.display = "none", 5000);
+		}
+	});
+</script>
+
+

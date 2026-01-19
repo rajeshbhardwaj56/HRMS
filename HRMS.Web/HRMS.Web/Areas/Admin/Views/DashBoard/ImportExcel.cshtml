@@ -61,9 +61,7 @@
             <div>
                 <input type="file" name="file" id="file" />
                 <input type="submit" value="Import" id="btnfileupload" class="btn btn-success" />
-            </div>
-
-            <!-- Message container (invisible at start) -->
+            </div>            
             <div id="upload-messages"></div>
 
         </div>
@@ -103,7 +101,7 @@
             success: function (data) {
                 $("#file").val('');
                 $("#btnfileupload").val("Import").prop('disabled', false);
-                $("#upload-messages").empty(); // Clear previous messages
+                $("#upload-messages").empty(); 
 
                 if (data.success && !data.hasErrors) {
                     $("#upload-messages").append(

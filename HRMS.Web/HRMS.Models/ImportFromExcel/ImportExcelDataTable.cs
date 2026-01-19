@@ -8,21 +8,21 @@ namespace HRMS.Models.ImportFromExcel
 {
     public class ImportExcelDataTable
     {
-        public string? EmployeeNumber { get; set; }
-        public string? CompanyName { get; set; }
+        public string? EMPID { get; set; }
+
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
         public string? Surname { get; set; }
-        public string? CorrespondenceAddress { get; set; }
-        public string? CorrespondenceCity { get; set; }
-        public string? CorrespondencePinCode { get; set; }
-        public string? CorrespondenceState { get; set; }
-        public string? CorrespondenceCountryName { get; set; }
-        public string? EmailAddress { get; set; }
+        public string? PresentAddress { get; set; }
+        public string? PresentCity { get; set; }
+        public string? PresentPinCode { get; set; }
+        public string? PresentState { get; set; }
+        public string? PresentCountryName { get; set; }
+        public string? EmailId { get; set; }
         public string? Landline { get; set; }
         public string? Mobile { get; set; }
         public string? Telephone { get; set; }
-        public string? PersonalEmailAddress { get; set; }
+
         public string? PermanentAddress { get; set; }
         public string? PermanentCity { get; set; }
         public string? PermanentPinCode { get; set; }
@@ -46,28 +46,25 @@ namespace HRMS.Models.ImportFromExcel
         public string? EducationGap { get; set; }
         public string? ExtraCurricularActivities { get; set; }
         public string? ForeignCountryVisits { get; set; }
-        public string? ContactPersonName { get; set; }
-        public string? ContactPersonMobile { get; set; }
-        public string? ContactPersonTelephone { get; set; }
-        public string? ContactPersonRelationship { get; set; }
+        public string? EmergencyContactPersonName { get; set; }
+        public string? EmergencyContactPersonMobile { get; set; }
+        public string? EmergencyContactPersonTelephone { get; set; }
+        public string? EmergencyContactPersonRelationship { get; set; }
         public string? ITSkillsKnowledge { get; set; }
         public string? JoiningDate { get; set; }
         public string? DesignationName { get; set; }
-        public string? EmployeeType { get; set; }
+        public string? Category { get; set; }
         public string? DepartmentName { get; set; }
         public string? SubDepartmentName { get; set; }
         public string? ShiftTypeName { get; set; }
-        public string? JobLocationName { get; set; }
-        public string? ReportingToIDL1Name { get; set; }
-        public string? ReportingToIDL2Name { get; set; }
-        public string? OfficialEmailID { get; set; }
+        public string? Location { get; set; }
+        public string? EmpCodeofReportingManager { get; set; }
+        public string? ProtalkId { get; set; }
         public string? OfficialContactNo { get; set; }
         public string? PayrollTypeName { get; set; }
         public string? LeavePolicyName { get; set; }
         public string? ClientName { get; set; }
-        public string? RoleName { get; set; }
-        public string? ForiegnCountryVisits { get; set; }
-        public string? ExtraCuricuarActivities { get; set; }
+
         public string? Gender { get; set; }
         public string? ESINumber { get; set; }
         public string? RegistrationDateInESIC { get; set; }
@@ -90,8 +87,19 @@ namespace HRMS.Models.ImportFromExcel
         public string? AON { get; set; }
         public string? PreviousExperience { get; set; }
         public string? Status { get; set; }
+        public string? SourcingType { get; set; }
+        public string? RefereeName { get; set; }
+        public string? MobileNumberOfReferee { get; set; }
+        public string? DocumentationStatus { get; set; }
+        public string? LOB { get; set; }
+        public string? NewSubDepartmentName { get; set; }
         public string? ExcelFile { get; set; }
         public string? InsertedByUserID { get; set; }
+        public string? CompanyName { get; set; }
+        public string? ReportingToIDL2Name { get; set; }
+
+        
+
     }
     public class ImportExcelDataTableType
     {
@@ -146,7 +154,6 @@ namespace HRMS.Models.ImportFromExcel
         public string? UserName { get; set; }
         public string? PasswordHash { get; set; }
         public string? Email { get; set; }
-        public int RoleID { get; set; }
         public string? EmployeNumber { get; set; }
         public long? DesignationID { get; set; }
         public long? EmployeeTypeID { get; set; }
@@ -184,6 +191,12 @@ namespace HRMS.Models.ImportFromExcel
         public DateTime? EmailSentToITDate { get; set; }
         public bool? IsActive { get; set; }
         public  string? ReportingToIDL1EmployeeNumber { get; set; }
+        public  string? SourcingType { get; set; }
+        public  string? RefereeName { get; set; }
+        public  string? MobileNumberReferee { get; set; }
+        public  string? DocumentationStatus { get; set; }
+        public  string? LOB { get; set; }
+        public  string? NewSubDepartmentName { get; set; }
     }
 
     public class CompanyInfo

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Mail;
 using System.Reflection;
@@ -16,15 +17,26 @@ namespace HRMS.Models.Employee
         public long CompanyID { get; set; }
         public long EmployeeID { get; set; }
         public long RoleID { get; set; }
+        public long? LocationID { get; set; } = 0;
+        public long? SubDepartmentID { get; set; } = 0;
+        public long? EmployeeTypeID { get; set; } = 0;
+
+        public bool? IsActive { get; set; } = null;
+        public long? ManagerID { get; set; } = 0;
         public int? DisplayStart { get; set; } = 0;
         public int? DisplayLength { get; set; } = 0;
         public string? Searching { get; set; }
+       
+        public string? SortDir { get; set; }
+
+        public string? SortCol { get; set; }
+
     }
 
 
     public class EmployeeModel
 
-    { 
+    {
         public string EncryptedIdentity { get; set; } = string.Empty;
         public string EncodedDesignationID { get; set; } = string.Empty;
         public string EncodedDepartmentIDID { get; set; } = string.Empty;
@@ -43,6 +55,7 @@ namespace HRMS.Models.Employee
         public long CorrespondenceCountryID { get; set; }
         public string? EmailAddress { get; set; } = string.Empty;
         public string? Landline { get; set; } = string.Empty;
+
         public string? Mobile { get; set; } = string.Empty;
         public string? Telephone { get; set; } = string.Empty;
         public string? PersonalEmailAddress { get; set; } = string.Empty;
@@ -99,12 +112,13 @@ namespace HRMS.Models.Employee
         public string? ReportingToNameL2 { get; set; } = string.Empty;
         public string? PayrollTypeName { get; set; } = string.Empty;
         public string? EmployeeNumber { get; set; } = string.Empty;
+        public string? EmployeeNumberWithoutAbbr { get; set; } = string.Empty;
         public string OfficialEmailID { get; set; } = string.Empty;
 
         public string? ClientName { get; set; } = string.Empty;
 
         public long? LeavePolicyID { get; set; }
-        public long? CarryForword { get; set; }
+        public double? CarryForword { get; set; }
         public int Gender { get; set; }
         public bool IsActive { get; set; }
         public long ShiftTypeID { get; set; }
@@ -116,6 +130,7 @@ namespace HRMS.Models.Employee
         public string? ShiftStartTime { get; set; } = string.Empty;
         public string? ManagerName { get; set; } = string.Empty;
         public string? Shift { get; set; } = string.Empty;
+        public string? JobLocation { get; set; } = string.Empty;
 
         // Additional Details
         public List<FamilyDetail> FamilyDetails { get; set; } = new List<FamilyDetail>();
@@ -124,6 +139,12 @@ namespace HRMS.Models.Employee
         public List<EmploymentHistory> EmploymentHistory { get; set; } = new List<EmploymentHistory>();
         public List<EmploymentDetail> EmploymentDetail { get; set; } = new List<EmploymentDetail>();
         public List<Reference> References { get; set; } = new List<Reference>();
+        public List<EmploymentTypesList> EmploymentTypesList { get; set; } = new List<EmploymentTypesList>();
+        public List<LocationList> LocationList { get; set; } = new List<LocationList>();
+        public List<SubDepartmentList> SubDepartmentList { get; set; } = new List<SubDepartmentList>();
+        public List<StatusList> StatusList { get; set; } = new List<StatusList>();
+
+
 
         // Master Details
         public List<SelectListItem> Languages = new List<SelectListItem>();
@@ -132,6 +153,27 @@ namespace HRMS.Models.Employee
         public List<SelectListItem> EmploymentTypes = new List<SelectListItem>();
         public List<SelectListItem> Departments = new List<SelectListItem>();
 
+    }
+
+    public class EmploymentTypesList
+    {
+        public long? EmployeeTypeId { get; set; }
+        public string? Name { get; set; }
+    }
+    public class SubDepartmentList
+    {
+        public long? SubDepartmentID { get; set; }
+        public string? Name { get; set; }
+    }
+    public class StatusList
+    {
+        public long? StatusID { get; set; }
+        public string? Name { get; set; }
+    }
+    public class LocationList
+    {
+        public long? JobLocationID { get; set; }
+        public string? Name { get; set; }
     }
     public class ReportingStatus
     {

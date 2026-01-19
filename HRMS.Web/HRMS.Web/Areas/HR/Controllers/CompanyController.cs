@@ -10,33 +10,43 @@ using HRMS.Models.Employee;
 using DocumentFormat.OpenXml.InkML;
 using System.ComponentModel.Design;
 using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 
 namespace HRMS.Web.Areas.HR.Controllers
 {
 	[Area(Constants.ManageHR)]
-	[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
-	public class CompanyController : Controller
+    [Authorize]
+    //[Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.SuperAdmin))]
+    public class CompanyController : Controller
 	{
 		IConfiguration _configuration;
 		IBusinessLayer _businessLayer;
 		private readonly IS3Service _s3Service;
 		private IHostingEnvironment Environment;
-		private readonly IHttpContextAccessor _context;
-		public CompanyController(IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        private readonly IHttpContextAccessor _context;
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public CompanyController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
 		{
 			Environment = _environment;
 			_configuration = configuration;
 			_businessLayer = businessLayer;
 			_context = context;
 			_s3Service = s3Service;
+            _CheckUserFormPermission = CheckUserFormPermission;
 
-		}
+        }
 		public IActionResult CompanyListing()
 		{
-			//EmployeeInputParams employee = new EmployeeInputParams();
-			//var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompanies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-			//var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
-			return View();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.CompanyListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
 		}
 
 		[HttpPost]
@@ -49,8 +59,18 @@ namespace HRMS.Web.Areas.HR.Controllers
 			return Json(new { data = results.Companies });
 		}
 		public IActionResult Index(string id)
-		{
-			CompanyModel model = new CompanyModel();
+        {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.company);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            CompanyModel model = new CompanyModel();
 			{
 				if (id == null)
 				{
@@ -139,5 +159,10 @@ namespace HRMS.Web.Areas.HR.Controllers
 			result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
 			return result;
 		}
+       
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
     }
 }

@@ -5,14 +5,13 @@
 @inject IConfiguration _configuration
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
-
+	ViewData["Title"] = "Approve Attendance";
 }
 <style>
 	.fade:not(.show) {
 		opacity: 1;
 	}
 </style>
-
 <section class="lower-section">
 	<div class="container-fluid">
 		<div class="row">
@@ -65,7 +64,9 @@
 														<table id="tblAttendanceForApproval" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
-																	<th>Employee Name</th>
+																	<th>Id</th>
+																	<th>Emp No</th>
+																	<th>  Name</th>
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -100,7 +101,9 @@
 														<table id="tblAttendanceForApproved" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
-																	<th>Employee Name</th>
+																	<th>Id</th>
+																	<th>Emp No</th>
+																	<th>Name</th>
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -131,7 +134,9 @@
 														<table id="tblAttendanceForReject" class="table table-striped body-text" style="width:100%">
 															<thead>
 																<tr>
-																	<th>Employee Name</th>
+																	<th>Id</th>
+																	<th>Emp No</th>
+																	<th>  Name</th>
 																	<th>From Date</th>
 																	<th>To Date</th>
 																	<th>Work Date</th>
@@ -224,11 +229,11 @@
 										
 										<div class="DateFormatDiv" style="display: flex;">
 											<div class="col-lg-4 px-4">
-												<h6>Start Date</h6>
+												<h6>Login Date</h6>
 												<p id="StartDate"> </p>
 											</div>
 											<div class="col-lg-4 px-4">
-												<h6>End Date</h6>
+												<h6>Logout Date</h6>
 												<p id="EndDate"> </p>
 											</div>
 											<div class="col-lg-4 px-4">
@@ -307,7 +312,10 @@
 			 searching: true,
 			 info: true,
 			 responsive: true,
+			  order: [[0, 'desc']],
 			 columns: [
+					{ data: "id", visible: false },
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
@@ -319,10 +327,10 @@
 					 autoWidth: true,
 					 render: formatDate
 				 },
-				 {
+				  {
 					 data: "workDate",
 					 autoWidth: true,
-					 render: formatDate
+						 render: formatWorkDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
 				 { data: "attendanceStatus", autoWidth: true },
@@ -339,31 +347,56 @@
 		 });
 	 }
 	 //First Tab Table load
-	function RefreshTable12(tableId, urlData, status,Year,Month) {
-		 $.ajax({
-			 url: urlData,
-			 type: 'POST',
-			 contentType: 'application/json',
-			 data: JSON.stringify({ attendanceStatus: parseInt(status),Year:Year,Month:Month }),
-			 success: function (json) {
-				 let table = $(tableId).dataTable();
-				 let oSettings = table.fnSettings();
+		function RefreshTable12(tableId, urlData, status, Year, Month) {
+		$.ajax({
+			url: urlData,
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify({ attendanceStatus: parseInt(status), Year: Year, Month: Month }),
+			success: function (json) {
+				try {
+					let table = $(tableId).dataTable();
+					let oSettings = table.fnSettings();
 
-				 table.fnClearTable();
+					table.fnClearTable();
 
-				 for (var i = 0; i < json.data.length; i++) {
-					 table.oApi._fnAddData(oSettings, json.data[i]);
-				 }
+					if (json && json.data && Array.isArray(json.data)) {
+						for (var i = 0; i < json.data.length; i++) {
+							table.oApi._fnAddData(oSettings, json.data[i]);
+						}
 
-				 oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-				 table.fnDraw();
-			 },
-			 error: function (xhr, status, error) {
-				 console.error("Error in RefreshTable12:", error);
-			 }
-		 });
-	 }
+						oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+						table.fnDraw();
+					} else {
+						alert("Unexpected response format. Please contact IT support.");
+					}
+				} catch (ex) {
+					window.location.href = '/Home/ErrorPage';
+				}
+			},
+			error: function (xhr, status, error) {
+			window.location.href = '/Home/ErrorPage';
 
+			}
+		});
+	}
+
+	 function formatWorkDate(dateString) {
+			 const date = new Date(dateString);
+			 const monthNames = [
+				 "January", "February", "March", "April", "May", "June",
+				 "July", "August", "September", "October", "November", "December"
+			 ];
+			 const day = date.getDate();
+			 const month = date.getMonth()+1;
+			 const year = date.getFullYear();
+			 let hours = date.getHours();
+			 let minutes = date.getMinutes();
+			 const ampm = hours >= 12 ? 'PM' : 'AM';
+			 hours = hours % 12 || 12;
+			 minutes = minutes < 10 ? '0' + minutes : minutes;
+			 return `${day}/${month}/${year} `;
+		 }
 	 //second tab
 
 	 function AttendanceForApproved() {
@@ -411,7 +444,10 @@
 			 searching: true,
 			 info: true,
 			 responsive: true,
+			   order: [[0, 'desc']],
 			 columns: [
+					{ data: "id", visible: false },
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
@@ -426,7 +462,7 @@
 				 {
 					 data: "workDate",
 					 autoWidth: true,
-					 render: formatDate
+						 render: formatWorkDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
 				 { data: "attendanceStatus", autoWidth: true },
@@ -444,14 +480,14 @@
 			 "July", "August", "September", "October", "November", "December"
 		 ];
 		 const day = date.getDate();
-		 const month = monthNames[date.getMonth()];
+		 const month = date.getMonth()+1;
 		 const year = date.getFullYear();
 		 let hours = date.getHours();
 		 let minutes = date.getMinutes();
 		 const ampm = hours >= 12 ? 'PM' : 'AM';
 		 hours = hours % 12 || 12;
 		 minutes = minutes < 10 ? '0' + minutes : minutes;
-		 return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+		 return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
 	 }
 
 	 function RefreshTable(tableId, url) {
@@ -465,40 +501,29 @@
 		 });
 	 }
 
-		 function ApproveRejectAttendance(isApproved) {
-
+		function ApproveRejectAttendance(isApproved) {
 		const ApproveRejectComment = $("#ApproveRejectComment").val();
+		const approveButton = $("#approveButton");
+		const rejectButton = $(".btn-primary");
 
-			if (ApproveRejectComment === "") {
-				$("#approverejectrequire").text('Comment required');
-				// Re-enable both buttons and reset text
-				approveButton.prop('disabled', false);
-				rejectButton.prop('disabled', false);
-				approveButton.text('Approve');
-				rejectButton.text('Reject');
-				return;
-			}
-
-		const approveButton = $("#approveButton");  // Approve button
-		const rejectButton = $(".btn-primary");    // Reject button (using class to select)
+		if (ApproveRejectComment === "") {
+			$("#approverejectrequire").text('Comment required');
+			approveButton.prop('disabled', false).text('Approve');
+			rejectButton.prop('disabled', false).text('Reject');
+			return;
+		}
 
 		const actionText = isApproved ? "approve" : "reject";
 
-		// Disable both buttons and change text of the clicked button
+		// Disable buttons and show processing state
 		approveButton.prop('disabled', true);
 		rejectButton.prop('disabled', true);
-
-		// Change text to 'Processing...' for the clicked button
-		if (isApproved) {
-			approveButton.text('Processing...');
-		} else {
-			rejectButton.text('Processing...');
-		}
+		isApproved ? approveButton.text('Processing...') : rejectButton.text('Processing...');
 
 		// Show confirmation dialog
 		if (confirm(`Are you sure you want to ${actionText} this attendance request?`)) {
 			const employeeID = $("#employeeID").val();
-			
+
 			const data = {
 				attendanceId: $("#attendanceId").val(),
 				employeeID,
@@ -510,38 +535,48 @@
 				actionText: actionText
 			};
 
-			$.post('/Employee/Attendance/ApproveRejectAttendance/', data, function (json) {
-				console.log(json);
-				if (json && json.message) {
-					if (json.success) {
-						showToast(json.message);
-						CloseApproveRejectModel();
-						window.location.reload();
-						$("#ApproveRejectComment").val("");
-					} else {
-						$("#approverejectrequire").text(json.message);
-						window.location.reload();
-						CloseApproveRejectModel();
+			$.ajax({
+				url: '/Employee/Attendance/ApproveRejectAttendance/',
+				type: 'POST',
+				data: data,
+				success: function (json) {
+					try {
+						console.log(json);
+						if (json && json.message) {
+							if (json.success) {
+								showToast(json.message);
+								CloseApproveRejectModel();
+								setTimeout(() => window.location.reload(), 2000);
+								$("#ApproveRejectComment").val("");
+							} else {
+								$("#approverejectrequire").text(json.message || "Something went wrong.");
+								CloseApproveRejectModel();
+								window.location.reload();
+							}
+						} else {
+							showToast("Attendance status updated.");
+							$("#ApproveRejectComment").val("");
+						}
+					} catch (ex) { 
+						window.location.href = '/Home/ErrorPage';
 					}
-				} else {
-					showToast("Attendance status updated.");
-					$("#ApproveRejectComment").val("");
+				},
+				error: function (xhr, status, error) {
+					window.location.href = '/Home/ErrorPage';
+				},
+				complete: function () {
+					// Re-enable both buttons and reset text
+					approveButton.prop('disabled', false).text('Approve');
+					rejectButton.prop('disabled', false).text('Reject');
 				}
-
-				// Re-enable both buttons and reset text after the request completes
-				approveButton.prop('disabled', false);
-				rejectButton.prop('disabled', false);
-				approveButton.text('Approve');
-				rejectButton.text('Reject');
 			});
 		} else {
-			// Re-enable both buttons and reset text if the user cancels
-			approveButton.prop('disabled', false);
-			rejectButton.prop('disabled', false);
-			approveButton.text('Approve');
-			rejectButton.text('Reject');
+			// User canceled the confirmation
+			approveButton.prop('disabled', false).text('Approve');
+			rejectButton.prop('disabled', false).text('Reject');
 		}
 	}
+
 
 
 	 function showToast(message) {
@@ -591,6 +626,7 @@
 			 },
 			 error: function (xhr) {
 				 $('#responseMessage').text('Error: ' + xhr.responseText);
+				 window.location.href = '/Home/ErrorPage';
 			 }
 		 });
 
@@ -610,7 +646,10 @@
 			 searching: true,
 			 info: true,
 			 responsive: true,
+			  order: [[0, 'desc']],
 			 columns: [
+				 { data: "id", visible: false },
+				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 {
 					 data: "firstLogDate",
@@ -625,7 +664,7 @@
 				 {
 					 data: "workDate",
 					 autoWidth: true,
-					 render: formatDate
+						 render: formatWorkDate
 				 },
 				 { data: "hoursWorked", autoWidth: true },
 				 { data: "attendanceStatus", autoWidth: true },
@@ -645,13 +684,13 @@
 			 }
 		 });
 	 }
-	// Add years from 2020 to the current year dynamically
+
 	const yearDropdown = document.getElementById('yearDropdown');
 	const monthDropdown = document.getElementById('monthDropdown');
 	const currentYear = new Date().getFullYear();
-	const startYear = 2020;
+	const startYear = 2025;
 
-	// Add years from 2020 to the current year
+	
 	for (let year = startYear; year <= currentYear; year++) {
 		const option = document.createElement('option');
 		option.value = year;
@@ -690,3 +729,5 @@
 
 
 </script>
+
+

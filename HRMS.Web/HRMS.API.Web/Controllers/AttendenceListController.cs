@@ -3,6 +3,7 @@ using HRMS.Models;
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -79,10 +80,10 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpPost]
-        public IActionResult GetAttendanceForCalendar(AttendanceInputParams model)
+        public IActionResult GetAttendanceForMonthlyViewCalendar(AttendanceInputParams model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetAttendanceForCalendar(model));
+            response = Ok(_businessLayer.GetAttendanceForMonthlyViewCalendar(model));
             return response;
         }
         [HttpPost]
@@ -92,6 +93,15 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetTeamAttendanceForCalendar(model));
             return response;
         }
+
+        [HttpPost]
+        public IActionResult GetExportAttendanceForCalendar(AttendanceInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetExportAttendanceForCalendar(model));
+            return response;
+        }
+
         [HttpPost]
         public IActionResult GetApprovedAttendance(AttendanceInputParams model)
         {
@@ -126,6 +136,74 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetEmployeeDetails(objmodel));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.FetchAttendanceHolidayAndLeaveInfo(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetCompOffAttendanceList(CompOffAttendanceInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetCompOffAttendanceList(objmodel));
+            return response;
+        }
+
+
+        [HttpPost]
+        public IActionResult GetApprovedCompOff(CompOffInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetApprovedCompOff(objmodel));
+            return response;
+        }
+
+
+
+        [HttpPost]
+        public IActionResult AddUpdateCompOffAttendace(CompOffAttendanceRequestModel objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateCompOffAttendace(objmodel));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetTeamAttendanceForApproval(AttendanceInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetTeamAttendanceForApproval(objmodel));
+            return response;
+        }
+
+
+        [HttpPost]
+        public IActionResult SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.SaveOrUpdateAttendanceStatus(att));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult SaveOrUpdateBulk(List<SaveAttendanceStatus> attstatus)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.SaveOrUpdateBulk(attstatus));
+            return response;
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult GetEmployeesWithoutUpcomingWeekOffRoster(UpcomingWeekOffRosterParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeesWithoutUpcomingWeekOffRoster(model));
             return response;
         }
     }

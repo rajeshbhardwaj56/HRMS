@@ -26,50 +26,113 @@
     button#printbtn {
         background: #053879;
         color: white;
-        width: 200px;
+        width: 100px;
         border-radius: 12px;
         border: none;
-        padding: 12px;
+        padding: 7px;
     }
+
+
 </style>
 <body>
 
-    <div class="main-header anim" style="--delay: 0s">Company Letterhead</div>
+    <div class="main-header anim" style="--delay: 0s">Company Letterhead
+        <button id="printbtn" onclick="printLetterhead()">Print</button>
 
+    </div>
 <!-- Letterhead Content -->
     <div class="Container">
         <div class="group-box anim" style="--delay: .3s">
 <div id="printArea">
     <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
-        <img src="@HeaderImage" alt="Company Logo" style="width: 120px; height: auto;">
+                    <img src="@HeaderImage" alt="Company Logo" style="width: 100%; height: auto;">
         <h2>@Model.LetterHeadName</h2>
     </div>
-    <div class="contentpart" style="text-align: center">
+                <div class="contentpart" >
         <p>@Html.Raw(Model.Description)</p>
-        <img src="@FooterImage" alt="Company Logo" style="width: 120px; height: auto;">
     </div>
+                <img id="footerImagePrint" src="@FooterImage" alt="Company Logo" style="width: 100%; height: auto;">
 </div>
 </div>
 </div>
 
 <!-- Print Button -->
-<button id="printbtn" onclick="printLetterhead()">Print</button>
+
 
 <script>
-    function printLetterhead() {
-        let printWindow = window.open('', '', 'width=800,height=600');
-        printWindow.document.write('<html><head><title>Letterhead</title>');
-        printWindow.document.write('<style>@@page { margin: 0; } body { margin: 1cm; }</style>');
-        printWindow.document.write('</head><body>');
-        printWindow.document.write(document.getElementById('printArea').innerHTML);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
+function printLetterhead() {
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+<html>
+<head>
+  <title>Letterhead</title>
+  <style>
+    @@page {
+             margin: 2cm 1cm 1cm 1cm;
+            }
 
-        // Ensure print window loads before executing print
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-        }, 500);
+    body {
+      font-family: Arial, sans-serif;
+      margin: 1cm;
+      padding: 0;
     }
+
+    .print-content {
+      padding-bottom: 120px; /* leave space for footer image */
+    }
+               .print-content {
+              padding: 0 2cm; /* Left and right spacing */
+              padding-bottom: 120px;
+            }
+    .print-footer {
+      display: none;
+    }
+                   #footerImagePrint {
+              display: none;
+            }
+    @@media print {
+      body {
+        margin: 0;
+      }
+
+      .print-footer {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        height: 100px;
+        background: white;
+        padding-top: 10px;
+        border-top: 1px solid #ccc;
+      }
+
+      .print-footer img {
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-content">
+    ${document.getElementById('printArea').innerHTML}
+  </div>
+  <div class="print-footer">
+    <img src="@FooterImage" alt="Footer Logo" />
+  </div>
+</body>
+</html>
+`);
+  printWindow.document.close();
+
+  setTimeout(() => {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  }, 500);
+}
 </script>
+
 </body> 

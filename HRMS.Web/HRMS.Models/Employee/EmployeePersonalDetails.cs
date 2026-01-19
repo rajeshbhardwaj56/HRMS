@@ -11,6 +11,8 @@ namespace HRMS.Models.Employee
         public long EmployeeID { get; set; } 
         public string EmployeeName { get; set; }
         public string PersonalEmailAddress { get; set; }
+        public string EmployeNumber { get; set; }
+        public string DepartmentName { get; set; }
     }
     public class EmployeePersonalDetailsById
     {

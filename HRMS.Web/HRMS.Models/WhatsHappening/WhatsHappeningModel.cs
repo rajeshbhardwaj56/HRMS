@@ -24,8 +24,8 @@ namespace HRMS.Models.WhatsHappeningModel
 
         public long WhatsHappeningID { get; set; }  
         public long CompanyID { get; set; }  
-        public string Title { get; set; } 
-        public string Description { get; set; }  
+        public string? Title { get; set; } 
+        public string? Description { get; set; }  
         public DateTime FromDate { get; set; } = DateTime.Now;
         public DateTime ToDate { get; set; } = DateTime.Now;
         public bool IsDeleted { get; set; } 

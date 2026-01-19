@@ -4,19 +4,17 @@
 @model WhatsHappeningModels
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Leave Policy";
-    var IconImage = "";
-    if (!string.IsNullOrEmpty(Model.IconImage))
-    {
-        IconImage = Model.IconImage;
-    }
-    else
-    {
-        IconImage = HRMS.Models.Common.Constants.NoImagePath;
-    }
+    ViewData["Title"] = "Add WhatsHappening";
+    var IconImage = !string.IsNullOrEmpty(Model.IconImage)
+         ? Model.IconImage
+         : HRMS.Models.Common.Constants.NoImagePath;
+
+    var isEditMode = Model.WhatsHappeningID > 0;
 }
 
-<div class="main-header anim" style="--delay: 0s">  Whats Happening</div>
+<div class="main-header anim" style="--delay: 0s">
+    What's Happening
+</div>
 <form id="AddWhatshappeningForm" method="post" enctype="multipart/form-data">
 
     <div class="Container">
@@ -56,7 +54,7 @@
                              style="width:100px; height:100px" />
                     </div>
                     <div class="col-md-8">
-                        <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)"/>                       
+                        <input type="file" name="postedFiles" accept="image/*" onchange="showPreview(event)"  @(isEditMode ? "" : "required") />
                     </div>
                 </div>
             </div>
@@ -104,13 +102,24 @@
         .catch(error => {
             console.error(error);
         });
-    function showPreview(event) {
+       function showPreview(event) {
         const file = event.target.files[0];
+        const maxSizeInMB = 4;
         if (file) {
+            const maxSizeInBytes = maxSizeInMB * 1024 * 1024;        
+            if (!file.type.startsWith('image/')) {
+                alert("Only image files are allowed.");
+                event.target.value = "";
+                return; 
+            }          
+            if (file.size > maxSizeInBytes) {
+                alert("Image size should not exceed 4MB.");
+                event.target.value = "";
+                return;
+            }         
             const reader = new FileReader();
             reader.onload = function (e) {
-                const previewImage = document.getElementById('previewImage');
-                previewImage.src = e.target.result;
+                document.getElementById('previewImage').src = e.target.result;
             };
             reader.readAsDataURL(file);
         }

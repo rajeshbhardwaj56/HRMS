@@ -11,6 +11,7 @@
 @{
     var sno = 0;
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "Contact Support";
 }
 <div class="contactsupports">
     <h3> Contact Support </h3>
@@ -25,9 +26,9 @@
                     <h3 class="mb-0 text-center">Admin</h3>
             </div>
             <div class="timeOff">
-                <h5>Title</h5>
-                <p style="line-height: 25px;">A dummy is a type of doll that looks like a person. Entertainers called ventriloquists can make dummies appear to talk. The automobile industry uses dummies in cars to study how safe cars are during a crash. A dummy can also be anything that looks real but doesn’t work: a fake. Actors in a play might use certain props that are dummies, such as a dummy laptop. Dummy is also an insult used to mean “an ignorant person.”</p>
-                    <a href="http://172.17.3.10/helpdesk/" target="_blank" class="btn btn-primary mx-3">Go </a>
+              @*   <h5>Title</h5> *@
+                    <p style="line-height: 25px;">For any concerns or assistance related to Administration Department, click here to raise a ticket</p>
+                    <a href="http://172.17.3.10/helpdesk/" target="_blank" class="btn btn-primary mx-3">Click here to raise a ticket </a>
             </div>
         </div>
     </div>
@@ -39,9 +40,9 @@
             </div>
             <div class="p-3">
 
-                     <h5>Title</h5>
-                <p style="line-height: 25px;">A dummy is a type of doll that looks like a person. Entertainers called ventriloquists can make dummies appear to talk. The automobile industry uses dummies in cars to study how safe cars are during a crash. A dummy can also be anything that looks real but doesn’t work: a fake. Actors in a play might use certain props that are dummies, such as a dummy laptop. Dummy is also an insult used to mean “an ignorant person.”</p>
-                    <a href="http://172.17.3.10/helpdesk/" target="_blank" class="btn btn-primary mx-3">Go</a>
+                  @*    <h5>Title</h5> *@
+                    <p style="line-height: 25px;">For any concerns or assistance related to Information Technology Department, click here to raise a ticket</p>
+                    <a href="http://172.17.3.10/helpdesk/" target="_blank" class="btn btn-primary mx-3">Click here to raise a ticket</a>
             </div>
         </div>
     </div>
@@ -52,9 +53,9 @@
                     <h3 class="mb-0 text-center">HR</h3>
             </div>
             <div class="p-3">
-                    <h5>Title</h5>
-                <p style="line-height: 25px;">A dummy is a type of doll that looks like a person. Entertainers called ventriloquists can make dummies appear to talk. The automobile industry uses dummies in cars to study how safe cars are during a crash. A dummy can also be anything that looks real but doesn’t work: a fake. Actors in a play might use certain props that are dummies, such as a dummy laptop. Dummy is also an insult used to mean “an ignorant person.”</p>
-                    <a href="http://172.17.3.10/helpdesk/" target="_blank" class="btn btn-primary mx-3">Go</a>
+                  @*   <h5>Title</h5> *@
+                    <p style="line-height: 25px;"> For any concerns or assistance related to Information Technology Department, click here to raise a ticket</p>
+                    <a href="http://172.17.3.10/helpdesk/" target="_blank" class="btn btn-primary mx-3">Click here to raise a ticket</a>
             </div>
         </div>
     </div>

@@ -9,43 +9,47 @@ using Newtonsoft.Json;
 
 namespace HRMS.Web.Areas.Employee.Controllers
 {
+    [Authorize]
     [Area(Constants.ManageEmployee )]
-    [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager))]
+  //  [Authorize(Roles = (RoleConstants.HR + "," + RoleConstants.Admin + "," + RoleConstants.Employee + "," + RoleConstants.Manager))]
     public class DashBoardController : Controller
     {
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-        private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
         IHttpContextAccessor _context;
         private readonly IS3Service _s3Service;
-        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        public DashBoardController(IConfiguration configuration, IBusinessLayer businessLayer,   IHttpContextAccessor context, IS3Service s3Service)
         {
-            Environment = _environment;
             _configuration = configuration;
             _context = context;
             _businessLayer = businessLayer;
             _s3Service = s3Service;
          
-        }
+        } 
+
         public async Task<IActionResult> Index()
         {
+          
             var session = HttpContext.Session;
             var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID));
             var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
             var roleId = Convert.ToInt64(session.GetString(Constants.RoleID));
+            var jobLocationId = Convert.ToInt64(session.GetString(Constants.JobLocationID));
             var token = session.GetString(Constants.SessionBearerToken);
 
             var inputParams = new DashBoardModelInputParams
             {
                 EmployeeID = employeeId,
-                RoleID = roleId
+                RoleID = roleId,
+                JobLocationId = jobLocationId
             };
 
             var apiUrl = _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel);
             var apiResponse = await _businessLayer.SendPostAPIRequest(inputParams, apiUrl, token, true);
             var model = JsonConvert.DeserializeObject<DashBoardModel>(apiResponse?.ToString());
 
-            if (model?.EmployeeDetails != null && !string.IsNullOrEmpty(model.ProfilePhoto))
+            // Update Employee Photos URLs
+            if (model?.EmployeeDetails != null)
             {
                 foreach (var employee in model.EmployeeDetails.Where(x => !string.IsNullOrEmpty(x.EmployeePhoto)))
                 {
@@ -53,6 +57,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 }
             }
 
+            // Update WhatsHappening Icon URLs
             if (model?.WhatsHappening != null)
             {
                 foreach (var item in model.WhatsHappening.Where(x => !string.IsNullOrEmpty(x.IconImage)))
@@ -64,16 +69,60 @@ namespace HRMS.Web.Areas.Employee.Controllers
             if (model != null)
             {
                 var leavePolicy = GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
-                var accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(model.JoiningDate.GetValueOrDefault(), leavePolicy.Annual_MaximumLeaveAllocationAllowed);
-                var usedLeave = Convert.ToDouble(model.TotalLeave);
-                var carryForward = leavePolicy.Annual_IsCarryForward ? Convert.ToDouble(model.CarryForword) : 0.0;
 
-                model.NoOfLeaves = Convert.ToInt64(accruedLeave - usedLeave + carryForward);
+                // Fiscal year start date (March 21)
+                DateTime today = DateTime.Today;
+                DateTime fiscalYearStart = (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                    ? new DateTime(today.Year, 3, 21)
+                    : new DateTime(today.Year - 1, 3, 21);
+
+                // Filter approved Annual and Medical leaves from current fiscal year
+                var approvedLeaves = model.leaveResults?.leavesSummary?
+                    .Where(x => x.StartDate >= fiscalYearStart &&
+                                x.LeaveStatusID == (int)LeaveStatus.Approved &&
+                                (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
+                    .ToList();
+
+                decimal approvedLeaveDays = approvedLeaves?.Sum(x => x.NoOfDays) ?? 0.0m;
+                double approvedLeaveTotal = (double)approvedLeaveDays;
+                const double maxAnnualLeaveLimit = 30;
+
+                if (leavePolicy != null && model.JoiningDate != null)
+                {
+                    DateTime joinDate = model.JoiningDate.Value;
+
+                    double accruedLeave = 0;
+                    double carryForward = 0;
+
+                    // Only calculate accrued leave if approved leave < max limit
+                    if (approvedLeaveTotal < maxAnnualLeaveLimit)
+                    {
+                        accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
+                        if (leavePolicy.Annual_IsCarryForward)
+                        {
+                            carryForward = Convert.ToDouble(model.CarryForword);
+                        }
+                    }
+
+                    // Total earned leave capped by max limit
+                    double totalEarnedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
+
+                    // Remaining leave = total earned minus approved leaves (minimum 0)
+                    double remainingLeave = Math.Max(totalEarnedLeave - approvedLeaveTotal, 0);
+
+                    // Assign values to model for the View
+                    //model.TotalLeave = (decimal)approvedLeaveTotal;            // Leaves already taken
+                    model.NoOfLeaves = Convert.ToInt64(remainingLeave);        // Leaves remaining (available)
+                    ViewBag.NoOfLeaves = remainingLeave;
+                    // Optional: Pass consecutive allowed days to ViewBag for UI use
+                    ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
+                }
             }
 
             return View(model);
         }
 
+         
         private LeavePolicyModel GetLeavePolicyData(long companyId, long leavePolicyId)
         {
             var leavePolicyModel = new LeavePolicyModel { CompanyID = companyId, LeavePolicyID = leavePolicyId };
@@ -84,69 +133,68 @@ namespace HRMS.Web.Areas.Employee.Controllers
         private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
         {
             DateTime today = DateTime.Today;
-            //DateTime today = new DateTime(2024, 6, 14);
-            DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1); // Start from April 1st of current financial year
-            DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // March 31st of the next year
 
-            // Annual entitlement and accrual per month
+            // Fiscal year starts from March 21st of current or previous year
+            DateTime fiscalYearStart;
+            DateTime fiscalYearEnd;
+
+            if (today.Year == 2025)
+            {
+                // ✅ Special case: 2025 fiscal year is from 21 May 2025 to 20 March 2026
+                fiscalYearStart = new DateTime(2025, 5, 21);
+                fiscalYearEnd = new DateTime(2026, 3, 20);
+            }
+            else
+            {
+                // ✅ Default logic: Fiscal year from 21 March current/previous year to 20 March next year
+                fiscalYearStart = new DateTime(today.Month > 3 || (today.Month == 3 && today.Day >= 21)
+                                               ? today.Year : today.Year - 1, 3, 21);
+                fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // Ends on 20 March next year
+            }
 
             double annualLeaveEntitlement = Annual_MaximumLeaveAllocationAllowed;
             double monthlyAccrual = annualLeaveEntitlement / 12;
-
             double totalAccruedLeave = 0;
 
-            // If the join date is before the fiscal year start, adjust it to the start of the fiscal year
+            // If join date is before fiscal year, adjust to fiscal start
             if (joinDate < fiscalYearStart)
-            {
                 joinDate = fiscalYearStart;
-            }
 
-            // Start from the month of joining and calculate leave for completed months up to today
-            DateTime current = new DateTime(joinDate.Year, joinDate.Month, 1);
+            // Start from the accrual period containing the join date
+            DateTime accrualPeriodStart = GetAccrualPeriodStart(joinDate);
+            DateTime accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1); // 20th of next month
 
-            while (current <= today)
+            while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
             {
-                // Get the last day of the current month
-                int daysInMonth = DateTime.DaysInMonth(current.Year, current.Month);
-                DateTime lastDayOfMonth = new DateTime(current.Year, current.Month, daysInMonth);
+                // Adjust for join date or current date
+                DateTime effectiveStart = joinDate > accrualPeriodStart ? joinDate : accrualPeriodStart;
+                DateTime effectiveEnd = accrualPeriodEnd < today ? accrualPeriodEnd : today;
 
-                // Adjust the comparison in the current month
-                if (current.Month == today.Month && current.Year == today.Year)
-                {
-                    // Special case: Compare the days worked in the current month up to today
-                    int daysWorkedInMonth = (today - joinDate).Days + 1;
+                int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
 
-                    // Accrue leave if more than 15 days worked
-                    if (daysWorkedInMonth > 15)
-                    {
-                        totalAccruedLeave += monthlyAccrual;
-                    }
-                }
-                else
+                if (daysWorked > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
                 {
-                    // For past months, compare the join date with the last day of the month
-                    if (joinDate <= lastDayOfMonth)
-                    {
-                        int daysWorkedInMonth = (lastDayOfMonth - joinDate).Days + 1;
-                        if (daysWorkedInMonth > 15)
-                        {
-                            totalAccruedLeave += monthlyAccrual;
-                        }
-                    }
+                    totalAccruedLeave += monthlyAccrual;
                 }
-                // Move to the next month
-                current = current.AddMonths(1);
 
-                // Adjust join date to the 1st of the next month after the first iteration
-                if (current.Month > joinDate.Month || current.Year > joinDate.Year)
-                {
-                    joinDate = new DateTime(current.Year, current.Month, 1);
-                }
+                // Move to next accrual period
+                accrualPeriodStart = accrualPeriodStart.AddMonths(1);
+                accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
             }
 
             return totalAccruedLeave;
         }
 
-
+        // Helper method: Gets the 21st-based accrual period start for any given date
+        private DateTime GetAccrualPeriodStart(DateTime date)
+        {
+            if (date.Day >= 21)
+                return new DateTime(date.Year, date.Month, 21);
+            else
+            {
+                DateTime prevMonth = date.AddMonths(-1);
+                return new DateTime(prevMonth.Year, prevMonth.Month, 21);
+            }
+        }
     }
 }

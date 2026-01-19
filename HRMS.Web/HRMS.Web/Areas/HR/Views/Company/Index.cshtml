@@ -118,7 +118,7 @@
 
                 <div class="col-md-4 form-group">
                     <label>Phone<span class="Mandetory">*</span>(123-456-7890)</label>
-                    @Html.TextBoxFor(a => a.Phone, new { @class = "form-control", @type = "tel", @pattern = "[0-9]{3}-[0-9]{3}-[0-9]{4}", @required = "required" })
+                    @Html.TextBoxFor(a => a.Phone, new { @class = "form-control mobile-mask", @required = "required" })
                 </div>
 
 
@@ -136,6 +136,7 @@
         </div>
     </div>
 </form>
+<script src="/js/mobilemasking.js"></script>
 <script>
     function showPreview(event) {
         const file = event.target.files[0];
@@ -148,5 +149,8 @@
             reader.readAsDataURL(file);
         }
     }
+        $(document).ready(function () {
+        $('.mobile-mask').mask('(0000)-000-000');
+    });
 
 </script>

@@ -10,6 +10,8 @@ namespace HRMS.Models.ShiftType
         public int? DisplayStart { get; set; } = 0;
         public int? DisplayLength { get; set; } = 0;
         public string? Searching { get; set; }
+        public string? SortCol { get; set; }    
+        public string? SortDir { get; set; }
     }
 
 
@@ -40,6 +42,7 @@ namespace HRMS.Models.ShiftType
         public DateTime UpdatedDate { get; set; }
         public long CreatedByID { get; set; }
         public long ModifiedByID { get; set; }
+        public long? UserID { get; set; }
         public int? TotalRecords { get; set; } = 0;
         public int? FilteredRecords { get; set; } = 0;
 

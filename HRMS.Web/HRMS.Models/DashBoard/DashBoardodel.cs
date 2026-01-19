@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Leave;
+﻿using HRMS.Models.Employee;
+using HRMS.Models.Leave;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace HRMS.Models.DashBoard
     {
         public long EmployeeID { get; set; }
         public long RoleID { get; set; }
+        public long JobLocationId { get; set; }
     }
     public class DashBoardModel
     {
@@ -39,7 +41,11 @@ namespace HRMS.Models.DashBoard
         public DateTime? JobSeprationDate { get; set; }
         public long NoOfEmployees { get; set; }
         public long NoOfCompanies { get; set; }
-        public int CountsOfCompanies { get; set; }
+        public long CountsOfCompanies { get; set; }
+
+        public int? TotalSeniorCore { get; set; }
+        public int? TotalFieldTracer { get; set; }
+        public int? TotalCCE { get; set; }
         public long NoOfLeaves { get; set; }
         public double Salary { get; set; }
         public string? CorrespondenceAddress { get; set; } = string.Empty;
@@ -84,29 +90,66 @@ namespace HRMS.Models.DashBoard
         public string? ContactPersonRelationship { get; set; } = string.Empty;
         public string? ITSkillsKnowledge { get; set; } = string.Empty;
         public int HolidayCount { get; set; }
-        public decimal TotalLeave { get; set; } 
-        public long? LeavePolicyId { get; set; } 
-        public long? CarryForword { get; set; } 
+        public decimal TotalLeave { get; set; }
+        public long? LeavePolicyId { get; set; }
+        public double CarryForword { get; set; }
+        public int? RecordPresent { get; set; }
 
         public List<EmployeeDetails> EmployeeDetails { get; set; }
         public List<HolidayModel> HolidayList { get; set; }
         public List<LeaveSummaryModel> leavesSummary { get; set; } = new List<LeaveSummaryModel>();
         public List<AttendanceModel> AttendanceModel { get; set; } = new List<AttendanceModel>();
-
+        public LeaveResults leaveResults { get; set; } = new LeaveResults();
         public List<WhatsHappening> WhatsHappening { get; set; }
 
+        public List<HierarchyEmployee> EmployeeHierarchy { get; set; } = new List<HierarchyEmployee>();
+
+    }
+
+    public class HierarchyEmployee
+    {
+        public string? EmployeNumber { get; set; }
+        public long EmployeeID { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? ManagerName { get; set; }
+        public string? Designation { get; set; }
+        public string? Department { get; set; }
+        public string? ProfilePhoto { get; set; }
+        public int? Subordinate { get; set; }
+        public int? TotalSubordinateCount { get; set; }
+        public long? RoleID { get; set; }
+        public int Level { get; set; }
+        public string? Path { get; set; }
+        public List<HierarchyEmployee> Subordinates { get; set; } = new List<HierarchyEmployee>();
     }
     public class EmployeeDetails
     {
         public long? EmployeeId { get; set; }
-        public string FirstName { get; set; }
-
-        public string MiddelName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? MiddelName { get; set; }
+        public string? LastName { get; set; }
         public DateTime? DOB { get; set; }
         public string EmployeePhoto { get; set; }
         public string? DesignationName { get; set; }
         public string? DepartmentName { get; set; }
+
+        public string? ManagerName { get; set; }
+        public string? EmployeeNumber { get; set; }
+
+
+    }
+    public class EmployeeDashboardResponse
+    {
+        public List<EmployeeDetails> Employees { get; set; } = new List<EmployeeDetails>();
+        public List<EmploymentTypesList> EmploymentTypesList { get; set; } = new List<EmploymentTypesList>();
+        public List<LocationList> LocationList { get; set; } = new List<LocationList>();
+        public List<SubDepartmentList> SubDepartmentList { get; set; } = new List<SubDepartmentList>();
+        public List<ManagersList> ManagerList { get; set; } = new List<ManagersList>();
+    }
+    public class ManagersList
+    {
+        public long? EmployeeID { get; set; }
+        public string? FullName { get; set; }
     }
 
     public class WhatsHappening
@@ -117,15 +160,34 @@ namespace HRMS.Models.DashBoard
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public string? IconImage { get; set; }
-        
+
     }
     public class AttendanceModel
-    {    
+    {
         public DateTime? Day { get; set; }
         public int? Present { get; set; }
         public int? Absent { get; set; }
- 
-        
+        public int? Leaves { get; set; }
+        public Dictionary<string, int> PresentByLocation { get; set; } = new();
+        public Dictionary<string, int> AbsentByLocation { get; set; } = new();
+        public Dictionary<string, int> LeaveByLocation { get; set; } = new();
+
+        // For detailed team attendance report
+        public long? EmployeeId { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? EmployeeNumber { get; set; }
+        public string? ManagerName { get; set; }
+        public string? Designation { get; set; }
+        public string? Department { get; set; }
+        public int? Level { get; set; }
+        public string? AttendanceStatus { get; set; }
+        public DateTime? ReferenceDate { get; set; }
+        public int? TotalPresent { get; set; }
+        public int? TotalAbsent { get; set; }
+        public int? TotalLeaves { get; set; }
+        public int? TotalHoliday { get; set; }
+        public int? TotalWeekOff { get; set; }
+
     }
 
 }

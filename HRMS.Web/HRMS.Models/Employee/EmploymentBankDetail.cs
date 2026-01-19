@@ -21,7 +21,24 @@ namespace HRMS.Models.Employee
         public string? BankAccountNumber { get; set; }
         public string? UANNumber { get; set; }
         public string? IFSCCode { get; set; }
-        public string? BankName { get; set; }       
-       public long UserID { get; set; } 
+        public string? BankName { get; set; }
+        public string? PANNo { get; set; } = string.Empty;
+        public string? AadharCardNo { get; set; } = string.Empty;
+        public string? PanCardImage { get; set; } = string.Empty;
+        public string? AadhaarCardImage { get; set; } = string.Empty;
+        public long UserID { get; set; }
+    }
+
+
+    public class SalarySlipViewModel
+    {
+        public long EmployeeID { get; set; }
+        public string? EmployeeNumber { get; set; }
+        public decimal? GrossSalary { get; set; }
+        public decimal? BasicSalary { get; set; }
+        public decimal? HRA { get; set; }
+        public decimal? PF { get; set; }
+        public decimal? ESI { get; set; }
+        public decimal? InHandSalary { get; set; }
     }
 }

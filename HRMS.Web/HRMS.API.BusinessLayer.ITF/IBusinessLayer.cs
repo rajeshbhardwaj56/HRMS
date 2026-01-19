@@ -12,6 +12,10 @@ using HRMS.Models.ShiftType;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.WhatsHappeningModel;
+using HRMS.Models.ExportEmployeeExcel;
+using Microsoft.AspNetCore.Mvc;
+using HRMS.Models.FormPermission;
+using HRMS.Models.PayRoll;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -28,8 +32,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmployee(EmployeeModel model);
         public Results GetAllEmployees(EmployeeInputParams model);
         public Results GetAllActiveEmployees(EmployeeInputParams model);
-
-
         public Result AddUpdateTemplate(TemplateModel model);
         public Results GetAllTemplates(TemplateInputParams model);
         public Result AddUpdateCompany(CompanyModel model);
@@ -42,6 +44,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
         public Results GetAllLeavePolicies(LeavePolicyInputParans model);
         public MyInfoResults GetMyInfo(MyInfoInputParams model);
+        public MyInfoResults GetMyAgentInfo(MyInfoInputParams model);
         public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails);
         public EmploymentDetail GetEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
         public Result AddUpdateEmploymentBankDetails(EmploymentBankDetail employmentBankDetails);
@@ -54,7 +57,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public DashBoardModel GetDashBoardModel(DashBoardModelInputParams model);
         public Results GetAllAttendenceList(AttendenceListInputParans model);
         public Result AddUpdateAttendenceList(AttendenceListModel model);
-        public Results GetAllEmployees();
+        public List<SelectListItem> GetAllEmployeesList(WeekOfEmployeeId Employeemodel);
         public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel);
         public Results GetAllShiftTypes(ShiftTypeInputParans model);
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
@@ -66,17 +69,19 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeleteLeavePolicyDetails(LeavePolicyDetailsInputParams model);
         public Results GetAllCompaniesList(EmployeeInputParams model);
         public Results GetAllLeavePolicyDetailsByCompanyId(LeavePolicyDetailsInputParams model);
-        public List<EmployeeDetails> GetEmployeeListByManagerID(EmployeeInputParams model);
+        public EmployeeDashboardResponse GetEmployeeListByManagerID(EmployeeInputParams model);
         public Result AddUpdatePolicyCategory(PolicyCategoryModel LeavePolicyModel);
         public Results GetAllPolicyCategory(PolicyCategoryInputParams model);
         public Results GetPolicyCategoryList(PolicyCategoryInputParams model);
         public string DeletePolicyCategory(PolicyCategoryInputParams model);
         public List<LeavePolicyDetailsModel> PolicyCategoryDetails(PolicyCategoryInputParams model);
+        public Result AddAcknowledgePolicy(AcknowledgePolicyModel model);
         public EmploymentDetail GetFilterEmploymentDetailsByEmployee(EmploymentDetailInputParams model);
         public L2ManagerDetail GetL2ManagerDetails(L2ManagerInputParams model);
         public AttendanceInputParams GetAttendance(AttendanceInputParams model);
-        public AttendanceWithHolidays GetAttendanceForCalendar(AttendanceInputParams model);
-        public AttendanceWithHolidays GetTeamAttendanceForCalendar(AttendanceInputParams model);
+        public MonthlyViewAttendance GetAttendanceForMonthlyViewCalendar(AttendanceInputParams model);
+        public AttendanceWithHolidaysVM GetTeamAttendanceForCalendar(AttendanceInputParams model);
+        public AttendanceWithHolidaysVM GetExportAttendanceForCalendar(AttendanceInputParams model);
         public Result AddUpdateAttendace(Attendance att);
         public Results GetAttendenceListID(Attendance model);
         public AttendanceLogResponse GetAttendanceDeviceLogs(AttendanceDeviceLog model);
@@ -97,5 +102,75 @@ namespace HRMS.API.BusinessLayer.ITF
         public EmployeePersonalDetails GetEmployeeDetails(EmployeePersonalDetailsById objmodel);
         public Results GetCompaniesLogo(CompanyLoginModel model);
         public ReportingStatus CheckEmployeeReporting(ReportingStatus obj);
+        public AttendanceDetailsVM FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model);
+        public List<ExportEmployeeDetailsExcel> FetchExportEmployeeExcelSheet(EmployeeInputParams model);
+        public CompOffValidationResult GetValidateCompOffLeave(CampOffEligible model);
+        public UpdateLeaveStatus UpdateLeaveStatus(UpdateLeaveStatus model);
+        public List<EducationalDetail> GetEducationDetails(EducationDetailParams model);
+        public Result AddUpdateEducationDetail(EducationalDetail model);
+        public string DeleteEducationDetail(EducationDetailParams model);
+
+        public List<EmploymentHistory> GetEmploymentHistory(EmploymentHistoryParams model);
+        public Result AddUpdateEmploymentHistory(EmploymentHistory model);
+        public string DeleteEmploymentHistory(EmploymentHistoryParams model);
+        public List<Reference> GetReferenceDetails(ReferenceParams model);
+        public Result AddUpdateReferenceDetail(Reference model);
+        public string DeleteReferenceDetail(ReferenceParams model);
+        public List<FamilyDetail> GetFamilyDetails(FamilyDetailParams model);
+        public Result AddUpdateFamilyDetail(FamilyDetail model);
+        public string DeleteFamilyDetail(FamilyDetailParams model);
+        public List<LanguageDetail> GetLanguageDetails(LanguageDetailParams model);
+        public Result AddUpdateLanguageDetail(LanguageDetail model);
+        public string DeleteLanguageDetail(LanguageDetailParams model);
+        public List<CompOffAttendanceRequestModel> GetCompOffAttendanceList(CompOffAttendanceInputParams model);
+        public List<CompOffAttendanceRequestModel> GetApprovedCompOff(CompOffInputParams model);
+
+        public Result AddUpdateCompOffAttendace(CompOffAttendanceRequestModel att);
+        #region Page Permission
+        public Results GetAllCompanyFormsPermission(long companyID);
+        public long AddFormPermissions(FormPermissionViewModel objmodel);
+        public List<FormPermissionViewModel> GetFormByDepartmentID(long DepartmentId);
+        public List<FormPermissionViewModel> GetUserFormPermissions(FormPermissionVM objmodel);
+        public long AddUserFormPermissions(FormPermissionVM objmodel);
+        public List<FormPermissionViewModel> GetUserFormByDepartmentID(FormPermissionVM obj);
+        public EmployeePermissionVM CheckUserFormPermissionByEmployeeID(FormPermissionVM obj);
+        #endregion Page Permission
+        public List<Joblcoations> GetJobLocationsByCompany(Joblcoations model);
+
+        #region Exception Handling
+        void InsertException(ExceptionLogModel model);
+        #endregion Exception Handling
+        public Dictionary<string, long> GetEmployeesHierarchyUnderManager(WeekOfInputParams model);
+        public bool UploadRosterWeekOff(WeekOffUploadModelList model);
+        public List<WeekOffUploadModel> GetEmployeesWeekOffRoster(WeekOfInputParams model);
+        public List<UpcomingWeekOffRoster> GetEmployeesWithoutUpcomingWeekOffRoster(UpcomingWeekOffRosterParams model);
+        public List<DateTime> GetLeaveWeekOffDates(LeaveWeekOfInputParams model);
+        public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model);
+        public List<HolidayCompanyList> GetCompanyHolidayList(HolidayInputparams model);
+        public long GetShiftTypeId(string ShiftTypeName);
+        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber);
+
+        #region Attendance Approval
+        AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model);
+        public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att);
+        public Result SaveOrUpdateBulk(List<SaveAttendanceStatus> entries);
+
+
+        #endregion Attendance Approval
+        #region LastLevelEmployeeDropdown
+        public List<LastLevelEmployeeDropdown> GetLastLevelEmployeeDropdown(LastLevelEmployeeDropdownParams model);
+
+        public List<Managers> GetManagerDropdown(Managers model);
+
+        public LastLevelEmployeeDropdown GetEmployeeForLeaveEdit(LastLevelEmployeeDropdownParams model);
+        #endregion LastLevelEmployeeDropdown
+
+
+
+        #region Payroll
+        public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model);
+
+        public Result AddUpdateEmployeeMonthlySalary(EmployeeMonthlySalaryModel salaryModel);
+        #endregion Payroll
     }
 }

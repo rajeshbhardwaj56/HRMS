@@ -1,0 +1,294 @@
+﻿@using HRMS.Models.Employee
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model EducationalDetail
+
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Educational / Professional Trainings";
+}
+
+<div class="main-header anim fs-6" style="--delay: 0s">
+    Add / Edit Education Detail
+</div>
+
+<form id="educationForm" method="post" enctype="multipart/form-data">
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
+        @Html.HiddenFor(m => m.EmployeeID)
+        @Html.HiddenFor(m => m.EducationDetailID)
+        @Html.HiddenFor(m => m.CertificateImage)
+
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                <label>School/University <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.School_University, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Qualification (Degree/Diploma) <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.Qualification, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Year of Passing <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.YearOfPassing, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Class/ Percentage  <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.Percentage, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Major/Optional Subject <span class="Mandetory">*</span></label>
+                @Html.TextBoxFor(a => a.Major_OptionalSubjects, new { @class = "form-control", required = "required" })
+            </div>
+
+            <div class="col-md-4 form-group">
+                <label> Certificate <span class="text-danger" id="fileRequiredStar">*</span></label>
+                    <input type="file" name="CertificateFile" id="CertificateFileInput" accept=".pdf, application/pdf" class="form-control" required />
+                <span id="fileError" class="text-danger" style="display:none;"></span>
+                <div id="existingCertificateContainer" class="mt-2" style="display: none;">
+                    <i class="bi bi-file-earmark-pdf fs-2 text-danger" title="Existing Certificate"></i>
+</div>
+       
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</form>
+
+<div class="main-header anim fs-6" style="--delay: 0s">
+    Employee Academic Summary
+</div>
+
+<div class="table-responsive py-3">
+    <table id="educationGrid" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th style="display:none;"></th>
+                <th style="display:none;"></th>
+                <th>School</th>
+                <th>Qualification</th>
+                <th>Year</th>
+                <th>Percentage</th>
+                <th>Subjects</th>
+                <th>Certificate</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-xl" role="document">
+        <div class="modal-content" >
+            <div class="modal-header">
+                <h5 class="modal-title">Document Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-2" id="documentContent"  overflow-y: auto;"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+          function toastMessage(type , message)
+            {
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
+        $(document).ready(function () {
+            const employeeId = '@Model.EmployeeID';
+
+           
+            $('#educationGrid').DataTable({
+                ajax: {
+                    url: "/HR/Employee/GetEducationDetails",
+                    type: "POST",
+                    datatype: "json",
+                    data: { EmployeeID: employeeId },
+                    dataSrc: json => json.data || json
+                },
+                ordering: true,
+                paging: true,
+                searching: true,
+                info: true,
+                responsive: true,
+                columns: [
+                    { data: "educationDetailID", visible: false },
+                    { data: "employeeID", visible: false },
+                    { data: "school_University" },
+                    { data: "qualification" },
+                    { data: "yearOfPassing" },
+                    { data: "percentage" },
+                    { data: "major_OptionalSubjects" },
+                    {
+                        data: "certificateImage",
+                        render: (data) => data ? `<button class="btn btn-sm btn-info view-document" data-url="${data}">View</button>` : ''
+                    },
+                    {
+                        data: "educationDetailID",
+                        orderable: false,
+                        searchable: false,
+                        render: function (data) {
+                            return `
+                                <div class="table-data-feature">
+                                    <a class="item" href="#" onclick="editEntry(${data})" title="Edit">
+                                        <img src="/assets/img/edit.png" width="20" height="20" />
+                                    </a>
+                                    <a class="item delete-entry" href="#" data-id="${data}" title="Delete">
+                                        <img src="/assets/img/delete.png" width="20" height="20" />
+                                    </a>
+                                </div>`;
+                        }
+                    }
+                ]
+            });
+
+          
+            $('#educationForm').on('submit', function (e) {
+                e.preventDefault();
+                     $('#fileError').hide();
+                const form = $(this)[0];
+                const formData = new FormData(form);
+
+                $.ajax({
+                    url: form.action || window.location.pathname,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (result && result.success) {
+                            $('#educationGrid').DataTable().ajax.reload();
+                            form.reset();
+                            $('#existingCertificateContainer').hide();
+                            $('#fileRequiredStar').show();
+                            $('#CertificateFileInput').attr('required', 'required');
+                           toastMessage('Success' , result.message);
+
+
+                    } else {
+                        toastEMessage('Error' , result.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Error submitting form');
+                    }
+                });
+            });
+
+        
+            $('#cancelButton').on('click', function () {
+                $('#educationForm')[0].reset();
+                      $('#EducationDetailID').val('');
+        $('#CertificateImage').val('');
+                $('#existingCertificateContainer').hide();
+                $('#fileRequiredStar').show();
+                $('#CertificateFileInput').attr('required', 'required');
+                  $('#fileError').hide().text('');
+            });
+
+            $(document).on('click', '.view-document', function () {
+                const url = $(this).data('url');
+                const previewHtml = `<embed src="${url}" type="application/pdf" style="width:100%; height:600px;" />`;
+                $('#documentContent').html(previewHtml);
+                $('#documentModal').modal('show');
+            });
+
+        
+            $(document).on('click', '.delete-entry', function (e) {
+                e.preventDefault();
+                const encodedId = $(this).data('id');
+                if (!encodedId || !confirm("Are you sure you want to delete this education detail?")) return;
+
+                $.ajax({
+                    url: '/HR/Employee/DeleteEducationDetail',
+                    type: 'POST',
+                    data: { encodedId },
+                    success: function () {
+                      
+                          const currentFormLangId = $('#EducationDetailID').val();
+             if (currentFormLangId == encodedId) {
+                 $('#EducationDetailID').val('');
+             }
+
+                        $('#educationGrid').DataTable().ajax.reload();
+                         toastMessage('Success', 'Deleted successfully');
+                    },
+                    error: function () {
+                       toastEMessage('Error', 'Failed to delete record');
+                    }
+                });
+            });
+        });
+
+         function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
+        function editEntry(educationDetailId) {
+            const table = $('#educationGrid').DataTable();
+            const rowData = table.rows().data().toArray().find(r => r.educationDetailID === educationDetailId);
+
+            if (!rowData) return alert('Record not found!');
+
+            $('#EmployeeID').val(rowData.employeeID);
+            $('#EducationDetailID').val(rowData.educationDetailID);
+            $('#School_University').val(rowData.school_University);
+            $('#Qualification').val(rowData.qualification);
+            $('#YearOfPassing').val(rowData.yearOfPassing);
+            $('#Percentage').val(rowData.percentage);
+            $('#Major_OptionalSubjects').val(rowData.major_OptionalSubjects);
+            $('#CertificateImage').val(rowData.certificateImage);
+            if (rowData.certificateImage?.toLowerCase().includes('.pdf')) {
+                $('#existingCertificateLink').attr('href', rowData.certificateImage);
+                $('#existingCertificateContainer').show();
+                $('#CertificateFileInput').removeAttr('required');
+                $('#fileRequiredStar').hide();
+            } else {
+                $('#existingCertificateContainer').hide();
+                $('#CertificateFileInput').attr('required', 'required');
+                $('#fileRequiredStar').show();
+            }
+
+            $('#CertificateFileInput').val('');
+            $('#fileError').hide();
+        }
+
+                   $('#CertificateFileInput').on('change', function() {
+            const file = this.files[0];
+            const fileError = $('#fileError');
+
+            // Reset state on new file selection
+            fileError.hide().text('');
+
+            if (!file) return;
+
+            const validTypes = ['application/pdf'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (!validTypes.includes(file.type) || fileExtension !== 'pdf') {
+                fileError.text('Only PDF files are allowed').show();
+                this.value = '';
+            }
+        });
+    </script>
+}

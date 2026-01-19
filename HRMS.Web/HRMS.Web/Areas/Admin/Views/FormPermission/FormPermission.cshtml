@@ -1,0 +1,106 @@
+﻿@using HRMS.Models.Company;
+@using HRMS.Models.FormPermission
+@using Microsoft.AspNetCore.Http
+
+@model FormPermissionViewModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Form Permission";
+}
+<div class="main-header anim" style="--delay: 0s">  Add Form Permissions</div>
+
+<div class="group-box anim"  >
+    <div class="Container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card commonForm">
+                    <div class="card-header hideMobile">Add Form Permissions</div>
+                    <div class="card-body">
+
+                        @using (Html.BeginForm("FormPermission", "FormPermission", FormMethod.Post, new { id = "FormPermission", enctype = "multipart/form-data", @onsubmit = "showLoader(this);" }))
+                        {
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                     <h6>  Select Department <span class="text-danger">*</span></h6>
+                                        <div class="position-relative">
+                                            @Html.DropDownListFor(x => x.SelectedDepartment, Model.Departments, "-- Select Department --", new { @class = "form-control", @required = "required" })
+                                            <i class="fa fa-chevron-down position-absolute"
+                                               style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-group">
+                                        <h6> Form Permission <span class="text-danger">*</span> </h6>
+                                        <div class="d-flex flex-wrap">
+                                            @if (Model.FormsPermission?.Any() == true)
+                                            {
+                                                foreach (var item in Model.FormsPermission)
+                                                {
+                                                    var permissionId = "perm_" + item.Value;
+                                                    var isChecked = Model.SelectedFormIds != null && Model.SelectedFormIds.Contains(item.Value);
+
+                                                    <div class="form-check" style="width: 20%; margin-bottom: 10px;">
+                                                        <input type="checkbox"
+                                                               name="SelectedFormIds"
+                                                               class="form-check-input chkboxes"
+                                                               value="@item.Value"
+                                                               id="@permissionId"
+                                                        @(isChecked ? "checked" : "") />
+                                                        <label class="form-check-label" for="@permissionId">@item.Text</label>
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No form permissions available.</p>
+                                            }
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-info commonBtn">Save</button>
+                        }
+
+
+                    </div>
+                </div>
+            </div>
+            </div>
+    </div>
+
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#SelectedDepartment').on('change', function () {
+            var departmentId = $(this).val();
+
+            if (departmentId) {
+                $.ajax({
+                    url: '@Url.Action("loadForms", "FormPermission")',
+                    type: 'GET',
+                    data: { departmentId: departmentId },
+                    success: function (response) {
+                        $('.chkboxes').prop('checked', false);
+                        if (Array.isArray(response)) {
+                            response.forEach(function (item) {
+                                if (item.formID) {
+                                    $('#perm_' + item.formID).prop('checked', true);
+                                }
+                            });
+                        }
+                    },
+                    error: function () {
+                        alert("Failed to load permissions.");
+                    }
+                });
+            } else {
+                $('.chkboxes').prop('checked', false);
+            }
+        });
+    });
+</script>

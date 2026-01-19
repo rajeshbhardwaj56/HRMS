@@ -1,4 +1,4 @@
-﻿﻿@using HRMS.Models.Employee;
+﻿    ﻿@using HRMS.Models.Employee;
 @using Microsoft.AspNetCore.Http
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @model EmploymentDetail
@@ -6,23 +6,33 @@
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
     ViewData["Title"] = "Official Details";
 }
+<style>
+    .userPermission {
+        border: 1px solid gray;
+        border-radius: 7px;
+        padding-left: 18px;
+        padding-top: 5px;
+    }</style>
 
-<div class="main-header anim" style="--delay: 0s">Official Details 
-    <section class="right-button-employee" />
-    <a href="~/HR/employee/index/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Edit</button></a>
-    <a href="~/HR/employee/employmentSeparation/@(Model.EncryptedIdentity)">   <button type="button" class="btn btn-addBtn me-2" id="openFormBtn">Add Separation Detail</button></a>
-    <a href="~/HR/employee/employmentBankDetails/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Bank Detail</button></a>
-</section>
+
+
+<div class="main-header anim" style="--delay: 0s">
+    Official Details
+    <section class="right-button-employee">
+        <a href="~/HR/employee/index/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn" id="openFormBtn"> <i class="fa fa-edit me-1"></i>Edit</button></a>
+        <a href="~/HR/employee/employmentSeparation/@(Model.EncryptedIdentity)">   <button type="button" class="btn btn-addBtn me-1" id="openFormBtn"><i class="fa fa-user-times me-1"></i>Add Separation </button></a>
+        <a href="~/HR/employee/employmentBankDetails/@(Model.EncryptedIdentity)"> <button type="button" class="btn btn-addBtn me-1" id="openFormBtn"> <i class="fa fa-university me-1"></i>Add Bank Detail</button></a>
+        @*<a href="~/HR/employee/employmentSalaryDetails/@(Model.EncryptedIdentity)">
+            <button type="button" class="btn btn-addBtn me-1" id="openSalarySlipBtn"> <i class="fa fa-money-bill  me-1 text-white"></i>Salary Slip</button>
+        </a>*@
+    </section>
 </div>
- 
+
 <form method="post" enctype="multipart/form-data">
     <div class="Container">
-      
+
 
         <div class="group-box anim" style="--delay: .3s">
-          
-
-
             <div class="small-header">
                 @Html.HiddenFor(m => m.EmployeeID)
                 @Html.HiddenFor(m => m.EmploymentDetailID)
@@ -41,16 +51,15 @@
                     @Html.TextBoxFor(a => a.JoiningDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date", @required = "required" })
                     @* @Html.ValidationMessageFor(m => m.JoiningDate) *@
                 </div>
-
                 <div class="col-md-4 form-group">
-                    <label>Official Email <span class="Mandetory">*</span></label>
-                                        @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "text", @required = "required" })                 
+                    <label>Official Email </label>
+                    @Html.TextBoxFor(a => a.OfficialEmailID, new { @class = "form-control", @type = "text" })
                 </div>
 
 
                 <div class="col-md-4 form-group">
-                    <label>Official Contact No <span class="Mandetory">*</span> (123-456-7890)</label>
-                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control", @type = "tel", @pattern = "[0-9]{3}-[0-9]{3}-[0-9]{4}", @required = "required" })
+                    <label>Official Contact No  (123-456-7890)</label>
+                    @Html.TextBoxFor(a => a.OfficialContactNo, new { @class = "form-control  mobile-mask" })
 
                 </div>
                 <div class="col-md-4 form-group">
@@ -63,110 +72,109 @@
                     <div class="position-relative">
                         @Html.DropDownListFor(x => x.DepartmentID, Model.Departments, HRMS.Models.Common.Constants.SelectDepartment, new
                             {
-                                @class = "form-control pe-4", // Add padding to avoid text overlap with the icon
+                                @class = "form-control pe-4",
                                 @required = "required",
-                                @onchange = "fetchSubDepartments(this.value)"
+
                             })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
                     </div>
                 </div>
-                <div id="divsubDepartment" class="col-md-4 form-group position-relative" style="display: @(Model.SubDepartmentID != null && Model.SubDepartmentID != 0 ? "block" : "none")">
+                <div class="col-md-12 form-group ">
+                    <label>User Permission <span class="Mandetory">*</span></label>
+                    <div id="form-permission-list" class="mt-3 userPermission"></div>
+                </div>
+                <div id="divsubDepartment" class="col-md-4 form-group position-relative">
                     <label>Sub Department <span class="Mandetory">*</span></label>
                     <div class="position-relative">
                         @Html.DropDownListFor(x => x.SubDepartmentID, Model.SubDepartments, HRMS.Models.Common.Constants.SubDepartment, new
                             {
-                                @class = "form-control pe-4",  
+                                @class = "form-control pe-4",
                                 @required = "required",
                             })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-                       </div>
+                    </div>
                 </div>
-
                 <div class="col-md-4 form-group position-relative">
                     <label>Designation <span class="Mandetory">*</span></label>
                     <div class="position-relative">
-                    @Html.DropDownListFor(x => x.DesignationID, Model.Designations, HRMS.Models.Common.Constants.SelectDesignation, new
-                        {
-                            @class = "form-control",
-                            @required = "required",
-                            @id = "DesignationDropdown",
-                            //@onchange = "fetchReportingManagers(this.value)"
-                        })
-                    <i class="fa fa-chevron-down position-absolute"
-                       style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-                </div>
-                </div>
-
-                <div class="col-md-4 form-group position-relative" id="ReportingManagerDropdownId">
-                    <label>Reporting Manager(L1) <span class="Mandetory">*</span></label>
-                    <div class="position-relative">
-                    @Html.DropDownListFor(x => x.ReportingToIDL1, Model.EmployeeList, HRMS.Models.Common.Constants.SelectReportingManager, new
-                        {
-                            @class = "form-control",
-                            @required = "required",
-                            @id = "ReportingManagerDropdown"
-                        })
+                        @Html.DropDownListFor(x => x.DesignationID, Model.Designations, HRMS.Models.Common.Constants.SelectDesignation, new
+                            {
+                                @class = "form-control",
+                                @required = "required",
+                                @id = "DesignationDropdown",
+                                //@onchange = "fetchReportingManagers(this.value)"
+                            })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                    </div>
                 </div>
+                <div class="col-md-4 form-group position-relative" id="ReportingManagerL1Container">
+                    <label>Reporting Manager(L1) <span class="Mandetory">*</span></label>
+                    <div class="position-relative">
+                        @Html.DropDownListFor(x => x.ReportingToIDL1, Model.EmployeeList, HRMS.Models.Common.Constants.SelectReportingManager, new
+                            {
+                                @class = "form-control select2-reporting-manager",
+                                @required = "required",
+                                @id = "ReportingManagerDropdown"
+                            })
+                    </div>
                 </div>
                 <div class="col-md-4 form-group position-relative" id="ReportingManagerDropdownId">
                     <label>Reporting Manager(L2) <span class="Mandetory">*</span></label>
                     <div class="position-relative">
                         <input type="text" id="ReportingManagerL2" class="form-control" readonly="readonly" />
                         <input type="hidden" id="ReportingManagerL2Id" name="ReportingToIDL2" />
-                </div>
+                    </div>
                 </div>
                 <div class="col-md-4 form-group position-relative">
                     <label>Job Location <span class="Mandetory">*</span></label>
                     <div class="position-relative">
-                    @Html.DropDownListFor(x => x.JobLocationID, Model.JobLocations, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
+                        @Html.DropDownListFor(x => x.JobLocationID, Model.JobLocations, HRMS.Models.Common.Constants.SelectJobLocation, new { @class = "form-control", @required = "required" })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                    </div>
                 </div>
-                </div>
-
                 <div class="col-md-4 form-group position-relative">
                     <label>Employment Type <span class="Mandetory">*</span></label>
                     <div class="position-relative">
-                    @Html.DropDownListFor(x => x.EmployeeTypeID, Model.EmploymentTypes, HRMS.Models.Common.Constants.SelectEmployeeType, new { @class = "form-control", @required = "required" })
+                        @Html.DropDownListFor(x => x.EmployeeTypeID, Model.EmploymentTypes, HRMS.Models.Common.Constants.SelectEmployeeType, new { @class = "form-control", @required = "required" })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-                </div>
+                    </div>
                 </div>
                 <div class="col-md-4 form-group position-relative">
                     <label>Role Type <span class="Mandetory">*</span></label>
                     <div class="position-relative">
-                    @Html.DropDownListFor(x => x.RoleId, Model.RoleList, HRMS.Models.Common.Constants.SelectRole, new { @class = "form-control", @required = "required" })
+                        @Html.DropDownListFor(x => x.RoleId, Model.RoleList, HRMS.Models.Common.Constants.SelectRole, new { @class = "form-control", @required = "required" })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-                </div>
+                    </div>
                 </div>
 
 
                 <div class="col-md-4 form-group position-relative">
                     <label>Payroll Type <span class="Mandetory">*</span></label>
                     <div class="position-relative">
-                    @Html.DropDownListFor(x => x.PayrollTypeID, Model.PayrollTypes, HRMS.Models.Common.Constants.SelectPayrollType, new { @class = "form-control", @required = "required" })
+                        @Html.DropDownListFor(x => x.PayrollTypeID, Model.PayrollTypes, HRMS.Models.Common.Constants.SelectPayrollType, new { @class = "form-control", @required = "required" })
 
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
                     </div>
                 </div>
-               
+
 
                 <div class="col-md-4 form-group position-relative">
                     <label>Leave Policy <span class="Mandetory">*</span></label>
                     <div class="position-relative">
-                    @Html.DropDownListFor(x => x.LeavePolicyID, Model.LeavePolicyList, HRMS.Models.Common.Constants.SelectLeavePolicy, new { @class = "form-control", @required = "required" })
+                        @Html.DropDownListFor(x => x.LeavePolicyID, Model.LeavePolicyList, HRMS.Models.Common.Constants.SelectLeavePolicy, new { @class = "form-control", @required = "required" })
                         <i class="fa fa-chevron-down position-absolute"
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
-                </div>
+                    </div>
                 </div>
 
-                <div class="col-md-4 form-group position-relative" >
+                <div class="col-md-4 form-group position-relative">
                     <label>Shift Type <span class="Mandetory">*</span></label>
                     <div class="position-relative">
                         @Html.DropDownListFor(x => x.ShiftTypeID, Model.ShiftTypes, HRMS.Models.Common.Constants.SelectShiftType, new
@@ -179,30 +187,38 @@
                            style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
                     </div>
 
-               </div>
+                </div>
 
 
                 <div class="col-md-4 form-group">
                     <label>ESI Number <span class="Mandetory"></span></label>
-                    @Html.TextBoxFor(a => a.ESINumber, new { @class = "form-control", @type = "text"  })
+                    @Html.TextBoxFor(a => a.ESINumber, new { @class = "form-control", @type = "text" })
                 </div>
                 <div class="col-md-4 form-group">
                     <label>Registration Date in ESIC <span class="Mandetory"></span></label>
-                    @Html.TextBoxFor(a => a.ESIRegistrationDate,"{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                    @Html.TextBoxFor(a => a.ESIRegistrationDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div>            
+                <div class="col-md-4 form-group">
+                    <label>LOB</label>
+                    @Html.TextBoxFor(a => a.LOB, new { @class = "form-control", @type = "text" })
                 </div>
-               
+                <div class="col-md-4 form-group">
+                    <label>Gross Salary</label>
+                    @Html.TextBoxFor(a => a.GrossSalary, new { @class = "form-control", @type = "number", @step = "0.01", @min = "0" })
+                </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <input type="submit" value="Submit" class="btn btn-success" />
-                    <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="submit" value="Submit" class="btn btn-success" />
+                        <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                    </div>
                 </div>
+
             </div>
-
         </div>
     </div>
 </form>
-
+<script src="/js/mobilemasking.js"></script>
 <script>
     document.getElementById('cancelButton').addEventListener('click', function () {
 
@@ -217,7 +233,7 @@
                 success: function (response) {
                     $('#divsubDepartment').show();
                     var subDeptDropdown = $('#SubDepartmentID'); // Correct ID for DropDownListFor
-                    subDeptDropdown.empty().append('<option value="">Select Sub Department</option>');
+                    subDeptDropdown.empty();
 
                     $.each(response.subDepartments, function (index, item) {
                         subDeptDropdown.append('<option value="' + item.value + '" ' + (item.value == subDeptDropdown.val() ? "selected" : "") + '>' + item.text + '</option>');
@@ -232,38 +248,140 @@
             $('#SubDepartmentID').empty().append('<option value="">Select Sub Department</option>');
         }
     }
-        $(document).ready(function () {
-        function fetchL2Manager(l1EmployeeId) {
-            if (l1EmployeeId) {
-                $.ajax({
-                    url: '/Hr/Employee/GetL2Manager',
-                    type: 'POST',
-                    data: { l1EmployeeId: l1EmployeeId },
-                    success: function (response) {
-                        if (response.success && response.managerId) {
-                            $('#ReportingManagerL2').val(response.managerName); // Display name
-                            $('#ReportingManagerL2Id').val(response.managerId); // Hidden ID
-                        } else {
-                            $('#ReportingManagerL2').val('');
-                            $('#ReportingManagerL2Id').val('');
-                        }
-                    },
-                    error: function () {
-                        alert('Error fetching L2 manager.');
-                    }
-                });
-            }
+
+
+    $(document).ready(function () {
+          $('#ReportingManagerDropdown').select2({
+            theme: 'bootstrap-5',
+            placeholder: '@HRMS.Models.Common.Constants.SelectReportingManager',
+            allowClear: true,
+            width: '100%'
+        });
+
+          function fetchL2Manager(l1EmployeeId) {
+        if (!l1EmployeeId) {
+            $('#ReportingManagerL2').val('');
+            $('#ReportingManagerL2Id').val('');
+            return;
         }
-        $('#ReportingManagerDropdown').change(function () {
+
+        $.ajax({
+            url: '/Hr/Employee/GetL2Manager',
+            type: 'POST',
+            data: { l1EmployeeId: l1EmployeeId },
+            success: function (response) {
+                if (response && response.success && response.managerId) {
+                    $('#ReportingManagerL2').val(response.managerName || ''); // Display name
+                    $('#ReportingManagerL2Id').val(response.managerId);       // Hidden ID
+                } else {
+                    $('#ReportingManagerL2').val('');
+                    $('#ReportingManagerL2Id').val('');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching L2 manager:', error);
+                $('#ReportingManagerL2').val('');
+                $('#ReportingManagerL2Id').val('');
+                alert('Error fetching L2 manager.');
+            }
+        });
+    }
+
+         $('#ReportingManagerDropdown').on('change', function() {
             const l1EmployeeId = $(this).val();
             fetchL2Manager(l1EmployeeId);
         });
     setTimeout(function () {
          const preselectedL1 = $('#ReportingManagerDropdown').val();
-          console.log("Preselected L1 value on load:", preselectedL1);
          if (preselectedL1) {
              fetchL2Manager(preselectedL1);
          }
      }, 200);
+      $('.select2-container').css('z-index', '1060');
     });
 </script>
+<script>
+    $(document).ready(function () {
+          function loadFormPermissions(departmentId) {
+        if (departmentId) {
+            $.ajax({
+                url: '@Url.Action("loadForms", "Employee")',
+                type: 'GET',
+                data: {
+                    DepartmentId: departmentId,
+                    EmployeeId: '@Model.EmployeeID'
+                },
+                success: function (response) {
+                    let html = '';
+
+                    if (Array.isArray(response) && response.length > 0) {
+                        html += `<div class="d-flex flex-wrap">`;
+
+                        response.forEach(function (item) {
+                            if (item.formID && item.formName) {
+                                html += `
+                                    <div class="form-check" style="width: 20%; margin-bottom: 10px;">
+                                        <input type="checkbox"
+                                               name="SelectedFormIds"
+                                               class="form-check-input chkboxes"
+                                               value="${item.formID}"
+                                               id="perm_${item.formID}" ${item.isSelected ? 'checked' : ''} />
+                                        <label class="form-check-label" for="perm_${item.formID}">
+                                            ${item.formName}
+                                        </label>
+                                    </div>
+                                `;
+                            }
+                        });
+
+                        html += `</div>`;
+                    } else {
+                        html = `<p class="text-muted">No form permissions available.</p>`;
+                    }
+
+                    $('#form-permission-list').html(html);
+                },
+                error: function () {
+                    alert("Failed to load form permissions.");
+                    $('#form-permission-list').empty();
+                }
+            });
+        } else {
+            $('#form-permission-list').empty();
+        }
+    }
+
+        // On change
+        $('#DepartmentID').on('change', function () {
+            var departmentId = $(this).val();
+            loadFormPermissions(departmentId);
+            // fetchSubDepartments(departmentId);
+
+        });
+
+        // On load (edit scenario)
+        var initialDepartmentId = $('#DepartmentID').val();
+        if (initialDepartmentId) {
+            loadFormPermissions(initialDepartmentId);
+        }
+    });
+
+
+        $(document).ready(function () {
+        $('.mobile-mask').mask('(0000)-000-000');
+    });
+
+</script>
+<style>
+    .select2-container--bootstrap-5 .select2-selection {
+        font-size: 12px;
+    }
+
+    .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option {
+        font-size: 12px;
+    }
+
+    .select2-container {
+        z-index: 1060 !important;
+    }
+</style>

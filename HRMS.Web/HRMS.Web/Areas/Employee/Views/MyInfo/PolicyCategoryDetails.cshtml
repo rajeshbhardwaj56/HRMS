@@ -11,7 +11,32 @@
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
     var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
     ViewData["Title"] = "Policy ";
+    var JobLocationID = Convert.ToInt64(this.Context.Session.GetString(Constants.JobLocationID));
+    var LoginRole = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+
 }
+<style>
+    .description-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    }
+
+    .form-check-label {
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    #saveAcknowledgeBtn:disabled {
+        background: #c8c8c8;
+        cursor: not-allowed;
+    }
+</style>
+<div class="main-header anim" style="--delay: 0s">
+    Policies
+</div>
 <div class="card p-3">
     <div class="accordion accordion-flush" id="accordionFlushExample">
         @foreach (var groupWithIndex in Model.GroupBy(item => item.PolicyCategoryId).Select((group, index) => new { Group = group, Index = index }))
@@ -36,22 +61,46 @@
                      data-bs-parent="#accordionFlushExample">
                     <div class="my-3">
                         <div class="row">
-                        @foreach (var item in group)
-                        {
-                            var filedata = @item.PolicyDocument;
-                                <a href="@filedata" target="_blank" class="text-decoration-none">
-                            <div class="col-2">
-                                <div class="card" style="text-align:center;">
-                                    <div class="card-body">
-                                        <h6 class="card-title mb-3">@item.Title</h6>
-                                       
-                                        <i class="bi bi-file-earmark-pdf-fill text-secondary fs-1"></i>
-                                        
+                            @foreach (var item in group)
+                            {
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                                    <div class="card h-100 text-center position-relative">
+                                        @if (item.IsAcknowledged)
+                                        {
+                                            <span class="position-absolute top-0 start-0 m-2 text-success" title="Acknowledged">
+                                                <i class="bi bi-check-circle-fill fs-4"></i>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="position-absolute top-0 start-0 m-2 text-warning" title="Pending">
+                                                <i class="bi bi-hourglass-split fs-4"></i>
+                                            </span>
+                                        }
+                                        <div class="card-body d-flex flex-column justify-content-between">
+                                            <h6 class="card-title mb-2">@item.Title</h6>
+                                            @{
+                                                string fullDescription = item.Description ?? "";
+                                                string previewDescription = fullDescription.Length > 50
+                                                ? fullDescription.Substring(0, 50) + "..."
+                                                : fullDescription;
+                                            }
+                                            <p class="description-preview">@Html.Raw(previewDescription)</p>
+
+                                          
+                                            <button class="btn btn-addBtn btn-sm btn-outline-primary mt-2 view-policy"
+                                                    data-title="@item.Title"
+                                                    data-description='@Html.Raw(item.Description)'
+                                                    data-file="@item.PolicyDocument"
+                                                    data-policyid="@item.Id">
+                                                View
+                                            </button>
+
+
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                                </a>
-                        }
+                            }
 
                         </div>
 
@@ -61,3 +110,199 @@
         }
     </div>
 </div>
+
+<div class="modal fade" id="policyModal" tabindex="-1" aria-labelledby="policyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="policyModalLabel">Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modalDescription"></p>
+                <div id="modalPreview" class="text-center mt-3"></div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="acknowledgeToggle">
+                    <label class="form-check-label" for="acknowledgeToggle">I have read and understood this policy</label>
+                </div>
+                <button id="saveAcknowledgeBtn" class="btn btn-primary" disabled>Acknowledge</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+<script>
+      
+    const policyModalEl = document.getElementById('policyModal');
+    const policyModal = new bootstrap.Modal(policyModalEl);
+    let currentPdfLoadingTask = null;
+    let currentPolicyId = null;
+    let isAcknowledged = false;
+    $(document).on('click', '.view-policy', function() {
+         currentPolicyId = $(this).data('policyid');
+
+          $('#acknowledgeToggle').prop('checked', false);
+    $('#saveAcknowledgeBtn').prop('disabled', true);
+
+
+        const title = $(this).data('title');
+        const description = $(this).data('description');
+        const file = $(this).data('file');
+        const extension = file.split('?')[0].split('.').pop().toLowerCase();
+
+        $('#policyModalLabel').text(title);
+        $('#modalDescription').html(description);
+        $('#modalPreview').empty(); 
+
+        let previewHtml = '';
+
+       
+        if (["jpg", "jpeg", "png", "webp"].includes(extension)) {
+            previewHtml = `
+                <div oncontextmenu="return false;" style="user-select: none;">
+                    <img src="${file}" alt="Preview" class="img-fluid rounded border"
+                         style="pointer-events: none;">
+                </div>`;
+            $('#modalPreview').html(previewHtml);
+        }
+        // Handle PDF files
+        else if (extension === "pdf") {
+            previewHtml = `
+                <div id="pdfContainer" style="width:100%; height:500px; overflow:auto; text-align:center; background:#f4f4f4;"></div>`;
+            $('#modalPreview').html(previewHtml);
+
+            // Clear previous PDF task
+            if (currentPdfLoadingTask) {
+                currentPdfLoadingTask.destroy();
+                currentPdfLoadingTask = null;
+            }
+
+            // Load and render PDF
+            const loadingTask = pdfjsLib.getDocument(file);
+            currentPdfLoadingTask = loadingTask;
+
+            loadingTask.promise.then(function(pdf) {
+                const container = document.getElementById('pdfContainer');
+                container.innerHTML = ''; 
+         
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    pdf.getPage(pageNum).then(function(page) {
+                        const viewport = page.getViewport({ scale: 1.2 });
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        canvas.style.display = 'block';
+                        canvas.style.margin = '10px auto';
+                        canvas.style.boxShadow = '0 0 5px rgba(0,0,0,0.3)';
+                        canvas.oncontextmenu = () => false;
+
+                        page.render({
+                            canvasContext: context,
+                            viewport: viewport
+                        });
+
+                        container.appendChild(canvas);
+                    });
+                }
+            }).catch(() => {
+                $('#pdfContainer').html(`<p class="text-danger">Unable to load PDF</p>`);
+            });
+        }
+     
+        else {
+            previewHtml = `<a href="${file}" target="_blank" class="btn btn-outline-secondary">Open Document</a>`;
+            $('#modalPreview').html(previewHtml);
+        }
+
+       
+        policyModal.show();
+    });
+
+    
+    policyModalEl.addEventListener('hidden.bs.modal', () => {
+      
+        $('#modalPreview').empty();
+        if (currentPdfLoadingTask) {
+            currentPdfLoadingTask.destroy();
+            currentPdfLoadingTask = null;
+        }
+    });
+
+   
+    policyModalEl.addEventListener('show.bs.modal', () => {
+      
+        policyModalEl.removeAttribute('aria-hidden');
+
+       
+        $(policyModalEl).css('user-select', 'none');
+        $(policyModalEl).on('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+    });
+
+    policyModalEl.addEventListener('hidden.bs.modal', () => {     
+        $(policyModalEl).css('user-select', 'auto');
+        $(policyModalEl).off('contextmenu');
+    });
+
+
+        $('#acknowledgeToggle').on('change', function () {
+        isAcknowledged = $(this).is(':checked');
+        $('#saveAcknowledgeBtn').prop('disabled', !isAcknowledged);
+    });
+
+
+        $('#saveAcknowledgeBtn').on('click', function () {
+ 
+        if (!currentPolicyId || !isAcknowledged) return;
+
+        $.ajax({
+            url: '/employee/myinfo/AcknowledgePolicy',
+            type: 'POST',
+            data: { policyId: currentPolicyId },
+            success: function (res) {
+                if (res.success) {
+                $.toast({
+                    heading: 'Success',
+                    text: res.message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right'
+                });
+                  policyModal.hide();
+            }
+                 else if (res.alreadyAcknowledged) {
+                $.toast({
+                    heading: 'Info',
+                    text: res.message,
+                    showHideTransition: 'slide',
+                    icon: 'info',
+                    position: 'top-right'
+                });
+                policyModal.hide();
+            }
+           else {
+                $.toast({
+                    heading: 'Error',
+                    text: res.message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right'
+                });
+            }
+        },
+            error: function () {
+                alert('Error saving acknowledgement!');
+            }
+        });
+    });
+</script>

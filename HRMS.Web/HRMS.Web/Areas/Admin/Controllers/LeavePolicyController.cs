@@ -7,6 +7,7 @@ using HRMS.Models.LeavePolicy;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -15,24 +16,39 @@ using Results = HRMS.Models.Common.Results;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin)]
+    [Authorize]
     public class LeavePolicyController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IS3Service _s3Service;
         private readonly IBusinessLayer _businessLayer;
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
-        public LeavePolicyController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, IS3Service s3Service)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public LeavePolicyController(ICheckUserFormPermission CheckUserFormPermission , IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, IS3Service s3Service)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
             Environment = environment;
-            _s3Service = s3Service;        
+            _s3Service = s3Service;
+            _CheckUserFormPermission = CheckUserFormPermission;
         }
-
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
         public IActionResult LeavePolicyListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -42,11 +58,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             LeavePolicyInputParans leavePolicyParams = new LeavePolicyInputParans();
             leavePolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.LeavePolicy.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.LeavePolicyID.ToString()));
-
             return Json(new { data = results.LeavePolicy });
 
         }
@@ -54,9 +68,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult Index(string id)
         {
             LeavePolicyModel leavePolicyModel = new LeavePolicyModel();
-            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            
-                 
+            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));                 
             if (!string.IsNullOrEmpty(id))
             {
                 id = _businessLayer.DecodeStringBase64(id);
@@ -97,6 +109,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult LeavePolicyDetailsListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyDetailsListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -122,6 +144,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(id))
             {
+
                 id = _businessLayer.DecodeStringBase64(id);
                 leavePolicyModel.Id = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -299,6 +322,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult WhatshappeningListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.WhatshappeningListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -345,10 +378,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         public IActionResult AddWhatshappening(WhatsHappeningModels objModel, List<IFormFile> postedFiles)
-        {
-            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
-           
-
+        {                     
             if (objModel.Description == null)
             {
                 objModel.Description = string.Empty;
@@ -368,7 +398,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             objModel.CreatedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-
             var data = _businessLayer.SendPostAPIRequest(objModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);         
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
@@ -397,7 +426,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);
         }
         #endregion Whatshappening Details
-
+        
 
     }
 }

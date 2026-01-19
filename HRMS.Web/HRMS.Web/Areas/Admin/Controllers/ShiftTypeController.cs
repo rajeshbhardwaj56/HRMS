@@ -1,6 +1,7 @@
 ﻿using HRMS.Models.Common;
 using HRMS.Models.ShiftType;
 using HRMS.Web.BusinessLayer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,31 +11,56 @@ using Results = HRMS.Models.Common.Results;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin)]
+    [Authorize]
     public class ShiftTypeController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
-        public ShiftTypeController(IConfiguration configuration, IBusinessLayer businessLayer)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public ShiftTypeController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
+            _CheckUserFormPermission = CheckUserFormPermission;
         }
 
         public IActionResult ShiftTypeListing()
         {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ShiftTypeListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             Results results = new Results();
             return View(results);
         }
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult ShiftTypeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public JsonResult ShiftTypeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol,
+    string sortDir)
         {
-          ShiftTypeInputParans shiftTypeParams = new ShiftTypeInputParans();
+            var columnMapping = new Dictionary<string, string>
+    {
+        {"shiftTypeID", "shiftTypeID"},
+        {"shiftTypeName", "ShiftTypeName"},
+        {"startTime", "startTime"},
+        {"endTime", "endTime"},
+        {"autoAttendance", "autoAttendance"}
+    
+    };
+
+            ShiftTypeInputParans shiftTypeParams = new ShiftTypeInputParans();
             shiftTypeParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             shiftTypeParams.DisplayStart = iDisplayStart;
             shiftTypeParams.DisplayLength = iDisplayLength;
             shiftTypeParams.Searching = string.IsNullOrEmpty(sSearch) ? null : sSearch;
+            shiftTypeParams.SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "shiftTypeID";
+            shiftTypeParams.SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper();
             var data = _businessLayer.SendPostAPIRequest(shiftTypeParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.GetAllShiftTypes), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             return Json(new {
@@ -47,7 +73,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             ShiftTypeModel shiftTypeModel = new ShiftTypeModel();
             shiftTypeModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             if (!string.IsNullOrEmpty(id))
             {
                 shiftTypeModel.ShiftTypeID = Convert.ToInt64(id);
@@ -73,14 +98,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 shiftTypeModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
+                shiftTypeModel.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID ));
                 var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType, APIApiActionConstants.AddUpdateShiftType), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var results = JsonConvert.DeserializeObject<Result>(data);
 
                 if (shiftTypeModel.ShiftTypeID > 0)
                 {
                     return RedirectToActionPermanent(WebControllarsConstants.ShiftTypeListing, WebControllarsConstants.ShiftType);
-                    //return RedirectToActionPermanent(Constants.Index, WebControllarsConstants.ShiftType, new { id = shiftTypeModel.ShiftTypeID.ToString() });
                 }
                 else
                 {
@@ -91,6 +115,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 return View(shiftTypeModel);
             }
+        }
+         
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
     }
 }

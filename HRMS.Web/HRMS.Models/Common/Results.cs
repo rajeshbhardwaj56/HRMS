@@ -17,6 +17,7 @@ namespace HRMS.Models.Common
         public List<SelectListItem> Currencies { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Languages { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
+
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<EmployeeModel> Employees { get; set; } = new List<EmployeeModel>();
         public EmployeeModel employeeModel { get; set; } = new EmployeeModel();
@@ -25,7 +26,7 @@ namespace HRMS.Models.Common
         public CompanyModel companyModel { get; set; } = new CompanyModel();
         public CompanyLoginModel companyLoginModel { get; set; } = new CompanyLoginModel();
         public List<CompanyModel> Companies { get; set; } = new List<CompanyModel>();
-
+        public List<SelectListItem> JobLocationList { get; set; } = new List<SelectListItem>();
         public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();
         public LeavePolicyModel leavePolicyModel { get; set; } = new LeavePolicyModel();
         // public WhatsHappeningModel leavePolicyModel { get; set; } = new WhatsHappeningModel();
@@ -46,11 +47,9 @@ namespace HRMS.Models.Common
         public PolicyCategoryModel PolicyCategoryModel { get; set; } = new PolicyCategoryModel();
         public List<Attendance> AttandanceList { get; set; } = new List<Attendance>();
         public Attendance AttendanceModel { get; set; } = new Attendance();
-      
+        public List<SelectListItem> FormsPermission { get; set; } = new List<SelectListItem>();
 
     }
-
-
 
     public class Result
     {
@@ -59,6 +58,15 @@ namespace HRMS.Models.Common
         public string Message { get; set; } = string.Empty;
         public string ErrorCode { get; set; } = string.Empty;
         public bool IsResetPasswordRequired { get; set; }
-        public object Data { get; set; }
+
+        public object? Data { get; set; }
+    }
+
+
+    public class Returner
+    {
+
+        public long? ReturnID { get; set; }
+
     }
 }
