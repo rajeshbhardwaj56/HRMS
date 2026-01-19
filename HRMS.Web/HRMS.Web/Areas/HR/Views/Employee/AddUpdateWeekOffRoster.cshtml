@@ -17,8 +17,8 @@
 
     initialDate ??= DateTime.Today;
 
-    var selectedMonth = initialDate.Value.Month;
-    var selectedYear = initialDate.Value.Year;
+    var selectedMonth = Model.SelectedMonth ?? initialDate.Value.Month;
+    var selectedYear = Model.SelectedYear ?? initialDate.Value.Year;
     int currentYear = DateTime.Today.Year;
 
     bool isEditMode = Model.Id > 0;
@@ -34,7 +34,9 @@
                     <label>Select Year</label>
                     <select id="yearSelect" class="form-select" @(isEditMode ? "disabled" : "")>
                         @{
-                            for (int y = currentYear; y <= currentYear + 1; y++)
+                            int minYear = isEditMode ? selectedYear : currentYear;
+                            int maxYear = currentYear + 1;
+                            for (int y = minYear; y <= maxYear; y++)
                             {
                                 <option value="@y" @(y == selectedYear ? "selected" : "")>@y</option>
                             }
@@ -54,12 +56,12 @@
                     }
                     else
                     {
-                    @Html.DropDownListFor(
-                             x => x.EmployeeIdWithEmployeeNo,
-                             Model.Employee,
-                             HRMS.Models.Common.Constants.SelectEmployee,
-                             new { @class = " select2", @required = "required" }
-                             )
+                        @Html.DropDownListFor(
+                                 x => x.EmployeeIdWithEmployeeNo,
+                                 Model.Employee,
+                                 HRMS.Models.Common.Constants.SelectEmployee,
+                                 new { @class = " select2", @required = "required" }
+                                 )
                     }
                 </div>
 
@@ -396,7 +398,7 @@
                         $shiftSelect.append(option);
                     });
 
-                    
+
                     $shiftSelect.trigger('change.select2');
                 },
                 error: function () {

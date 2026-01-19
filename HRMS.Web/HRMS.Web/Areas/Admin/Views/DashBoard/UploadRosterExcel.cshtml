@@ -4,45 +4,45 @@
 @model EmployeeModel
 
 @{
-	Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
-	ViewData["Title"] = "Upload Roster Excel";
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Upload Roster Excel";
 }
 
 <style>
-	.alert {
-		margin-top: 89px;
-		padding: 11px 18px;
-		border-radius: 8px;
-		border: 1px solid transparent;
-		width: 665px;
-	}
+    .alert {
+        margin-top: 89px;
+        padding: 11px 18px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        width: 665px;
+    }
 
-	.alert-danger {
-		background-color: #fdecea;
-		color: #b71c1c;
-		border-color: #f5c6cb;
-	}
+    .alert-danger {
+        background-color: #fdecea;
+        color: #b71c1c;
+        border-color: #f5c6cb;
+    }
 
-	.alert-success {
-		background-color: #e6f4ea;
-		color: #2e7d32;
-		border-color: #c3e6cb;
-	}
+    .alert-success {
+        background-color: #e6f4ea;
+        color: #2e7d32;
+        border-color: #c3e6cb;
+    }
 
-	.custom-alert {
-		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-	}
+    .custom-alert {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
 
-	.small-text {
-		font-size: 0.875rem;
-	}
+    .small-text {
+        font-size: 0.875rem;
+    }
 
-	#upload-messages h5 {
-		font-size: 1rem;
-		margin-bottom: 8px;
-		font-weight: 600;
-	}
+    #upload-messages h5 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
 </style>
 
 <div class="main-header anim" style="--delay: 0s">Import Employee Roster</div>
@@ -73,11 +73,11 @@
                     </span>
                 </div>
 
-                <div class="d-flex align-items-center mb-3"  style="max-width: 600px;">
-                    <input type="file" class="form-control me-2" id="excelFile" accept=".xls,.xlsx" required >
+                <div class="d-flex align-items-center mb-3" style="max-width: 600px;">
+                    <input type="file" class="form-control me-2" id="excelFile" accept=".xls,.xlsx" required>
                     <button type="submit" id="uploadButton" class="btn btn-primary ">Upload</button>
                 </div>
-               
+
                 <div class="mt-4">
                     <div id="progressBar" class="progress d-none  mb-3">
                         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
@@ -91,242 +91,243 @@
     </div>
 </form>
 
-				
+
 <script>
-	
-	 let weekVal = null;
-	let selectCurrentWeek = true;
+    $('#yearDropdown').on('change', function () {
+        const year = parseInt($(this).val());
+        if (year) {
+            selectCurrentWeek = true;
+            populateWeekDropdown(year);
+        } else {
+            $('#weekDropdown').empty().append('<option value="">-- Select Week --</option>');
+        }
+    });
+    let weekVal = null;
+    let selectCurrentWeek = true;
 
-	 function populateWeekDropdown(year) {
-		const weekDropdown = $('#weekDropdown');
-		weekDropdown.empty();
-		weekDropdown.append($('<option>').val('').text('-- Select Week --'));
+    function populateWeekDropdown(year) {
+        const weekDropdown = $('#weekDropdown');
+        weekDropdown.empty();
+        weekDropdown.append($('<option>').val('').text('-- Select Week --'));
 
-		const weekRanges = getWeekRanges(year);
-		const today = new Date();
-		let selectedValue = null;
+        const weekRanges = getWeekRanges(year);
+        let selectedValue = null;
+
+        weekRanges.forEach(w => {
+            const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
+            const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
+
+            weekDropdown.append(
+                $('<option>').val(value).text(label)
+            );
+        });
 
 
-		weekRanges.forEach(w => {
-	    const start = new Date(convertToISO(w.startDate));
-		const end = new Date(convertToISO(w.endDate));
+        if (weekRanges.length > 0) {
+            weekDropdown.val(
+                `${weekRanges[0].weekNumber}|${weekRanges[0].startDate}|${weekRanges[0].endDate}`
+            ).trigger('change');
+        }
+    }
+    function getWeekRanges(year) {
 
-            if ((today >= start && today <= end) || end < today) {
-                return;
+        const weeks = [];
+        const currentYear = new Date().getFullYear();
+
+        let current = getFirstMondayOfYear(year);
+        let week = 1;
+
+        let endDate;
+
+        if (year === currentYear - 1) {
+            endDate = new Date(year + 1, 0, 4);
+        } else {
+            endDate = new Date(year, 11, 31);
+            while (endDate.getDay() !== 0) {
+                endDate.setDate(endDate.getDate() - 1);
             }
-		const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
-		const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
+        }
 
-		  if (today >= start && today <= end) {
-			selectedValue = value;
-		}
+        while (current <= endDate) {
 
-			weekDropdown.append($('<option>').val(value).text(label));
-		});
+            const start = new Date(current);
+            const end = new Date(current);
+            end.setDate(end.getDate() + 6);
 
+            weeks.push({
+                weekNumber: week,
+                startDate: formatDate(start),
+                endDate: formatDate(end)
+            });
 
-		if (selectCurrentWeek && selectedValue) {
-		weekDropdown.val(selectedValue).trigger('change');
-		weekVal = selectedValue; 
-		selectCurrentWeek = false; 
-	}
-	}
+            current.setDate(current.getDate() + 7);
+            week++;
+        }
 
-	function getWeekRanges(year) {
+        if (year === currentYear - 1) {
+            return weeks.slice(-3);
+        }
 
-		const weeks = [];
-		const firstMonday = getFirstMondayOfYear(year);
+        return weeks;
+    }
 
-		let current = new Date(firstMonday);
-		let week = 1;
+    function getFirstMondayOfYear(year) {
+        const date = new Date(year, 0, 1);
+        const day = date.getDay();
+        const diff = (day === 0) ? 1 : (8 - day);
+        date.setDate(date.getDate() + (day === 1 ? 0 : diff));
+        return date;
+    }
 
-		while (current.getFullYear() === year) {
-			const start = new Date(current);
-			const end = new Date(current);
-			end.setDate(end.getDate() + 6);
+    function formatDate(date) {
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+    function convertToISO(dateStr) {
+        const parts = dateStr.split(' ');
+        const day = parts[0];
+        const month = {
+            Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+            Jul: '07', Aug: '08', Sept: '09', Oct: '10', Nov: '11', Dec: '12'
+        }[parts[1]];
+        const year = parts[2];
+        return `${year}-${month}-${day.padStart(2, '0')}`;
+    }
 
-			weeks.push({
-				weekNumber: week,
-				startDate: formatDate(start),
-				endDate: formatDate(end)
-			});
+    $(document).ready(function () {
+        var currentDate = new Date();
+        var currentYear = currentDate.getFullYear();
 
-			current.setDate(current.getDate() + 7);
-			week++;
-		}
-
-
-		const start = new Date(current);
-		const end = new Date(current);
-		end.setDate(end.getDate() + 6);
-		if (start.getFullYear() === year) {
-			weeks.push({
-				weekNumber: week,
-				startDate: formatDate(start),
-				endDate: formatDate(end)
-			});
-		}
-
-		return weeks;
-	}
-	   function getFirstMondayOfYear(year) {
-		const date = new Date(year, 0, 1); 
-		const day = date.getDay(); 
-		const diff = (day === 0) ? 1 : (8 - day);
-		date.setDate(date.getDate() + (day === 1 ? 0 : diff));
-		return date;
-	}
-
-	   function formatDate(date) {
-		return date.toLocaleDateString('en-GB', {
-			day: '2-digit',
-			month: 'short',
-			year: 'numeric'
-		});
-	}
-	 function convertToISO(dateStr) {
-		const parts = dateStr.split(' ');
-		const day = parts[0];
-		const month = {
-			Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
-			Jul: '07', Aug: '08', Sept: '09', Oct: '10', Nov: '11', Dec: '12'
-		}[parts[1]];
-		const year = parts[2];
-		return `${year}-${month}-${day.padStart(2, '0')}`;
-	}
-
-	$(document).ready(function () {
-		var currentDate = new Date();
-		var currentYear = currentDate.getFullYear();
-
-		var yearDropdown = $('#yearDropdown');
-		yearDropdown.append('<option value="">--Years--</option>');
-		for (var y = currentYear; y >= currentYear - 0; y--) {
-			var selected = (y === currentYear) ? 'selected' : '';
-			yearDropdown.append('<option value="' + y + '" ' + selected + '>' + y + '</option>');
-		}
-		const selectedYear = parseInt($('#yearDropdown').val());
-		populateWeekDropdown(selectedYear);
+        var yearDropdown = $('#yearDropdown');
+        yearDropdown.append('<option value="">--Years--</option>');
+        for (var y = currentYear; y >= currentYear - 1; y--) {
+            var selected = (y === currentYear) ? 'selected' : '';
+            yearDropdown.append('<option value="' + y + '" ' + selected + '>' + y + '</option>');
+        }
+        const selectedYear = parseInt($('#yearDropdown').val());
+        populateWeekDropdown(selectedYear);
 
 
-	});
+    });
 
-	document.getElementById("uploadForm").addEventListener("submit", function (e) {
-		e.preventDefault();
+    document.getElementById("uploadForm").addEventListener("submit", function (e) {
+        e.preventDefault();
 
-		const fileInput = document.getElementById("excelFile");
-		const file = fileInput.files[0];
-		const progressBar = document.getElementById("progressBar");
-		const resultMessage = document.getElementById("resultMessage");
-		const uploadButton = document.getElementById("uploadButton");
+        const fileInput = document.getElementById("excelFile");
+        const file = fileInput.files[0];
+        const progressBar = document.getElementById("progressBar");
+        const resultMessage = document.getElementById("resultMessage");
+        const uploadButton = document.getElementById("uploadButton");
 
-		resultMessage.innerHTML = "";
+        resultMessage.innerHTML = "";
 
-		if (!file) {
-			resultMessage.innerHTML = '<div class="alert alert-danger">Please select a file.</div>';
-			return;
-		}
-		const selectedYears = document.getElementById("yearDropdown").value;
-	if (!selectedYears) {
-		resultMessage.innerHTML = '<div class="alert alert-danger">Please select a Year.</div>';
-		return;
-	}
-
-
-	const weekValues = document.getElementById("weekDropdown").value;
-	if (!weekValues) {
-		resultMessage.innerHTML = '<div class="alert alert-danger">Please select a Week.</div>';
-		return;
-	}
-		uploadButton.innerHTML = 'Please wait...';
-		uploadButton.disabled = true;
-
-		const formData = new FormData();
-		formData.append("file", file);
-	
-		
-		const weekVal = document.getElementById("weekDropdown").value;
-	    var selectedWeek = null
-	if (weekVal) {
-		var parts = weekVal.split('|');
-		selectedWeek = convertToISO(parts[1]);
-
-	}
+        if (!file) {
+            resultMessage.innerHTML = '<div class="alert alert-danger">Please select a file.</div>';
+            return;
+        }
+        const selectedYears = document.getElementById("yearDropdown").value;
+        if (!selectedYears) {
+            resultMessage.innerHTML = '<div class="alert alert-danger">Please select a Year.</div>';
+            return;
+        }
 
 
-		const selectedYear = document.getElementById("yearDropdown").value;
+        const weekValues = document.getElementById("weekDropdown").value;
+        if (!weekValues) {
+            resultMessage.innerHTML = '<div class="alert alert-danger">Please select a Week.</div>';
+            return;
+        }
+        uploadButton.innerHTML = 'Please wait...';
+        uploadButton.disabled = true;
 
-		formData.append("week", selectedWeek);
-		formData.append("year", selectedYear);
-
-		const xhr = new XMLHttpRequest();
-		xhr.open("POST", "/admin/Dashboard/UploadRosterExcel", true);
-
-		xhr.upload.addEventListener("loadstart", function () {
-			progressBar.classList.remove("d-none");
-			progressBar.querySelector(".progress-bar").style.width = "0%";
-		});
-
-		xhr.upload.addEventListener("progress", function (e) {
-			if (e.lengthComputable) {
-				const percentComplete = (e.loaded / e.total) * 100;
-				progressBar.querySelector(".progress-bar").style.width = percentComplete + "%";
-			}
-		});
-
-		xhr.onreadystatechange = function () {
-			if (xhr.readyState === 4) {
-				progressBar.classList.add("d-none");
-				uploadButton.innerHTML = 'Upload';
-				uploadButton.disabled = false;
-
-				if (xhr.status >= 200 && xhr.status < 300) {
-					// Success
-					try {
-						const response = JSON.parse(xhr.responseText);
-						const message = response.message || xhr.responseText;
-						resultMessage.innerHTML = '<div class="alert alert-success">' + message + '</div>';
-
-						// Clear file input on success
-						fileInput.value = '';
-
-						// Hide success message after 5 seconds
-						setTimeout(() => {
-							resultMessage.innerHTML = '';
-						}, 5000);
-
-					} catch (e) {
-						resultMessage.innerHTML = '<div class="alert alert-success">' + xhr.responseText + '</div>';
-						fileInput.value = '';
-
-						setTimeout(() => {
-							resultMessage.innerHTML = '';
-						}, 5000);
-					}
-				} else {
-					// Error
-					try {
-						const response = JSON.parse(xhr.responseText);
-						const message = response.message || "An error occurred.";
-						const details = response.details || "";
-
-						resultMessage.innerHTML = `
-							<div class="alert alert-danger">
-								<strong>${message}</strong><br>
-								${details.replace(/\n/g, "<br>")}
-							</div>`;
+        const formData = new FormData();
+        formData.append("file", file);
 
 
-					} catch (e) {
-						resultMessage.innerHTML = '<div class="alert alert-danger"><strong>Error:</strong> ' + xhr.statusText + '</div>';
-					}
-				}
-			}
-		};
+        const weekVal = document.getElementById("weekDropdown").value;
+        var selectedWeek = null
+        if (weekVal) {
+            var parts = weekVal.split('|');
+            selectedWeek = convertToISO(parts[1]);
 
-		xhr.send(formData);
-	});
+        }
+
+
+        const selectedYear = document.getElementById("yearDropdown").value;
+
+        formData.append("week", selectedWeek);
+        formData.append("year", selectedYear);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/admin/Dashboard/UploadRosterExcel", true);
+
+        xhr.upload.addEventListener("loadstart", function () {
+            progressBar.classList.remove("d-none");
+            progressBar.querySelector(".progress-bar").style.width = "0%";
+        });
+
+        xhr.upload.addEventListener("progress", function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressBar.querySelector(".progress-bar").style.width = percentComplete + "%";
+            }
+        });
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                progressBar.classList.add("d-none");
+                uploadButton.innerHTML = 'Upload';
+                uploadButton.disabled = false;
+
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    // Success
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        const message = response.message || xhr.responseText;
+                        resultMessage.innerHTML = '<div class="alert alert-success">' + message + '</div>';
+
+                        // Clear file input on success
+                        fileInput.value = '';
+
+                        // Hide success message after 5 seconds
+                        setTimeout(() => {
+                            resultMessage.innerHTML = '';
+                        }, 5000);
+
+                    } catch (e) {
+                        resultMessage.innerHTML = '<div class="alert alert-success">' + xhr.responseText + '</div>';
+                        fileInput.value = '';
+
+                        setTimeout(() => {
+                            resultMessage.innerHTML = '';
+                        }, 5000);
+                    }
+                } else {
+                    // Error
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        const message = response.message || "An error occurred.";
+                        const details = response.details || "";
+
+                        resultMessage.innerHTML = `
+                            <div class="alert alert-danger">
+                                <strong>${message}</strong><br>
+                                ${details.replace(/\n/g, "<br>")}
+                            </div>`;
+
+
+                    } catch (e) {
+                        resultMessage.innerHTML = '<div class="alert alert-danger"><strong>Error:</strong> ' + xhr.statusText + '</div>';
+                    }
+                }
+            }
+        };
+
+        xhr.send(formData);
+    });
 </script>
 
 
- 

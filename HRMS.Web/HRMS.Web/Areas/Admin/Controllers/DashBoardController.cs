@@ -40,7 +40,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         IHttpContextAccessor _context;
         private readonly IS3Service _s3Service;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission,IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
@@ -110,7 +110,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     double accruedLeave = 0;
                     double carryForward = 0;
 
-                    
+
                     if (approvedLeaveTotal < maxAnnualLeaveLimit)
                     {
                         accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
@@ -131,7 +131,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     model.NoOfLeaves = Convert.ToInt64(remainingLeave);        // Leaves remaining (available)
                     ViewBag.NoOfLeaves = remainingLeave;        // Leaves remaining (available)
                     ViewBag.RoleID = roleId;
-                    
+
                     ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
                 }
             }
@@ -148,7 +148,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
         {
-            DateTime today = DateTime.Today;        
+            DateTime today = DateTime.Today;
             DateTime fiscalYearStart;
             DateTime fiscalYearEnd;
 
@@ -238,7 +238,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                             message = "Some rows contain errors.",
                             errorTable = htmlTable
                         });
-                    }  
+                    }
                     else
                     {
                         return Json(new
@@ -270,7 +270,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 errorDataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
             }
             errorDataTable.Columns.Add("ErrorColumn", typeof(string));
-            errorDataTable.Columns.Add("ErrorMessage", typeof(string));          
+            errorDataTable.Columns.Add("ErrorMessage", typeof(string));
             using (var package = new ExcelPackage(stream))
             {
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.FirstOrDefault();
@@ -301,7 +301,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 long SubDepartmentNameId = 0;
                 long ShiftTypeId = 0;
                 long JobLocationId = 0;
-            
+
                 long PayrollTypeId = 0;
                 long LeavePolicyId = 0;
                 long GenderId = 0;
@@ -393,7 +393,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     {
                                         prop.SetValue(item, cellValue);
                                     }
-                                    else  
+                                    else
                                     {
                                         AddErrorRow(errorDataTable, columnName, $"Row {row}: FirstName is mandatory.");
                                         hasError = true;
@@ -577,7 +577,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     break;
                                 case "SubDepartmentName":
-                                    
+
 
                                     if (string.IsNullOrWhiteSpace(cellValue))
                                     {
@@ -590,7 +590,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     else
                                     {
-                                        item.NewSubDepartmentName = cellValue; 
+                                        item.NewSubDepartmentName = cellValue;
                                     }
                                     break;
 
@@ -631,7 +631,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                             hasError = true;
                                         }
                                     }
-                                   
+
                                     break;
                                 case "ShiftTypeName":
                                     if (string.IsNullOrWhiteSpace(cellValue))
@@ -646,7 +646,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         var matchedShift = shiftDict.FirstOrDefault(kvp =>
                                         {
                                             var apiShiftCode = kvp.Key
-                                                .Split(' ', '(')[0]   
+                                                .Split(' ', '(')[0]
                                                 .Trim();
 
                                             return apiShiftCode.Equals(excelShiftCode, StringComparison.OrdinalIgnoreCase);
@@ -726,16 +726,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                     }
                                     break;
                                 case "AON":
-                                   
-                                        if (int.TryParse(cellValue, out int aonValue))
-                                        {
-                                            prop.SetValue(item, aonValue.ToString());
-                                        }
-                                        else
-                                        {
-                                            prop.SetValue(item, "0");
-                                        }
-                                   
+
+                                    if (int.TryParse(cellValue, out int aonValue))
+                                    {
+                                        prop.SetValue(item, aonValue.ToString());
+                                    }
+                                    else
+                                    {
+                                        prop.SetValue(item, "0");
+                                    }
+
                                     break;
                                 case "Gender":
                                     if (!string.IsNullOrEmpty(cellValue))
@@ -785,7 +785,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (importList.Any() && errorDataTable.Rows.Count == 0)
             {
 
-              
+
 
                 var employeeList = importList.Select(item => new ImportExcelDataTable
                 {
@@ -813,7 +813,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     DateOfBirth = item.DateOfBirth,
                     PlaceOfBirth = item.PlaceOfBirth,
                     IsReferredByExistingEmployee = item.IsReferredByExistingEmployee,
-                   
+
                     BloodGroup = item.BloodGroup,
                     PANNo = item.PANNo,
                     AadharCardNo = item.AadharCardNo,
@@ -1023,7 +1023,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var dataTable = ReadExcelToDataTable(tempFilePath);
 
                 // Convert DataTable to strongly-typed model list
-                var modelList =await ConvertDataTableToModelList(dataTable, month, week);
+                var modelList = await ConvertDataTableToModelList(dataTable, month, week);
 
                 // Validate model list
                 var validationError = ValidateModelList(modelList, week);
@@ -1104,10 +1104,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return dt;
         }
-        private async Task<List<WeekOffUploadModel>> ConvertDataTableToModelList(DataTable dt, int month, DateTime  weekStartDate)
+        private async Task<List<WeekOffUploadModel>> ConvertDataTableToModelList(DataTable dt, int month, DateTime weekStartDate)
         {
             var list = new List<WeekOffUploadModel>();
-            
+
             try
             {
 
@@ -1122,7 +1122,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         ShiftTypeId = 0 // default
                     };
 
-                    
+
                     var shiftName = row.Table.Columns.Contains("Shift") ? row["Shift"]?.ToString() : null;
                     if (!string.IsNullOrWhiteSpace(shiftName))
                     {
@@ -1163,12 +1163,23 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         private DateTime? ParseDateIfColumnExists(DataTable dt, DataRow row, string columnName)
         {
-            if (dt.Columns.Contains(columnName))
+            if (!dt.Columns.Contains(columnName))
+                return null;
+
+            var value = row[columnName]?.ToString()?.Trim();
+            if (string.IsNullOrEmpty(value))
+                return null;
+
+            string[] formats = { "dd/MM/yyyy", "d/M/yyyy" };
+
+            if (DateTime.TryParseExact(value, formats,
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out var date))
             {
-                var value = row[columnName]?.ToString();
-                if (DateTime.TryParse(value, out var date))
-                    return date;
+                return date;
             }
+
             return null;
         }
 
@@ -1178,7 +1189,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             var session = HttpContext.Session;
             var employeeId = Convert.ToInt64(session.GetString(Constants.EmployeeID));
-            var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID ));
+            var companyId = Convert.ToInt64(session.GetString(Constants.CompanyID));
             var inputParams = new WeekOfInputParams
             {
                 EmployeeID = employeeId,
@@ -1193,7 +1204,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var holidaymodelList = _businessLayer.SendPostAPIRequest(holidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetCompanyHoliday), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var holidayList = JsonConvert.DeserializeObject<List<HolidayCompanyList>>(holidaymodelList);
             var errors = new List<string>();
-            
+
             var employeeNumberToRows = new Dictionary<string, List<int>>();
             for (int i = 0; i < models.Count; i++)
             {
@@ -1218,20 +1229,20 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
 
                 var weekStart = item.WeekStartDate.Value.Date;
-                var weekEnd = weekStart.AddDays(6);               
+                var weekEnd = weekStart.AddDays(6);
                 if (!item.DayOff1.HasValue)
                 {
                     errors.Add($"Row {rowNum}: DayOff1 is mandatory.");
-                    continue; 
+                    continue;
                 }
 
-                
+
                 var weekOffDates = new List<DateTime>();
                 var fields = new Dictionary<string, DateTime?>()
         {
             { "DayOff1", item.DayOff1 },
             { "DayOff2", item.DayOff2 },
-         
+
         };
 
                 foreach (var kvp in fields)
@@ -1240,7 +1251,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     {
                         var date = kvp.Value.Value.Date;
 
-                        
+
                         if (date < weekStart || date > weekEnd)
                         {
                             errors.Add($"Row {rowNum}: {kvp.Key} ({date:yyyy-MM-dd}) is outside the week range {weekStart:yyyy-MM-dd} to {weekEnd:yyyy-MM-dd}.");
@@ -1264,7 +1275,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     }
                 }
 
-           
+
                 var duplicateDates = weekOffDates
                     .GroupBy(d => d)
                     .Where(g => g.Count() > 1)
@@ -1277,12 +1288,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
             }
 
-            
+
 
             return errors.Any() ? string.Join("\n", errors) : null;
         }
 
-     
+
         private void AddDateIfValid(List<DateTime> dates, DateTime? date, int rowNum, string fieldName, List<string> errors)
         {
             if (date.HasValue)

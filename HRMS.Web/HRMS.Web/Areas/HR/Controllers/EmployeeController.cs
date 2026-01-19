@@ -92,7 +92,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol,  string sortDir, string subDeptFilter,
+        public JsonResult EmployeeListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol, string sortDir, string subDeptFilter,
     string empTypeFilter,
     string locationFilter, string statusFilter)
         {
@@ -105,13 +105,13 @@ namespace HRMS.Web.Areas.HR.Controllers
         {"employeeID", "EmployeeID"},
         {"employeeNumber", "EmployeeNumber"},
         {"firstName", "FirstName"},
-        {"surname", "Surname"}, 
+        {"surname", "Surname"},
         {"designationName", "Designation"},
         {"departmentName", "Department"},
         {"shift", "Shift"},
         {"payrollTypeName", "PayrollType"},
         {"mobile", "Mobile"},
-        {"jobLocation", "JobLocation"}, 
+        {"jobLocation", "JobLocation"},
         {"isActive", "IsActive"}
     };
             employee.RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
@@ -125,11 +125,11 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.LocationID = string.IsNullOrEmpty(locationFilter) ? 0 : Convert.ToInt64(locationFilter);
             if (string.IsNullOrEmpty(statusFilter))
             {
-                employee.IsActive = null; 
+                employee.IsActive = null;
             }
             else
             {
-                employee.IsActive = statusFilter == "1"; 
+                employee.IsActive = statusFilter == "1";
             }
             var data = _businessLayer.SendPostAPIRequest(
                 employee,
@@ -166,7 +166,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 {
                     locationTypeId = j.JobLocationID,
                     name = j.Name
-                }),               
+                }),
                 data = results.Employees
             });
         }
@@ -195,7 +195,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     employee.PanCardImage = _s3Service.GetFileUrl(employee.PanCardImage);
                 }
                 employee.EncryptedIdentity = encrpt;
-                employee.EncodedDesignationID= _businessLayer.EncodeStringBase64(employee.DesignationID.ToString());
+                employee.EncodedDesignationID = _businessLayer.EncodeStringBase64(employee.DesignationID.ToString());
                 employee.EncodedDepartmentIDID = _businessLayer.EncodeStringBase64(employee.DepartmentID.ToString());
 
             }
@@ -462,7 +462,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             EmploymentDetailInputParams employmentDetailInputParams = new EmploymentDetailInputParams()
             {
                 UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID))
-            };  
+            };
             if (!string.IsNullOrEmpty(id))
             {
                 id = _businessLayer.DecodeStringBase64(id);
@@ -1442,19 +1442,19 @@ namespace HRMS.Web.Areas.HR.Controllers
         {
             var employeeId = GetSessionInt(Constants.EmployeeID);
             var roleId = GetSessionInt(Constants.RoleID);
-            
+
             var formPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.WeekOffRoster);
-            
+
             if (formPermission.HasPermission == 0 && roleId != (int)Roles.Admin && roleId != (int)Roles.SuperAdmin)
             {
-                
+
                 var teamPermission = _CheckUserFormPermission.GetFormPermission(employeeId, (int)PageName.MyTeam);
-               
+
                 if (roleId != (int)Roles.Employee && teamPermission.HasPermission > 0)
                 {
                     return RedirectToAction("GetTeamEmployeeList", "MyInfo", new { area = "employee" });
                 }
-                
+
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
@@ -1487,7 +1487,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             employee.WeekStartDate = WeekStartDate;
             employee.Year = Year;
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            employee.RoleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID)); 
+            employee.RoleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
             employee.SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch;
             employee.SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "EmployeeID";
             employee.SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper();
@@ -1553,13 +1553,16 @@ namespace HRMS.Web.Areas.HR.Controllers
                             "yyyy-MM-dd",
                             System.Globalization.CultureInfo.InvariantCulture
                         );
+
+                        modeldata.SelectedYear = modeldata.WeekStartDate.Value.Year;
+                        modeldata.SelectedMonth = modeldata.WeekStartDate.Value.Month;
                     }
 
                 }
             }
-                if (emp == null)
+            if (emp == null)
             {
-                Employeemodel.ManagerID  = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID )); ;
+                Employeemodel.ManagerID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)); ;
             }
             else
             {
@@ -1596,7 +1599,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 modeldata.Employee = JsonConvert.DeserializeObject<List<SelectListItem>>(data);
             }
 
-           
+
 
             return View(modeldata);
         }
@@ -1617,8 +1620,8 @@ namespace HRMS.Web.Areas.HR.Controllers
             {
                 employeeNumber = employeeNumber;
             }
-                List<EmployeeShiftModel> obj = new List<EmployeeShiftModel>();
-            var session = HttpContext.Session; 
+            List<EmployeeShiftModel> obj = new List<EmployeeShiftModel>();
+            var session = HttpContext.Session;
             var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
             var Shiftdata = _businessLayer.SendGetAPIRequest(
                                $"Employee/GetShiftTypeList?employeeNumber={employeeNumber}",
@@ -1657,12 +1660,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                 //model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
 
                 var weekOffUploadModel = new WeekOffUploadModelList
-                    {
-                        WeekOffList = new List<WeekOffUploadModel> { model },
-                        CreatedBy = employeeId
-                    };
+                {
+                    WeekOffList = new List<WeekOffUploadModel> { model },
+                    CreatedBy = employeeId
+                };
 
-                var validationError = ValidateModelList(weekOffUploadModel.WeekOffList, model.WeekStartDate );
+                var validationError = ValidateModelList(weekOffUploadModel.WeekOffList, model.WeekStartDate);
                 if (!string.IsNullOrEmpty(validationError))
                 {
                     TempData[Constants.toastType] = Constants.toastTypeError;
@@ -1687,7 +1690,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 else
                 {
                     var results = JsonConvert.DeserializeObject<bool>(apiResponse.ToString());
-                    if (results ==true)
+                    if (results == true)
                     {
                         TempData[Constants.toastType] = Constants.toastTypeSuccess;
                         TempData[Constants.toastMessage] = "Data saved successfully.";
@@ -1725,7 +1728,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = data;
             }
-            return RedirectToActionPermanent(WebControllarsConstants.EmployeesWeekOffRoster , WebControllarsConstants.Employee);
+            return RedirectToActionPermanent(WebControllarsConstants.EmployeesWeekOffRoster, WebControllarsConstants.Employee);
         }
 
 
@@ -1736,7 +1739,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             var model = new SalarySlipViewModel
             {
                 EmployeeID = long.Parse(employee),
-               
+
             };
             return View(model);
         }
@@ -1851,7 +1854,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             return errors.Any() ? string.Join("\n", errors) : null;
         }
 
-       
+
         private void AddDateIfValid(List<DateTime> dates, DateTime? date, int rowNum, string fieldName, List<string> errors)
         {
             if (date.HasValue)
