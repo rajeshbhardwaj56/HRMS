@@ -27,6 +27,7 @@ using HRMS.Models.ExportEmployeeExcel;
 using System.Data.SqlClient;
 using Microsoft.AspNetCore.Authentication;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -372,8 +373,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                 case "DateOfBirth":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
-                                        if (DateTime.TryParse(cellValue, out DateTime dob))
+
+                                        string[] formats = { "dd/MM/yyyy", "d/M/yyyy" };
+                                        if (DateTime.TryParseExact(
+        cellValue?.Trim(),
+        formats,
+        CultureInfo.InvariantCulture,
+        DateTimeStyles.None,
+        out DateTime dob))
                                         {
+                                            
                                             prop.SetValue(item, dob.ToString("yyyy-MM-dd"));
                                         }
                                         else
@@ -399,10 +408,55 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                         hasError = true;
                                     }
                                     break;
+
+                                case "DateOfResignation":
+                                case "RegistrationDateInESIC":
+                                case "DOJInTraining":
+                                case "DOJOnFloor":
+                                case "DOJInOJT":
+                                case "DOJInOnroll":
+                                case "DateOfLeaving":
+                                case "BackOnFloor":
+                                case "DateOfEmailSentToITForIDDeletion":
+
+                                    if (!string.IsNullOrWhiteSpace(cellValue))
+                                    {
+                                        string[] formats = { "dd/MM/yyyy", "d/M/yyyy" };
+
+                                        if (DateTime.TryParseExact(
+                                                cellValue.Trim(),
+                                                formats,
+                                                CultureInfo.InvariantCulture,
+                                                DateTimeStyles.None,
+                                                out DateTime parsedDate))
+                                        {
+            
+                                            prop.SetValue(item, parsedDate.ToString("yyyy-MM-dd"));
+                                        }
+                                        else
+                                        {
+                                            AddErrorRow(
+                                                errorDataTable,
+                                                columnName,
+                                                $"Row {row}: Invalid {columnName} format. Expected dd/MM/yyyy.");
+                                            hasError = true;
+                                        }
+                                    }
+                                    break;
+
+
+
+
                                 case "JoiningDate":
                                     if (!string.IsNullOrWhiteSpace(cellValue))
                                     {
-                                        if (DateTime.TryParse(cellValue, out DateTime joiningDate))
+                                        string[] formats = { "dd/MM/yyyy", "d/M/yyyy" };
+                                        if (DateTime.TryParseExact(
+        cellValue?.Trim(),
+        formats,
+        CultureInfo.InvariantCulture,
+        DateTimeStyles.None,
+        out DateTime joiningDate))
                                         {
                                             prop.SetValue(item, joiningDate.ToString("yyyy-MM-dd"));
                                         }
@@ -1306,9 +1360,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
 
 
-
-
-
+     
 
     }
 }
