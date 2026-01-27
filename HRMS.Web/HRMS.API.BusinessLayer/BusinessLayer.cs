@@ -3504,7 +3504,8 @@ namespace HRMS.API.BusinessLayer
                         InsertedByUserName = row.Field<string>("InsertedByUserName"),
                         ModifiedDate = row.Field<DateTime?>("ModifiedDate"),
                         UpdatedByUserName = row.Field<string>("UpdatedByUserName"),
-                        ApprovedByUserName = row.Field<string>("ApprovedByUserName")
+                        ApprovedByUserName = row.Field<string>("ApprovedByUserName"),
+                        UploadProof = row.Field<string?>("UploadProof")
                     };
 
                     
@@ -3514,7 +3515,13 @@ namespace HRMS.API.BusinessLayer
                 }
             }
 
-
+            if (dataSet.Tables.Count > 2 && dataSet.Tables[2].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[2].Rows[0];
+                if (dataSet.Tables[2].Columns.Contains("EmployeeTypeID"))
+                    result.EmployeeTypeID = row.Field<long?>("EmployeeTypeID");
+            }
+                 
             return result;
         }
 

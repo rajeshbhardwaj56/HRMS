@@ -430,7 +430,17 @@
 		  const dayKeys = Object.keys(firstRecord.attendanceByDay);
 
 		  let headerHtml = `<th>Emp No</th><th>  Name</th><th>  Location</th>`;
-		  dayKeys.forEach(day => headerHtml += `<th>${day.replace("_", " ")}</th>`);
+
+            dayKeys.forEach(day => {
+                const parts = day.split('_'); 
+
+                let displayText = day; 
+                if (parts.length === 3) {
+                    displayText = `${parts[0]} ${parts[2]}`;                    
+                }
+
+                headerHtml += `<th data-col="${day}">${displayText}</th>`;
+            });
             headerHtml += `<th>  Working Days</th><th>Present Days</th><th>  Leaves</th><th>ManagerLevel1</th><th>  ManagerLevel2</th>`;
 		  thead.html(headerHtml);
 

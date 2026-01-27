@@ -453,10 +453,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
             DateTime fiscalYearStart;
             DateTime fiscalYearEnd;
 
-            if (today.Year == 2025)
+            //if (today.Year == 2025)
+            //{
+            //    fiscalYearStart = new DateTime(2026, 1, 21);
+            //    fiscalYearEnd = new DateTime(2026, 3, 20);
+            //}
+
+            if (today <= new DateTime(2026, 3, 20))
             {
-                // ✅ Special case: 2025 fiscal year is from 21 May 2025 to 20 March 2026
-                fiscalYearStart = new DateTime(2025, 8, 21);
+
+               fiscalYearStart = new DateTime(2026, 1, 21);
                 fiscalYearEnd = new DateTime(2026, 3, 20);
             }
             else
@@ -993,7 +999,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             var results = JsonConvert.DeserializeObject<MyInfoResults>(jsonData);
 
-            // Encrypt and fetch certificates
             if (results?.leaveResults?.leavesSummary != null)
             {
                 foreach (var leave in results.leaveResults.leavesSummary)
@@ -1030,28 +1035,26 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 if (approvedLeaveTotal >= maxAnnualLeaveLimit)
                 {
-                    // Already reached or exceeded limit, do not accrue further
+                    
                     totalLeaveWithCarryForward = maxAnnualLeaveLimit;
                 }
                 else
                 {
                   
                     DateTime joinDate = results.employmentDetail.JoiningDate.Value;
-                    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
-
-                    // Cap accruedLeave so total does not exceed 30 minus approved leaves
-                    double maxAvailable = maxAnnualLeaveLimit - approvedLeaveTotal;
-                    accruedLeave = Math.Min(accruedLeave, maxAvailable);
-
+                    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);                   
+                    //double maxAvailable = maxAnnualLeaveLimit - approvedLeaveTotal;
+                    accruedLeave = Math.Min(accruedLeave, maxAnnualLeaveLimit);
+                    
                     // Add carry forward if applicable
                     if (leavePolicy.Annual_IsCarryForward == true)
                     {
                         double carryForward = employeeDetails.CarryForword ?? 0.0;
                         // Add carry forward but ensure total stays capped
-                        accruedLeave = Math.Min(accruedLeave + carryForward, maxAvailable);
+                        accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
                     }
+                    totalLeaveWithCarryForward = accruedLeave - approvedLeaveTotal;
 
-                    totalLeaveWithCarryForward = accruedLeave- approvedLeaveTotal ;
 
                     // Final safety cap (optional)
                     totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
@@ -1283,7 +1286,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     }
 
                     DateTime today = DateTime.Today;
-                    DateTime fiscalYearStart = new DateTime(today.Month >= 4 ? today.Year : today.Year - 1, 4, 1);
+                    DateTime fiscalYearStart;
+
+                    if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                    {
+                        fiscalYearStart = new DateTime(today.Year, 3, 21);
+                    }
+                    else
+                    {
+                        fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                    }
 
 
                     decimal approvedLeaves = leaveSummaryDataResult
@@ -1302,6 +1314,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         {
                             double carryForward = Convert.ToDouble(employeeDetails.CarryForword);
                             accruedLeave += carryForward;
+                            accruedLeave = accruedLeave - (double)approvedLeaves;
                         }
 
                         // Respect 30-leave annual cap
@@ -1562,7 +1575,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
 
                     // Cap accruedLeave so total does not exceed 30 minus approved leaves
-                    double maxAvailable = maxAnnualLeaveLimit - approvedLeaveTotal;
+                    double maxAvailable = maxAnnualLeaveLimit;
                     accruedLeave = Math.Min(accruedLeave, maxAvailable);
 
                     // Add carry forward if applicable

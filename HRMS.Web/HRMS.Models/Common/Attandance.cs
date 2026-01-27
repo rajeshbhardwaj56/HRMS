@@ -178,6 +178,8 @@ namespace HRMS.Models.Common
         public string? LeaveStatusID { get; set; }
         public string? DialerTime { get; set; }
         public string? Remarks { get; set; }
+
+       public  long? EmployeeTypeID { get; set; }
         public List<StatusChangeVM> StatusChange { get; set; } = new List<StatusChangeVM>();
     }
 
@@ -197,6 +199,7 @@ namespace HRMS.Models.Common
         public DateTime? ModifiedDate { get; set; }
         public string? UpdatedByUserName { get; set; }
         public string? ApprovedByUserName { get; set; }
+        public string? UploadProof { get; set; }
     }
 
 

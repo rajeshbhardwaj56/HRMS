@@ -152,11 +152,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
             DateTime today = DateTime.Today;
             DateTime fiscalYearStart;
             DateTime fiscalYearEnd;
-
-            if (today.Year == 2025)
+            if (today <= new DateTime(2026, 3, 20))
             {
-                // ✅ Special case: 2025 fiscal year is from 21 May 2025 to 20 March 2026
-                fiscalYearStart = new DateTime(2025, 8, 21);
+
+                fiscalYearStart = new DateTime(2026, 1, 21);
                 fiscalYearEnd = new DateTime(2026, 3, 20);
             }
             else
