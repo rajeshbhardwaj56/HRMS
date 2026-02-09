@@ -4,6 +4,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.Leave;
+using HRMS.Models.TeamAlignment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -264,7 +265,7 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.AddUpdateEducationDetail(model));
-            return response;   
+            return response;
         }
         [HttpPost]
         public IActionResult DeleteEducationDetail(EducationDetailParams model)
@@ -448,6 +449,14 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.AddAcknowledgePolicy(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetTeamAlignment(TeamAlignmentInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetTeamAlignment(model));
             return response;
         }
     }

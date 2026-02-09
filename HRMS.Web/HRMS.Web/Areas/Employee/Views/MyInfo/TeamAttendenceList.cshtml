@@ -62,7 +62,11 @@
 		font-size: 0.5rem;
 
 	}
-
+    .HD\/HL {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
 	.status-badge {
 		display: inline-block;
 		padding: 3px 8px;
@@ -430,7 +434,17 @@
 		  const dayKeys = Object.keys(firstRecord.attendanceByDay);
 
 		  let headerHtml = `<th>Emp No</th><th>  Name</th><th>  Location</th>`;
-		  dayKeys.forEach(day => headerHtml += `<th>${day.replace("_", " ")}</th>`);
+
+            dayKeys.forEach(day => {
+                const parts = day.split('_'); 
+
+                let displayText = day; 
+                if (parts.length === 3) {
+                    displayText = `${parts[0]} ${parts[2]}`;                    
+                }
+
+                headerHtml += `<th data-col="${day}">${displayText}</th>`;
+            });
             headerHtml += `<th>  Working Days</th><th>Present Days</th><th>  Leaves</th><th>ManagerLevel1</th><th>  ManagerLevel2</th>`;
 		  thead.html(headerHtml);
 
@@ -440,7 +454,7 @@
 				
 			  let status = record.attendanceByDay[day];
 			  if (status === "Sa" || status === "S") status = "H";
-			  const className = status === "P" ? "P" : status === "A" ? "A" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "ECO" ? "ECO" :  status === "WO" ? "WO" : "";
+                const className = status === "P" ? "P" : status === "A" ? "A" : status === "HD/HL" ? "HD" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "ECO" ? "ECO" :  status === "WO" ? "WO" : "";
 			  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${status}</span></td>`;
 			});
               row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td><td>${record.managerName ?? '-'}</td><td>${record.managerManagerName ?? '-'}</td></tr>`;
@@ -762,7 +776,7 @@
 
 			$.get('/employee/MyInfo/GetAttendanceDetails', { date: fullDate, employeeId: empId, employeeNo: empNo }, function (data) {
 			  let html = "";
-
+                const leaveSummaryHtml = renderLeaveSummary(data);
 			const getStatusColor = (status) => {
 		    switch (status?.toLowerCase()) {
 			case 'present': return '#28a745'; 
@@ -924,7 +938,7 @@
 
 
 						html = `
-	
+	  ${leaveSummaryHtml}
 	<div class="card shadow-sm border-0 mb-3">
 	  <div class="card-body">
 	
@@ -955,7 +969,8 @@
 	`;
 					  break;
                   case "WeekOff":
-                      html = `
+					  html = `
+					  ${leaveSummaryHtml}
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-body">
             <h5 class="card-title mb-3 text-primary">
@@ -971,16 +986,16 @@
     </div>`;
                       break;
 				case "Holiday":
-                      html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusChanges(data.statusChange)}  ${renderStatusEditor(fullDate)}</div></div>`;
+                      html = `${leaveSummaryHtml}<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusChanges(data.statusChange)}  ${renderStatusEditor(fullDate)}</div></div>`;
 				  break;
 				case "Leave":
-                      html = `<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>  ${renderStatusChanges(data.statusChange)}  ${renderStatusEditor(fullDate)}</div></div>`;
+                      html = `${leaveSummaryHtml}<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>  ${renderStatusChanges(data.statusChange)}  ${renderStatusEditor(fullDate)}</div></div>`;
 					  break;
                   default:
                       if (!data.statusChange || data.statusChange.length === 0) {
       
                           html = `
-              <div class="alert alert-warning text-center">
+              ${leaveSummaryHtml}<div class="alert alert-warning text-center">
                 <i class="bi bi-info-circle-fill"></i> No attendance record found for this day.
               </div>
               ${renderStatusEditor(fullDate)}
@@ -988,7 +1003,7 @@
                       } else {
                         
                           html = `
-            
+            ${leaveSummaryHtml}
               ${renderStatusChanges(data.statusChange)}
 			    ${renderStatusEditor(fullDate)}
             `;
@@ -1001,6 +1016,39 @@
 
 		
 		$("#export-btn").on("click", exportAttendance);
-	});
+		});
+
+
+    function renderLeaveSummary(data) {
+        if (data.annualLeaveBalance == null) return "";
+
+        return `
+    <div class="d-flex align-items-center justify-content-between 
+                px-3 py-2 mb-2 rounded bg-light border"
+         style="font-size:13px;">
+
+        <span class="fw-semibold text-primary">
+            🌴 Leave Balance
+        </span>
+
+        <span>
+            <small class="text-muted">Annual Consumed:</small>
+            <strong>${data.annualLeaveConsumed}</strong>
+        </span>
+
+        <span class="${data.annualLeaveBalance < 0 ? 'text-danger' : 'text-success'} fw-bold">
+            <small class="text-muted">Annual Balance:</small>
+            ${data.annualLeaveBalance}
+        </span>
+
+	  <span class="fw-bold text-info">
+        <small class="text-muted">Comp-Off:</small>
+        ${data.availableCompOffDays ?? 0}
+    </span>
+    </div>`;
+    }
+
+
+
 </script>
 

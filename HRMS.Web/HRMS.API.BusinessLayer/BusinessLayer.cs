@@ -20,6 +20,7 @@ using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
 using HRMS.Models.PayRoll;
 using HRMS.Models.ShiftType;
+using HRMS.Models.TeamAlignment;
 using HRMS.Models.Template;
 using HRMS.Models.User;
 using HRMS.Models.WhatsHappeningModel;
@@ -234,8 +235,6 @@ namespace HRMS.API.BusinessLayer
                 if (model.EmployeeID > 0)
                 {
                     result.employeeModel = result.Employees.FirstOrDefault();
-
-
                     result.employeeModel.FamilyDetails = dataSet.Tables[1].AsEnumerable()
                                  .Select(dataRow => new FamilyDetail
                                  {
@@ -1652,7 +1651,7 @@ namespace HRMS.API.BusinessLayer
                         new Result()
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo = dataRow.Field<long?>("PKNo")?? 0
+                            PKNo = dataRow.Field<long?>("PKNo") ?? 0
                         }
                    ).ToList().FirstOrDefault();
             }
@@ -1665,7 +1664,7 @@ namespace HRMS.API.BusinessLayer
                 oldData,
                 newData,
                 editMode,
-                HolidayModel.UserID??0,
+                HolidayModel.UserID ?? 0,
                 "Holidays",
                 "tbl_Holidays",
                  newId,
@@ -2639,7 +2638,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameters.Add(new SqlParameter("@LastEntryGracePeriod", shiftTypeModel.LastEntryGracePeriod));
             sqlParameters.Add(new SqlParameter("@EarlyExitGracePeriod", shiftTypeModel.EarlyExitGracePeriod));
             sqlParameters.Add(new SqlParameter("@Comments", shiftTypeModel.Comments));
-            sqlParameters.Add(new SqlParameter("@UserID", shiftTypeModel.UserID ));
+            sqlParameters.Add(new SqlParameter("@UserID", shiftTypeModel.UserID));
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ShiftType, sqlParameters);
 
@@ -3504,16 +3503,26 @@ namespace HRMS.API.BusinessLayer
                         InsertedByUserName = row.Field<string>("InsertedByUserName"),
                         ModifiedDate = row.Field<DateTime?>("ModifiedDate"),
                         UpdatedByUserName = row.Field<string>("UpdatedByUserName"),
-                        ApprovedByUserName = row.Field<string>("ApprovedByUserName")
+                        ApprovedByUserName = row.Field<string>("ApprovedByUserName"),
+                        UploadProof = row.Field<string?>("UploadProof")
                     };
 
-                    
-                  
+
+
 
                     result.StatusChange.Add(sc);
                 }
             }
 
+            if (dataSet.Tables.Count > 2 && dataSet.Tables[2].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[2].Rows[0];
+                result.EmployeeTypeID = row.Field<long?>("EmployeeTypeID");
+                result.AnnualLeaveAccrued = row.Field<double?>("AnnualLeaveAccrued") ?? 0;
+                result.AnnualLeaveConsumed = row.Field<double?>("AnnualLeaveConsumed") ?? 0;
+                result.AnnualLeaveBalance = row.Field<double?>("AnnualLeaveBalance") ?? 0;
+                result.AvailableCompOffDays = row.Field<decimal?>("AvailableCompOffDays") ?? 0m;
+            }
 
             return result;
         }
@@ -4105,7 +4114,7 @@ namespace HRMS.API.BusinessLayer
             Result model = new Result();
             var oldData = GetDataByStoredProcedure(StoredProcedures.usp_WhatsHappeningByIDLog, Model.WhatsHappeningID);
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-           
+
             sqlParameter.Add(new SqlParameter("@WhatsHappeningID", Model.WhatsHappeningID));
             sqlParameter.Add(new SqlParameter("@RetWhatsHappeningID", Model.WhatsHappeningID));
             sqlParameter.Add(new SqlParameter("@Title", Model.Title));
@@ -4126,7 +4135,7 @@ namespace HRMS.API.BusinessLayer
                         new Result()
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo=dataRow.Field<long?>("RetWhatsHappeningID")
+                            PKNo = dataRow.Field<long?>("RetWhatsHappeningID")
                         }
                    ).ToList().FirstOrDefault();
             }
@@ -4139,7 +4148,7 @@ namespace HRMS.API.BusinessLayer
                 oldData,
                 newData,
                 editMode,
-                Model.CreatedBy ,
+                Model.CreatedBy,
                 "WhatsHappening",
                 "tbl_WhatsHappening",
                  newId,
@@ -4458,7 +4467,7 @@ namespace HRMS.API.BusinessLayer
                     emp.Telephone,
                     emp.PersonalEmailAddress,
                     emp.PermanentAddress,
-                    emp.PermanentCity,
+                    emp.PermanentCity, 
                     emp.PermanentPinCode,
                     emp.PermanentState,
                     emp.PermanentCountryID,
@@ -5465,20 +5474,20 @@ namespace HRMS.API.BusinessLayer
 
             var oldData = GetCompOffLeaveApprovalRequestsByIDLog(att.ID);
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
-                sqlParameter.Add(new SqlParameter("@RequestID", att.ID));
-                sqlParameter.Add(new SqlParameter("@AttendanceId", att.AttendanceId));
-                sqlParameter.Add(new SqlParameter("@EmployeeId", att.EmployeeId));
-                sqlParameter.Add(new SqlParameter("@AttendanceStatusId", att.AttendanceStatusId));
-                sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
-                sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
-                sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
-                sqlParameter.Add(new SqlParameter("@HoursWorked", att.HoursWorked));
-                sqlParameter.Add(new SqlParameter("@Remarks", att.Comments));
-                sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
-                sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
-                sqlParameter.Add(new SqlParameter("@RoleId", att.RoleId));
+            sqlParameter.Add(new SqlParameter("@RequestID", att.ID));
+            sqlParameter.Add(new SqlParameter("@AttendanceId", att.AttendanceId));
+            sqlParameter.Add(new SqlParameter("@EmployeeId", att.EmployeeId));
+            sqlParameter.Add(new SqlParameter("@AttendanceStatusId", att.AttendanceStatusId));
+            sqlParameter.Add(new SqlParameter("@WorkDate", att.WorkDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
+            sqlParameter.Add(new SqlParameter("@FirstLogDate", att.FirstLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
+            sqlParameter.Add(new SqlParameter("@LastLogDate", att.LastLogDate.Value.ToString("yyyy-MM-dd HH:mm:ss")));
+            sqlParameter.Add(new SqlParameter("@HoursWorked", att.HoursWorked));
+            sqlParameter.Add(new SqlParameter("@Remarks", att.Comments));
+            sqlParameter.Add(new SqlParameter("@ModifiedBy", att.ModifiedBy));
+            sqlParameter.Add(new SqlParameter("@CreatedBy", att.CreatedBy));
+            sqlParameter.Add(new SqlParameter("@RoleId", att.RoleId));
 
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_SaveOrUpdateCompOffLeaveRequest, sqlParameter);
             if (dataSet.Tables[0].Columns.Contains("Result"))
             {
                 model = dataSet.Tables[0].AsEnumerable()
@@ -5499,7 +5508,7 @@ namespace HRMS.API.BusinessLayer
                 oldData,
                 newData,
                 editMode,
-                att.ModifiedBy??0,
+                att.ModifiedBy ?? 0,
                 "ComOff",
                 "tbl_CompOffLeaveApprovalRequests ",
                  newId,
@@ -5688,7 +5697,7 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
 
         public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model)
         {
-                
+
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@Id", model.RecordId),
@@ -5910,9 +5919,9 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
         {
             Result model = new Result();
-            
-                var oldData = GetAttendanceStatusChangesByID(att.StatusChangeID);
-                List<SqlParameter> sqlParameters = new List<SqlParameter>
+
+            var oldData = GetAttendanceStatusChangesByID(att.StatusChangeID);
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
       {
           new SqlParameter("@ID", att.ID),
           new SqlParameter("@EmployeeId", att.EmployeeId),
@@ -5926,33 +5935,33 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
       };
 
 
-                var dataSet = DataLayer.GetDataSetByStoredProcedure(
-                    StoredProcedures.usp_SaveOrUpdateAttendanceStatus, sqlParameters
-                );
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_SaveOrUpdateAttendanceStatus, sqlParameters
+            );
 
-                if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+                model.PKNo = Convert.ToInt64(row["Id"]);
+                model.Message = row["Message"].ToString();
+                model.Data = new EmployeeData
                 {
-                    var row = dataSet.Tables[0].Rows[0];
-                    model.PKNo = Convert.ToInt64(row["Id"]);
-                    model.Message = row["Message"].ToString();
-                    model.Data = new EmployeeData
-                    {
-                        EmployeeNumber = row.Table.Columns.Contains("EmployeeNumber") && row["EmployeeNumber"] != DBNull.Value
-                                   ? row["EmployeeNumber"].ToString()
-                                   : string.Empty,
-                        EmployeeName = row.Table.Columns.Contains("EmployeeName") && row["EmployeeName"] != DBNull.Value
-                                   ? row["EmployeeName"].ToString()
-                                   : string.Empty,
-                        IsManager = row.Table.Columns.Contains("IsManager") && row["IsManager"] != DBNull.Value
-                                   && Convert.ToBoolean(row["IsManager"])
-                    };
+                    EmployeeNumber = row.Table.Columns.Contains("EmployeeNumber") && row["EmployeeNumber"] != DBNull.Value
+                               ? row["EmployeeNumber"].ToString()
+                               : string.Empty,
+                    EmployeeName = row.Table.Columns.Contains("EmployeeName") && row["EmployeeName"] != DBNull.Value
+                               ? row["EmployeeName"].ToString()
+                               : string.Empty,
+                    IsManager = row.Table.Columns.Contains("IsManager") && row["IsManager"] != DBNull.Value
+                               && Convert.ToBoolean(row["IsManager"])
+                };
 
-                }
-                else
-                {
-                    model.PKNo = 0;
-                    model.Message = "No result returned from database.";
-                }
+            }
+            else
+            {
+                model.PKNo = 0;
+                model.Message = "No result returned from database.";
+            }
 
             long attendanceStatusId = model.PKNo ?? 0;
             var newData = GetAttendanceStatusChangesByID(
@@ -5963,7 +5972,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                 oldData,
                 newData,
                 editMode,
-                att.UserID??0,
+                att.UserID ?? 0,
                 "AttendenceStatusChange",
                 "tbl_AttendanceStatusChanges",
                  attendanceStatusId,
@@ -6313,7 +6322,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         new SqlParameter("@ModuleName", module),
         new SqlParameter("@TableName", table),
         new SqlParameter("@PrimaryKey", primaryKey),
-  
+
         new SqlParameter("@NewValue", (object)newValue ?? DBNull.Value),
         new SqlParameter("@EditMode", mode),
         new SqlParameter("@NewTableName", newTableName),
@@ -6348,7 +6357,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                 string newVal = newRow[colName] == DBNull.Value ? null : Convert.ToString(newRow[colName]);
                 string oldVal = oldRow == null ? null : (oldRow[colName] == DBNull.Value ? null : Convert.ToString(oldRow[colName]));
 
-                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID" || colName == "ModifiedBy" || colName ==  "UpdatedBy")
+                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID" || colName == "ModifiedBy" || colName == "UpdatedBy")
                 {
                     changeLog.Add(new Dictionary<string, object>
             {
@@ -6439,8 +6448,195 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
             return new DataTable();
         }
         #endregion GetByIDLogs
-    }
 
+        #region UpdateExcel
+        public Result UpdateEmployeesFromExcel(List<EmployeeUpdateImportModel> employees, long loggedInUserId)
+        {
+            try
+            {
+                var tvp = ConvertToEmployeeUpdateTVP(employees);
+
+                var parameters = new List<SqlParameter>
+        {
+            new SqlParameter("@EmployeeTVP", SqlDbType.Structured)
+            {
+                TypeName = "EmployeeUpdateImportTVP",
+                Value = tvp
+            },
+            new SqlParameter("@LoggedInUserID", loggedInUserId)
+        };
+
+                DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_ImportEmployeeFromExcel_UpdateOnly,
+                    parameters
+                );
+
+                return new Result
+                {
+                    Message = "Employee update completed successfully."
+                };
+            }
+            catch (SqlException ex)
+            {
+                return new Result
+                {
+                    Message = "Database error while updating employee data."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Result
+                {
+                    Message = "Unexpected error while updating employee data."
+                };
+            }
+        }
+
+        public Dictionary<string, Dictionary<string, long>> GetEmployeeAndShiftDictionaries(long companyId)
+        {
+            var result = new Dictionary<string, Dictionary<string, long>>();
+
+            var sqlParams = new List<SqlParameter>
+    {
+        new SqlParameter("@CompanyID", companyId)
+    };
+
+            var ds = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_Get_EmployeeAndShift_Dictionaries,
+                sqlParams
+            );
+
+            if (ds.Tables.Count >= 2)
+            {
+      
+                result["Employees"] = ds.Tables[0]
+                    .AsEnumerable()
+                    .ToDictionary(
+                        r => r.Field<string>("EmployeeNumber"),
+                        r => r.Field<long>("EmployeeID")
+                    );
+
+         
+                result["ShiftTypes"] = ds.Tables[1]
+                    .AsEnumerable()
+                    .ToDictionary(
+                        r => r.Field<string>("ShiftTypeName"),   // or ShiftName
+                        r => r.Field<long>("ShiftTypeID")
+                    );
+            }
+
+            return result;
+        }
+        private DataTable ConvertToEmployeeUpdateTVP(List<EmployeeUpdateImportModel> employees)
+        {
+            var table = new DataTable();
+
+            table.Columns.Add("EmployeeNumber", typeof(string));
+            table.Columns.Add("FullName", typeof(string));
+            table.Columns.Add("ClientName", typeof(string));
+            table.Columns.Add("LOB", typeof(string));
+            table.Columns.Add("ReportingManagerNo", typeof(string));
+            
+            table.Columns.Add("ShiftTypeID", typeof(int));
+            table.Columns.Add("IsActive", typeof(bool));
+
+            foreach (var emp in employees)
+            {
+                table.Rows.Add(
+                    emp.EmployeeNumber,
+                    emp.FullName,
+                    emp.ClientName,
+                    emp.LOB,
+                    emp.ReportingManagerNo,
+                    emp.ShiftTypeID,
+                    emp.IsActive
+                );
+            }
+
+            return table;
+        }
+
+        #endregion UpdateExcel
+
+        #region TeamAlignment
+        public TeamAlignmentModel GetTeamAlignment(TeamAlignmentInputParams model)
+        {
+            TeamAlignmentModel teamAlignModel = new();
+
+            List<SqlParameter> sqlParameters = new()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID),
+        new SqlParameter("@RoleID", model.RoleID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetEmployeeHierarchyForAlignment,
+                sqlParameters
+            );
+
+            if (dataSet == null || dataSet.Tables.Count == 0)
+            {
+                teamAlignModel.TeamHierarchy = new List<TeamAlignmentEmployee>();
+                return teamAlignModel;
+            }
+
+            var table = dataSet.Tables[0];
+
+            var flatList = table.AsEnumerable()
+                .Select(row => new TeamAlignmentEmployee
+                {
+                    EmployeNumber = row.Field<string>("EmployeNumber") ?? "",
+                    EmployeeID = row.Field<long>("EmployeeID"),
+                    EmployeeName = row.Field<string>("EmployeeName") ?? "",
+                    ManagerLevel1Name = row.Field<string>("ManagerLevel1Name") ?? "",
+                    ManagerLevel2Name = row.Field<string>("ManagerLevel2Name") ?? "",
+                
+                    Designation = row.Field<string>("Designation") ?? "",
+                    Department = row.Field<string>("Department") ?? "",
+                    ProfilePhoto = row.Field<string>("ProfilePhoto") ?? "",
+                    Level = row.Field<int>("Level"),
+                    ManagerID = row.Field<long?>("ManagerID"),
+                    Path = row.Field<string>("Path") ?? "",
+                    DirectSubordinateCount = row.Field<int?>("DirectSubordinateCount") ?? 0,
+                    TotalSubordinateCount = row.Field<int?>("TotalSubordinateCount") ?? 0,
+                    RoleID = row.Field<int>("RoleID"),
+                    Subordinates = new List<TeamAlignmentEmployee>()
+                })
+                .OrderBy(x => x.Path)
+                .ToList();
+
+            teamAlignModel.TeamHierarchy = BuildTeamAlignmentTree(flatList);
+
+            return teamAlignModel;
+        }
+
+        private List<TeamAlignmentEmployee> BuildTeamAlignmentTree(
+    List<TeamAlignmentEmployee> employees)
+        {
+            var lookup = employees.ToDictionary(e => e.EmployeeID);
+            List<TeamAlignmentEmployee> roots = new();
+
+            foreach (var emp in employees)
+            {
+                if (emp.ManagerID.HasValue && lookup.ContainsKey(emp.ManagerID.Value))
+                {
+                    lookup[emp.ManagerID.Value].Subordinates.Add(emp);
+                }
+                else
+                {
+                   
+                    roots.Add(emp);
+                }
+            }
+
+            return roots;
+        }
+
+
+
+        #endregion TeamAlignment
+
+    }
 
 
 

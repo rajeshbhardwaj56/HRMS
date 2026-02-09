@@ -17,14 +17,15 @@
 
 <div class="main-header anim" style="--delay: 0s">
 	Employee List
-	<section class="right-button-employee" >
-	<a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a>
-	<a href="~/Admin/Dashboard/ImportExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees</button></a>
-		@if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.HR)|| RoleName == Convert.ToInt64(Roles.SuperAdmin))
-                        {
-	 <button id="export-employee-btn" class="btn btn-addBtn" >Export Employees  </button> 
-						}
-	</section>
+    <section class="right-button-employee">
+        <a href="~/HR/employee"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Employee</button></a>
+        <a href="~/Admin/Dashboard/ImportExcel"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Import Employees</button></a>
+        <a href="~/Admin/Dashboard/ImportExcelUpdate"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Update Employees (Excel)</button></a>
+        @if (RoleName == Convert.ToInt64(Roles.Admin) || RoleName == Convert.ToInt64(Roles.HR) || RoleName == Convert.ToInt64(Roles.SuperAdmin))
+        {
+            <button id="export-employee-btn" class="btn btn-addBtn">Export Employees  </button>
+        }
+    </section>
 </div>
 <div class="table-responsive py-3">
     <div class="row mb-2">

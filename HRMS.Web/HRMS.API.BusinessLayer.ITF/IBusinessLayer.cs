@@ -16,6 +16,7 @@ using HRMS.Models.ExportEmployeeExcel;
 using Microsoft.AspNetCore.Mvc;
 using HRMS.Models.FormPermission;
 using HRMS.Models.PayRoll;
+using HRMS.Models.TeamAlignment;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -172,5 +173,12 @@ namespace HRMS.API.BusinessLayer.ITF
 
         public Result AddUpdateEmployeeMonthlySalary(EmployeeMonthlySalaryModel salaryModel);
         #endregion Payroll
+
+        #region TeamAlignment
+        public TeamAlignmentModel GetTeamAlignment(TeamAlignmentInputParams model);
+        #endregion TeamAlignment
+
+        public  Result UpdateEmployeesFromExcel(List<EmployeeUpdateImportModel> employees, long loggedInUserId);
+        public Dictionary<string, Dictionary<string, long>> GetEmployeeAndShiftDictionaries(long companyId);
     }
 }

@@ -188,7 +188,17 @@ namespace HRMS.API.BusinessLayer
         public const string usp_ReferenceDetailsByIDLog = "usp_ReferenceDetailsByIDLog";
         public const string usp_UserPolicyAcknowledgements = "usp_UserPolicyAcknowledgements";
         public const string usp_TemplatesByIDLog = "usp_TemplatesByIDLog";
-     
+
         #endregion Logs
+
+        #region TeamAlignment
+        public const string usp_GetEmployeeHierarchyForAlignment = "usp_GetEmployeeHierarchyForAlignment";
+        #endregion TeamAlignment
+
+        #region UpdatedExcel
+        public const string usp_ImportEmployeeFromExcel_UpdateOnly = "usp_ImportEmployeeFromExcel_UpdateOnly";
+        public const string usp_Get_EmployeeAndShift_Dictionaries = "usp_Get_EmployeeAndShift_Dictionaries";
+        #endregion UpdatedExcel
+
     }
 }

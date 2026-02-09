@@ -357,6 +357,10 @@ namespace HRMS.Models.Common
 
         public const string GetEmployeesMonthlySalary = "GetEmployeesMonthlySalary";
         public const string AddUpdateEmployeeMonthlySalary = "AddUpdateEmployeeMonthlySalary";
+        public const string GetTeamAlignment = "GetTeamAlignment";
+
+        public const string UpdateEmployeesFromExcel = "UpdateEmployeesFromExcel";
+        public const string GetEmployeeAndShiftDictionaries = "GetEmployeeAndShiftDictionaries";
 
     }
 
