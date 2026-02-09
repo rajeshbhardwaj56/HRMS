@@ -179,7 +179,11 @@ namespace HRMS.Models.Common
         public string? DialerTime { get; set; }
         public string? Remarks { get; set; }
 
-       public  long? EmployeeTypeID { get; set; }
+        public long? EmployeeTypeID { get; set; }
+        public double AnnualLeaveAccrued { get; set; }
+        public double AnnualLeaveConsumed { get; set; }
+        public double AnnualLeaveBalance { get; set; }
+        public decimal AvailableCompOffDays { get; set; }
         public List<StatusChangeVM> StatusChange { get; set; } = new List<StatusChangeVM>();
     }
 

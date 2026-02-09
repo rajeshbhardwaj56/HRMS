@@ -580,7 +580,7 @@
 				const message = response.message || "Leave status updated successfully.";
 
 				if (data.status === 1) {
-					messageContainer.text(message);
+					messageContainer.text(data.message);
 				} else {
 					$.toast({
 						heading: 'Success',

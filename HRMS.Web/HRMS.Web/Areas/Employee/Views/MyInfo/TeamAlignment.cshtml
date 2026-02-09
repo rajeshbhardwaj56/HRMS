@@ -1,0 +1,175 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Team Alignment";
+}
+
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+<style>
+    .table-scroll {
+        max-height: 520px;
+        overflow-y: auto;
+    }
+
+
+    #tblTeamAlignment thead th {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #f8f9fa;
+    }
+
+
+    #tblTeamAlignment th,
+    #tblTeamAlignment td {
+        padding: 6px 10px;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    #tblTeamAlignment tbody tr {
+        height: 32px;
+    }
+</style>
+<div class="group-box anim">
+
+   
+    <div class="card shadow-sm border-0 mb-2">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Team Alignment</h6>
+
+            <div class="d-flex gap-2">
+                <select id="ddlNewManager" class="form-select form-select-sm" style="width:220px;">
+                    <option value="">Select New Manager</option>
+                </select>
+
+                <button id="btnUpdateManager" class="btn btn-primary btn-sm">
+                    Update Manager
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📊 TABLE CARD -->
+    <div class="card">
+        <div class="card-body p-0">
+
+            <!-- 🔽 ONLY THIS DIV SCROLLS -->
+            <div class="table-scroll">
+                <table class="table table-bordered body-text mb-0" id="tblTeamAlignment">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">
+                            </th>
+                            <th>Employee</th>
+                            <th>Emp No.</th>
+                            <th>Designation</th>
+                            <th>Department</th>
+                            <th>ManagerL1Name</th>
+                            <th>ManagerL2Name</th>
+
+                            <th>Total Subordinates</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teamBody"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+$(document).ready(function () {
+    loadTeamHierarchy();
+
+    $('#btnUpdateManager').click(function () {
+        updateManager();
+    });
+});
+    $(document).on('click', '.toggle-icon', function () {
+
+        const rowId = $(this).data('id');
+        const parentId = $('#' + rowId).data('parent');
+        const isExpanded = $(this).text() === '▼';
+
+
+        collapseSiblings(rowId, parentId);
+        $(this).text(isExpanded ? '▶' : '▼');
+        toggleChildren(rowId, !isExpanded);
+    });
+function loadTeamHierarchy() {
+    $.ajax({
+        url: '@Url.Action("GetTeamAlignment", "MyInfo", new { area = "Employee" })',
+        type: 'POST',
+        success: function (res) {
+            $('#teamBody').html('');
+            buildRows(res.data, null, 0);
+            populateManagerDropdown(res.data);
+        }
+    });
+}
+function buildRows(list, parentId, level) {
+        list.forEach(emp => {
+
+            const hasChildren = emp.subordinates && emp.subordinates.length > 0;
+            const rowId = 'emp_' + emp.employeeID;
+            const padding = level * 30;
+
+            let toggleIcon = hasChildren
+                ? `<span class="toggle-icon" data-id="${rowId}">▶</span>`
+                : '';
+
+            let row = `
+        <tr id="${rowId}"
+            data-parent="${parentId || ''}"
+            data-level="${level}"
+            style="${parentId ? 'display:none;' : ''}">
+            <td>
+                <input type="checkbox" class="emp-check" value="${emp.employeeID}">
+            </td>
+            <td style="padding-left:${padding}px">
+                ${toggleIcon}
+                <strong>${emp.employeeName}</strong>
+            </td>
+            <td>${emp.employeNumber}</td>
+            <td>${emp.designation}</td>
+            <td>${emp.department}</td>
+            <td>${emp.managerLevel1Name}</td>
+            <td>${emp.managerLevel2Name}</td>
+            <td>${emp.totalSubordinateCount}</td>
+        </tr>`;
+
+            $('#teamBody').append(row);
+
+            if (hasChildren) {
+                buildRows(emp.subordinates, rowId, level + 1);
+            }
+        });
+    }
+function toggleChildren(parentId, show) {
+
+        $(`tr[data-parent='${parentId}']`).each(function () {
+
+            if (show) {
+                $(this).show();
+            } else {
+                $(this).hide();
+                $(this).find('.toggle-icon').text('▶');
+                toggleChildren($(this).attr('id'), false);
+            }
+        });
+    }
+function collapseSiblings(currentRowId, parentId) {
+
+        $(`tr[data-parent='${parentId || ''}']`).each(function () {
+
+            const siblingRowId = $(this).attr('id');
+
+            if (siblingRowId !== currentRowId) {
+                $(this).find('.toggle-icon').text('▶');
+                toggleChildren(siblingRowId, false);
+            }
+        });
+    }
+</script>

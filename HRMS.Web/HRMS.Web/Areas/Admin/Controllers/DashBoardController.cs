@@ -381,7 +381,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
         DateTimeStyles.None,
         out DateTime dob))
                                         {
-                                            
+
                                             prop.SetValue(item, dob.ToString("yyyy-MM-dd"));
                                         }
                                         else
@@ -429,7 +429,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                                                 DateTimeStyles.None,
                                                 out DateTime parsedDate))
                                         {
-            
+
                                             prop.SetValue(item, parsedDate.ToString("yyyy-MM-dd"));
                                         }
                                         else
@@ -1358,8 +1358,289 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
         }
 
+        #region Update Excel
 
-     
+        public IActionResult  ImportExcelUpdate()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ImportExcelUpdateOnly(IFormFile file)
+        {
+            if (file == null || !(file.ContentType.Contains("excel") || file.FileName.EndsWith(".xlsx")))
+            {
+                return Json(new { success = false, message = "Invalid file type." });
+            }
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+
+                string result = ProcessExcelFile_UpdateOnly(stream);
+
+                if (result.StartsWith("<table")) // error HTML
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        hasErrors = true,
+                        errorTable = result
+                    });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    message = result
+                });
+            }
+            catch
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "File processing failed."
+                });
+            }
+        }
+
+        private string ProcessExcelFile_UpdateOnly(Stream stream)
+        {
+            var errorTable = new DataTable();
+            errorTable.Columns.Add("EmpID");
+            errorTable.Columns.Add("ErrorColumn");
+            errorTable.Columns.Add("ErrorMessage");
+
+            var updateList = new List<EmployeeUpdateImportModel>();
+            var uniqueEmpNos = new HashSet<string>();
+
+            using var package = new ExcelPackage(stream);
+            var sheet = package.Workbook.Worksheets.FirstOrDefault();
+
+            if (sheet == null)
+            {
+                AddErrorRow(errorTable, "", "Excel sheet is empty.");
+                return ConvertDataTableToHTML(errorTable);
+            }
+            var expectedHeaders = new[]
+   {
+        "Emp ID",
+        "Employee Name",
+        "Client Name",
+        "LOB",
+        "Reporting TL Emp ID",
+        "Shift Timing",
+        "Status"
+    };
+            string NormalizeHeader(string header)
+            {
+                return header?
+                    .Replace("\r", "")
+                    .Replace("\n", "")
+                    .Replace("\"", "")
+                    .Trim()
+                    .ToLowerInvariant();
+            }
+            int actualColumnCount = sheet.Dimension.Columns;
+            if (actualColumnCount < expectedHeaders.Length)
+            {
+                AddErrorRow(
+                    errorTable,
+                    "",
+                    $"Invalid Excel format. Expected {expectedHeaders.Length} columns, found {actualColumnCount}."
+                );
+                return ConvertDataTableToHTML(errorTable);
+            }
+
+            for (int col = 1; col <= expectedHeaders.Length; col++)
+            {
+                var actualHeader = NormalizeHeader(sheet.Cells[1, col].Text);
+                var expectedHeader = NormalizeHeader(expectedHeaders[col - 1]);
+
+                if (actualHeader != expectedHeader)
+                {
+                    AddErrorRow(
+                        errorTable,
+                        "",
+                        $"Invalid header at column {col}. Expected '{expectedHeaders[col - 1]}', found '{sheet.Cells[1, col].Text}'."
+                    );
+                }
+            }
+
+
+            if (errorTable.Rows.Count > 0)
+            {
+                return ConvertDataTableToHTML(errorTable);
+            }
+            long? companyId = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.CompanyID));
+            var dictResponse = _businessLayer.SendPostAPIRequest(
+     companyId ?? 0,
+     _businessLayer.GetFormattedAPIUrl(
+         APIControllarsConstants.DashBoard,
+         APIApiActionConstants.GetEmployeeAndShiftDictionaries
+     ),
+     HttpContext.Session.GetString(Constants.SessionBearerToken),
+     true
+ ).Result?.ToString();
+            if (string.IsNullOrWhiteSpace(dictResponse))
+            {
+                AddErrorRow(errorTable, "", "Failed to load employee/shift master data.");
+                return ConvertDataTableToHTML(errorTable);
+            }
+
+            var dictionaries = JsonConvert.DeserializeObject<EmployeeShiftDictionaryResponse>(dictResponse);
+
+            var employeeDict = dictionaries?.Employees ?? new Dictionary<string, long>();
+            var shiftDict = dictionaries?.ShiftTypes ?? new Dictionary<string, long>();
+
+
+            int totalRows = sheet.Dimension.Rows;
+
+            for (int row = 2; row <= totalRows; row++)
+            {
+                bool hasError = false;
+
+                string empNo = sheet.Cells[row, 1].Text?.Trim();
+                string fullName = sheet.Cells[row, 2].Text?.Trim();
+                string clientName = sheet.Cells[row, 3].Text?.Trim();
+                string lob = sheet.Cells[row, 4].Text?.Trim();
+                string reportingTLEmpId = sheet.Cells[row, 5].Text?.Trim();
+                string shiftType = sheet.Cells[row, 6].Text?.Trim();
+                string status = sheet.Cells[row, 7].Text?.Trim();
+
+                if (string.IsNullOrWhiteSpace(empNo))
+                {
+                    AddErrorRow(errorTable, "", $"Row {row}: Emp ID is mandatory.");
+                    hasError = true;
+                }
+                else
+                {
+                    if (!employeeDict.ContainsKey(empNo))
+                    {
+                        AddErrorRow(errorTable, empNo, $"Row {row}: Employee not found in system.");
+                        hasError = true;
+                    }
+
+                    if (!uniqueEmpNos.Add(empNo))
+                    {
+                        AddErrorRow(errorTable, empNo, $"Row {row}: Duplicate EmployeeNumber in Excel.");
+                        hasError = true;
+                    }
+                }
+
+            
+                int? shiftTypeId = null;
+
+                if (string.IsNullOrWhiteSpace(shiftType))
+                {
+                    AddErrorRow(errorTable, empNo, $"Row {row}: ShiftType is required.");
+                    hasError = true;
+                }
+                else
+                {
+                    var matchedShift = shiftDict.FirstOrDefault(kvp =>
+                    {
+                        var apiShiftCode = kvp.Key
+                            .Split(' ', '(')[0]
+                            .Trim();
+
+                        return apiShiftCode.Equals(shiftType.Trim(), StringComparison.OrdinalIgnoreCase);
+                    });
+
+                    if (!matchedShift.Equals(default(KeyValuePair<string, long>)))
+                    {
+                        shiftTypeId = (int)matchedShift.Value;
+                    }
+                    else
+                    {
+                        AddErrorRow(errorTable, empNo, $"Row {row}: ShiftType '{shiftType}' not found.");
+                        hasError = true;
+                    }
+                }
+
+         
+                bool? isActive = null;
+
+                if (string.IsNullOrWhiteSpace(status))
+                {
+                    AddErrorRow(errorTable, empNo, $"Row {row}: Status is mandatory.");
+                    hasError = true;
+                }
+                else
+                {
+                    switch (status.Trim().ToLowerInvariant())
+                    {
+                        case "1":
+                        case "active":
+                            isActive = true;
+                            break;
+
+                        case "0":
+                        case "inactive":
+                            isActive = false;
+                            break;
+
+                        default:
+                            AddErrorRow(
+                                errorTable,
+                                empNo,
+                                $"Row {row}: Invalid Status '{status}'. Allowed values: Active / Inactive / 1 / 0."
+                            );
+                            hasError = true;
+                            break;
+                    }
+                }
+
+                /* =========================
+                   FINAL ADD (ONLY IF CLEAN)
+                   ========================= */
+                if (hasError)
+                    continue;
+
+                updateList.Add(new EmployeeUpdateImportModel
+                {
+                    EmployeeNumber = empNo,
+                    FullName = fullName,
+                    ReportingManagerNo = reportingTLEmpId,
+                    ClientName = clientName,
+                    LOB = lob,
+                    ShiftTypeID = shiftTypeId,
+                    IsActive = isActive
+                });
+            }
+
+            if (errorTable.Rows.Count > 0)
+                return ConvertDataTableToHTML(errorTable);
+            var requestModel = new
+            {
+                Employees = updateList,
+                LoggedInUserId = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.EmployeeID )
+                )
+            };
+            var apiResponse = _businessLayer.SendPostAPIRequest(
+                requestModel,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.DashBoard,
+                    APIApiActionConstants.UpdateEmployeesFromExcel
+                ),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
+
+            if (string.IsNullOrWhiteSpace(apiResponse))
+                return "Employee update failed. No response from API.";
+
+            var result = JsonConvert.DeserializeObject<Result>(apiResponse);
+
+            return result?.Message ?? "Employee update completed.";
+        }
+
+        #endregion Update Excel
+
 
     }
 }

@@ -98,7 +98,7 @@ namespace HRMS.Models.ImportFromExcel
         public string? CompanyName { get; set; }
         public string? ReportingToIDL2Name { get; set; }
 
-        
+
 
     }
     public class ImportExcelDataTableType
@@ -190,22 +190,46 @@ namespace HRMS.Models.ImportFromExcel
         public string? MailReceivedFromAndDate { get; set; }
         public DateTime? EmailSentToITDate { get; set; }
         public bool? IsActive { get; set; }
-        public  string? ReportingToIDL1EmployeeNumber { get; set; }
-        public  string? SourcingType { get; set; }
-        public  string? RefereeName { get; set; }
-        public  string? MobileNumberReferee { get; set; }
-        public  string? DocumentationStatus { get; set; }
-        public  string? LOB { get; set; }
-        public  string? NewSubDepartmentName { get; set; }
+        public string? ReportingToIDL1EmployeeNumber { get; set; }
+        public string? SourcingType { get; set; }
+        public string? RefereeName { get; set; }
+        public string? MobileNumberReferee { get; set; }
+        public string? DocumentationStatus { get; set; }
+        public string? LOB { get; set; }
+        public string? NewSubDepartmentName { get; set; }
     }
 
     public class CompanyInfo
     {
         public string? Abbr { get; set; }
         public long? CompanyID { get; set; }
-    }   
+    }
     public class BulkEmployeeImportModel
     {
         public List<ImportExcelDataTable> Employees { get; set; }
-    }  
+    }
+
+
+    public class EmployeeUpdateImportModel
+    {
+        public string? EmployeeNumber { get; set; }
+        public string? FullName { get; set; }
+        public string? ReportingManagerNo { get; set; }
+        public string? ClientName { get; set; }
+        public string? LOB { get; set; }
+        public int? ShiftTypeID { get; set; }
+        public bool? IsActive { get; set; }
+    }
+
+    public class EmployeeUpdateExcelRequestModel
+    {
+        public List<EmployeeUpdateImportModel> Employees { get; set; }
+        public int LoggedInUserId { get; set; }
+    }
+
+    public class EmployeeShiftDictionaryResponse
+    {
+        public Dictionary<string, long> Employees { get; set; }
+        public Dictionary<string, long> ShiftTypes { get; set; }
+    }
 }
