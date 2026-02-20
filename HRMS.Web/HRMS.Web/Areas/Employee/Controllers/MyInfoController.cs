@@ -1,12 +1,4 @@
-﻿using System;
-using System.ServiceModel.Channels;
-using System.Text;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.EMMA;
-using DocumentFormat.OpenXml.InkML;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
-using HRMS.Models;
+﻿using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
@@ -71,7 +63,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
 
-            // Call API
             var jsonData = _businessLayer.SendPostAPIRequest(
                 model,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetMyInfo),
@@ -907,6 +898,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.Add("PresentDays");
                     headers.Add("TotalLeaves");
                     headers.Add("ManagerLevel1");
+                    headers.Add("ManagerLevel2");
                     headers.Add("ManagerLevel2");
 
                     for (int i = 0; i < headers.Count; i++)
@@ -2264,6 +2256,75 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         #endregion Approve Leave
 
+
+        [HttpGet]
+        public IActionResult ExportEmployeeLeaves()
+        {
+            try
+            {
+                var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+              
+                var response = _businessLayer.SendPostAPIRequest(
+                    userId,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeLeaves),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+                var leaves= JsonConvert.DeserializeObject<List<LeavesCount>>(response);
+                if (leaves == null || leaves.Count == 0)
+                {
+                    return NotFound("No leave data found.");
+                }
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Employee Leaves");
+
+                    // Header row
+                    var headers = new List<string>
+            {
+                "Employee Number",
+                "Employee Name",
+                "Privilege Leave Consumed",
+                "Final Leave Balance",
+                "Available Comp-Off Days"
+            };
+
+                    for (int i = 0; i < headers.Count; i++)
+                    {
+                        worksheet.Cells[1, i + 1].Value = headers[i];
+                        worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                        worksheet.Column(i + 1).AutoFit();
+                    }
+
+                    int rowIndex = 2;
+                    foreach (var item in leaves)
+                    {
+                        worksheet.Cells[rowIndex, 1].Value = item.EmployeeNumber;
+                        worksheet.Cells[rowIndex, 2].Value = item.EmployeeName;
+                        worksheet.Cells[rowIndex, 3].Value = item.PrivilegeLeaveConsumed ?? 0;
+                        worksheet.Cells[rowIndex, 4].Value = item.FinalLeaveBalance ?? 0;
+                        worksheet.Cells[rowIndex, 5].Value = item.AvailableCompOffDays ?? 0;
+
+                        rowIndex++;
+                    }
+
+                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                    var excelBytes = package.GetAsByteArray();
+                    string fileName = $"Employee_Leaves_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+
+                    return File(
+                        excelBytes,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName
+                    );
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while exporting employee leaves.");
+            }
+        }
 
         #region 
 

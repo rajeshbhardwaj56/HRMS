@@ -178,7 +178,9 @@ namespace HRMS.API.BusinessLayer.ITF
         public TeamAlignmentModel GetTeamAlignment(TeamAlignmentInputParams model);
         #endregion TeamAlignment
 
-        public  Result UpdateEmployeesFromExcel(List<EmployeeUpdateImportModel> employees, long loggedInUserId);
+        public Result UpdateEmployeesFromExcel(List<EmployeeUpdateImportModel> employees, long loggedInUserId);
         public Dictionary<string, Dictionary<string, long>> GetEmployeeAndShiftDictionaries(long companyId);
+
+        public List<LeavesCount> GetEmployeeLeaves(long userId);
     }
 }

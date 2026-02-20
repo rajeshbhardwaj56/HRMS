@@ -6,10 +6,11 @@
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	ViewData["Title"] = "Team Attendance Report";
-	
+	var RoleName = Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.RoleID));
 }
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
+  
 	span.L.status-badge {
 		background: #053470;
 	}
@@ -197,13 +198,13 @@
 		<i class="fas fa-chevron-up"></i> Filters
 	</div>
 	<div class="filters-container" id="filtersContainer">
-        <div class="d-flex flex-wrap align-items-end gap-3   p-3 rounded shadow-sm bg-white border"  >
+        <div class="d-flex flex-wrap align-items-end gap-3   p-3 rounded shadow-sm bg-white border">
             <div class="input-group input-group-sm" style="max-width: 130px;">
                 <span class="input-group-text">
                     Show
                 </span>
-               
-                <select id="page-size-select" class="form-select form-select-sm" >
+
+                <select id="page-size-select" class="form-select form-select-sm">
                     <option value="10">10</option>
                     <option value="20" selected>20</option>
                     <option value="50">50</option>
@@ -214,11 +215,11 @@
                 <span class="input-group-text">
                     Location
                 </span>
-                  
-                        <select id="jobLocationDropdown" class="form-select form-select-sm">
-                            <option value="">Select Location </option>
-                        </select>
-                      
+
+                <select id="jobLocationDropdown" class="form-select form-select-sm">
+                    <option value="">Select Location </option>
+                </select>
+
             </div>
 
             <div class="input-group input-group-sm" style="max-width: 350px; ">
@@ -226,11 +227,11 @@
                     Manager
                 </span>
 
-                    <select id="managerDropdown" class="form-select form-select-sm">
-                        <option value=""> Select Manager </option>
-                    </select>
+                <select id="managerDropdown" class="form-select form-select-sm">
+                    <option value=""> Select Manager </option>
+                </select>
 
-             </div>
+            </div>
 
 
             <div class="input-group input-group-sm" style="max-width: 250px;">
@@ -239,18 +240,18 @@
             </div>
 
 
-            <div class="input-group input-group-sm"  style="max-width: 130px;">
+            <div class="input-group input-group-sm" style="max-width: 130px;">
                 <span class="input-group-text">
                     Year
                 </span>
-                    <select id="year-select" class="form-select form-select-sm w-auto">
-                    </select>
+                <select id="year-select" class="form-select form-select-sm w-auto">
+                </select>
             </div>
 
             <!-- Month Selector -->
             <div class="input-group input-group-sm" style="max-width: 200px;">
                 <span class="input-group-text">Month</span>
-                <select id="month-select" class="form-select form-select-sm" >
+                <select id="month-select" class="form-select form-select-sm">
                     <option value="1">January</option>
                     <option value="2">February</option>
                     <option value="3">March</option>
@@ -279,7 +280,16 @@
                     <i class="fa fa-file-export me-1"></i> Export
                 </button>
             </div>
-
+            @if (RoleName == 2 || RoleName == 5)
+            {
+                <div class="input-group input-group-sm" style="max-width: 220px;">
+                    <button id="leave-export-btn"
+                            class="btn btn-primary btn-sm"
+                            title="Export Leave Report">
+                        <i class="fa fa-file-excel me-1"></i> Leave Export
+                    </button>
+                </div>
+            }
         </div>
 	</div>
 
@@ -1015,10 +1025,11 @@
 
 
 		
-		$("#export-btn").on("click", exportAttendance);
+			$("#export-btn").on("click", exportAttendance);
+
 		});
 
-
+    $("#leave-export-btn").on("click", exportEmployeeLeaves);
     function renderLeaveSummary(data) {
         if (data.annualLeaveBalance == null) return "";
 
@@ -1047,7 +1058,48 @@
     </span>
     </div>`;
     }
+    async function exportEmployeeLeaves() {
 
+        const $btn = $("#leave-export-btn"); 
+        $btn.prop("disabled", true).text("Please wait...");
+
+        try {
+            const url = `/employee/MyInfo/ExportEmployeeLeaves`;
+
+            const response = await fetch(url, { method: "GET" });
+
+            if (!response.ok) {
+                throw new Error("Failed to download leave file");
+            }
+
+            const contentDisposition = response.headers.get("Content-Disposition");
+            let fileName = "Employee_Leaves.xlsx"; 
+
+            if (contentDisposition && contentDisposition.includes("filename=")) {
+                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+                if (matches && matches[1]) {
+                    fileName = matches[1].replace(/['"]/g, "");
+                }
+            }
+
+            const blob = await response.blob();
+            const link = document.createElement("a");
+            const downloadUrl = window.URL.createObjectURL(blob);
+            link.href = downloadUrl;
+            link.download = fileName;
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            window.URL.revokeObjectURL(downloadUrl);
+
+        } catch (error) {
+            alert("Error while exporting leaves: " + error.message);
+        } finally {
+            $btn.prop("disabled", false).text("Export Leaves");
+        }
+    }
 
 
 </script>

@@ -1608,7 +1608,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         [HttpGet]
         public IActionResult GetShiftsByEmployee(string employeeNumber)
         {
-            if (employeeNumber.Contains("_"))
+            if (employeeNumber.Contains('_'))
             {
                 var parts = employeeNumber.Split('_');
                 if (parts.Length > 1)

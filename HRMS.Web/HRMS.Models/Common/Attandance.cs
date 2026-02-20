@@ -84,7 +84,9 @@ namespace HRMS.Models.Common
         public DateTime? WorkDate { get; set; }
         public string? Status { get; set; }
         public string? Remarks { get; set; }
-
+        public decimal? PrivilegeLeaveConsumed { get; set; }
+        public double? FinalLeaveBalance { get; set; }
+        public decimal? AvailableCompOffDays { get; set; }
         public decimal TotalLeaves { get; set; }
 
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();

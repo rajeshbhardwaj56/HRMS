@@ -163,6 +163,8 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Manager_Hierarchy_List = "usp_Manager_Hierarchy_List";
         public const string usp_Get_HolidaysByCompany = "usp_Get_HolidaysByCompany";
 
+        public const string usp_GetShiftTypeDictionary = "usp_GetShiftTypeDictionary";
+
         #region Payroll
         public const string usp_GetMonthlySalary = "usp_GetMonthlySalary";
         public const string usp_UpdateEmployeeMonthlySalary = "usp_UpdateEmployeeMonthlySalary";
@@ -199,6 +201,12 @@ namespace HRMS.API.BusinessLayer
         public const string usp_ImportEmployeeFromExcel_UpdateOnly = "usp_ImportEmployeeFromExcel_UpdateOnly";
         public const string usp_Get_EmployeeAndShift_Dictionaries = "usp_Get_EmployeeAndShift_Dictionaries";
         #endregion UpdatedExcel
+
+
+
+        #region ExportExcels
+        public const string usp_GetAllEmployeesLeaveBalance = "usp_GetAllEmployeesLeaveBalance";
+        #endregion ExportExcels
 
     }
 }

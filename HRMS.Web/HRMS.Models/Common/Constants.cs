@@ -361,6 +361,7 @@ namespace HRMS.Models.Common
 
         public const string UpdateEmployeesFromExcel = "UpdateEmployeesFromExcel";
         public const string GetEmployeeAndShiftDictionaries = "GetEmployeeAndShiftDictionaries";
+        public const string GetEmployeeLeaves = "GetEmployeeLeaves";
 
     }
 

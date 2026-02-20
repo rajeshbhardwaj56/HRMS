@@ -4467,7 +4467,7 @@ namespace HRMS.API.BusinessLayer
                     emp.Telephone,
                     emp.PersonalEmailAddress,
                     emp.PermanentAddress,
-                    emp.PermanentCity, 
+                    emp.PermanentCity,
                     emp.PermanentPinCode,
                     emp.PermanentState,
                     emp.PermanentCountryID,
@@ -5865,6 +5865,24 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
                 .ToList() ?? new List<DateTime>();
         }
 
+
+        public Dictionary<string, long> GetShiftDictionary(long CompanyID)
+        {
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+            {
+        new SqlParameter("@CompanyID", CompanyID),
+            };
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetShiftTypeDictionary, sqlParameter);
+
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                return dataSet.Tables[0].AsEnumerable()
+                            .ToDictionary(row => row.Field<string>("ShiftTypeName").Trim().ToLower(),
+                                          row => row.Field<long>("ShiftTypeID"));
+            }
+            return new Dictionary<string, long>();
+        }
+
         #region Attendance Approval
         public AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model)
         {
@@ -6508,7 +6526,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
             if (ds.Tables.Count >= 2)
             {
-      
+
                 result["Employees"] = ds.Tables[0]
                     .AsEnumerable()
                     .ToDictionary(
@@ -6516,7 +6534,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                         r => r.Field<long>("EmployeeID")
                     );
 
-         
+
                 result["ShiftTypes"] = ds.Tables[1]
                     .AsEnumerable()
                     .ToDictionary(
@@ -6536,7 +6554,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
             table.Columns.Add("ClientName", typeof(string));
             table.Columns.Add("LOB", typeof(string));
             table.Columns.Add("ReportingManagerNo", typeof(string));
-            
+
             table.Columns.Add("ShiftTypeID", typeof(int));
             table.Columns.Add("IsActive", typeof(bool));
 
@@ -6590,7 +6608,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                     EmployeeName = row.Field<string>("EmployeeName") ?? "",
                     ManagerLevel1Name = row.Field<string>("ManagerLevel1Name") ?? "",
                     ManagerLevel2Name = row.Field<string>("ManagerLevel2Name") ?? "",
-                
+
                     Designation = row.Field<string>("Designation") ?? "",
                     Department = row.Field<string>("Department") ?? "",
                     ProfilePhoto = row.Field<string>("ProfilePhoto") ?? "",
@@ -6624,7 +6642,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                 }
                 else
                 {
-                   
+
                     roots.Add(emp);
                 }
             }
@@ -6636,6 +6654,38 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
         #endregion TeamAlignment
 
+
+        #region ExportExcels
+        public List<LeavesCount> GetEmployeeLeaves(long userId)
+        {
+            List<LeavesCount> result = new();
+            List<SqlParameter> sqlParameters = new()
+    {
+        new SqlParameter("@UserID", userId),
+    };
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+               StoredProcedures.usp_GetAllEmployeesLeaveBalance,
+               sqlParameters
+           );
+            if (dataSet != null && dataSet.Tables.Count > 0)
+            {
+                result=dataSet.Tables[0].AsEnumerable()
+                    .Select(row => new LeavesCount
+                    {
+                       
+                        EmployeeNumber = row.Field<string>("EmployeeNumber"),
+                        EmployeeName = row.Field<string>("EmployeeName"),
+                        PrivilegeLeaveConsumed=row.Field<decimal?>("PrivilegeLeaveConsumed"),
+                        FinalLeaveBalance = row.Field<double?>("FinalLeaveBalance"),
+                        AvailableCompOffDays = row.Field<decimal?>("AvailableCompOffDays"),
+                    })
+                    .ToList();
+            }
+
+
+            return result;
+        }
+        #endregion ExportExcels
     }
 
 

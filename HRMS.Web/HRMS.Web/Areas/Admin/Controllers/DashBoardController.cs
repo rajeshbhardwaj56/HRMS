@@ -37,11 +37,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
     {
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-        private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
+        private Microsoft.AspNetCore.Hosting.IWebHostEnvironment Environment;
         IHttpContextAccessor _context;
         private readonly IS3Service _s3Service;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IWebHostEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
@@ -1067,7 +1067,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 if (file == null || file.Length == 0)
                     return BadRequest(new { success = false, message = "No file uploaded." });
 
-                // Save uploaded file temporarily
+            
                 tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + Path.GetExtension(file.FileName));
                 using (var stream = new FileStream(tempFilePath, FileMode.Create))
                     await file.CopyToAsync(stream);
