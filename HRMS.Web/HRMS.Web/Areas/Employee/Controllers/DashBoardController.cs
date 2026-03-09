@@ -163,8 +163,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
             // Start from the accrual period containing the join date
             DateTime accrualPeriodStart = GetAccrualPeriodStart(joinDate);
             DateTime accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1); // 20th of next month
-
-            while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
+            if (today > new DateTime(2026, 3, 20))
+            {
+                while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
             {
                 // Adjust for join date or current date
                 DateTime effectiveStart = joinDate > accrualPeriodStart ? joinDate : accrualPeriodStart;
@@ -180,6 +181,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 // Move to next accrual period
                 accrualPeriodStart = accrualPeriodStart.AddMonths(1);
                 accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
+            }
             }
 
             return totalAccruedLeave;

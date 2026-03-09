@@ -287,7 +287,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 if ((double)leaveRecord.NoOfDays > totalLeaveWithCarryForward)
                 {
                     response.status = 1;
-                    response.message = $"Leave duration exceeds the privilege leave balance of {totalLeaveWithCarryForward } days.";
+                    response.message = $"Leave duration exceeds the privilege leave balance of {totalLeaveWithCarryForward} days.";
                     return Json(new { data = response, });
                 }
             }
@@ -478,23 +478,25 @@ namespace HRMS.Web.Areas.Employee.Controllers
             // Start from the accrual period containing the join date
             DateTime accrualPeriodStart = GetAccrualPeriodStart(joinDate);
             DateTime accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1); // 20th of next month
-
-            while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
+            if (today > new DateTime(2026, 3, 20))
             {
-                // Adjust for join date or current date
-                DateTime effectiveStart = joinDate > accrualPeriodStart ? joinDate : accrualPeriodStart;
-                DateTime effectiveEnd = accrualPeriodEnd < today ? accrualPeriodEnd : today;
-
-                int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
-
-                if (daysWorked > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
+                while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
                 {
-                    totalAccruedLeave += monthlyAccrual;
-                }
+                    // Adjust for join date or current date
+                    DateTime effectiveStart = joinDate > accrualPeriodStart ? joinDate : accrualPeriodStart;
+                    DateTime effectiveEnd = accrualPeriodEnd < today ? accrualPeriodEnd : today;
 
-                // Move to next accrual period
-                accrualPeriodStart = accrualPeriodStart.AddMonths(1);
-                accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
+                    int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
+
+                    if (daysWorked > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
+                    {
+                        totalAccruedLeave += monthlyAccrual;
+                    }
+
+                    // Move to next accrual period
+                    accrualPeriodStart = accrualPeriodStart.AddMonths(1);
+                    accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
+                }
             }
 
             return totalAccruedLeave;
@@ -1298,7 +1300,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                         .Sum(x => x.NoOfDays);
-                    double approvedLeaves=(double)approvedLeaveDays;
+                    double approvedLeaves = (double)approvedLeaveDays;
 
                     double maxAnnualLeaveLimit = 30;
                     double accruedLeaves = 0;
@@ -1309,7 +1311,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         if (leavePolicyModel.Annual_IsCarryForward == true)
                         {
                             double carryForward = Convert.ToDouble(employeeDetails.CarryForword);
-                            accruedLeave =Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
+                            accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
                         }
 
                         accruedLeaves = accruedLeave - approvedLeaves;
@@ -2263,13 +2265,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             try
             {
                 var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-              
+
                 var response = _businessLayer.SendPostAPIRequest(
                     userId,
                     _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeLeaves),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
                     true).Result.ToString();
-                var leaves= JsonConvert.DeserializeObject<List<LeavesCount>>(response);
+                var leaves = JsonConvert.DeserializeObject<List<LeavesCount>>(response);
                 if (leaves == null || leaves.Count == 0)
                 {
                     return NotFound("No leave data found.");
