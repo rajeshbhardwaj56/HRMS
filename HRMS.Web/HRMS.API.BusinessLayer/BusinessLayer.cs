@@ -3420,114 +3420,136 @@ namespace HRMS.API.BusinessLayer
         public AttendanceDetailsVM FetchAttendanceHolidayAndLeaveInfo(AttendanceDetailsInputParams model)
         {
             AttendanceDetailsVM result = new AttendanceDetailsVM();
+
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@SelectedDate", model.SelectedDate),
         new SqlParameter("@EmployeeNumber", model.EmployeeNumber),
-        new SqlParameter("@EmployeeId",model.EmployeeId),
+        new SqlParameter("@EmployeeId", model.EmployeeId),
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDailyAttendanceDetails, sqlParameters);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetDailyAttendanceDetails, sqlParameters);
 
             if (dataSet == null || dataSet.Tables.Count == 0)
                 return result;
 
-
-            if (dataSet.Tables[0].Rows.Count > 0)
+            foreach (DataTable table in dataSet.Tables)
             {
-                var row = dataSet.Tables[0].Rows[0];
-                var attendanceStatus = new AttendanceDetailsVM
+                if (table.Rows.Count == 0)
+                    continue;
+
+                /* STATUS CHANGE */
+                if (table.Columns.Contains("StatusChangeID"))
                 {
-                    RecordType = row.Field<string>("RecordType")
-                };
+                    foreach (DataRow row in table.Rows)
+                    {
+                        result.StatusChange.Add(new StatusChangeVM
+                        {
+                            RecordType = row.Field<string>("RecordType"),
+                            EmployeeID = row.Field<long?>("EmployeeID"),
+                            StatusChangeID = row.Field<long>("StatusChangeID"),
+                            EmployeeNumber = row.Field<string>("EmployeeNumber"),
+                            WorkDate = row.Field<DateTime?>("WorkDate"),
+                            AttendanceStatus = row.Field<string>("AttendanceStatus"),
+                            Remarks = row.Field<string>("Remarks"),
+                            StatusState = row.Field<string>("StatusState"),
+                            InsertedDate = row.Field<DateTime?>("InsertedDate"),
+                            InsertedByUserName = row.Field<string>("InsertedByUserName"),
+                            ModifiedDate = row.Field<DateTime?>("ModifiedDate"),
+                            UpdatedByUserName = row.Field<string>("UpdatedByUserName"),
+                            ApprovedByUserName = row.Field<string>("ApprovedByUserName"),
+                            UploadProof = row.Field<string>("UploadProof")
+                        });
+                    }
 
-                switch (attendanceStatus.RecordType)
-                {
-                    case "Attendance":
-                        attendanceStatus.UserId = row.Field<string>("UserId");
-                        attendanceStatus.WorkDate = row.Field<DateTime?>("WorkDate");
-                        attendanceStatus.FirstLogDate = row.Field<DateTime?>("FirstLogDate");
-                        attendanceStatus.LastLogDate = row.Field<DateTime?>("LastLogDate");
-                        attendanceStatus.HoursWorked = row.Field<TimeSpan?>("HoursWorked");
-                        attendanceStatus.AttendanceStatus = row.Field<string>("AttendanceStatus");
-                        attendanceStatus.DialerTime = row.Field<string>("DialerTime");
-                        attendanceStatus.Remarks = row.Field<string>("Remarks");
-
-                        break;
-                    case "WeekOff":
-
-                        attendanceStatus.FromDate = row.Field<DateTime?>("MatchingDayOff");
-                        attendanceStatus.ToDate = row.Field<DateTime?>("WeekStartDate");
-                        break;
-                    case "Holiday":
-                        attendanceStatus.HolidayName = row.Field<string>("HolidayName");
-                        attendanceStatus.Description = row.Field<string>("Description");
-                        attendanceStatus.FromDate = row.Field<DateTime?>("FromDate");
-                        attendanceStatus.ToDate = row.Field<DateTime?>("ToDate");
-                        break;
-
-                    case "Leave":
-                        attendanceStatus.EmployeeID = row.Field<long?>("EmployeeID");
-                        attendanceStatus.StartDate = row.Field<DateTime?>("StartDate");
-                        attendanceStatus.EndDate = row.Field<DateTime?>("EndDate");
-                        attendanceStatus.Reason = row.Field<string>("Reason");
-                        attendanceStatus.LeaveStatusID = row.Field<string?>("LeaveStatusID");
-                        break;
-
-                    case "No Record Found":
-                    default:
-
-                        break;
+                    continue;
                 }
 
-                result = attendanceStatus;
-            }
-
-            if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
-            {
-                result.StatusChange = new List<StatusChangeVM>();
-
-                foreach (DataRow row in dataSet.Tables[1].Rows)
+                /* LEAVE SUMMARY */
+                if (table.Columns.Contains("AnnualLeaveAccrued"))
                 {
-                    var sc = new StatusChangeVM
+                    var row = table.Rows[0];
+
+                    result.LeaveSummary = new LeaveSummaryVM
                     {
-                        RecordType = row.Field<string>("RecordType"),
-                        EmployeeID = row.Field<long?>("EmployeeID"),
-                        StatusChangeID = row.Field<long>("StatusChangeID"),
-                        EmployeeNumber = row.Field<string>("EmployeeNumber"),
-                        WorkDate = row.Field<DateTime?>("WorkDate"),
-                        AttendanceStatus = row.Field<string>("AttendanceStatus"),
-                        Remarks = row.Field<string>("Remarks"),
-                        StatusState = row.Field<string>("StatusState"),
-                        InsertedDate = row.Field<DateTime?>("InsertedDate"),
-                        InsertedByUserName = row.Field<string>("InsertedByUserName"),
-                        ModifiedDate = row.Field<DateTime?>("ModifiedDate"),
-                        UpdatedByUserName = row.Field<string>("UpdatedByUserName"),
-                        ApprovedByUserName = row.Field<string>("ApprovedByUserName"),
-                        UploadProof = row.Field<string?>("UploadProof")
+                        EmployeeTypeID = row.Field<long?>("EmployeeTypeID"),
+                        AnnualLeaveAccrued = row.Field<double?>("AnnualLeaveAccrued") ?? 0,
+                        AnnualLeaveConsumed = row.Field<double?>("AnnualLeaveConsumed") ?? 0,
+                        AnnualLeaveBalance = row.Field<double?>("AnnualLeaveBalance") ?? 0,
+                        AvailableCompOffDays = row.Field<decimal?>("AvailableCompOffDays") ?? 0
                     };
 
-
-
-
-                    result.StatusChange.Add(sc);
+                    continue;
                 }
-            }
 
-            if (dataSet.Tables.Count > 2 && dataSet.Tables[2].Rows.Count > 0)
-            {
-                var row = dataSet.Tables[2].Rows[0];
-                result.EmployeeTypeID = row.Field<long?>("EmployeeTypeID");
-                result.AnnualLeaveAccrued = row.Field<double?>("AnnualLeaveAccrued") ?? 0;
-                result.AnnualLeaveConsumed = row.Field<double?>("AnnualLeaveConsumed") ?? 0;
-                result.AnnualLeaveBalance = row.Field<double?>("AnnualLeaveBalance") ?? 0;
-                result.AvailableCompOffDays = row.Field<decimal?>("AvailableCompOffDays") ?? 0m;
+                /* ATTENDANCE / HOLIDAY / WEEKOFF / LEAVE */
+
+                if (table.Columns.Contains("RecordType"))
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        var recordType = row.Field<string>("RecordType");
+
+                        switch (recordType)
+                        {
+                            case "Attendance":
+
+                                result.Attendance = new AttendanceVM
+                                {
+                                    UserId = row.Field<string?>("UserId"),
+                                    WorkDate = row.Field<DateTime?>("WorkDate"),
+                                    FirstLogDate = row.Field<DateTime?>("FirstLogDate"),
+                                    LastLogDate = row.Field<DateTime?>("LastLogDate"),
+                                    HoursWorked = row.Field<TimeSpan?>("HoursWorked"),
+                                    AttendanceStatus = row.Field<string>("AttendanceStatus"),
+                                    DialerTime = row.Field<string>("DialerTime"),
+                                    Remarks = row.Field<string>("Remarks")
+                                };
+
+                                break;
+
+                            case "WeekOff":
+
+                                result.WeekOffs.Add(new WeekOffVM
+                                {
+                                    MatchingDayOff = row.Field<DateTime?>("MatchingDayOff"),
+                                    WeekStartDate = row.Field<DateTime?>("WeekStartDate")
+                                });
+
+                                break;
+
+                            case "Holiday":
+
+                                result.Holidays.Add(new HolidayVM
+                                {
+                                    HolidayName = row.Field<string>("HolidayName"),
+                                    Description = row.Field<string>("Description"),
+                                    FromDate = row.Field<DateTime?>("FromDate"),
+                                    ToDate = row.Field<DateTime?>("ToDate")
+                                });
+
+                                break;
+
+                            case "Leave":
+
+                                result.Leaves.Add(new LeaveVM
+                                {
+                                    EmployeeID = row.Field<long?>("EmployeeID"),
+                                    StartDate = row.Field<DateTime?>("StartDate"),
+                                    EndDate = row.Field<DateTime?>("EndDate"),
+                                    Reason = row.Field<string>("Reason"),
+                                    LeaveStatusID = row.Field<string>("LeaveStatusID")
+                                });
+
+                                break;
+                        }
+                    }
+                }
             }
 
             return result;
         }
-
-
 
 
 

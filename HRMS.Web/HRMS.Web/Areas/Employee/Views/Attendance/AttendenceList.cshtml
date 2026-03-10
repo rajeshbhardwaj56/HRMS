@@ -1009,7 +1009,15 @@
                                 statusText = 'Comp Off';
                                 statusClass = 'status-compoff';
                                 break;
+                            case 'HalfLeave/HalfAbsent':
+                                statusText = 'HalfLeave/HalfAbsent';
+                                statusClass = 'status-halfday';
+                                break;
 
+                            case 'HalfDay/HalfLeave':
+                                statusText = 'HalfDay/HalfLeave';
+                                statusClass = 'status-halfday';
+                                break;
                             case 'Half Day':
                                 statusText = 'Half Day';
                                 statusClass = 'status-halfday';
@@ -1136,135 +1144,188 @@
             $('#dateModal').modal('show');
 
             $.ajax({
-                url: '/employee/MyInfo/GetAttendanceDetails', // Replace with your actual endpoint
+                url: '/employee/MyInfo/GetAttendanceDetails',
                 type: 'GET',
                 data: { date: selectedDate },
+
                 success: function (data) {
+
                     let html = "";
 
-                    switch (data.recordType) {
-                        case "Attendance":
-                            const { startFormatted, endFormatted } = formatDateOrTime(data.firstLogDate, data.lastLogDate);
-                            const first = new Date(data.firstLogDate), last = new Date(data.lastLogDate);
-                            const sameDay = first.toDateString() === last.toDateString();
-                            const getStatusColor = (status) => {
-                                switch (status?.toLowerCase()) {
-                                    case 'present':
-                                        return '#28a745'; // Green
-                                    case 'absent':
-                                        return '#dc3545'; // Red
-                                    case 'leave':
-                                        return '#ffc107'; // Yellow
-                                    case 'half day':
-                                        return '#05397b'; // Blue
-                                    default:
-                                        return '#6c757d'; // Grey fallback
-                                }
-                            };
+                    const getStatusColor = (status) => {
+                        switch (status?.toLowerCase()) {
+                            case 'present': return '#28a745';
+                            case 'absent': return '#dc3545';
+                            case 'leave': return '#ffc107';
+                            case 'half day': return '#05397b';
+                            default: return '#6c757d';
+                        }
+                    };
 
+                    /* ---------------- ATTENDANCE ---------------- */
 
-                            html = `
-                    <div class="card shadow-sm border-0">
-                      <div class="card-body">
-                        <h5 class="card-title mb-3 text-primary">👤 Attendance Record</h5>
+                    /* -------- ATTENDANCE -------- */
 
-                        <div class="row mb-2">
-                          <div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
-                         <div class="col-md-6">
-                        <strong>Status:</strong>
-                        <span class="badge" style="background-color: ${getStatusColor(data.attendanceStatus)}; color: white;">
-                          ${data.attendanceStatus ?? '-'}
-                        </span>
-                      </div>
-                    </div>
+                    if (data.attendance && data.attendance.firstLogDate) {
 
-                        <div class="row mb-2">
-                          <div class="col-md-6"><strong>Check-in:</strong> ${sameDay ? formatTimeOnly(data.firstLogDate) : formatDateTime(data.firstLogDate)}</div>
-                          <div class="col-md-6"><strong>Check-out:</strong> ${sameDay ? formatTimeOnly(data.lastLogDate) : formatDateTime(data.lastLogDate)}</div>
-                        </div>
+                        const first = new Date(data.attendance.firstLogDate);
+                        const last = new Date(data.attendance.lastLogDate);
+                        const sameDay = first.toDateString() === last.toDateString();
 
-                        <div class="row">
-                          <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
-                        </div>
+                        html += `
+<div class="card shadow-sm border-0 mb-3">
+<div class="card-body">
 
+<h6 class="text-primary">Attendance</h6>
 
-                        ${renderStatusChanges(data.statusChange)}
-                         ${renderStatusEditor(selectedDate, data)}
-                      </div>
-                    </div>
-                    `;
+<div class="row mb-2">
+<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.attendance.workDate)}</div>
 
-                            break;
-                        case "WeekOff":
-                            html = `
-<div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body">
-                    <h5 class="card-title mb-3 text-primary">
-                        🗓️ Week Off
-                    </h5>
+<div class="col-md-6">
+<strong>Status:</strong>
+<span class="badge" style="background:${getStatusColor(data.attendance.attendanceStatus)}">
+${data.attendance.attendanceStatus ?? '-'}
+</span>
+</div>
+</div>
 
-                    <div class="mb-2">
-                        <strong>Week Off Date:</strong> ${formatDate(data.fromDate)}
-                    </div>
-                ${renderStatusChanges(data.statusChange)}
-                ${renderStatusEditor(selectedDate, data)}
-                </div>
+<div class="row mb-2">
+
+<div class="col-md-6">
+<strong>Check-in:</strong>
+${sameDay ? formatTimeOnly(data.attendance.firstLogDate) : formatDateTime(data.attendance.firstLogDate)}
+</div>
+
+<div class="col-md-6">
+<strong>Check-out:</strong>
+${sameDay ? formatTimeOnly(data.attendance.lastLogDate) : formatDateTime(data.attendance.lastLogDate)}
+</div>
+
+</div>
+
+<div class="row mb-2">
+<div class="col-md-6">
+<strong>Hours Worked:</strong>
+${formatSqlTimeToHoursMinutes(data.attendance.hoursWorked)}
+</div>
+</div>
+
+</div>
 </div>`;
-                            break;
-                        case "Holiday":
-                            html = `
-                                            <div class="card shadow-sm border-0">
-                                                <div class="card-body">
-                                                    <h5 class="card-title mb-3 text-success">🎉 Holiday</h5>
-                                                    <div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div>
-                                                    <div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div>
-                                                    <div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>
-                                                    ${renderStatusChanges(data.statusChange)}
-                                                    ${renderStatusEditor(selectedDate, data)}
-                                                </div>
-                                            </div>`;
-                            break;
+                    }
 
-                        case "Leave":
-                            html = `
-                                            <div class="card shadow-sm border-0">
-                                                <div class="card-body">
-                                                    <h5 class="card-title mb-3 text-warning">📅 Leave Details</h5>
-                                                    <div class="mb-2"><strong>Reason:</strong> ${data.reason}</div>
-                                                    <div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div>
-                                                    <div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div>
-                                                    <div><strong>Status:</strong> <span class="badge bg-primary">#${data.leaveStatusID}</span></div>
-                                                    ${renderStatusChanges(data.statusChange)}
-                                                    ${renderStatusEditor(selectedDate, data)}
-                                                </div>
-                                            </div>`;
-                            break;
-                        default:
-                            if (!data.statusChange || data.statusChange.length === 0) {
+                    /* -------- WEEK OFF -------- */
 
-                                html = `
-              <div class="alert alert-warning text-center">
-                <i class="bi bi-info-circle-fill"></i> No attendance record found for this day.
-              </div>
-               ${renderStatusEditor(selectedDate, data)}
+                    if (data.weekOffs && data.weekOffs.length > 0) {
 
+                        data.weekOffs.forEach(w => {
+
+                            html += `
+<div class="card shadow-sm border-0 mb-3">
+
+<div class="card-body">
+
+<h6 class="text-primary">Week Off</h6>
+
+<strong>Date:</strong> ${formatDate(w.matchingDayOff)}
+
+</div>
+</div>`;
+
+                        });
+
+                    }
+
+                    /* -------- HOLIDAY -------- */
+
+                    if (data.holidays && data.holidays.length > 0) {
+
+                        data.holidays.forEach(h => {
+
+                            html += `
+<div class="card shadow-sm border-0 mb-3">
+
+<div class="card-body">
+
+<h6 class="text-success">Holiday</h6>
+
+<div><strong>Name:</strong> ${h.holidayName}</div>
+
+<div><strong>Description:</strong> ${h.description ?? "-"}</div>
+
+<div>
+<strong>From:</strong> ${formatDate(h.fromDate)}  
+<strong>To:</strong> ${formatDate(h.toDate)}
+</div>
+
+</div>
+</div>`;
+
+                        });
+
+                    }
+
+                    /* -------- LEAVE -------- */
+
+                    if (data.leaves && data.leaves.length > 0) {
+
+                        data.leaves.forEach(l => {
+
+                            html += `
+<div class="card shadow-sm border-0 mb-3">
+
+<div class="card-body">
+
+<h6 class="text-warning">Leave</h6>
+
+<div><strong>Reason:</strong> ${l.reason}</div>
+
+<div><strong>Start:</strong> ${formatDateTime(l.startDate)}</div>
+
+<div><strong>End:</strong> ${formatDateTime(l.endDate)}</div>
+
+<div>
+<strong>Status:</strong>
+<span class="LeaveApproved">#${l.leaveStatusID}</span>
+</div>
+
+</div>
+</div>`;
+
+                        });
+
+                    }
+
+                    /* ---------------- STATUS CHANGES ---------------- */
+
+                    html += renderStatusChanges(data.statusChange);
+
+                    /* ---------------- STATUS EDITOR ---------------- */
+
+                    html += renderStatusEditor(selectedDate, data);
+
+                    /* ---------------- NO RECORD ---------------- */
+
+                    if (html.trim() === "") {
+
+                        html = `
+<div class="alert alert-warning text-center">
+<i class="bi bi-info-circle-fill"></i>
+No attendance record found for this day.
+</div>
+
+${renderStatusEditor(selectedDate, data)}
 `;
-                            } else {
-
-                                html = `
-
-              ${renderStatusChanges(data.statusChange)}
-               ${renderStatusEditor(selectedDate, data)}
-
-`;
-                            }
-
                     }
 
                     $('#modalDateText').html(html);
                 },
+
                 error: function () {
-                    $('#modalDateText').html('<span style="color:red;">Failed to load attendance details.</span>');
+
+                    $('#modalDateText').html(
+                        '<span style="color:red;">Failed to load attendance details.</span>'
+                    );
                 }
             });
         }

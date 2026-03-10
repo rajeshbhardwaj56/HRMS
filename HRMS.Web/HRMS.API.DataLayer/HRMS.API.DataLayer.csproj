@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HRMS.API.BusinessLayer.ITF\HRMS.API.BusinessLayer.ITF.csproj" />
     <ProjectReference Include="..\HRMS.API.DataLayer.ITF\HRMS.API.DataLayer.ITF.csproj" />
     <ProjectReference Include="..\HRMS.Models\HRMS.Models.csproj" />
   </ItemGroup>
