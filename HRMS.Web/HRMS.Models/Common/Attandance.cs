@@ -155,6 +155,9 @@ namespace HRMS.Models.Common
 
     public class AttendanceDetailsVM
     {
+        public string? EmployeeNumber { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? SelectedDateFormatted { get; set; }
         public AttendanceVM Attendance { get; set; }
 
         public List<HolidayVM> Holidays { get; set; } = new List<HolidayVM>();
@@ -198,6 +201,7 @@ namespace HRMS.Models.Common
         public DateTime? EndDate { get; set; }
         public string? Reason { get; set; }
         public string? LeaveStatusID { get; set; }
+        public string? LeaveDurationTypeName { get; set; }
     }
     public class LeaveSummaryVM
     {

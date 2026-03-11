@@ -1271,6 +1271,24 @@ ${formatSqlTimeToHoursMinutes(data.attendance.hoursWorked)}
 
                         data.leaves.forEach(l => {
 
+                            let dateHtml = "";
+
+                            // If Half Day → show only start date
+                            if (l.leaveDurationTypeName?.toLowerCase() === "half day") {
+
+                                dateHtml = `
+<div><strong>Date:</strong> ${formatDate(l.startDate)}</div>
+`;
+
+                            } else {
+
+                                // Full day / multiple days
+                                dateHtml = `
+<div><strong>Start:</strong> ${formatDate(l.startDate)}</div>
+<div><strong>End:</strong> ${formatDate(l.endDate)}</div>
+`;
+                            }
+
                             html += `
 <div class="card shadow-sm border-0 mb-3">
 
@@ -1278,20 +1296,25 @@ ${formatSqlTimeToHoursMinutes(data.attendance.hoursWorked)}
 
 <h6 class="text-warning">Leave</h6>
 
-<div><strong>Reason:</strong> ${l.reason}</div>
+<div class="row mb-2">
+    <div class="col-md-6">
+        <strong>Reason:</strong> ${l.reason}
+    </div>
 
-<div><strong>Start:</strong> ${formatDateTime(l.startDate)}</div>
+    <div class="col-md-6 text-end">
+        <strong>Duration:</strong> ${l.leaveDurationTypeName ?? '-'}
+    </div>
+</div>
 
-<div><strong>End:</strong> ${formatDateTime(l.endDate)}</div>
+${dateHtml}
 
 <div>
 <strong>Status:</strong>
-<span class="LeaveApproved">#${l.leaveStatusID}</span>
+<span class="LeaveApproved">${l.leaveStatusID}</span>
 </div>
 
 </div>
 </div>`;
-
                         });
 
                     }

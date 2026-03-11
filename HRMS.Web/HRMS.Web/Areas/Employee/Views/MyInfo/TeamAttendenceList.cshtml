@@ -758,6 +758,7 @@
 
 
 			$(document).on("click", "#attendance-data td", function () {
+
 			const $td = $(this);
 			const rawDateKey = $td.data("date"); 
 			if (!rawDateKey) return;
@@ -768,15 +769,33 @@
 
 			let finalMonth = selectedMonth;
 			let finalYear = selectedYear;
+            let febEnd = isLeapYear(selectedYear) ? 18 : 17;
+            let marchStart = isLeapYear(selectedYear) ? 19 : 18;
 
-			
-			if (day >= 21) {
+                if (selectedMonth == 3 && day >= marchStart && day <= 20) {
+                    finalMonth = selectedMonth - 1;
+
+                    if (finalMonth === 0) {
+                        finalMonth = 12;
+                        finalYear = selectedYear - 1;
+                    }
+				}
+                else if (selectedMonth == 2 && day >= 21 && day <= febEnd) {
+                    finalMonth = selectedMonth - 1;
+
+                    if (finalMonth === 0) {
+                        finalMonth = 12;
+                        finalYear = selectedYear - 1;
+                    }
+                }
+			   else if (day >= 21)
+			   {
 				finalMonth = selectedMonth - 1;
 				if (finalMonth === 0) {
 					finalMonth = 12;
 					finalYear = selectedYear - 1;
 				}
-			}
+			   }
 
 			const fullDate = `${finalYear}-${String(finalMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 			const empId = $td.data("empid"),
@@ -792,7 +811,12 @@
                 $.get('/employee/MyInfo/GetAttendanceDetails',
                     { date: fullDate, employeeId: empId, employeeNo: empNo },
                     function (data) {
-
+                        $("#attendanceDetailModalLabel").html(
+                            `Attendance Details - 
+     ${(data.employeeName ?? '-')} 
+     (${(data.employeeNumber ?? '-')}) 
+     <small class="text-muted ms-2">| ${data.selectedDateFormatted ?? '-'}</small>`
+                        );
                         let html = "";
 
                         const leaveSummaryHtml = renderLeaveSummary(data.leaveSummary);
@@ -1065,27 +1089,50 @@ ${formatSqlTimeToHoursMinutes(data.attendance.hoursWorked)}
 
                             data.leaves.forEach(l => {
 
+                                let dateHtml = "";
+
+                                // If Half Day → show only start date
+                                if (l.leaveDurationTypeName?.toLowerCase() === "half day") {
+
+                                    dateHtml = `
+<div><strong>Date:</strong> ${formatDate(l.startDate)}</div>
+`;
+
+                                } else {
+
+                                    // Full day / multiple days
+                                    dateHtml = `
+<div><strong>Start:</strong> ${formatDate(l.startDate)}</div>
+<div><strong>End:</strong> ${formatDate(l.endDate)}</div>
+`;
+                                }
+
                                 html += `
 <div class="card shadow-sm border-0 mb-3">
 
 <div class="card-body">
 
-<h6 class="text-warning">Leave</h6>
+<h6 class="text-dark">Leave Detail</h6>
 
-<div><strong>Reason:</strong> ${l.reason}</div>
+<div class="row mb-2">
+    <div class="col-md-6">
+        <strong>Reason:</strong> ${l.reason}
+    </div>
 
-<div><strong>Start:</strong> ${formatDateTime(l.startDate)}</div>
+    <div class="col-md-6 text-end">
+        <strong>Duration:</strong> ${l.leaveDurationTypeName ?? '-'}
+    </div>
+</div>
 
-<div><strong>End:</strong> ${formatDateTime(l.endDate)}</div>
+${dateHtml}
 
 <div>
 <strong>Status:</strong>
-<span class="LeaveApproved">#${l.leaveStatusID}</span>
+<span class="LeaveApproved">${l.leaveStatusID}</span>
 </div>
 
 </div>
 </div>`;
-
                             });
 
                         }
@@ -1192,6 +1239,8 @@ ${data.availableCompOffDays ?? 0}
         }
     }
 
-
+    function isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    }
 </script>
 

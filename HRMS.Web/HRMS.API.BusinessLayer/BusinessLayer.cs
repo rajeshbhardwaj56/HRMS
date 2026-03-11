@@ -3438,8 +3438,17 @@ namespace HRMS.API.BusinessLayer
             {
                 if (table.Rows.Count == 0)
                     continue;
+                if (table.Columns.Contains("EmployeeName"))
+                {
+                    var row = table.Rows[0];
 
-                /* STATUS CHANGE */
+                    result.EmployeeNumber = row.Field<string>("EmployeeNumber");
+                    result.EmployeeName = row.Field<string>("EmployeeName");
+                    result.SelectedDateFormatted = row.Field<string>("SelectedDateFormatted");
+
+                    continue;
+                }
+
                 if (table.Columns.Contains("StatusChangeID"))
                 {
                     foreach (DataRow row in table.Rows)
@@ -3466,7 +3475,7 @@ namespace HRMS.API.BusinessLayer
                     continue;
                 }
 
-                /* LEAVE SUMMARY */
+           
                 if (table.Columns.Contains("AnnualLeaveAccrued"))
                 {
                     var row = table.Rows[0];
@@ -3539,7 +3548,8 @@ namespace HRMS.API.BusinessLayer
                                     StartDate = row.Field<DateTime?>("StartDate"),
                                     EndDate = row.Field<DateTime?>("EndDate"),
                                     Reason = row.Field<string>("Reason"),
-                                    LeaveStatusID = row.Field<string>("LeaveStatusID")
+                                    LeaveStatusID = row.Field<string>("LeaveStatusID"),
+                                    LeaveDurationTypeName = row.Field<string>("LeaveDurationTypeName")
                                 });
 
                                 break;
