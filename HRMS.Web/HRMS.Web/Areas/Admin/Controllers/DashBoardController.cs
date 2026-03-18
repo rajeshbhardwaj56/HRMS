@@ -28,6 +28,7 @@ using System.Data.SqlClient;
 using Microsoft.AspNetCore.Authentication;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using HRMS.Models.AttendenceList;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -1049,7 +1050,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
-            return View();
+            var apiResponse = _businessLayer.SendPostAPIRequest(null, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard , APIApiActionConstants.GetWeekOffShifts), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result?.ToString();
+            var apiResult = JsonConvert.DeserializeObject<List<WeekOffShift>>(apiResponse);
+            return View(apiResult);
         }
         private long GetSessionLong(string key)
         {
@@ -1165,7 +1168,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             try
             {
+                var shiftResponse = _businessLayer.SendPostAPIRequest(
+    null,
+    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetShiftDictionary),
+    HttpContext.Session.GetString(Constants.SessionBearerToken),
+    true
+).Result;
 
+                var shiftDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(shiftResponse.ToString());
                 foreach (DataRow row in dt.Rows)
                 {
                     var model = new WeekOffUploadModel
@@ -1178,32 +1188,27 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     };
 
 
-                    var shiftName = row.Table.Columns.Contains("Shift") ? row["Shift"]?.ToString() : null;
+                    var shiftName = row.Table.Columns.Contains("Shift")
+               ? row["Shift"]?.ToString()?.Trim()
+               : null;
+
                     if (!string.IsNullOrWhiteSpace(shiftName))
                     {
-                        try
+                        // Example: "S1 (Morning)"
+                        var match = Regex.Match(shiftName, @"^(.*?)\(");
+                        string shiftCode = match.Success
+                            ? match.Groups[1].Value.Trim().ToLower()
+                            : shiftName.Trim().ToLower();
+
+                        if (shiftDictionary.ContainsKey(shiftCode))
                         {
-                            var match = Regex.Match(shiftName, @"^(.*?)\(");
-                            string shiftCode = match.Success ? match.Groups[1].Value.Trim() : shiftName;
-
-                            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
-
-                            var response = await _businessLayer.SendGetAPIRequest(
-                                $"Employee/GetShiftTypeId?ShiftTypeName={shiftCode}",
-                                token,
-                                true);
-
-                            if (!string.IsNullOrEmpty(response?.ToString()))
-                            {
-                                model.ShiftTypeId = JsonConvert.DeserializeObject<long>(response.ToString());
-                            }
+                            model.ShiftTypeId = shiftDictionary[shiftCode];
                         }
-                        catch (Exception apiEx)
+                        else
                         {
-                            throw new Exception($"Failed to fetch ShiftTypeId for shift '{shiftName}'.", apiEx);
+                            throw new Exception($"Shift '{shiftCode}' does not exist in the system.");
                         }
-                    }
-                    int currentDay = DateTime.Today.Day;
+                    }                    
                     model.WeekStartDate = weekStartDate;
                     list.Add(model);
                 }

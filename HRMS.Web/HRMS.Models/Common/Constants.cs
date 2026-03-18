@@ -219,6 +219,7 @@ namespace HRMS.Models.Common
         public const string AddAcknowledgePolicy = "AddAcknowledgePolicy";
         public const string GetEmployeesHierarchyUnderManager = "GetEmployeesHierarchyUnderManager";
         public const string GetEmployeeForLeaveEdit = "GetEmployeeForLeaveEdit";
+        public const string GetWeekOffShifts = "GetWeekOffShifts";
 
 
 
@@ -362,6 +363,15 @@ namespace HRMS.Models.Common
         public const string UpdateEmployeesFromExcel = "UpdateEmployeesFromExcel";
         public const string GetEmployeeAndShiftDictionaries = "GetEmployeeAndShiftDictionaries";
         public const string GetEmployeeLeaves = "GetEmployeeLeaves";
+
+
+        public const string GetShiftDictionary = "GetShiftDictionary";
+
+
+        public const string CalculateEmployeeSalary = "CalculateEmployeeSalary";
+        public const string SaveEmployeeSalary = "SaveEmployeeSalary";
+        public const string GetEmployeeSalary = "GetEmployeeSalary";
+
 
     }
 

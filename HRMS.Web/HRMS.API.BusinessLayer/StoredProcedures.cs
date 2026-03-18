@@ -166,8 +166,9 @@ namespace HRMS.API.BusinessLayer
         public const string usp_GetShiftTypeDictionary = "usp_GetShiftTypeDictionary";
 
         #region Payroll
-        public const string usp_GetMonthlySalary = "usp_GetMonthlySalary";
-        public const string usp_UpdateEmployeeMonthlySalary = "usp_UpdateEmployeeMonthlySalary";
+        public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";
+        public const string usp_GetEmployeeSalary = "usp_GetEmployeeSalary";
+        public const string usp_SaveEmployeeSalary = "usp_SaveEmployeeSalary";
         #endregion Payroll
 
 

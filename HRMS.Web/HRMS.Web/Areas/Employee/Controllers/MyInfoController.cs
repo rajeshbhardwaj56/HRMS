@@ -2087,7 +2087,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             // Fiscal year logic
             DateTime today = DateTime.Today;
             DateTime fiscalYearStart = (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                ? new DateTime(today.Year, 3, 21)
+                ? new DateTime(today.Year, 3, day: 21)
                 : new DateTime(today.Year - 1, 3, 21);
 
             var approvedLeaves = results?.leaveResults?.leavesSummary?

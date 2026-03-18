@@ -27,7 +27,6 @@
     }
    
     
-
 }
 	 
 @functions {
@@ -105,204 +104,204 @@
 						<div class="row">
 							<div class="col-lg-12">
 
-								<div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
+                                <div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
 
-									<div class="group-box anim">
-										<div class="tabsInfo">
-											<form class="body-text" method="post" enctype="multipart/form-data">
-												<h3>Personal Info</h3>
-												<div class="row">
-													<div class="col-lg-4 col-md-4 mb-2">
-														<h6>Name</h6>
-														@Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
-													</div>
-													<div class="col-lg-4 col-md-4 mb-2">
-														<h6>Employee Number</h6>
-														@($"PTK {Model.employmentDetail.EmployeNumber}")
+                                    <div class="group-box anim">
+                                        <div class="tabsInfo">
+                                            <form class="body-text" method="post" enctype="multipart/form-data">
+                                                <h3>Personal Info</h3>
+                                                <div class="row">
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Name</h6>
+                                                        @Model.employeeModel.FirstName @Model.employeeModel.MiddleName @Model.employeeModel.Surname
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                        <h6>Employee Number</h6>
+                                                        @($"PTK {Model.employmentDetail.EmployeNumber}")
 
-													</div>
-													@{
-														string genderText = "";
-														switch (Model.employeeModel.Gender)
-														{
-															case 1:
-																genderText = "Male";
-																break;
-															case 2:
-																genderText = "Female";
-																break;
-															case 3:
-																genderText = "Other";
-																break;
-														}
-													}
+                                                    </div>
+                                                    @{
+                                                        string genderText = "";
+                                                        switch (Model.employeeModel.Gender)
+                                                        {
+                                                            case 1:
+                                                                genderText = "Male";
+                                                                break;
+                                                            case 2:
+                                                                genderText = "Female";
+                                                                break;
+                                                            case 3:
+                                                                genderText = "Other";
+                                                                break;
+                                                        }
+                                                    }
 
-													@if (!string.IsNullOrEmpty(genderText))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Gender</h6>
-															@genderText
-														</div>
-													}
-													@if (Model.employeeModel.DateOfBirth.HasValue)
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Date of Birth</h6>
-															@Model.employeeModel.DateOfBirth.Value.ToString("dd/MM/yyyy")
-														</div>
-													}
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PlaceOfBirth))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Place of Birth</h6>
-															@Model.employeeModel.PlaceOfBirth
-														</div>
-													}
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.Landline))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Landline</h6>
-															@Model.employeeModel.Landline
-														</div>
-													}
+                                                    @if (!string.IsNullOrEmpty(genderText))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Gender</h6>
+                                                            @genderText
+                                                        </div>
+                                                    }
+                                                    @if (Model.employeeModel.DateOfBirth.HasValue)
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Date of Birth</h6>
+                                                            @Model.employeeModel.DateOfBirth.Value.ToString("dd/MM/yyyy")
+                                                        </div>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.PlaceOfBirth))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Place of Birth</h6>
+                                                            @Model.employeeModel.PlaceOfBirth
+                                                        </div>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.Landline))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Landline</h6>
+                                                            @Model.employeeModel.Landline
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.Mobile))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Mobile</h6>
-															@Model.employeeModel.Mobile
-														</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.Mobile))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Mobile</h6>
+                                                            @Model.employeeModel.Mobile
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PersonalEmailAddress))
-													{
-														<div class="col-lg-6 col-md-6 mb-2">
-															<h6>Personal Email Address</h6>
-															@Model.employeeModel.PersonalEmailAddress
-														</div>
-													}
-												</div>
-												@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceAddress))
-												{
-													<hr />
-												}
-												<div class="row">
-													@if(!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceAddress))
-													{
-													<div class="col-lg-12 col-md-12 mb-2">
-															<h6>Correspondence Address </h6>
-														@Model.employeeModel.CorrespondenceAddress
-													</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.PersonalEmailAddress))
+                                                    {
+                                                        <div class="col-lg-6 col-md-6 mb-2">
+                                                            <h6>Personal Email Address</h6>
+                                                            @Model.employeeModel.PersonalEmailAddress
+                                                        </div>
+                                                    }
+                                                </div>
+                                                @if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceAddress))
+                                                {
+                                                    <hr />
+                                                }
+                                                <div class="row">
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceAddress))
+                                                    {
+                                                        <div class="col-lg-12 col-md-12 mb-2">
+                                                            <h6>Correspondence Address </h6>
+                                                            @Model.employeeModel.CorrespondenceAddress
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceCity))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>City</h6>
-															@Model.employeeModel.CorrespondenceCity
-														</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceCity))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>City</h6>
+                                                            @Model.employeeModel.CorrespondenceCity
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondencePinCode))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Pin</h6>
-															@Model.employeeModel.CorrespondencePinCode
-														</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondencePinCode))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Pin</h6>
+                                                            @Model.employeeModel.CorrespondencePinCode
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceState))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>State</h6>
-															@Model.employeeModel.CorrespondenceState
-														</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.CorrespondenceState))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>State</h6>
+                                                            @Model.employeeModel.CorrespondenceState
+                                                        </div>
+                                                    }
 
-													@if (selectCountry != null && !string.IsNullOrWhiteSpace(selectCountry.Value?.ToString()))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Country</h6>
-															@selectCountry.Value.ToString()
-														</div>
-													}													
-												</div>
-												@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
-												{
-													<hr />
-												}
+                                                    @if (selectCountry != null && !string.IsNullOrWhiteSpace(selectCountry.Value?.ToString()))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Country</h6>
+                                                            @selectCountry.Value.ToString()
+                                                        </div>
+                                                    }
+                                                </div>
+                                                @if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
+                                                {
+                                                    <hr />
+                                                }
 
-												<div class="row">
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
-													{
-														<div class="col-lg-12 col-md-12 mb-2">
-															<h6>Permanent Address</h6>
-															@Model.employeeModel.PermanentAddress
-														</div>
-													}
+                                                <div class="row">
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentAddress))
+                                                    {
+                                                        <div class="col-lg-12 col-md-12 mb-2">
+                                                            <h6>Permanent Address</h6>
+                                                            @Model.employeeModel.PermanentAddress
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentCity))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>City</h6>
-															@Model.employeeModel.PermanentCity
-														</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentCity))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>City</h6>
+                                                            @Model.employeeModel.PermanentCity
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentPinCode))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Pin</h6>
-															@Model.employeeModel.PermanentPinCode
-														</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentPinCode))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Pin</h6>
+                                                            @Model.employeeModel.PermanentPinCode
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentState))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>State</h6>
-															@Model.employeeModel.PermanentState
-														</div>
-													}
-													@if (selectPermanentCountry != null && !string.IsNullOrWhiteSpace(selectPermanentCountry.Value?.ToString()))
-													{
-														<div class="col-lg-6 col-md-6 mb-2">
-															<h6>Country</h6>
-															@selectPermanentCountry.Value.ToString()
-														</div>
-													}
-												</div>
-												<hr />
-												<div class="row">
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonName))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Emergency Contact Person Name</h6>
-															@Model.employeeModel.ContactPersonName
-														</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.PermanentState))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>State</h6>
+                                                            @Model.employeeModel.PermanentState
+                                                        </div>
+                                                    }
+                                                    @if (selectPermanentCountry != null && !string.IsNullOrWhiteSpace(selectPermanentCountry.Value?.ToString()))
+                                                    {
+                                                        <div class="col-lg-6 col-md-6 mb-2">
+                                                            <h6>Country</h6>
+                                                            @selectPermanentCountry.Value.ToString()
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <hr />
+                                                <div class="row">
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonName))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Emergency Contact Person Name</h6>
+                                                            @Model.employeeModel.ContactPersonName
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonMobile))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Emergency Contact No</h6>
-															@Model.employeeModel.ContactPersonMobile
-														</div>
-													}
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonMobile))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Emergency Contact No</h6>
+                                                            @Model.employeeModel.ContactPersonMobile
+                                                        </div>
+                                                    }
 
-													@if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonTelephone))
-													{
-														<div class="col-lg-4 col-md-4 mb-2">
-															<h6>Emergency Telephone No</h6>
-															@Model.employeeModel.ContactPersonTelephone
-														</div>
-													}
-												</div>
+                                                    @if (!string.IsNullOrWhiteSpace(Model.employeeModel.ContactPersonTelephone))
+                                                    {
+                                                        <div class="col-lg-4 col-md-4 mb-2">
+                                                            <h6>Emergency Telephone No</h6>
+                                                            @Model.employeeModel.ContactPersonTelephone
+                                                        </div>
+                                                    }
+                                                </div>
 
-											</form>
-										</div>
-									</div>
-								</div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
 
 								<div class="tab-pane fade" id="@(MyInfoTabs.TabProfessionalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabProfessionalInfo)-tab">
 									<div class="group-box anim">

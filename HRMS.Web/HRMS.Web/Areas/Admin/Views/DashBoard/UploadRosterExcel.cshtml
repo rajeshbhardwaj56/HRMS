@@ -1,7 +1,7 @@
-﻿@using HRMS.Models.Employee;
+﻿@using HRMS.Models.ExportEmployeeExcel;
 @using Microsoft.AspNetCore.Http
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-@model EmployeeModel
+@model List<WeekOffShift>
 
 @{
     Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";

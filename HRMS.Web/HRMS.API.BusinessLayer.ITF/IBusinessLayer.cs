@@ -169,9 +169,13 @@ namespace HRMS.API.BusinessLayer.ITF
 
 
         #region Payroll
-        public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model);
 
-        public Result AddUpdateEmployeeMonthlySalary(EmployeeMonthlySalaryModel salaryModel);
+        public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model);
+        public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequestModel model);
+
+        public EmployeeSalaryCalculationModel GetEmployeeSalary(EmployeeSalaryGetRequestModel request);
+        public Result SaveEmployeeSalary(EmployeeSalaryRequestModel model);
+
         #endregion Payroll
 
         #region TeamAlignment
@@ -182,5 +186,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public Dictionary<string, Dictionary<string, long>> GetEmployeeAndShiftDictionaries(long companyId);
 
         public List<LeavesCount> GetEmployeeLeaves(long userId);
+        public Dictionary<string, long> GetShiftDictionary();
+
+        public List<WeekOffShift> GetWeekOffShifts();
     }
 }

@@ -95,5 +95,20 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
 
+        [HttpPost]
+        public IActionResult GetShiftDictionary()
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetShiftDictionary());
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetWeekOffShifts()
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetWeekOffShifts());
+            return response;
+        }
     }
 }
