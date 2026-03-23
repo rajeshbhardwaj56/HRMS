@@ -1,0 +1,116 @@
+﻿    @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer
+    @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using HRMS.Models.Common
+@model HRMS.Models.FormPermission.FormPermissionListViewModel
+    @using Microsoft.AspNetCore.Http
+@{
+	var EmployeeID = Convert.ToInt64(this.Context.Session.GetString(Constants.EmployeeID));
+	var LoginRole = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
+	var Logo = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.CompanyLogo);
+	var EmployeeNumber = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.EmployeeNumber);
+	var allowedFormIds = Enumerable.Range(2, 19).ToList();
+
+}
+<style>
+	.nav-list__item {
+	display: block;
+	}
+
+	.user-Master {
+	color: var(--body-bg);
+	font-size: 15px;
+	margin: 0 6px 0 12px;
+	}
+
+	a.nav-link {
+	color: black;
+	font-size: 13px;
+	font-weight: 500;
+	}
+</style>
+@if (Model.FormPermissionList.Any(x =>
+									allowedFormIds.Contains((int)x.FormID.Value) &&
+							x.IsFormPermissions == true &&
+							x.FormLevel == 2))
+{
+	<nav role="navigation" class="main-menu">
+		<ul class="nav-list">
+			@if (Model.FormPermissionList.Where(x => x.FormID == 10 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+			{
+				<li class="nav-list__item"><a class='nav-link' asp-area="@(HRMS.Models.Common.Constants.ManageAdmin)" asp-controller="DashBoard" asp-action="Index">Dashboard</a></li>
+			}
+			@if (Model.FormPermissionList.Where(x => x.FormID == 18 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+			{
+				<li class="nav-list__item"><a class='nav-link' asp-area="@(HRMS.Models.Common.Constants.ManageEmployee)" asp-controller="MyInfo" asp-action="Support">Support</a></li>
+
+			}
+			@if (Model.FormPermissionList.Where(x => x.FormID == 21 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+			{
+				<li class="nav-list__item"><a class='nav-link' asp-area="employee" asp-controller="MyInfo" asp-action="PolicyCategoryDetails"> Policies </a></li>
+			}
+			@if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.Admin) || LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+			{
+				<div class="user-settings dropdown">
+
+					<a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+						<div class="user-Master"> Master</div>
+						<svg viewBox="0 0 492 492" fill="currentColor">
+							<path d="M484.13 124.99l-16.11-16.23a26.72 26.72 0 00-19.04-7.86c-7.2 0-13.96 2.79-19.03 7.86L246.1 292.6 62.06 108.55c-5.07-5.06-11.82-7.85-19.03-7.85s-13.97 2.79-19.04 7.85L7.87 124.68a26.94 26.94 0 000 38.06l219.14 219.93c5.06 5.06 11.81 8.63 19.08 8.63h.09c7.2 0 13.96-3.57 19.02-8.63l218.93-219.33A27.18 27.18 0 00492 144.1c0-7.2-2.8-14.06-7.87-19.12z"></path>
+						</svg>
+					</a>
+					<div class="dropdown-menu" aria-labelledby="navbarDropdown" data-bs-popper="none">
+						<div class="">
+							<ul class="list-unstyled">
+							
+								@if (Model.FormPermissionList.Where(x => x.FormID == 15 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="WhatshappeningListing">Add What'sHappening</a></li>
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 14 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyDetailsListing">Add Policies </a></li>
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 20 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									if (EmployeeID.ToString() == "1981")
+									{
+										<li class="nav-list__item"><a class='nav-link' asp-area="hr" asp-controller="company" asp-action="CompanyListing"> Company List</a></li>
+
+									}
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 20 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+									{
+										<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="FormPermission" asp-action="FormPermission"> Form Permission</a></li>
+
+									}
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 13 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="Holiday" asp-action="HolidayListing">Holidays</a></li>
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 12 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="LeavePolicy" asp-action="LeavePolicyListing">Leave Policy</a></li>
+								}
+								@if (Model.FormPermissionList.Any(x => x.FormID == 4 && x.IsFormPermissions && x.FormLevel == 2))
+								{
+									<li class="nav-list__item"><a class='nav-link' asp-area="hr" asp-controller="company" asp-action="Index">Manage Company</a></li>
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 8 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item"><a class='nav-link' asp-area="admin" asp-controller="ShiftType" asp-action="ShiftTypeListing">Shift Type</a></li>
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 11 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item submenu--triggers"><a class='nav-link' asp-area="admin" asp-controller="Template" asp-action="TemplateListing">Templates </a></li>
+								}
+							</ul>
+						</div>
+					</div>
+				</div>
+			}
+		</ul>
+	</nav>
+}

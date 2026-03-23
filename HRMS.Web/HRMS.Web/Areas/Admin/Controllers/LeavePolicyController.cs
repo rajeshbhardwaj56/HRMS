@@ -6,6 +6,8 @@ using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -14,22 +16,39 @@ using Results = HRMS.Models.Common.Results;
 namespace HRMS.Web.Areas.Admin.Controllers
 {
     [Area(Constants.ManageAdmin)]
-    [Authorize(Roles = RoleConstants.Admin + "," + RoleConstants.HR + "," + RoleConstants.SuperAdmin)]
+    [Authorize]
     public class LeavePolicyController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly IS3Service _s3Service;
         private readonly IBusinessLayer _businessLayer;
         private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
-        public LeavePolicyController(IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment)
+        private readonly ICheckUserFormPermission _CheckUserFormPermission;
+        public LeavePolicyController(ICheckUserFormPermission CheckUserFormPermission , IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment environment, IS3Service s3Service)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
             Environment = environment;
+            _s3Service = s3Service;
+            _CheckUserFormPermission = CheckUserFormPermission;
         }
-
+        private int GetSessionInt(string key)
+        {
+            return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
+        }
         public IActionResult LeavePolicyListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -39,10 +58,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             LeavePolicyInputParans leavePolicyParams = new LeavePolicyInputParans();
             leavePolicyParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-
             var data = _businessLayer.SendPostAPIRequest(leavePolicyParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
-
+            results.LeavePolicy.ForEach(x => x.EncodedId = _businessLayer.EncodeStringBase64(x.LeavePolicyID.ToString()));
             return Json(new { data = results.LeavePolicy });
 
         }
@@ -50,11 +68,10 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult Index(string id)
         {
             LeavePolicyModel leavePolicyModel = new LeavePolicyModel();
-            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            
-                 
+            leavePolicyModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));                 
             if (!string.IsNullOrEmpty(id))
             {
+                id = _businessLayer.DecodeStringBase64(id);
                 leavePolicyModel.LeavePolicyID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicies), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).leavePolicyModel;
@@ -79,16 +96,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicy), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 var result = JsonConvert.DeserializeObject<Result>(data);
 
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
                 return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyListing, WebControllarsConstants.LeavePolicy);
              
         }
-
-
-
-
-
+         
 
 
         #region Leave Policy Details
@@ -96,6 +109,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult LeavePolicyDetailsListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.LeavePolicyDetailsListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -121,10 +144,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(id))
             {
+
                 id = _businessLayer.DecodeStringBase64(id);
                 leavePolicyModel.Id = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 leavePolicyModel = JsonConvert.DeserializeObject<Results>(data).LeavePolicyDetailsModel;
+                if (!string.IsNullOrEmpty(leavePolicyModel.PolicyDocument))
+                {
+                    leavePolicyModel.PolicyDocument = _s3Service.GetFileUrl(leavePolicyModel.PolicyDocument);
+                }
             }
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = leavePolicyModel.CompanyID;
@@ -147,59 +175,40 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult LeavePolicyDetails(LeavePolicyDetailsModel leavePolicyModel, List<IFormFile> postedFiles)
         {
-            string fileName = null;
-
+            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
+          
             if(leavePolicyModel.Description==null)
             {
                 leavePolicyModel.Description = string.Empty;
             }
-            if (postedFiles.Count > 0)
+            _s3Service.ProcessFileUpload(postedFiles, leavePolicyModel.PolicyDocument, out string newProfileKey);
+            if (!string.IsNullOrEmpty(newProfileKey))
             {
-                string wwwPath = Environment.WebRootPath;
-                string contentPath = this.Environment.ContentRootPath;
-
-                foreach (IFormFile postedFile in postedFiles)
+                if (!string.IsNullOrEmpty(leavePolicyModel.PolicyDocument))
                 {
-                    fileName = postedFile.FileName.Replace(" ", "");
+                    _s3Service.DeleteFile(leavePolicyModel.PolicyDocument);
                 }
-                if (fileName != null)
-                {
-                    leavePolicyModel.PolicyDocument = fileName;
-                }
-                else
-                {
-                    leavePolicyModel.PolicyDocument = "";
-
-                }
+                leavePolicyModel.PolicyDocument = newProfileKey;
             }
             else
             {
-                leavePolicyModel.PolicyDocument = "";
+                leavePolicyModel.PolicyDocument = _s3Service.ExtractKeyFromUrl(leavePolicyModel.PolicyDocument);
             }
 
-                var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var data = _businessLayer.SendPostAPIRequest(leavePolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateLeavePolicyDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var result = JsonConvert.DeserializeObject<Result>(data);
 
-            if (postedFiles.Count > 0)
+
+            if (result != null && result.PKNo > 0)
             {
-                string path = Path.Combine(this.Environment.WebRootPath, Constants.UploadCertificate + result.PKNo.ToString());
-
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                foreach (IFormFile postedFile in postedFiles)
-                {
-                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-                    {
-                        postedFile.CopyTo(stream);
-                    }
-                }
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Data saved successfully.";
             }
-
-
-            TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
-            TempData[HRMS.Models.Common.Constants.toastMessage] = "Leave Policy created successfully.";
+            else
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastMessage] = "Some error occurred, please try later.";
+            }
             return RedirectToActionPermanent(WebControllarsConstants.LeavePolicyDetailsListing, WebControllarsConstants.LeavePolicy);
 
         }
@@ -260,11 +269,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 PolicyModel.Id = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(PolicyModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetAllPolicyCategory), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 PolicyModel = JsonConvert.DeserializeObject<Results>(data).PolicyCategoryModel;
+
             }
             EmployeeInputParams employee = new EmployeeInputParams();
             employee.CompanyID = PolicyModel.CompanyID;
             var compay = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Company, APIApiActionConstants.GetAllCompaniesList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(compay);
+
             PolicyModel.Companies = results.Companies;
 
             return View(PolicyModel);
@@ -311,6 +322,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
         public IActionResult WhatshappeningListing()
         {
             Results results = new Results();
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.WhatshappeningListing);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
             return View(results);
         }
 
@@ -323,8 +344,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
             results.WhatsHappeningList.ForEach(x => x.EncodedWhatsHappeningID = _businessLayer.EncodeStringBase64(x.WhatsHappeningID.ToString()));
+            if (results?.WhatsHappeningList != null)
+            {
+                results.WhatsHappeningList.ForEach(x =>
+                {
+                    if (!string.IsNullOrEmpty(x.IconImage))
+                    {
+                        x.IconImage = _s3Service.GetFileUrl(x.IconImage);
+                    }
+                });
+            }
             return Json(new { data = results.WhatsHappeningList });
-
         }
 
         public IActionResult AddWhatshappening(string id)
@@ -338,73 +368,45 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 WhatsHappeningModelParams.WhatsHappeningID = Convert.ToInt64(id);
                 var data = _businessLayer.SendPostAPIRequest(WhatsHappeningModelParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.GetAllWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                 objModelParams = JsonConvert.DeserializeObject<Results>(data).WhatsHappeningModel;
+                if (!string.IsNullOrEmpty(objModelParams.IconImage))
+                {
+                    objModelParams.IconImage = _s3Service.GetFileUrl(objModelParams.IconImage);
+                }
             }
-            return View(objModelParams);
+                return View(objModelParams);
         }
 
         [HttpPost]
         public IActionResult AddWhatshappening(WhatsHappeningModels objModel, List<IFormFile> postedFiles)
-        {
-            string fileName = null;
-
+        {                     
             if (objModel.Description == null)
             {
                 objModel.Description = string.Empty;
             }
-            if (postedFiles.Count > 0)
+            _s3Service.ProcessFileUpload(postedFiles, objModel.IconImage, out string newProfileKey);
+            if (!string.IsNullOrEmpty(newProfileKey))
             {
-                string wwwPath = Environment.WebRootPath;
-                string contentPath = this.Environment.ContentRootPath;
-
-                foreach (IFormFile postedFile in postedFiles)
+                if (!string.IsNullOrEmpty(objModel.IconImage))
                 {
-                    fileName = postedFile.FileName.Replace(" ", "");
+                    _s3Service.DeleteFile(objModel.IconImage);
                 }
-                if (fileName != null)
-                {
-                    objModel.IconImage = fileName;
-                }
-                else
-                {
-                    objModel.IconImage = "";
-
-                }
+                objModel.IconImage = newProfileKey;
             }
             else
             {
-                objModel.IconImage = "";
-
+                objModel.IconImage = _s3Service.ExtractKeyFromUrl(objModel.IconImage);
             }
             objModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             objModel.CreatedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-
             var data = _businessLayer.SendPostAPIRequest(objModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.AddUpdateWhatsHappeningDetails), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var result = JsonConvert.DeserializeObject<Result>(data);
-
-            if (postedFiles.Count > 0)
-            {
-                string path = Path.Combine(this.Environment.WebRootPath, Constants.Whatshappening + result.PKNo.ToString());
-
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                foreach (IFormFile postedFile in postedFiles)
-                {
-                    using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-                    {
-                        postedFile.CopyTo(stream);
-                    }
-                }
-            }
-
-
+            var result = JsonConvert.DeserializeObject<Result>(data);         
             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
             TempData[HRMS.Models.Common.Constants.toastMessage] = "Whats happening  created successfully.";
             return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);
 
         }
 
+      
 
         [HttpGet]
         public IActionResult DeleteWhatshappening (string id)
@@ -418,13 +420,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.LeavePolicy, APIApiActionConstants.DeleteWhatsHappening), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             if (data != null)
             {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = data;
             }
             return RedirectToActionPermanent(WebControllarsConstants.WhatshappeningListing, WebControllarsConstants.LeavePolicy);
         }
         #endregion Whatshappening Details
-
+        
 
     }
 }

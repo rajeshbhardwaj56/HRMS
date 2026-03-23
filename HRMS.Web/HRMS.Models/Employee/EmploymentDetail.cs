@@ -14,6 +14,7 @@ namespace HRMS.Models.Employee
         public long UserID { get; set; }
         public long DesignationID { get; set; }
         public long DepartmentID { get; set; }
+
     }
 
     public class EmploymentDetail
@@ -28,16 +29,17 @@ namespace HRMS.Models.Employee
         public long ShiftTypeID { get; set; }
         public long JobLocationID { get; set; }
         public long ReportingToIDL1 { get; set; }
-        public string OfficialEmailID { get; set; } = string.Empty;
-        public string OfficialContactNo { get; set; } = string.Empty;
+        public string? OfficialEmailID { get; set; } = string.Empty;
+        public string? OfficialContactNo { get; set; } = string.Empty;
         public string DesignationName { get; set; } = string.Empty;
         public string DepartmentName { get; set; } = string.Empty;
+        public string SubDepartmentName { get; set; } = string.Empty;
         public string ManagerName { get; set; } = string.Empty;
         public string ManagerEmail { get; set; } = string.Empty;
         public string OfficeLocation { get; set; } = string.Empty;
         public string EmployeeType { get; set; } = string.Empty;
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
-        public DateTime? JobSeprationDate { get; set; } 
+        public DateTime? JobSeprationDate { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public long UserID { get; set; }
@@ -47,20 +49,25 @@ namespace HRMS.Models.Employee
         public long LeavePolicyID { get; set; }
         public long ReportingToIDL2 { get; set; }
         public string ClientName { get; set; } = string.Empty;
-        public string ESINumber { get; set; } = string.Empty;
-        public DateTime? ESIRegistrationDate { get; set; } = DateTime.UtcNow;
+        public string? ESINumber { get; set; } = string.Empty;
+
+        public string? LOB { get; set; } = string.Empty;
+        public DateTime? ESIRegistrationDate { get; set; }
+        public DateTime? DateOfJoiningOnroll { get; set; } 
+        public DateTime? DateOfJoiningTraining { get; set; }
+        public DateTime? DateOfJoiningFloor { get; set; } 
+        public DateTime? DateOfJoiningOJT { get; set; }
         public int RoleId { get; set; }
         public string EmployeNumber { get; set; } = string.Empty;
-        public long CompanyID { get; set; } =0;
-
-       
+        public decimal? GrossSalary { get; set; } = 0m;
+        public string CompanyAbbr { get; set; } = string.Empty;
+        public long CompanyID { get; set; } = 0;
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> PayrollTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> JobLocations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Designations { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> EmployeeList { get; set; } = new List<SelectListItem>();
-
         public List<SelectListItem> LeavePolicyList { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> RoleList { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> ShiftTypes { get; set; } = new List<SelectListItem>();
@@ -72,5 +79,16 @@ namespace HRMS.Models.Employee
     {
         public long EmployeeID { get; set; }
         public string Name { get; set; }
+    }
+
+    public class L2ManagerInputParams
+    {
+        public int L1EmployeeID { get; set; }
+    }
+    public class L2ManagerDetail
+    {
+        public long ManagerID { get; set; }
+        public string? ManagerName { get; set; }
+        public string? EmployeNumber { get; set; }
     }
 }

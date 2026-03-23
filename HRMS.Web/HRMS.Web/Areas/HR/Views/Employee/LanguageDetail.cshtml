@@ -1,0 +1,272 @@
+﻿@using HRMS.Models.Employee
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model LanguageDetail
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Language Detail";
+
+}
+
+<div class="main-header anim fs-6" style="--delay: 0s">
+    Add / Edit Language Detail
+</div>
+
+<form id="languageForm" method="post" enctype="multipart/form-data">
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
+        @Html.HiddenFor(m => m.EmployeeID)
+        @Html.HiddenFor(m => m.LanguageDetailID)
+
+        <div class="row mb-3">
+            <div class="col-md-4 form-group">
+                <label>Language <span class="Mandetory">*</span></label>
+                <div class="position-relative">
+                @Html.DropDownListFor(x => x.LanguageID, Model.Languages, HRMS.Models.Common.Constants.SelectLanguage, new { @class = "form-control", @required = "required" })
+                <i class="fa fa-chevron-down position-absolute"
+                   style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+            </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Can Read</label>
+                @Html.CheckBoxFor(x => x.IsRead, new { @class = "form-check-input" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Can Write</label>
+                @Html.CheckBoxFor(x => x.IsWrite, new { @class = "form-check-input" })
+            </div>
+            <div class="col-md-4 form-group">
+                <label>Can Speak</label>
+                @Html.CheckBoxFor(x => x.IsSpeak, new { @class = "form-check-input" })
+            </div>
+            <div id="checkboxError" class="text-danger" style="display: none;">
+                Please select at least one of: Can Read, Can Write, or Can Speak.
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <button id="cancelButton" class="btn btn-danger" type="reset">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </div>
+</form>
+<div class="main-header anim fs-6" style="--delay: 0s">
+    Employee Language Details
+</div>
+<div class="table-responsive py-3">
+    <table id="languageGrid" class="table table-striped body-text" style="width:100%">
+        <thead>
+            <tr>
+                <th style="display:none;"></th>
+                <th style="display:none;"></th>
+                <th>Language</th>
+                <th>Read</th>
+                <th>Write</th>
+                <th>Speak</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+
+<script src="~/assets/js/jquery.toast.js"></script>
+@section Scripts {
+    <script>
+        $('#languageForm').on('submit', function (e) {
+            e.preventDefault();
+        const selectedLanguageId = $('#LanguageID').val();
+        const currentDetailId = $('#LanguageDetailID').val();
+        let isDuplicate = false;
+
+        const table = $('#languageGrid').DataTable();
+        const allRows = table.rows().data().toArray();
+
+        for (let row of allRows) {
+            if (
+                row.languageID == selectedLanguageId &&  
+                row.languageDetailID != currentDetailId  
+            ) {
+                isDuplicate = true;
+                break;
+            }
+        }
+
+        if (isDuplicate) {
+            alert('This language is already added for this employee.');
+            return;
+        }
+                 const isAnyChecked = $('#IsRead').is(':checked') || $('#IsWrite').is(':checked') || $('#IsSpeak').is(':checked');
+             if (!isAnyChecked) {
+            $('#checkboxError').show();  
+            return;
+        }
+            var form = $(this);
+            var formData = form.serialize();
+            
+            $.ajax({
+                url: form.attr('action') || window.location.pathname,
+                type: 'POST',
+                data: formData,
+                success: function (result) {                  
+                    if (result && result.success) {
+                        $('#languageGrid').DataTable().ajax.reload();
+                        form[0].reset();
+
+                          
+        const isReset =
+            $('#LanguageID').val() === '' &&
+            !$('#IsRead').is(':checked') &&
+            !$('#IsWrite').is(':checked') &&
+            !$('#IsSpeak').is(':checked');
+
+        if (isReset) {
+           
+           
+            $('#LanguageDetailID').val('');
+            $('#checkboxError').hide();
+        } else {
+            
+            $('#LanguageID').val('');
+            $('#IsRead').prop('checked', false);
+            $('#IsWrite').prop('checked', false);
+            $('#IsSpeak').prop('checked', false);
+            $('#LanguageDetailID').val('');
+            $('#checkboxError').hide();
+        }
+
+                        toastMessage('Success' , result.message);
+                        
+                      
+                    } else {
+                        toastEMessage('Error' , result.message);
+                       
+                    }
+                },
+                error: function () {
+                    toastr.error('Error submitting form');
+                }
+            });
+        });
+                $('.form-check-input').on('change', function () {
+            const isAnyChecked = $('#IsRead').is(':checked') || $('#IsWrite').is(':checked') || $('#IsSpeak').is(':checked');
+            if (isAnyChecked) {
+                $('#checkboxError').hide();
+            }
+        });
+        $(document).ready(function () {
+            var employeeId = '@Model.EmployeeID';
+            $('#languageGrid').DataTable({
+                ajax: {
+                    url: "/HR/Employee/GetLanguageDetails",
+                    type: "POST",
+                    datatype: "json",
+                    data: { EmployeeID: employeeId },
+                    dataSrc: function (json) {
+                        return json.data || json;
+                    }
+                },
+                ordering: true,
+                paging: true,
+                searching: true,
+                info: true,
+                responsive: true,
+                columns: [
+                    { data: "languageDetailID", visible: false },
+                    { data: "employeeID", visible: false },
+                    { data: "languageName" },
+                    { data: "isRead", render: function (data) { return data ? '✔️' : '❌'; } },
+                    { data: "isWrite", render: function (data) { return data ? '✔️' : '❌'; } },
+                    { data: "isSpeak", render: function (data) { return data ? '✔️' : '❌'; } },
+                    {
+                        data: "languageDetailID",
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <div class="table-data-feature">
+                                    <a class="item" href="#" onclick="editLanguageDetail(${data})" title="Edit">
+                                        <img src="/assets/img/edit.png" width="20" height="20" />
+                                    </a>
+                                    <a class="item delete-entry" href="#" data-id="${data}" title="Delete">
+                                        <img src="/assets/img/delete.png" width="20" height="20" />
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            $(document).on('click', '.delete-entry', function (e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                               const isConfirmed = confirm("Are you sure you want to delete this language detail?");
+        if (!isConfirmed) {
+            return;
+        }
+                $.post('/HR/Employee/DeleteLanguageDetail', { encodedId: id }, function (response) {
+                    if (response.success) {
+                  
+                          const currentFormLangId = $('#LanguageDetailID').val();
+            if (currentFormLangId == id) {
+                $('#LanguageDetailID').val('');
+            }
+
+                        $('#languageGrid').DataTable().ajax.reload();
+                        toastMessage('Success' , response.message);                                           
+                    } else {
+                        toastEMessage('Error' , response.message);
+                    }   
+                });
+            });
+        });
+               $('#cancelButton').on('click', function () {
+            $('#languageForm')[0].reset();
+            $('#LanguageDetailID').val('');
+            $('#checkboxError').hide();
+
+        });
+        function toastEMessage(type , message){
+          $.toast({
+                    heading: 'Error',
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right',
+                });
+        }
+        function toastMessage(type , message)
+            {
+
+                    $.toast({
+                    heading: type,
+                    text: message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: 'top-right',
+                });
+            }
+
+        function editLanguageDetail(id) {
+            var table = $('#languageGrid').DataTable();
+            var rowData = table.rows().data().toArray().find(row => row.languageDetailID === id);
+        
+            if (!rowData) {
+                alert('Record not found!');
+                return;
+            }
+
+            $('#LanguageDetailID').val(rowData.languageDetailID);
+            $('#EmployeeID').val(rowData.employeeID);
+            $('#LanguageID').val(rowData.languageID);
+            $('#IsRead').prop('checked', rowData.isRead);
+            $('#IsWrite').prop('checked', rowData.isWrite);
+            $('#IsSpeak').prop('checked', rowData.isSpeak);
+        }
+    </script>
+}

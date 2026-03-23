@@ -1,0 +1,208 @@
+﻿@using HRMS.Models.Common
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@{
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Attendance Approval List";
+}
+<div class="group-box anim">
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Attendance Approval List</h6>
+
+
+            <div class="d-flex gap-2">
+                <select id="ddlAttendanceStatus" class="form-select form-select-sm" style="width:150px;">
+                    <option value="">Select Status</option>
+                    <option value="1">Approve</option>
+                    <option value="2">Reject</option>
+                </select>
+
+                <button id="btnUpdateSelected" class="btn btn-primary btn-sm">
+                    Update Selected
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <table id="tblAttendanceApproval" class="table table-striped body-text" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;"><input type="checkbox" id="selectAll" /></th>
+                                <th style="display:none;">Employee ID</th>
+                                <th>Emp No</th>
+                                <th>Emp Name</th>
+                                <th>Work Date</th>
+                                <th>Status</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+	</div>
+    <script type="text/javascript">
+
+	   $(document).ready(function ()
+	   {
+			var table = $('#tblAttendanceApproval').DataTable(
+			{
+				  processing: true,
+				  serverSide: true,
+				  ordering: true,
+				  paging: true,
+				  searching: true,
+				ajax:{
+				      url: '@Url.Action("GetAttendanceApprovalList", "Attendance", new { area = "Employee" })',
+				      type: 'POST',
+				      datatype: 'json',
+				      data: function (d)
+				      {
+                          var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'employeNumber';
+					    var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
+					    return {
+						        sEcho: d.draw,
+						        iDisplayStart: d.start,
+						        iDisplayLength: d.length,
+						        sSearch: d.search.value,
+						        sortCol: sortColumn,
+						        sortDir: sortDirection
+					    };
+				      }
+			    },
+			   columns: [
+                           {
+                                data: "id",
+                                 render: function (data) {
+                                 return '<input type="checkbox" class="row-select" value="' + data + '">';
+                                 }
+                           },
+                           { data: "employeeId", visible: false },
+                           { data: "employeNumber" },
+                           { data: "employeeName" },
+                           {
+                              data: "workDate",
+						       render: function (data)
+						       {
+                                    if (data) {
+                                            return new Date(data).toLocaleDateString();
+                                           }
+                                    return '';
+                               }
+                           },
+                           { data: "attendanceStatus" },
+                           { data: "remarks" }
+			   ],
+			   columnDefs: [
+				         { "targets": [0], "orderable": false, },
+				         { "targets": [1], "orderable": false, }
+					],
+					responsive: true,
+                    order: []
+		   });
+
+
+
+		$('#selectAll').on('click', function () {
+			$('.row-select').prop('checked', this.checked);
+		});
+
+		$('#btnUpdateSelected').on('click', function ()
+	   {
+			   const table = $('#tblAttendanceApproval').DataTable();
+			   const selectedStatus = $('#ddlAttendanceStatus').val();
+			   const selectedRecords = [];
+			  const checkedRows = $('#tblAttendanceApproval .row-select:checked');
+
+
+		 if (!selectedStatus)
+		 {
+		   toastEMessage('Error', 'Please select a status (Approved/Rejected)');
+			  return;
+		 }
+
+		checkedRows.each(function ()
+			{
+			 const rowData = table.row($(this).closest('tr')).data();
+				selectedRecords.push(
+			{
+				ID:rowData.id,
+				EmployeeId: rowData.employeeId,
+				WorkDate: rowData.workDate,
+				AttendanceStatus: rowData.attendanceStatus,
+				Remarks: rowData.remarks,
+				ApprovedStatus: selectedStatus,
+			});
+		});
+
+			if (selectedRecords.length === 0)
+			{
+			 toastEMessage('Error', 'Please select at least one attendance record');
+			 return;
+		    }
+
+
+		const $button = $(this);
+		$button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+		$.ajax({
+			type: "POST",
+			url: '@Url.Action("SaveBulkAttendanceStatus", "Attendance", new { area = "Employee" })',
+			contentType: "application/json",
+			data: JSON.stringify(selectedRecords),
+			success: function (response) {
+				if (response.success) {
+					toastMessage('Success', response.message);
+					table.ajax.reload(null, false);
+				} else {
+					toastEMessage('Error', response.message || 'Failed to approve records');
+				}
+			},
+			error: function (xhr) {
+				const errorMsg = xhr.responseJSON?.message || 'Server error occurred';
+				toastEMessage('Error', errorMsg);
+			},
+			complete: function ()
+			{
+				$button.prop('disabled', false).text('Approve Selected');
+				$('#selectAll').prop('checked', false);
+			}
+		});
+	});
+
+
+	});
+
+	function toastEMessage(type, message)
+	{
+		$.toast(
+			{
+					heading: 'Error',
+					text: message,
+					showHideTransition: 'slide',
+					icon: 'error',
+					position: 'top-right',
+			});
+	}
+
+	function toastMessage(type , message)
+		 {
+			  $.toast(
+				{
+					heading: type,
+					text: message,
+					showHideTransition: 'slide',
+					icon: 'success',
+					position: 'top-right',
+				});
+		 }
+    </script>

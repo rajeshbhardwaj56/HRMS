@@ -45,7 +45,14 @@
                         @Html.TextBoxFor(a => a.Description, new { @class = "form-control", @required = "required" })
                     </div>
                 </div>
-
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Location <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.DropDownListFor(a => a.JobLocationTypeID, Model.JobLocationList, "-- Select Location --", new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
                 <div class="col-md-4 form-group">
                     <div class="col-md-12">
                         Status<label></label>
@@ -54,10 +61,8 @@
                         @Html.CheckBoxFor(a => a.Status)
                     </div>
                 </div>
+               
             </div>
-            
-          
-
         </div>
    </div>
     <div class="row">

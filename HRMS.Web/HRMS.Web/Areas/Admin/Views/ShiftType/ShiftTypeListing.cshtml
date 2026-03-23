@@ -35,11 +35,26 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
+   
         $('#tblShiftTypeListing').DataTable({
+            "processing": true,
+            "serverSide": true,
             "ajax": {
                 "url": "ShiftTypeListings/",
                 "type": "POST",
-                "datatype": "json"
+                "datatype": "json",
+                "data": function (d) {
+                    var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'shiftTypeID';
+                    var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
+                     return {
+                         sEcho: d.draw,
+                         iDisplayStart: d.start,
+                         iDisplayLength: d.length,
+                         sSearch: d.search.value,
+                         sortCol: sortColumn,
+                         sortDir: sortDirection
+                     };
+                 }
             },
             "ordering": true,
             "paging": true,

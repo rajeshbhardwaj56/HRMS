@@ -2,10 +2,16 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<Nullable>disable</Nullable>
+		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="Views\Shared\_Celebrations.cshtml" />
+	  <Content Remove="Views\Shared\_ValidationScriptsPartial.cshtml" />
+	  <Content Remove="Views\Shared\_WhatsHappening.cshtml" />
+	</ItemGroup>
 
   <ItemGroup>
     <None Include="wwwroot\assets\css\fonts\fontawesome-webfont.svg" />
@@ -277,9 +283,12 @@
 
 	<ItemGroup>
 		<PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
+		<PackageReference Include="AWSSDK.S3" Version="4.0.1.1" />
 		<PackageReference Include="CKEditor" Version="3.6.4" />
 		<PackageReference Include="ClosedXML" Version="0.102.2" />
+		<PackageReference Include="DinkToPdf" Version="1.0.8" />
 		<PackageReference Include="EPPlus-UDI-Fork" Version="4.5.29" />
+		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.6.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.1.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.4" />
@@ -291,6 +300,12 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Quartz" Version="3.13.1" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+		<PackageReference Include="System.ServiceModel.Duplex" Version="4.10.*" />
+		<PackageReference Include="System.ServiceModel.Federation" Version="4.10.*" />
+		<PackageReference Include="System.ServiceModel.Http" Version="4.10.*" />
+		<PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.*" />
+		<PackageReference Include="System.ServiceModel.Security" Version="4.10.*" />
 		<PackageReference Include="WebMarkupMin.AspNet4.Common" Version="2.16.0" />
 		<PackageReference Include="WebMarkupMin.AspNetCore8" Version="2.16.0" />
 	</ItemGroup>
@@ -424,6 +439,7 @@
 		<Folder Include="wwwroot\Uploads\UploadCertificate\71\" />
 		<Folder Include="wwwroot\Uploads\UploadCertificate\73\" />
 		<Folder Include="wwwroot\Uploads\UploadCertificate\7\" />
+
 	</ItemGroup>
 
 </Project>

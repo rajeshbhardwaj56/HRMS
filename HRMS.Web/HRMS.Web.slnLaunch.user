@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "HRMS.Web\\HRMS.Web.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "HRMS.API.Web\\HRMS.API.Web.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

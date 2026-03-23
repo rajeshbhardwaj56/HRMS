@@ -1,0 +1,438 @@
+﻿@using HRMS.Models.ExportEmployeeExcel
+
+
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+@model WeekOffUploadModel
+@{
+    Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+    ViewData["Title"] = "WeekOff Upload  List";
+    DateTime? initialDate = null;
+    if (Model.DayOff1.HasValue) initialDate = Model.DayOff1;
+    else if (Model.DayOff2.HasValue) initialDate = Model.DayOff2;
+    else if (Model.DayOff3.HasValue) initialDate = Model.DayOff3;
+
+
+    initialDate ??= DateTime.Today;
+
+    var selectedMonth = Model.SelectedMonth ?? initialDate.Value.Month;
+    var selectedYear = Model.SelectedYear ?? initialDate.Value.Year;
+    int currentYear = DateTime.Today.Year;
+
+    bool isEditMode = Model.Id > 0;
+}
+
+
+<div class="main-header anim" style="--delay: 0s">Add Week Off</div>
+<form method="post" enctype="multipart/form-data">
+    <div class="Container">
+        <div class="group-box anim" style="--delay: .3s">
+            <div class="row mb-3">
+                <div class="col-md-3 form-group">
+                    <label>Select Year</label>
+                    <select id="yearSelect" class="form-select" @(isEditMode ? "disabled" : "")>
+                        @{
+                            int minYear = isEditMode ? selectedYear : currentYear;
+                            int maxYear = currentYear + 1;
+                            for (int y = minYear; y <= maxYear; y++)
+                            {
+                                <option value="@y" @(y == selectedYear ? "selected" : "")>@y</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 form-group position-relative">
+                    <label>Select Employee<span class="Mandetory">*</span></label>
+                    @if (isEditMode)
+                    {
+                        @Html.DropDownListFor(
+                                 x => x.EmployeeIdWithEmployeeNo,
+                                 Model.Employee,
+                                 HRMS.Models.Common.Constants.SelectEmployee,
+                                 new { @class = "select2", @required = "required", disabled = "disabled" }
+                                 )
+                    }
+                    else
+                    {
+                        @Html.DropDownListFor(
+                                 x => x.EmployeeIdWithEmployeeNo,
+                                 Model.Employee,
+                                 HRMS.Models.Common.Constants.SelectEmployee,
+                                 new { @class = " select2", @required = "required" }
+                                 )
+                    }
+                </div>
+
+                <div class="col-md-3 form-group position-relative" Id="Shiftlist" style="display:none">
+                    <label>Select Shift Type<span class="Mandetory">*</span></label>
+
+                    <select id="ShiftTypeId" class="form-select" @(isEditMode ? "disabled" : "")></select>
+
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Select Week<span class="Mandetory">*</span></label>
+                    <select id="weekDropdown" class="form-select" required @(isEditMode ? "disabled" : "")></select>
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.SelectedMonth, new { id = "HiddenSelectedMonth" })
+            @Html.HiddenFor(m => m.SelectedYear, new { id = "HiddenSelectedYear" })
+            @Html.HiddenFor(m => m.WeekStartDate, new { id = "WeekStartDateHidden" })
+
+            @Html.HiddenFor(model => model.ShiftTypeId, new { @id = "HiddenShiftTypeId" })
+            @Html.HiddenFor(model => model.EmployeeNumberWithOutAbbr, new { @id = "EmployeeNumberWithOutAbbr" })
+
+            <input type="hidden" name="ID" value="@Model.Id" />
+            @{
+                var today = DateTime.Today;
+                var firstDay = new DateTime(today.Year, today.Month, 1);
+                var lastDay = firstDay.AddMonths(1).AddDays(-1);
+            }
+            @Html.HiddenFor(x => x.EmployeeNumberWithOutAbbr)
+
+
+            <div class="row d-flex">
+                <div class="col-md-4 form-group">
+                    <label>WeekOff 1 <span class="Mandetory">*</span></label>
+                    @Html.TextBoxFor(a => a.DayOff1, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            min = firstDay.ToString("yyyy-MM-dd"),
+                            @required = "required"
+                        })
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>WeekOff 2 </label>
+                    @Html.TextBoxFor(a => a.DayOff2, "{0:yyyy-MM-dd}", new
+                        {
+                            @class = "form-control",
+                            @type = "date",
+                            min = firstDay.ToString("yyyy-MM-dd")
+
+                        })
+                </div>
+
+            </div>
+
+
+
+            <div class="row d-flex text-end">
+                <div class="col-md-12">
+                    <input type="submit" value="Submit" class="btn btn-success" />
+                    <a href="/hr/employee/EmployeesWeekOffRoster" class="btn btn-danger" type="button" value="Cancel">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<link href="~/css/select2.min.css" rel="stylesheet" />
+<script src="~/js/select2.min.js"></script>
+
+
+<script>
+    var isEditMode = @(isEditMode.ToString().ToLower());
+
+        function convertToISO(dateStr) {
+        const parts = dateStr.split(' ');
+        const day = parts[0];
+        const month = {
+            Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+            Jul: '07', Aug: '08', Sept: '09', Oct: '10', Nov: '11', Dec: '12'
+        }[parts[1]];
+        const year = parts[2];
+        return `${year}-${month}-${day.padStart(2, '0')}`;
+    }
+
+    function normalizeToDateOnly(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+       function populateWeekDropdown(year) {
+        const weekDropdown = $('#weekDropdown');
+        weekDropdown.empty();
+        weekDropdown.append($('<option>').val('').text('-- Select Week --'));
+
+        const weekRanges = getWeekRanges(year);
+        const today = new Date();
+        let selectedValue = null;
+
+        weekRanges.forEach(w => {
+            const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
+            const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
+
+            const start = new Date(convertToISO(w.startDate));
+            const end = new Date(convertToISO(w.endDate));
+
+            if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && today >= start && today <= end) {
+                selectedValue = value;
+            }
+
+            weekDropdown.append($('<option>').val(value).text(label));
+        });
+
+        const existingStartDate = $('#WeekStartDateHidden').val();
+        if (existingStartDate) {
+            const datePart = existingStartDate.split(' ')[0];
+            const parts = datePart.split('/');
+
+            // Add validation for date parsing
+            if (parts.length === 3) {
+                const day = parseInt(parts[1], 10);
+                const month = parseInt(parts[0], 10) - 1;
+                const year = parseInt(parts[2], 10);
+
+                // Validate date components
+                if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                    const existingDate = normalizeToDateOnly(new Date(year, month, day));
+
+                    let foundWeek = false;
+                    weekRanges.forEach(w => {
+                        const start = normalizeToDateOnly(new Date(convertToISO(w.startDate)));
+                        const end = normalizeToDateOnly(new Date(convertToISO(w.endDate)));
+
+                        if (existingDate >= start && existingDate <= end) {
+                            const editValue = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
+                            weekDropdown.val(editValue);
+                            foundWeek = true;
+
+                            // Apply date restrictions immediately for edit mode
+                            applyDateRestrictions(w.startDate, w.endDate);
+                        }
+                    });
+
+                    if (foundWeek) {
+                        // Ensure the change event is properly handled
+                        setTimeout(() => {
+                            weekDropdown.trigger('change');
+                        }, 100);
+                    }
+                }
+            }
+        } else if (typeof selectCurrentWeek !== "undefined" && selectCurrentWeek && selectedValue) {
+            weekDropdown.val(selectedValue);
+            // Apply restrictions for current week selection
+            const parts = selectedValue.split('|');
+            if (parts.length === 3) {
+                applyDateRestrictions(parts[1], parts[2]);
+            }
+            setTimeout(() => {
+                weekDropdown.trigger('change');
+            }, 100);
+        }
+    }
+
+
+        function applyDateRestrictions(startDateStr, endDateStr) {
+        const startDate = convertToISO(startDateStr);
+        const endDate = convertToISO(endDateStr);
+
+
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+
+
+        const minDate = startDateObj.toISOString().split('T')[0];
+        const maxDate = endDateObj.toISOString().split('T')[0];
+
+        $('input[type="date"]').each(function() {
+            $(this).attr('min', minDate);
+            $(this).attr('max', maxDate);
+
+            const currentVal = $(this).val();
+            if (currentVal) {
+                const currentDateObj = new Date(currentVal);
+                // Clear values that are outside the selected week range
+                if (currentDateObj < startDateObj || currentDateObj > endDateObj) {
+                    $(this).val('');
+                }
+            }
+        });
+    }
+
+    function getWeekRanges(year) {
+        const weeks = [];
+        const firstMonday = getFirstMondayOfYear(year);
+
+        let current = new Date(firstMonday);
+        let week = 1;
+
+        while (current.getFullYear() === year) {
+            const start = new Date(current);
+            const end = new Date(current);
+            end.setDate(end.getDate() + 6);
+
+            weeks.push({
+                weekNumber: week,
+                startDate: formatDate(start),
+                endDate: formatDate(end)
+            });
+
+            current.setDate(current.getDate() + 7);
+            week++;
+        }
+
+
+        const start = new Date(current);
+        const end = new Date(current);
+        end.setDate(end.getDate() + 6);
+        if (start.getFullYear() === year) {
+            weeks.push({
+                weekNumber: week,
+                startDate: formatDate(start),
+                endDate: formatDate(end)
+            });
+        }
+
+        return weeks;
+    }
+
+    function getFirstMondayOfYear(year) {
+        const date = new Date(year, 0, 1); // Jan 1
+        const day = date.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+        const diff = (day === 0) ? 1 : (8 - day); // days to next Monday
+        date.setDate(date.getDate() + (day === 1 ? 0 : diff));
+        return date;
+    }
+
+    function formatDate(date) {
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+
+
+
+
+    $('form').on('submit', function () {
+
+    const selectedWeekValue = $('#weekDropdown').val();
+        const selectedYear = $('#yearSelect').val();
+          if (selectedWeekValue) {
+        const parts = selectedWeekValue.split('|');
+        if (parts.length === 3) {
+            const startDate = convertToISO(parts[1]);
+            $('#WeekStartDateHidden').val(startDate);
+        }
+    }
+
+
+        $('#HiddenSelectedYear').val(selectedYear);
+
+    });
+
+    $(document).ready(function () {
+         if (isEditMode) {
+        $('#yearSelect').prop('disabled', true);
+        $('#weekDropdown').prop('disabled', true);
+         $('#ShiftTypeId').prop('disabled', true);
+    }
+           const selectedYear = parseInt($('#yearSelect').val());
+    populateWeekDropdown(selectedYear);
+
+
+    $('#yearSelect').on('change', function () {
+        const newYear = parseInt($(this).val());
+        populateWeekDropdown(newYear);
+    });
+           $('.select2, .select1').each(function () {
+        let placeholderText = $(this).hasClass('select2') ? 'Select Employee' : 'Select Shift';
+
+        $(this).select2({
+            placeholder: placeholderText,
+            allowClear: true,
+            width: '100%',
+            dropdownCssClass: "custom-select-dropdown",  // Custom class for dropdown
+            containerCssClass: "custom-select-container" // Custom class for the container
+        });
+
+
+
+
+         $('#EmployeeIdWithEmployeeNo').on('change', function () {
+        const selectedEmployeeId = $(this).val();
+        loadShiftsForEmployee(selectedEmployeeId);
+
+    });
+
+        $('#ShiftTypeId').on('change', function () {
+        $('#HiddenShiftTypeId').val($(this).val());
+    });
+        const preSelectedEmployee = $('#EmployeeNumberWithOutAbbr').val();
+    if (preSelectedEmployee) {
+        loadShiftsForEmployee(preSelectedEmployee);
+    }
+
+        function loadShiftsForEmployee(employeeNumber) {
+        if (!employeeNumber) {
+            $('#ShiftTypeId').empty().append($('<option>', { value: '', text: 'Select Shift Type' })).trigger('change.select2');
+            return;
+        }
+
+         $.ajax({
+                url: '/HR/Employee/GetShiftsByEmployee', // change to your actual route
+                type: 'GET',
+                data: { employeeNumber: employeeNumber },
+                success: function (data) {
+                   $('#Shiftlist').show();
+                    const $shiftSelect = $('#ShiftTypeId');
+                    $shiftSelect.empty(); // clear existing options
+
+                    // Add default option first
+                    $shiftSelect.append($('<option>', { value: '', text: 'Select Shift Type' }));
+
+                    $.each(data, function (i, item) {
+
+                        const option = $('<option>', {
+                            value: item.shiftTypeID,
+                            text: item.shiftName
+                        });
+
+                        if (item.isSelected === 1) {
+                            option.prop('selected', true);
+                              $('#HiddenShiftTypeId').val(item.shiftTypeID);
+                        }
+
+                        $shiftSelect.append(option);
+                    });
+
+
+                    $shiftSelect.trigger('change.select2');
+                },
+                error: function () {
+                    alert('Error loading shift types. Please try again.');
+                }
+            });
+
+    }
+
+
+
+
+
+
+
+    });
+    $('#weekDropdown').on('change', function() {
+        const selectedValue = $(this).val();
+        if (!selectedValue) return;
+
+        const parts = selectedValue.split('|');
+        if (parts.length !== 3) return;
+
+        applyDateRestrictions(parts[1], parts[2]);
+        $('#WeekStartDateHidden').val(convertToISO(parts[1]));
+    });
+
+
+
+
+
+
+    });
+
+
+
+</script>

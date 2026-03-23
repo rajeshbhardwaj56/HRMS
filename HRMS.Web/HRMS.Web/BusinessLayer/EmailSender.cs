@@ -12,6 +12,8 @@ namespace HRMS.Web.BusinessLayer
         }
         public static emailSendResponse SendEmail(sendEmailProperties emailProperties)
         {
+           
+
             emailSendResponse response = new emailSendResponse();
             try
             {
@@ -108,8 +110,8 @@ namespace HRMS.Web.BusinessLayer
 
     public class sendEmailProperties
     {
-        public string emailSubject { get; set; }
-        public string emailBody { get; set; }
+        public string? emailSubject { get; set; }
+        public string? emailBody { get; set; }
         public List<string> EmailToList { get; set; } = new List<string>();
         public List<string> EmailCCList { get; set; } = new List<string>();
         public List<Attachment> attachments { get; set; } = new List<Attachment>();
@@ -117,8 +119,8 @@ namespace HRMS.Web.BusinessLayer
 
     public class emailSendResponse
     {
-        public string responseCode { get; set; }
-        public string responseMessages { get; set; }
-        public string responseFailed { get; set; }
+        public string? responseCode { get; set; }
+        public string? responseMessages { get; set; }
+        public string? responseFailed { get; set; }
     }
 }

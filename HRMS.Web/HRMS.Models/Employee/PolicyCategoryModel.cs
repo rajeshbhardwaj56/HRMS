@@ -11,6 +11,7 @@ namespace HRMS.Models.Employee
     {
         public long Id { get; set; }
         public long CompanyID { get; set; }
+        public long EmployeeID { get; set; }
 
     }
     public class PolicyCategoryModel

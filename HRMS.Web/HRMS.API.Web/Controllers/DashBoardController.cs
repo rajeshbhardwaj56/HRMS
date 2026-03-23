@@ -1,8 +1,10 @@
-﻿using HRMS.API.BusinessLayer.ITF;
+﻿using System.Data;
+using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.ImportFromExcel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,36 +39,76 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpGet]
-        public IActionResult  GetCompaniesDictionary()
+        public IActionResult GetCompaniesDictionary()
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetCompaniesDictionary());
             return response;
         }
         [HttpPost]
-        public IActionResult  GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model)
+        public IActionResult GetEmploymentDetailsDictionaries(EmploymentDetailInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetEmploymentDetailsDictionaries(model));
             return response;
         }
-        
+
         [HttpPost]
-        [AllowAnonymous]
+
         public IActionResult AddUpdateEmployeeFromExecel(ImportEmployeeDetail model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.AddUpdateEmployeeFromExecel(model));
             return response;
         }
-        [HttpPost] 
-        public IActionResult  GetSubDepartmentDictionary(EmployeeInputParams model)
+
+        [HttpPost]
+
+        public IActionResult AddUpdateEmployeeFromExecelBulk(BulkEmployeeImportModel employeeList)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.AddUpdateEmployeeFromExecelBulk(employeeList));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetSubDepartmentDictionary(EmployeeInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetSubDepartmentDictionary(model));
             return response;
         }
 
+        [HttpPost]
+        public IActionResult UpdateEmployeesFromExcel(EmployeeUpdateExcelRequestModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.UpdateEmployeesFromExcel(model.Employees, model.LoggedInUserId));
+            return response;
+        }
 
+
+        [HttpPost]
+        public IActionResult GetEmployeeAndShiftDictionaries(long companyId)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeeAndShiftDictionaries(companyId));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetShiftDictionary()
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetShiftDictionary());
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetWeekOffShifts()
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetWeekOffShifts());
+            return response;
+        }
     }
 }
