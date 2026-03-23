@@ -74,6 +74,31 @@
 	}
 }
 <style>
+    .leave-balance-strip {
+        background: #f8f9fb;
+        border: 1px solid #e4e6ef;
+        border-radius: 6px;
+        padding: 8px 15px;
+        font-size: 13px;
+    }
+
+    .balance-item {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+        .balance-item .label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .balance-item .value {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+
 	.leave-section-tabs {
 		/* background-color: #05397b; */
 		border-radius: 5px 5px 0px 0px;
@@ -294,36 +319,7 @@
 				</button>
 			</div>
             <div class="modal-body">
-                <div class="row mb-3" id="LeaveBalanceHeader" style="display:none;">
-
-                    <div class="col-md-4">
-                        <div class="card text-center shadow-sm">
-                            <div class="card-body p-2">
-                                <h6 class="mb-0">Annual Leave Consumed</h6>
-                                <b id="AnnualLeaveConsumed" style="font-size:18px;color:#d9534f"></b>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card text-center shadow-sm">
-                            <div class="card-body p-2">
-                                <h6 class="mb-0">Annual Leave Balance</h6>
-                                <b id="AnnualLeaveBalanceValue" style="font-size:18px;color:#5cb85c"></b>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card text-center shadow-sm">
-                            <div class="card-body p-2">
-                                <h6 class="mb-0">Available CompOff Days</h6>
-                                <b id="AvailableCompOffDays" style="font-size:18px;color:#0275d8"></b>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+               
                 <section>
                     <div class="container-fluid">
                         <div class="row">
@@ -384,7 +380,26 @@
                 <div class="group-box anim">
                     <div class="tabsInfo" id="">
                         <h3>Leave Info</h3>
+                        <div class="leave-balance-strip mb-3" id="LeaveBalanceHeader" style="display:none;">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
 
+                                <div class="balance-item">
+                                    <span class="label">Annual Leave Consumed</span>
+                                    <span class="value text-danger" id="AnnualLeaveConsumed"></span>
+                                </div>
+
+                                <div class="balance-item">
+                                    <span class="label">Annual Leave Balance</span>
+                                    <span class="value text-success" id="AnnualLeaveBalanceValue"></span>
+                                </div>
+
+                                <div class="balance-item">
+                                    <span class="label">Available CompOff Days</span>
+                                    <span class="value text-primary" id="AvailableCompOffDays"></span>
+                                </div>
+
+                            </div>
+                        </div>
                         <div class="tab-content" id="nav-tabContent">
                             <div class="tab-pane fade active show" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
                                 <div class="row">
@@ -657,6 +672,16 @@
 				} else {
 					console.warn("Employee details not found in response.");
 				}
+                if (response.leaveResults && response.leaveResults.leaveBalance) {
+
+                    let leaveBalance = response.leaveResults.leaveBalance;
+
+                    $("#AnnualLeaveConsumed").text(leaveBalance.annualLeaveConsumed);
+                    $("#AnnualLeaveBalanceValue").text(leaveBalance.annualLeaveBalance);
+                    $("#AvailableCompOffDays").text(leaveBalance.availableCompOffDays);
+
+                    $("#LeaveBalanceHeader").show();
+                }
 				let leavesSummary = response.leaveResults?.leavesSummary || [];
 				$("#adminleaveTypeDropdown").css("display", "none");
 				$("#adminChildDOBDateContainer").css("display", "none");
