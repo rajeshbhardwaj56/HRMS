@@ -293,242 +293,271 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
+            <div class="modal-body">
+                <div class="row mb-3" id="LeaveBalanceHeader" style="display:none;">
 
-				<section>
-					<div class="container-fluid">
-						<div class="row">
-							<div class="col-md-12 py-4">
-								<div class="tab-content" id="myTabContentSection">
-									<div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
-										<div class="row">
-											<div class="col-lg-12">
+                    <div class="col-md-4">
+                        <div class="card text-center shadow-sm">
+                            <div class="card-body p-2">
+                                <h6 class="mb-0">Annual Leave Consumed</h6>
+                                <b id="AnnualLeaveConsumed" style="font-size:18px;color:#d9534f"></b>
+                            </div>
+                        </div>
+                    </div>
 
-												<div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
-													<div class="group-box anim">
-														<div class="tabsInfo">
-															<form class="body-text" method="post" enctype="multipart/form-data">
-																<h3>Employee Info</h3>
-																<div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center shadow-sm">
+                            <div class="card-body p-2">
+                                <h6 class="mb-0">Annual Leave Balance</h6>
+                                <b id="AnnualLeaveBalanceValue" style="font-size:18px;color:#5cb85c"></b>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="col-md-4">
+                        <div class="card text-center shadow-sm">
+                            <div class="card-body p-2">
+                                <h6 class="mb-0">Available CompOff Days</h6>
+                                <b id="AvailableCompOffDays" style="font-size:18px;color:#0275d8"></b>
+                            </div>
+                        </div>
+                    </div>
 
-																	<div class="col-lg-4 col-md-4 mb-2">
-																		<h6>Name</h6>
-																		<p id="EmplyoeeName"></p>
-																	</div>
-																	<div class="col-lg-4 col-md-4 mb-2">
-																		<h6>Emp ID</h6>
-																		<p id="EmplyoeeNmmber"></p>
-																	</div>
-																	<div class="col-lg-4 col-md-4 mb-2">
-																		<h6>Joinind Date</h6>
-																		<p id="EmplyoeeJoiningdate"></p>
-																	</div>
-																	<div class="col-lg-4 col-md-4 mb-2">
-																		<h6>Designation</h6>
-																		<p id="EmplyoeeDesignation"></p>
-																	</div>
-																	<div class="col-lg-4 col-md-4 mb-2">
-																		<h6>Department</h6>
-																		<p id="EmplyoeeDepartment"></p>
-																	</div>
-																	<div class="col-lg-4 col-md-4 mb-2">
-																		<h6>Email</h6>
-																		<p id="Employeeemail"></p>
-																	</div>
+                </div>
+                <section>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-12 py-4">
+                                <div class="tab-content" id="myTabContentSection">
+                                    <div class="tab-pane fade active show" id="timeoff" role="tabpanel" aria-labelledby="timeoff-tab">
+                                        <div class="row">
+                                            <div class="col-lg-12">
 
-																</div>
-															</form>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-
-									</div>
-								</div>
-
-							</div>
-						</div>
-					</div>
-				</section>
-				<div class="group-box anim">
-					<div class="tabsInfo" id="">
-						<h3>Leave Info</h3>
-
-						<div class="tab-content" id="nav-tabContent">
-							<div class="tab-pane fade active show" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
-								<div class="row">
-									<p class="showalert" style="color: red;font-size: 16px;" id="showalert"></p>
-									<p class="showDocumentalert" style="color: red;font-size: 16px;" id="showDocumentalert"></p>
-
-									<div class="col-lg-8">
-
-										<div class="">
-											<div class="">
-												<form class="body-text" method="post" enctype="multipart/form-data">
-													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
-													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
-													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
-													@Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
-													@Html.AntiForgeryToken()
-													<div class="row py-2">
-														<div class="col-lg-6 col-md-12">
-															<label for="leavetype" class="">Leave Type:</label>
-															@Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "adminleaveTypeDropdown", @disabled = "disabled" })
-
-															<p id="adminleaveTypeDropdown1" class="form-control"></p>
-														</div>
-														<div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
-															<label for="leavetype" class="">Leave Duration:</label>
-															@Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "adminleaveDurationDropdown", @disabled = "disabled" })
-														</div>
-														<div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
-															<label for="leavetype" class="">No Of Days:</label>
-															@Html.TextBoxFor(x => x.leaveResults.leaveSummaryModel.NoOfDays, new { @class = "form-control", @id = "NoOfDays", @disabled = "disabled" })
-														</div>
-														<div class="col-lg-6 col-md-12" id="adminChildDOBDateContainer">
-															<!-- New ID for toggling -->
-															<label for="datepicker2" class="">Child DOB:</label>
-															<i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
-															<div class="position-relative">
-																<div class="input-group date" id="datepickerdiv3">
-																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), @disabled = "disabled" })
-																</div>
-															</div>
-														</div>
-													</div>
-													<div class="row py-2 fullDayContainer" id="adminfullDayContainer">
-														<div class="col-lg-6 col-md-12" id="adminfromdatetime">
-															<label for="datepicker1" class="">From:</label>
-															<div class="position-relative">
-																<div class="input-group date" id="datepickerdiv1">
-																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", id = "StartDate", @disabled = "disabled" })
-																</div>
-															</div>
-														</div>
-														<div class="col-lg-6 col-md-12" id="admintodatetime">
-															<label for="datepicker2" class="">To:</label>
-															<div class="position-relative">
-																<div class="input-group date" id="datepickerdiv2">
-																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", id = "EndDate" , @disabled = "disabled" })
-																</div>
-															</div>
-														</div>
-													</div>
-
-													<div class="row py-2 halfDayContainer" id="adminhalfDayContainer">
-														<div class="col-lg-6 col-md-12">
-															<label for="datepicker1" class="">Date:</label>
-															<div class="position-relative">
-																<div class="input-group date" id="datepickerdiv1">
-																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), @disabled = "disabled" })
-																</div>
-															</div>
-														</div>
-
-													</div>
-													<div class="row py-2 MaternityAdoptionMiscarrageContainer " id="adminMaternityAdoptionMiscarrageContainer">
-														<div class="col-lg-6 col-md-12" id="adminexpectedDeliveryDateContainer">
-															<!-- New ID for toggling -->
-															<label for="datepicker2" class="">Expected Delivery Date:</label>
-															<i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
-
-															<div class="position-relative">
-																<div class="input-group date" id="datepickerdiv3">
-																	@Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), id = "adminExpectedDeliveryDate", @disabled = "disabled" })
-																</div>
-															</div>
-														</div>
-
-													</div>
-													<div class="col-lg-6 col-md-12">
-														<label id="LabelUploadCertificate" style="display:none">Upload Certificate:</label>
-														<p id="downloaddocument" style="display:none"></p>
-													</div>
-													<div class="row py-3 mb-1">
-														<div class="col-lg-12">
-															<label for="Reason" class="">Reason:</label>
-															<div class="input-group">
-																@Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required", id = "adminReason", @disabled = "disabled" })
-															</div>
-														</div>
-													</div>
-													@if (@RoleName != @Convert.ToInt64(Roles.HR))
-													{
-														<h3>Approval Comment</h3>
-														<p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
-														<p id="approverejectrequire" style="color: red;"></p>
-
-														<div class="modal-footer">
-															<button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-primary">Reject</button>
-															<button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-info">Approve</button>
-
-														</div>
-													}
-												</form>
-											</div>
-										</div>
-									</div>
-									<div class="col-lg-4 px-4">
-										<div class="card mb-3" style="height:60px; display:none" id="AnnualLeaveBalance">
-											<div class="card-body">
-												<ul class="list-group" style="width:100%;">
-													<li class="d-flex justify-content-between align-items-center ">
-														<b>Annual Leave Balance</b>
-														<span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.UserTotalLeave/@ViewBag.UserTotalAnnualLeave</span>
-													</li>
-												</ul>
-											</div>
-										</div>
+                                                <div class="tab-pane fade active show" id="@(MyInfoTabs.TabPersonalInfo)" role="tabpanel" aria-labelledby="@(MyInfoTabs.TabPersonalInfo)-tab">
+                                                    <div class="group-box anim">
+                                                        <div class="tabsInfo">
+                                                            <form class="body-text" method="post" enctype="multipart/form-data">
+                                                                <h3>Employee Info</h3>
+                                                                <div class="row">
 
 
-										<div class="card p-3">
-											<div class="accordion accordion-flush" id="accordionFlushExample">
-												<div class="accordion-item">
-													<h2 class="accordion-header" id="flush-headingOne">
-														<button class="accordion-button    z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="true" aria-controls="flush-collapseOne">
-															Holiday List
-														</button>
-													</h2>
-													<div id="flush-collapseOne" class="accordion-collapse collapse show" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-														<div class="mt-3">
-															<ul class="list-group ">
-																@foreach (var item in Model.HolidayModel)
-																{
-																	<li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
-																		<span class="small">
-																			@if (item.FromDate.Date == item.ToDate.Date)
-																			{
-																				@item.FromDate.ToString("dd-MMM-yyyy")
-																			}
-																			else
-																			{
-																				@($"{item.FromDate:dd-MMM-yyyy} to {item.ToDate:dd-MMM-yyyy}")
-																			}
-																		</span>
-																		<span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
-																	</li>
-																}
-															</ul>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Name</h6>
+                                                                        <p id="EmplyoeeName"></p>
+                                                                    </div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Emp ID</h6>
+                                                                        <p id="EmplyoeeNmmber"></p>
+                                                                    </div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Joinind Date</h6>
+                                                                        <p id="EmplyoeeJoiningdate"></p>
+                                                                    </div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Designation</h6>
+                                                                        <p id="EmplyoeeDesignation"></p>
+                                                                    </div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Department</h6>
+                                                                        <p id="EmplyoeeDepartment"></p>
+                                                                    </div>
+                                                                    <div class="col-lg-4 col-md-4 mb-2">
+                                                                        <h6>Email</h6>
+                                                                        <p id="Employeeemail"></p>
+                                                                    </div>
 
-									</div>
-								</div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-							</div>
+                                    </div>
+                                </div>
 
-						</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="group-box anim">
+                    <div class="tabsInfo" id="">
+                        <h3>Leave Info</h3>
 
-					</div>
-				</div>
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade active show" id="apply-leave-tab" role="tabpanel" aria-labelledby="apply-leave-tab1">
+                                <div class="row">
+                                    <p class="showalert" style="color: red;font-size: 16px;" id="showalert"></p>
+                                    <p class="showDocumentalert" style="color: red;font-size: 16px;" id="showDocumentalert"></p>
+
+                                    <div class="col-lg-8">
+
+                                        <div class="">
+                                            <div class="">
+                                                <form class="body-text" method="post" enctype="multipart/form-data">
+                                                    @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.CompanyID)
+                                                    @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.LeaveSummaryID)
+                                                    @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID)
+                                                    @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
+                                                    @Html.AntiForgeryToken()
+                                                    <div class="row py-2">
+                                                        <div class="col-lg-6 col-md-12">
+                                                            <label for="leavetype" class="">Leave Type:</label>
+                                                            @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveTypeID, Model.leaveResults.leaveTypes, HRMS.Models.Common.Constants.SelectLeaveType, new { @class = "form-control", @required = "required", @id = "adminleaveTypeDropdown", @disabled = "disabled" })
+
+                                                            <p id="adminleaveTypeDropdown1" class="form-control"></p>
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
+                                                            <label for="leavetype" class="">Leave Duration:</label>
+                                                            @Html.DropDownListFor(x => x.leaveResults.leaveSummaryModel.LeaveDurationTypeID, Model.leaveResults.leaveDurationTypes, HRMS.Models.Common.Constants.SelectLeaveDurationType, new { @class = "form-control", @id = "adminleaveDurationDropdown", @disabled = "disabled" })
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-12" id="adminleaveDurationContainer">
+                                                            <label for="leavetype" class="">No Of Days:</label>
+                                                            @Html.TextBoxFor(x => x.leaveResults.leaveSummaryModel.NoOfDays, new { @class = "form-control", @id = "NoOfDays", @disabled = "disabled" })
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-12" id="adminChildDOBDateContainer">
+                                                            <!-- New ID for toggling -->
+                                                            <label for="datepicker2" class="">Child DOB:</label>
+                                                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Paternity leave is available for childbirth, miscarriage, or adoption and must be used within 3 months of ChildDOB." style="cursor: pointer; margin-left: 5px;"></i>
+                                                            <div class="position-relative">
+                                                                <div class="input-group date" id="datepickerdiv3">
+                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ChildDOB, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.AddMonths(-3).ToString("yyyy-MM-dd"), @disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row py-2 fullDayContainer" id="adminfullDayContainer">
+                                                        <div class="col-lg-6 col-md-12" id="adminfromdatetime">
+                                                            <label for="datepicker1" class="">From:</label>
+                                                            <div class="position-relative">
+                                                                <div class="input-group date" id="datepickerdiv1">
+                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.StartDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", id = "StartDate", @disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-12" id="admintodatetime">
+                                                            <label for="datepicker2" class="">To:</label>
+                                                            <div class="position-relative">
+                                                                <div class="input-group date" id="datepickerdiv2">
+                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.EndDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", id = "EndDate", @disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row py-2 halfDayContainer" id="adminhalfDayContainer">
+                                                        <div class="col-lg-6 col-md-12">
+                                                            <label for="datepicker1" class="">Date:</label>
+                                                            <div class="position-relative">
+                                                                <div class="input-group date" id="datepickerdiv1">
+                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.HalfDayDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), @disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="row py-2 MaternityAdoptionMiscarrageContainer " id="adminMaternityAdoptionMiscarrageContainer">
+                                                        <div class="col-lg-6 col-md-12" id="adminexpectedDeliveryDateContainer">
+                                                            <!-- New ID for toggling -->
+                                                            <label for="datepicker2" class="">Expected Delivery Date:</label>
+                                                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="You are entitled to 26 weeks of maternity leave, with up to 8 weeks allowed before the delivery date." style="cursor: pointer; margin-left: 5px;"></i>
+
+                                                            <div class="position-relative">
+                                                                <div class="input-group date" id="datepickerdiv3">
+                                                                    @Html.TextBoxFor(a => a.leaveResults.leaveSummaryModel.ExpectedDeliveryDate, "{0:yyyy-MM-dd}", new { @class = "form-control body-text", @type = "date", @min = DateTime.Now.ToString("yyyy-MM-dd"), id = "adminExpectedDeliveryDate", @disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-12">
+                                                        <label id="LabelUploadCertificate" style="display:none">Upload Certificate:</label>
+                                                        <p id="downloaddocument" style="display:none"></p>
+                                                    </div>
+                                                    <div class="row py-3 mb-1">
+                                                        <div class="col-lg-12">
+                                                            <label for="Reason" class="">Reason:</label>
+                                                            <div class="input-group">
+                                                                @Html.TextAreaFor(a => a.leaveResults.leaveSummaryModel.Reason, new { @class = "form-control", @required = "required", id = "adminReason", @disabled = "disabled" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (@RoleName != @Convert.ToInt64(Roles.HR))
+                                                    {
+                                                        <h3>Approval Comment</h3>
+                                                        <p><textarea class="form-control" id="ApproveRejectComment"></textarea></p>
+                                                        <p id="approverejectrequire" style="color: red;"></p>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" onclick="ApproveRejectLeave(false)" class="btn btn-primary">Reject</button>
+                                                            <button type="button" onclick="ApproveRejectLeave(true)" class="btn btn-info">Approve</button>
+
+                                                        </div>
+                                                    }
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 px-4">
+                                        <div class="card mb-3" style="height:60px; display:none" id="AnnualLeaveBalance">
+                                            <div class="card-body">
+                                                <ul class="list-group" style="width:100%;">
+                                                    <li class="d-flex justify-content-between align-items-center ">
+                                                        <b>Annual Leave Balance</b>
+                                                        <span class="badge rounded-pill" style="background-color: #05397b">@ViewBag.UserTotalLeave/@ViewBag.UserTotalAnnualLeave</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
 
 
-			</div>
+                                        <div class="card p-3">
+                                            <div class="accordion accordion-flush" id="accordionFlushExample">
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="flush-headingOne">
+                                                        <button class="accordion-button    z-0 mb-0" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="true" aria-controls="flush-collapseOne">
+                                                            Holiday List
+                                                        </button>
+                                                    </h2>
+                                                    <div id="flush-collapseOne" class="accordion-collapse collapse show" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                                        <div class="mt-3">
+                                                            <ul class="list-group ">
+                                                                @foreach (var item in Model.HolidayModel)
+                                                                {
+                                                                    <li class="list-group-item holiday-list d-flex justify-content-between align-items-center">
+                                                                        <span class="small">
+                                                                            @if (item.FromDate.Date == item.ToDate.Date)
+                                                                            {
+                                                                                @item.FromDate.ToString("dd-MMM-yyyy")
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                @($"{item.FromDate:dd-MMM-yyyy} to {item.ToDate:dd-MMM-yyyy}")
+                                                                            }
+                                                                        </span>
+                                                                        <span class="badge holiday-list-text bg-primary rounded-pill">@item.HolidayName</span>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
 
 		</div>
 	</div>
@@ -611,7 +640,7 @@
 			success: function (response) {	 
 				const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 				if (response.employeeModel && response.employmentDetail) {
-					console.log(response);
+					
 					const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
 					$("#EmplyoeeName").text(names.join(' '));
 					$("#EmplyoeeNmmber").text(response.employeeModel.employeeNumber);

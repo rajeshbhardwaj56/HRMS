@@ -262,7 +262,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 // Filter approved annual/medical leaves in current fiscal year
                 var approvedLeaves = leaveSummaryData?.Where(x =>
-                    x.StartDate >= fiscalYearStart &&
+                    x.StartDate >= new DateTime(2026, 2, 18) &&
                     x.LeaveStatusID == (int)LeaveStatus.Approved &&
                     (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave)).ToList();
 
@@ -1018,7 +1018,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Approved leaves: Annual + Medical only
             var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= fiscalYearStart
+                .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                 .ToList();
@@ -1296,7 +1296,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
                     decimal approvedLeaveDays = leaveSummaryDataResult
-                        .Where(x => x.StartDate >= fiscalYearStart
+                        .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                         .Sum(x => x.NoOfDays);
@@ -1547,7 +1547,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Approved leaves: Annual + Medical only
             var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= fiscalYearStart
+                .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                 .ToList();
@@ -1822,7 +1822,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
                     decimal approvedLeaveDays = leaveSummaryDataResult
-                        .Where(x => x.StartDate >= fiscalYearStart
+                        .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                         .Sum(x => x.NoOfDays);
@@ -2091,7 +2091,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 : new DateTime(today.Year - 1, 3, 21);
 
             var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= fiscalYearStart
+                .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
                     && x.LeaveStatusID == (int)LeaveStatus.Approved
                     && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                 .ToList();
@@ -2204,7 +2204,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Approved leaves: Annual + Medical only
             var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= fiscalYearStart
+                .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                 .ToList();

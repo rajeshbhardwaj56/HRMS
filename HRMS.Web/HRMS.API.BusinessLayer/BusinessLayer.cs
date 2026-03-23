@@ -1876,6 +1876,19 @@ namespace HRMS.API.BusinessLayer
                                   ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
                               }).ToList();
 
+            if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[1].Rows[0];
+
+                result.leaveBalance = new LeaveBalanceModel
+                {
+                    AnnualLeaveAccrued = Convert.ToDecimal(row["AnnualLeaveAccrued"]),
+                    AnnualLeaveConsumed = Convert.ToDecimal(row["AnnualLeaveConsumed"]),
+                    AnnualLeaveBalance = Convert.ToDecimal(row["AnnualLeaveBalance"]),
+                    AvailableCompOffDays = Convert.ToDecimal(row["AvailableCompOffDays"])
+                };
+            }
+
             // result.leaveTypes = GetLeaveTypes(model).leaveTypes;
             result.leaveDurationTypes = GetLeaveDurationTypes(model).leaveDurationTypes;
             if (model.LeaveSummaryID > 0)

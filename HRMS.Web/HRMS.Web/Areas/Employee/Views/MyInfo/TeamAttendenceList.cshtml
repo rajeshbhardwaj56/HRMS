@@ -763,7 +763,19 @@
 			const rawDateKey = $td.data("date"); 
 			if (!rawDateKey) return;
 
-			const day = parseInt(rawDateKey.substr(0, 2)); 
+				const day = parseInt(rawDateKey.substr(0, 2)); 
+				const datePart = rawDateKey.split('_')[0];
+                const parts = datePart.split('-');
+                const monthStr = parts[1];
+
+                const monthMap = {
+                    Jan: 1, Feb: 2, Mar: 3, Apr: 4,
+                    May: 5, Jun: 6, Jul: 7, Aug: 8,
+                    Sep: 9, Oct: 10, Nov: 11, Dec: 12
+                };
+
+                const currentMonth = monthMap[monthStr];
+
 			const selectedMonth = getSelectedMonth(); 
 			const selectedYear = getSelectedYear(); 
 
@@ -772,7 +784,7 @@
             let febEnd = isLeapYear(selectedYear) ? 18 : 17;
             let marchStart = isLeapYear(selectedYear) ? 19 : 18;
 
-                if (selectedMonth == 3 && day >= marchStart && day <= 20) {
+                if (currentMonth==2 && selectedMonth == 3 && day >= marchStart && day <= 20) {
                     finalMonth = selectedMonth - 1;
 
                     if (finalMonth === 0) {
@@ -854,25 +866,37 @@
                             if (roleName === 5 || roleName === 2) {
                                 return true;
                             }
-
+                            
                             const workDate = parseISTDate(workDateStr);
+                            const month = workDate.getMonth();
+							if (workDate > todayIST) return false;
 
-                            if (workDate > todayIST) return false;
+							let payrollStart, payrollEnd, cutoffDate;
 
-                            let payrollStart, payrollEnd, cutoffDate;
-
-                            if (workDate.getDate() >= 21) {
-
-                                payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
-                                payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
-                                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 25);
-
-                            } else {
-
-                                payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
-                                payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
-                                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 25);
+                            if (
+                                (month === 1 && workDate.getDate() >= 18) || 
+                                (month === 2 && workDate.getDate() <= 20)    
+                            ) {
+                                payrollStart = new Date(workDate.getFullYear(), 1, 18); 
+                                payrollEnd = new Date(workDate.getFullYear(), 2, 20);   
+                                cutoffDate = new Date(workDate.getFullYear(), 2, 20);   
                             }
+
+                            else
+							{
+								if (workDate.getDate() >= 21) {
+
+									payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
+									payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
+									cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
+
+								} else {
+
+									payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
+									payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
+									cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
+								}
+							}
 
                             return todayIST <= cutoffDate;
                         }

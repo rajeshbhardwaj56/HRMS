@@ -79,8 +79,16 @@ namespace HRMS.Models.Leave
         public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveDurationTypes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> leaveStatuses { get; set; } = new List<SelectListItem>();
-    }
 
+        public LeaveBalanceModel leaveBalance { get; set; } = new LeaveBalanceModel();
+    }
+    public class LeaveBalanceModel
+    {
+        public decimal AnnualLeaveAccrued { get; set; }
+        public decimal AnnualLeaveConsumed { get; set; }
+        public decimal AnnualLeaveBalance { get; set; }
+        public decimal AvailableCompOffDays { get; set; }
+    }
     public class ErrorLeaveResults
     {
         public int status { get; set; }

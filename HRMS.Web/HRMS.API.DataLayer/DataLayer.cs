@@ -53,7 +53,7 @@ namespace HRMS.API.DataLayer
                                 cmdSql.Parameters.AddRange(pParams.ToArray());
                             }
                             cmdSql.CommandType = CommandType.StoredProcedure;
-                            cmdSql.CommandTimeout = 0; 
+                            cmdSql.CommandTimeout = 3600; 
                             daSql.SelectCommand = cmdSql;
                             daSql.Fill(dataSet);
                             return dataSet;

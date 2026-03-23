@@ -1400,9 +1400,9 @@ ${renderStatusEditor(selectedDate, data)}
         const renderStatusEditor = (fullDate, data) => {
             if (!data)
                 return "";
-
-            if (parseInt(data.employeeTypeID) !== 3)
-                return "";
+            const empTypeID = Number(data.leaveSummary.employeeTypeID);
+            if (empTypeID !== 3) return "";
+            
             if (!canEditStatus(fullDate)) return "";
 
             return `
@@ -1459,7 +1459,6 @@ ${renderStatusEditor(selectedDate, data)}
             }
 
 
-
             const todayIST = new Date(
                 new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
             );
@@ -1472,12 +1471,12 @@ ${renderStatusEditor(selectedDate, data)}
             if (workDate.getDate() >= 21) {
                 payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
                 payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
-                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 25);
+                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
             } else {
 
                 payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
                 payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
-                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 25);
+                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
             }
 
 

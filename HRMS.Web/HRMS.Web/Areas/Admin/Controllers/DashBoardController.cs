@@ -96,7 +96,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 // Filter approved Annual and Medical leaves from current fiscal year
                 var approvedLeaves = model.leaveResults?.leavesSummary?
-                    .Where(x => x.StartDate >= fiscalYearStart &&
+                    .Where(x => x.StartDate >= new DateTime(2026, 2, 18) &&
                                 x.LeaveStatusID == (int)LeaveStatus.Approved &&
                                 (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                     .ToList();
