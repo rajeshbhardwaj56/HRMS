@@ -11,6 +11,7 @@
     var allowedFormIds = Enumerable.Range(2, 20).ToList(); // 2 to 18
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var firstPendingLeaveCount = Model.FormPermissionList?.FirstOrDefault()?.PendingLeaveCount ?? 0;
 
     bool IsLeaveSubmenuActive()
     {
@@ -21,9 +22,9 @@
     bool IsAttendanceSubmenuActive()
     {
         var action = ViewContext.RouteData.Values["action"]?.ToString();
-       
+
         return action == "AttendenceList" || action == "ApprovedAttendance"
-            || action == "TeamAttendenceList" 
+            || action == "TeamAttendenceList"
             || action == "CompOffApplication" || action == "ApproveCompOff" || action == "AgentCompOffApplication" || action == "TeamAttendenceApprovalList"
            ;
     }
@@ -32,11 +33,11 @@
         var action = ViewContext.RouteData.Values["action"]?.ToString();
         var controller = ViewContext.RouteData.Values["controller"]?.ToString();
 
-        return 
+        return
                (controller == "Company" && action == "Index")||
                (controller == "Company" && action == "CompanyListing") ||
                (controller == "Template" && action == "TemplateListing") ||
-             
+
                (controller == "LeavePolicy" && action == "LeavePolicyListing") ||
                (controller == "Holiday" && action == "HolidayListing") ||
                (controller == "FormPermission" && action == "FormPermission") ||
@@ -398,7 +399,13 @@
                              aria-expanded="@(IsLeaveSubmenuActive().ToString().ToLower())"
                              aria-controls="hrms-leave-submenu">
                             <i class="bi bi-person-dash flex-shrink-0 hrms-menu-title1"></i>
-                            <span class="hrms-menu-label ms-3">Leave</span>
+                            <span class="hrms-menu-label ms-3">
+                                Leave
+                                @if (firstPendingLeaveCount > 0)
+                                {
+                                    <span id="pendingLeaveBadge" class="badge bg-danger ms-2">@firstPendingLeaveCount</span>
+                                }
+                            </span>
                             <i class="bi bi-chevron-down hrms-toggle-icon ms-auto"></i>
                         </div>
                         <div class="collapse @(IsLeaveSubmenuActive() ? "show" : "")" id="hrms-leave-submenu">
@@ -442,6 +449,10 @@
                                            asp-controller="myinfo"
                                            asp-action="ApproveLeave">
                                             <i class="bi bi-file-earmark-check me-2"></i>Approve Leave
+                                            @if (firstPendingLeaveCount > 0)
+                                            {
+                                                <span id="pendingLeaveBadgeSidebar" class="badge bg-danger ms-2">@firstPendingLeaveCount</span>
+                                            }
                                         </a>
                                     </li>
                                 }

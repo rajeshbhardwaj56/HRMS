@@ -189,5 +189,11 @@ namespace HRMS.API.BusinessLayer.ITF
         public Dictionary<string, long> GetShiftDictionary();
 
         public List<WeekOffShift> GetWeekOffShifts();
+
+        public List<long> GetEmployeeHierarchyManagers(EmployeeManagerInputParams model);
+        public Result MarkNotificationAsRead(MarkNotificationReadInput input);
+
+        public ManagerApprovalCount GetManagerApprovalCount(long reportingToEmployeeID);
+        List<NotificationModel> GetManagerPendingNotifications(long reportingToEmployeeID, int notificationType);
     }
 }

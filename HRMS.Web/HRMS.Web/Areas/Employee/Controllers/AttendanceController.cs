@@ -907,7 +907,16 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             // Determine new status based on action and current status
             if (RoleId == (int)Roles.Admin || RoleId == (int)Roles.SuperAdmin)
             {
-                attendanceModel.AttendanceStatusId = (int)AttendanceStatusId.AdminApproved;
+                if (actionText.Equals("approve", StringComparison.OrdinalIgnoreCase))
+                {
+                    attendanceModel.AttendanceStatusId = (int)AttendanceStatusId.AdminApproved;
+                       
+                }
+                else
+                {
+                    attendanceModel.AttendanceStatusId = (int)AttendanceStatusId.AdminRejected;
+                }
+                    
             }
             else
             {

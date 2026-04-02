@@ -5,7 +5,7 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer
 @{
-	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	Layout = String.Format("~/Areas/admin/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
 	var allEmployeesJson = JsonConvert.SerializeObject(Model.EmployeeHierarchy);
 	ViewData["Title"] = "Dashboard";
@@ -220,7 +220,7 @@
                 <div class="card board1 fill3 ">
                     <div class="card-body">
                         <div class="card_widget_header">
-                            <label>Leaves</label>
+                            <label>Leaves Taken</label>
                             <h4>@Model.TotalLeave</h4>
                         </div>
                         <div class="card_widget_img">

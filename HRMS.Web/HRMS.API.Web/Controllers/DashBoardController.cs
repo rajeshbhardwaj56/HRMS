@@ -110,5 +110,34 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetWeekOffShifts());
             return response;
         }
+
+        [HttpPost]
+        public IActionResult MarkAsReadNotification(MarkNotificationReadInput model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.MarkNotificationAsRead(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetManagerPendingNotifications(NotificationRequest model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetManagerPendingNotifications(
+                model.ReportingToEmployeeID,
+                model.NotificationType
+            ));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult GetManagerApprovalCount(ManagerApprovalCountRequest request)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetManagerApprovalCount(
+                request.ReportingToEmployeeID
+            ));
+            return response;
+        }
+
     }
 }

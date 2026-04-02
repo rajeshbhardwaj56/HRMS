@@ -153,7 +153,7 @@ namespace HRMS.Models.DashBoard
     }
 
     public class WhatsHappening
-    {    
+    {
         public long? WhatsHappeningID { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
@@ -190,4 +190,34 @@ namespace HRMS.Models.DashBoard
 
     }
 
+    public class NotificationModel
+    {
+        public int NotificationType { get; set; }
+        public long ReferenceID { get; set; }
+        public long EmployeeID { get; set; }
+        public string? EmployeeName { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string? Message { get; set; }
+        public string? NotificationDate { get; set; }
+    }
+    public class ManagerApprovalCountRequest
+    {
+        public long ReportingToEmployeeID { get; set; }
+    }
+
+    public class NotificationRequest
+    {
+        public long ReportingToEmployeeID { get; set; }
+        public int NotificationType { get; set; }
+    }
+    public class MarkNotificationReadInput
+    {
+        public long ReferenceId { get; set; }
+        public int Type { get; set; }
+    }
+    public class ManagerApprovalCount
+    {
+        public long PendingLeaveCount { get; set; }
+    }
 }

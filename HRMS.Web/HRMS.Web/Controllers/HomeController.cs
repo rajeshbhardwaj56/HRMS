@@ -460,11 +460,14 @@ namespace HRMS.Web.Controllers
                     _context.HttpContext.Session.SetString(Constants.EmployeeNumber, result.EmployeeNumber.ToString());
                     _context.HttpContext.Session.SetString(Constants.EmployeeNumberWithoutAbbr, result.EmployeeNumberWithoutAbbr.ToString());
                     _context.HttpContext.Session.SetString(Constants.Manager2Email, result.Manager2Email.ToString());
-                    _context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
-                    var identity = new ClaimsIdentity(new[] {
+                    //_context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
+                    _context.HttpContext.Session.SetString(Constants.AreaName, "admin");
+                    var identity = new ClaimsIdentity(new[] 
+                    {new Claim(ClaimTypes.NameIdentifier, result.EmployeeID.ToString()),
                     new Claim(ClaimTypes.Name, result.UserID.ToString()),
-                     new Claim(ClaimTypes.Role,  result.Role)
-                }, CookieAuthenticationDefaults.AuthenticationScheme);
+                     new Claim(ClaimTypes.Role, result.Role),
+                    new Claim("EmployeeID", result.EmployeeID.ToString())
+                    }, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
                     var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                     DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };

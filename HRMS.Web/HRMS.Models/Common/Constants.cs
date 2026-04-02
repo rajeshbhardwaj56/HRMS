@@ -371,6 +371,9 @@ namespace HRMS.Models.Common
         public const string CalculateEmployeeSalary = "CalculateEmployeeSalary";
         public const string SaveEmployeeSalary = "SaveEmployeeSalary";
         public const string GetEmployeeSalary = "GetEmployeeSalary";
+        public const string GetManagerPendingNotifications = "GetManagerPendingNotifications";
+        public const string MarkAsReadNotification = "MarkAsReadNotification";
+        public const string GetManagerApprovalCount = "GetManagerApprovalCount";
 
 
     }

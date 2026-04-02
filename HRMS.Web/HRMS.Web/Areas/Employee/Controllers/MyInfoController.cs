@@ -8,11 +8,13 @@ using HRMS.Models.MyInfo;
 using HRMS.Models.TeamAlignment;
 using HRMS.Models.WhatsHappeningModel;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.Hubs;
 using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
@@ -31,13 +33,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
         IBusinessLayer _businessLayer;
         private readonly IS3Service _s3Service;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public MyInfoController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, IHttpContextAccessor context, IS3Service s3Service)
+        private readonly NotificationService _notificationService;
+        public MyInfoController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, IHttpContextAccessor context, IS3Service s3Service, NotificationService notificationService)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
             _context = context;
             _s3Service = s3Service;
             _CheckUserFormPermission = CheckUserFormPermission;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -336,7 +340,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     }
                 }
 
+                _ = _notificationService.SendHierarchyNotification(
 
+                       leaveRecord.EmployeeID,
+                       NotificationType.LeaveApproved 
+                   );
             }
 
 
@@ -901,7 +909,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.Add("TotalLeaves");
                     headers.Add("ManagerLevel1");
                     headers.Add("ManagerLevel2");
-                    headers.Add("ManagerLevel2");
+                    headers.Add("Privilege Leave Consumed");
+                    headers.Add("Final Leave Balance");
+                    headers.Add("Available Comp-Off Days");
+                    
+                    
 
                     for (int i = 0; i < headers.Count; i++)
                     {
@@ -931,6 +943,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
                         worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.ManagerName.ToString() ?? "-";
                         worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.ManagerManagerName.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 8 + dayKeys.Count].Value = record.AnnualLeaveConsumed.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 9 + dayKeys.Count].Value = record.AnnualLeaveBalance.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 10 + dayKeys.Count].Value = record.AvailableCompOffDays.ToString() ?? "-";
 
                         rowIndex++;
                     }
@@ -1457,8 +1472,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     sendEmailProperties.EmailToList.Add(Manager1Email);
                     emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
                 }
+             
+                    string notificationTitle = "Leave Approval Request";
+                    string notificationMessage = $"Leave has applied for leave from {leaveSummary.StartDate:dd-MMM-yyyy} to {leaveSummary.EndDate:dd-MMM-yyyy}.";
 
-
+                if (result.PKNo.HasValue && result.PKNo.Value > 0)
+                {
+                    _ = _notificationService.SendHierarchyNotification(
+                              
+                        leaveSummary.EmployeeID,                      
+                        NotificationType.Leave
+                    );
+                }
 
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 messageData = "Leave applied successfully.";
@@ -2196,61 +2221,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var employeeDetails = GetEmployeeDetails(model.CompanyID, model.EmployeeID);
             var leavePolicy = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
 
-            // Fiscal year: March 21
-            DateTime today = DateTime.Today;
-            DateTime fiscalYearStart = (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                ? new DateTime(today.Year, 3, 21)
-                : new DateTime(today.Year - 1, 3, 21);
 
-            // Approved leaves: Annual + Medical only
-            var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
-                            && x.LeaveStatusID == (int)LeaveStatus.Approved
-                            && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
-                .ToList();
+        
 
-            if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
+              if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
             {
-                decimal approvedLeaveDays = approvedLeaves?.Sum(x => x.NoOfDays) ?? 0.0m;
-                double approvedLeaveTotal = (double)approvedLeaveDays;
-
-                double maxAnnualLeaveLimit = 30;
-                double totalLeaveWithCarryForward = 0;
-
-                if (approvedLeaveTotal >= maxAnnualLeaveLimit)
-                {
-                    // Already reached or exceeded limit, do not accrue further
-                    totalLeaveWithCarryForward = maxAnnualLeaveLimit;
-                }
-                else
-                {
-                    // Calculate accrual
-                    DateTime joinDate = results.employmentDetail.JoiningDate.Value;
-                    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
-
-                    accruedLeave = Math.Min(accruedLeave, maxAnnualLeaveLimit);
-
-                    // Add carry forward if applicable
-                    if (leavePolicy.Annual_IsCarryForward == true)
-                    {
-                        double carryForward = employeeDetails.CarryForword ?? 0.0;
-                        // Add carry forward but ensure total stays capped
-                        accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
-                    }
-                    totalLeaveWithCarryForward = accruedLeave - approvedLeaveTotal;
-
-
-                    // Final safety cap (optional)
-                    totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
-                    totalLeaveWithCarryForward = Math.Max(totalLeaveWithCarryForward, 0);
-                }
-
-                // ViewBag assignments
-                ViewBag.TotalLeave = approvedLeaveDays;
-                ViewBag.TotalAnnualLeave = totalLeaveWithCarryForward;
                 ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
-            }
-
+            }                       
             return View(results);
         }
 

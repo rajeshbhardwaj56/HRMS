@@ -164,6 +164,8 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_HolidaysByCompany = "usp_Get_HolidaysByCompany";
 
         public const string usp_GetShiftTypeDictionary = "usp_GetShiftTypeDictionary";
+        public const string usp_GetEmployeeManagerHierarchy = "usp_GetEmployeeManagerHierarchy";
+        public const string usp_Get_ManagerApprovalCount = "usp_Get_ManagerApprovalCount";
 
         #region Payroll
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";

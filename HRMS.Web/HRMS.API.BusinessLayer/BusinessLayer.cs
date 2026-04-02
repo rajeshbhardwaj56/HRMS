@@ -3402,6 +3402,9 @@ namespace HRMS.API.BusinessLayer
                             TotalLeaves = dataRow.Field<decimal>("TotalLeaves"),
                             ManagerName = dataRow.Field<string>("ManagerName"),
                             ManagerManagerName = dataRow.Field<string>("ManagerManagerName"),
+                            AnnualLeaveConsumed = dataRow.Field<decimal>("AnnualLeaveConsumed"),
+                            AnnualLeaveBalance = dataRow.Field<double>("AnnualLeaveBalance"),
+                            AvailableCompOffDays = dataRow.Field<decimal>("AvailableCompOffDays"),
                             AttendanceByDay = new Dictionary<string, string>()
                         };
 
@@ -5376,7 +5379,16 @@ namespace HRMS.API.BusinessLayer
 
            return modelItem;
        }).ToList();
-
+            if (dataSet.Tables.Count > 1 && model.Count > 0)
+            {
+                var managerCountsTable = dataSet.Tables[1];
+                if (managerCountsTable.Rows.Count > 0)
+                {
+                    var row = managerCountsTable.Rows[0];
+                    model[0].PendingLeaveCount = row["PendingLeaveCount"] != DBNull.Value ? Convert.ToInt32(row["PendingLeaveCount"]) : 0;
+                    
+                }
+            }
             return model;
         }
 
@@ -6878,6 +6890,111 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
         #endregion TeamAlignment
 
+        #region Notifications
+        public ManagerApprovalCount GetManagerApprovalCount(long reportingToEmployeeID)
+        {
+            var model = new ManagerApprovalCount();
+
+            var sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ReportingToEmployeeID", reportingToEmployeeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_Get_ManagerApprovalCount, sqlParameters);
+
+            if (dataSet?.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+                model.PendingLeaveCount = Convert.ToInt64(dataSet.Tables[0].Rows[0][0]);
+
+            return model;
+        }
+        public List<NotificationModel> GetManagerPendingNotifications(long reportingToEmployeeID, int notificationType)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ReportingToEmployeeID", reportingToEmployeeID),
+        new SqlParameter("@NotificationType", notificationType)
+    };
+
+            var ds = DataLayer.GetDataSetByStoredProcedure("usp_Get_ManagerPendingNotifications", sqlParameters);
+
+            List<NotificationModel> notifications = new List<NotificationModel>();
+
+            if (ds != null && ds.Tables.Count > 0)
+            {
+                notifications = ds.Tables[0].AsEnumerable()
+                    .Select(row => new NotificationModel
+                    {
+                        NotificationType = row.Field<int>("NotificationType"),
+                        ReferenceID = row.Field<long>("ReferenceID"),
+                        EmployeeID = row.Field<long>("EmployeeID"),
+                        EmployeeName = row.Field<string>("FirstName"),
+                        StartDate = row.Field<DateTime?>("StartDate"),
+                        EndDate = row.Field<DateTime?>("EndDate"),
+                        Message = row.Field<string>("Message"),
+                        NotificationDate = row.Field<string>("NotificationDate")
+                    })
+                    .ToList();
+            }
+
+            return notifications;
+        }
+        public Result MarkNotificationAsRead(MarkNotificationReadInput input)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ReferenceId", input.ReferenceId),
+        new SqlParameter( "@Type", input.Type)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_MarkNotificationAsRead", sqlParameters);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(row => new Result
+                    {
+                        Message = row.Field<string>("Result"),
+                        PKNo = row.Field<long?>("PKNo") ?? 0
+                    })
+                    .FirstOrDefault();
+            }
+
+            return model;
+        }
+        public List<long> GetEmployeeHierarchyManagers(EmployeeManagerInputParams model)
+        {
+            List<long> managerIds = new List<long>();
+
+            List<SqlParameter> sqlParameters = new()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID),
+        new SqlParameter("@Type", model.Type)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetEmployeeManagerHierarchy,
+                sqlParameters
+            );
+
+            if (dataSet == null || dataSet.Tables.Count == 0)
+                return managerIds;
+
+            var table = dataSet.Tables[0];
+
+            var hierarchyManagers = table.AsEnumerable()
+                .Select(row => row.Field<long>("EmployeeID"))
+                .ToList();
+
+            managerIds = dataSet.Tables[0]
+          .AsEnumerable()
+          .Select(row => row.Field<long>("EmployeeID"))
+          .ToList();
+
+            return managerIds;
+        }
+        #endregion Notifications
 
         #region ExportExcels
         public List<LeavesCount> GetEmployeeLeaves(long userId)

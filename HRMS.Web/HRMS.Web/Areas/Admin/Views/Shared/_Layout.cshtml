@@ -45,6 +45,8 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 </head>
+
+
 <body>
 
     <div class="custome-container">
@@ -66,7 +68,7 @@
                     </g>
                 </svg>
             </button>
-            <div class="header">  
+            <div class="header">
                 <div class="nav-toggle">
                     <a class="btn--toggle nav-link" href="#" data-target="#collapse">
                         <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -78,6 +80,7 @@
                     @await Component.InvokeAsync("TopMenuBar")
 
                 </div>
+
                 <div class="user-settings dropdown">
                     <a class="nav-link dropdown-toggle toggle-change" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
                         <img class="user-img" src="@_businessLayer.GetProfilePhoto()" onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'" alt="" style="width:40px; height:40px;">
@@ -133,6 +136,12 @@
                         </ul>
                     </div>
                 </div>
+                <div class="notify">
+                    <div class="notification"></div>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M18.707 8.796c0 1.256.332 1.997 1.063 2.85.553.628.73 1.435.73 2.31 0 .874-.287 1.704-.863 2.378a4.537 4.537 0 01-2.9 1.413c-1.571.134-3.143.247-4.736.247-1.595 0-3.166-.068-4.737-.247a4.532 4.532 0 01-2.9-1.413 3.616 3.616 0 01-.864-2.378c0-.875.178-1.682.73-2.31.754-.854 1.064-1.594 1.064-2.85V8.37c0-1.682.42-2.781 1.283-3.858C7.861 2.942 9.919 2 11.956 2h.09c2.08 0 4.204.987 5.466 2.625.82 1.054 1.195 2.108 1.195 3.745v.426zM9.074 20.061c0-.504.462-.734.89-.833.5-.106 3.545-.106 4.045 0 .428.099.89.33.89.833-.025.48-.306.904-.695 1.174a3.635 3.635 0 01-1.713.731 3.795 3.795 0 01-1.008 0 3.618 3.618 0 01-1.714-.732c-.39-.269-.67-.694-.695-1.173z"></path>
+                    </svg>
+                </div>
             </div>
 
             <div class="main-container" role="main">
@@ -155,7 +164,7 @@
             });
         });
 
-              document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
             const links = document.querySelectorAll('.nav-link');
             const currentPath = window.location.pathname.toLowerCase();
 
@@ -172,7 +181,7 @@
 
 
 
- 
+
 
     <script>
         $(window)
@@ -224,59 +233,195 @@
     <script>
 
         document.addEventListener('DOMContentLoaded', function () {
-              const toggleButton = document.querySelector('.toggleBtn');
-        if (toggleButton) {
-            toggleButton.addEventListener('click', function () {
-                const openMenus = document.querySelectorAll('.collapse.show');
+            const toggleButton = document.querySelector('.toggleBtn');
+            if (toggleButton) {
+                toggleButton.addEventListener('click', function () {
+                    const openMenus = document.querySelectorAll('.collapse.show');
 
-                openMenus.forEach(function (menu) {
-                    let collapseInstance = bootstrap.Collapse.getInstance(menu);
-                    if (!collapseInstance) {
-                        collapseInstance = new bootstrap.Collapse(menu, { toggle: false });
-                    }
-                    collapseInstance.hide();
+                    openMenus.forEach(function (menu) {
+                        let collapseInstance = bootstrap.Collapse.getInstance(menu);
+                        if (!collapseInstance) {
+                            collapseInstance = new bootstrap.Collapse(menu, { toggle: false });
+                        }
+                        collapseInstance.hide();
+                    });
+                });
+            }
+
+
+            const menuTitles = document.querySelectorAll('.hrms-menu-title');
+
+            menuTitles.forEach(function (menuTitle) {
+                menuTitle.addEventListener('click', function () {
+                    // Get target submenu for this title
+                    const targetId = menuTitle.getAttribute('data-bs-target');
+                    const targetMenu = document.querySelector(targetId);
+
+                    // Close all other submenus
+                    document.querySelectorAll('.collapse.show').forEach(function (openMenu) {
+                        if (openMenu !== targetMenu) {
+                            let instance = bootstrap.Collapse.getInstance(openMenu);
+                            if (!instance) {
+                                instance = new bootstrap.Collapse(openMenu, { toggle: false });
+                            }
+                            instance.hide();
+                        }
+                    });
                 });
             });
+        });
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.onkeydown = function (e) {
+            if (
+                e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+                (e.ctrlKey && e.key === "U")
+            ) {
+                return false;
+            }
+        };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        let bell, panel;
+   
+        document.addEventListener("DOMContentLoaded", function () {
+            bell = document.querySelector(".notify");
+            panel = document.querySelector(".notification");
+
+            if (!bell || !panel) return;
+
+            bell.addEventListener("click", e => {
+                e.stopPropagation();
+                if (panel.classList.contains("show")) {
+                    return;
+                }
+                fetchPendingNotifications(true);
+            });
+
+            document.addEventListener("click", () => panel.classList.remove("show"));
+            panel.addEventListener("click", e => e.stopPropagation());
+
+            window.showNotification = function (message, url, referenceId, type, employeeId, notificationDate) {
+                const item = document.createElement("div");
+                item.className = "notify-item";
+                item.innerHTML = `
+            <a href="#" class="notify-link">
+                <div class="notify-text">${message}</div>
+                <div class="notify-time">${notificationDate}</div>
+            </a>
+        `;
+
+                item.querySelector("a").addEventListener("click", async function (e) {
+                    e.preventDefault();
+                    if (referenceId) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("POST", "/Admin/DashBoard/MarkNotificationAsRead", true);
+                        xhr.setRequestHeader("Content-Type", "application/json");
+                        xhr.send(JSON.stringify({ ReferenceId: referenceId, Type: type }));
+                    }
+                    sessionStorage.setItem("OpenLeavePopup", JSON.stringify({
+                        employeeId: employeeId,
+                        leaveId: referenceId
+                    }));
+                    window.location.href = url;
+                });
+
+                panel.prepend(item);
+                if (!panel.classList.contains("show")) bell.classList.add("has-notification");
+            };
+
+ 
+          /*  fetchPendingNotifications();*/
+        });
+
+
+        const hubUrl = "/notificationHub";
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl(hubUrl)
+            .withAutomaticReconnect()
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        async function startSignalR() {
+            try {
+                await connection.start();
+                
+            } catch (err) {
+                
+                setTimeout(startSignalR, 5000);
+            }
         }
 
+        startSignalR();
 
-               const menuTitles = document.querySelectorAll('.hrms-menu-title');
+        connection.on("ReceiveNotification", () => {
+            fetchPendingNotifications();
+            fetchCounts(); 
+        });
+        connection.on("ReceiveUpdatedCounts", () => {
+            fetchCounts(); 
+        });
+     
+        function fetchCounts() {
+            fetch('/Admin/DashBoard/GetManagerApprovalCount', {
+                method: 'POST'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const count = data.pendingLeaveCount || 0;
+                    const menuBadgeContainer = document.getElementById("pendingLeaveBadge");
+                    const sidebarBadge = document.getElementById("pendingLeaveBadgeSidebar");
 
-               menuTitles.forEach(function (menuTitle) {
-                   menuTitle.addEventListener('click', function () {
-                       // Get target submenu for this title
-                       const targetId = menuTitle.getAttribute('data-bs-target');
-                       const targetMenu = document.querySelector(targetId);
+                    if (menuBadgeContainer) {
+                        menuBadgeContainer.textContent = count;
+                        menuBadgeContainer.style.display = count > 0 ? "inline-block" : "none";
+                    }
+                    if (sidebarBadge) {
+                        sidebarBadge.textContent = count;
+                        sidebarBadge.style.display = count > 0 ? "inline-block" : "none";
+                    }
 
-                       // Close all other submenus
-                       document.querySelectorAll('.collapse.show').forEach(function (openMenu) {
-                           if (openMenu !== targetMenu) {
-                               let instance = bootstrap.Collapse.getInstance(openMenu);
-                               if (!instance) {
-                                   instance = new bootstrap.Collapse(openMenu, { toggle: false });
-                               }
-                               instance.hide();
-                           }
-                       });
-                   });
-               });
-           });
-           document.addEventListener('contextmenu', e => e.preventDefault());
-          document.onkeydown = function (e) {
-              if (
-                  e.key === "F12" ||
-                  (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
-                  (e.ctrlKey && e.key === "U")
-              ) {
-                  return false;
-              }
-          };
+                })
+                .catch(err => console.error("Error fetching updated counts:", err));
+        }
+        function fetchPendingNotifications(openDropdown = false) {
+            fetch('/Admin/DashBoard/GetManagerPendingNotifications', {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(notifications => {
+                    panel.innerHTML = "";
+                    if (!notifications || notifications.length === 0) {
+                        bell.classList.remove("has-notification");
+                        return; 
+                    }
+                    notifications.forEach(n => {
+                        const url = "/employee/myinfo/ApproveLeave";
+
+                        showNotification(
+                            n.message ,
+                            url,
+                            n.referenceID || n.ReferenceID,
+                            n.notificationType || n.NotificationType,
+                            n.employeeID || n.EmployeeID,
+                            n.notificationDate 
+                        );
+                    });
+                    if (openDropdown) {
+                        panel.classList.add("show");
+                        bell.classList.remove("has-notification");
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching pending notifications:", err);
+                });
+        }
     </script>
-
-     @Html.Partial("_Toast")
+    @Html.Partial("_Toast")
     @*  <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script> *@
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script> *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

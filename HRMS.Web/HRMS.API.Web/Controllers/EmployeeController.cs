@@ -459,5 +459,14 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetTeamAlignment(model));
             return response;
         }
+
+        [HttpPost]
+   
+        public IActionResult GetEmployeeHierarchyManagers(EmployeeManagerInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeeHierarchyManagers(model));
+            return response;
+        }
     }
 }

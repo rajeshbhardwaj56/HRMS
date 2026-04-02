@@ -181,5 +181,9 @@ namespace HRMS.Models.Employee
         public int? Status { get; set; }
         public string? Message { get; set; }
     }
-
+    public class EmployeeManagerInputParams
+    {
+        public long EmployeeID { get; set; }
+        public int  Type { get; set; }
+    }
 }
