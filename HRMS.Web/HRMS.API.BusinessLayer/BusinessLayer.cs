@@ -2323,6 +2323,56 @@ namespace HRMS.API.BusinessLayer
         }
 
 
+        public DashBoardLoginModel GetDashBoardLoginModel(DashBoardModelInputParams model)
+        {
+            DashBoardLoginModel dashBoardModel = new DashBoardLoginModel();
+            try
+            {
+                List<SqlParameter> sqlParameter = new List<SqlParameter>();
+                sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+                sqlParameter.Add(new SqlParameter("@RoleId", model.RoleID));
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDashBoardLoginDetails, sqlParameter);
+                dashBoardModel = dataSet.Tables[0].AsEnumerable()
+                                  .Select(dataRow => new DashBoardLoginModel
+                                  {
+                                      EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                      
+                                      ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
+                                      FirstName = dataRow.Field<string>("FirstName"),
+                                      MiddleName = dataRow.Field<string>("MiddleName"),
+                                      Surname = dataRow.Field<string>("Surname"),
+                                      
+                                     
+                                      //EmploymentDetails
+                                      
+                                      DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                      JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                      ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
+                                      OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),                                 
+                                      JoiningDate = dataRow.Field<DateTime?>("JoiningDate")
+                                      
+
+                                  }).ToList().FirstOrDefault();
+
+                
+              
+
+                if (dashBoardModel == null)
+                {
+                    dashBoardModel = new DashBoardLoginModel();
+                }
+
+            
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
+         
+            return dashBoardModel;
+        }
 
 
 
@@ -5875,16 +5925,17 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
 
 
 
-        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber)
+        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber, long weekOffID)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@EmployeeNumber", employeeNumber), // Note: Parameter name should match SP: @CompanyID
+        new SqlParameter("@WeekOffID", weekOffID), // Note: Parameter name should match SP: @CompanyID
     };
 
             List<EmployeeShiftModel> model = new List<EmployeeShiftModel>();
 
-            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetShiftTypesByCompany, sqlParameters);
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetShiftTypesByWeekOffID, sqlParameters);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {

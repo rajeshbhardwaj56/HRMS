@@ -31,6 +31,16 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetDashBoardModel(model));
             return response;
         }
+
+        [HttpPost]
+        public IActionResult GetDashBoardLoginModel(DashBoardModelInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetDashBoardLoginModel(model));
+            return response;
+        }
+
+
         [HttpGet]
         public IActionResult GetCountryDictionary()
         {

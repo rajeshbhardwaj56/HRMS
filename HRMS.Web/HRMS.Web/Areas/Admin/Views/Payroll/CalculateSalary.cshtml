@@ -337,7 +337,6 @@
             alert("Please select Employee and Payroll Type");
             return;
         }
-
         $.ajax({
             url: '/Admin/Payroll/SaveSalary',
             type: 'POST',
@@ -345,15 +344,32 @@
             contentType: 'application/json',
             success: function (response) {
                 if (response.success) {
-                    alert("Salary saved successfully!");
-
+                    $.toast({
+                        heading: 'Success',
+                        text: response.message || "Salary saved successfully!",
+                        showHideTransition: 'slide',
+                        icon: 'success',
+                        position: 'top-right'
+                    });
                 } else {
-                    alert("Error: " + response.message);
+                    $.toast({
+                        heading: 'Error',
+                        text: response.message || "Failed to save salary.",
+                        showHideTransition: 'slide',
+                        icon: 'error',
+                        position: 'top-right'
+                    });
                 }
             },
             error: function (err) {
-                console.error(err);
-                alert("An error occurred while saving salary.");
+             
+                $.toast({
+                    heading: 'Error',
+                    text: "An unexpected error occurred while saving salary.",
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right'
+                });
             }
         });
     }

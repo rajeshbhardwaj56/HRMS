@@ -105,7 +105,24 @@ namespace HRMS.Models.DashBoard
         public List<HierarchyEmployee> EmployeeHierarchy { get; set; } = new List<HierarchyEmployee>();
 
     }
+    public class DashBoardLoginModel
+    {
+        public long EmployeeID { get; set; }
+        public string? ProfilePhoto { get; set; } = string.Empty;
+        public string? FirstName { get; set; } = string.Empty;
+        public string? MiddleName { get; set; } = string.Empty;
+        public string? Surname { get; set; } = string.Empty;
+       
+        public long DepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public long ReportingToIDL1 { get; set; }
+        public string OfficialEmailID { get; set; } = string.Empty;
+        
+        public DateTime? JoiningDate { get; set; }
+       
+     
 
+    }
     public class HierarchyEmployee
     {
         public string? EmployeNumber { get; set; }

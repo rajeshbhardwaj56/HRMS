@@ -220,6 +220,7 @@ namespace HRMS.Models.Common
         public const string GetEmployeesHierarchyUnderManager = "GetEmployeesHierarchyUnderManager";
         public const string GetEmployeeForLeaveEdit = "GetEmployeeForLeaveEdit";
         public const string GetWeekOffShifts = "GetWeekOffShifts";
+        public const string GetDashBoardLoginModel = "GetDashBoardLoginModel";
 
 
 

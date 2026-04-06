@@ -22,6 +22,7 @@
     int currentYear = DateTime.Today.Year;
 
     bool isEditMode = Model.Id > 0;
+   
 }
 
 
@@ -360,7 +361,8 @@
         $('#ShiftTypeId').on('change', function () {
         $('#HiddenShiftTypeId').val($(this).val());
     });
-        const preSelectedEmployee = $('#EmployeeNumberWithOutAbbr').val();
+               const preSelectedEmployee = $('#EmployeeNumberWithOutAbbr').val();
+
     if (preSelectedEmployee) {
         loadShiftsForEmployee(preSelectedEmployee);
     }
@@ -370,11 +372,17 @@
             $('#ShiftTypeId').empty().append($('<option>', { value: '', text: 'Select Shift Type' })).trigger('change.select2');
             return;
         }
-
+            var weekOffID = @Model.Id;
+            if (!weekOffID || weekOffID == 0) {
+                return;
+            }
          $.ajax({
                 url: '/HR/Employee/GetShiftsByEmployee', // change to your actual route
                 type: 'GET',
-                data: { employeeNumber: employeeNumber },
+             data: {
+                 employeeNumber: employeeNumber,
+                 weekOffID: weekOffID,
+             },
                 success: function (data) {
                    $('#Shiftlist').show();
                     const $shiftSelect = $('#ShiftTypeId');

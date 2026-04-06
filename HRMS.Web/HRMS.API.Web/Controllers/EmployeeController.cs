@@ -403,10 +403,10 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpGet]
-        public IActionResult GetShiftTypeList(string employeeNumber)
+        public IActionResult GetShiftTypeList(string employeeNumber,long weekOffID)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.GetShiftTypeList(employeeNumber));
+            response = Ok(_businessLayer.GetShiftTypeList(employeeNumber, weekOffID));
             return response;
         }
 

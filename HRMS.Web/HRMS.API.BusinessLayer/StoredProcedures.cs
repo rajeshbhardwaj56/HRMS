@@ -9,6 +9,7 @@ namespace HRMS.API.BusinessLayer
     internal class StoredProcedures
     {
         public const string usp_GetDeviceLogsByMonth = "usp_GetDeviceLogsByMonth";
+        public const string usp_GetShiftTypesByWeekOffID = "usp_GetShiftTypesByWeekOffID";
         public const string usp_LoginUser = "usp_LoginUser";
         public const string usp_Get_Counteres = "usp_Get_Counteres";
         public const string usp_Get_Currencies = "usp_Get_Currencies";
@@ -24,6 +25,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_ActiveEmployeeDetails = "usp_Get_ActiveEmployeeDetails";
         public const string usp_Get_TemplateDetails = "usp_Get_TemplateDetails";
         public const string usp_AddUpdate_Template = "usp_AddUpdate_Template";
+        public const string usp_GetDashBoardLoginDetails = "usp_GetDashBoardLoginDetails";
 
         public const string usp_Get_LeavePolicyDetails = "usp_Get_LeavePolicyDetails";
         public const string usp_AddUpdate_LeavePolicy = "usp_AddUpdate_LeavePolicy";

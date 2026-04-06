@@ -149,7 +149,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model);
         public List<HolidayCompanyList> GetCompanyHolidayList(HolidayInputparams model);
         public long GetShiftTypeId(string ShiftTypeName);
-        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber);
+        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber, long weekOffID);
 
         #region Attendance Approval
         AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model);
@@ -192,7 +192,7 @@ namespace HRMS.API.BusinessLayer.ITF
 
         public List<long> GetEmployeeHierarchyManagers(EmployeeManagerInputParams model);
         public Result MarkNotificationAsRead(MarkNotificationReadInput input);
-
+        public DashBoardLoginModel GetDashBoardLoginModel(DashBoardModelInputParams model);
         public ManagerApprovalCount GetManagerApprovalCount(long reportingToEmployeeID);
         List<NotificationModel> GetManagerPendingNotifications(long reportingToEmployeeID, int notificationType);
     }
