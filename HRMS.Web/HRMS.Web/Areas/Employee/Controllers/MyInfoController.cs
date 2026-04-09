@@ -155,6 +155,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved).ToList();
+            if (Approvals != null)
+            {
+                foreach (var leave in Approvals)
+                {
+                    leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                    leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
+                }
+            }
             var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
             ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
@@ -219,10 +227,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 EmployeeID = employeeID,
                 RoleId = RoleID
             };
-
+            var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
             var jsonData = _businessLayer.SendPostAPIRequest(inputParams,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals),
-                HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result?.ToString();
+               bearerToken, true).Result?.ToString();
 
             var leaveResults = JsonConvert.DeserializeObject<LeaveResults>(jsonData);
             var leaveRecord = leaveResults?.leavesSummary?.FirstOrDefault(x => x.LeaveSummaryID == leaveSummaryID);
@@ -546,6 +554,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
                 EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID)),
+                UpdatedByID  = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID)),
                 NewLeaveStatusID = (int)LeaveStatus.Cancelled,
             };
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.UpdateLeaveStatus), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -567,6 +576,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
                 EmployeeID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(empId)),
+                UpdatedByID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID)),
                 NewLeaveStatusID = (int)LeaveStatus.Cancelled,
             };
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.UpdateLeaveStatus), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();

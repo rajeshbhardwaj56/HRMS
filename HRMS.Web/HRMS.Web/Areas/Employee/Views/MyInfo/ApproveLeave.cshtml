@@ -130,7 +130,7 @@
 											<h3>Leave Approval Info</h3>
 											<nav>
 												<div class="nav nav-tabs mb-3" id="myTabs-timeoff" role="tablist">
-													<button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
+													<button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true"  >
 														Leaves For Approval
 													</button>
 													<button class="nav-link  " id="leave-approved-tab1" data-bs-toggle="tab" data-bs-target="#leave-approved-tab" type="button" role="tab" aria-controls="leave-approved-tab" aria-selected="false" onclick="LeavesForApproved()">Approved Leaves</button>
@@ -141,10 +141,24 @@
 											<div class="tab-content" id="nav-tabContent1">
 												<div class="tab-pane fade show active" id="applied-leave-tab" role="tabpanel" aria-labelledby="applied-leave-tab1">
 													<div class="group-box anim">
-														<div class="tabsInfo" id="myTabContent-timeoff">
-															<h3>Leaves For Approval</h3>
+                                                        <div class="tabsInfo d-flex align-items-center justify-content-between mb-3" id="myTabContent-timeoff">
+                                                            <h3>Leaves For Approval</h3>
+                                                            @if (RoleName == (int)Roles.Admin)
+                                                            {
+                                                                <div class="d-flex align-items-center">
+                                                                    <input type="text" id="txtAdminLeaveComment" class="form-control form-control-sm me-2" placeholder="Enter comment" style="width:250px;" />
 
-														</div>
+                                                                    <select id="ddlLeaveStatus" class="form-select form-select-sm me-2" style="width:150px;">
+                                                                        <option value="">Select Status</option>
+                                                                        <option value="1">Approve</option>
+                                                                        <option value="2">Reject</option>
+                                                                    </select>
+                                                                    <button id="btnUpdateSelectedLeaves" class="btn btn-primary btn-sm">
+                                                                        Update Selected
+                                                                    </button>
+                                                                </div>
+                                                            }
+                                                        </div>
 														<div role="tabpanel" aria-labelledby="apply-tab">
 															<div class="row">
 																<div class="col-lg-12 col-md-12 col-sm-12">
@@ -152,20 +166,29 @@
 																		<div class="card-body">
 																			<table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
 																				<thead>
-																					<tr>
-																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Emp No</th>
-																						<th>  Name</th>
-																						<th>Applied By Emp No</th>
-																						<th>Applied By Name</th>
-																						<th>From Date</th>
-																						<th>To Date</th>
-																						<th>Type</th>
-																						<th>Days</th>
-																						<th>Status</th>
-																						<th>Reason</th>
-																						<th>Action</th>
-																					</tr>
+                                                                                    <tr>
+                                                                                        @if (RoleName == (int)Roles.Admin)
+                                                                                        {
+                                                                                            <th style="width:40px;">
+                                                                                                <input type="checkbox" id="selectAllLeaves" />
+                                                                                            </th>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <th class="first" style="visibility:hidden"> </th>
+                                                                                        }
+                                                                                        <th>Emp No</th>
+                                                                                        <th>  Name</th>
+                                                                                        <th>Applied By Emp No</th>
+                                                                                        <th>Applied By Name</th>
+                                                                                        <th>From Date</th>
+                                                                                        <th>To Date</th>
+                                                                                        <th>Type</th>
+                                                                                        <th>Days</th>
+                                                                                        <th>Status</th>
+                                                                                        <th>Reason</th>
+                                                                                        <th>Action</th>
+                                                                                    </tr>
 																				</thead>
 
 																			</table>
@@ -636,17 +659,17 @@
 		});
 	}
 
-	   function OpenApproveRejectModel(employeeID, leaveSummaryID) {	
+	   function OpenApproveRejectModel(employeeID, leaveSummaryID) {
 		$("#leaveSummaryID").val(leaveSummaryID);
 		$.ajax({
 			url: '/employee/myinfo/GetEmployeeLeaveDetails',
 			type: 'GET',
-			 
+
 			data: { employeeID: employeeID ,leaveSummaryID:leaveSummaryID},
-			success: function (response) {	 
+			success: function (response) {
 				const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 				if (response.employeeModel && response.employmentDetail) {
-					
+
 					const names = [response.employeeModel.firstName,response.employeeModel.middleName,response.employeeModel.surname].filter(name => name); // removes null, undefined, and empty strings
 					$("#EmplyoeeName").text(names.join(' '));
 					$("#EmplyoeeNmmber").text(response.employeeModel.employeeNumber);
@@ -727,7 +750,7 @@
 									$("#showalert").text(`Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`);
 								}
 							}
-								
+
 
 
 							$("#adminfullDayContainer").css("display", "flex");
@@ -753,18 +776,18 @@
 									$("#showDocumentalert").text(`Document required for maternity leave`);
 								}
 							}
-							
+
 							var weeksBefore = response.leavePolicyDetails.maternity_ApplyBeforeHowManyDays;
 							var daysBefore = weeksBefore * 7;
 
-						
+
 							function normalizeDate(date) {
 								var normalizedDate = new Date(date);
-								normalizedDate.setHours(0, 0, 0, 0); 
+								normalizedDate.setHours(0, 0, 0, 0);
 								return normalizedDate;
 							}
 
-						
+
 							var startDateNormalized = normalizeDate(leaveSummary.startDate);
 							var expectedDeliveryDateNormalized = normalizeDate(leaveSummary.expectedDeliveryDate);
 
@@ -826,7 +849,7 @@
 							$('#adminReason').val(leaveSummary.reason);
 						}
 								if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.LeaveWithOutPay)) {
-						 
+
 							$("#adminfullDayContainer").css("display", "flex");
 							/*$("#AnnualLeaveBalance").css("display", "block");*/
 							$("#admintodatetime").css("display", "block");
@@ -868,7 +891,7 @@
 
 
 							if (leaveSummary.leaveTypeID == @Convert.ToInt32(LeaveType.CompOff)) {
-							 
+
 							$("#adminfullDayContainer").css("display", "flex");
 							$("#admintodatetime").css("display", "block");
 							$("#downloaddocument").css("display", "none");
@@ -950,10 +973,17 @@
 		});
 	}
 	function AutoReload() {
-		$('#leave-Cancelled-tab').css("display", "none");
+		  $('#leave-Cancelled-tab').hide();
 		RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
 		if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
-			InitOverviewDataTable();
+			 @if (RoleName == (int)Roles.Admin) {
+            <text>
+            InitAdminLeavesForApproval();
+          
+            </text>
+        } else {
+            <text>InitOverviewDataTable();</text>
+        }
 		}
 	}
 	function LeavesForApproved() {
@@ -984,7 +1014,7 @@
 
 
 
-		
+
 	$(document).ready(function () {
 			$('#applied-leave-tab1').click();
 			$('#leave-approved-tab').css("display", "none");
@@ -1057,14 +1087,65 @@
 			</span>`;
 
 					$('td:eq(7)', row)
-						.html(styledSpan) 
+						.html(styledSpan)
 						.attr('title', tooltipMessage)
-						.tooltip(); 
+						.tooltip();
 				}
 			}
 
 		});
 	}
+	function InitAdminLeavesForApproval() {
+    const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+
+    oOverviewTable1 = $('#tblLeavesForApproval').DataTable({
+        ordering: true,
+        paging: true,
+        searching: true,
+        info: true,
+        columns: [
+            {
+                data: "leaveSummaryID",
+                render: function (data) {
+                    return `<input type="checkbox" class="row-select-leave" value="${data}" />`;
+                },
+                orderable: false
+            },
+            { "data": "employeeNumber" },
+            { "data": "employeeName" },
+            { "data": "appliedByNumber" },
+            { "data": "appliedByName" },
+            { "data": "startDateFormatted" },
+            { "data": "endDateFormatted" },
+            { "data": "leaveTypeName" },
+            { "data": "noOfDays" },
+            { "data": "leaveStatusName" },
+            { "data": "reason" },
+            {
+                mRender: function (data, type, row) {
+                    return `<a data-toggle='tooltip' class='item' onclick='OpenApproveRejectModel(${row.employeeID}, ${row.leaveSummaryID})' href='#' title='Approve'><img src='/assets/img/view.webp' width='23' height='23'/></a>`;
+                }
+            }
+        ],
+        columnDefs: [
+            { targets: [0], orderable: false },
+            { targets: [2], visible: false }
+        ],
+        responsive: true,
+        createdRow: function (row, data) {
+            if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
+                (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))) {
+
+                const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
+                    ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
+                    : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+
+                const styledSpan = `<span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">${data.noOfDays}</span>`;
+                $('td:eq(7)', row).html(styledSpan).attr('title', tooltipMessage).tooltip();
+            }
+        }
+    });
+}
 	function InittblLeavesForApproved() {
 		const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 
@@ -1150,7 +1231,7 @@
 				{ "data": "leaveTypeName", "autoWidth": true },
 				{ "data": "noOfDays", "autoWidth": true },
 				{ "data": "leaveStatusName", "autoWidth": true },
-				{ "data": "reason", "autoWidth": true }
+				{ "data": "reason", "autoWidth": true },
 			],
 			"columnDefs": [
 				{
@@ -1423,6 +1504,153 @@
 		admintoggleLeaveDurationVisibility();
 		admintoggleExpectedDeliveryDate();
 	});
+
+
+$('#btnUpdateSelectedLeaves').on('click', function () {
+
+    const selectedStatus = $('#ddlLeaveStatus').val();
+	const comment = $('#txtAdminLeaveComment').val().trim();
+	 if (!comment) {
+    toastEMessage('Error', 'Enter a comment before updating');
+    return;
+}
+    if (!selectedStatus) {
+        toastEMessage('Error', 'Select status (Approve/Reject)');
+        return;
+    }
+	
+    const selectedRecords = [];
+
+      $('#tblLeavesForApproval .row-select-leave:checked').each(function () {
+   
+        const leaveSummaryID = $(this).val();
+
+        
+        const rowData = oOverviewTable1.rows().data().toArray().find(r => r.leaveSummaryID == leaveSummaryID);
+
+        if (rowData) {
+            selectedRecords.push({
+                LeaveSummaryID: rowData.leaveSummaryID,
+                EmployeeID: rowData.employeeID,
+                EmployeeNumber: rowData.employeeNumber,
+                LeaveTypeID: rowData.leaveTypeID
+            });
+        }
+    });
+    if (selectedRecords.length === 0) {
+        toastEMessage('Error', 'Select at least one leave');
+        return;
+    }
+
+    const $btn = $(this);
+    $btn.prop('disabled', true).text('Processing...');
+
+    const failedMessages = [];
+    let processedCount = 0;
+    let delay = 0;
+
+    selectedRecords.forEach(record => {
+
+        setTimeout(function () {
+
+            $.ajax({
+                url: '/Employee/MyInfo/ApproveRejectLeave',
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                data: {
+                    leaveSummaryID: record.LeaveSummaryID,
+                    isApproved: selectedStatus == "1",
+                    approveRejectComment: comment,
+                    leaveTypeID: record.LeaveTypeID || 0
+                },
+
+                success: function (response) {
+
+                    if (response.data?.status === 1) {
+                        failedMessages.push(`EmpNo ${record.EmployeeNumber}: ${response.data.message}`);
+                    }
+
+                },
+
+                error: function () {
+                    failedMessages.push(`EmpNo ${record.EmployeeNumber}: Server error`);
+                },
+
+                complete: function () {
+
+                    processedCount++;
+
+                    if (processedCount === selectedRecords.length) {
+
+                        $btn.prop('disabled', false).text('Update Selected');
+                        $('#selectAllLeaves').prop('checked', false);
+
+                        RefreshTable(
+                            '#tblLeavesForApproval',
+                            '/Employee/MyInfo/GetLeaveForApprovals'
+                        );
+
+                        if (failedMessages.length > 0) {
+                            toastEMessage('Error', failedMessages.join('<br>'),5000);
+                        } else {
+                            toastMessage('Success', 'All selected leaves processed successfully');
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }, delay);
+
+        delay += 500; 
+
+    });
+
+});
+
+$(document).on('click', '#selectAllLeaves', function () {
+
+    const isChecked = $(this).prop('checked');
+
+    $('#tblLeavesForApproval tbody .row-select-leave')
+        .prop('checked', isChecked);
+});
+$(document).on('change', '.row-select-leave', function () {
+
+    const total = $('#tblLeavesForApproval tbody .row-select-leave').length;
+    const checked = $('#tblLeavesForApproval tbody .row-select-leave:checked').length;
+
+    $('#selectAllLeaves').prop('checked', total === checked);
+});
+
+	function toastEMessage(type, message)
+{
+	$.toast(
+		{
+				heading: 'Error',
+				text: message,
+				showHideTransition: 'slide',
+				icon: 'error',
+				position: 'top-right',
+		});
+}
+
+function toastMessage(type , message)
+	 {
+		  $.toast(
+			{
+				heading: type,
+				text: message,
+				showHideTransition: 'slide',
+				icon: 'success',
+				position: 'top-right',
+			});
+	 }
+
 </script>
 <script>
 

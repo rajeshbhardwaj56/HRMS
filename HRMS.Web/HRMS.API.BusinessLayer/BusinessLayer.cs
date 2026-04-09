@@ -131,6 +131,9 @@ namespace HRMS.API.BusinessLayer
                                       RoleID = dataRow.Field<int>("RoleID"),
                                       Email = dataRow.Field<string>("OfficialEmailID"),
                                       EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
+                                      ManagerEmailL2 = dataRow.Field<string>("ManagerEmailL2"),
+                                      ManagerEmailL1 = dataRow.Field<string>("ManagerEmailL1"),
+                                      AdminEmail = dataRow.Field<string>("AdminEmail"),
                                   }).ToList().LastOrDefault();
             results.Data = JsonConvert.SerializeObject(data);
             return results;
@@ -4890,11 +4893,13 @@ namespace HRMS.API.BusinessLayer
         }
         public UpdateLeaveStatus UpdateLeaveStatus(UpdateLeaveStatus model)
         {
+            var oldData = GetLeaveSummaryByID(model.LeaveSummaryID);
             var sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
         new SqlParameter("@NewLeaveStatusID", model.NewLeaveStatusID),
-        new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID)
+        new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID),
+        new SqlParameter("@UpdatedByID", model.UpdatedByID),
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_UpdateLeaveStatus, sqlParameters);
@@ -4908,6 +4913,18 @@ namespace HRMS.API.BusinessLayer
             {
                 model.Message = "No response from stored procedure.";
             }
+            var newData = GetLeaveSummaryByID(model.LeaveSummaryID);
+            TrackLogAudit(
+        oldData,
+        newData,
+        "Edit",                     // Status update is treated as Edit
+        model.UpdatedByID,           // User performing action
+        "LeaveSummary",
+        "tbl_LeaveSummary",
+        model.LeaveSummaryID,
+        "tbl_LeaveSummary_Log",
+        "Leave Status Updated"
+    );
 
             return model;
         }
@@ -5501,7 +5518,7 @@ namespace HRMS.API.BusinessLayer
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
         new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID),
-                    new SqlParameter("@AttendanceStatus",model.AttendanceStatus)
+        new SqlParameter("@AttendanceStatus",model.AttendanceStatus)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetHolidayOrSundayWorkLog, sqlParameters);
@@ -6074,7 +6091,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
         {
             Result model = new Result();
-
+             
             var oldData = GetAttendanceStatusChangesByID(att.StatusChangeID);
             List<SqlParameter> sqlParameters = new List<SqlParameter>
       {

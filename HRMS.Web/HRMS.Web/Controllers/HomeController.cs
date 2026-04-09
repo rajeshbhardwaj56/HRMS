@@ -113,14 +113,14 @@ namespace HRMS.Web.Controllers
                         // Format the Reset Password URL correctly
                         var formattedResetUrl = string.Format(resetPasswordUrl, _businessLayer.EncodeStringBase64(userModel.EmployeeID == null ? "" : userModel.EmployeeID.ToString()), encodedTimestamp, _businessLayer.EncodeStringBase64(userModel.CompanyID.ToString()), _businessLayer.EncodeStringBase64(userModel.UserName.ToString()));
 
-                        // Prepare email content
+
                         sendEmailProperties sendEmailProperties = new sendEmailProperties
                         {
                             emailSubject = "Reset Password",
                             emailBody = $@"
         <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
             Hi,<br/><br/>
-            Please click on the link below to reset your password.<br/><br/>
+            Please click on the link below to reset password.<br/><br/>
 
             <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
                 <thead style='background-color: #f2f2f2;'>
@@ -154,7 +154,7 @@ namespace HRMS.Web.Controllers
             </p>
         </div>"
                         };
-                        
+
                         if (userModel.EmployeeTypeID == (int)EmploymentType.SeniorCore &&
     !string.IsNullOrEmpty(userModel.Email))
                         {
@@ -162,11 +162,23 @@ namespace HRMS.Web.Controllers
                         }
                         else
                         {
-                            
+                            string managerL1 = userModel.ManagerEmailL1;
+                            string managerL2 = userModel.ManagerEmailL2;
+
+                            if ( !string.IsNullOrEmpty(managerL2))
+                            {
+
+                                 sendEmailProperties.EmailToList.Add(managerL2);
+                              
+                            }                        
+                            else
+                            {
+
                                 sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
-                           
+
+                            }
                         }
-                        emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
+                            emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
                         if (response.responseCode == "200")
                         {
                             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
@@ -178,7 +190,7 @@ namespace HRMS.Web.Controllers
                             else
                             {
                                 
-                                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT email.";
+                                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to L2 manager.";
 
                                 
                             }

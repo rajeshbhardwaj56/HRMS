@@ -116,6 +116,8 @@ namespace HRMS.Models.Leave
     public class UpdateLeaveStatus
     {
         public long EmployeeID { get; set; }
+
+        public long UpdatedByID { get; set; }
         public long NewLeaveStatusID { get; set; }
         public long LeaveSummaryID { get; set; }
         public string? Message { get; set; }
