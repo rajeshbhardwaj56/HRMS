@@ -129,18 +129,22 @@
 										<div class="tabsInfo" id="">
 											<h3>Leave Approval Info</h3>
 											<nav>
-												<div class="nav nav-tabs mb-3" id="myTabs-timeoff" role="tablist">
-													<button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true"  >
-														Leaves For Approval
-													</button>
-													<button class="nav-link  " id="leave-approved-tab1" data-bs-toggle="tab" data-bs-target="#leave-approved-tab" type="button" role="tab" aria-controls="leave-approved-tab" aria-selected="false" onclick="LeavesForApproved()">Approved Leaves</button>
-													<button class="nav-link  " id="leave-Reject-tab1" data-bs-toggle="tab" data-bs-target="#leave-Reject-tab" type="button" role="tab" aria-controls="leave-Reject-tab" aria-selected="false" onclick="LeavesForReject()">Rejected Leaves</button>
-													<button class="nav-link  " id="leave-Cancelled-tab1" data-bs-toggle="tab" data-bs-target="#leave-Cancelled-tab" type="button" role="tab" aria-controls="leave-Cancelled-tab" aria-selected="false" onclick="LeavesForCancelled()">Employees Cancelled Leaves</button>
-												</div>
+                                                <div class="nav nav-tabs mb-3" id="myTabs-timeoff" role="tablist">
+                                                    <button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
+                                                        Leaves For Approval
+                                                    </button>
+                                                    <button class="nav-link  " id="leave-approved-tab1" data-bs-toggle="tab" data-bs-target="#leave-approved-tab" type="button" role="tab" aria-controls="leave-approved-tab" aria-selected="false" onclick="LeavesForApproved()">Approved Leaves</button>
+                                                    <button class="nav-link  " id="leave-Reject-tab1" data-bs-toggle="tab" data-bs-target="#leave-Reject-tab" type="button" role="tab" aria-controls="leave-Reject-tab" aria-selected="false" onclick="LeavesForReject()">Rejected Leaves</button>
+                                                    @if (RoleName == (int)Roles.Admin)
+													{
+                                                        <button class="nav-link  " id="leave-Future-tab1" data-bs-toggle="tab" data-bs-target="#leave-Future-tab" type="button" role="tab" aria-controls="leave-Future-tab" aria-selected="false" onclick="LeavesForFuture()">Future Leaves</button>
+													}
+                                                    <button class="nav-link  " id="leave-Cancelled-tab1" data-bs-toggle="tab" data-bs-target="#leave-Cancelled-tab" type="button" role="tab" aria-controls="leave-Cancelled-tab" aria-selected="false" onclick="LeavesForCancelled()">Employees Cancelled Leaves</button>
+                                                </div>
 											</nav>
-											<div class="tab-content" id="nav-tabContent1">
-												<div class="tab-pane fade show active" id="applied-leave-tab" role="tabpanel" aria-labelledby="applied-leave-tab1">
-													<div class="group-box anim">
+                                            <div class="tab-content" id="nav-tabContent1">
+                                                <div class="tab-pane fade show active" id="applied-leave-tab" role="tabpanel" aria-labelledby="applied-leave-tab1">
+                                                    <div class="group-box anim">
                                                         <div class="tabsInfo d-flex align-items-center justify-content-between mb-3" id="myTabContent-timeoff">
                                                             <h3>Leaves For Approval</h3>
                                                             @if (RoleName == (int)Roles.Admin)
@@ -159,13 +163,13 @@
                                                                 </div>
                                                             }
                                                         </div>
-														<div role="tabpanel" aria-labelledby="apply-tab">
-															<div class="row">
-																<div class="col-lg-12 col-md-12 col-sm-12">
-																	<div class="card">
-																		<div class="card-body">
-																			<table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
-																				<thead>
+                                                        <div role="tabpanel" aria-labelledby="apply-tab">
+                                                            <div class="row">
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="card">
+                                                                        <div class="card-body">
+                                                                            <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
+                                                                                <thead>
                                                                                     <tr>
                                                                                         @if (RoleName == (int)Roles.Admin)
                                                                                         {
@@ -189,132 +193,187 @@
                                                                                         <th>Reason</th>
                                                                                         <th>Action</th>
                                                                                     </tr>
-																				</thead>
+                                                                                </thead>
 
-																			</table>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-												<div class="tab-pane fade" id="leave-approved-tab" role="tabpanel" aria-labelledby="leave-approved-tab1">
-													<div class="group-box anim">
-														<div class="tabsInfo" id="myTabContent-timeoff">
-															<h3>Approved Leaves</h3>
-														</div>
-														<div role="tabpanel" aria-labelledby="apply-tab">
-															<div class="row">
-																<div class="col-lg-12 col-md-12 col-sm-12">
-																	<div class="card">
-																		<div class="card-body">
-																			<table id="tblLeavesForApproved" class="table table-striped body-text" style="width:100%">
-																				<thead>
-																					<tr>
-																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Emp No</th>
-																						<th>Name</th>
-																						<th>Applied By Emp Number</th>
-																						<th>Applied By Name</th>
-																						<th>From Date</th>
-																						<th>To Date</th>
-																						<th>Type</th>
-																						<th>Days</th>
-																						<th>Status</th>
-																						<th>Reason</th>
-																					</tr>
-																				</thead>
-																			</table>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane fade" id="leave-approved-tab" role="tabpanel" aria-labelledby="leave-approved-tab1">
+                                                    <div class="group-box anim">
+                                                        <div class="tabsInfo" id="myTabContent-timeoff">
+                                                            <h3>Approved Leaves</h3>
+                                                        </div>
+                                                        <div role="tabpanel" aria-labelledby="apply-tab">
+                                                            <div class="row">
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="card">
+                                                                        <div class="card-body">
+                                                                            <table id="tblLeavesForApproved" class="table table-striped body-text" style="width:100%">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th class="first" style="visibility:hidden"> </th>
+                                                                                        <th>Emp No</th>
+                                                                                        <th>Name</th>
+                                                                                        <th>Applied By Emp Number</th>
+                                                                                        <th>Applied By Name</th>
+                                                                                        <th>From Date</th>
+                                                                                        <th>To Date</th>
+                                                                                        <th>Type</th>
+                                                                                        <th>Days</th>
+                                                                                        <th>Status</th>
+                                                                                        <th>Reason</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-												<div class="tab-pane fade" id="leave-Reject-tab" role="tabpanel" aria-labelledby="leave-Reject-tab1">
+                                                <div class="tab-pane fade" id="leave-Reject-tab" role="tabpanel" aria-labelledby="leave-Reject-tab1">
 
-													<div class="group-box anim">
-														<div class="tabsInfo" id="myTabContent-timeoff">
-															<h3>Rejected Leaves</h3>
+                                                    <div class="group-box anim">
+                                                        <div class="tabsInfo" id="myTabContent-timeoff">
+                                                            <h3>Rejected Leaves</h3>
 
-														</div>
-														<div role="tabpanel" aria-labelledby="apply-tab">
-															<div class="row">
-																<div class="col-lg-12 col-md-12 col-sm-12">
-																	<div class="card">
-																		<div class="card-body">
-																			<table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
-																				<thead>
-																					<tr>
-																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Emp No</th>
-																						<th>  Name</th>
-																						<th>Applied By Emp Number</th>
-																						<th>Applied By Name</th>																					
-																						<th>From Date</th>
-																						<th>To Date</th>
-																						<th>Type</th>
-																						<th>Days</th>
-																						<th>Status</th>
-																						<th>Reason</th>
-																					</tr>
-																				</thead>
+                                                        </div>
+                                                        <div role="tabpanel" aria-labelledby="apply-tab">
+                                                            <div class="row">
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="card">
+                                                                        <div class="card-body">
+                                                                            <table id="tblLeavesForReject" class="table table-striped body-text" style="width:100%">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th class="first" style="visibility:hidden"> </th>
+                                                                                        <th>Emp No</th>
+                                                                                        <th>  Name</th>
+                                                                                        <th>Applied By Emp Number</th>
+                                                                                        <th>Applied By Name</th>
+                                                                                        <th>From Date</th>
+                                                                                        <th>To Date</th>
+                                                                                        <th>Type</th>
+                                                                                        <th>Days</th>
+                                                                                        <th>Status</th>
+                                                                                        <th>Reason</th>
+                                                                                    </tr>
+                                                                                </thead>
 
-																			</table>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-												@* User Cancelled Approved Leave *@
+                                                <div class="tab-pane fade" id="leave-Future-tab" role="tabpanel" aria-labelledby="leave-Future-tab1">
 
-												<div class="tab-pane fade" id="leave-Cancelled-tab" role="tabpanel" aria-labelledby="leave-Cancelled-tab1">
+                                                    <div class="group-box anim">
+                                                        <div class="tabsInfo d-flex align-items-center justify-content-between mb-3" id="myTabaContent-timeoff">
+                                                            <h3>Future Leaves</h3>
+                                                            @if (RoleName == (int)Roles.Admin)
+                                                            {
+                                                                <div class="d-flex align-items-center">
+                                                                    <input type="text" id="txtCancelLeaveComment" class="form-control form-control-sm me-2" placeholder="Enter comment" style="width:250px;" />
 
-													<div class="group-box anim">
-														<div class="tabsInfo" id="myTabContent-timeoff">
-															<h3>User Cancelled Leaves</h3>
+                                                                    <select id="ddlLeaveStatus" class="form-select form-select-sm me-2" style="width:150px;">
+                                                                        <option value="">Select Status</option>
+                                                                        <option value="1">Cancel</option>
+                                                                     
+                                                                    </select>
+                                                                    <button id="btnCancelSelectedLeaves" class="btn btn-primary btn-sm">
+                                                                        Update Selected
+                                                                    </button>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                        <div role="tabpanel" aria-labelledby="apply-tab">
+                                                            <div class="row">
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="card">
+                                                                        <div class="card-body">
+                                                                            <table id="tblLeavesForFuture" class="table table-striped body-text" style="width:100%">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th style="width:40px;">
+                                                                                            <input type="checkbox" id="selectAllFutureLeaves" />
+                                                                                        </th>
+                                                                                        <th>Emp No</th>
+                                                                                        <th>  Name</th>
+                                                                                        <th>Applied By Emp Number</th>
+                                                                                        <th>Applied By Name</th>
+                                                                                        <th>From Date</th>
+                                                                                        <th>To Date</th>
+                                                                                        <th>Type</th>
+                                                                                        <th>Days</th>
+                                                                                        <th>Status</th>
+                                                                                        <th>Reason</th>
+                                                                                    </tr>
+                                                                                </thead>
 
-														</div>
-														<div role="tabpanel" aria-labelledby="apply-tab">
-															<div class="row">
-																<div class="col-lg-12 col-md-12 col-sm-12">
-																	<div class="card">
-																		<div class="card-body">
-																			<table id="tblLeavesForCancelled" class="table table-striped body-text" style="width:100%">
-																				<thead>
-																					<tr>
-																						<th class="first" style="visibility:hidden"> </th>
-																						<th>Emp No</th>
-																						<th>  Name</th>
-																						<th>Applied By Emp Number</th>
-																						<th>Applied By Name</th>
-																						<th>From Date</th>
-																						<th>To Date</th>
-																						<th>Type</th>
-																						<th>Days</th>
-																						<th>Status</th>
-																						<th>Reason</th>
-																					</tr>
-																				</thead>
-
-																			</table>
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
 
+                                                @* User Cancelled Approved Leave *@
 
-											</div>
+                                                <div class="tab-pane fade" id="leave-Cancelled-tab" role="tabpanel" aria-labelledby="leave-Cancelled-tab1">
+
+                                                    <div class="group-box anim">
+                                                        <div class="tabsInfo" id="myTabContent-timeoff">
+                                                            <h3>User Cancelled Leaves</h3>
+
+                                                        </div>
+                                                        <div role="tabpanel" aria-labelledby="apply-tab">
+                                                            <div class="row">
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="card">
+                                                                        <div class="card-body">
+                                                                            <table id="tblLeavesForCancelled" class="table table-striped body-text" style="width:100%">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th class="first" style="visibility:hidden"> </th>
+                                                                                        <th>Emp No</th>
+                                                                                        <th>  Name</th>
+                                                                                        <th>Applied By Emp Number</th>
+                                                                                        <th>Applied By Name</th>
+                                                                                        <th>From Date</th>
+                                                                                        <th>To Date</th>
+                                                                                        <th>Type</th>
+                                                                                        <th>Days</th>
+                                                                                        <th>Status</th>
+                                                                                        <th>Reason</th>
+                                                                                    </tr>
+                                                                                </thead>
+
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+                                            </div>
 
 										</div>
 									</div>
@@ -973,13 +1032,14 @@
 		});
 	}
 	function AutoReload() {
-		  $('#leave-Cancelled-tab').hide();
+		$('#leave-Cancelled-tab').hide();
+        $('#leave-Future-tab').hide();
 		RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
 		if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
 			 @if (RoleName == (int)Roles.Admin) {
             <text>
             InitAdminLeavesForApproval();
-          
+
             </text>
         } else {
             <text>InitOverviewDataTable();</text>
@@ -1001,7 +1061,13 @@
 			InittblLeavesForReject();
 		}
 	}
-
+	function LeavesForFuture() {
+	$('#leave-Future-tab').css("display", "block");
+	RefreshTable2('#tblLeavesForFuture', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForFuture`);//User Cancelled
+	if (!$.fn.DataTable.isDataTable('#tblLeavesForFuture')) {
+		InittblLeavesForFuture();
+	}
+}
 
 
 	function LeavesForCancelled() {
@@ -1278,10 +1344,80 @@
 			}
 		});
 	}
+	function InittblLeavesForFuture() {
+
+    const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+
+    oOverviewTable4 = $('#tblLeavesForFuture').DataTable({
+        ordering: true,
+        paging: true,
+        searching: true,
+        info: true,
+
+        columns: [
+            {
+                data: "leaveSummaryID",
+                render: function (data, type, row) {
+                    return `<input type="checkbox" class="row-select-leave" value="${data}" />`;
+                },
+                orderable: false
+            },
+            { data: "employeeNumber", autoWidth: true },
+            { data: "employeeName", autoWidth: true },
+            { data: "appliedByNumber", autoWidth: true },
+            { data: "appliedByName", autoWidth: true },
+            { data: "startDateFormatted", autoWidth: true },
+            { data: "endDateFormatted", autoWidth: true },
+            { data: "leaveTypeName", autoWidth: true },
+            { data: "noOfDays", autoWidth: true },
+            { data: "leaveStatusName", autoWidth: true },
+            { data: "reason", autoWidth: true }
+        ],
+
+        columnDefs: [
+            {
+                targets: [0],
+                orderable: false
+            },
+            {
+                targets: [1],
+                orderable: true,
+                defaultContent: " "
+            }
+        ],
+
+        responsive: true,
+
+        createdRow: function (row, data, dataIndex) {
+
+            if (
+                (data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
+                (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))
+            ) {
+
+                const tooltipMessage =
+                    data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
+                        ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
+                        : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+
+                const styledSpan = `
+                <span class="fw-bold text-primary"
+                      style="background-color:red;color:white !important;padding:2px 4px;border-radius:3px;">
+                    ${data.noOfDays}
+                </span>`;
+
+                $('td:eq(8)', row)   // correct index for Days column
+                    .html(styledSpan)
+                    .attr('title', tooltipMessage)
+                    .tooltip();
+            }
+        }
+
+    });
+}
 
 
-
-		function InittblLeavesForCancelled() {
+    function InittblLeavesForCancelled() {
 		const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
 		oOverviewTable = $('#tblLeavesForCancelled').DataTable({
 			"ordering": true,
@@ -1347,6 +1483,263 @@
 		});
 	}
 
+    $('#btnUpdateSelectedLeaves').on('click', function () {
+
+        const selectedStatus = $('#ddlLeaveStatus').val();
+        const comment = $('#txtAdminLeaveComment').val().trim();
+        if (!comment) {
+            toastEMessage('Error', 'Enter a comment before updating');
+            return;
+        }
+        if (!selectedStatus) {
+            toastEMessage('Error', 'Select status (Approve/Reject)');
+            return;
+        }
+
+        const selectedRecords = [];
+
+        $('#tblLeavesForApproval .row-select-leave:checked').each(function () {
+
+            const leaveSummaryID = $(this).val();
+
+
+            const rowData = oOverviewTable1.rows().data().toArray().find(r => r.leaveSummaryID == leaveSummaryID);
+
+            if (rowData) {
+                selectedRecords.push({
+                    LeaveSummaryID: rowData.leaveSummaryID,
+                    EmployeeID: rowData.employeeID,
+                    EmployeeNumber: rowData.employeeNumber,
+                    LeaveTypeID: rowData.leaveTypeID
+                });
+            }
+        });
+        if (selectedRecords.length === 0) {
+            toastEMessage('Error', 'Select at least one leave');
+            return;
+        }
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('Processing...');
+
+        const failedMessages = [];
+        let processedCount = 0;
+        let delay = 0;
+
+        selectedRecords.forEach(record => {
+
+            setTimeout(function () {
+
+                $.ajax({
+                    url: '/Employee/MyInfo/ApproveRejectLeave',
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    data: {
+                        leaveSummaryID: record.LeaveSummaryID,
+                        isApproved: selectedStatus == "1",
+                        approveRejectComment: comment,
+                        leaveTypeID: record.LeaveTypeID || 0
+                    },
+
+                    success: function (response) {
+
+                        if (response.data?.status === 1) {
+                            failedMessages.push(`EmpNo ${record.EmployeeNumber}: ${response.data.message}`);
+                        }
+
+                    },
+
+                    error: function () {
+                        failedMessages.push(`EmpNo ${record.EmployeeNumber}: Server error`);
+                    },
+
+                    complete: function () {
+
+                        processedCount++;
+
+                        if (processedCount === selectedRecords.length) {
+
+                            $btn.prop('disabled', false).text('Update Selected');
+                            $('#selectAllLeaves').prop('checked', false);
+
+                            RefreshTable(
+                                '#tblLeavesForApproval',
+                                '/Employee/MyInfo/GetLeaveForApprovals'
+                            );
+
+                            if (failedMessages.length > 0) {
+                                toastEMessage('Error', failedMessages.join('<br>'), 5000);
+                            } else {
+                                toastMessage('Success', 'All selected leaves processed successfully');
+                            }
+
+                        }
+
+                    }
+
+                });
+
+            }, delay);
+
+            delay += 500;
+
+        });
+
+    });
+
+    $(document).on('click', '#selectAllLeaves', function () {
+
+        const isChecked = $(this).prop('checked');
+
+        $('#tblLeavesForApproval tbody .row-select-leave')
+            .prop('checked', isChecked);
+    });
+    $(document).on('change', '.row-select-leave', function () {
+
+        const total = $('#tblLeavesForApproval tbody .row-select-leave').length;
+        const checked = $('#tblLeavesForApproval tbody .row-select-leave:checked').length;
+
+        $('#selectAllLeaves').prop('checked', total === checked);
+    });
+
+
+    $('#btnCancelSelectedLeaves').on('click', function () {
+
+        const comment = $('#txtCancelLeaveComment').val().trim();
+
+        if (!comment) {
+            toastEMessage('Error', 'Enter a comment before cancelling');
+            return;
+        }
+
+        const selectedRecords = [];
+
+        $('#tblLeavesForFuture .row-select-leave:checked').each(function () {
+
+            const leaveSummaryID = $(this).val();
+
+            const rowData = oOverviewTable4.rows().data().toArray()
+                .find(r => r.leaveSummaryID == leaveSummaryID);
+
+            if (rowData) {
+                selectedRecords.push({
+                    EncryptedIdentity: rowData.encryptedIdentity,
+                    Encrypted: rowData.encrypted,
+                    EmployeeNumber: rowData.employeeNumber
+                });
+            }
+        });
+
+        if (selectedRecords.length === 0) {
+            toastEMessage('Error', 'Select at least one leave');
+            return;
+        }
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('Processing...');
+
+        const failedMessages = [];
+        let processedCount = 0;
+        let delay = 0;
+
+        selectedRecords.forEach(record => {
+
+            setTimeout(function () {
+
+                $.ajax({
+                    url: '/Employee/MyInfo/UpdateAdminAgentLeaveStatus',
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    data: {
+                        id: record.EncryptedIdentity,
+                        empId: record.Encrypted,
+                        comment: comment   
+                    },
+
+                    success: function (response) {
+
+                       
+                        if (response?.status !== 1) {
+                            failedMessages.push(`EmpNo ${record.EmployeeNumber}: ${response.message}`);
+                        }
+
+                    },
+
+                    error: function () {
+                        failedMessages.push(`EmpNo ${record.EmployeeNumber}: Server error`);
+                    },
+
+                    complete: function () {
+
+                        processedCount++;
+
+                        if (processedCount === selectedRecords.length) {
+
+                            $btn.prop('disabled', false).text('Cancel Selected');
+
+                            $('#selectAllFutureLeaves').prop('checked', false);
+
+                            RefreshTable2(
+                                '#tblLeavesForFuture',
+                                '/Employee/MyInfo/GetLeaveForFuture'
+                            );
+
+                            if (failedMessages.length > 0) {
+                                toastEMessage('Error', failedMessages.join('<br>'), 5000);
+                            } else {
+                                toastMessage('Success', 'Selected leaves cancelled successfully');
+                            }
+                        }
+                    }
+                });
+
+            }, delay);
+
+            delay += 500;
+        });
+
+    });
+    $(document).on('click', '#selectAllFutureLeaves', function () {
+
+        const isChecked = $(this).prop('checked');
+
+        $('#tblLeavesForFuture tbody .row-select-leave')
+            .prop('checked', isChecked);
+    });
+
+    $(document).on('change', '#tblLeavesForFuture .row-select-leave', function () {
+
+        const total = $('#tblLeavesForFuture tbody .row-select-leave').length;
+        const checked = $('#tblLeavesForFuture tbody .row-select-leave:checked').length;
+
+        $('#selectAllFutureLeaves').prop('checked', total === checked);
+    });
+
+    function toastEMessage(type, message) {
+        $.toast(
+            {
+                heading: 'Error',
+                text: message,
+                showHideTransition: 'slide',
+                icon: 'error',
+                position: 'top-right',
+            });
+    }
+
+    function toastMessage(type, message) {
+        $.toast(
+            {
+                heading: type,
+                text: message,
+                showHideTransition: 'slide',
+                icon: 'success',
+                position: 'top-right',
+            });
+    }
 
 
 
@@ -1358,7 +1751,6 @@
 	document.addEventListener('DOMContentLoaded', function () {
 
 
-		// Save selected sub-tab (inside Leave Info) to localStorage
 		var subTabs = document.querySelectorAll('#myTabs-timeoff .nav-link');
 		subTabs.forEach(function (subTab) {
 			subTab.addEventListener('click', function () {
@@ -1366,7 +1758,7 @@
 			});
 		});
 
-		// Check if a sub-tab was previously selected and open it
+
 		var activeSubTab = localStorage.getItem('selectedSubTab');
 		if (activeSubTab) {
 			var targetSubTab = document.querySelector(`[data-bs-target="${activeSubTab}"]`);
@@ -1506,150 +1898,7 @@
 	});
 
 
-$('#btnUpdateSelectedLeaves').on('click', function () {
 
-    const selectedStatus = $('#ddlLeaveStatus').val();
-	const comment = $('#txtAdminLeaveComment').val().trim();
-	 if (!comment) {
-    toastEMessage('Error', 'Enter a comment before updating');
-    return;
-}
-    if (!selectedStatus) {
-        toastEMessage('Error', 'Select status (Approve/Reject)');
-        return;
-    }
-	
-    const selectedRecords = [];
-
-      $('#tblLeavesForApproval .row-select-leave:checked').each(function () {
-   
-        const leaveSummaryID = $(this).val();
-
-        
-        const rowData = oOverviewTable1.rows().data().toArray().find(r => r.leaveSummaryID == leaveSummaryID);
-
-        if (rowData) {
-            selectedRecords.push({
-                LeaveSummaryID: rowData.leaveSummaryID,
-                EmployeeID: rowData.employeeID,
-                EmployeeNumber: rowData.employeeNumber,
-                LeaveTypeID: rowData.leaveTypeID
-            });
-        }
-    });
-    if (selectedRecords.length === 0) {
-        toastEMessage('Error', 'Select at least one leave');
-        return;
-    }
-
-    const $btn = $(this);
-    $btn.prop('disabled', true).text('Processing...');
-
-    const failedMessages = [];
-    let processedCount = 0;
-    let delay = 0;
-
-    selectedRecords.forEach(record => {
-
-        setTimeout(function () {
-
-            $.ajax({
-                url: '/Employee/MyInfo/ApproveRejectLeave',
-                type: 'POST',
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                data: {
-                    leaveSummaryID: record.LeaveSummaryID,
-                    isApproved: selectedStatus == "1",
-                    approveRejectComment: comment,
-                    leaveTypeID: record.LeaveTypeID || 0
-                },
-
-                success: function (response) {
-
-                    if (response.data?.status === 1) {
-                        failedMessages.push(`EmpNo ${record.EmployeeNumber}: ${response.data.message}`);
-                    }
-
-                },
-
-                error: function () {
-                    failedMessages.push(`EmpNo ${record.EmployeeNumber}: Server error`);
-                },
-
-                complete: function () {
-
-                    processedCount++;
-
-                    if (processedCount === selectedRecords.length) {
-
-                        $btn.prop('disabled', false).text('Update Selected');
-                        $('#selectAllLeaves').prop('checked', false);
-
-                        RefreshTable(
-                            '#tblLeavesForApproval',
-                            '/Employee/MyInfo/GetLeaveForApprovals'
-                        );
-
-                        if (failedMessages.length > 0) {
-                            toastEMessage('Error', failedMessages.join('<br>'),5000);
-                        } else {
-                            toastMessage('Success', 'All selected leaves processed successfully');
-                        }
-
-                    }
-
-                }
-
-            });
-
-        }, delay);
-
-        delay += 500; 
-
-    });
-
-});
-
-$(document).on('click', '#selectAllLeaves', function () {
-
-    const isChecked = $(this).prop('checked');
-
-    $('#tblLeavesForApproval tbody .row-select-leave')
-        .prop('checked', isChecked);
-});
-$(document).on('change', '.row-select-leave', function () {
-
-    const total = $('#tblLeavesForApproval tbody .row-select-leave').length;
-    const checked = $('#tblLeavesForApproval tbody .row-select-leave:checked').length;
-
-    $('#selectAllLeaves').prop('checked', total === checked);
-});
-
-	function toastEMessage(type, message)
-{
-	$.toast(
-		{
-				heading: 'Error',
-				text: message,
-				showHideTransition: 'slide',
-				icon: 'error',
-				position: 'top-right',
-		});
-}
-
-function toastMessage(type , message)
-	 {
-		  $.toast(
-			{
-				heading: type,
-				text: message,
-				showHideTransition: 'slide',
-				icon: 'success',
-				position: 'top-right',
-			});
-	 }
 
 </script>
 <script>

@@ -119,6 +119,64 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(results);
         }
 
+        [HttpPost]
+        public JsonResult GetLeaveForFuture(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        {
+            MyInfoInputParams employee = new MyInfoInputParams();
+            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
+            var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved && x.StartDate.Date > DateTime.Today).ToList();
+            if (Approvals != null)
+            {
+                foreach (var leave in Approvals)
+                {
+                    leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                    leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
+                }
+            }
+            var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
+            var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
+            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
+            return Json(new { data = Approvals });
+        }
+        public JsonResult UpdateAdminAgentLeaveStatus(string id, string empId)
+        {
+            UpdateLeaveStatus model = new UpdateLeaveStatus()
+            {
+                LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
+                EmployeeID = string.IsNullOrEmpty(empId) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(empId)),
+                UpdatedByID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID)),
+                NewLeaveStatusID = (int)LeaveStatus.Cancelled,
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.UpdateLeaveStatus),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<UpdateLeaveStatus>(data);
+
+            int status = 0;
+
+            if (results != null && !string.IsNullOrEmpty(results.Message))
+            {
+                if (results.Message.Contains("successfully updated"))
+                {
+                    status = 1;
+                }
+            }
+
+            return Json(new
+            {
+                status = status,
+                message = results?.Message ?? "Unknown response"
+            });
+        }
 
         [HttpPost]
         public JsonResult GetLeaveForApprovals(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
@@ -274,7 +332,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 // Filter approved annual/medical leaves in current fiscal year
                 var approvedLeaves = leaveSummaryData?.Where(x =>
-                    x.StartDate >= new DateTime(2026, 2, 18) &&
+                    x.StartDate >= fiscalYearStart &&
                     x.LeaveStatusID == (int)LeaveStatus.Approved &&
                     (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave)).ToList();
 
@@ -449,75 +507,64 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
 
-        private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
+        private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int annualMaxLeaveAllocation)
         {
             DateTime today = DateTime.Today;
 
-            // Fiscal year starts from March 21st of current or previous year
-            //DateTime fiscalYearStart = new DateTime(today.Month > 3 || (today.Month == 3 && today.Day >= 21)
-            //                                        ? today.Year : today.Year - 1, 3, 21);
-            //DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // Ends on March 20th next year
+            DateTime fiscalYearStart = new DateTime(
+                (today.Month > 3 || (today.Month == 3 && today.Day >= 21)) ? today.Year : today.Year - 1,
+                3,
+                21);
 
+            DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1);
 
-            DateTime fiscalYearStart;
-            DateTime fiscalYearEnd;
-
-            //if (today.Year == 2025)
-            //{
-            //    fiscalYearStart = new DateTime(2026, 1, 21);
-            //    fiscalYearEnd = new DateTime(2026, 3, 20);
-            //}
-
-            if (today <= new DateTime(2026, 3, 20))
-            {
-
-                fiscalYearStart = new DateTime(2026, 1, 21);
-                fiscalYearEnd = new DateTime(2026, 3, 20);
-            }
-            else
-            {
-                // ✅ Default logic: Fiscal year from 21 March current/previous year to 20 March next year
-                fiscalYearStart = new DateTime(today.Month > 3 || (today.Month == 3 && today.Day >= 21)
-                                               ? today.Year : today.Year - 1, 3, 21);
-                fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // Ends on 20 March next year
-            }
-
-
-            double annualLeaveEntitlement = Annual_MaximumLeaveAllocationAllowed;
-            double monthlyAccrual = annualLeaveEntitlement / 12;
+            double monthlyLeaveAccrual = annualMaxLeaveAllocation / 12.0;
             double totalAccruedLeave = 0;
 
-            // If join date is before fiscal year, adjust to fiscal start
-            if (joinDate < fiscalYearStart)
-                joinDate = fiscalYearStart;
+            int minimumDaysRequired = Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]);
 
-            // Start from the accrual period containing the join date
-            DateTime accrualPeriodStart = GetAccrualPeriodStart(joinDate);
-            DateTime accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1); // 20th of next month
-            if (today > new DateTime(2026, 3, 20))
+            DateTime cycleStart = GetAccrualPeriodStart(fiscalYearStart);
+            DateTime cycleEnd = cycleStart.AddMonths(1).AddDays(-1);
+
+            while (cycleStart <= today && cycleStart <= fiscalYearEnd)
             {
-                while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
+                // If employee joined AFTER this cycle → skip it
+                if (joinDate > cycleEnd)
                 {
-                    // Adjust for join date or current date
-                    DateTime effectiveStart = joinDate > accrualPeriodStart ? joinDate : accrualPeriodStart;
-                    DateTime effectiveEnd = accrualPeriodEnd < today ? accrualPeriodEnd : today;
+                    cycleStart = cycleStart.AddMonths(1);
+                    cycleEnd = cycleStart.AddMonths(1).AddDays(-1);
+                    continue;
+                }
+
+                bool isJoiningCycle = joinDate >= cycleStart && joinDate <= cycleEnd;
+
+                if (isJoiningCycle)
+                {
+                    // joining month → always credit once (after cycle completes)
+                    if (today >= cycleStart.AddMonths(1))
+                    {
+                        totalAccruedLeave += monthlyLeaveAccrual;
+                    }
+                }
+                else
+                {
+                    DateTime effectiveStart = joinDate > cycleStart ? joinDate : cycleStart;
+                    DateTime effectiveEnd = cycleEnd < today ? cycleEnd : today;
 
                     int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
 
-                    if (daysWorked > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
+                    if (daysWorked >= minimumDaysRequired)
                     {
-                        totalAccruedLeave += monthlyAccrual;
+                        totalAccruedLeave += monthlyLeaveAccrual;
                     }
-
-                    // Move to next accrual period
-                    accrualPeriodStart = accrualPeriodStart.AddMonths(1);
-                    accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
                 }
+
+                cycleStart = cycleStart.AddMonths(1);
+                cycleEnd = cycleStart.AddMonths(1).AddDays(-1);
             }
 
             return totalAccruedLeave;
         }
-
         private DateTime GetAccrualPeriodStart(DateTime date)
         {
             if (date.Day >= 21)
@@ -1043,7 +1090,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Approved leaves: Annual + Medical only
             var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
+                .Where(x => x.StartDate >= fiscalYearStart
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                 .ToList();
@@ -1321,7 +1368,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
                     decimal approvedLeaveDays = leaveSummaryDataResult
-                        .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
+                        .Where(x => x.StartDate >= fiscalYearStart
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                         .Sum(x => x.NoOfDays);
@@ -1582,7 +1629,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Approved leaves: Annual + Medical only
             var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
+                .Where(x => x.StartDate >= fiscalYearStart
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                 .ToList();
@@ -1857,7 +1904,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
                     decimal approvedLeaveDays = leaveSummaryDataResult
-                        .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
+                        .Where(x => x.StartDate >= fiscalYearStart
                             && x.LeaveStatusID == (int)LeaveStatus.Approved
                             && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                         .Sum(x => x.NoOfDays);
@@ -2126,7 +2173,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 : new DateTime(today.Year - 1, 3, 21);
 
             var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= new DateTime(2026, 2, 18)
+                .Where(x => x.StartDate >= fiscalYearStart
                     && x.LeaveStatusID == (int)LeaveStatus.Approved
                     && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
                 .ToList();

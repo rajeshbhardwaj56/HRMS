@@ -130,64 +130,51 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leavePolicyModelResult = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(leavePolicyDataJson).leavePolicyModel;
             return leavePolicyModelResult;
         }
-        private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int Annual_MaximumLeaveAllocationAllowed)
+        private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int annualMaxLeaveAllocation)
         {
             DateTime today = DateTime.Today;
-
-            // Fiscal year starts from March 21st of current or previous year
-            DateTime fiscalYearStart;
-            DateTime fiscalYearEnd;
-
-            if (today.Year == 2025)
-            {
-                // ✅ Special case: 2025 fiscal year is from 21 May 2025 to 20 March 2026
-                fiscalYearStart = new DateTime(2025, 5, 21);
-                fiscalYearEnd = new DateTime(2026, 3, 20);
-            }
-            else
-            {
-                // ✅ Default logic: Fiscal year from 21 March current/previous year to 20 March next year
-                fiscalYearStart = new DateTime(today.Month > 3 || (today.Month == 3 && today.Day >= 21)
-                                               ? today.Year : today.Year - 1, 3, 21);
-                fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1); // Ends on 20 March next year
-            }
-
-            double annualLeaveEntitlement = Annual_MaximumLeaveAllocationAllowed;
-            double monthlyAccrual = annualLeaveEntitlement / 12;
+            DateTime fiscalYearStart = new DateTime(
+                (today.Month > 3 || (today.Month == 3 && today.Day >= 21)) ? today.Year : today.Year - 1,
+                3,
+                21);
+            DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1);
+            double monthlyLeaveAccrual = annualMaxLeaveAllocation / 12.0;
             double totalAccruedLeave = 0;
-
-            // If join date is before fiscal year, adjust to fiscal start
             if (joinDate < fiscalYearStart)
                 joinDate = fiscalYearStart;
-
-            // Start from the accrual period containing the join date
-            DateTime accrualPeriodStart = GetAccrualPeriodStart(joinDate);
-            DateTime accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1); // 20th of next month
-            if (today > new DateTime(2026, 3, 20))
+            int minimumDaysRequired = Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]);
+            DateTime cycleStart = GetAccrualPeriodStart(joinDate);
+            DateTime cycleEnd = cycleStart.AddMonths(1).AddDays(-1);
+            while (cycleStart <= today && cycleStart <= fiscalYearEnd)
             {
-                while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
-            {
-                // Adjust for join date or current date
-                DateTime effectiveStart = joinDate > accrualPeriodStart ? joinDate : accrualPeriodStart;
-                DateTime effectiveEnd = accrualPeriodEnd < today ? accrualPeriodEnd : today;
-
-                int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
-
-                if (daysWorked > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
+                bool isJoiningCycle = joinDate >= cycleStart && joinDate <= cycleEnd;
+                if (isJoiningCycle)
                 {
-                    totalAccruedLeave += monthlyAccrual;
+                    if (today >= cycleStart.AddMonths(1))
+                    {
+                        totalAccruedLeave += monthlyLeaveAccrual;
+                    }
                 }
+                else
+                {
+                    DateTime effectiveStart = joinDate > cycleStart ? joinDate : cycleStart;
+                    DateTime effectiveEnd = cycleEnd < today ? cycleEnd : today;
 
-                // Move to next accrual period
-                accrualPeriodStart = accrualPeriodStart.AddMonths(1);
-                accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
-            }
-            }
+                    int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
 
+
+                    if (daysWorked >= minimumDaysRequired)
+                    {
+                        totalAccruedLeave += monthlyLeaveAccrual;
+                    }
+                }
+                cycleStart = cycleStart.AddMonths(1);
+                cycleEnd = cycleStart.AddMonths(1).AddDays(-1);
+            }
             return totalAccruedLeave;
         }
 
-        // Helper method: Gets the 21st-based accrual period start for any given date
+        
         private DateTime GetAccrualPeriodStart(DateTime date)
         {
             if (date.Day >= 21)
