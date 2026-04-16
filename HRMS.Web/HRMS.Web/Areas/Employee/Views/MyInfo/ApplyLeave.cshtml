@@ -317,7 +317,7 @@
 																<table id="tblLeaveSummary" class="table table-striped body-text dataTable no-footer">
 																	<thead>
 																		<tr>
-																			<th>Request Date</th>
+																			<th>Requested Date</th>
 																			<th>Start Date</th>
 																			<th>End Date</th>
 																			<th>Type</th>
@@ -332,7 +332,7 @@
 																		@foreach (var item in Model.leaveResults.leavesSummary)
 																		{
 																			<tr>
-																				<td>@item.RequestDate.ToString("MM/dd/yyyy hh:mm tt")</td>
+																				<td>@item.RequestDate.ToString("dd/MM/yyyy hh:mm tt")</td>
 																				<td>@item.StartDate.ToString("dd/M/yyyy", CultureInfo.InvariantCulture)</td>
 																				<td>@item.EndDate.ToString("dd/M/yyyy")</td>
 																				<td>@item.LeaveTypeName</td>

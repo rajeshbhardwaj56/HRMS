@@ -1471,12 +1471,12 @@ ${renderStatusEditor(selectedDate, data)}
             if (workDate.getDate() >= 21) {
                 payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
                 payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
-                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
+                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 23);
             } else {
 
                 payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
                 payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
-                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
+                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 23);
             }
 
 
