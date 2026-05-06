@@ -135,7 +135,7 @@
                                                     </button>
                                                     <button class="nav-link  " id="leave-approved-tab1" data-bs-toggle="tab" data-bs-target="#leave-approved-tab" type="button" role="tab" aria-controls="leave-approved-tab" aria-selected="false" onclick="LeavesForApproved()">Approved Leaves</button>
                                                     <button class="nav-link  " id="leave-Reject-tab1" data-bs-toggle="tab" data-bs-target="#leave-Reject-tab" type="button" role="tab" aria-controls="leave-Reject-tab" aria-selected="false" onclick="LeavesForReject()">Rejected Leaves</button>
-                                                    @if (RoleName == (int)Roles.Admin)
+                                                    @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
 													{
                                                         <button class="nav-link  " id="leave-Future-tab1" data-bs-toggle="tab" data-bs-target="#leave-Future-tab" type="button" role="tab" aria-controls="leave-Future-tab" aria-selected="false" onclick="LeavesForFuture()">Future Leaves</button>
 													}
@@ -147,7 +147,7 @@
                                                     <div class="group-box anim">
                                                         <div class="tabsInfo d-flex align-items-center justify-content-between mb-3" id="myTabContent-timeoff">
                                                             <h3>Leaves For Approval</h3>
-                                                            @if (RoleName == (int)Roles.Admin)
+                                                            @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
                                                             {
                                                                 <div class="d-flex align-items-center">
                                                                     <input type="text" id="txtAdminLeaveComment" class="form-control form-control-sm me-2" placeholder="Enter comment" style="width:250px;" />
@@ -171,7 +171,7 @@
                                                                             <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
                                                                                 <thead>
                                                                                     <tr>
-                                                                                        @if (RoleName == (int)Roles.Admin)
+                                                                                        @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin )
                                                                                         {
                                                                                             <th style="width:40px;">
                                                                                                 <input type="checkbox" id="selectAllLeaves" />
@@ -222,6 +222,7 @@
                                                                                         <th>Name</th>
                                                                                         <th>Applied By Emp Number</th>
                                                                                         <th>Applied By Name</th>
+                                                                                        <th>Requested Date</th>
                                                                                         <th>From Date</th>
                                                                                         <th>To Date</th>
                                                                                         <th>Type</th>
@@ -259,6 +260,7 @@
                                                                                         <th>  Name</th>
                                                                                         <th>Applied By Emp Number</th>
                                                                                         <th>Applied By Name</th>
+                                                                                        <th>Requested Date</th>
                                                                                         <th>From Date</th>
                                                                                         <th>To Date</th>
                                                                                         <th>Type</th>
@@ -282,7 +284,7 @@
                                                     <div class="group-box anim">
                                                         <div class="tabsInfo d-flex align-items-center justify-content-between mb-3" id="myTabaContent-timeoff">
                                                             <h3>Future Leaves</h3>
-                                                            @if (RoleName == (int)Roles.Admin)
+                                                            @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
                                                             {
                                                                 <div class="d-flex align-items-center">
                                                                     <input type="text" id="txtCancelLeaveComment" class="form-control form-control-sm me-2" placeholder="Enter comment" style="width:250px;" />
@@ -290,7 +292,7 @@
                                                                     <select id="ddlLeaveStatus" class="form-select form-select-sm me-2" style="width:150px;">
                                                                         <option value="">Select Status</option>
                                                                         <option value="1">Cancel</option>
-                                                                     
+
                                                                     </select>
                                                                     <button id="btnCancelSelectedLeaves" class="btn btn-primary btn-sm">
                                                                         Update Selected
@@ -313,6 +315,7 @@
                                                                                         <th>  Name</th>
                                                                                         <th>Applied By Emp Number</th>
                                                                                         <th>Applied By Name</th>
+                                                                                        <th>Requested Date</th>
                                                                                         <th>From Date</th>
                                                                                         <th>To Date</th>
                                                                                         <th>Type</th>
@@ -354,6 +357,7 @@
                                                                                         <th>  Name</th>
                                                                                         <th>Applied By Emp Number</th>
                                                                                         <th>Applied By Name</th>
+                                                                                        <th>Requested Date</th>
                                                                                         <th>From Date</th>
                                                                                         <th>To Date</th>
                                                                                         <th>Type</th>
@@ -1176,7 +1180,7 @@
 				${data.noOfDays}
 			</span>`;
 
-					$('td:eq(7)', row)
+					$('td:eq(8)', row)
 						.html(styledSpan)
 						.attr('title', tooltipMessage)
 						.tooltip();
@@ -1253,7 +1257,7 @@
                     : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
 
                 const styledSpan = `<span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">${data.noOfDays}</span>`;
-                $('td:eq(7)', row).html(styledSpan).attr('title', tooltipMessage).tooltip();
+                $('td:eq(8)', row).html(styledSpan).attr('title', tooltipMessage).tooltip();
             }
         }
     });
@@ -1271,7 +1275,29 @@
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "employeeName", "autoWidth": true },
 				{ "data": "appliedByNumber", "autoWidth": true },
-				{ "data": "appliedByName", "autoWidth": true },
+                { "data": "appliedByName", "autoWidth": true },
+                {
+                    "data": "requestDate",
+                    render: function (data) {
+                        if (!data) return "";
+
+                        var date = new Date(data);
+
+                        var day = String(date.getDate()).padStart(2, '0');
+                        var month = String(date.getMonth() + 1).padStart(2, '0');
+                        var year = date.getFullYear();
+
+                        var hours = date.getHours();
+                        var minutes = String(date.getMinutes()).padStart(2, '0');
+
+                        var ampm = hours >= 12 ? "PM" : "AM";
+                        hours = hours % 12;
+                        hours = hours ? hours : 12; // convert 0 → 12
+                        hours = String(hours).padStart(2, '0');
+
+                        return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+                    }
+                },
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
@@ -1316,7 +1342,7 @@
 				${data.noOfDays}
 			</span>`;
 
-					$('td:eq(7)', row)
+					$('td:eq(8)', row)
 						.html(styledSpan) // Replace the cell content with the styled span
 						.attr('title', tooltipMessage)
 						.tooltip(); // Initialize tooltip
@@ -1337,7 +1363,29 @@
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "employeeName", "autoWidth": true },
 				{ "data": "appliedByNumber", "autoWidth": true },
-				{ "data": "appliedByName", "autoWidth": true },
+                { "data": "appliedByName", "autoWidth": true },
+                {
+                    "data": "requestDate",
+                    render: function (data) {
+                        if (!data) return "";
+
+                        var date = new Date(data);
+
+                        var day = String(date.getDate()).padStart(2, '0');
+                        var month = String(date.getMonth() + 1).padStart(2, '0');
+                        var year = date.getFullYear();
+
+                        var hours = date.getHours();
+                        var minutes = String(date.getMinutes()).padStart(2, '0');
+
+                        var ampm = hours >= 12 ? "PM" : "AM";
+                        hours = hours % 12;
+                        hours = hours ? hours : 12; // convert 0 → 12
+                        hours = String(hours).padStart(2, '0');
+
+                        return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+                    }
+                },
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
@@ -1382,7 +1430,7 @@
 				${data.noOfDays}
 			</span>`;
 
-					$('td:eq(7)', row)
+					$('td:eq(8)', row)
 						.html(styledSpan) // Replace the cell content with the styled span
 						.attr('title', tooltipMessage)
 						.tooltip(); // Initialize tooltip
@@ -1412,6 +1460,28 @@
             { data: "employeeName", autoWidth: true },
             { data: "appliedByNumber", autoWidth: true },
             { data: "appliedByName", autoWidth: true },
+            {
+                "data": "requestDate",
+                render: function (data) {
+                    if (!data) return "";
+
+                    var date = new Date(data);
+
+                    var day = String(date.getDate()).padStart(2, '0');
+                    var month = String(date.getMonth() + 1).padStart(2, '0');
+                    var year = date.getFullYear();
+
+                    var hours = date.getHours();
+                    var minutes = String(date.getMinutes()).padStart(2, '0');
+
+                    var ampm = hours >= 12 ? "PM" : "AM";
+                    hours = hours % 12;
+                    hours = hours ? hours : 12; // convert 0 → 12
+                    hours = String(hours).padStart(2, '0');
+
+                    return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+                }
+            },
             { data: "startDateFormatted", autoWidth: true },
             { data: "endDateFormatted", autoWidth: true },
             { data: "leaveTypeName", autoWidth: true },
@@ -1452,7 +1522,7 @@
                     ${data.noOfDays}
                 </span>`;
 
-                $('td:eq(8)', row)   // correct index for Days column
+                $('td:eq(9)', row)   // correct index for Days column
                     .html(styledSpan)
                     .attr('title', tooltipMessage)
                     .tooltip();
@@ -1475,7 +1545,29 @@
 				{ "data": "employeeNumber", "autoWidth": true },
 				{ "data": "employeeName", "autoWidth": true },
 				{ "data": "appliedByNumber", "autoWidth": true },
-				{ "data": "appliedByName", "autoWidth": true },
+                { "data": "appliedByName", "autoWidth": true },
+                {
+                    "data": "requestDate",
+                    render: function (data) {
+                        if (!data) return "";
+
+                        var date = new Date(data);
+
+                        var day = String(date.getDate()).padStart(2, '0');
+                        var month = String(date.getMonth() + 1).padStart(2, '0');
+                        var year = date.getFullYear();
+
+                        var hours = date.getHours();
+                        var minutes = String(date.getMinutes()).padStart(2, '0');
+
+                        var ampm = hours >= 12 ? "PM" : "AM";
+                        hours = hours % 12;
+                        hours = hours ? hours : 12; // convert 0 → 12
+                        hours = String(hours).padStart(2, '0');
+
+                        return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+                    }
+                },
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
@@ -1520,7 +1612,7 @@
 				${data.noOfDays}
 			</span>`;
 
-					$('td:eq(7)', row)
+					$('td:eq(8)', row)
 						.html(styledSpan) // Replace the cell content with the styled span
 						.attr('title', tooltipMessage)
 						.tooltip(); // Initialize tooltip

@@ -834,6 +834,9 @@
                     : { year, month: 2 }; // March payroll
             }
 
+          
+
+
             // ALL OTHER MONTHS
             return day >= 21
                 ? { year, month: month + 1 }
@@ -888,8 +891,19 @@
                     end: moment([year, 2, 20])
                 };
             }
+            if (month === 3) {
+                return {
+                    start: moment([year, 2, 21]),
+                    end: moment([year, 3, 19])
+                };
+            }
+            if (month === 4) {
+                return {
+                    start: moment([year, 3, 20]),
+                    end: moment([year, 4, 20])
+                };
+            }
 
-    
             return {
                 start: moment([year, month - 1, 21]),
                 end: moment([year, month, 20])
@@ -905,7 +919,7 @@
             const payroll = getPayrollRange(year, month);
             updatePayrollRangeText(year, month);
             const gridStart = payroll.start.clone().startOf('week');
-            const gridEnd = payroll.end.clone().endOf('week');
+            const gridEnd = payroll.end.clone().endOf('week');  
 
             $('#calendarBody').empty();
 
@@ -1465,18 +1479,39 @@ ${renderStatusEditor(selectedDate, data)}
 
 
             const workDate = parseISTDate(workDateStr);
+            const month = workDate.getMonth();
             if (workDate > todayIST) return false;
+
             let payrollStart, payrollEnd, cutoffDate;
 
-            if (workDate.getDate() >= 21) {
-                payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
-                payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
-                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 23);
-            } else {
+            if (
+                (month === 1 && workDate.getDate() >= 18) ||
+                (month === 2 && workDate.getDate() <= 20)
+            ) {
+                payrollStart = new Date(workDate.getFullYear(), 1, 18);
+                payrollEnd = new Date(workDate.getFullYear(), 2, 20);
+                cutoffDate = new Date(workDate.getFullYear(), 2, 20);
+            }
+            else if (
+                month === 3 && workDate.getDate() == 20
+            ) {
+                payrollStart = new Date(workDate.getFullYear(), 3, 20);
+                payrollEnd = new Date(workDate.getFullYear(), 4, 20);
+                cutoffDate = new Date(workDate.getFullYear(), 4, 23);
+            }
+            else {
+                if (workDate.getDate() >= 21) {
 
-                payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
-                payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
-                cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 23);
+                    payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
+                    payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
+                    cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 23);
+
+                } else {
+
+                    payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
+                    payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
+                    cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 23);
+                }
             }
 
 

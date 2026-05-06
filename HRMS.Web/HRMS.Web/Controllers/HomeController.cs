@@ -260,7 +260,6 @@ namespace HRMS.Web.Controllers
             }
             return View(objmodel);
         }
-
         [HttpPost]
         public ActionResult ResetPassword(ResetPasswordModel model)
         {

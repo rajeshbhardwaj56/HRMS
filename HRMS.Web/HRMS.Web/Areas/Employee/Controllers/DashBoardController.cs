@@ -133,23 +133,37 @@ namespace HRMS.Web.Areas.Employee.Controllers
         private double CalculateAccruedLeaveForCurrentFiscalYear(DateTime joinDate, int annualMaxLeaveAllocation)
         {
             DateTime today = DateTime.Today;
+
             DateTime fiscalYearStart = new DateTime(
                 (today.Month > 3 || (today.Month == 3 && today.Day >= 21)) ? today.Year : today.Year - 1,
                 3,
                 21);
+
             DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1);
+
             double monthlyLeaveAccrual = annualMaxLeaveAllocation / 12.0;
             double totalAccruedLeave = 0;
-            if (joinDate < fiscalYearStart)
-                joinDate = fiscalYearStart;
+
             int minimumDaysRequired = Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]);
-            DateTime cycleStart = GetAccrualPeriodStart(joinDate);
+
+            DateTime cycleStart = GetAccrualPeriodStart(fiscalYearStart);
             DateTime cycleEnd = cycleStart.AddMonths(1).AddDays(-1);
+
             while (cycleStart <= today && cycleStart <= fiscalYearEnd)
             {
+                // If employee joined AFTER this cycle → skip it
+                if (joinDate > cycleEnd)
+                {
+                    cycleStart = cycleStart.AddMonths(1);
+                    cycleEnd = cycleStart.AddMonths(1).AddDays(-1);
+                    continue;
+                }
+
                 bool isJoiningCycle = joinDate >= cycleStart && joinDate <= cycleEnd;
+
                 if (isJoiningCycle)
                 {
+                    // joining month → always credit once (after cycle completes)
                     if (today >= cycleStart.AddMonths(1))
                     {
                         totalAccruedLeave += monthlyLeaveAccrual;
@@ -162,19 +176,20 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                     int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
 
-
                     if (daysWorked >= minimumDaysRequired)
                     {
                         totalAccruedLeave += monthlyLeaveAccrual;
                     }
                 }
+
                 cycleStart = cycleStart.AddMonths(1);
                 cycleEnd = cycleStart.AddMonths(1).AddDays(-1);
             }
+
             return totalAccruedLeave;
         }
 
-        
+
         private DateTime GetAccrualPeriodStart(DateTime date)
         {
             if (date.Day >= 21)

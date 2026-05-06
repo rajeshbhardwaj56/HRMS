@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
@@ -316,18 +317,35 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 DateTime fiscalYearStart;
                 DateTime fiscalYearEnd;
-                if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                if (today.Year == 2026)
                 {
-                    fiscalYearStart = new DateTime(today.Year, 3, 21);
-                    fiscalYearEnd = new DateTime(today.Year + 1, 3, 20);
+                    if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                    {
+                        fiscalYearStart = new DateTime(2026, 4, 21);
+                        fiscalYearEnd = new DateTime(2027, 4, 20);
+                    }
+                    else
+                    {
+                        fiscalYearStart = new DateTime(2025, 4, 21);
+                        fiscalYearEnd = new DateTime(2026, 4, 20);
+                    }
                 }
                 else
                 {
-                    fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
-                    fiscalYearEnd = new DateTime(today.Year, 3, 20);
+
+                    if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                    {
+                        fiscalYearStart = new DateTime(today.Year, 3, 21);
+                        fiscalYearEnd = new DateTime(today.Year + 1, 3, 20);
+                    }
+                    else
+                    {
+                        fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                        fiscalYearEnd = new DateTime(today.Year, 3, 20);
+                    }
                 }
-                // Fetch leave summary for this employee & company
-                var leaveSummaryDataJson = GetLeaveSummaryData(leaveRecord.EmployeeID, leaveRecord.UserID, leaveRecord.CompanyID);
+                    // Fetch leave summary for this employee & company
+                    var leaveSummaryDataJson = GetLeaveSummaryData(leaveRecord.EmployeeID, leaveRecord.UserID, leaveRecord.CompanyID);
                 var leaveSummaryData = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryDataJson)?.leavesSummary;
 
                 // Filter approved annual/medical leaves in current fiscal year
@@ -511,11 +529,19 @@ namespace HRMS.Web.Areas.Employee.Controllers
         {
             DateTime today = DateTime.Today;
 
-            DateTime fiscalYearStart = new DateTime(
+            DateTime fiscalYearStart;
+
+            if (today.Year == 2026)
+            {
+                fiscalYearStart = new DateTime(2026, 4, 21);
+            }
+            else
+            {
+                fiscalYearStart = new DateTime(
                 (today.Month > 3 || (today.Month == 3 && today.Day >= 21)) ? today.Year : today.Year - 1,
                 3,
                 21);
-
+            }
             DateTime fiscalYearEnd = fiscalYearStart.AddYears(1).AddDays(-1);
 
             double monthlyLeaveAccrual = annualMaxLeaveAllocation / 12.0;
@@ -540,7 +566,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 if (isJoiningCycle)
                 {
-                    // joining month → always credit once (after cycle completes)
                     if (today >= cycleStart.AddMonths(1))
                     {
                         totalAccruedLeave += monthlyLeaveAccrual;
@@ -1084,9 +1109,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Fiscal year: March 21
             DateTime today = DateTime.Today;
-            DateTime fiscalYearStart = (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                ? new DateTime(today.Year, 3, 21)
-                : new DateTime(today.Year - 1, 3, 21);
+            DateTime fiscalYearStart;
+            DateTime fiscalYearEnd;
+
+            if (today.Year == 2026)
+            {
+                if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                {
+                    fiscalYearStart = new DateTime(2026, 4, 21);
+                    fiscalYearEnd = new DateTime(2027, 4, 20);
+                }
+                else
+                {
+                    fiscalYearStart = new DateTime(2025, 4, 21);
+                    fiscalYearEnd = new DateTime(2026, 4, 20);
+                }
+            }
+            else
+            {
+                if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                {
+                    fiscalYearStart = new DateTime(today.Year, 3, 21);
+                }
+                else
+                {
+                    fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                }
+            }
 
             // Approved leaves: Annual + Medical only
             var approvedLeaves = results?.leaveResults?.leavesSummary?
@@ -1356,16 +1405,32 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                     DateTime today = DateTime.Today;
                     DateTime fiscalYearStart;
+                    DateTime fiscalYearEnd;
 
-                    if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                    if (today.Year == 2026)
                     {
-                        fiscalYearStart = new DateTime(today.Year, 3, 21);
+                        if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                        {
+                            fiscalYearStart = new DateTime(2026, 4, 21);
+                            fiscalYearEnd = new DateTime(2027, 4, 20);
+                        }
+                        else
+                        {
+                            fiscalYearStart = new DateTime(2025, 4, 21);
+                            fiscalYearEnd = new DateTime(2026, 4, 20);
+                        }
                     }
                     else
                     {
-                        fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                        if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                        {
+                            fiscalYearStart = new DateTime(today.Year, 3, 21);
+                        }
+                        else
+                        {
+                            fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                        }
                     }
-
 
                     decimal approvedLeaveDays = leaveSummaryDataResult
                         .Where(x => x.StartDate >= fiscalYearStart
@@ -1623,9 +1688,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Fiscal year: March 21
             DateTime today = DateTime.Today;
-            DateTime fiscalYearStart = (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                ? new DateTime(today.Year, 3, 21)
-                : new DateTime(today.Year - 1, 3, 21);
+            DateTime fiscalYearStart;
+            DateTime fiscalYearEnd;
+
+            if (today.Year == 2026)
+            {
+                if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                {
+                    fiscalYearStart = new DateTime(2026, 4, 21);
+                    fiscalYearEnd = new DateTime(2027, 4, 20);
+                }
+                else
+                {
+                    fiscalYearStart = new DateTime(2025, 4, 21);
+                    fiscalYearEnd = new DateTime(2026, 4, 20);
+                }
+            }
+            else
+            {
+                if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                {
+                    fiscalYearStart = new DateTime(today.Year, 3, 21);
+                }
+                else
+                {
+                    fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                }
+            }
 
             // Approved leaves: Annual + Medical only
             var approvedLeaves = results?.leaveResults?.leavesSummary?
@@ -1893,15 +1982,32 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                     DateTime today = DateTime.Today;
                     DateTime fiscalYearStart;
-                    if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                    DateTime fiscalYearEnd;
+
+                    if (today.Year == 2026)
                     {
-                        fiscalYearStart = new DateTime(today.Year, 3, 21);
+                        if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                        {
+                            fiscalYearStart = new DateTime(2026, 4, 21);
+                            fiscalYearEnd = new DateTime(2027, 4, 20);
+                        }
+                        else
+                        {
+                            fiscalYearStart = new DateTime(2025, 4, 21);
+                            fiscalYearEnd = new DateTime(2026, 4, 20);
+                        }
                     }
                     else
                     {
-                        fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                        if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                        {
+                            fiscalYearStart = new DateTime(today.Year, 3, 21);
+                        }
+                        else
+                        {
+                            fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                        }
                     }
-
 
                     decimal approvedLeaveDays = leaveSummaryDataResult
                         .Where(x => x.StartDate >= fiscalYearStart
@@ -2168,9 +2274,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             // Fiscal year logic
             DateTime today = DateTime.Today;
-            DateTime fiscalYearStart = (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                ? new DateTime(today.Year, 3, day: 21)
-                : new DateTime(today.Year - 1, 3, 21);
+            DateTime fiscalYearStart;
+            DateTime fiscalYearEnd;
+
+            if (today.Year == 2026)
+            {
+                if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                {
+                    fiscalYearStart = new DateTime(2026, 4, 21);
+                    fiscalYearEnd = new DateTime(2027, 4, 20);
+                }
+                else
+                {
+                    fiscalYearStart = new DateTime(2025, 4, 21);
+                    fiscalYearEnd = new DateTime(2026, 4, 20);
+                }
+            }
+            else
+            {
+                if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                {
+                    fiscalYearStart = new DateTime(today.Year, 3, 21);
+                }
+                else
+                {
+                    fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                }
+            }
 
             var approvedLeaves = results?.leaveResults?.leavesSummary?
                 .Where(x => x.StartDate >= fiscalYearStart
