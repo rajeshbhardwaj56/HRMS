@@ -1041,7 +1041,7 @@
         $('#leave-Future-tab').hide();
 		RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
 		if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
-			 @if (RoleName == (int)Roles.Admin) {
+			 @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin ) {
             <text>
             InitAdminLeavesForApproval();
 

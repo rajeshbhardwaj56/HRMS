@@ -319,15 +319,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 DateTime fiscalYearEnd;
                 if (today.Year == 2026)
                 {
-                    if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                    if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
                     {
-                        fiscalYearStart = new DateTime(2026, 4, 21);
-                        fiscalYearEnd = new DateTime(2027, 4, 20);
+                        fiscalYearStart = new DateTime(2026, 4, 20);
+                        fiscalYearEnd = new DateTime(2027, 3, 20);
                     }
                     else
                     {
                         fiscalYearStart = new DateTime(2025, 4, 21);
-                        fiscalYearEnd = new DateTime(2026, 4, 20);
+                        fiscalYearEnd = new DateTime(2026, 4, 19);
                     }
                 }
                 else
@@ -1114,15 +1114,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             if (today.Year == 2026)
             {
-                if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
                 {
-                    fiscalYearStart = new DateTime(2026, 4, 21);
-                    fiscalYearEnd = new DateTime(2027, 4, 20);
+                    fiscalYearStart = new DateTime(2026, 4, 20);
+                    fiscalYearEnd = new DateTime(2027, 3, 20);
                 }
                 else
                 {
                     fiscalYearStart = new DateTime(2025, 4, 21);
-                    fiscalYearEnd = new DateTime(2026, 4, 20);
+                    fiscalYearEnd = new DateTime(2026, 4, 19);
                 }
             }
             else
@@ -1409,10 +1409,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                     if (today.Year == 2026)
                     {
-                        if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                        if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
                         {
-                            fiscalYearStart = new DateTime(2026, 4, 21);
-                            fiscalYearEnd = new DateTime(2027, 4, 20);
+                            fiscalYearStart = new DateTime(2026, 4, 20);
+                            fiscalYearEnd = new DateTime(2027, 3, 20);
                         }
                         else
                         {
@@ -1481,11 +1481,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         return Json(new { isValid = false, message = Message });
                     }
                     //var totalJoiningDays = (DateTime.Today - employeeDetails.JoiningDate).TotalDays;
-                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
-                    {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining" });
-                    }
+                    //if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
+                    //{
+                    //    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    //    return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining" });
+                    //}
                     CampOffEligible modeldata = new CampOffEligible();
                     modeldata.JobLocationTypeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.JobLocationID));
                     modeldata.EmployeeID = leaveSummary.EmployeeID;
@@ -1693,15 +1693,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             if (today.Year == 2026)
             {
-                if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
                 {
-                    fiscalYearStart = new DateTime(2026, 4, 21);
-                    fiscalYearEnd = new DateTime(2027, 4, 20);
+                    fiscalYearStart = new DateTime(2026, 4, 20);
+                    fiscalYearEnd = new DateTime(2027, 3, 20);
                 }
                 else
                 {
                     fiscalYearStart = new DateTime(2025, 4, 21);
-                    fiscalYearEnd = new DateTime(2026, 4, 20);
+                    fiscalYearEnd = new DateTime(2026, 4, 19);
                 }
             }
             else
@@ -1986,10 +1986,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                     if (today.Year == 2026)
                     {
-                        if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                        if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
                         {
-                            fiscalYearStart = new DateTime(2026, 4, 21);
-                            fiscalYearEnd = new DateTime(2027, 4, 20);
+                            fiscalYearStart = new DateTime(2026, 4, 20);
+                            fiscalYearEnd = new DateTime(2027, 3, 20);
                         }
                         else
                         {
@@ -2058,11 +2058,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         return Json(new { isValid = false, message = Message });
                     }
                     //var totalJoiningDays = (DateTime.Today - employeeDetails.JoiningDate).TotalDays;
-                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
-                    {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
-                        return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining" });
-                    }
+                    //if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
+                    //{
+                    //    TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                    //    return Json(new { isValid = false, message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining" });
+                    //}
                     CampOffEligible modeldata = new CampOffEligible();
                     modeldata.JobLocationTypeID = employeeDetails.JobLocationID;
                     modeldata.EmployeeID = leaveSummary.EmployeeID;
@@ -2279,10 +2279,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             if (today.Year == 2026)
             {
-                if (today.Month > 4 || (today.Month == 4 && today.Day >= 21))
+                if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
                 {
-                    fiscalYearStart = new DateTime(2026, 4, 21);
-                    fiscalYearEnd = new DateTime(2027, 4, 20);
+                    fiscalYearStart = new DateTime(2026, 4, 20);
+                    fiscalYearEnd = new DateTime(2027, 3, 20);
                 }
                 else
                 {
