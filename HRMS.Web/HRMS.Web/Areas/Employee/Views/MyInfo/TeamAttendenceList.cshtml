@@ -7,6 +7,8 @@
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	ViewData["Title"] = "Team Attendance Report";
 	var RoleName = Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.RoleID));
+	var employeeType = Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeTypeID));
+	
 }
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
@@ -52,10 +54,45 @@
 </style>
 
 <style>
-	body {
-		background-color: #f8f9fa;
-		font-family: Arial, sans-serif;
-	}
+    .attendance-legend .legend-item {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+    }
+    body {
+        background-color: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
+    /* reuse same colors as table */
+    .legend-item.P {
+        background: #28a745;
+    }
+
+    .legend-item.A {
+        background: #dc3545;
+    }
+
+    .legend-item.H {
+        background: #1c5db1;
+    }
+
+    .legend-item.WO {
+        background: #1c5db1;
+    }
+
+    .legend-item.L {
+        background: #1c5db1;
+    }
+    .legend-item.HD {
+        background: #04336f;
+    }
+    .legend-item.ECO {
+        background: #1c5db1;
+    }
+	
 
 	.HD {
 		background: #04336f;
@@ -63,7 +100,49 @@
 		font-size: 0.5rem;
 
 	}
+    .HD\/HPL {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HD\/HLWP {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HD\/HCOL {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HD\/HML {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+
+
     .HD\/HL {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HPL\/HA {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HLWP\/HA {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HCOL\/HA {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HML\/HA {
         background: #04336f;
         cursor: pointer;
         font-size: 0.5rem;
@@ -113,6 +192,29 @@
 		cursor: pointer;
 		font-size: 0.5rem;
 	}
+    .PL {
+        background-color: #1c5db1;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .LWP {
+        background-color: #1c5db1;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .COL {
+        background-color: #1c5db1;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .ML {
+        background-color: #1c5db1;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+   
+
+
 	.ECO {
 		background-color: #1c5db1;
 		cursor: pointer;
@@ -196,13 +298,13 @@
 </div>
 
 <div class=" ">
-	<div class="main-header anim" style="--delay: 0s">Team Attendance Report</div>
-	<!-- Filters Row -->
+    <div class="main-header anim" style="--delay: 0s">Team Attendance Report</div>
+    <!-- Filters Row -->
 
-	<div class="filter-collapse-btn" id="filterToggle">
-		<i class="fas fa-chevron-up"></i> Filters
-	</div>
-	<div class="filters-container" id="filtersContainer">
+    <div class="filter-collapse-btn" id="filterToggle">
+        <i class="fas fa-chevron-up"></i> Filters
+    </div>
+    <div class="filters-container" id="filtersContainer">
         <div class="d-flex flex-wrap align-items-end gap-3   p-3 rounded shadow-sm bg-white border">
             <div class="input-group input-group-sm" style="max-width: 130px;">
                 <span class="input-group-text">
@@ -296,25 +398,25 @@
                 </div>
             }
         </div>
-	</div>
+    </div>
+    
+    <div class="table-container small-table">
 
-	<div class="table-container small-table">
-
-		<table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover">
 
 
-			<thead class="table-dark">
-				<tr id="header-row">
-					<th>Employee ID</th>
-					<th>Emp No</th>
-					<th>Name</th>
-					<th>Location </th>
-				</tr>
-			</thead>
-			<tbody id="attendance-data">
-			</tbody>
-		</table>
-	</div>
+            <thead class="table-dark">
+                <tr id="header-row">
+                    <th>Employee ID</th>
+                    <th>Emp No</th>
+                    <th>Name</th>
+                    <th>Location </th>
+                </tr>
+            </thead>
+            <tbody id="attendance-data">
+            </tbody>
+        </table>
+    </div>
 </div>
 <div id="total-records-info" class="text-center text-muted"></div>
 
@@ -323,7 +425,29 @@
 
 	<div id="pagination-container" class="d-flex justify-content-center mb-2"></div>
 </div>
+<div class="attendance-legend mt-3 p-3 bg-white border rounded shadow-sm">
+    <div class="d-flex flex-wrap gap-3">
 
+        <span class="legend-item P">P - Present</span>
+        <span class="legend-item A">A - Absent</span>
+        <span class="legend-item H">H - Holiday</span>
+        <span class="legend-item WO">WO - Week Off</span>
+        <span class="legend-item ECO">ECO - Earned Comp Off</span>
+        <span class="legend-item L">PL - Privilege Leave</span>
+        <span class="legend-item L">LWP - Leave Without Pay</span>
+        <span class="legend-item L">COL - Comp Off Leave</span>
+        <span class="legend-item L">ML - Maternity Leave</span>
+        @*<span class="legend-item HD">HA - Half Absent</span>*@
+        <span class="legend-item HD">HD - Half Day</span>
+        <span class="legend-item HD">HPL - Half Privilege Leave</span>
+        <span class="legend-item HD">HLWP - Half Leave Without Pay</span>
+        <span class="legend-item HD">HCOL - Half Comp Off Leave</span>
+        <span class="legend-item HD">HML - Half Maternity Leave</span>
+
+
+
+    </div>
+</div>
 <!-- Attendance Detail Modal -->
 <div class="modal fade" id="attendanceDetailModal" tabindex="-1" aria-labelledby="attendanceDetailModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg">
@@ -339,6 +463,7 @@
 	</div>
 </div>
 <input type="hidden" id="hdnRoleName" value="@Convert.ToInt64(Context.Session.GetString(Constants.RoleID))" />
+<input type="hidden" id="hdnEmployeeTypeID" value="@Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeTypeID))" />
 <script>
 	$(document).ready(function() {
 		const filterToggle = $('#filterToggle');
@@ -468,10 +593,63 @@
 			dayKeys.forEach(day => {
 				
 			  let status = record.attendanceByDay[day];
-			  if (status === "Sa" || status === "S") status = "H";
-                const className = status === "P" ? "P" : status === "A" ? "A" : status === "HD/HL" ? "HD" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "ECO" ? "ECO" :  status === "WO" ? "WO" : "";
-			  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${status}</span></td>`;
+                let className = "";
+                let displayStatus = status;
+
+                // Present
+                if (status === "P") {
+                    className = "P";
+                }
+
+                // Absent
+                else if (status === "A") {
+                    className = "A";
+                }
+
+                // Week Off
+                else if (status === "WO") {
+                    className = "WO";
+                }
+
+                // Holiday
+                else if (status === "H") {
+                    className = "H";
+                }
+
+                // ECO
+                else if (status === "ECO") {
+                    className = "ECO";
+                }
+
+                // Half Day + Leave
+                else if (status.startsWith("HD/")) {
+
+                    className = "HD";
+                 /*   displayStatus = status;*/
+                }
+
+                // Half Leave + Absent
+                else if (status.includes("/HA")) {
+
+                    className = "HL";
+                /*    displayStatus = status;*/
+                }
+ 
+
+                // Full Leave
+                else if (
+                    ["PL", "LWP", "COL", "ML", "L"].includes(status)
+                ) {
+
+                    className = status;
+
+                    displayStatus = status;
+          
+                }
+
+                row += `<td class="${className}" data-date="${day.replace("_", "-")}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${displayStatus}</span></td>`;
 			});
+
               row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td><td>${record.managerName ?? '-'}</td><td>${record.managerManagerName ?? '-'}</td></tr>`;
 			tbody.append(row);
 		  });
@@ -917,9 +1095,12 @@
 
                         const renderStatusEditor = (fullDate, data) => {
                             if (!data)
+								return "";
+                            const employeeTypeID = parseInt(document.getElementById('hdnEmployeeTypeID').value);
+							const empTypeID = Number(data.leaveSummary.employeeTypeID);
+                            if (employeeTypeID !== 3) {
                                 return "";
-                            const empTypeID = Number(data.leaveSummary.employeeTypeID);
-                            /*if (empTypeID !== 3) return "";*/
+                            }
 
                             if (!canEditStatus(fullDate)) return "";
 
@@ -1142,8 +1323,10 @@ ${formatSqlTimeToHoursMinutes(data.attendance.hoursWorked)}
 
                                     // Full day / multiple days
                                     dateHtml = `
-<div><strong>Start:</strong> ${formatDate(l.startDate)}</div>
-<div><strong>End:</strong> ${formatDate(l.endDate)}</div>
+<div class="d-flex justify-content-between">
+    <div><strong>Start:</strong> ${formatDate(l.startDate)}</div>
+    <div><strong>End:</strong> ${formatDate(l.endDate)}</div>
+</div>
 `;
                                 }
 
@@ -1155,13 +1338,19 @@ ${formatSqlTimeToHoursMinutes(data.attendance.hoursWorked)}
 <h6 class="text-dark">Leave Detail</h6>
 
 <div class="row mb-2">
-    <div class="col-md-6">
+
+    <div class="col-md-4">
         <strong>Reason:</strong> ${l.reason}
     </div>
 
-    <div class="col-md-6 text-end">
+    <div class="col-md-4 text-center">
+        <strong>Leave Type:</strong> ${l.leaveTypeName ?? '-'}
+    </div>
+
+    <div class="col-md-4 text-end">
         <strong>Duration:</strong> ${l.leaveDurationTypeName ?? '-'}
     </div>
+
 </div>
 
 ${dateHtml}

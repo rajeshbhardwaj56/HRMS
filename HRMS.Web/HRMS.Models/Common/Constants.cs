@@ -21,6 +21,7 @@ namespace HRMS.Models.Common
         public const string Email = "Email";
         public const string UserID = "UserID";
         public const string RoleID = "RoleID";
+        public const string EmployeeTypeID = "EmployeeTypeID";
         public const string CompanyID = "CompanyID";
         public const string EmployeeID = "EmployeeID";
         public const string ProfilePhoto = "ProfilePhoto";
@@ -221,6 +222,7 @@ namespace HRMS.Models.Common
         public const string GetEmployeeForLeaveEdit = "GetEmployeeForLeaveEdit";
         public const string GetWeekOffShifts = "GetWeekOffShifts";
         public const string GetDashBoardLoginModel = "GetDashBoardLoginModel";
+        public const string GetLeaveSummaryDayWiseDetails = "GetLeaveSummaryDayWiseDetails";
 
 
 

@@ -655,6 +655,43 @@
 		</div>
 	</div>
 </div>
+<div class="modal fade" id="leaveDaysModal" tabindex="-1" aria-labelledby="leaveDaysModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="leaveDaysModalLabel">
+                    Leave Summary Details
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Leave Type</th>
+                            <th>Leave Duration</th>
+                            <th>Leave Day Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="leaveDaysTableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <input type="hidden" id="leaveSummaryID" value="" />
 <input type="hidden" id="leaveTypeID" value="" />
 <input name="__RequestVerificationToken" type="hidden" value="" />
@@ -1131,7 +1168,24 @@
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
-				{ "data": "noOfDays", "autoWidth": true },
+                {
+                    data: "noOfDays",
+                    autoWidth: true,
+                    render: function (data, type, row) {
+
+                        if (!data) return "0";
+
+                        return `
+            <button type="button"
+                class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
+                data-bs-toggle="modal"
+                data-bs-target="#leaveDaysModal"
+                data-leavesummaryid="${row.encryptedIdentity}">
+                ${data}
+            </button>
+        `;
+                    }
+                },
 				{ "data": "leaveStatusName", "autoWidth": true },
 				{ "data": "reason", "autoWidth": true },
 				{
@@ -1234,7 +1288,24 @@
             { "data": "startDateFormatted" },
             { "data": "endDateFormatted" },
             { "data": "leaveTypeName" },
-            { "data": "noOfDays" },
+            {
+                data: "noOfDays",
+                autoWidth: true,
+                render: function (data, type, row) {
+
+                    if (!data) return "0";
+
+                    return `
+            <button type="button"
+                class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
+                data-bs-toggle="modal"
+                data-bs-target="#leaveDaysModal"
+                data-leavesummaryid="${row.encryptedIdentity }">
+                ${data}
+            </button>
+        `;
+                }
+            },
             { "data": "leaveStatusName" },
             { "data": "reason" },
             {
@@ -1301,7 +1372,24 @@
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
-				{ "data": "noOfDays", "autoWidth": true },
+                {
+                    data: "noOfDays",
+                    autoWidth: true,
+                    render: function (data, type, row) {
+
+                        if (!data) return "0";
+
+                        return `
+            <button type="button"
+                class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
+                data-bs-toggle="modal"
+                data-bs-target="#leaveDaysModal"
+                data-leavesummaryid="${row.encryptedIdentity}">
+                ${data}
+            </button>
+        `;
+                    }
+                },
 				{ "data": "leaveStatusName", "autoWidth": true },
 				{ "data": "reason", "autoWidth": true }
 			],
@@ -1330,7 +1418,7 @@
 			, "responsive": true,
 
 			"createdRow": function (row, data, dataIndex) {
-				if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
+				if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > 100) ||
 					(data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
 
 					const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
@@ -1389,7 +1477,24 @@
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
-				{ "data": "noOfDays", "autoWidth": true },
+                {
+                    data: "noOfDays",
+                    autoWidth: true,
+                    render: function (data, type, row) {
+
+                        if (!data) return "0";
+
+                        return `
+            <button type="button"
+                class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
+                data-bs-toggle="modal"
+                data-bs-target="#leaveDaysModal"
+                data-leavesummaryid="${row.encryptedIdentity}">
+                ${data}
+            </button>
+        `;
+                    }
+                },
 				{ "data": "leaveStatusName", "autoWidth": true },
 				{ "data": "reason", "autoWidth": true },
 			],
@@ -1485,7 +1590,24 @@
             { data: "startDateFormatted", autoWidth: true },
             { data: "endDateFormatted", autoWidth: true },
             { data: "leaveTypeName", autoWidth: true },
-            { data: "noOfDays", autoWidth: true },
+            {
+                data: "noOfDays",
+                autoWidth: true,
+                render: function (data, type, row) {
+
+                    if (!data) return "0";
+
+                    return `
+            <button type="button"
+                class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
+                data-bs-toggle="modal"
+                data-bs-target="#leaveDaysModal"
+                data-leavesummaryid="${row.encryptedIdentity}">
+                ${data}
+            </button>
+        `;
+                }
+            },
             { data: "leaveStatusName", autoWidth: true },
             { data: "reason", autoWidth: true }
         ],
@@ -1571,7 +1693,24 @@
 				{ "data": "startDateFormatted", "autoWidth": true },
 				{ "data": "endDateFormatted", "autoWidth": true },
 				{ "data": "leaveTypeName", "autoWidth": true },
-				{ "data": "noOfDays", "autoWidth": true },
+                {
+                    data: "noOfDays",
+                    autoWidth: true,
+                    render: function (data, type, row) {
+
+                        if (!data) return "0";
+
+                        return `
+            <button type="button"
+                class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
+                data-bs-toggle="modal"
+                data-bs-target="#leaveDaysModal"
+                data-leavesummaryid="${row.encryptedIdentity}">
+                ${data}
+            </button>
+        `;
+                    }
+                },
 				{ "data": "leaveStatusName", "autoWidth": true },
 				{ "data": "reason", "autoWidth": true }
 			],
@@ -2060,6 +2199,103 @@
         }
 
     });
+
+    $(document).on('click', '.viewLeaveDaysBtn', function () {
+
+        let leaveSummaryID = $(this).data('leavesummaryid');
+
+        let tbody = $('#leaveDaysTableBody');
+
+        tbody.empty();
+
+        $.ajax({
+            url: '/employee/MyInfo/GetLeaveSummaryDayWiseDetails',
+            type: 'GET',
+            data: {
+                id: leaveSummaryID
+            },
+            success: function (response) {
+
+                let data = response.data;
+
+                if (data && data.length > 0) {
+
+                    $.each(data, function (index, item) {
+
+                        let leaveDate = formatDate(item.leaveDate);
+
+                        let dayName = new Date(item.leaveDate)
+                            .toLocaleDateString('en-US', { weekday: 'long' });
+
+                        // ✅ FIX: correct property name
+                        let status = item.leaveStatusTypeName;
+
+                        let badgeClass = 'bg-primary';
+
+                        if (status === 'Approved') {
+                            badgeClass = 'bg-success';
+                        }
+                        else if (status === 'Rejected' || status === 'Cancelled') {
+                            badgeClass = 'bg-danger';
+                        }
+                        else if (status === 'Pending') {
+                            badgeClass = 'bg-warning';
+                        }
+
+                        let row = `
+                     <tr>
+                         <td>${leaveDate}</td>
+                         <td>${dayName}</td>
+                         <td>${item.leaveTypeName ?? '-'}</td>
+                         <td>${item.leaveDurationTypeName ?? '-'}</td>
+                         <td>${item.leaveDayTypeName ?? '-'}</td>
+                         <td>
+                             <span class="badge ${badgeClass}">
+                                 ${status ?? '-'}
+                             </span>
+                         </td>
+                     </tr>
+                 `;
+
+                        tbody.append(row);
+
+                    });
+
+                } else {
+
+                    tbody.append(`
+                 <tr>
+                     <td colspan="6" class="text-center">
+                         No Records Found
+                     </td>
+                 </tr>
+             `);
+
+                }
+
+            },
+
+            error: function () {
+                alert('Error while loading leave details.');
+            }
+        });
+
+    });
+
+    function formatDate(dateString) {
+
+        let date = new Date(dateString);
+
+        let day = date.getDate().toString().padStart(2, '0');
+
+        let month = (date.getMonth() + 1)
+            .toString()
+            .padStart(2, '0');
+
+        let year = date.getFullYear();
+
+        return `${day}/${month}/${year}`;
+    }
 
 </script>
 

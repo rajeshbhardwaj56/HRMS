@@ -195,5 +195,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public DashBoardLoginModel GetDashBoardLoginModel(DashBoardModelInputParams model);
         public ManagerApprovalCount GetManagerApprovalCount(long reportingToEmployeeID);
         List<NotificationModel> GetManagerPendingNotifications(long reportingToEmployeeID, int notificationType);
+        List<LeaveDayDetailModel> GetLeaveSummaryDayWiseDetails(LeaveSummaryInputParams model);
     }
 }

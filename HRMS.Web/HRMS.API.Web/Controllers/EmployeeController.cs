@@ -403,7 +403,7 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpGet]
-        public IActionResult GetShiftTypeList(string employeeNumber,long weekOffID)
+        public IActionResult GetShiftTypeList(string employeeNumber, long weekOffID)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetShiftTypeList(employeeNumber, weekOffID));
@@ -461,11 +461,20 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-   
+
         public IActionResult GetEmployeeHierarchyManagers(EmployeeManagerInputParams model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.GetEmployeeHierarchyManagers(model));
+            return response;
+        }
+
+        [HttpPost]
+
+        public IActionResult GetLeaveSummaryDayWiseDetails(LeaveSummaryInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLeaveSummaryDayWiseDetails(model));
             return response;
         }
     }

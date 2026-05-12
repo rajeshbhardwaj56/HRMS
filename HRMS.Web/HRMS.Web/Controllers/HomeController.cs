@@ -456,13 +456,14 @@ namespace HRMS.Web.Controllers
             {
                 if (result.IsFirstLoginPasswordReset)
                 {
-
+                        
                     EmployeeInputParams objmodel = new EmployeeInputParams();
                     objmodel.CompanyID = result.CompanyID;
                     _context.HttpContext.Session.SetString(Constants.SessionBearerToken, result.token);
                     _context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
                     _context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());
                     _context.HttpContext.Session.SetString(Constants.EmployeeID, result.EmployeeID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.EmployeeTypeID, result.EmployeeTypeID.ToString());
                     _context.HttpContext.Session.SetString(Constants.Gender, result.GenderId.ToString());
                     _context.HttpContext.Session.SetString(Constants.RoleID, result.RoleId.ToString());
                     _context.HttpContext.Session.SetString(Constants.Manager1Name, result.Manager1Name.ToString());

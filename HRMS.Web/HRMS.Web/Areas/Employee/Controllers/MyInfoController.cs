@@ -194,6 +194,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             if (leavePolicyModel != null)
             {
                 Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.PendingApproval).ToList();
+                if (Approvals != null)
+                {
+                    foreach (var leave in Approvals)
+                    {
+                        leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                        leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
+                    }
+                }
                 ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
                 if (leavePolicyModel.Paternity_medicalDocument == true)
                 {
@@ -239,6 +247,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Cancelled).ToList();
+            if (Approvals != null)
+            {
+                foreach (var leave in Approvals)
+                {
+                    leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                    leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
+                }
+            }
             var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
             if (leavePolicyModel != null)
@@ -258,7 +274,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.NotApproved).ToList();
-
+            if (Approvals != null)
+            {
+                foreach (var leave in Approvals)
+                {
+                    leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                    leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
+                }
+            }
             var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
 
@@ -344,17 +367,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         fiscalYearEnd = new DateTime(today.Year, 3, 20);
                     }
                 }
-                    // Fetch leave summary for this employee & company
-                    var leaveSummaryDataJson = GetLeaveSummaryData(leaveRecord.EmployeeID, leaveRecord.UserID, leaveRecord.CompanyID);
+                // Fetch leave summary for this employee & company
+                var leaveSummaryDataJson = GetLeaveSummaryData(leaveRecord.EmployeeID, leaveRecord.UserID, leaveRecord.CompanyID);
+                var leaveSummaryData1 = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryDataJson);
                 var leaveSummaryData = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryDataJson)?.leavesSummary;
 
                 // Filter approved annual/medical leaves in current fiscal year
-                var approvedLeaves = leaveSummaryData?.Where(x =>
-                    x.StartDate >= fiscalYearStart &&
-                    x.LeaveStatusID == (int)LeaveStatus.Approved &&
-                    (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave)).ToList();
-
-                double approvedLeaveTotal = (double?)approvedLeaves?.Sum(x => x.NoOfDays) ?? 0;
+                //var approvedLeaves = leaveSummaryData?.Where(x =>
+                //    x.StartDate >= fiscalYearStart &&
+                //    x.LeaveStatusID == (int)LeaveStatus.Approved &&
+                //    (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave)).ToList();
+                var approvedLeaves = leaveSummaryData1?.leaveBalance?.AnnualLeaveConsumed;
+                double approvedLeaveTotal = Convert.ToDouble(approvedLeaves ?? 0m);
                 double maxAnnualLeaveLimit = 30;
 
                 // Load leave policy & calculate accrued leaves
@@ -427,7 +451,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 _ = _notificationService.SendHierarchyNotification(
 
                        leaveRecord.EmployeeID,
-                       NotificationType.LeaveApproved 
+                       NotificationType.LeaveApproved
                    );
             }
 
@@ -626,7 +650,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
                 EmployeeID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID)),
-                UpdatedByID  = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID)),
+                UpdatedByID = Convert.ToInt64(_context.HttpContext.Session.GetString(Constants.EmployeeID)),
                 NewLeaveStatusID = (int)LeaveStatus.Cancelled,
             };
             var data = _businessLayer.SendPostAPIRequest(model, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.UpdateLeaveStatus), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
@@ -994,8 +1018,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.Add("Privilege Leave Consumed");
                     headers.Add("Final Leave Balance");
                     headers.Add("Available Comp-Off Days");
-                    
-                    
+
+
 
                     for (int i = 0; i < headers.Count; i++)
                     {
@@ -1138,15 +1162,17 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
 
             // Approved leaves: Annual + Medical only
-            var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= fiscalYearStart
-                            && x.LeaveStatusID == (int)LeaveStatus.Approved
-                            && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
-                .ToList();
+            //var approvedLeaves = results?.leaveResults?.leavesSummary?
+            //    .Where(x => x.StartDate >= fiscalYearStart
+            //                && x.LeaveStatusID == (int)LeaveStatus.Approved
+            //                && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
+            //    .ToList();
+
+            var approvedLeaves = results?.leaveResults?.leaveBalance.AnnualLeaveConsumed;
 
             if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
             {
-                decimal approvedLeaveDays = approvedLeaves?.Sum(x => x.NoOfDays) ?? 0.0m;
+                decimal approvedLeaveDays = approvedLeaves??0.0m;
                 double approvedLeaveTotal = (double)approvedLeaveDays;
 
                 double maxAnnualLeaveLimit = 30;
@@ -1493,6 +1519,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     modeldata.StartDate = model.leaveResults.leaveSummaryModel.StartDate.ToString("yyyy-MM-dd");
                     modeldata.EndDate = model.leaveResults.leaveSummaryModel.EndDate.ToString("yyyy-MM-dd");
                     modeldata.RequestedLeaveDays = leaveSummary.NoOfDays;
+                    modeldata.LeaveSummaryID  = leaveSummary.LeaveSummaryID;
                     var campoffdata = GetValidateCompOffLeave(modeldata);
                     if (campoffdata != null)
                     {
@@ -1594,15 +1621,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     sendEmailProperties.EmailToList.Add(Manager1Email);
                     emailSendResponse responses = EmailSender.SendEmail(sendEmailProperties);
                 }
-             
-                    string notificationTitle = "Leave Approval Request";
-                    string notificationMessage = $"Leave has applied for leave from {leaveSummary.StartDate:dd-MMM-yyyy} to {leaveSummary.EndDate:dd-MMM-yyyy}.";
+
+                string notificationTitle = "Leave Approval Request";
+                string notificationMessage = $"Leave has applied for leave from {leaveSummary.StartDate:dd-MMM-yyyy} to {leaveSummary.EndDate:dd-MMM-yyyy}.";
 
                 if (result.PKNo.HasValue && result.PKNo.Value > 0)
                 {
                     _ = _notificationService.SendHierarchyNotification(
-                              
-                        leaveSummary.EmployeeID,                      
+
+                        leaveSummary.EmployeeID,
                         NotificationType.Leave
                     );
                 }
@@ -1717,15 +1744,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
 
             // Approved leaves: Annual + Medical only
-            var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= fiscalYearStart
-                            && x.LeaveStatusID == (int)LeaveStatus.Approved
-                            && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
-                .ToList();
-
+            //var approvedLeaves = results?.leaveResults?.leavesSummary?
+            //    .Where(x => x.StartDate >= fiscalYearStart
+            //                && x.LeaveStatusID == (int)LeaveStatus.Approved
+            //                && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
+            //    .ToList();
+            var approvedLeaves = results?.leaveResults?.leaveBalance.AnnualLeaveConsumed;
             if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
             {
-                decimal approvedLeaveDays = approvedLeaves?.Sum(x => x.NoOfDays) ?? 0.0m;
+                decimal approvedLeaveDays = approvedLeaves ?? 0.0m;
                 double approvedLeaveTotal = (double)approvedLeaveDays;
 
                 double maxAnnualLeaveLimit = 30;
@@ -2070,6 +2097,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     modeldata.StartDate = model.leaveResults.leaveSummaryModel.StartDate.ToString("yyyy-MM-dd");
                     modeldata.EndDate = model.leaveResults.leaveSummaryModel.EndDate.ToString("yyyy-MM-dd");
                     modeldata.RequestedLeaveDays = leaveSummary.NoOfDays;
+                    modeldata.LeaveSummaryID = leaveSummary.LeaveSummaryID;
                     var campoffdata = GetValidateCompOffLeave(modeldata);
                     if (campoffdata != null)
                     {
@@ -2302,13 +2330,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 }
             }
 
-            var approvedLeaves = results?.leaveResults?.leavesSummary?
-                .Where(x => x.StartDate >= fiscalYearStart
-                    && x.LeaveStatusID == (int)LeaveStatus.Approved
-                    && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
-                .ToList();
-
-            decimal approvedLeaveDays = approvedLeaves?.Sum(x => x.NoOfDays) ?? 0.0m;
+            //var approvedLeaves = results?.leaveResults?.leavesSummary?
+            //    .Where(x => x.StartDate >= fiscalYearStart
+            //        && x.LeaveStatusID == (int)LeaveStatus.Approved
+            //        && (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
+            //    .ToList();
+            var approvedLeaves = results?.leaveResults?.leaveBalance.AnnualLeaveConsumed;
+            decimal approvedLeaveDays = approvedLeaves?? 0.0m;
             double approvedLeaveTotal = (double)approvedLeaveDays;
             double totalLeaveWithCarryForward = 0;
             double maxAnnualLeaveLimit = 30;
@@ -2409,12 +2437,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leavePolicy = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
 
 
-        
 
-              if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
+
+            if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
             {
                 ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
-            }                       
+            }
             return View(results);
         }
 
@@ -2516,5 +2544,30 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return Json(new { data = result.TeamHierarchy });
         }
         #endregion TeamAlignment
+
+        [HttpGet]
+        public JsonResult GetLeaveSummaryDayWiseDetails(string id)
+        {
+            long leaveSummaryID = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+
+            LeaveSummaryInputParams model = new LeaveSummaryInputParams();
+
+            model.LeaveSummaryID = leaveSummaryID;
+
+
+            var data = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.GetLeaveSummaryDayWiseDetails
+                ),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<List<LeaveDayDetailModel>>(data);
+
+            return Json(new { data = results });
+        }
     }
 }

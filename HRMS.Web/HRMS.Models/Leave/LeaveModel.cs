@@ -103,6 +103,7 @@ namespace HRMS.Models.Leave
         public string EndDate { get; set; }
         public string EmployeeNumber { get; set; }
         public decimal RequestedLeaveDays { get; set; }
+        public long? LeaveSummaryID { get; set; }
     }
     public class CompOffValidationResult
     {
@@ -137,6 +138,41 @@ namespace HRMS.Models.Leave
         public string? ManagerName { get; set; }
         public int? Gender { get; set; }
         public long? JobLocationID { get; set; }
-        
+
     }
+
+    public class LeaveSummaryInputParams
+    {
+        public long LeaveSummaryID { get; set; }
+    }
+
+    public class LeaveDayDetailModel
+    {
+        public long LeaveSummaryDetailID { get; set; }
+
+        public long LeaveSummaryID { get; set; }
+
+        public long EmployeeID { get; set; }
+
+        public DateTime LeaveDate { get; set; }
+
+        public long LeaveTypeID { get; set; }
+
+        public string? LeaveTypeName { get; set; }
+
+        public long LeaveDurationTypeID { get; set; }
+
+        public string? LeaveDurationTypeName { get; set; }
+
+        public int  LeaveDayTypeID { get; set; }
+
+        public string? LeaveDayTypeName { get; set; }
+
+        public long LeaveStatusID { get; set; }
+
+        public string? LeaveStatusTypeName { get; set; }
+
+      
+    }
+
 }

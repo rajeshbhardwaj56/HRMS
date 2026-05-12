@@ -169,6 +169,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_GetEmployeeManagerHierarchy = "usp_GetEmployeeManagerHierarchy";
         public const string usp_Get_ManagerApprovalCount = "usp_Get_ManagerApprovalCount";
         public const string usp_ValidateShiftType = "usp_ValidateShiftType";
+        public const string usp_GetLeaveSummaryDayWiseDetails = "usp_GetLeaveSummaryDayWiseDetails";
 
         #region Payroll
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";
@@ -196,7 +197,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_ReferenceDetailsByIDLog = "usp_ReferenceDetailsByIDLog";
         public const string usp_UserPolicyAcknowledgements = "usp_UserPolicyAcknowledgements";
         public const string usp_TemplatesByIDLog = "usp_TemplatesByIDLog";
-
+        public const string usp_EmploymentDetailByIDLog = "usp_EmploymentDetailByIDLog";
         #endregion Logs
 
         #region TeamAlignment

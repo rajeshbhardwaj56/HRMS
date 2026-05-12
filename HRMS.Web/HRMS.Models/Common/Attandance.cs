@@ -205,6 +205,7 @@ namespace HRMS.Models.Common
         public string? Reason { get; set; }
         public string? LeaveStatusID { get; set; }
         public string? LeaveDurationTypeName { get; set; }
+        public string? LeaveTypeName { get; set; }
     }
     public class LeaveSummaryVM
     {
