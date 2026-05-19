@@ -84,6 +84,7 @@ namespace HRMS.API.BusinessLayer
                                    JobLocationID = dataRow.Field<long>("JobLocationID"),
                                    DepartmentID = dataRow.Field<long>("DepartmentID"),
                                    IsFirstLoginPasswordReset = dataRow.Field<bool>("IsFirstLoginPasswordReset"),
+                                   EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
                                }).ToList().FirstOrDefault();
             }
             return loginUser;
@@ -131,6 +132,9 @@ namespace HRMS.API.BusinessLayer
                                       RoleID = dataRow.Field<int>("RoleID"),
                                       Email = dataRow.Field<string>("OfficialEmailID"),
                                       EmployeeTypeID = dataRow.Field<long>("EmployeeTypeID"),
+                                      ManagerEmailL2 = dataRow.Field<string>("ManagerEmailL2"),
+                                      ManagerEmailL1 = dataRow.Field<string>("ManagerEmailL1"),
+                                      AdminEmail = dataRow.Field<string>("AdminEmail"),
                                   }).ToList().LastOrDefault();
             results.Data = JsonConvert.SerializeObject(data);
             return results;
@@ -934,7 +938,9 @@ namespace HRMS.API.BusinessLayer
         #region EmploymentDetails
         public Result AddUpdateEmploymentDetails(EmploymentDetail employmentDetails)
         {
+
             Result model = new Result();
+            var oldData = GetEmploymentDetailsByID(employmentDetails.EmploymentDetailID);
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@EmploymentDetailID", employmentDetails.EmploymentDetailID));
             sqlParameter.Add(new SqlParameter("@EmployeeID", employmentDetails.EmployeeID));
@@ -976,12 +982,13 @@ namespace HRMS.API.BusinessLayer
                         {
                             Message = dataRow.Field<string>("Result").ToString(),
                             UserID = dataRow.Field<long>("UserID"),
-                            PKNo = Convert.ToInt64(pOutputParams["@EmploymentDetailID"].Value),
+                            PKNo = dataRow.Field<long>("EmploymentDetailID"),
                             IsResetPasswordRequired = dataRow.Field<bool>("IsResetPasswordRequired")
                         }
                    ).ToList().FirstOrDefault();
             }
 
+            long newId = model.PKNo ?? 0;
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
 
             sqlParameters.Add(new SqlParameter("@RoleID", employmentDetails.RoleId));
@@ -1002,6 +1009,21 @@ namespace HRMS.API.BusinessLayer
                         }
                    ).ToList().FirstOrDefault();
             }
+
+            var newData = GetEmploymentDetailsByID(
+    newId);
+            string editMode = employmentDetails.EmploymentDetailID == 0 ? "Add" : "Edit";
+            TrackLogAudit(
+                oldData,
+                newData,
+                editMode,
+                employmentDetails.UserID ,
+                "EmploymentDetails",
+                "tbl_EmploymentDetails",
+                 newId,
+                "tbl_EmploymentDetails_Log",
+                "EmploymentDetails"
+            );
             return model;
         }
 
@@ -1898,6 +1920,33 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+        public LeaveCountValidationResult GetLeaveCountForValidation(MyInfoInputParams model)
+        {
+            LeaveCountValidationResult result = new LeaveCountValidationResult();
+
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetLeaveCountForValidation,
+                sqlParameter
+            );
+
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+
+                result.ApprovedLeaveCount = Convert.ToDecimal(row["ApprovedLeaveCount"]);
+
+                result.PendingLeaveCount = Convert.ToDecimal(row["PendingLeaveCount"]);
+
+                result.TotalLeaveCount = Convert.ToDecimal(row["TotalLeaveCount"]);
+            }
+
+            return result;
+        }
         public LeaveResults GetAgentLeaveSummary(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
@@ -1981,6 +2030,7 @@ namespace HRMS.API.BusinessLayer
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
+            sqlParameter.Add(new SqlParameter("@UserID", model.UserID));
             SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
             {
                 Direction = ParameterDirection.Output
@@ -2323,6 +2373,56 @@ namespace HRMS.API.BusinessLayer
         }
 
 
+        public DashBoardLoginModel GetDashBoardLoginModel(DashBoardModelInputParams model)
+        {
+            DashBoardLoginModel dashBoardModel = new DashBoardLoginModel();
+            try
+            {
+                List<SqlParameter> sqlParameter = new List<SqlParameter>();
+                sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+                sqlParameter.Add(new SqlParameter("@RoleId", model.RoleID));
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetDashBoardLoginDetails, sqlParameter);
+                dashBoardModel = dataSet.Tables[0].AsEnumerable()
+                                  .Select(dataRow => new DashBoardLoginModel
+                                  {
+                                      EmployeeID = dataRow.Field<long>("EmployeeID"),
+                                      
+                                      ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
+                                      FirstName = dataRow.Field<string>("FirstName"),
+                                      MiddleName = dataRow.Field<string>("MiddleName"),
+                                      Surname = dataRow.Field<string>("Surname"),
+                                      
+                                     
+                                      //EmploymentDetails
+                                      
+                                      DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                      JobLocationID = dataRow.Field<long>("JobLocationID"),
+                                      ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
+                                      OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),                                 
+                                      JoiningDate = dataRow.Field<DateTime?>("JoiningDate")
+                                      
+
+                                  }).ToList().FirstOrDefault();
+
+                
+              
+
+                if (dashBoardModel == null)
+                {
+                    dashBoardModel = new DashBoardLoginModel();
+                }
+
+            
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
+         
+            return dashBoardModel;
+        }
 
 
 
@@ -3402,6 +3502,9 @@ namespace HRMS.API.BusinessLayer
                             TotalLeaves = dataRow.Field<decimal>("TotalLeaves"),
                             ManagerName = dataRow.Field<string>("ManagerName"),
                             ManagerManagerName = dataRow.Field<string>("ManagerManagerName"),
+                            AnnualLeaveConsumed = dataRow.Field<decimal>("AnnualLeaveConsumed"),
+                            AnnualLeaveBalance = dataRow.Field<double>("AnnualLeaveBalance"),
+                            AvailableCompOffDays = dataRow.Field<decimal>("AvailableCompOffDays"),
                             AttendanceByDay = new Dictionary<string, string>()
                         };
 
@@ -3562,7 +3665,8 @@ namespace HRMS.API.BusinessLayer
                                     EndDate = row.Field<DateTime?>("EndDate"),
                                     Reason = row.Field<string>("Reason"),
                                     LeaveStatusID = row.Field<string>("LeaveStatusID"),
-                                    LeaveDurationTypeName = row.Field<string>("LeaveDurationTypeName")
+                                    LeaveDurationTypeName = row.Field<string>("LeaveDurationTypeName"),
+                                    LeaveTypeName = row.Field<string>("LeaveTypeName")
                                 });
 
                                 break;
@@ -4811,14 +4915,13 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
-        new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID),
         new SqlParameter("@StartDate", model.StartDate),
         new SqlParameter("@EndDate", model.EndDate),
-        new SqlParameter("@EmployeeNumber", model.EmployeeNumber),
-        new SqlParameter("@RequestedLeaveDays", model.RequestedLeaveDays)
+        new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID),
+        new SqlParameter("@LeaveDurationId", model.LeaveDurationId)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Is_CampOff_Eligible, sqlParameter);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ValidateCompOff, sqlParameter);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -4827,9 +4930,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     IsEligible = Convert.ToInt32(row["IsEligible"]),
                     Message = row["Message"].ToString(),
-                    EligibleDays = Convert.ToInt32(row["EligibleDays"]),
-                    RequestedDays = Convert.ToInt32(row["RequestedDays"]),
-                    AvailableCompOffDays = Convert.ToInt32(row["AvailableCompOffDays"])
+            
                 };
             }
 
@@ -4837,11 +4938,13 @@ namespace HRMS.API.BusinessLayer
         }
         public UpdateLeaveStatus UpdateLeaveStatus(UpdateLeaveStatus model)
         {
+            var oldData = GetLeaveSummaryByID(model.LeaveSummaryID);
             var sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
         new SqlParameter("@NewLeaveStatusID", model.NewLeaveStatusID),
-        new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID)
+        new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID),
+        new SqlParameter("@UpdatedByID", model.UpdatedByID),
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_UpdateLeaveStatus, sqlParameters);
@@ -4855,6 +4958,18 @@ namespace HRMS.API.BusinessLayer
             {
                 model.Message = "No response from stored procedure.";
             }
+            var newData = GetLeaveSummaryByID(model.LeaveSummaryID);
+            TrackLogAudit(
+        oldData,
+        newData,
+        "Edit",                     // Status update is treated as Edit
+        model.UpdatedByID,           // User performing action
+        "LeaveSummary",
+        "tbl_LeaveSummary",
+        model.LeaveSummaryID,
+        "tbl_LeaveSummary_Log",
+        "Leave Status Updated"
+    );
 
             return model;
         }
@@ -5376,7 +5491,16 @@ namespace HRMS.API.BusinessLayer
 
            return modelItem;
        }).ToList();
-
+            if (dataSet.Tables.Count > 1 && model.Count > 0)
+            {
+                var managerCountsTable = dataSet.Tables[1];
+                if (managerCountsTable.Rows.Count > 0)
+                {
+                    var row = managerCountsTable.Rows[0];
+                    model[0].PendingLeaveCount = row["PendingLeaveCount"] != DBNull.Value ? Convert.ToInt32(row["PendingLeaveCount"]) : 0;
+                    
+                }
+            }
             return model;
         }
 
@@ -5439,7 +5563,7 @@ namespace HRMS.API.BusinessLayer
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
         new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID),
-                    new SqlParameter("@AttendanceStatus",model.AttendanceStatus)
+        new SqlParameter("@AttendanceStatus",model.AttendanceStatus)
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetHolidayOrSundayWorkLog, sqlParameters);
@@ -5863,16 +5987,17 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
 
 
 
-        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber)
+        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber, long weekOffID)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>
     {
         new SqlParameter("@EmployeeNumber", employeeNumber), // Note: Parameter name should match SP: @CompanyID
+        new SqlParameter("@WeekOffID", weekOffID), // Note: Parameter name should match SP: @CompanyID
     };
 
             List<EmployeeShiftModel> model = new List<EmployeeShiftModel>();
 
-            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetShiftTypesByCompany, sqlParameters);
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetShiftTypesByWeekOffID, sqlParameters);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -6011,7 +6136,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
         public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
         {
             Result model = new Result();
-
+             
             var oldData = GetAttendanceStatusChangesByID(att.StatusChangeID);
             List<SqlParameter> sqlParameters = new List<SqlParameter>
       {
@@ -6599,7 +6724,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
                 string newVal = newRow[colName] == DBNull.Value ? null : Convert.ToString(newRow[colName]);
                 string oldVal = oldRow == null ? null : (oldRow[colName] == DBNull.Value ? null : Convert.ToString(oldRow[colName]));
 
-                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID" || colName == "ModifiedBy" || colName == "UpdatedBy")
+                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID" || colName == "ModifiedBy" || colName == "UpdatedBy" || colName =="UpdatedByUserID")
                 {
                     changeLog.Add(new Dictionary<string, object>
             {
@@ -6683,6 +6808,21 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
     };
 
             DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceStatusChangesByIDLog, sqlParameters);
+
+            if (dataSet != null && dataSet.Tables.Count > 0)
+                return dataSet.Tables[0];
+
+            return new DataTable();
+        }
+        private DataTable GetEmploymentDetailsByID(long? employmentDetailID)
+        {
+            long finalemploymentDetailID = employmentDetailID ?? 0;
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@EmploymentDetailID", finalemploymentDetailID)
+    };
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_EmploymentDetailByIDLog, sqlParameters);
 
             if (dataSet != null && dataSet.Tables.Count > 0)
                 return dataSet.Tables[0];
@@ -6877,6 +7017,162 @@ new SqlParameter("@DisplayLength", model.DisplayLength)
 
 
         #endregion TeamAlignment
+
+        #region Notifications
+        public ManagerApprovalCount GetManagerApprovalCount(long reportingToEmployeeID)
+        {
+            var model = new ManagerApprovalCount();
+
+            var sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ReportingToEmployeeID", reportingToEmployeeID)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_Get_ManagerApprovalCount, sqlParameters);
+
+            if (dataSet?.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+                model.PendingLeaveCount = Convert.ToInt64(dataSet.Tables[0].Rows[0][0]);
+
+            return model;
+        }
+        public List<NotificationModel> GetManagerPendingNotifications(long reportingToEmployeeID, int notificationType)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ReportingToEmployeeID", reportingToEmployeeID),
+        new SqlParameter("@NotificationType", notificationType)
+    };
+
+            var ds = DataLayer.GetDataSetByStoredProcedure("usp_Get_ManagerPendingNotifications", sqlParameters);
+
+            List<NotificationModel> notifications = new List<NotificationModel>();
+
+            if (ds != null && ds.Tables.Count > 0)
+            {
+                notifications = ds.Tables[0].AsEnumerable()
+                    .Select(row => new NotificationModel
+                    {
+                        NotificationType = row.Field<int>("NotificationType"),
+                        ReferenceID = row.Field<long>("ReferenceID"),
+                        EmployeeID = row.Field<long>("EmployeeID"),
+                        EmployeeName = row.Field<string>("FirstName"),
+                        StartDate = row.Field<DateTime?>("StartDate"),
+                        EndDate = row.Field<DateTime?>("EndDate"),
+                        Message = row.Field<string>("Message"),
+                        NotificationDate = row.Field<string>("NotificationDate")
+                    })
+                    .ToList();
+            }
+
+            return notifications;
+        }
+        public Result MarkNotificationAsRead(MarkNotificationReadInput input)
+        {
+            Result model = new Result();
+            List<SqlParameter> sqlParameters = new List<SqlParameter>
+    {
+        new SqlParameter("@ReferenceId", input.ReferenceId),
+        new SqlParameter( "@Type", input.Type)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_MarkNotificationAsRead", sqlParameters);
+
+            if (dataSet.Tables[0].Columns.Contains("Result"))
+            {
+                model = dataSet.Tables[0].AsEnumerable()
+                    .Select(row => new Result
+                    {
+                        Message = row.Field<string>("Result"),
+                        PKNo = row.Field<long?>("PKNo") ?? 0
+                    })
+                    .FirstOrDefault();
+            }
+
+            return model;
+        }
+        public List<long> GetEmployeeHierarchyManagers(EmployeeManagerInputParams model)
+        {
+            List<long> managerIds = new List<long>();
+
+            List<SqlParameter> sqlParameters = new()
+    {
+        new SqlParameter("@EmployeeID", model.EmployeeID),
+        new SqlParameter("@Type", model.Type)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetEmployeeManagerHierarchy,
+                sqlParameters
+            );
+
+            if (dataSet == null || dataSet.Tables.Count == 0)
+                return managerIds;
+
+            var table = dataSet.Tables[0];
+
+            var hierarchyManagers = table.AsEnumerable()
+                .Select(row => row.Field<long>("EmployeeID"))
+                .ToList();
+
+            managerIds = dataSet.Tables[0]
+          .AsEnumerable()
+          .Select(row => row.Field<long>("EmployeeID"))
+          .ToList();
+
+            return managerIds;
+        }
+        #endregion Notifications
+
+        public List<LeaveDayDetailModel> GetLeaveSummaryDayWiseDetails(LeaveSummaryInputParams param)
+        {
+            List<LeaveDayDetailModel> model = new List<LeaveDayDetailModel>();
+
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+
+            sqlParameters.Add(new SqlParameter("@LeaveSummaryID", param.LeaveSummaryID));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetLeaveSummaryDayWiseDetails,
+                sqlParameters
+            );
+
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    LeaveDayDetailModel item = new LeaveDayDetailModel();
+
+                    item.LeaveSummaryDetailID = row.Field<long>("LeaveSummaryDetailID");
+
+                    item.LeaveSummaryID = row.Field<long>("LeaveSummaryID");
+
+                    item.EmployeeID = row.Field<long>("EmployeeID");
+
+                    item.LeaveDate = row.Field<DateTime>("LeaveDate");
+
+                    item.LeaveTypeID = row.Field<long>("LeaveTypeID");
+
+                    item.LeaveTypeName = row.Field<string>("LeaveTypeName");
+
+                    item.LeaveDurationTypeID = row.Field<long>("LeaveDurationTypeID");
+
+                    item.LeaveDurationTypeName = row.Field<string>("LeaveDurationTypeName");
+
+                    item.LeaveDayTypeID = row.Field<int>("LeaveDayTypeID");
+
+                    item.LeaveDayTypeName = row.Field<string>("LeaveDayTypeName");
+
+                    item.LeaveStatusID = row.Field<long>("LeaveStatusID");
+
+                    item.LeaveStatusTypeName = row.Field<string>("LeaveStatusTypeName");
+
+                    model.Add(item);
+                }
+            }
+
+            return model;
+        }
 
 
         #region ExportExcels

@@ -28,6 +28,7 @@ namespace HRMS.Models.Common
         public long DepartmentID { get; set; }
         public bool IsResetPasswordRequired { get; set; }
         public bool IsFirstLoginPasswordReset { get; set; }
+        public long EmployeeTypeID { get; set; }
 
 
     }

@@ -9,6 +9,8 @@ namespace HRMS.API.BusinessLayer
     internal class StoredProcedures
     {
         public const string usp_GetDeviceLogsByMonth = "usp_GetDeviceLogsByMonth";
+        public const string usp_ValidateCompOff = "usp_ValidateCompOff";
+        public const string usp_GetShiftTypesByWeekOffID = "usp_GetShiftTypesByWeekOffID";
         public const string usp_LoginUser = "usp_LoginUser";
         public const string usp_Get_Counteres = "usp_Get_Counteres";
         public const string usp_Get_Currencies = "usp_Get_Currencies";
@@ -24,6 +26,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_ActiveEmployeeDetails = "usp_Get_ActiveEmployeeDetails";
         public const string usp_Get_TemplateDetails = "usp_Get_TemplateDetails";
         public const string usp_AddUpdate_Template = "usp_AddUpdate_Template";
+        public const string usp_GetDashBoardLoginDetails = "usp_GetDashBoardLoginDetails";
 
         public const string usp_Get_LeavePolicyDetails = "usp_Get_LeavePolicyDetails";
         public const string usp_AddUpdate_LeavePolicy = "usp_AddUpdate_LeavePolicy";
@@ -164,6 +167,12 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_HolidaysByCompany = "usp_Get_HolidaysByCompany";
 
         public const string usp_GetShiftTypeDictionary = "usp_GetShiftTypeDictionary";
+        public const string usp_GetEmployeeManagerHierarchy = "usp_GetEmployeeManagerHierarchy";
+        public const string usp_Get_ManagerApprovalCount = "usp_Get_ManagerApprovalCount";
+        public const string usp_ValidateShiftType = "usp_ValidateShiftType";
+        public const string usp_GetLeaveSummaryDayWiseDetails = "usp_GetLeaveSummaryDayWiseDetails";
+        public const string usp_GetLeaveCountForValidation = "usp_GetLeaveCountForValidation";
+        
 
         #region Payroll
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";
@@ -191,7 +200,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_ReferenceDetailsByIDLog = "usp_ReferenceDetailsByIDLog";
         public const string usp_UserPolicyAcknowledgements = "usp_UserPolicyAcknowledgements";
         public const string usp_TemplatesByIDLog = "usp_TemplatesByIDLog";
-
+        public const string usp_EmploymentDetailByIDLog = "usp_EmploymentDetailByIDLog";
         #endregion Logs
 
         #region TeamAlignment

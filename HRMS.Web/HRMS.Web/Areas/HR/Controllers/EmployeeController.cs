@@ -1606,7 +1606,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
 
         [HttpGet]
-        public IActionResult GetShiftsByEmployee(string employeeNumber)
+        public IActionResult GetShiftsByEmployee(string employeeNumber, long? weekOffID)
         {
             if (employeeNumber.Contains('_'))
             {
@@ -1624,7 +1624,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             var session = HttpContext.Session;
             var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
             var Shiftdata = _businessLayer.SendGetAPIRequest(
-                               $"Employee/GetShiftTypeList?employeeNumber={employeeNumber}",
+                               $"Employee/GetShiftTypeList?employeeNumber={employeeNumber}&weekOffID={weekOffID}",
                                token,
                                true).Result.ToString();
             obj = JsonConvert.DeserializeObject<List<EmployeeShiftModel>>(Shiftdata);

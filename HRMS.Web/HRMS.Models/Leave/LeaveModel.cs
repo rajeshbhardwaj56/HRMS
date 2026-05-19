@@ -103,19 +103,23 @@ namespace HRMS.Models.Leave
         public string EndDate { get; set; }
         public string EmployeeNumber { get; set; }
         public decimal RequestedLeaveDays { get; set; }
+        public long? LeaveSummaryID { get; set; }
+        public long? LeaveDurationId { get; set; }
     }
     public class CompOffValidationResult
     {
         public int IsEligible { get; set; }
         public string Message { get; set; }
-        public int EligibleDays { get; set; }
-        public int RequestedDays { get; set; }
-        public int AvailableCompOffDays { get; set; }
+        public int? EligibleDays { get; set; }
+        public int? RequestedDays { get; set; }
+        public int? AvailableCompOffDays { get; set; }
     }
 
     public class UpdateLeaveStatus
     {
         public long EmployeeID { get; set; }
+
+        public long UpdatedByID { get; set; }
         public long NewLeaveStatusID { get; set; }
         public long LeaveSummaryID { get; set; }
         public string? Message { get; set; }
@@ -135,6 +139,48 @@ namespace HRMS.Models.Leave
         public string? ManagerName { get; set; }
         public int? Gender { get; set; }
         public long? JobLocationID { get; set; }
-        
+
+    }
+
+    public class LeaveSummaryInputParams
+    {
+        public long LeaveSummaryID { get; set; }
+    }
+
+    public class LeaveDayDetailModel
+    {
+        public long LeaveSummaryDetailID { get; set; }
+
+        public long LeaveSummaryID { get; set; }
+
+        public long EmployeeID { get; set; }
+
+        public DateTime LeaveDate { get; set; }
+
+        public long LeaveTypeID { get; set; }
+
+        public string? LeaveTypeName { get; set; }
+
+        public long LeaveDurationTypeID { get; set; }
+
+        public string? LeaveDurationTypeName { get; set; }
+
+        public int  LeaveDayTypeID { get; set; }
+
+        public string? LeaveDayTypeName { get; set; }
+
+        public long LeaveStatusID { get; set; }
+
+        public string? LeaveStatusTypeName { get; set; }
+
+      
+    }
+    public class LeaveCountValidationResult
+    {
+        public decimal ApprovedLeaveCount { get; set; }
+
+        public decimal PendingLeaveCount { get; set; }
+
+        public decimal TotalLeaveCount { get; set; }
     }
 }

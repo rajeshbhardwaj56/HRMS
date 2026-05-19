@@ -84,10 +84,13 @@ namespace HRMS.Models.Common
         public DateTime? WorkDate { get; set; }
         public string? Status { get; set; }
         public string? Remarks { get; set; }
-        public decimal? PrivilegeLeaveConsumed { get; set; }
-        public double? FinalLeaveBalance { get; set; }
         public decimal? AvailableCompOffDays { get; set; }
         public decimal TotalLeaves { get; set; }
+
+        public decimal AnnualLeaveAccrued { get; set; }
+        public decimal AnnualLeaveConsumed { get; set; }
+        public double AnnualLeaveBalance { get; set; }
+    
 
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
     }
@@ -202,6 +205,7 @@ namespace HRMS.Models.Common
         public string? Reason { get; set; }
         public string? LeaveStatusID { get; set; }
         public string? LeaveDurationTypeName { get; set; }
+        public string? LeaveTypeName { get; set; }
     }
     public class LeaveSummaryVM
     {

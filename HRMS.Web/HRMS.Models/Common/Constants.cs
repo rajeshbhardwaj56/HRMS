@@ -21,6 +21,7 @@ namespace HRMS.Models.Common
         public const string Email = "Email";
         public const string UserID = "UserID";
         public const string RoleID = "RoleID";
+        public const string EmployeeTypeID = "EmployeeTypeID";
         public const string CompanyID = "CompanyID";
         public const string EmployeeID = "EmployeeID";
         public const string ProfilePhoto = "ProfilePhoto";
@@ -212,6 +213,7 @@ namespace HRMS.Models.Common
     public class APIApiActionConstants
     {
         public const string AddUpdatePolicyCategory = "AddUpdatePolicyCategory";
+        public const string GetLeaveCountForValidation = "GetLeaveCountForValidation";
         public const string GetAllPolicyCategory = "GetAllPolicyCategory";
         public const string GetPolicyCategoryList = "GetPolicyCategoryList";
         public const string DeletePolicyCategory = "DeletePolicyCategory";
@@ -220,6 +222,8 @@ namespace HRMS.Models.Common
         public const string GetEmployeesHierarchyUnderManager = "GetEmployeesHierarchyUnderManager";
         public const string GetEmployeeForLeaveEdit = "GetEmployeeForLeaveEdit";
         public const string GetWeekOffShifts = "GetWeekOffShifts";
+        public const string GetDashBoardLoginModel = "GetDashBoardLoginModel";
+        public const string GetLeaveSummaryDayWiseDetails = "GetLeaveSummaryDayWiseDetails";
 
 
 
@@ -371,6 +375,9 @@ namespace HRMS.Models.Common
         public const string CalculateEmployeeSalary = "CalculateEmployeeSalary";
         public const string SaveEmployeeSalary = "SaveEmployeeSalary";
         public const string GetEmployeeSalary = "GetEmployeeSalary";
+        public const string GetManagerPendingNotifications = "GetManagerPendingNotifications";
+        public const string MarkAsReadNotification = "MarkAsReadNotification";
+        public const string GetManagerApprovalCount = "GetManagerApprovalCount";
 
 
     }

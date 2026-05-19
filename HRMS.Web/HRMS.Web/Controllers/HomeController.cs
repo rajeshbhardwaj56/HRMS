@@ -113,14 +113,14 @@ namespace HRMS.Web.Controllers
                         // Format the Reset Password URL correctly
                         var formattedResetUrl = string.Format(resetPasswordUrl, _businessLayer.EncodeStringBase64(userModel.EmployeeID == null ? "" : userModel.EmployeeID.ToString()), encodedTimestamp, _businessLayer.EncodeStringBase64(userModel.CompanyID.ToString()), _businessLayer.EncodeStringBase64(userModel.UserName.ToString()));
 
-                        // Prepare email content
+
                         sendEmailProperties sendEmailProperties = new sendEmailProperties
                         {
                             emailSubject = "Reset Password",
                             emailBody = $@"
         <div style='font-family: Arial, sans-serif; font-size: 14px; color: #000;'>
             Hi,<br/><br/>
-            Please click on the link below to reset your password.<br/><br/>
+            Please click on the link below to reset password.<br/><br/>
 
             <table style='width: 100%; max-width: 600px; border-collapse: collapse; border: 1px solid #000;'>
                 <thead style='background-color: #f2f2f2;'>
@@ -154,7 +154,7 @@ namespace HRMS.Web.Controllers
             </p>
         </div>"
                         };
-                        
+
                         if (userModel.EmployeeTypeID == (int)EmploymentType.SeniorCore &&
     !string.IsNullOrEmpty(userModel.Email))
                         {
@@ -162,11 +162,23 @@ namespace HRMS.Web.Controllers
                         }
                         else
                         {
-                            
+                            string managerL1 = userModel.ManagerEmailL1;
+                            string managerL2 = userModel.ManagerEmailL2;
+
+                            if ( !string.IsNullOrEmpty(managerL2))
+                            {
+
+                                 sendEmailProperties.EmailToList.Add(managerL2);
+                              
+                            }                        
+                            else
+                            {
+
                                 sendEmailProperties.EmailToList.Add(_configuration["AppSettings:ITEmail"]);
-                           
+
+                            }
                         }
-                        emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
+                            emailSendResponse response = EmailSender.SendEmail(sendEmailProperties);
                         if (response.responseCode == "200")
                         {
                             TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
@@ -178,7 +190,7 @@ namespace HRMS.Web.Controllers
                             else
                             {
                                 
-                                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to IT email.";
+                                    TempData[HRMS.Models.Common.Constants.toastMessage] = "Reset password email has been sent to L2 manager.";
 
                                 
                             }
@@ -248,7 +260,6 @@ namespace HRMS.Web.Controllers
             }
             return View(objmodel);
         }
-
         [HttpPost]
         public ActionResult ResetPassword(ResetPasswordModel model)
         {
@@ -445,13 +456,14 @@ namespace HRMS.Web.Controllers
             {
                 if (result.IsFirstLoginPasswordReset)
                 {
-
+                        
                     EmployeeInputParams objmodel = new EmployeeInputParams();
                     objmodel.CompanyID = result.CompanyID;
                     _context.HttpContext.Session.SetString(Constants.SessionBearerToken, result.token);
                     _context.HttpContext.Session.SetString(Constants.UserID, result.UserID.ToString());
                     _context.HttpContext.Session.SetString(Constants.CompanyID, result.CompanyID.ToString());
                     _context.HttpContext.Session.SetString(Constants.EmployeeID, result.EmployeeID.ToString());
+                    _context.HttpContext.Session.SetString(Constants.EmployeeTypeID, result.EmployeeTypeID.ToString());
                     _context.HttpContext.Session.SetString(Constants.Gender, result.GenderId.ToString());
                     _context.HttpContext.Session.SetString(Constants.RoleID, result.RoleId.ToString());
                     _context.HttpContext.Session.SetString(Constants.Manager1Name, result.Manager1Name.ToString());
@@ -460,15 +472,18 @@ namespace HRMS.Web.Controllers
                     _context.HttpContext.Session.SetString(Constants.EmployeeNumber, result.EmployeeNumber.ToString());
                     _context.HttpContext.Session.SetString(Constants.EmployeeNumberWithoutAbbr, result.EmployeeNumberWithoutAbbr.ToString());
                     _context.HttpContext.Session.SetString(Constants.Manager2Email, result.Manager2Email.ToString());
-                    _context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
-                    var identity = new ClaimsIdentity(new[] {
+                    //_context.HttpContext.Session.SetString(Constants.AreaName, _businessLayer.GetAreaNameByRole(result.RoleId));
+                    _context.HttpContext.Session.SetString(Constants.AreaName, "admin");
+                    var identity = new ClaimsIdentity(new[] 
+                    {new Claim(ClaimTypes.NameIdentifier, result.EmployeeID.ToString()),
                     new Claim(ClaimTypes.Name, result.UserID.ToString()),
-                     new Claim(ClaimTypes.Role,  result.Role)
-                }, CookieAuthenticationDefaults.AuthenticationScheme);
+                     new Claim(ClaimTypes.Role, result.Role),
+                    new Claim("EmployeeID", result.EmployeeID.ToString())
+                    }, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
                     var login = HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                     DashBoardModelInputParams dashBoardModelInputParams = new DashBoardModelInputParams() { EmployeeID = long.Parse(HttpContext.Session.GetString(Constants.EmployeeID)) };
-                    var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+                    var dataDashBoardModel = _businessLayer.SendPostAPIRequest(dashBoardModelInputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetDashBoardLoginModel), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
                     var model = JsonConvert.DeserializeObject<DashBoardModel>(dataDashBoardModel);
                     if (string.IsNullOrEmpty(model.ProfilePhoto))
                     {

@@ -323,7 +323,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return Json(new
             {
-                success = result != null,
+                success = result != null && result.PKNo.HasValue && result.PKNo.Value > 0,
                 message = result?.Message ?? "Failed to save salary",
                 pkNo = result?.PKNo
             });

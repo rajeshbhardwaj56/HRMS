@@ -31,7 +31,7 @@ namespace HRMS.Web.BusinessLayer
         public string DecodeStringBase64(string base64EncodedData);
         public string GetSatutation();
         public string GetProfilePhoto();
-   
+
     }
 
 
@@ -136,18 +136,18 @@ namespace HRMS.Web.BusinessLayer
 
         public string ConvertIFormFileToBase64(IFormFile file)
         {
-           
+
             if (file != null && file.Length > 0)
             {
                 using (var memoryStream = new MemoryStream())
                 {
-                    
+
                     file.CopyTo(memoryStream);
 
-                   
+
                     byte[] fileBytes = memoryStream.ToArray();
 
-                   
+
                     string base64String = Convert.ToBase64String(fileBytes);
 
                     return base64String;
@@ -198,7 +198,7 @@ namespace HRMS.Web.BusinessLayer
             var ProfilePhoto = "";
             if (!string.IsNullOrEmpty(httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto)))
             {
-                ProfilePhoto =httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto);
+                ProfilePhoto = httpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.ProfilePhoto);
             }
             else
             {
@@ -206,7 +206,49 @@ namespace HRMS.Web.BusinessLayer
             }
             return ProfilePhoto;
         }
-     
+
+        
+            public static bool CanCancelLeave(DateTime leaveStartDate)
+            {
+                DateTime today = DateTime.Now.Date;
+                int year = today.Year;
+                int month = today.Month;
+
+                DateTime periodStart;
+                DateTime periodEnd;
+
+                bool isLeapYear = DateTime.IsLeapYear(year);
+
+                if (month == 2)
+                {
+                    periodStart = new DateTime(year, 1, 21);
+                    periodEnd = isLeapYear
+                        ? new DateTime(year, 2, 18)
+                        : new DateTime(year, 2, 17);
+                }
+                else if (month == 3)
+                {
+                    periodStart = isLeapYear
+                        ? new DateTime(year, 2, 19)
+                        : new DateTime(year, 2, 18);
+
+                    periodEnd = new DateTime(year, 3, 20);
+                }
+                else
+                {
+                    periodStart = new DateTime(year, month, 21).AddMonths(-1);
+                    periodEnd = new DateTime(year, month, 20);
+                }
+
+                DateTime cancelLimit = new DateTime(year, month, 23);
+                if (leaveStartDate > today)
+                    return true;
+                if (leaveStartDate >= periodStart && leaveStartDate <= periodEnd && today <= cancelLimit)
+                    return true;
+
+                return false;
+            }
+      
 
     }
 

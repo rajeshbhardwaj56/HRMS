@@ -105,7 +105,24 @@ namespace HRMS.Models.DashBoard
         public List<HierarchyEmployee> EmployeeHierarchy { get; set; } = new List<HierarchyEmployee>();
 
     }
+    public class DashBoardLoginModel
+    {
+        public long EmployeeID { get; set; }
+        public string? ProfilePhoto { get; set; } = string.Empty;
+        public string? FirstName { get; set; } = string.Empty;
+        public string? MiddleName { get; set; } = string.Empty;
+        public string? Surname { get; set; } = string.Empty;
+       
+        public long DepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public long ReportingToIDL1 { get; set; }
+        public string OfficialEmailID { get; set; } = string.Empty;
+        
+        public DateTime? JoiningDate { get; set; }
+       
+     
 
+    }
     public class HierarchyEmployee
     {
         public string? EmployeNumber { get; set; }
@@ -153,7 +170,7 @@ namespace HRMS.Models.DashBoard
     }
 
     public class WhatsHappening
-    {    
+    {
         public long? WhatsHappeningID { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
@@ -190,4 +207,34 @@ namespace HRMS.Models.DashBoard
 
     }
 
+    public class NotificationModel
+    {
+        public int NotificationType { get; set; }
+        public long ReferenceID { get; set; }
+        public long EmployeeID { get; set; }
+        public string? EmployeeName { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string? Message { get; set; }
+        public string? NotificationDate { get; set; }
+    }
+    public class ManagerApprovalCountRequest
+    {
+        public long ReportingToEmployeeID { get; set; }
+    }
+
+    public class NotificationRequest
+    {
+        public long ReportingToEmployeeID { get; set; }
+        public int NotificationType { get; set; }
+    }
+    public class MarkNotificationReadInput
+    {
+        public long ReferenceId { get; set; }
+        public int Type { get; set; }
+    }
+    public class ManagerApprovalCount
+    {
+        public long PendingLeaveCount { get; set; }
+    }
 }

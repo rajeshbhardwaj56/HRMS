@@ -14,6 +14,7 @@ using WebMarkupMin.AspNetCore8;
 using HRMS.Web.BusinessLayer.S3;
 using DinkToPdf.Contracts;
 using DinkToPdf;
+using HRMS.Web.BusinessLayer.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,7 +76,9 @@ builder.Services.AddMvcCore()
     .SetCompatibilityVersion(CompatibilityVersion.Latest)
         .AddDataAnnotations()
         .AddCors();
+builder.Services.AddSignalR();
 builder.Services.AddSingleton<IS3Service, S3Service>();
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddSingleton<ICheckUserFormPermission, CheckUserFormPermission>();
 builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
 builder.Services.AddHttpContextAccessor();
@@ -155,5 +158,6 @@ pattern: "{area:exists}/{controller=DashBoard}/{action=Index}/{id?}");
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

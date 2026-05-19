@@ -10,6 +10,7 @@ namespace HRMS.Models.FormPermission
 {
     public class FormPermissionViewModel
     {
+        public int? PendingLeaveCount { get; set; }
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> FormsPermission { get; set; } = new List<SelectListItem>();
         public long? GroupFormID  { get; set; }

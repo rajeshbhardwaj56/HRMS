@@ -14,6 +14,9 @@ namespace HRMS.Models.User
         public long CompanyID { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string ManagerEmailL1 { get; set; } = string.Empty;
+        public string ManagerEmailL2 { get; set; } = string.Empty;
+        public string AdminEmail { get; set; } = string.Empty;
         public string DepartmentName { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string ManagerName { get; set; } = string.Empty;
