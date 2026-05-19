@@ -30,12 +30,30 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddUpdateEmployeeMonthlySalary(EmployeeMonthlySalaryModel model)
+        public IActionResult GetEmployeeSalary(EmployeeSalaryGetRequestModel model)
         {
             IActionResult response = Unauthorized();
-            response = Ok(_businessLayer.AddUpdateEmployeeMonthlySalary(model));
+            response = Ok(_businessLayer.GetEmployeeSalary(model));
             return response;
         }
+
+        [HttpPost]
+        public IActionResult CalculateEmployeeSalary(EmployeeSalaryRequestModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CalculateEmployeeSalary(model));
+            return response;
+        }
+
+        [HttpPost]
+        public IActionResult SaveEmployeeSalary(EmployeeSalaryRequestModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.SaveEmployeeSalary(model));
+            return response;
+        }
+
+
 
     }
 }

@@ -28,6 +28,7 @@ using System.Data.SqlClient;
 using Microsoft.AspNetCore.Authentication;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using HRMS.Models.AttendenceList;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -37,11 +38,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
     {
         IConfiguration _configuration;
         IBusinessLayer _businessLayer;
-        private Microsoft.AspNetCore.Hosting.IHostingEnvironment Environment;
+        private Microsoft.AspNetCore.Hosting.IWebHostEnvironment Environment;
         IHttpContextAccessor _context;
         private readonly IS3Service _s3Service;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IHostingEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IWebHostEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
         {
             Environment = _environment;
             _configuration = configuration;
@@ -83,57 +84,13 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
             }
 
-            if (model != null)
+            if (model?.leaveResults?.leaveBalance != null)
             {
-                var leavePolicy = GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
-
-                // Fiscal year start date (March 21)
-                DateTime today = DateTime.Today;
-                DateTime fiscalYearStart = (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                    ? new DateTime(today.Year, 3, 21)
-                    : new DateTime(today.Year - 1, 3, 21);
-
-                // Filter approved Annual and Medical leaves from current fiscal year
-                var approvedLeaves = model.leaveResults?.leavesSummary?
-                    .Where(x => x.StartDate >= fiscalYearStart &&
-                                x.LeaveStatusID == (int)LeaveStatus.Approved &&
-                                (x.LeaveTypeID == (int)LeaveType.AnnualLeavel || x.LeaveTypeID == (int)LeaveType.MedicalLeave))
-                    .ToList();
-
-                decimal approvedLeaveDays = approvedLeaves?.Sum(x => x.NoOfDays) ?? 0.0m;
-                double approvedLeaveTotal = (double)approvedLeaveDays;
-                const double maxAnnualLeaveLimit = 30;
-
-                if (leavePolicy != null && model.JoiningDate != null)
                 {
-                    DateTime joinDate = model.JoiningDate.Value;
-
-                    double accruedLeave = 0;
-                    double carryForward = 0;
-
-
-                    if (approvedLeaveTotal < maxAnnualLeaveLimit)
-                    {
-                        accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
-                        if (leavePolicy.Annual_IsCarryForward)
-                        {
-                            carryForward = Convert.ToDouble(model.CarryForword);
-                        }
-                    }
-
-                    // Total earned leave capped by max limit
-                    double totalEarnedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
-
-                    // Remaining leave = total earned minus approved leaves (minimum 0)
-                    double remainingLeave = Math.Max(totalEarnedLeave - approvedLeaveTotal, 0);
-
-                    // Assign values to model for the View
-                    //   model.TotalLeave = (decimal)approvedLeaveTotal;            // Leaves already taken
-                    model.NoOfLeaves = Convert.ToInt64(remainingLeave);        // Leaves remaining (available)
-                    ViewBag.NoOfLeaves = remainingLeave;        // Leaves remaining (available)
-                    ViewBag.RoleID = roleId;
-
-                    ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
+                    ViewBag.NoOfLeaves = model.leaveResults.leaveBalance.AnnualLeaveBalance;
+                    model.NoOfLeaves = Convert.ToInt64(model.leaveResults.leaveBalance.AnnualLeaveBalance);
+                    //var leavePolicy = GetLeavePolicyData(companyId, model.LeavePolicyId ?? 0);
+                    //ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
                 }
             }
 
@@ -178,23 +135,25 @@ namespace HRMS.Web.Areas.Admin.Controllers
             // Start from the accrual period containing the join date
             DateTime accrualPeriodStart = GetAccrualPeriodStart(joinDate);
             DateTime accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1); // 20th of next month
-
-            while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
+            if (today > new DateTime(2026, 3, 20))
             {
-                // Adjust for join date or current date
-                DateTime effectiveStart = joinDate > accrualPeriodStart ? joinDate : accrualPeriodStart;
-                DateTime effectiveEnd = accrualPeriodEnd < today ? accrualPeriodEnd : today;
-
-                int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
-
-                if (daysWorked > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
+                while (accrualPeriodStart <= today && accrualPeriodStart <= fiscalYearEnd)
                 {
-                    totalAccruedLeave += monthlyAccrual;
-                }
+                    // Adjust for join date or current date
+                    DateTime effectiveStart = joinDate > accrualPeriodStart ? joinDate : accrualPeriodStart;
+                    DateTime effectiveEnd = accrualPeriodEnd < today ? accrualPeriodEnd : today;
 
-                // Move to next accrual period
-                accrualPeriodStart = accrualPeriodStart.AddMonths(1);
-                accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
+                    int daysWorked = (effectiveEnd - effectiveStart).Days + 1;
+
+                    if (daysWorked > Convert.ToInt32(_configuration["DaysWorkedInMonth:DaysWorkedInMonth"]))
+                    {
+                        totalAccruedLeave += monthlyAccrual;
+                    }
+
+                    // Move to next accrual period
+                    accrualPeriodStart = accrualPeriodStart.AddMonths(1);
+                    accrualPeriodEnd = accrualPeriodStart.AddMonths(1).AddDays(-1);
+                }
             }
             return totalAccruedLeave;
         }
@@ -1047,7 +1006,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
-            return View();
+            var apiResponse = _businessLayer.SendPostAPIRequest(null, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWeekOffShifts), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result?.ToString();
+            var apiResult = JsonConvert.DeserializeObject<List<WeekOffShift>>(apiResponse);
+            return View(apiResult);
         }
         private long GetSessionLong(string key)
         {
@@ -1067,7 +1028,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 if (file == null || file.Length == 0)
                     return BadRequest(new { success = false, message = "No file uploaded." });
 
-                // Save uploaded file temporarily
+
                 tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + Path.GetExtension(file.FileName));
                 using (var stream = new FileStream(tempFilePath, FileMode.Create))
                     await file.CopyToAsync(stream);
@@ -1163,7 +1124,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             try
             {
+                var shiftResponse = _businessLayer.SendPostAPIRequest(
+    null,
+    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetShiftDictionary),
+    HttpContext.Session.GetString(Constants.SessionBearerToken),
+    true
+).Result;
 
+                var shiftDictionary = JsonConvert.DeserializeObject<Dictionary<string, long>>(shiftResponse.ToString());
                 foreach (DataRow row in dt.Rows)
                 {
                     var model = new WeekOffUploadModel
@@ -1176,32 +1144,27 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     };
 
 
-                    var shiftName = row.Table.Columns.Contains("Shift") ? row["Shift"]?.ToString() : null;
+                    var shiftName = row.Table.Columns.Contains("Shift")
+               ? row["Shift"]?.ToString()?.Trim()
+               : null;
+
                     if (!string.IsNullOrWhiteSpace(shiftName))
                     {
-                        try
+                        // Example: "S1 (Morning)"
+                        var match = Regex.Match(shiftName, @"^(.*?)\(");
+                        string shiftCode = match.Success
+                            ? match.Groups[1].Value.Trim().ToLower()
+                            : shiftName.Trim().ToLower();
+
+                        if (shiftDictionary.ContainsKey(shiftCode))
                         {
-                            var match = Regex.Match(shiftName, @"^(.*?)\(");
-                            string shiftCode = match.Success ? match.Groups[1].Value.Trim() : shiftName;
-
-                            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
-
-                            var response = await _businessLayer.SendGetAPIRequest(
-                                $"Employee/GetShiftTypeId?ShiftTypeName={shiftCode}",
-                                token,
-                                true);
-
-                            if (!string.IsNullOrEmpty(response?.ToString()))
-                            {
-                                model.ShiftTypeId = JsonConvert.DeserializeObject<long>(response.ToString());
-                            }
+                            model.ShiftTypeId = shiftDictionary[shiftCode];
                         }
-                        catch (Exception apiEx)
+                        else
                         {
-                            throw new Exception($"Failed to fetch ShiftTypeId for shift '{shiftName}'.", apiEx);
+                            throw new Exception($"Shift '{shiftCode}' does not exist in the system.");
                         }
                     }
-                    int currentDay = DateTime.Today.Day;
                     model.WeekStartDate = weekStartDate;
                     list.Add(model);
                 }
@@ -1360,7 +1323,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         #region Update Excel
 
-        public IActionResult  ImportExcelUpdate()
+        public IActionResult ImportExcelUpdate()
         {
             return View();
         }
@@ -1531,7 +1494,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     }
                 }
 
-            
+
                 int? shiftTypeId = null;
 
                 if (string.IsNullOrWhiteSpace(shiftType))
@@ -1561,7 +1524,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     }
                 }
 
-         
+
                 bool? isActive = null;
 
                 if (string.IsNullOrWhiteSpace(status))
@@ -1618,7 +1581,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 Employees = updateList,
                 LoggedInUserId = Convert.ToInt64(
-                    HttpContext.Session.GetString(Constants.EmployeeID )
+                    HttpContext.Session.GetString(Constants.EmployeeID)
                 )
             };
             var apiResponse = _businessLayer.SendPostAPIRequest(
@@ -1642,5 +1605,80 @@ namespace HRMS.Web.Areas.Admin.Controllers
         #endregion Update Excel
 
 
+        #region Notification
+        [HttpPost]
+        public IActionResult MarkNotificationAsRead([FromBody] MarkNotificationReadInput input)
+        {
+            if (input == null) return BadRequest();
+
+            try
+            {
+                var request = new
+                {
+                    ReferenceId = input.ReferenceId,
+                    Type = input.Type
+                };
+
+                var apiResponse = _businessLayer.SendPostAPIRequest(
+                    request,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.MarkAsReadNotification),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                return Content(apiResponse, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error marking notification as read", Details = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult GetManagerPendingNotifications()
+        {
+            try
+            {
+                var request = new
+                {
+                    ReportingToEmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
+                    NotificationType = 1
+                };
+
+                var apiResponse = _businessLayer.SendPostAPIRequest(
+                    request,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetManagerPendingNotifications),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                return Content(apiResponse, "application/json");
+            }
+            catch
+            {
+                return Json(new List<object>());
+            }
+        }
+
+        public async Task<IActionResult> GetManagerApprovalCount()
+        {
+            var request= new
+            {
+                reportingToEmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID))
+            };        
+            var apiResponse = await _businessLayer.SendPostAPIRequest(
+                request,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.DashBoard,
+                    APIApiActionConstants.GetManagerApprovalCount
+                ),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+            return Content(apiResponse.ToString(), "application/json");
+        }
+
+
+        #endregion Notification
     }
 }

@@ -84,8 +84,13 @@ namespace HRMS.Models.Common
         public DateTime? WorkDate { get; set; }
         public string? Status { get; set; }
         public string? Remarks { get; set; }
-
+        public decimal? AvailableCompOffDays { get; set; }
         public decimal TotalLeaves { get; set; }
+
+        public decimal AnnualLeaveAccrued { get; set; }
+        public decimal AnnualLeaveConsumed { get; set; }
+        public double AnnualLeaveBalance { get; set; }
+    
 
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
     }
@@ -153,38 +158,62 @@ namespace HRMS.Models.Common
 
     public class AttendanceDetailsVM
     {
-        public string RecordType { get; set; }  // 
-        // Attendance fields
-        public long? ID { get; set; }
+        public string? EmployeeNumber { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? SelectedDateFormatted { get; set; }
+        public AttendanceVM Attendance { get; set; }
+
+        public List<HolidayVM> Holidays { get; set; } = new List<HolidayVM>();
+
+        public List<WeekOffVM> WeekOffs { get; set; } = new List<WeekOffVM>();
+
+        public List<LeaveVM> Leaves { get; set; } = new List<LeaveVM>();
+
+        public List<StatusChangeVM> StatusChange { get; set; } = new List<StatusChangeVM>();
+
+        public LeaveSummaryVM LeaveSummary { get; set; }
+    }
+
+    public class AttendanceVM
+    {
         public string? UserId { get; set; }
         public DateTime? WorkDate { get; set; }
         public DateTime? FirstLogDate { get; set; }
         public DateTime? LastLogDate { get; set; }
         public TimeSpan? HoursWorked { get; set; }
-        public string AttendanceStatus { get; set; }
-
-        // Holiday fields
-        public string HolidayName { get; set; }
-        public string Description { get; set; }
+        public string? AttendanceStatus { get; set; }
+        public string? DialerTime { get; set; }
+        public string? Remarks { get; set; }
+    }
+    public class HolidayVM
+    {
+        public string? HolidayName { get; set; }
+        public string? Description { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
-
-        // Leave fields
+    }
+    public class WeekOffVM
+    {
+        public DateTime? MatchingDayOff { get; set; }
+        public DateTime? WeekStartDate { get; set; }
+    }
+    public class LeaveVM
+    {
         public long? EmployeeID { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string? Reason { get; set; }
-        public long? LeaveTypeID { get; set; }
         public string? LeaveStatusID { get; set; }
-        public string? DialerTime { get; set; }
-        public string? Remarks { get; set; }
-
+        public string? LeaveDurationTypeName { get; set; }
+        public string? LeaveTypeName { get; set; }
+    }
+    public class LeaveSummaryVM
+    {
         public long? EmployeeTypeID { get; set; }
         public double AnnualLeaveAccrued { get; set; }
         public double AnnualLeaveConsumed { get; set; }
         public double AnnualLeaveBalance { get; set; }
         public decimal AvailableCompOffDays { get; set; }
-        public List<StatusChangeVM> StatusChange { get; set; } = new List<StatusChangeVM>();
     }
 
     public class StatusChangeVM

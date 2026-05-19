@@ -6,10 +6,13 @@
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	ViewData["Title"] = "Team Attendance Report";
+	var RoleName = Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.RoleID));
+	var employeeType = Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeTypeID));
 	
 }
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
+  
 	span.L.status-badge {
 		background: #053470;
 	}
@@ -51,10 +54,45 @@
 </style>
 
 <style>
-	body {
-		background-color: #f8f9fa;
-		font-family: Arial, sans-serif;
-	}
+    .attendance-legend .legend-item {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+    }
+    body {
+        background-color: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
+    /* reuse same colors as table */
+    .legend-item.P {
+        background: #28a745;
+    }
+
+    .legend-item.A {
+        background: #dc3545;
+    }
+
+    .legend-item.H {
+        background: #1c5db1;
+    }
+
+    .legend-item.WO {
+        background: #1c5db1;
+    }
+
+    .legend-item.L {
+        background: #1c5db1;
+    }
+    .legend-item.HD {
+        background: #04336f;
+    }
+    .legend-item.ECO {
+        background: #1c5db1;
+    }
+	
 
 	.HD {
 		background: #04336f;
@@ -62,7 +100,59 @@
 		font-size: 0.5rem;
 
 	}
+    .HD\/HPL {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HD\/HLWP {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HD\/HCOL {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HD\/HML {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+
+
     .HD\/HL {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HPL\/HA {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HLWP\/HA {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HCOL\/HA {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HML\/HA {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HL\/HA {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .HCO\/HPL {
         background: #04336f;
         cursor: pointer;
         font-size: 0.5rem;
@@ -107,6 +197,30 @@
 		cursor: pointer;
 		font-size: 0.5rem;
 	}
+    .PL {
+        background-color: #1c5db1;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+   
+    .LWP {
+        background-color: #1c5db1;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .COL {
+        background-color: #1c5db1;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+    .ML {
+        background-color: #1c5db1;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
+   
+
+
 	.ECO {
 		background-color: #1c5db1;
 		cursor: pointer;
@@ -190,20 +304,20 @@
 </div>
 
 <div class=" ">
-	<div class="main-header anim" style="--delay: 0s">Team Attendance Report</div>
-	<!-- Filters Row -->
+    <div class="main-header anim" style="--delay: 0s">Team Attendance Report</div>
+    <!-- Filters Row -->
 
-	<div class="filter-collapse-btn" id="filterToggle">
-		<i class="fas fa-chevron-up"></i> Filters
-	</div>
-	<div class="filters-container" id="filtersContainer">
-        <div class="d-flex flex-wrap align-items-end gap-3   p-3 rounded shadow-sm bg-white border"  >
+    <div class="filter-collapse-btn" id="filterToggle">
+        <i class="fas fa-chevron-up"></i> Filters
+    </div>
+    <div class="filters-container" id="filtersContainer">
+        <div class="d-flex flex-wrap align-items-end gap-3   p-3 rounded shadow-sm bg-white border">
             <div class="input-group input-group-sm" style="max-width: 130px;">
                 <span class="input-group-text">
                     Show
                 </span>
-               
-                <select id="page-size-select" class="form-select form-select-sm" >
+
+                <select id="page-size-select" class="form-select form-select-sm">
                     <option value="10">10</option>
                     <option value="20" selected>20</option>
                     <option value="50">50</option>
@@ -214,11 +328,11 @@
                 <span class="input-group-text">
                     Location
                 </span>
-                  
-                        <select id="jobLocationDropdown" class="form-select form-select-sm">
-                            <option value="">Select Location </option>
-                        </select>
-                      
+
+                <select id="jobLocationDropdown" class="form-select form-select-sm">
+                    <option value="">Select Location </option>
+                </select>
+
             </div>
 
             <div class="input-group input-group-sm" style="max-width: 350px; ">
@@ -226,11 +340,11 @@
                     Manager
                 </span>
 
-                    <select id="managerDropdown" class="form-select form-select-sm">
-                        <option value=""> Select Manager </option>
-                    </select>
+                <select id="managerDropdown" class="form-select form-select-sm">
+                    <option value=""> Select Manager </option>
+                </select>
 
-             </div>
+            </div>
 
 
             <div class="input-group input-group-sm" style="max-width: 250px;">
@@ -239,18 +353,18 @@
             </div>
 
 
-            <div class="input-group input-group-sm"  style="max-width: 130px;">
+            <div class="input-group input-group-sm" style="max-width: 130px;">
                 <span class="input-group-text">
                     Year
                 </span>
-                    <select id="year-select" class="form-select form-select-sm w-auto">
-                    </select>
+                <select id="year-select" class="form-select form-select-sm w-auto">
+                </select>
             </div>
 
             <!-- Month Selector -->
             <div class="input-group input-group-sm" style="max-width: 200px;">
                 <span class="input-group-text">Month</span>
-                <select id="month-select" class="form-select form-select-sm" >
+                <select id="month-select" class="form-select form-select-sm">
                     <option value="1">January</option>
                     <option value="2">February</option>
                     <option value="3">March</option>
@@ -279,27 +393,36 @@
                     <i class="fa fa-file-export me-1"></i> Export
                 </button>
             </div>
-
+            @if (RoleName == 2 || RoleName == 5)
+            {
+                <div class="input-group input-group-sm" style="max-width: 220px;">
+                    <button id="leave-export-btn"
+                            class="btn btn-primary btn-sm"
+                            title="Export Leave Report">
+                        <i class="fa fa-file-excel me-1"></i> Leave Export
+                    </button>
+                </div>
+            }
         </div>
-	</div>
+    </div>
+    
+    <div class="table-container small-table">
 
-	<div class="table-container small-table">
-
-		<table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover">
 
 
-			<thead class="table-dark">
-				<tr id="header-row">
-					<th>Employee ID</th>
-					<th>Emp No</th>
-					<th>Name</th>
-					<th>Location </th>
-				</tr>
-			</thead>
-			<tbody id="attendance-data">
-			</tbody>
-		</table>
-	</div>
+            <thead class="table-dark">
+                <tr id="header-row">
+                    <th>Employee ID</th>
+                    <th>Emp No</th>
+                    <th>Name</th>
+                    <th>Location </th>
+                </tr>
+            </thead>
+            <tbody id="attendance-data">
+            </tbody>
+        </table>
+    </div>
 </div>
 <div id="total-records-info" class="text-center text-muted"></div>
 
@@ -308,7 +431,29 @@
 
 	<div id="pagination-container" class="d-flex justify-content-center mb-2"></div>
 </div>
+<div class="attendance-legend mt-3 p-3 bg-white border rounded shadow-sm">
+    <div class="d-flex flex-wrap gap-3">
 
+        <span class="legend-item P">P - Present</span>
+        <span class="legend-item A">A - Absent</span>
+        <span class="legend-item H">H - Holiday</span>
+        <span class="legend-item WO">WO - Week Off</span>
+        <span class="legend-item ECO">ECO - Earned Comp Off</span>
+        <span class="legend-item L">PL - Privilege Leave</span>
+        <span class="legend-item L">LWP - Leave Without Pay</span>
+        <span class="legend-item L">COL - Comp Off Leave</span>
+        <span class="legend-item L">ML - Maternity Leave</span>
+        @*<span class="legend-item HD">HA - Half Absent</span>*@
+        <span class="legend-item HD">HD - Half Day</span>
+        <span class="legend-item HD">HPL - Half Privilege Leave</span>
+        <span class="legend-item HD">HLWP - Half Leave Without Pay</span>
+        <span class="legend-item HD">HCOL - Half Comp Off Leave</span>
+        <span class="legend-item HD">HML - Half Maternity Leave</span>
+
+
+
+    </div>
+</div>
 <!-- Attendance Detail Modal -->
 <div class="modal fade" id="attendanceDetailModal" tabindex="-1" aria-labelledby="attendanceDetailModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg">
@@ -324,6 +469,7 @@
 	</div>
 </div>
 <input type="hidden" id="hdnRoleName" value="@Convert.ToInt64(Context.Session.GetString(Constants.RoleID))" />
+<input type="hidden" id="hdnEmployeeTypeID" value="@Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeTypeID))" />
 <script>
 	$(document).ready(function() {
 		const filterToggle = $('#filterToggle');
@@ -453,10 +599,63 @@
 			dayKeys.forEach(day => {
 				
 			  let status = record.attendanceByDay[day];
-			  if (status === "Sa" || status === "S") status = "H";
-                const className = status === "P" ? "P" : status === "A" ? "A" : status === "HD/HL" ? "HD" : status === "H" ? "H" : status === "HD" ? "HD" : status === "L" ? "L" :  status === "ECO" ? "ECO" :  status === "WO" ? "WO" : "";
-			  row += `<td class="${className}" data-date="${day.replace("_", "-" )}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${status}</span></td>`;
+                let className = "";
+                let displayStatus = status;
+
+                // Present
+                if (status === "P") {
+                    className = "P";
+                }
+
+                // Absent
+                else if (status === "A") {
+                    className = "A";
+                }
+
+                // Week Off
+                else if (status === "WO") {
+                    className = "WO";
+                }
+
+                // Holiday
+                else if (status === "H") {
+                    className = "H";
+                }
+
+                // ECO
+                else if (status === "ECO") {
+                    className = "ECO";
+                }
+
+                // Half Day + Leave
+                else if (status.startsWith("HD/")) {
+
+                    className = "HD";
+                 /*   displayStatus = status;*/
+                }
+
+                // Half Leave + Absent
+                else if (status.includes("/HA")) {
+
+                    className = "HL";
+                /*    displayStatus = status;*/
+                }
+ 
+
+                // Full Leave
+                else if (
+                    ["PL", "LWP", "COL", "ML","HCO/HPL", "L"].includes(status)
+                ) {
+
+                    className = status;
+
+                    displayStatus = status;
+          
+                }
+
+                row += `<td class="${className}" data-date="${day.replace("_", "-")}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${displayStatus}</span></td>`;
 			});
+
               row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td><td>${record.managerName ?? '-'}</td><td>${record.managerManagerName ?? '-'}</td></tr>`;
 			tbody.append(row);
 		  });
@@ -704,28 +903,25 @@
 
 			 let searchTimer;
 
-		$("#search-box").on("keyup", function () {
-			clearTimeout(searchTimer); 
+            $("#search-box").on("keyup", function (e) {
 
-			const text = $(this).val().trim();
-			currentPage = 1;
-			const override = text === "" ? null : 0;
+                if (e.key === "Enter") {
 
-		
-			if (text.length === 0 || text.length >= 2) {
-				searchTimer = setTimeout(function () {
-					fetchAttendanceData(
-						getSelectedYear(),
-						getSelectedMonth(),
-						currentPage,
-						text,
-						override,
-						parseInt($("#jobLocationDropdown").val()) || 0,
+                    const text = $(this).val().trim();
+                    currentPage = 1;
+                    const override = text === "" ? null : 0;
+
+                    fetchAttendanceData(
+                        getSelectedYear(),
+                        getSelectedMonth(),
+                        currentPage,
+                        text,
+                        override,
+                        parseInt($("#jobLocationDropdown").val()) || 0,
                         parseInt($("#managerDropdown").val()) || 0
-					);
-				}, 300); 
-			}
-		});
+                    );
+                }
+            });
 		  $("#page-size-select").on("change", function () {
 			pageSize = parseInt($(this).val());
 			currentPage = 1;
@@ -743,25 +939,64 @@
 
 
 			$(document).on("click", "#attendance-data td", function () {
+
 			const $td = $(this);
 			const rawDateKey = $td.data("date"); 
 			if (!rawDateKey) return;
 
-			const day = parseInt(rawDateKey.substr(0, 2)); 
+				const day = parseInt(rawDateKey.substr(0, 2)); 
+				const datePart = rawDateKey.split('_')[0];
+                const parts = datePart.split('-');
+                const monthStr = parts[1];
+
+                const monthMap = {
+                    Jan: 1, Feb: 2, Mar: 3, Apr: 4,
+                    May: 5, Jun: 6, Jul: 7, Aug: 8,
+                    Sep: 9, Oct: 10, Nov: 11, Dec: 12
+                };
+
+                const currentMonth = monthMap[monthStr];
+
 			const selectedMonth = getSelectedMonth(); 
 			const selectedYear = getSelectedYear(); 
 
 			let finalMonth = selectedMonth;
 			let finalYear = selectedYear;
+            let febEnd = isLeapYear(selectedYear) ? 18 : 17;
+            let marchStart = isLeapYear(selectedYear) ? 19 : 18;
 
-			
-			if (day >= 21) {
+                if (currentMonth==2 && selectedMonth == 3 && day >= marchStart && day <= 20) {
+                    finalMonth = selectedMonth - 1;
+
+                    if (finalMonth === 0) {
+                        finalMonth = 12;
+                        finalYear = selectedYear - 1;
+                    }
+				}
+                else if (selectedMonth == 2 && day >= 21 && day <= febEnd) {
+                    finalMonth = selectedMonth - 1;
+
+                    if (finalMonth === 0) {
+                        finalMonth = 12;
+                        finalYear = selectedYear - 1;
+                    }
+				}
+                else if (currentMonth == 4 && selectedMonth == 5 &&  day == 20) {
+                    finalMonth = selectedMonth - 1;
+
+                    if (finalMonth === 0) {
+                        finalMonth = 12;
+                        finalYear = selectedYear - 1;
+                    }
+                }
+			   else if (day >= 21)
+			   {
 				finalMonth = selectedMonth - 1;
 				if (finalMonth === 0) {
 					finalMonth = 12;
 					finalYear = selectedYear - 1;
 				}
-			}
+			   }
 
 			const fullDate = `${finalYear}-${String(finalMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 			const empId = $td.data("empid"),
@@ -772,283 +1007,475 @@
 	.data("workdate", fullDate)     
 	.data("employeeid", empId)      
 	.modal("show");
-			$("#attendanceDetailBody").html("Loading...");
+                $("#attendanceDetailBody").html("Loading...");
 
-			$.get('/employee/MyInfo/GetAttendanceDetails', { date: fullDate, employeeId: empId, employeeNo: empNo }, function (data) {
-			  let html = "";
-                const leaveSummaryHtml = renderLeaveSummary(data);
-			const getStatusColor = (status) => {
-		    switch (status?.toLowerCase()) {
-			case 'present': return '#28a745'; 
-			case 'absent': return '#dc3545';  
-			case 'leave': return '#ffc107';  
-			case 'half day': return '#05397b'; 
-			case 'pending': return '#fd7e14';
-			default: return '#6c757d';       
-		}
-	};
+                $.get('/employee/MyInfo/GetAttendanceDetails',
+                    { date: fullDate, employeeId: empId, employeeNo: empNo },
+                    function (data) {
+                        $("#attendanceDetailModalLabel").html(
+                            `Attendance Details - 
+     ${(data.employeeName ?? '-')} 
+     (${(data.employeeNumber ?? '-')}) 
+     <small class="text-muted ms-2">| ${data.selectedDateFormatted ?? '-'}</small>`
+                        );
+                        let html = "";
 
-	const today = new Date();
+                        const leaveSummaryHtml = renderLeaveSummary(data.leaveSummary);
 
-		function canEditStatus(workDateStr) {
-		
-			const RoleName = parseInt(document.getElementById('hdnRoleName').value);
-			if (RoleName === 5 || RoleName === 2) {
-		return true;
-	}
+                        /* ---------------- STATUS COLOR ---------------- */
 
+                        const getStatusColor = (status) => {
+                            switch (status?.toLowerCase()) {
+                                case 'present': return '#28a745';
+                                case 'absent': return '#dc3545';
+                                case 'leave': return '#ffc107';
+                                case 'half day': return '#05397b';
+                                case 'pending': return '#fd7e14';
+                                default: return '#6c757d';
+                            }
+                        };
 
-	
-	 const todayIST = new Date(
-		new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-	);
+                        /* ---------------- DATE HELPERS ---------------- */
 
-		function parseISTDate(dateStr) {
-		const [year, month, day] = dateStr.split("-").map(Number);
-		return new Date(year, month - 1, day); 
-	}
-		const workDate = parseISTDate(workDateStr);
+                        const todayIST = new Date(
+                            new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+                        );
 
-		if (workDate > todayIST) return false;
-		
-		let payrollStart, payrollEnd, cutoffDate;
+                        function parseISTDate(dateStr) {
+                            const [year, month, day] = dateStr.split("-").map(Number);
+                            return new Date(year, month - 1, day);
+                        }
 
-		if (workDate.getDate() >= 21) {			
-			payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
-			payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
-			cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 25);
-		} else {
-			
-			payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
-			payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
-			cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 25);
-		}
+                        /* ---------------- STATUS EDIT PERMISSION ---------------- */
 
-		
-		return todayIST  <= cutoffDate;
-	}
+                        function canEditStatus(workDateStr) {
 
+                            const roleName = parseInt(document.getElementById('hdnRoleName').value);
 
-                const getStatusColors = (status) => {
-                    switch (status?.toLowerCase()) {
-						case 'present': return '#28a745';  
-						case 'absent': return '#dc3545'; // Red 
-						case 'leave': return '#ffc107'; // Yellow 
-						case 'half day': return '#05397b'; // Blue 
-						default: return '#6c757d'; // Grey fallback 
-					}
-				};
+                            if (roleName === 5 || roleName === 2) {
+                                return true;
+                            }
+                            
+                            const workDate = parseISTDate(workDateStr);
+                            const month = workDate.getMonth();
+							if (workDate > todayIST) return false;
 
+							let payrollStart, payrollEnd, cutoffDate;
 
+                            if (
+                                (month === 1 && workDate.getDate() >= 18) || 
+                                (month === 2 && workDate.getDate() <= 20)    
+                            ) {
+                                payrollStart = new Date(workDate.getFullYear(), 1, 18); 
+                                payrollEnd = new Date(workDate.getFullYear(), 2, 20);   
+                                cutoffDate = new Date(workDate.getFullYear(), 2, 20);   
+                            }
+							else if (
+                                month === 3 && workDate.getDate() == 20
+							)
+							{
+                                payrollStart = new Date(workDate.getFullYear(), 3, 20);
+                                payrollEnd = new Date(workDate.getFullYear(), 4, 20);
+                                cutoffDate = new Date(workDate.getFullYear(), 4, 23);
+							}
+                            else
+							{
+								if (workDate.getDate() >= 21) {
 
-	const renderStatusEditor = (fullDate) => 
-	{
-	if (!canEditStatus(fullDate)) return ""; 
+									payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
+									payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
+									cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 23);
 
-	return `
-	<form id="statusForm">
-		<div class="row mb-2">
-			<div class="col-md-6">
-				<label for="statusSelect"><strong>Change Status:</strong></label>
-	                 <div class="position-relative w-100">
-				<select class="form-control" id="statusSelect" required>
-					<option value="">Select status</option>
-					<option value="P">Present</option>
-					<option value="A">Absent</option>					
-					<option value="HD">Half Day</option>
-					<option value="WO">Week Off</option>
-				</select>
-				    <i class="fa fa-chevron-down position-absolute"
-       style="font-size: 10px;color: gray; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+								} else {
+
+									payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
+									payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
+									cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 23);
+								}
+							}
+
+                            return todayIST <= cutoffDate;
+                        }
+
+                        /* ---------------- STATUS EDITOR ---------------- */
+
+                        const renderStatusEditor = (fullDate, data) => {
+                            if (!data)
+								return "";
+                            const employeeTypeID = parseInt(document.getElementById('hdnEmployeeTypeID').value);
+							const empTypeID = Number(data.leaveSummary.employeeTypeID);
+                            if (employeeTypeID !== 3) {
+                                return "";
+                            }
+
+                            if (!canEditStatus(fullDate)) return "";
+
+                            return `
+<form id="statusForm">
+<div class="row mb-2">
+
+<div class="col-md-6">
+<label><strong>Change Status:</strong></label>
+
+<div class="position-relative w-100">
+<select class="form-control" id="statusSelect" required>
+<option value="">Select status</option>
+<option value="P">Present</option>
+<option value="A">Absent</option>
+<option value="HD">Half Day</option>
+<option value="WO">Week Off</option>
+</select>
+
+<i class="fa fa-chevron-down position-absolute"
+style="font-size:10px;color:gray;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"></i>
+
 </div>
-			</div>
-			<div class="col-md-6">
-				<label for="statusComment"><strong>Comment:</strong></label>
-				<textarea class="form-control" id="statusComment" placeholder="Write comment..."required></textarea>
-			</div>
-		</div>
-		<div class="text-end mt-2">
-			<button class="btn btn-primary" id="saveStatusChange">💾 Save Status</button>
-		</div>
-		</form>
-	`;
-	};
+</div>
 
-				function renderStatusChanges(changes) {
+<div class="col-md-6">
+<label><strong>Comment:</strong></label>
+<textarea class="form-control" id="statusComment" placeholder="Write comment..." required></textarea>
+</div>
 
-                    if (!changes || changes.length === 0) return "";
+</div>
 
-                    let rows = changes.map(c => `
-    <tr>
-	      <td style="display:none;">
-                <input type="hidden" id="encryptedStatusChangeID" value="${c.encryptedStatusChangeID ?? ''}" />
-            </td>
-      <td>${formatDateTime(c.insertedDate)}</td>
-      <td> <span class="badge" style="background-color: ${getStatusColors(c.attendanceStatus)}; color: white;">
-            ${c.attendanceStatus ?? '-'}
-          </span></td>
-      <td>${c.remarks ?? '-'}</td>
-      <td>${c.insertedByUserName ?? '-'}</td>
-      <td>${c.approvedByUserName ?? '-'}</td>
-      <td>${c.statusState ?? '-'}</td>
-    </tr>
-  `).join("");
+<div class="text-end mt-2">
+<button class="btn btn-primary" id="saveStatusChange">💾 Save Status</button>
+</div>
 
-                    return `
-    <div class="mt-3">
-      <h6>Updated Status</h6>
-      <table class="table table-sm table-bordered">
-        <thead>
-          <tr>
-		        <th style="display:none;">Encrypted ID</th>
-            <th>Date</th>
-            <th>Attendance Type</th>
-            <th>Remarks</th>
-            <th>Applied By</th>
-            <th>Approved By</th>
-            <th>Approval State </th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows}
-        </tbody>
-      </table>
+</form>
+`;
+                        };
+
+                        /* ---------------- STATUS CHANGE TABLE ---------------- */
+
+                        function renderStatusChanges(changes) {
+
+                            if (!changes || changes.length === 0) return "";
+
+                            let rows = changes.map(c => `
+<tr>
+
+<td style="display:none;">
+<input type="hidden" value="${c.encryptedStatusChangeID ?? ''}" />
+</td>
+
+<td>${formatDateTime(c.insertedDate)}</td>
+
+<td>
+<span class="badge" style="background-color:${getStatusColor(c.attendanceStatus)};color:white;">
+${c.attendanceStatus ?? '-'}
+</span>
+</td>
+
+<td>${c.remarks ?? '-'}</td>
+<td>${c.insertedByUserName ?? '-'}</td>
+<td>${c.approvedByUserName ?? '-'}</td>
+<td>${c.statusState ?? '-'}</td>
+
+</tr>
+`).join("");
+
+                            return `
+<div class="mt-3">
+
+<h6>Updated Status</h6>
+
+<table class="table table-sm table-bordered">
+
+<thead>
+<tr>
+<th style="display:none;">Encrypted ID</th>
+<th>Date</th>
+<th>Attendance Type</th>
+<th>Remarks</th>
+<th>Applied By</th>
+<th>Approved By</th>
+<th>Approval State</th>
+</tr>
+</thead>
+
+<tbody>
+${rows}
+</tbody>
+
+</table>
+
+</div>
+`;
+                        }
+
+                        /* ---------------- MAIN SWITCH ---------------- */
+
+                        html += leaveSummaryHtml;
+
+                        /* -------- ATTENDANCE -------- */
+
+                        if (data.attendance && data.attendance.firstLogDate) {
+
+                            const first = new Date(data.attendance.firstLogDate);
+                            const last = new Date(data.attendance.lastLogDate);
+                            const sameDay = first.toDateString() === last.toDateString();
+
+                            html += `
+<div class="card shadow-sm border-0 mb-3">
+<div class="card-body">
+
+<h6 class="text-primary">Attendance</h6>
+
+<div class="row mb-2">
+<div class="col-md-6"><strong>Date:</strong> ${formatDate(data.attendance.workDate)}</div>
+
+<div class="col-md-6">
+<strong>Status:</strong>
+<span class="badge" style="background:${getStatusColor(data.attendance.attendanceStatus)}">
+${data.attendance.attendanceStatus ?? '-'}
+</span>
+</div>
+</div>
+
+<div class="row mb-2">
+
+<div class="col-md-6">
+<strong>Check-in:</strong>
+${sameDay ? formatTimeOnly(data.attendance.firstLogDate) : formatDateTime(data.attendance.firstLogDate)}
+</div>
+
+<div class="col-md-6">
+<strong>Check-out:</strong>
+${sameDay ? formatTimeOnly(data.attendance.lastLogDate) : formatDateTime(data.attendance.lastLogDate)}
+</div>
+
+</div>
+
+<div class="row mb-2">
+<div class="col-md-6">
+<strong>Hours Worked:</strong>
+${formatSqlTimeToHoursMinutes(data.attendance.hoursWorked)}
+</div>
+</div>
+
+</div>
+</div>`;
+                        }
+
+                        /* -------- WEEK OFF -------- */
+
+                        if (data.weekOffs && data.weekOffs.length > 0) {
+
+                            data.weekOffs.forEach(w => {
+
+                                html += `
+<div class="card shadow-sm border-0 mb-3">
+
+<div class="card-body">
+
+<h6 class="text-primary">Week Off</h6>
+
+<strong>Date:</strong> ${formatDate(w.matchingDayOff)}
+
+</div>
+</div>`;
+
+                            });
+
+                        }
+
+                        /* -------- HOLIDAY -------- */
+
+                        if (data.holidays && data.holidays.length > 0) {
+
+                            data.holidays.forEach(h => {
+
+                                html += `
+<div class="card shadow-sm border-0 mb-3">
+
+<div class="card-body">
+
+<h6 class="text-success">Holiday</h6>
+
+<div><strong>Name:</strong> ${h.holidayName}</div>
+
+<div><strong>Description:</strong> ${h.description ?? "-"}</div>
+
+<div>
+<strong>From:</strong> ${formatDate(h.fromDate)}  
+<strong>To:</strong> ${formatDate(h.toDate)}
+</div>
+
+</div>
+</div>`;
+
+                            });
+
+                        }
+
+                        /* -------- LEAVE -------- */
+
+                        if (data.leaves && data.leaves.length > 0) {
+
+                            data.leaves.forEach(l => {
+
+                                let dateHtml = "";
+
+                                // If Half Day → show only start date
+                                if (l.leaveDurationTypeName?.toLowerCase() === "half day") {
+
+                                    dateHtml = `
+<div><strong>Date:</strong> ${formatDate(l.startDate)}</div>
+`;
+
+                                } else {
+
+                                    // Full day / multiple days
+                                    dateHtml = `
+<div class="d-flex justify-content-between">
+    <div><strong>Start:</strong> ${formatDate(l.startDate)}</div>
+    <div><strong>End:</strong> ${formatDate(l.endDate)}</div>
+</div>
+`;
+                                }
+
+                                html += `
+<div class="card shadow-sm border-0 mb-3">
+
+<div class="card-body">
+
+<h6 class="text-dark">Leave Detail</h6>
+
+<div class="row mb-2">
+
+    <div class="col-md-4">
+        <strong>Reason:</strong> ${l.reason}
     </div>
-  `;
-                }
 
-			  switch (data.recordType) {
-				case "Attendance":
-				  const first = new Date(data.firstLogDate), last = new Date(data.lastLogDate);
-				  const sameDay = first.toDateString() === last.toDateString();
-						const getStatusColor = (status) => {
-			switch (status?.toLowerCase()) {
-				case 'present':
-					return '#28a745'; 
-				case 'absent':
-					return '#dc3545'; 
-				case 'leave':
-					return '#ffc107'; 
-				case 'half day':
-					return '#05397b'; 
-				default:
-					return '#6c757d'; 
-			}
-		};
+    <div class="col-md-4 text-center">
+        <strong>Leave Type:</strong> ${l.leaveTypeName ?? '-'}
+    </div>
 
+    <div class="col-md-4 text-end">
+        <strong>Duration:</strong> ${l.leaveDurationTypeName ?? '-'}
+    </div>
 
-						html = `
-	  ${leaveSummaryHtml}
-	<div class="card shadow-sm border-0 mb-3">
-	  <div class="card-body">
-	
-		<div class="row mb-2">
-		  <div class="col-md-6"><strong>Date:</strong> ${formatDate(data.workDate)}</div>
-		  <div class="col-md-6">
-			<strong>Status:</strong>
-			<span class="badge" style="background-color: ${getStatusColor(data.attendanceStatus)}; color: white;">
-			  ${data.attendanceStatus ?? '-'}
-			</span>
-		  </div>
-		</div>
+</div>
 
-		<div class="row mb-2">
-		  <div class="col-md-6"><strong>Check-in:</strong> ${sameDay ? formatTimeOnly(data.firstLogDate) : formatDateTime(data.firstLogDate)}</div>
-		  <div class="col-md-6"><strong>Check-out:</strong> ${sameDay ? formatTimeOnly(data.lastLogDate) : formatDateTime(data.lastLogDate)}</div>
-		</div>
+${dateHtml}
 
-		<div class="row mb-2">
-		  <div class="col-md-6"><strong>Hours Worked:</strong> ${formatSqlTimeToHoursMinutes(data.hoursWorked)}</div>
+<div>
+<strong>Status:</strong>
+<span class="LeaveApproved">${l.leaveStatusID}</span>
+</div>
 
-		</div>
-		  ${renderStatusChanges(data.statusChange)}
-		  ${renderStatusEditor(fullDate)}
-	  </div>
-	</div>
+</div>
+</div>`;
+                            });
 
-	`;
-					  break;
-                  case "WeekOff":
-					  html = `
-					  ${leaveSummaryHtml}
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-body">
-            <h5 class="card-title mb-3 text-primary">
-                🗓️ Week Off
-            </h5>
-        
-            <div class="mb-2">
-                <strong>Week Off Date:</strong> ${formatDate(data.fromDate)}
-            </div>
-            ${renderStatusChanges(data.statusChange)}
-            ${renderStatusEditor(fullDate)}
-        </div>
-    </div>`;
-                      break;
-				case "Holiday":
-                      html = `${leaveSummaryHtml}<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-success">🎉 Holiday</h5><div class="mb-2"><strong>Name:</strong> ${data.holidayName}</div><div class="mb-2"><strong>Description:</strong> ${data.description ?? '-'}</div><div><strong>From:</strong> ${formatDate(data.fromDate)} <strong>To:</strong> ${formatDate(data.toDate)}</div>   ${renderStatusChanges(data.statusChange)}  ${renderStatusEditor(fullDate)}</div></div>`;
-				  break;
-				case "Leave":
-                      html = `${leaveSummaryHtml}<div class="card shadow-sm border-0"><div class="card-body"><h5 class="card-title mb-3 text-warning">📅 Leave Details</h5><div class="mb-2"><strong>Reason:</strong> ${data.reason}</div><div class="mb-2"><strong>Start Date:</strong> ${formatDateTime(data.startDate)}</div><div class="mb-2"><strong>End Date:</strong> ${formatDateTime(data.endDate)}</div><div><strong>Status:</strong> <span class="LeaveApproved">#${data.leaveStatusID}</span></div>  ${renderStatusChanges(data.statusChange)}  ${renderStatusEditor(fullDate)}</div></div>`;
-					  break;
-                  default:
-                      if (!data.statusChange || data.statusChange.length === 0) {
-      
-                          html = `
-              ${leaveSummaryHtml}<div class="alert alert-warning text-center">
-                <i class="bi bi-info-circle-fill"></i> No attendance record found for this day.
-              </div>
-              ${renderStatusEditor(fullDate)}
-            `;
-                      } else {
-                        
-                          html = `
-            ${leaveSummaryHtml}
-              ${renderStatusChanges(data.statusChange)}
-			    ${renderStatusEditor(fullDate)}
-            `;
-                      }
-              }
-			  $("#attendanceDetailBody").html(html);
-			});
+                        }
+
+                        /* -------- STATUS CHANGES -------- */
+
+                        html += renderStatusChanges(data.statusChange);
+
+                        /* -------- STATUS EDITOR -------- */
+
+                        html += renderStatusEditor(fullDate, data);
+
+                        /* -------- NO RECORD -------- */
+
+                        if (html.trim() === leaveSummaryHtml.trim()) {
+
+                            html += `
+<div class="alert alert-warning text-center">
+No attendance record found for this day.
+</div>`;
+                        }
+                        $("#attendanceDetailBody").html(html);
+                    }
+                );
 		  });
 
 
 		
-		$("#export-btn").on("click", exportAttendance);
+			$("#export-btn").on("click", exportAttendance);
+
 		});
 
-
+    $("#leave-export-btn").on("click", exportEmployeeLeaves);
     function renderLeaveSummary(data) {
-        if (data.annualLeaveBalance == null) return "";
+
+        if (!data || data.annualLeaveBalance == null) return "";
 
         return `
-    <div class="d-flex align-items-center justify-content-between 
-                px-3 py-2 mb-2 rounded bg-light border"
-         style="font-size:13px;">
+<div class="d-flex align-items-center justify-content-between 
+            px-3 py-2 mb-2 rounded bg-light border"
+     style="font-size:13px;">
 
-        <span class="fw-semibold text-primary">
-            🌴 Leave Balance
-        </span>
+<span class="fw-semibold text-primary">
+🌴 Leave Balance
+</span>
 
-        <span>
-            <small class="text-muted">Annual Consumed:</small>
-            <strong>${data.annualLeaveConsumed}</strong>
-        </span>
+<span>
+<small class="text-muted">Annual Consumed:</small>
+<strong>${data.annualLeaveConsumed ?? 0}</strong>
+</span>
 
-        <span class="${data.annualLeaveBalance < 0 ? 'text-danger' : 'text-success'} fw-bold">
-            <small class="text-muted">Annual Balance:</small>
-            ${data.annualLeaveBalance}
-        </span>
+<span class="${(data.annualLeaveBalance ?? 0) < 0 ? 'text-danger' : 'text-success'} fw-bold">
+<small class="text-muted">Annual Balance:</small>
+${data.annualLeaveBalance ?? 0}
+</span>
 
-	  <span class="fw-bold text-info">
-        <small class="text-muted">Comp-Off:</small>
-        ${data.availableCompOffDays ?? 0}
-    </span>
-    </div>`;
+<span class="fw-bold text-info">
+<small class="text-muted">Comp-Off:</small>
+${data.availableCompOffDays ?? 0}
+</span>
+
+</div>`;
+    }
+    async function exportEmployeeLeaves() {
+
+        const $btn = $("#leave-export-btn"); 
+        $btn.prop("disabled", true).text("Please wait...");
+
+        try {
+            const url = `/employee/MyInfo/ExportEmployeeLeaves`;
+
+            const response = await fetch(url, { method: "GET" });
+
+            if (!response.ok) {
+                throw new Error("Failed to download leave file");
+            }
+
+            const contentDisposition = response.headers.get("Content-Disposition");
+            let fileName = "Employee_Leaves.xlsx"; 
+
+            if (contentDisposition && contentDisposition.includes("filename=")) {
+                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+                if (matches && matches[1]) {
+                    fileName = matches[1].replace(/['"]/g, "");
+                }
+            }
+
+            const blob = await response.blob();
+            const link = document.createElement("a");
+            const downloadUrl = window.URL.createObjectURL(blob);
+            link.href = downloadUrl;
+            link.download = fileName;
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            window.URL.revokeObjectURL(downloadUrl);
+
+        } catch (error) {
+            alert("Error while exporting leaves: " + error.message);
+        } finally {
+            $btn.prop("disabled", false).text("Export Leaves");
+        }
     }
 
-
-
+    function isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    }
 </script>
 

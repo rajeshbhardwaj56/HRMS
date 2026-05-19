@@ -332,7 +332,8 @@
 
 				 {
 					 render: function (data, type, row) {
-						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}','${row.hoursWorked}','${row.comments}')" href="#" title="Approve">
+                         let comments = row.comments ? row.comments.replace(/'/g, "\\'").replace(/\n/g, " ") : "";
+                         return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}','${row.hoursWorked}','${comments}')" href="#" title="Approve">
 									 <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
 								 </a>`;
 					 }

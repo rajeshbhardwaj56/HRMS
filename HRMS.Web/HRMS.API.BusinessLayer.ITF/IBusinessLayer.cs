@@ -149,7 +149,8 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model);
         public List<HolidayCompanyList> GetCompanyHolidayList(HolidayInputparams model);
         public long GetShiftTypeId(string ShiftTypeName);
-        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber);
+        public LeaveCountValidationResult GetLeaveCountForValidation(MyInfoInputParams model);
+        public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber, long weekOffID);
 
         #region Attendance Approval
         AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model);
@@ -169,16 +170,32 @@ namespace HRMS.API.BusinessLayer.ITF
 
 
         #region Payroll
-        public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model);
 
-        public Result AddUpdateEmployeeMonthlySalary(EmployeeMonthlySalaryModel salaryModel);
+        public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model);
+        public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequestModel model);
+
+        public EmployeeSalaryCalculationModel GetEmployeeSalary(EmployeeSalaryGetRequestModel request);
+        public Result SaveEmployeeSalary(EmployeeSalaryRequestModel model);
+
         #endregion Payroll
 
         #region TeamAlignment
         public TeamAlignmentModel GetTeamAlignment(TeamAlignmentInputParams model);
         #endregion TeamAlignment
 
-        public  Result UpdateEmployeesFromExcel(List<EmployeeUpdateImportModel> employees, long loggedInUserId);
+        public Result UpdateEmployeesFromExcel(List<EmployeeUpdateImportModel> employees, long loggedInUserId);
         public Dictionary<string, Dictionary<string, long>> GetEmployeeAndShiftDictionaries(long companyId);
+
+        public List<LeavesCount> GetEmployeeLeaves(long userId);
+        public Dictionary<string, long> GetShiftDictionary();
+
+        public List<WeekOffShift> GetWeekOffShifts();
+
+        public List<long> GetEmployeeHierarchyManagers(EmployeeManagerInputParams model);
+        public Result MarkNotificationAsRead(MarkNotificationReadInput input);
+        public DashBoardLoginModel GetDashBoardLoginModel(DashBoardModelInputParams model);
+        public ManagerApprovalCount GetManagerApprovalCount(long reportingToEmployeeID);
+        List<NotificationModel> GetManagerPendingNotifications(long reportingToEmployeeID, int notificationType);
+        List<LeaveDayDetailModel> GetLeaveSummaryDayWiseDetails(LeaveSummaryInputParams model);
     }
 }

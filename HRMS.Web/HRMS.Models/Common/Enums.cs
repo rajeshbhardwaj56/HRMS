@@ -47,23 +47,24 @@ namespace HRMS.Models.Common
     public enum CompOff
     {
         CompOff = 1,
-        OtherLeaves =2,
+        OtherLeaves = 2,
     }
 
     public enum AttendanceStatusId
     {
-        Pending = 1,        
+        Pending = 1,
         L1Approved = 2,
         L1Rejected = 3,
-        L2Approved = 4,      
+        L2Approved = 4,
         L2Rejected = 5,
-        NotApplied=6,
-        AdminApproved=7,
+        NotApplied = 6,
+        AdminApproved = 7,
+        AdminRejected = 8
     }
 
     public enum MaxMedicalLeaveDoc
     {
-        MaxMedicalDoc= 3
+        MaxMedicalDoc = 3
     }
     public enum AttendanceStatus
     {
@@ -73,5 +74,14 @@ namespace HRMS.Models.Common
         Approved = 4,
         Cancelled = 5,
         AdminApproved = 7,
+    }
+
+    public enum NotificationType
+    {
+        Leave = 1,
+        CompOff = 2,
+        Attendance = 3,
+        WhatsHappening = 4,
+        LeaveApproved =5
     }
 }

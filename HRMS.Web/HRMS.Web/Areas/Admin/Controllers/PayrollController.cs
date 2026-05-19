@@ -53,7 +53,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             var model = JsonConvert.DeserializeObject<List<SalaryDetails>>(data);
             if (model.Any())
             {
-                model.ForEach(x => { x.EncryptedSalaryID = _businessLayer.EncodeStringBase64(x.MonthlySalaryID.ToString()); });
+                model.ForEach(x => { x.EncryptedSalaryID = _businessLayer.EncodeStringBase64(x.SalaryID.ToString()); });
 
             }
             return Json(new
@@ -176,8 +176,159 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
         }
 
+        public IActionResult CalculateSalary(string id)
+        {
+            
+            EmployeeSalaryRequestModel model = new EmployeeSalaryRequestModel();
 
-      
+            if (!string.IsNullOrEmpty(id))
+            {
+                long salaryId = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
+
+                var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+                SalaryInputParams param = new SalaryInputParams
+                {
+                    SalaryID = salaryId,
+                    CompanyID = companyId
+                };
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    param,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Payroll, APIApiActionConstants.GetEmployeesMonthlySalary),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<List<SalaryDetails>>(data);
+
+                if (result != null && result.Any())
+                {
+                    var salary = result.First();
+
+                    model = new EmployeeSalaryRequestModel
+                    {
+                        SalaryID = salary.SalaryID,
+                        EmployeeID = salary.EmployeeID,
+                        EmployeeNumber = salary.EmployeeNumber,
+                        EmployeeName = salary.EmployeeName,
+
+                        PayrollTypeID = salary.PayrollTypeID,
+                        Year = salary.SalaryYear,
+                        Month = salary.SalaryMonth,
+
+                        RevisedGross = salary.RevisedGross,
+                        MonthDays = salary.MonthDays,
+                        PayableDays = salary.PayableDays,
+
+                        BasicFixed = salary.BasicFixed,
+                        HRAFixed = salary.HRAFixed,
+                        ConveyanceFixed = salary.ConveyanceFixed,
+                        SpecialAllowanceFixed = salary.SpecialAllowanceFixed,
+                        GrossSalaryFixed = salary.GrossSalaryFixed,
+
+                        BasicPayable = salary.BasicPayable,
+                        HRAPayable = salary.HRAPayable,
+                        ConveyancePayable = salary.ConveyancePayable,
+                        SpecialAllowancePayable = salary.SpecialAllowancePayable,
+                        GrossSalaryPayable = salary.GrossSalaryPayable,
+
+                 
+                        ClientIncentive = salary.ClientIncentive,
+                        PLI = salary.PLI,
+                        FloorIncentive = salary.FloorIncentive,
+                        EmpReferal = salary.EmpReferal,
+                        TrainingFee = salary.TrainingFee,
+                        GWR = salary.GWR,
+                        OtherAdditonArrear = salary.OtherAdditonArrear,
+
+             
+                        EMPPF = salary.EMPPF,
+                        EMPESI = salary.EMPESI,
+                        PTAX = salary.PTAX,
+                        EMPLWF = salary.EMPLWF,
+                        TDS = salary.TDS,
+                        DbtDeduction = salary.DbtDeduction,
+                        Advanceded = salary.Advanceded,
+                        InsuranceDeduction = salary.InsuranceDeduction,
+                        OtherDeduction = salary.OtherDeduction,
+
+                        TotalDeduction = salary.TotalDeduction,
+                        NetPayable = salary.NetPayable
+                    };
+                }
+            }
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public JsonResult CalculateSalary(EmployeeSalaryRequestModel model)
+        {
+            model.InsertedByUserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+            var apiResponse = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Payroll, APIApiActionConstants.CalculateEmployeeSalary),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
+
+            if (string.IsNullOrEmpty(apiResponse))
+                return Json(null);
+
+            var salary = JsonConvert.DeserializeObject<EmployeeSalaryCalculationModel>(apiResponse);
+
+            return Json(salary);
+        }
+
+        [HttpPost]
+        public JsonResult GetSalaryDetails(EmployeeSalaryGetRequestModel request)
+        {
+            var apiResponse = _businessLayer.SendPostAPIRequest(
+                request,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Payroll, APIApiActionConstants.GetEmployeeSalary),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
+
+            if (string.IsNullOrEmpty(apiResponse))
+                return Json(null);
+
+            var salary = JsonConvert.DeserializeObject<EmployeeSalaryCalculationModel>(apiResponse);
+
+            return Json(salary);
+        }
+
+        [HttpPost]
+
+        public JsonResult SaveSalary([FromBody] EmployeeSalaryRequestModel model)
+        {
+            model.InsertedByUserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            var apiResponse = _businessLayer.SendPostAPIRequest(
+        model,
+        _businessLayer.GetFormattedAPIUrl(
+            APIControllarsConstants.Payroll,
+            APIApiActionConstants.SaveEmployeeSalary
+        ),
+        HttpContext.Session.GetString(Constants.SessionBearerToken),
+        true
+    ).Result?.ToString();
+            if (string.IsNullOrEmpty(apiResponse))
+            {
+                return Json(new { success = false, message = "No response from API" });
+            }
+            var result = JsonConvert.DeserializeObject<Result>(apiResponse);
+
+            return Json(new
+            {
+                success = result != null && result.PKNo.HasValue && result.PKNo.Value > 0,
+                message = result?.Message ?? "Failed to save salary",
+                pkNo = result?.PKNo
+            });
+        }
+
 
     }
 }

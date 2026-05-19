@@ -206,5 +206,14 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetEmployeesWithoutUpcomingWeekOffRoster(model));
             return response;
         }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult GetEmployeeLeaves(long userId)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetEmployeeLeaves(userId));
+            return response;
+        }
     }
 }

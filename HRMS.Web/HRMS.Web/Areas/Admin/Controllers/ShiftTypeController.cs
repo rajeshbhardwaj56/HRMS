@@ -113,7 +113,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
             else
             {
+                var errors = ModelState
+     .Where(x => x.Value.Errors.Count > 0)
+     .Select(x => new
+     {
+         Field = x.Key,
+         Errors = x.Value.Errors.Select(e => e.ErrorMessage).ToList()
+     })
+     .ToList();
+
                 return View(shiftTypeModel);
+
             }
         }
          

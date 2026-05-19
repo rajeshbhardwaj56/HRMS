@@ -18,9 +18,9 @@ namespace HRMS.Models.ExportEmployeeExcel
         public DateTime? DayOff1 { get; set; }
         public DateTime? DayOff2 { get; set; }
         public DateTime? DayOff3 { get; set; }
-       
+
         public DateTime? ModifiedDate { get; set; }
-       
+
         public long? ModifiedBy { get; set; }
         public long? ShiftTypeId { get; set; }
         public int? TotalCount { get; set; }
@@ -32,6 +32,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public int? SelectedMonth { get; set; }
         public int? SelectedYear { get; set; }
         public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
+       
 
 
     }
@@ -82,7 +83,7 @@ namespace HRMS.Models.ExportEmployeeExcel
         public long RecordId { get; set; }
         public long ModifiedBy { get; set; }
     }
-    
+
     public class UpcomingWeekOffRosterParams
     {
         public DateTime? WeekStartDate { get; set; }
@@ -93,7 +94,6 @@ namespace HRMS.Models.ExportEmployeeExcel
         public long EmployeeID { get; set; }
         public string EmployeeNumber { get; set; } = string.Empty;
         public string EmployeeName { get; set; } = string.Empty;
-
         public long ManagerID { get; set; }
         public string ManagerName { get; set; } = string.Empty;
         public string ImmediateManagerName { get; set; } = string.Empty;
@@ -109,7 +109,16 @@ namespace HRMS.Models.ExportEmployeeExcel
     public class EmployeeShiftModel
     {
         public long ShiftTypeID { get; set; }
-        public string ShiftName { get; set; }
+        public string? ShiftName { get; set; }
         public int IsSelected { get; set; }
+    }
+
+
+    public class WeekOffShift
+    {
+        public long ShiftTypeID { get; set; }
+        public string? ShiftTypeName { get; set; }
+        public string? StartTime { get; set; }
+        public string? EndTime { get; set; }
     }
 }

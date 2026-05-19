@@ -5,7 +5,7 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @inject HRMS.Web.BusinessLayer.IBusinessLayer _businessLayer
 @{
-	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
+	Layout = String.Format("~/Areas/admin/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
 	var allEmployeesJson = JsonConvert.SerializeObject(Model.EmployeeHierarchy);
 	ViewData["Title"] = "Dashboard";
@@ -220,7 +220,7 @@
                 <div class="card board1 fill3 ">
                     <div class="card-body">
                         <div class="card_widget_header">
-                            <label>Leaves</label>
+                            <label>Leaves Taken</label>
                             <h4>@Model.TotalLeave</h4>
                         </div>
                         <div class="card_widget_img">
@@ -251,10 +251,10 @@
                 <div class="card-header pb-0 p-3">
 
                     <h6 class="mb-0">Attendance</h6>
-                    @if (Model?.AttendanceModel?.FirstOrDefault()?.ReferenceDate != null)
+                    @*@if (Model?.AttendanceModel?.FirstOrDefault()?.ReferenceDate != null)
                     {
                         <small class="text-muted">As of @Model.AttendanceModel.First().ReferenceDate.Value.ToString("dd/MM/yyyy")</small>
-                    }
+                    }*@
                 </div>
                 <div class="p-3">
                     <div class="table-responsive">
@@ -293,10 +293,10 @@
                         }
                         else if (Model?.AttendanceModel?.FirstOrDefault()?.EmployeeName != null)
                         {
-                            <div style="max-height: 180px; overflow-y: auto;">
+                            <div >
                                 <!-- Detailed team attendance view -->
-                                <table class="table table-striped body-text dataTable no-footer">
-                                    <thead style=" position: sticky; top: 0; background: white; z-index: 1;">
+                                <table id="attendanceTableSticky" class="table table-striped body-text dataTable no-footer">
+                                    <thead >
                                         <tr>
                                             <th>Emp No</th>
                                             <th>Emp Name</th>
@@ -796,5 +796,22 @@
 	$row.addClass("bold-row");
 	$btn.text("-");
 		}
-	});
+       });
+
+    $('#attendanceTableSticky').DataTable({
+        fixedHeader: true,
+        paging: false,
+        scrollY: "180px",
+        scrollCollapse: true,
+        searching: false,
+        info: false
+    });
+    $('#hierarchyTable').DataTable({
+        fixedHeader: true,
+        paging: false,
+        scrollY: "180px",
+        scrollCollapse: true,
+        searching: false,
+        info: false
+    });
 </script>

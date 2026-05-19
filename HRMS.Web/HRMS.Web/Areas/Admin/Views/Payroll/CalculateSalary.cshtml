@@ -1,0 +1,557 @@
+﻿@model HRMS.Models.PayRoll.EmployeeSalaryRequestModel
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Add Edit Salary";
+
+    bool isEditMode = Model.SalaryID > 0;
+    var selectedYear = Model.Year > 0 ? Model.Year : DateTime.Now.Year;
+    var selectedMonth = Model.Month > 0 ? Model.Month : DateTime.Now.Month;
+    var GrossSalary = Model.RevisedGross;
+}
+
+<div class="card">
+    <div class="card-header">
+        <h4>Calculate Salary</h4>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+            <input type="hidden" asp-for="PayrollTypeID" id="PayrollTypeIDHidden" />
+
+            <div class="col-md-3">
+                <label>Employee</label>
+                <select asp-for="EmployeeID" class="form-select" id="empTypeDropdown" @(isEditMode ? "disabled" : "")></select>
+            </div>
+
+            <div class="col-md-3">
+                <label>Payroll Type<span class="Mandetory">*</span></label>
+                <select class="form-select" id="PayrollTypeID" disabled>
+                    <option value="">-- Select Payroll Type --</option>
+                    <option value="1">Regular</option>
+                    <option value="2">OJT</option>
+                    <option value="3">NAPS</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label>Year</label>
+                <select asp-for="SalaryYear" class="form-select" id="YearDropdown" @(isEditMode ? "disabled" : "")></select>
+            </div>
+
+            <div class="col-md-3">
+                <label>Month</label>
+                <select asp-for="SalaryMonth" class="form-select" id="MonthDropdown" @(isEditMode ? "disabled" : "")></select>
+            </div>
+        </div>
+
+        <br />
+
+        <!-- Input Fields -->
+        <div class="row">
+            <div class="col-md-3">
+                <label>Gross Salary</label>
+                @Html.TextBoxFor(m => m.RevisedGross, new { @class = "form-control", type = "number", step = "0.01", id = "RevisedGross" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Month Days</label>
+                @Html.TextBoxFor(m => m.MonthDays, new { @class = "form-control", type = "number", step = "0.01", id = "MonthDays", @readonly = "readonly" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Payable Days</label>
+                @Html.TextBoxFor(m => m.PayableDays, new { @class = "form-control", type = "number", step = "0.01", id = "PayableDays" })
+                <small id="PayableDaysError" style="color:red; display:none;"></small>
+            </div>
+
+            <div class="col-md-3">
+                <label>Client Incentive</label>
+                @Html.TextBoxFor(m => m.ClientIncentive, new { @class = "form-control", type = "number", step = "0.01", id = "ClientIncentive" })
+
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-md-3">
+                <label>PLI</label>
+                @Html.TextBoxFor(m => m.PLI, new { @class = "form-control", type = "number", step = "0.01", id = "PLI" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Floor Incentive</label>
+                @Html.TextBoxFor(m => m.FloorIncentive, new { @class = "form-control", type = "number", step = "0.01", id = "FloorIncentive" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Employee Referral</label>
+                @Html.TextBoxFor(m => m.EmpReferal, new { @class = "form-control", type = "number", step = "0.01", id = "EmpReferal" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Training Fee</label>
+                @Html.TextBoxFor(m => m.TrainingFee, new { @class = "form-control", type = "number", step = "0.01", id = "TrainingFee" })
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-md-3">
+                <label>GWR</label>
+                @Html.TextBoxFor(m => m.GWR, new { @class = "form-control", type = "number", step = "0.01", id = "GWR" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Other Addition/Arrear</label>
+                @Html.TextBoxFor(m => m.OtherAdditonArrear, new { @class = "form-control", type = "number", step = "0.01", id = "OtherAdditonArrear" })
+            </div>
+
+            <div class="col-md-3">
+                <label>EMPLWF</label>
+                @Html.TextBoxFor(m => m.EMPLWF, new { @class = "form-control", type = "number", step = "0.01", id = "EMPLWF" })
+            </div>
+
+            <div class="col-md-3">
+                <label>TDS</label>
+                @Html.TextBoxFor(m => m.TDS, new { @class = "form-control", type = "number", step = "0.01", id = "TDS" })
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-md-3">
+                <label>DBT Deduction</label>
+                @Html.TextBoxFor(m => m.DbtDeduction, new { @class = "form-control", type = "number", step = "0.01", id = "DbtDeduction" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Advanced</label>
+                @Html.TextBoxFor(m => m.Advanceded, new { @class = "form-control", type = "number", step = "0.01", id = "Advanceded" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Insurance Deduction</label>
+                @Html.TextBoxFor(m => m.InsuranceDeduction, new { @class = "form-control", type = "number", step = "0.01", id = "InsuranceDeduction" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Other Deduction</label>
+                @Html.TextBoxFor(m => m.OtherDeduction, new { @class = "form-control", type = "number", step = "0.01", id = "OtherDeduction" })
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-md-12 d-flex mt-3">
+                <button type="button" class="btn btn-primary me-2" onclick="calculateSalary()">
+                    Calculate Salary
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveSalary()">
+                    Save Salary
+                </button>
+            </div>
+        </div>
+
+        <hr />
+
+        <h5>Calculated Salary</h5>
+
+        <div class="row">
+            <div class="col-md-3">
+                <label>Basic</label>
+                @Html.TextBoxFor(m => m.BasicPayable, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "BasicPayable" })
+            </div>
+
+            <div class="col-md-3">
+                <label>HRA</label>
+                @Html.TextBoxFor(m => m.HRAPayable, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "HRAPayable" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Conveyance</label>
+                @Html.TextBoxFor(m => m.ConveyanceFixed, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "ConveyanceFixed" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Special Allowance</label>
+                @Html.TextBoxFor(m => m.SpecialAllowanceFixed, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "SpecialAllowanceFixed" })
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-md-3">
+                <label>Gross Payable</label>
+                @Html.TextBoxFor(m => m.GrossSalaryPayable, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "GrossSalaryPayable" })
+            </div>
+
+            <div class="col-md-3">
+                <label>PF</label>
+                @Html.TextBoxFor(m => m.EMPPF, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "EMPPF" })
+            </div>
+
+            <div class="col-md-3">
+                <label>ESI</label>
+                @Html.TextBoxFor(m => m.EMPESI, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "EMPESI" })
+            </div>
+
+            <div class="col-md-3">
+                <label>PTAX</label>
+                @Html.TextBoxFor(m => m.PTAX, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "PTAX" })
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-md-3">
+                <label>Total Deduction</label>
+                @Html.TextBoxFor(m => m.TotalDeduction, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "TotalDeduction" })
+            </div>
+
+            <div class="col-md-3">
+                <label>Net Payable</label>
+                @Html.TextBoxFor(m => m.NetPayable, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "NetPayable" })
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        const isEditMode = @isEditMode.ToString().ToLower();
+         const initialEmployee = {
+        id: '@Model.EmployeeID',
+        text: '@Model.EmployeeNumber - @Model.EmployeeName'
+    };
+        const selectedYear = @selectedYear;
+        const selectedMonth = @selectedMonth;
+        const employeeId = '@Model.EmployeeID';
+        const payrollTypeId = '@Model.PayrollTypeID';
+
+
+        const currentYear = new Date().getFullYear();
+        const $yearDropdown = $('#YearDropdown');
+        const $monthDropdown = $('#MonthDropdown');
+
+
+        const currentMonth = new Date().getMonth() + 1;
+
+
+
+        for (let y = currentYear; y >= currentYear - 5; y--) {
+            const selected = (y === selectedYear) ? 'selected' : '';
+            $yearDropdown.append(`<option value="${y}" ${selected}>${y}</option>`);
+        }
+
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        for (let m = 1; m <= 12; m++) {
+            const selected = (m === selectedMonth) ? 'selected' : '';
+            $monthDropdown.append(`<option value="${m}" ${selected}>${monthNames[m - 1]}</option>`);
+        }
+
+        if (payrollTypeId) {
+            $("#PayrollTypeID").val(payrollTypeId);
+            $("#PayrollTypeIDHidden").val(payrollTypeId);
+        }
+
+        initializeEmployeeDropdown(initialEmployee, isEditMode);
+    });
+    function getVal(id) {
+        return parseFloat($(id).val()) || 0;
+    }
+
+    function getInt(id) {
+        return parseInt($(id).val()) || 0;
+    }
+
+    function saveSalary() {
+        var monthDays = parseFloat($("#MonthDays").val()) || 0;
+        var payableDays = parseFloat($("#PayableDays").val()) || 0;
+
+        $("#PayableDaysError").hide().text("");
+
+
+        if (payableDays < 0) {
+            $("#PayableDaysError").text("Payable days cannot be negative").show();
+            return;
+        }
+
+        if (payableDays > monthDays) {
+            $("#PayableDaysError").text("Payable days cannot be greater than month days").show();
+            return;
+        }
+
+
+        const salaryData = {
+            EmployeeID: getInt("#empTypeDropdown"),
+            PayrollTypeID: getInt("#PayrollTypeIDHidden"),
+            Year: getInt("#YearDropdown"),
+            Month: getInt("#MonthDropdown"),
+
+            RevisedGross: getVal("#RevisedGross"),
+            MonthDays: getVal("#MonthDays"),
+            PayableDays: getVal("#PayableDays"),
+
+            ClientIncentive: getVal("#ClientIncentive"),
+            PLI: getVal("#PLI"),
+            FloorIncentive: getVal("#FloorIncentive"),
+            EmpReferal: getVal("#EmpReferal"),
+            TrainingFee: getVal("#TrainingFee"),
+            GWR: getVal("#GWR"),
+            OtherAdditonArrear: getVal("#OtherAdditonArrear"),
+
+            EMPLWF: getVal("#EMPLWF"),
+            TDS: getVal("#TDS"),
+            DbtDeduction: getVal("#DbtDeduction"),
+            Advanceded: getVal("#Advanceded"),
+            InsuranceDeduction: getVal("#InsuranceDeduction"),
+            OtherDeduction: getVal("#OtherDeduction"),
+
+            BasicFixed: getVal("#BasicFixed"),
+            HRAFixed: getVal("#HRAFixed"),
+            ConveyanceFixed: getVal("#ConveyanceFixed"),
+            SpecialAllowanceFixed: getVal("#SpecialAllowanceFixed"),
+
+            GrossSalaryPayable: getVal("#GrossSalaryPayable"),
+            EMPPF: getVal("#EMPPF"),
+            EMPESI: getVal("#EMPESI"),
+            PTAX: getVal("#PTAX"),
+
+            TotalDeduction: getVal("#TotalDeduction"),
+            NetPayable: getVal("#NetPayable")
+        };
+
+        if (!salaryData.EmployeeID || !salaryData.PayrollTypeID) {
+            alert("Please select Employee and Payroll Type");
+            return;
+        }
+        $.ajax({
+            url: '/Admin/Payroll/SaveSalary',
+            type: 'POST',
+            data: JSON.stringify(salaryData),
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    $.toast({
+                        heading: 'Success',
+                        text: response.message || "Salary saved successfully!",
+                        showHideTransition: 'slide',
+                        icon: 'success',
+                        position: 'top-right'
+                    });
+                } else {
+                    $.toast({
+                        heading: 'Error',
+                        text: response.message || "Failed to save salary.",
+                        showHideTransition: 'slide',
+                        icon: 'error',
+                        position: 'top-right'
+                    });
+                }
+            },
+            error: function (err) {
+             
+                $.toast({
+                    heading: 'Error',
+                    text: "An unexpected error occurred while saving salary.",
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    position: 'top-right'
+                });
+            }
+        });
+    }
+    function calculateSalary() {
+        var monthDays = parseFloat($("#MonthDays").val()) || 0;
+        var payableDays = parseFloat($("#PayableDays").val()) || 0;
+
+        $("#PayableDaysError").hide().text("");
+
+  
+        if (payableDays < 0) {
+            $("#PayableDaysError").text("Payable days cannot be negative").show();
+            return;
+        }
+
+        if (payableDays > monthDays) {
+            $("#PayableDaysError").text("Payable days cannot be greater than month days").show();
+            return;
+        }
+
+
+        var model = {
+
+            EmployeeID: $("#empTypeDropdown").val(),
+            PayrollTypeID: $("#PayrollTypeIDHidden").val(),
+            Month: $("#MonthDropdown").val(),
+            Year: $("#YearDropdown").val(),
+
+            RevisedGross: $("#RevisedGross").val(),
+            MonthDays: $("#MonthDays").val(),
+            PayableDays: $("#PayableDays").val(),
+
+            ClientIncentive: $("#ClientIncentive").val(),
+            PLI: $("#PLI").val(),
+            FloorIncentive: $("#FloorIncentive").val(),
+            EmpReferal: $("#EmpReferal").val(),
+            TrainingFee: $("#TrainingFee").val(),
+            GWR: $("#GWR").val(),
+            OtherAdditonArrear: $("#OtherAdditonArrear").val(),
+
+            EMPLWF: $("#EMPLWF").val(),
+            TDS: $("#TDS").val(),
+            DbtDeduction: $("#DbtDeduction").val(),
+            Advanceded: $("#Advanceded").val(),
+            InsuranceDeduction: $("#InsuranceDeduction").val(),
+            OtherDeduction: $("#OtherDeduction").val()
+
+        };
+
+        $.ajax({
+
+            url: '/Admin/Payroll/CalculateSalary',
+            type: 'POST',
+            data: model,
+
+            success: function (data) {
+
+                $("#BasicFixed").val(data.basicFixed);
+                $("#HRAFixed").val(data.hraPayable);
+                $("#BasicPayable").val(data.basicPayable);
+                $("#HRAPayable").val(data.hraFixed);
+                $("#ConveyanceFixed").val(data.conveyanceFixed);
+                $("#SpecialAllowanceFixed").val(data.specialAllowanceFixed);
+
+                $("#GrossSalaryPayable").val(data.grossSalaryPayable);
+                $("#EMPPF").val(data.emppf);
+                $("#EMPESI").val(data.empesi);
+                $("#PTAX").val(data.ptax);
+
+                $("#TotalDeduction").val(data.totalDeduction);
+                $("#NetPayable").val(data.netPayable);
+
+            }
+
+        });
+
+    }
+    function fillPayrollFields(data) {
+
+
+        $("#PayrollTypeID").val(data.payrollTypeID).trigger('change');
+        $("#PayrollTypeIDHidden").val(data.payrollTypeID);
+        $("#RevisedGross").val(data.revisedGross);
+        $("#MonthDays").val(data.monthDays);
+        $("#PayableDays").val(data.payableDays);
+
+        //$("#ClientIncentive").val(data.clientIncentive);
+        //$("#PLI").val(data.pLI);
+        //$("#FloorIncentive").val(data.floorIncentive);
+        //$("#EmpReferal").val(data.empReferal);
+        //$("#TrainingFee").val(data.trainingFee);
+        //$("#GWR").val(data.gWR);
+        //$("#OtherAdditonArrear").val(data.otherAdditonArrear);
+
+        //$("#EMPLWF").val(data.eMPLWF);
+        //$("#TDS").val(data.tDS);
+        //$("#DbtDeduction").val(data.dbtDeduction);
+        //$("#Advanceded").val(data.advanceded);
+        //$("#InsuranceDeduction").val(data.insuranceDeduction);
+        //$("#OtherDeduction").val(data.otherDeduction);
+    }
+    function initializeEmployeeDropdown(initialEmployee = null, isEditMode = false) {
+
+        const $dropdown = $('#empTypeDropdown');
+
+        $dropdown.select2({
+            placeholder: "-- Select Employee --",
+            allowClear: true,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/employee/myinfo/GetLastLevelEmployeeDropdown/',
+                type: 'POST',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { searchTerm: params.term };
+                },
+                processResults: function (data) {
+                    if (!data || !data.data) return { results: [] };
+
+                    return {
+                        results: data.data.map(emp => ({
+                            id: emp.employeeID,
+                            text: `${emp.employeeNumber} - ${emp.employeeName}`
+                        }))
+                    };
+                }
+            }
+        });
+
+        function fetchPayrollData(employeeId) {
+
+            const selectedMonth = $("#MonthDropdown").val();
+            const selectedYear = $("#YearDropdown").val();
+
+            if (!employeeId || !selectedMonth || !selectedYear) return;
+
+            $.ajax({
+                url: '/Admin/Payroll/GetSalaryDetails',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    EmployeeID: employeeId,
+                    SalaryMonth: selectedMonth,
+                    SalaryYear: selectedYear
+                },
+                success: function (data) {
+
+                    if (!data) return;
+
+                    fillPayrollFields(data);
+
+                    $("#PayrollTypeID").val(data.payrollTypeID);
+                    $("#PayrollTypeIDHidden").val(data.payrollTypeID);
+                }
+            });
+        }
+
+        $dropdown.on('select2:select', function (e) {
+            fetchPayrollData(e.params.data.id);
+        });
+
+        $("#MonthDropdown, #YearDropdown").on("change", function () {
+            const empId = $dropdown.val();
+            if (empId) fetchPayrollData(empId);
+        });
+
+        if (isEditMode && initialEmployee && initialEmployee.id) {
+
+            const option = new Option(
+                initialEmployee.text,
+                initialEmployee.id,
+                true,
+                true
+            );
+            $dropdown.append(option).trigger('change');
+
+            $dropdown.prop('disabled', true);
+            //$("#PayrollTypeID").prop('disabled', true);
+            //$("#YearDropdown").prop('disabled', true);
+            //$("#MonthDropdown").prop('disabled', true);
+
+        }
+    }
+</script>

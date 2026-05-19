@@ -10,9 +10,13 @@
     var Err = TempData["Error"];
     }
 
-    <div class="main-header anim" style="--delay: 0s">
-        Monthly Salary List
-    </div>
+<div class="main-header anim" style="--delay: 0s">
+    Monthly Salary List
+    <section class="right-button-salary">
+        <a href="~/Admin/Payroll/CalculateSalary"> <button type="button" class="btn btn-addBtn" id="openFormBtn">Add Salary</button></a>
+    </section>
+</div>
+
     <div class="table-responsive py-3">
         <div class="row mb-3">
             <div class="col-md-2">
@@ -34,13 +38,12 @@
                     <th style="display:none"></th>
                     <th>Employee Number</th>
                     <th>Employee Name</th>
-                    <th>Gross Salary</th>
-                    <th>Basic Salary</th>
+                    <th>Revised Gross</th>
+                    <th>Basic</th>
                     <th>HRA</th>
-                    <th>Conveyance Allowance</th>
+                    <th>Conveyance</th>
                     <th>Special Allowance</th>
-                    <th>In-Hand Salary</th>
-                    <th>Cost To Company</th>
+                    <th>Net Payable</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -119,23 +122,32 @@
             },
             columns: [
                 { data: "encryptedSalaryID", visible: false },
+
                 { data: "employeeNumber" },
-                { data: "employeeName" },                
-                { data: "grossSalary" },
-                { data: "basicSalary" },
-                { data: "hra" },
-                { data: "conveyanceAllowance" },
-                { data: "specialAllowance" },
-                { data: "inHandSalary" },
-                { data: "costToCompany" },
+                { data: "employeeName" },
+
+
+                { data: "revisedGross" },
+
+
+                { data: "basicFixed" },
+                { data: "hraFixed" },
+                { data: "conveyanceFixed" },
+                { data: "specialAllowanceFixed" },
+
+      
+                { data: "netPayable" },
+
+           
                 {
                     render: function (data, type, row) {
-                        return `<a class="item" href="/admin/Payroll/SalaryDetails?id=${row.encryptedSalaryID}" data-bs-toggle="tooltip" title="View Salary" style="margin-right:8px;">
-                                     <i class="bi bi-eye-fill" style="font-size:18px; color:#044a8c;"></i>
-                                </a>
-                                <a class="item text-success" href="/admin/Payroll/EditSalary?id=${row.encryptedSalaryID}" data-bs-toggle="tooltip" title="Edit Salary">
-                <i class="bi bi-pencil-fill" style="font-size:18px; "></i>
-            </a>`;
+                    //    <a class="item" href="/admin/Payroll/SalaryDetails?id=${row.encryptedSalaryID}" data-bs-toggle="tooltip" title="View Salary" style="margin-right:8px;">
+                    //     <i class="bi bi-eye-fill" style="font-size:18px; color:#044a8c;"></i>
+                        //</a>
+                        return `
+                    <a class="item text-success" href="/admin/Payroll/CalculateSalary?id=${row.encryptedSalaryID}" data-bs-toggle="tooltip" title="Edit Salary">
+                        <i class="bi bi-pencil-fill" style="font-size:18px;"></i>
+                    </a>`;
                     }
                 }
             ],
