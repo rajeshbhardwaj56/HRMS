@@ -9,6 +9,7 @@ namespace HRMS.API.BusinessLayer
     internal class StoredProcedures
     {
         public const string usp_GetDeviceLogsByMonth = "usp_GetDeviceLogsByMonth";
+        public const string usp_ValidateCompOff = "usp_ValidateCompOff";
         public const string usp_GetShiftTypesByWeekOffID = "usp_GetShiftTypesByWeekOffID";
         public const string usp_LoginUser = "usp_LoginUser";
         public const string usp_Get_Counteres = "usp_Get_Counteres";
@@ -170,6 +171,8 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_ManagerApprovalCount = "usp_Get_ManagerApprovalCount";
         public const string usp_ValidateShiftType = "usp_ValidateShiftType";
         public const string usp_GetLeaveSummaryDayWiseDetails = "usp_GetLeaveSummaryDayWiseDetails";
+        public const string usp_GetLeaveCountForValidation = "usp_GetLeaveCountForValidation";
+        
 
         #region Payroll
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";

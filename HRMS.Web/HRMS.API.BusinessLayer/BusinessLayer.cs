@@ -1920,6 +1920,33 @@ namespace HRMS.API.BusinessLayer
             return result;
         }
 
+        public LeaveCountValidationResult GetLeaveCountForValidation(MyInfoInputParams model)
+        {
+            LeaveCountValidationResult result = new LeaveCountValidationResult();
+
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+            sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetLeaveCountForValidation,
+                sqlParameter
+            );
+
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+
+                result.ApprovedLeaveCount = Convert.ToDecimal(row["ApprovedLeaveCount"]);
+
+                result.PendingLeaveCount = Convert.ToDecimal(row["PendingLeaveCount"]);
+
+                result.TotalLeaveCount = Convert.ToDecimal(row["TotalLeaveCount"]);
+            }
+
+            return result;
+        }
         public LeaveResults GetAgentLeaveSummary(MyInfoInputParams model)
         {
             LeaveResults result = new LeaveResults();
@@ -2003,6 +2030,7 @@ namespace HRMS.API.BusinessLayer
             LeaveResults result = new LeaveResults();
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID));
+            sqlParameter.Add(new SqlParameter("@UserID", model.UserID));
             SqlParameter outputMessage = new SqlParameter("@Message", SqlDbType.NVarChar, 250)
             {
                 Direction = ParameterDirection.Output
@@ -4887,15 +4915,13 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>
     {
         new SqlParameter("@EmployeeID", model.EmployeeID),
-        new SqlParameter("@JobLocationTypeID", model.JobLocationTypeID),
         new SqlParameter("@StartDate", model.StartDate),
         new SqlParameter("@EndDate", model.EndDate),
-        new SqlParameter("@EmployeeNumber", model.EmployeeNumber),
-        new SqlParameter("@RequestedLeaveDays", model.RequestedLeaveDays),
-        new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID)
+        new SqlParameter("@LeaveSummaryID", model.LeaveSummaryID),
+        new SqlParameter("@LeaveDurationId", model.LeaveDurationId)
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Is_CampOff_Eligible, sqlParameter);
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_ValidateCompOff, sqlParameter);
 
             if (dataSet != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
@@ -4904,9 +4930,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     IsEligible = Convert.ToInt32(row["IsEligible"]),
                     Message = row["Message"].ToString(),
-                    EligibleDays = Convert.ToInt32(row["EligibleDays"]),
-                    RequestedDays = Convert.ToInt32(row["RequestedDays"]),
-                    AvailableCompOffDays = Convert.ToInt32(row["AvailableCompOffDays"])
+            
                 };
             }
 

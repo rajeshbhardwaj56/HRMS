@@ -104,14 +104,15 @@ namespace HRMS.Models.Leave
         public string EmployeeNumber { get; set; }
         public decimal RequestedLeaveDays { get; set; }
         public long? LeaveSummaryID { get; set; }
+        public long? LeaveDurationId { get; set; }
     }
     public class CompOffValidationResult
     {
         public int IsEligible { get; set; }
         public string Message { get; set; }
-        public int EligibleDays { get; set; }
-        public int RequestedDays { get; set; }
-        public int AvailableCompOffDays { get; set; }
+        public int? EligibleDays { get; set; }
+        public int? RequestedDays { get; set; }
+        public int? AvailableCompOffDays { get; set; }
     }
 
     public class UpdateLeaveStatus
@@ -174,5 +175,12 @@ namespace HRMS.Models.Leave
 
       
     }
+    public class LeaveCountValidationResult
+    {
+        public decimal ApprovedLeaveCount { get; set; }
 
+        public decimal PendingLeaveCount { get; set; }
+
+        public decimal TotalLeaveCount { get; set; }
+    }
 }

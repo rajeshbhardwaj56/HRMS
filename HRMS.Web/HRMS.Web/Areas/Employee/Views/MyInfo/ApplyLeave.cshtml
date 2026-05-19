@@ -392,7 +392,7 @@
 																				
 
 
-																						@if (item.LeaveStatusID != (int)LeaveStatus.Approved && item.LeaveStatusID != (int)LeaveStatus.Cancelled)
+																						@if (item.LeaveStatusID != (int)LeaveStatus.Approved && item.LeaveStatusID != (int)LeaveStatus.Cancelled && item.LeaveStatusID != (int)LeaveStatus.NotApproved )
 																						 {
 																							<td>
 																								<a href="~/employee/MyInfo/ApplyLeave/?id=@(item.EncryptedIdentity)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;

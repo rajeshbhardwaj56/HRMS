@@ -146,7 +146,7 @@
         @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.EmployeeID, new { id = "EmployeeIdHidden" })
         @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UserID)
         @Html.HiddenFor(x => x.leaveResults.leaveSummaryModel.UploadCertificate)
-        @Html.HiddenFor(x => x.CampOffLeaveCount)
+        @*@Html.HiddenFor(x => x.CampOffLeaveCount)*@
         <select id="leaveTypeDropdown" name="leaveResults.leaveSummaryModel.LeaveTypeID" class="form-control" required>
             <option value="">Select Leave Type</option>
             @if (Model.leaveResults.leaveSummaryModel.LeaveTypeID > 0)
@@ -261,7 +261,7 @@
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-
+                                                                        <input type="hidden" id="CampOffLeaveCount" name="CampOffLeaveCount">
                                                                         <button class="btn btn-success" id="submitbtn" type="submit">Submit</button>
                                                                         <a href="~/employee/MyInfo/ApplyAgentLeave/" class="btn btn-danger" type="reset">Cancel</a>
                                                                     </form>
@@ -340,7 +340,7 @@
                                                                                         break;
                                                                                 }
 
-                                                                                @if (item.LeaveStatusID != (int)LeaveStatus.Approved && item.LeaveStatusID != (int)LeaveStatus.Cancelled)
+                                                                                @if (item.LeaveStatusID != (int)LeaveStatus.Approved && item.LeaveStatusID != (int)LeaveStatus.Cancelled && item.LeaveStatusID != (int)LeaveStatus.NotApproved)
                                                                                 {
                                                                                     <td>
                                                                                         <a href="~/employee/MyInfo/ApplyAgentLeave/?id=@(item.EncryptedIdentity)&jobLocationId=@(item.JobLocationID)&genderId=@(item.Gender)&employeeId=@(item.Encrypted)" id="editButton" class="edit-button"><i class="fa fa-edit" style="font-size:20px;color:blue;"></i></a> &nbsp;
@@ -410,7 +410,6 @@
 <input type="hidden" id="leaveTypeID" value="" />
 <input type="hidden" id="GenderIdHidden" name="GenderId" />
 <input type="hidden" id="JobLocationIdHidden" name="JobLocationId" />
-
 
 <script>
 
@@ -687,6 +686,12 @@
                 success: function (response) {
                     if (response && response.leaveTypes) {
                         populateLeaveTypeDropdown(response.leaveTypes);
+                       
+                        if (response.campOffLeaveCount !== undefined) {
+                            $('#CampOffLeaveCount').val(response.campOffLeaveCount);
+                        }
+                       
+
                         if (isEditMode && initialLeaveTypeID) {
                             $('#leaveTypeDropdown').val(initialLeaveTypeID).trigger('change');
                         }

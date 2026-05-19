@@ -213,6 +213,7 @@ namespace HRMS.Models.Common
     public class APIApiActionConstants
     {
         public const string AddUpdatePolicyCategory = "AddUpdatePolicyCategory";
+        public const string GetLeaveCountForValidation = "GetLeaveCountForValidation";
         public const string GetAllPolicyCategory = "GetAllPolicyCategory";
         public const string GetPolicyCategoryList = "GetPolicyCategoryList";
         public const string DeletePolicyCategory = "DeletePolicyCategory";

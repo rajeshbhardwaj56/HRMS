@@ -477,5 +477,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetLeaveSummaryDayWiseDetails(model));
             return response;
         }
+
+        [HttpPost]
+        public IActionResult GetLeaveCountForValidation(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetLeaveCountForValidation(model));
+            return response;
+        }
     }
 }

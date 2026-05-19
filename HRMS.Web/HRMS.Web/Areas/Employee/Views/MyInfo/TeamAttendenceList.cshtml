@@ -152,6 +152,11 @@
         cursor: pointer;
         font-size: 0.5rem;
     }
+    .HCO\/HPL {
+        background: #04336f;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
 	.status-badge {
 		display: inline-block;
 		padding: 3px 8px;
@@ -197,6 +202,7 @@
         cursor: pointer;
         font-size: 0.5rem;
     }
+   
     .LWP {
         background-color: #1c5db1;
         cursor: pointer;
@@ -638,7 +644,7 @@
 
                 // Full Leave
                 else if (
-                    ["PL", "LWP", "COL", "ML", "L"].includes(status)
+                    ["PL", "LWP", "COL", "ML","HCO/HPL", "L"].includes(status)
                 ) {
 
                     className = status;

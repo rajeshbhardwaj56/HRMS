@@ -149,6 +149,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public string DeleteWeekOffRoster(WeekOffUploadDeleteModel model);
         public List<HolidayCompanyList> GetCompanyHolidayList(HolidayInputparams model);
         public long GetShiftTypeId(string ShiftTypeName);
+        public LeaveCountValidationResult GetLeaveCountForValidation(MyInfoInputParams model);
         public List<EmployeeShiftModel> GetShiftTypeList(string employeeNumber, long weekOffID);
 
         #region Attendance Approval
