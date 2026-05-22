@@ -24,6 +24,8 @@ namespace HRMS.Models.Leave
         public long? RoleId { get; set; }
         public int GenderId { get; set; }
         public long JobLocationTypeID { get; set; }
+
+        public int? StatusID { get; set; }
     }
     public class LeaveSummaryModel
     {
@@ -33,6 +35,7 @@ namespace HRMS.Models.Leave
         public string Encrypted { get; set; } = string.Empty;
         public long LeaveSummaryID { get; set; }
         public long LeaveStatusID { get; set; }
+        public long? ApprovedByLevel { get; set; }
         public string LeaveStatusName { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
         public DateTime RequestDate { get; set; }

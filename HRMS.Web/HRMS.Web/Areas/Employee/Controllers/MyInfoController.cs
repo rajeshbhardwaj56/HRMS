@@ -187,6 +187,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+            employee.StatusID = (int)LeaveStatus.PendingApproval;
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
             var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
@@ -219,9 +220,10 @@ namespace HRMS.Web.Areas.Employee.Controllers
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+            employee.StatusID  = (int)LeaveStatus.Approved;
             var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<LeaveResults>(data);
-            var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved).ToList();
+            var Approvals = results.leavesSummary.ToList();
             if (Approvals != null)
             {
                 foreach (var leave in Approvals)

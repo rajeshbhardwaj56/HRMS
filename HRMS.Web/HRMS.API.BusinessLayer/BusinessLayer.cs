@@ -1760,6 +1760,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@ReportingToEmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@RoleId", model.RoleId));
+            sqlParameter.Add(new SqlParameter("@StatusID", model.StatusID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AgentLeavesSummaryForApproval, sqlParameter);
             result.leavesSummary = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeaveSummaryModel
@@ -1896,6 +1897,7 @@ namespace HRMS.API.BusinessLayer
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                                   ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
+                                  ApprovedByLevel = dataRow.Field<long?>("ApprovedByLevel"),
                               }).ToList();
 
             if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
