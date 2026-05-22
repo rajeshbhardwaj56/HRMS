@@ -228,6 +228,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 foreach (var leave in Approvals)
                 {
+                    if ( leave.LeaveStatusID == 2)
+                    {
+                        leave.LeaveStatusName = "PendingForL2Approval";
+                    }
+
                     leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
                     leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
                 }
