@@ -1897,7 +1897,7 @@ namespace HRMS.API.BusinessLayer
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                                   ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
-                                  ApprovedByLevel = dataRow.Field<long?>("ApprovedByLevel"),
+                                 // ApprovedByLevel = dataRow.Field<long?>("ApprovedByLevel"),
                               }).ToList();
 
             if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
