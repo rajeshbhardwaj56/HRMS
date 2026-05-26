@@ -275,6 +275,7 @@ namespace HRMS.Models.Common
         public const string GetFogotPasswordDetails = "GetFogotPasswordDetails";
         public const string AddUpdateShiftType = "AddUpdateShiftType";
         public const string GetAllShiftTypes = "GetAllShiftTypes";
+        public const string ValidateShiftType = "ValidateShiftType";
         public const string DeleteLeavesSummary = "DeleteLeavesSummary";
         public const string GetAttendance = "GetAttendance";
         public const string GetAttendanceForMonthlyViewCalendar = "GetAttendanceForMonthlyViewCalendar";

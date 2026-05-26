@@ -1760,6 +1760,7 @@ namespace HRMS.API.BusinessLayer
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
             sqlParameter.Add(new SqlParameter("@ReportingToEmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@RoleId", model.RoleId));
+           // sqlParameter.Add(new SqlParameter("@StatusID", model.StatusID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AgentLeavesSummaryForApproval, sqlParameter);
             result.leavesSummary = dataSet.Tables[0].AsEnumerable()
                               .Select(dataRow => new LeaveSummaryModel
@@ -1896,6 +1897,7 @@ namespace HRMS.API.BusinessLayer
                                   IsDeleted = dataRow.Field<bool>("IsDeleted"),
                                   EmployeeID = dataRow.Field<long>("EmployeeID"),
                                   ChildDOB = dataRow.Field<DateTime?>("ChildDOB"),
+                                  ApprovedByLevel = dataRow.Field<long?>("ApprovedByLevel"),
                               }).ToList();
 
             if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
@@ -2708,7 +2710,7 @@ namespace HRMS.API.BusinessLayer
                                   CheckInBeforeShift = dataRow.Field<bool>("CheckInBeforeShift"),
                                   CheckOutAfterShift = dataRow.Field<bool>("CheckOutAfterShift"),
                                   ProcessAttendanceAfter = dataRow.Field<long>("ProcessAttendanceAfter"),
-                                  LastSyncDateTime = dataRow.Field<DateTime>("LastSyncDateTime"),
+                                  LastSyncDateTime = dataRow.Field<DateTime?>("LastSyncDateTime"),
                                   AutoAttendanceOnHoliday = dataRow.Field<bool>("AutoAttendanceOnHoliday"),
                                   LastEntryGracePeriod = dataRow.Field<long>("LastEntryGracePeriod"),
                                   EarlyExitGracePeriod = dataRow.Field<long>("EarlyExitGracePeriod"),
@@ -2746,7 +2748,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameters.Add(new SqlParameter("@CheckInBeforeShift", shiftTypeModel.CheckInBeforeShift));
             sqlParameters.Add(new SqlParameter("@CheckOutAfterShift", shiftTypeModel.CheckOutAfterShift));
             sqlParameters.Add(new SqlParameter("@ProcessAttendanceAfter", shiftTypeModel.ProcessAttendanceAfter));
-            sqlParameters.Add(new SqlParameter("@LastSyncDateTime", shiftTypeModel.LastSyncDateTime));
+            sqlParameters.Add(new SqlParameter("@LastSyncDateTime", shiftTypeModel.LastSyncDateTime == DateTime.MinValue? DBNull.Value : (object?)shiftTypeModel.LastSyncDateTime ?? DBNull.Value ));
             sqlParameters.Add(new SqlParameter("@AutoAttendanceOnHoliday", shiftTypeModel.AutoAttendanceOnHoliday));
             sqlParameters.Add(new SqlParameter("@LastEntryGracePeriod", shiftTypeModel.LastEntryGracePeriod));
             sqlParameters.Add(new SqlParameter("@EarlyExitGracePeriod", shiftTypeModel.EarlyExitGracePeriod));
@@ -2755,16 +2757,17 @@ namespace HRMS.API.BusinessLayer
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_ShiftType, sqlParameters);
 
-            if (dataSet.Tables[0].Columns.Contains("Result"))
+            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                model = dataSet.Tables[0].AsEnumerable()
-                   .Select(dataRow =>
-                        new Result()
-                        {
-                            Message = dataRow.Field<string>("Result").ToString(),
-                            PKNo = dataRow.Field<long?>("PKNo") ?? 0
-                        }
-                   ).ToList().FirstOrDefault();
+                DataRow dataRow = dataSet.Tables[0].Rows[0];
+
+                model.Message = dataRow.Table.Columns.Contains("Result")
+                    ? Convert.ToString(dataRow["Result"])
+                    : "";
+
+                model.PKNo = dataRow.Table.Columns.Contains("PKNo")
+                    ? Convert.ToInt64(dataRow["PKNo"])
+                    : 0;
             }
             long newId = model.PKNo ?? 0;
 
@@ -2783,6 +2786,44 @@ namespace HRMS.API.BusinessLayer
                 "ShiftType Details"
             );
             return model;
+        }
+        public Result ValidateShiftType(ShiftTypeModel model)
+        {
+            Result result = new Result();
+
+            try
+            {
+                List<SqlParameter> sqlParameters = new List<SqlParameter>();
+
+                sqlParameters.Add(new SqlParameter("@ShiftTypeID", model.ShiftTypeID));
+                sqlParameters.Add(new SqlParameter("@ShiftTypeName", model.ShiftTypeName));
+                sqlParameters.Add(new SqlParameter("@StartTime", model.StartTime));
+                sqlParameters.Add(new SqlParameter("@EndTime", model.EndTime));
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_ValidateShiftType,
+                    sqlParameters);
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow dataRow = dataSet.Tables[0].Rows[0];
+
+                    int status = Convert.ToInt32(dataRow["Status"]);
+                    string message = Convert.ToString(dataRow["Message"]);
+
+                    result.PKNo = status;
+                    result.Message = message;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.PKNo = 0;
+                result.Message = ex.Message;
+            }
+
+            return result;
         }
         #endregion
 
