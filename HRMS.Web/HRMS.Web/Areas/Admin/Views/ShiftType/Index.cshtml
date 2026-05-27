@@ -11,7 +11,7 @@
     </div>
 }
 <div class="main-header anim" style="--delay: 0s">Shift Type Details </div>
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" id="shiftTypeForm">
     <div class="Container">
         <div class="group-box anim" style="--delay: .3s">
             <div class="row">
@@ -28,7 +28,7 @@
                     <div class="col-md-12">
                         @Html.HiddenFor(x => x.ShiftTypeID)
 
-                        @Html.TextBoxFor(a => a.ShiftTypeName, new { @class = "form-control", @required = "required" })
+                        @Html.TextBoxFor(a => a.ShiftTypeName, new { @class = "form-control", required = "required" })
                                 <div id="shiftNameValidationMessage"></div>
                             </div>
                 </div>
@@ -41,7 +41,7 @@
                         <label class="form-label"> Shift Start Time (HH:MM:SS) <span class="Mandetory">*</span> </label>
                     </div>
                     <div class="col-md-12">
-                        @Html.TextBoxFor(a => a.StartTime, new { type = "time", @class = "form-control", @required = "required", step = 1 })
+                        @Html.TextBoxFor(a => a.StartTime, new { type = "time", @class = "form-control", required = "required", step = 1 })
                                 <div id="startTimeValidationMessage"></div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                         <label class="form-label"> Shift End Time (HH:MM:SS) <span class="Mandetory">*</span> </label>
                     </div>
                     <div class="col-md-12">
-                        @Html.TextBoxFor(a => a.EndTime, new { type = "time", @class = "form-control", @required = "required", step = 1 })
+                        @Html.TextBoxFor(a => a.EndTime, new { type = "time", @class = "form-control", required = "required", step = 1 })
                                 <div id="endTimeValidationMessage"></div>
 
                     </div>
@@ -400,5 +400,59 @@
 
         enableSubmitButton();
     });
+        $('#shiftTypeForm').on('submit', function (e) {
 
+        const shiftTypeName = $('#ShiftTypeName').val().trim();
+        const startTime = $('#StartTime').val();
+        const endTime = $('#EndTime').val();
+
+        clearValidationMessages();
+
+        // Required validation
+        if (!shiftTypeName) {
+
+            $('#shiftNameValidationMessage')
+                .html('<span class="text-danger">Shift Type Name is required.</span>');
+
+            e.preventDefault();
+            return false;
+        }
+
+        if (!startTime) {
+
+            $('#startTimeValidationMessage')
+                .html('<span class="text-danger">Start Time is required.</span>');
+
+            e.preventDefault();
+            return false;
+        }
+
+        if (!endTime) {
+
+            $('#endTimeValidationMessage')
+                .html('<span class="text-danger">End Time is required.</span>');
+
+            e.preventDefault();
+            return false;
+        }
+
+        // Same time validation
+        if (startTime === endTime) {
+
+            $('#endTimeValidationMessage')
+                .html('<span class="text-danger">Start Time and End Time cannot be same.</span>');
+
+            e.preventDefault();
+            return false;
+        }
+
+        // Prevent submit if button disabled
+        if ($('#btnSubmit').prop('disabled')) {
+
+            e.preventDefault();
+            return false;
+        }
+
+        return true;
+    });
 </script>
