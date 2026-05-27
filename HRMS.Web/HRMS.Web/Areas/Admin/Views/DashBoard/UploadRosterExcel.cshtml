@@ -112,8 +112,13 @@
 
         const weekRanges = getWeekRanges(year);
         let selectedValue = null;
-
+        const periodEndDate = new Date("2026-05-20"); 
         weekRanges.forEach(w => {
+            const weekStart = new Date(convertToISO(w.startDate));
+            if (weekStart <= periodEndDate) {
+                return; 
+            }
+
             const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
             const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
 
@@ -122,11 +127,15 @@
             );
         });
 
-
-        if (weekRanges.length > 0) {
-            weekDropdown.val(
-                `${weekRanges[0].weekNumber}|${weekRanges[0].startDate}|${weekRanges[0].endDate}`
-            ).trigger('change');
+        const today = new Date();
+        const currentWeek = weekRanges.find(w => {
+            const start = new Date(convertToISO(w.startDate));
+            const end = new Date(convertToISO(w.endDate));
+            return today >= start && today <= end;
+        });
+        if (currentWeek) {
+            const value = `${currentWeek.weekNumber}|${currentWeek.startDate}|${currentWeek.endDate}`;
+            weekDropdown.val(value).trigger('change');
         }
     }
     function getWeekRanges(year) {

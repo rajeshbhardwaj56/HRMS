@@ -243,6 +243,7 @@
                 {
                     "data": null,
                     "render": function (data, type, row) {
+                     
                         var linkEdit = '<div class="table-data-feature">' +
                             '<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity + '&emp=' + row.encryptedEmployeeId + '" title="Edit">' +
                             '<img src="/assets/img/edit.png" width="20" height="20" />' +
@@ -260,6 +261,29 @@
                     "className": "Edit-Button"
                 }
             ],
+            "createdRow": function (row, data, dataIndex) {
+
+                const minDate = new Date("2026-05-25");
+                minDate.setHours(0, 0, 0, 0);
+
+                const dayOff1 = data.dayOff1 ? new Date(data.dayOff1) : null;
+                const dayOff2 = data.dayOff2 ? new Date(data.dayOff2) : null;
+
+                if (dayOff1) {
+                    dayOff1.setHours(0, 0, 0, 0);
+                }
+
+                if (dayOff2) {
+                    dayOff2.setHours(0, 0, 0, 0);
+                }
+
+                if (
+                    (dayOff1 && dayOff1 < minDate) ||
+                    (dayOff2 && dayOff2 < minDate)
+                ) {
+                    $('td:last', row).html('');
+                }
+            },
             "columnDefs": [
                 { "targets": [0], "orderable": false, "visible": false }
 

@@ -157,8 +157,13 @@
         const weekRanges = getWeekRanges(year);
         const today = new Date();
         let selectedValue = null;
+           const periodEndDate = new Date("2026-05-20"); 
+           weekRanges.forEach(w => {
+               const weekStart = new Date(convertToISO(w.startDate));
+               if (weekStart <= periodEndDate) {
+                   return;
+               }
 
-        weekRanges.forEach(w => {
             const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
             const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
 

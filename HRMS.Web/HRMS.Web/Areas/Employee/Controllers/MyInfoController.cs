@@ -1242,7 +1242,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leaveSummary = model.leaveResults.leaveSummaryModel;
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
+            //min date validation
+            DateTime minLeaveDate = new DateTime(2026, 5, 21);
+            if (startDate.Date < minLeaveDate.Date || endDate.Date < minLeaveDate.Date)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
 
+                return Json(new
+                {
+                    isValid = false,
+                    message = $"Leave cannot be applied before {minLeaveDate:dd-MM-yyyy}."
+                });
+            }
             if ((int)LeaveDay.HalfDay == leaveSummary.LeaveDurationTypeID)
             {
                 endDate = startDate;
@@ -1797,6 +1808,19 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leaveSummary = model.leaveResults.leaveSummaryModel;
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
+            //min date validation
+            DateTime minLeaveDate = new DateTime(2026, 5, 21);
+            if (startDate.Date < minLeaveDate.Date || endDate.Date < minLeaveDate.Date)
+            {
+                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+
+                return Json(new
+                {
+                    isValid = false,
+                    message = $"Leave cannot be applied before {minLeaveDate:dd-MM-yyyy}."
+                });
+            }
+
             if ((int)LeaveDay.HalfDay == leaveSummary.LeaveDurationTypeID)
             {
                 endDate = startDate;
@@ -2492,6 +2516,24 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult ExportAttendence()
+        {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.TeamAttendenceList);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+            var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); // Assuming this exists
+            var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
+            ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
+            return View();
+        }
         #region 
 
         public IActionResult TeamAlignment()
