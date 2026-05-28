@@ -61,6 +61,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<SelectListItem> GetAllEmployeesList(WeekOfEmployeeId Employeemodel);
         public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel);
         public Results GetAllShiftTypes(ShiftTypeInputParans model);
+        public Result ValidateShiftType(ShiftTypeModel model);
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
         public Results GetAllHolidayList(HolidayInputParams model);
         public string DeleteLeavesSummary(MyInfoInputParams model);

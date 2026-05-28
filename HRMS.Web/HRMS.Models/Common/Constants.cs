@@ -300,6 +300,7 @@ namespace HRMS.Models.Common
         public const string SaveOrUpdateBulk = "SaveOrUpdateBulk";
         public const string SaveOrUpdateAttendanceStatus = "SaveOrUpdateAttendanceStatus";
         public const string GetTeamAttendanceForApproval = "GetTeamAttendanceForApproval";
+        public const string ValidateShiftType = "ValidateShiftType";
 
 
 

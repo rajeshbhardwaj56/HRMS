@@ -36,5 +36,12 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetAllShiftTypes(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult ValidateShiftType(ShiftTypeModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.ValidateShiftType(model));
+            return response;
+        }
     }
 }

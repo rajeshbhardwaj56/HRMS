@@ -19,87 +19,87 @@
         <thead>
             <tr>
                 <th class="first" style="visibility:hidden"> /th>
-                <th>Shift Type Name</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Auto Attendance Enabled </th>
-                <th>Action</th>
-            </tr>
-        </thead>
+                    <th>Shift Type Name</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    @*  <th>Auto Attendance Enabled </th> *@
+                    <th>Action</th>
+                </tr>
+            </thead>
 
-    </table>
-</div>
+        </table>
+    </div>
 
 
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    $(document).ready(function () {
+        $(document).ready(function () {
    
-        $('#tblShiftTypeListing').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": {
-                "url": "ShiftTypeListings/",
-                "type": "POST",
-                "datatype": "json",
-                "data": function (d) {
-                    var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'shiftTypeID';
-                    var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
-                     return {
-                         sEcho: d.draw,
-                         iDisplayStart: d.start,
-                         iDisplayLength: d.length,
-                         sSearch: d.search.value,
-                         sortCol: sortColumn,
-                         sortDir: sortDirection
-                     };
-                 }
-            },
-            "ordering": true,
-            "paging": true,
-            "searching": true,
-            "info": true,
-            "columns": [
-                { "data": "shiftTypeID", "autoWidth": true, },
-                { "data": "shiftTypeName", "autoWidth": true, },
-                { "data": "startTime", "autoWidth": true, },
-                { "data": "endTime", "autoWidth": true, },
-                { "data": "autoAttendance", "autoWidth": true, },
-                {
-                    mRender: function (data, type, row) {
+            $('#tblShiftTypeListing').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "ShiftTypeListings/",
+                    "type": "POST",
+                    "datatype": "json",
+                    "data": function (d) {
+                        var sortColumn = typeof d.order[0] !== 'undefined' ? d.columns[d.order[0].column].data : 'shiftTypeID';
+                        var sortDirection = typeof d.order[0] !== 'undefined' ? d.order[0].dir : 'asc';
+                         return {
+                             sEcho: d.draw,
+                             iDisplayStart: d.start,
+                             iDisplayLength: d.length,
+                             sSearch: d.search.value,
+                             sortCol: sortColumn,
+                             sortDir: sortDirection
+                         };
+                     }
+                },
+                "ordering": true,
+                "paging": true,
+                "searching": true,
+                "info": true,
+                "columns": [
+                    { "data": "shiftTypeID", "autoWidth": true, },
+                    { "data": "shiftTypeName", "autoWidth": true, },
+                    { "data": "startTime", "autoWidth": true, },
+                    { "data": "endTime", "autoWidth": true, },
+                    // { "data": "autoAttendance", "autoWidth": true, },
+                    {
+                        mRender: function (data, type, row) {
 
-                        var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.shiftTypeID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
-                        return linkEdit;
+                            var linkEdit = '<div class="table-data-feature"><a data-toggle="tooltip" data-placement="top"  class="item" href="Index?id=' + row.shiftTypeID + '"  title=""  data-original-title="Edit"><img src="/assets/img/edit.png" width="20" height="20" /></a>';
+                            return linkEdit;
+                        }
+                    },
+                ],
+                "columnDefs": [
+                    {
+                        target: 2,
+                        visible: false,
+                        searchable: false
+                    },
+
+                    {
+
+                        "targets": [0], //first and last not sortable
+                        "orderable": false,
+                        "visible": false
+                    },
+
+                    {
+
+                        "targets": [1], //first and last not sortable
+                        "orderable": true,
+                        "defaultContent": " "
                     }
-                },
-            ],
-            "columnDefs": [
-                {
-                    target: 2,
-                    visible: false,
-                    searchable: false
-                },
 
-                {
+                ]
+                , "responsive": true
 
-                    "targets": [0], //first and last not sortable
-                    "orderable": false,
-                    "visible": false
-                },
+            });
 
-                {
-
-                    "targets": [1], //first and last not sortable
-                    "orderable": true,
-                    "defaultContent": " "
-                }
-
-            ]
-            , "responsive": true
 
         });
-
-
-    });
-</script>
+    </script>
