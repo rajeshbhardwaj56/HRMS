@@ -16,7 +16,17 @@ namespace HRMS.Models.Common
         Approved = 1,
         PendingApproval = 2,
         NotApproved = 3,
-        Cancelled = 4
+        Cancelled = 4,
+
+        L1Approved = 5,
+        L1Rejected = 6,
+
+        PendingL2Approval = 7,
+        L2Rejected = 8,
+
+        L2Approved = 9,
+
+        AutoApproved = 10
     }
     public enum Status
     {
