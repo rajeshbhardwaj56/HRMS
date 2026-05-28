@@ -282,4 +282,9 @@ namespace HRMS.Models.Common
         public int? ApprovedStatus { get; set; }
 
     }
+    public class ExportFilterViewModel
+    {
+        public List<Joblcoations> JoblocationList { get; set; } =  new List<Joblcoations>();
+        public List<Managers> ManagerList { get; set; } = new List<Managers>();
+    }
 }

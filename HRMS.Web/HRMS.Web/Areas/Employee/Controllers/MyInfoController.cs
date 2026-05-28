@@ -1,4 +1,5 @@
-﻿using HRMS.Models;
+﻿
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
@@ -2516,24 +2517,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult ExportAttendence()
-        {
-            var EmployeeID = GetSessionInt(Constants.EmployeeID);
-            var RoleId = GetSessionInt(Constants.RoleID);
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.TeamAttendenceList);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
-            {
-                HttpContext.Session.Clear();
-                HttpContext.SignOutAsync();
-                return RedirectToAction("Index", "Home", new { area = "" });
-            }
-            var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
-            var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); // Assuming this exists
-            var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
-            ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
-            return View();
-        }
+       
         #region 
 
         public IActionResult TeamAlignment()
@@ -2559,6 +2543,66 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
         #endregion TeamAlignment
 
+     
+        [HttpGet]
+        public IActionResult GetExportFilters()
+        {
+            ExportFilterViewModel model = new ExportFilterViewModel();
+            var CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            // Manager List
+            Managers managermodeldata = new Managers();
+            managermodeldata.ManagerID = 1;
+
+            var managerobjdata = _businessLayer.SendPostAPIRequest(
+                managermodeldata,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetManagerDropdown),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            model.ManagerList = JsonConvert.DeserializeObject<List<Managers>>(managerobjdata);
+
+            // Job Location List
+            Joblcoations modeldata = new Joblcoations();
+            modeldata.CompanyId = CompanyID;
+
+            var objdata = _businessLayer.SendPostAPIRequest(
+                modeldata,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetJobLocationsByCompany),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            model.JoblocationList = JsonConvert.DeserializeObject<List<Joblcoations>>(objdata);
+
+            return Json(new
+            {
+                success = true,
+                data = model
+            });
+        }
+        [HttpGet]
+        public IActionResult ExportAttendanceForm()
+        {
+            var EmployeeID = GetSessionInt(Constants.EmployeeID);
+            var RoleId = GetSessionInt(Constants.RoleID);
+            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.ExportAttendanceForm);
+            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+            var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); // Assuming this exists
+            var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
+            ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
+            return View();
+        }
         [HttpGet]
         public JsonResult GetLeaveSummaryDayWiseDetails(string id)
         {

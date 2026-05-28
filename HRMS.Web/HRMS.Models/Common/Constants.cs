@@ -153,7 +153,8 @@ namespace HRMS.Models.Common
         WeekOffRoster = 26,
         AttendanceApproval = 27,
         ApproveLeave=25,
-        ApplyAgentLeave=28
+        ApplyAgentLeave=28,
+        ExportAttendanceForm = 30
 
     }
 
