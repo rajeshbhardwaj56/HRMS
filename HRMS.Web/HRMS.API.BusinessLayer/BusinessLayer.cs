@@ -2710,7 +2710,7 @@ namespace HRMS.API.BusinessLayer
                                   CheckInBeforeShift = dataRow.Field<bool>("CheckInBeforeShift"),
                                   CheckOutAfterShift = dataRow.Field<bool>("CheckOutAfterShift"),
                                   ProcessAttendanceAfter = dataRow.Field<long>("ProcessAttendanceAfter"),
-                                  LastSyncDateTime = dataRow.Field<DateTime>("LastSyncDateTime"),
+                                  LastSyncDateTime = dataRow.Field<DateTime?>("LastSyncDateTime"),
                                   AutoAttendanceOnHoliday = dataRow.Field<bool>("AutoAttendanceOnHoliday"),
                                   LastEntryGracePeriod = dataRow.Field<long>("LastEntryGracePeriod"),
                                   EarlyExitGracePeriod = dataRow.Field<long>("EarlyExitGracePeriod"),
