@@ -2604,6 +2604,118 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
+        public IActionResult GetExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId, long? ManagerId)
+        {
+            try
+            {
+                var employeeId = 1;
+                var roleId = 2;
+
+                var models = new AttendanceInputParams
+                {
+                    FromDate = FromDate,
+                    ToDate = ToDate,
+                    UserId = employeeId,
+                    RoleId = roleId,
+                    PageSize = 0,
+                    Page = 1,
+                    JobLocationID = jobLocationId,
+                    ManagerID = ManagerId ?? 0
+                };
+
+                var response = _businessLayer.SendPostAPIRequest(
+                    models,
+                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetExportAttendanceForCalendar),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var model = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(response);
+                if (model == null || model.Attendances == null || model.Attendances.Count == 0)
+                {
+                    return NotFound("No attendance data found.");
+                }
+                // Prepare day keys (e.g. "01_Thu")
+                var dayKeys = new List<string>();
+                for (DateTime date = FromDate; date <= ToDate; date = date.AddDays(1))
+                {
+                    dayKeys.Add(date.ToString("dd-MM-yyyy"));
+                }
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Attendance");
+
+                    // Build header row
+                    var headers = new List<string> { "EmployeNumber", "EmployeeName" };
+                    headers.AddRange(dayKeys.Select(k => k.Replace("_", " ")));
+                    headers.Add("TotalWorkingDays");
+                    headers.Add("PresentDays");
+                    headers.Add("TotalLeaves");
+                    headers.Add("ManagerLevel1");
+                    headers.Add("ManagerLevel2");
+                    headers.Add("Privilege Leave Consumed");
+                    headers.Add("Final Leave Balance");
+                    headers.Add("Available Comp-Off Days");
+
+
+
+                    for (int i = 0; i < headers.Count; i++)
+                    {
+                        worksheet.Cells[1, i + 1].Value = headers[i];
+                        worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                        worksheet.Column(i + 1).AutoFit();
+                    }
+
+                    // Build data rows
+                    int rowIndex = 2;
+                    foreach (var record in model.Attendances)
+                    {
+                        worksheet.Cells[rowIndex, 1].Value = record.EmployeNumber;
+                        worksheet.Cells[rowIndex, 2].Value = record.EmployeeName;
+
+                        for (int colIndex = 0; colIndex < dayKeys.Count; colIndex++)
+                        {
+                            var key = dayKeys[colIndex];
+                            string val = record.AttendanceByDay != null && record.AttendanceByDay.ContainsKey(key)
+                                ? record.AttendanceByDay[key]
+                                : "";
+                            worksheet.Cells[rowIndex, 3 + colIndex].Value = val;
+                        }
+
+                        worksheet.Cells[rowIndex, 3 + dayKeys.Count].Value = record.TotalWorkingDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 4 + dayKeys.Count].Value = record.PresentDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.ManagerName.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.ManagerManagerName.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 8 + dayKeys.Count].Value = record.AnnualLeaveConsumed.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 9 + dayKeys.Count].Value = record.AnnualLeaveBalance.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 10 + dayKeys.Count].Value = record.AvailableCompOffDays.ToString() ?? "-";
+
+                        rowIndex++;
+                    }
+
+                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                    var excelBytes = package.GetAsByteArray();
+                    string fileName = $"Attendance_{FromDate:yyyyMMdd}_to_{ToDate:yyyyMMdd}.xlsx";
+                    return File(
+                        excelBytes,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName
+                    );
+                }
+
+            }
+            catch (Exception ex)
+            {
+                // Optionally log ex.Message
+                return StatusCode(500, "An error occurred while exporting attendance.");
+            }
+        }
+
+
+
+        [HttpGet]
         public JsonResult GetLeaveSummaryDayWiseDetails(string id)
         {
             long leaveSummaryID = Convert.ToInt64(_businessLayer.DecodeStringBase64(id));
