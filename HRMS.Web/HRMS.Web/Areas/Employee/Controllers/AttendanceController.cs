@@ -13,6 +13,7 @@ using HRMS.Models.User;
 using HRMS.Web.BusinessLayer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -833,7 +834,50 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         [HttpGet]
         public IActionResult ApproveCompOff()
         {
-            return View();
+            var input = new { CompanyID = HttpContext.Session.GetString(Constants.CompanyID) };
+
+            var filterResponse = _businessLayer.SendPostAPIRequest(
+                input,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetJobLocationsByCompany),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
+
+            var filterData = JsonConvert.DeserializeObject<CompanyFilterResponse>(filterResponse);
+
+            var model = new CompOffApprovalVM
+            {
+                JobLocations = filterData?.JobLocations ?? new List<Joblcoations>(),
+                SubDepartments = filterData?.SubDepartments ?? new List<SubDepartment>()
+            };
+
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult ExportApproveCompOff()
+        {
+            var input = new { CompanyID = HttpContext.Session.GetString(Constants.CompanyID) };
+
+            var filterResponse = _businessLayer.SendPostAPIRequest(
+                input,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetJobLocationsByCompany),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
+
+            var filterData = JsonConvert.DeserializeObject<CompanyFilterResponse>(filterResponse);
+
+            var model = new CompOffApprovalVM
+            {
+                JobLocations = filterData?.JobLocations ?? new List<Joblcoations>(),
+                SubDepartments = filterData?.SubDepartments ?? new List<SubDepartment>()
+            };
+
+            return View(model);
         }
         [HttpPost]
         public JsonResult GetManagerApprovedCompOff([FromBody] AttendanceStatusRequest request)
@@ -857,15 +901,108 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             attendenceListParams.AttendanceStatusId = request.CompOffStatus;
             attendenceListParams.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            attendenceListParams.JobLocationID = request.JobLocationID;
+            attendenceListParams.SubDepartmentID = request.SubDepartmentID;
+            attendenceListParams.HierarchyLevel = request.HierarchyLevel;
+
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedCompOff), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
             var model = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data).ToList();
+
             return Json(new { data = model });
         }
+        [HttpPost]
+        public IActionResult ExportApprovedCompOffExcel([FromBody] AttendanceStatusRequest request)
+        {
+            CompOffInputParams attendenceListParams = new CompOffInputParams
+            {
+                AttendanceStatusId = request.CompOffStatus,
+                RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID)),
+                UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
+                JobLocationID = request.JobLocationID,
+                SubDepartmentID = request.SubDepartmentID,
+                HierarchyLevel = request.HierarchyLevel
+            };
 
+            var data = _businessLayer.SendPostAPIRequest(
+                attendenceListParams,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList,
+                APIApiActionConstants.GetApprovedCompOff),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result.ToString();
+
+            var list = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data);
+
+            using (var workbook = new ClosedXML.Excel.XLWorkbook())
+            {
+                var ws = workbook.Worksheets.Add("CompOff Report");
+
+                // =========================
+                // HEADERS
+                // =========================
+
+
+                // HEADERS
+                ws.Cell(1, 1).Value = "Emp No";
+                ws.Cell(1, 2).Value = "Name";
+                ws.Cell(1, 3).Value = "Manager";
+                ws.Cell(1, 4).Value = "From Date";
+                ws.Cell(1, 5).Value = "To Date";
+                ws.Cell(1, 6).Value = "Work Date";
+                ws.Cell(1, 7).Value = "Hours";
+                ws.Cell(1, 8).Value = "Status";
+                ws.Cell(1, 9).Value = "Remark";
+
+                ws.Cell(1, 10).Value = "Applied By";
+                ws.Cell(1, 11).Value = "Applied Date";
+
+                ws.Cell(1, 12).Value = "Approved By";
+                ws.Cell(1, 13).Value = "Approved Date";
+
+
+                int row = 2;
+
+                foreach (var item in list)
+                {
+                    ws.Cell(row, 1).Value = item.EmployeeNumber;
+                    ws.Cell(row, 2).Value = item.EmployeeName;
+                    ws.Cell(row, 3).Value = item.ManagerName;
+                    ws.Cell(row, 4).Value = item.FirstLogDate;
+                    ws.Cell(row, 5).Value = item.LastLogDate;
+                    ws.Cell(row, 6).Value = item.WorkDate;
+                    ws.Cell(row, 7).Value = item.HoursWorked;
+                    ws.Cell(row, 8).Value = item.AttendanceStatus;
+                    ws.Cell(row, 9).Value = item.Comments;
+
+                    ws.Cell(row, 10).Value = item.AppliedByName;
+                    ws.Cell(row, 11).Value = item.AppliedDate;
+
+                    ws.Cell(row, 12).Value = item.ApprovedByName;
+                    ws.Cell(row, 13).Value = item.ApprovedDate;
+
+
+                    row++;
+                }
+
+                ws.Columns().AdjustToContents();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+
+                    return File(
+                        content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "CompOff_Report.xlsx"
+                    );
+                }
+            }
+        }
 
         [HttpPost]
         public JsonResult ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
@@ -1117,10 +1254,31 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
             var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
-            var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); 
+            var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName));
             var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
             ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
-            return View();
+            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            var request = new { CompanyId = companyId };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                request,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetJobLocationsByCompany),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result;
+
+            var filterData = JsonConvert.DeserializeObject<CompanyFilterResponse>(response.ToString());
+
+            var model = new AttendanceViewModel
+            {
+                JobLocations = filterData?.JobLocations ?? new List<Joblcoations>(),
+                SubDepartments = filterData?.SubDepartments ?? new List<SubDepartment>()
+            };
+
+            return View(model);
         }
         [HttpGet]
         public IActionResult TeamAttendenceForApprovalList(int year, int month, int Page, int PageSize, string SearchTerm, int jobLocationId)
@@ -1152,7 +1310,10 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             Joblcoations modeldata = new Joblcoations();
             modeldata.CompanyId = CompanyID;
             var objdata = _businessLayer.SendPostAPIRequest(modeldata, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetJobLocationsByCompany), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            model.JoblocationList = JsonConvert.DeserializeObject<List<Joblcoations>>(objdata);
+            var filterResponse =
+                JsonConvert.DeserializeObject<CompanyFilterResponse>(objdata);
+
+            model.JoblocationList = filterResponse?.JobLocations ?? new List<Joblcoations>();
             return Json(new { data = model });
         }
 
@@ -1163,7 +1324,9 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
     int iDisplayLength,
     string sSearch,
     string sortCol,
-    string sortDir)
+    string sortDir,
+        long jobLocationID = 0,
+    long subDepartmentID = 0)
         {
             long reportingToId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
@@ -1174,6 +1337,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         {"workDate", "WorkDate"},
         {"employeNumber", "EmployeNumber"},
         {"attendanceStatus", "AttendanceStatus"},
+        {"oldAttendanceStatus", "OldAttendanceStatus"},
         {"remarks", "Remarks"}
     };
 
@@ -1187,7 +1351,10 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper(),
                 DisplayStart = iDisplayStart,
                 DisplayLength = iDisplayLength,
-                SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch
+                SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch,
+
+                JobLocationID = jobLocationID,
+                SubDepartmentID = subDepartmentID,
             };
 
             var apiResponse = _businessLayer.SendPostAPIRequest(
@@ -1212,13 +1379,14 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                     employeeName=a.EmployeeName ,
                     workDate = a.WorkDate,
                     attendanceStatus = a.Status,
+                    oldAttendanceStatus = a.OldAttendanceStatus,
                     remarks = a.Remarks,
                     id = a.ID 
                 })
             });
         }
         [HttpPost]
-        public IActionResult SaveAttendanceStatus(string EmployeeId, string Status, string Remarks, DateTime WorkDate,string? EncryptedStatusChangeID)
+        public IActionResult SaveAttendanceStatus(string EmployeeId, string Status, string OldStatus, string Remarks, DateTime WorkDate,string? EncryptedStatusChangeID)
         {
           
             var employeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(EmployeeId)); 
@@ -1235,6 +1403,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 UserID = updatedByUserId,
                 WorkDate = WorkDate,
                 AttendanceStatus = Status,
+                OldAttendanceStatus = OldStatus,
                 ApprovedByAdmin = false,
                 Remarks = string.IsNullOrEmpty(Remarks) ? "" : Remarks
             };
@@ -1318,7 +1487,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
 
 
-        public IActionResult SaveMyAttendanceStatus( string Status, string Remarks, DateTime WorkDate, string? EncryptedStatusChangeID)
+        public IActionResult SaveMyAttendanceStatus( string Status, string OldStatus, string Remarks, DateTime WorkDate, string? EncryptedStatusChangeID)
         {
 
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)); 
@@ -1334,6 +1503,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 UserID = employeeId,
                 WorkDate = WorkDate,
                 AttendanceStatus = Status,
+                OldAttendanceStatus = OldStatus,
                 ApprovedByAdmin = false,
                 Remarks = string.IsNullOrEmpty(Remarks) ? "" : Remarks
             };
@@ -1441,6 +1611,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                         UserID = currentEmployeeId,
                         WorkDate = record.WorkDate.Value,
                         AttendanceStatus = record.AttendanceStatus ,
+                        OldAttendanceStatus = record.OldAttendanceStatus,
                         Remarks = record.Remarks, 
                         ApprovedByAdmin = true,
                         ApprovedStatus =record.ApprovedStatus 
@@ -1486,6 +1657,214 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
 
 
+        public IActionResult ExportTeamAttendenceApprovalList()
+        {
+
+                var EmployeeID = GetSessionInt(Constants.EmployeeID);
+                var RoleId = GetSessionInt(Constants.RoleID);
+                var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.AttendanceApproval);
+                if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+                {
+                    HttpContext.Session.Clear();
+                    HttpContext.SignOutAsync();
+                    return RedirectToAction("Index", "Home", new { area = "" });
+                }
+                var firstName = Convert.ToString(HttpContext.Session.GetString(Constants.FirstName));
+                var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName));
+                var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
+                ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
+                var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+                var request = new { CompanyId = companyId };
+
+                var response = _businessLayer.SendPostAPIRequest(
+                    request,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Common,
+                        APIApiActionConstants.GetJobLocationsByCompany),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true
+                ).Result;
+
+                var filterData = JsonConvert.DeserializeObject<CompanyFilterResponse>(response.ToString());
+
+                var model = new AttendanceViewModel
+                {
+                    JobLocations = filterData?.JobLocations ?? new List<Joblcoations>(),
+                    SubDepartments = filterData?.SubDepartments ?? new List<SubDepartment>()
+                };
+
+                return View(model);
+      
+        }
+        [HttpPost]
+        public IActionResult ExportAttendanceApprovalList(
+            string sEcho,
+            int iDisplayStart,
+            int iDisplayLength,
+            string sSearch,
+            string sortCol,
+            string sortDir,
+            long jobLocationID = 0,
+            long subDepartmentID = 0,
+            int? approvalStatus = null)
+        {
+            long employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+            int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+            var columnMapping = new Dictionary<string, string>
+    {
+        { "employeeId", "EmployeeID" },
+        { "employeNumber", "EmployeNumber" },
+        { "employeeName", "EmployeeName" },
+        { "workDate", "WorkDate" },
+        { "attendanceStatus", "AttendanceStatus" },
+        { "oldAttendanceStatus", "OldAttendanceStatus" },
+        { "remarks", "Remarks" },
+        { "currentStatus", "CurrentStatus" },
+        { "appliedBy", "AppliedBy" },
+        { "appliedOn", "AppliedOn" },
+        { "approvedBy", "ApprovedBy" },
+        { "approvedOn", "ApprovedOn" }
+    };
+
+            var model = new AttendanceInputParams
+            {
+                UserId = employeeId,
+                RoleId = roleId,
+
+                SortCol = columnMapping.ContainsKey(sortCol) ? columnMapping[sortCol] : "WorkDate",
+                SortDir = string.IsNullOrEmpty(sortDir) ? "DESC" : sortDir.ToUpper(),
+
+                DisplayStart = iDisplayStart,
+                DisplayLength = iDisplayLength,
+                SearchTerm = string.IsNullOrWhiteSpace(sSearch) ? null : sSearch,
+
+                JobLocationID = jobLocationID,
+                SubDepartmentID = subDepartmentID,
+                ApprovalStatus = approvalStatus
+            };
+
+            var apiResponse = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.AttendenceList,
+                    APIApiActionConstants.ExportAttendanceChangeApproval),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result;
+
+            var data = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(apiResponse.ToString());
+
+            var result = data?.Attendances ?? new List<AttendanceViewModel>();
+
+            return Json(new
+            {
+                draw = sEcho,
+                recordsTotal = data?.TotalRecords ?? 0,
+                recordsFiltered = data?.TotalRecords ?? 0,
+                data = result
+            });
+        }
+        [HttpGet]
+        public IActionResult ExportAttendanceApprovalExcel(
+    long jobLocationID = 0,
+    long subDepartmentID = 0,
+    int? approvalStatus = null)
+        {
+            long employeeId =
+                Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+            int roleId =
+                Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+            var model = new AttendanceInputParams
+            {
+                UserId = employeeId,
+                RoleId = roleId,
+
+                JobLocationID = jobLocationID,
+                SubDepartmentID = subDepartmentID,
+                ApprovalStatus = approvalStatus,
+
+                DisplayStart = 0,
+                DisplayLength = 100000, // export all
+
+                SortCol = "WorkDate",
+                SortDir = "DESC"
+            };
+
+            var apiResponse = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.AttendenceList,
+                    APIApiActionConstants.ExportAttendanceChangeApproval),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result;
+
+            var data =
+                JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(
+                    apiResponse.ToString());
+
+            var records =
+                data?.Attendances ?? new List<AttendanceViewModel>();
+
+            using (var package = new OfficeOpenXml.ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Attendance");
+
+                ws.Cells[1, 1].Value = "Emp No";
+                ws.Cells[1, 2].Value = "Employee Name";
+                ws.Cells[1, 3].Value = "Work Date";
+                ws.Cells[1, 4].Value = "Attendance Status";
+                ws.Cells[1, 5].Value = "Old Status";
+                ws.Cells[1, 6].Value = "Remarks";
+                ws.Cells[1, 7].Value = "Applied By";
+                ws.Cells[1, 8].Value = "Applied On";
+                ws.Cells[1, 9].Value = "Approved By";
+                ws.Cells[1, 10].Value = "Approved On";
+
+                int row = 2;
+
+                foreach (var item in records)
+                {
+                    ws.Cells[row, 1].Value = item.EmployeNumber;
+                    ws.Cells[row, 2].Value = item.EmployeeName;
+
+                    ws.Cells[row, 3].Value = item.WorkDate;
+                    ws.Cells[row, 4].Value = item.Status;
+                    ws.Cells[row, 5].Value = item.OldAttendanceStatus;
+                    ws.Cells[row, 6].Value = item.Remarks;
+                    ws.Cells[row, 7].Value = item.AppliedBy;
+
+                    ws.Cells[row, 8].Value = item.AppliedOn;
+                    ws.Cells[row, 9].Value = item.ApprovedBy;
+                    ws.Cells[row, 10].Value = item.ApprovedOn;
+
+                    row++;
+                }
+
+                // Apply formats once after the loop
+                ws.Column(3).Style.Numberformat.Format = "dd-MM-yyyy";
+                ws.Column(8).Style.Numberformat.Format = "dd-MM-yyyy HH:mm:ss";
+                ws.Column(10).Style.Numberformat.Format = "dd-MM-yyyy HH:mm:ss";
+
+                ws.Cells.AutoFitColumns();
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                string fileName =
+                    $"AttendanceApproval_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+
+                return File(
+                    stream,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName);
+            }
+        }
         #endregion Attendance Approval
 
 

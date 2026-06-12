@@ -24,6 +24,7 @@ namespace HRMS.Models.Common
         public string? Status { get; set; }
         public long? RoleId { get; set; }
         public long? JobLocationID { get; set; }
+        public long? SubDepartmentID { get; set; }
         public long? ManagerID { get; set; }
         public string? conStr { get; set; }
         public string? SearchTerm { get; set; } = string.Empty;
@@ -34,7 +35,7 @@ namespace HRMS.Models.Common
         public int? DisplayLength { get; set; }
         public string? SortCol { get; set; }      // @SortCol
         public string? SortDir { get; set; }
-
+        public int? ApprovalStatus { get; set; }
 
     }
     public class Attendance
@@ -81,18 +82,47 @@ namespace HRMS.Models.Common
         public string? JobLocationName { get; set; }
         public int TotalWorkingDays { get; set; }
         public decimal PresentDays { get; set; }
+        public decimal WeekOffDays { get; set; }
+        public decimal HalfDays { get; set; }
+        public decimal HolidayDays { get; set; }
+        public decimal WorkedOnHolidayDays { get; set; }
+        public decimal PayableDays { get; set; }
+
+        public decimal PLDays { get; set; }
+        public decimal COLDays { get; set; }
+        public decimal MLDays { get; set; }
+        public decimal LWPDays { get; set; }
+        public decimal LeaveDays { get; set; }
+
+        public decimal TotalLeaves { get; set; }
         public DateTime? WorkDate { get; set; }
         public string? Status { get; set; }
+        public string? OldAttendanceStatus { get; set; }
         public string? Remarks { get; set; }
         public decimal? AvailableCompOffDays { get; set; }
-        public decimal TotalLeaves { get; set; }
+        public bool? IsApproved { get; set; }
 
+        public string? AppliedBy { get; set; }
+        public DateTime? AppliedOn { get; set; }
+
+        public string? ApprovedBy { get; set; }
+        public DateTime? ApprovedOn { get; set; }
+
+        public string? CurrentStatus { get; set; }
         public decimal AnnualLeaveAccrued { get; set; }
         public decimal AnnualLeaveConsumed { get; set; }
         public double AnnualLeaveBalance { get; set; }
-    
 
+        public string? ProcessName { get; set; }
+        public string? Location { get; set; }
+        public string? PayrollType { get; set; }
+        public DateTime? DOJ { get; set; }
+        public DateTime? DOL { get; set; }
+        public string? LeavingType { get; set; }
+        public bool? NoticeServedStatus { get; set; }
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
+        public List<Joblcoations> JobLocations { get; set; } = new();
+        public List<SubDepartment> SubDepartments { get; set; } = new();
     }
 
 
@@ -142,6 +172,9 @@ namespace HRMS.Models.Common
         public int CompOffStatus { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
+        public long SubDepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public int? HierarchyLevel { get; set; }
     }
 
 
@@ -151,7 +184,7 @@ namespace HRMS.Models.Common
         public int TotalRecords { get; set; }
         public List<Joblcoations> JoblocationList { get; set; } = new List<Joblcoations>();
         public List<Managers> ManagerList { get; set; } = new List<Managers>();
-
+        public List<SubDepartment> SubDepartmentList { get; set; } = new List<SubDepartment>();
 
     }
 
@@ -265,6 +298,7 @@ namespace HRMS.Models.Common
         public long? UserID { get; set; }
         public string? Remarks { get; set; }
         public string? AttendanceStatus { get; set; }
+        public string? OldAttendanceStatus { get; set; }
         public bool? ApprovedByAdmin { get; set; }
 
         public long? StatusChangeID { get; set; }
@@ -278,6 +312,7 @@ namespace HRMS.Models.Common
         public DateTime? WorkDate { get; set; }
         public string? Remarks { get; set; }
         public string? AttendanceStatus { get; set; }
+        public string? OldAttendanceStatus { get; set; }
         public bool? ApprovedByAdmin { get; set; }
         public int? ApprovedStatus { get; set; }
 

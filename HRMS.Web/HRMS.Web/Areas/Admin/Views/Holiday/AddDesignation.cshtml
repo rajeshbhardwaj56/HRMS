@@ -1,0 +1,126 @@
+﻿@using HRMS.Models
+@model DesignationModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Designation";
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    Designation Details
+</div>
+
+<form method="post" id="submitForm">
+
+    <div class="group-box anim" style="--delay: .3s">
+        <div class="Container">
+            <div class="row">
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Designation Name <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.HiddenFor(x => x.DesignationID, new { id = "DesignationID" })
+
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control", @required = "required", @id = "DesignationName" })
+
+
+                        <span id="designationError" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Active
+                    </div>
+                    <div class="col-md-12">
+                        @Html.CheckBoxFor(x => x.IsActive)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <input id="submitBtn"
+                   type="submit"
+                   value="Submit"
+                   class="btn btn-success" />
+
+            <input id="cancelButton"
+                   type="button"
+                   value="Cancel"
+                   class="btn btn-danger"
+                   style="margin-right:10px;" />
+
+        </div>
+    </div>
+
+</form>
+
+
+<script>
+    var isDuplicateDesignation = false;
+
+    function checkDuplicateDesignation(callback) {
+        var designationName = $("#DesignationName").val().trim();
+        var designationId = $("#DesignationID").val();
+
+        if (designationName === "") {
+            $("#designationError").text("Designation Name is required.");
+            callback(false);
+            return;
+        }
+
+    $.ajax({
+        url: '/Admin/Holiday/CheckDuplicateDesignation',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            designationName: designationName,
+            designationId: designationId
+        },
+            success: function(response) {
+                console.log("Response:", response);
+
+                if (response.isDuplicate === true) {
+                    $("#designationError").text("Designation already exists.");
+                    isDuplicateDesignation = true;
+                    callback(false);
+                } else {
+                    $("#designationError").text("");
+                    isDuplicateDesignation = false;
+                    callback(true);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log(error);
+                $("#designationError").text("Error validating designation.");
+                callback(false);
+            }
+        });
+    }
+
+    $("#DesignationName").on("blur", function() {
+        checkDuplicateDesignation(function () { });
+    });
+
+    $("#submitForm").on("submit", function(e) {
+        e.preventDefault();
+        checkDuplicateDesignation(function(isValid) {
+            if (isValid) {
+                document.getElementById("submitForm").submit();
+            }
+        });
+    });
+
+    $("#cancelButton").on("click", function() {
+        window.location.href = '@Url.Action("DesignationListings", "Holiday")';
+    });
+</script>

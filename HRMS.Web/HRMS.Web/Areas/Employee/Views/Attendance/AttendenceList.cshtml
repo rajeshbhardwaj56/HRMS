@@ -1418,11 +1418,11 @@ ${renderStatusEditor(selectedDate, data)}
             if (empTypeID !== 3) return "";
             
             if (!canEditStatus(fullDate)) return "";
-
+            const oldStatus = data.attendance?.attendanceStatus || "";
             return `
 
          <form id="statusForm">
-
+          <input type="hidden" id="oldStatus" value="${oldStatus}" />
         <div class="row g-3 align-items-end">
 
             <!-- STATUS -->
@@ -1544,10 +1544,11 @@ ${renderStatusEditor(selectedDate, data)}
             $(document).on("submit", "#statusForm", function (e) {
                 e.preventDefault();
                 const status = $("#statusSelect").val();
+                const oldStatus = $("#oldStatus").val();
                 const remarks = $("#statusComment").val();
                 const workDate = $('#dateModal').data('workdate');
                 const encryptedStatusId = $("#encryptedStatusChangeID").val();
-
+                oldStatus: $("#oldStatus").val();
 
                 if (!status) {
                     toastEMessage('Error', "Please select a status before saving.");
@@ -1562,6 +1563,7 @@ ${renderStatusEditor(selectedDate, data)}
                     type: 'POST',
                     data: {
                         Status: status,
+                        OldStatus : oldStatus,
                         Remarks: remarks,
                         WorkDate: workDate,
                         EncryptedStatusChangeID: encryptedStatusId

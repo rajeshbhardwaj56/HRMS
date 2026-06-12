@@ -60,6 +60,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 		}
 		public IActionResult Index(string id)
         {
+
             var EmployeeID = GetSessionInt(Constants.EmployeeID);
             var RoleId = GetSessionInt(Constants.RoleID);
 
@@ -95,7 +96,8 @@ namespace HRMS.Web.Areas.HR.Controllers
 		[HttpPost]
 		public IActionResult Index(CompanyModel model, List<IFormFile> postedFiles)
 		{
-			string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
+
+            string s3uploadUrl = _configuration["AWS:S3UploadUrl"];
 			if (ModelState.IsValid)
 			{
 				model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));

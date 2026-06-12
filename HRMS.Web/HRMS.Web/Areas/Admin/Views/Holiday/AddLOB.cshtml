@@ -1,0 +1,147 @@
+﻿@using HRMS.Models
+@model LOBModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "LOB";
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    LOB Details
+</div>
+
+<form method="post" id="submitForm">
+
+    <div class="group-box anim" style="--delay: .3s">
+        <div class="Container">
+            <div class="row">
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        LOB Name <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.HiddenFor(x => x.LOBID, new { id = "LOBID" })
+
+                        @Html.TextBoxFor(x => x.Name,
+                        new
+                        {
+                            @class = "form-control",
+                            @required = "required",
+                            @id = "LOBName"
+                        })
+
+
+                        <span id="lobError" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Active
+                    </div>
+                    <div class="col-md-12">
+                        @Html.CheckBoxFor(x => x.IsActive)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <input id="submitBtn"
+                   type="submit"
+                   value="Submit"
+                   class="btn btn-success" />
+
+            <input id="cancelButton"
+                   type="button"
+                   value="Cancel"
+                   class="btn btn-danger"
+                   style="margin-right:10px;" />
+
+        </div>
+    </div>
+
+</form>
+
+
+<script>
+
+    var isDuplicateLOB = false;
+
+    function checkDuplicateLOB(callback) {
+
+        var lobName = $("#LOBName").val().trim();
+        var lobId = $("#LOBID").val();
+
+        if (lobName === "") {
+
+            $("#lobError").text("LOB Name is required.");
+            callback(false);
+            return;
+        }
+
+        $.ajax({
+            url: '/Admin/Holiday/CheckDuplicateLOB',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                lobName: lobName,
+                lobId: lobId
+            },
+            success: function (response) {
+
+                if (response.isDuplicate === true) {
+
+                    $("#lobError").text("LOB already exists.");
+                    isDuplicateLOB = true;
+                    callback(false);
+                }
+                else {
+
+                    $("#lobError").text("");
+                    isDuplicateLOB = false;
+                    callback(true);
+                }
+            },
+            error: function () {
+
+                $("#lobError").text("Error validating LOB.");
+                callback(false);
+            }
+        });
+    }
+
+    $("#LOBName").on("blur", function () {
+
+        checkDuplicateLOB(function () { });
+
+    });
+
+    $("#submitForm").on("submit", function (e) {
+
+        e.preventDefault();
+
+        checkDuplicateLOB(function (isValid) {
+
+            if (isValid) {
+                document.getElementById("submitForm").submit();
+            }
+
+        });
+
+    });
+
+    $("#cancelButton").on("click", function () {
+
+        window.location.href = '@Url.Action("LOBListings", "Holiday")';
+
+    });
+
+</script>

@@ -15,7 +15,7 @@
 	var CountryData = @Model.employeeModel.Countries;
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
-	ViewData["Title"] = "Approve Leave";
+	ViewData["Title"] = "Export Approve Leave";
 	var ProfilePhoto = "";
 	if (!string.IsNullOrEmpty(Model.employeeModel.ProfilePhoto))
 	{
@@ -130,49 +130,54 @@
 											<h3>Leave Approval Info</h3>
                                             <div class="row mb-3 align-items-end">
 
-		<div class="col-md-3">
-			<label class="form-label">Location</label>
-			<select id="ddlLocation" class="form-select">
-				<option value="0">All Locations</option>
-				@if (Model?.JobLocations != null)
-				{
-					foreach (var item in Model.JobLocations)
-					{
-						<option value="@item.JobLocationID">
-							@item.JobLocationName
-						</option>
-					}
-				}
-			</select>
-		</div>
+		                                <div class="col-md-3">
+			                                <label class="form-label">Location</label>
+			                                <select id="ddlLocation" class="form-select">
+				                                <option value="0">All Locations</option>
+				                                @if (Model?.JobLocations != null)
+				                                {
+					                                foreach (var item in Model.JobLocations)
+					                                {
+						                                <option value="@item.JobLocationID">
+							                                @item.JobLocationName
+						                                </option>
+					                                }
+				                                }
+			                                </select>
+		                                </div>
 
-		<div class="col-md-3">
-			<label class="form-label">Process</label>
-			<select id="ddlSubDepartment" class="form-select">
-				<option value="0">All Process</option>
-				@if (Model?.SubDepartments != null)
-				{
-					foreach (var item in Model.SubDepartments)
-					{
-						<option value="@item.SubDepartmentID">
-							@item.SubDepartmentName
-						</option>
-					}
-				}
-			</select>
-		</div>
-<div class="col-md-3">
-    <label class="form-label">Level</label>
-<select id="ddlHierarchyLevel" class="form-select">
-    <option value="0">All Level</option>
-    <option value="1">Level 1</option>
-    <option value="2">Level 2</option>
-    <option value="3">Level 3+</option>
-</select>
-</div>
-				
+		                                <div class="col-md-3">
+			                                <label class="form-label">Process</label>
+			                                <select id="ddlSubDepartment" class="form-select">
+				                                <option value="0">All Process</option>
+				                                @if (Model?.SubDepartments != null)
+				                                {
+					                                foreach (var item in Model.SubDepartments)
+					                                {
+						                                <option value="@item.SubDepartmentID">
+							                                @item.SubDepartmentName
+						                                </option>
+					                                }
+				                                }
+			                                </select>
+		                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Level</label>
+                                <select id="ddlHierarchyLevel" class="form-select">
+                                    <option value="0">All Level</option>
+                                    <option value="1">Level 1</option>
+                                    <option value="2">Level 2</option>
+                                    <option value="3">Level 3+</option>
+                                </select>
+                                </div>
+											<div class="col-md-3">
+								<button type="button" class="btn btn-primary" id="btnExportLeave">
+									Export Excel
+								</button>
+							</div>
 
-	</div>
+	                                </div>
+
 											<nav>
                                                 <div class="nav nav-tabs mb-3" id="myTabs-timeoff" role="tablist">
                                                     <button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
@@ -193,7 +198,7 @@
                                                     <div class="group-box anim">
                                                         <div class="tabsInfo d-flex align-items-center justify-content-between mb-3" id="myTabContent-timeoff">
                                                             <h3>Leaves For Approval</h3>
-                                                            @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
+                                                           @*  @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
                                                             {
                                                                 <div class="d-flex align-items-center">
                                                                     <input type="text" id="txtAdminLeaveComment" class="form-control form-control-sm me-2" placeholder="Enter comment" style="width:250px;" />
@@ -207,7 +212,8 @@
                                                                         Update Selected
                                                                     </button>
                                                                 </div>
-                                                            }
+                                                            } *@
+                                                           
                                                         </div>
                                                         <div role="tabpanel" aria-labelledby="apply-tab">
                                                             <div class="row">
@@ -217,16 +223,8 @@
                                                                             <table id="tblLeavesForApproval" class="table table-striped body-text" style="width:100%">
                                                                                 <thead>
                                                                                     <tr>
-                                                                                        @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin )
-                                                                                        {
-                                                                                            <th style="width:40px;">
-                                                                                                <input type="checkbox" id="selectAllLeaves" />
-                                                                                            </th>
-                                                                                        }
-                                                                                        else
-                                                                                        {
-                                                                                            <th class="first" style="visibility:hidden"> </th>
-                                                                                        }
+
+                                                                                      
                                                                                         <th>Emp No</th>
                                                                                         <th>Name</th>
                                                                                         <th>Applied By Emp No</th>
@@ -237,8 +235,9 @@
                                                                                         <th>Type</th>
                                                                                         <th>Days</th>
                                                                                         <th>Status</th>
+
                                                                                         <th>Reason</th>
-                                                                                        <th>Action</th>
+                                                                                        
                                                                                     </tr>
                                                                                 </thead>
 
@@ -274,6 +273,8 @@
                                                                                         <th>Type</th>
                                                                                         <th>Days</th>
                                                                                         <th>Status</th>
+                                                                                        <th>Approved By</th>
+                                                                                        <th>Approval Date</th>
                                                                                         <th>Reason</th>
                                                                                     </tr>
                                                                                 </thead>
@@ -312,6 +313,8 @@
                                                                                         <th>Type</th>
                                                                                         <th>Days</th>
                                                                                         <th>Status</th>
+                                                                                         <th>Rejected By</th>
+                                                                                        <th>Rejected Date</th>
                                                                                         <th>Reason</th>
                                                                                     </tr>
                                                                                 </thead>
@@ -330,7 +333,7 @@
                                                     <div class="group-box anim">
                                                         <div class="tabsInfo d-flex align-items-center justify-content-between mb-3" id="myTabaContent-timeoff">
                                                             <h3>Future Leaves</h3>
-                                                            @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
+                                                           @*  @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
                                                             {
                                                                 <div class="d-flex align-items-center">
                                                                     <input type="text" id="txtCancelLeaveComment" class="form-control form-control-sm me-2" placeholder="Enter comment" style="width:250px;" />
@@ -344,7 +347,7 @@
                                                                         Update Selected
                                                                     </button>
                                                                 </div>
-                                                            }
+                                                            } *@
                                                         </div>
                                                         <div role="tabpanel" aria-labelledby="apply-tab">
                                                             <div class="row">
@@ -354,11 +357,9 @@
                                                                             <table id="tblLeavesForFuture" class="table table-striped body-text" style="width:100%">
                                                                                 <thead>
                                                                                     <tr>
-                                                                                        <th style="width:40px;">
-                                                                                            <input type="checkbox" id="selectAllFutureLeaves" />
-                                                                                        </th>
+
                                                                                         <th>Emp No</th>
-                                                                                        <th>  Name</th>
+                                                                                        <th> Name</th>
                                                                                         <th>Applied By Emp Number</th>
                                                                                         <th>Applied By Name</th>
                                                                                         <th>Requested Date</th>
@@ -367,6 +368,8 @@
                                                                                         <th>Type</th>
                                                                                         <th>Days</th>
                                                                                         <th>Status</th>
+                                                                                        <th>Approved By</th>
+                                                                                        <th>Approval Date</th>
                                                                                         <th>Reason</th>
                                                                                     </tr>
                                                                                 </thead>
@@ -1219,15 +1222,26 @@ function LeavesForCancelled() {
                     }
                 },
 				{ "data": "leaveStatusName", "autoWidth": true },
-				{ "data": "reason", "autoWidth": true },
-				{
-					// this is Actions Column
-					mRender: function (data, type, row) {
-						var linkEdit = "<a data-toggle='tooltip' data-placement='top' class='item' onclick='OpenApproveRejectModel(" + row.employeeID + ", " + row.leaveSummaryID + ")' href='#' title='' data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
+                {
+    data: "approvedByName",
+    defaultContent: "-"
+},
+{
+    data: "approvedDate",
+    render: function(data){
+        if(!data) return "-";
 
-						return linkEdit;
-					}
-				},
+        let d = new Date(data);
+
+        return (
+            ("0"+d.getDate()).slice(-2) + "/" +
+            ("0"+(d.getMonth()+1)).slice(-2) + "/" +
+            d.getFullYear()
+        );
+    }
+},
+				{ "data": "reason", "autoWidth": true },
+				
 			],
 			"columnDefs": [
 				{
@@ -1305,13 +1319,7 @@ ajax: {
 },
 
         columns: [
-            {
-                data: "leaveSummaryID",
-                render: function (data) {
-                    return `<input type="checkbox" class="row-select-leave" value="${data}" />`;
-                },
-                orderable: false
-            },
+
             { data: "employeeNumber" },
             { data: "employeeName" },
             { data: "appliedByNumber" },
@@ -1359,21 +1367,11 @@ ajax: {
                         </button>`;
                 }
             },
-            { data: "leaveStatusName" },
-            { data: "reason" },
-            {
-                mRender: function (data, type, row) {
 
-                    return `
-                        <a data-toggle='tooltip'
-                           class='item'
-                           onclick='OpenApproveRejectModel(${row.employeeID}, ${row.leaveSummaryID})'
-                           href='#'
-                           title='Approve'>
-                            <img src='/assets/img/view.webp' width='23' height='23'/>
-                        </a>`;
-                }
-            }
+            { data: "leaveStatusName" },
+            
+            { data: "reason" },
+            
         ],
 
         columnDefs: [
@@ -1489,6 +1487,24 @@ ajax: {
                     }
                 },
 				{ "data": "leaveStatusName", "autoWidth": true },
+                {
+    data: "approvedByName",
+    defaultContent: "-"
+},
+{
+    data: "approvedDate",
+    render: function(data){
+        if(!data) return "-";
+
+        let d = new Date(data);
+
+        return (
+            ("0"+d.getDate()).slice(-2) + "/" +
+            ("0"+(d.getMonth()+1)).slice(-2) + "/" +
+            d.getFullYear()
+        );
+    }
+},
 				{ "data": "reason", "autoWidth": true }
 			],
 			"columnDefs": [
@@ -1606,6 +1622,24 @@ ajax: {
                     }
                 },
 				{ "data": "leaveStatusName", "autoWidth": true },
+                {
+    data: "approvedByName",
+    defaultContent: "-"
+},
+{
+    data: "approvedDate",
+    render: function(data){
+        if(!data) return "-";
+
+        let d = new Date(data);
+
+        return (
+            ("0"+d.getDate()).slice(-2) + "/" +
+            ("0"+(d.getMonth()+1)).slice(-2) + "/" +
+            d.getFullYear()
+        );
+    }
+},
 				{ "data": "reason", "autoWidth": true },
 			],
 			"columnDefs": [
@@ -1675,13 +1709,7 @@ ajax: {
     }
 },
         columns: [
-            {
-                data: "leaveSummaryID",
-                render: function (data, type, row) {
-                    return `<input type="checkbox" class="row-select-leave" value="${data}" />`;
-                },
-                orderable: false
-            },
+
             { data: "employeeNumber", autoWidth: true },
             { data: "employeeName", autoWidth: true },
             { data: "appliedByNumber", autoWidth: true },
@@ -1730,6 +1758,24 @@ ajax: {
                 }
             },
             { data: "leaveStatusName", autoWidth: true },
+            {
+    data: "approvedByName",
+    defaultContent: "-"
+},
+{
+    data: "approvedDate",
+    render: function(data){
+        if(!data) return "-";
+
+        let d = new Date(data);
+
+        return (
+            ("0"+d.getDate()).slice(-2) + "/" +
+            ("0"+(d.getMonth()+1)).slice(-2) + "/" +
+            d.getFullYear()
+        );
+    }
+},
             { data: "reason", autoWidth: true }
         ],
 
@@ -1845,6 +1891,7 @@ ajax: {
                     }
                 },
 				{ "data": "leaveStatusName", "autoWidth": true },
+
 				{ "data": "reason", "autoWidth": true }
 			],
 			"columnDefs": [
@@ -2429,7 +2476,7 @@ ajax: {
 
 </script>
 <script>
-    $(document).ready(function () {
+ $(document).ready(function () {
 
 let timer;
 
@@ -2461,6 +2508,39 @@ function reloadTables() {
         }
     });
 }
+});
+</script>
+<script>
+
+$("#btnExportLeave").click(function () {
+
+    var jobLocationID = $("#ddlLocation").val() || 0;
+    var subDepartmentID = $("#ddlSubDepartment").val() || 0;
+    var hierarchyLevel = $("#ddlHierarchyLevel").val() || 0;
+
+    console.log({
+        jobLocationID,
+        subDepartmentID,
+        hierarchyLevel
+    });
+
+    var leaveStatus = 1;
+
+    if ($("#leave-approved-tab").hasClass("active"))
+        leaveStatus = 2;
+    else if ($("#leave-Reject-tab").hasClass("active"))
+        leaveStatus = 3;
+    else if ($("#leave-Cancelled-tab").hasClass("active"))
+        leaveStatus = 4;
+    else if ($("#leave-Future-tab").hasClass("active"))
+        leaveStatus = 5;
+
+    window.location.href =
+        '/Employee/MyInfo/ExportLeaveApprovalExcel?' +
+        'jobLocationID=' + encodeURIComponent(jobLocationID) +
+        '&subDepartmentID=' + encodeURIComponent(subDepartmentID) +
+        '&hierarchyLevel=' + encodeURIComponent(hierarchyLevel) +
+        '&leaveStatus=' + leaveStatus;
 });
 </script>
 

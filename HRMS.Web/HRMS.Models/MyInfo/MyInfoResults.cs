@@ -1,4 +1,5 @@
-﻿using HRMS.Models.Employee;
+﻿using HRMS.Models.Common;
+using HRMS.Models.Employee;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using System;
@@ -22,6 +23,7 @@ namespace HRMS.Models.MyInfo
         public DateTime? JoiningDate { get; set; } = DateTime.UtcNow;
         public decimal? CampOffLeaveCount { get; set; }
 
-
+        public List<Joblcoations> JobLocations { get; set; } = new List<Joblcoations>();
+        public List<SubDepartment> SubDepartments { get; set; } = new List<SubDepartment>();
     }
 }

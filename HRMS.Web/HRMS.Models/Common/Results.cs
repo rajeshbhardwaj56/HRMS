@@ -48,6 +48,19 @@ namespace HRMS.Models.Common
         public List<Attendance> AttandanceList { get; set; } = new List<Attendance>();
         public Attendance AttendanceModel { get; set; } = new Attendance();
         public List<SelectListItem> FormsPermission { get; set; } = new List<SelectListItem>();
+        public List<DesignationModel> DesignationList { get; set; } = new();
+        public DesignationModel designationModel { get; set; } = new();
+        public List<SelectListItem> DepartmentList { get; set; } = new();
+
+        // Sub Department
+        public List<SubDepartmentModel> SubDepartmentList { get; set; } = new();
+        public SubDepartmentModel subDepartmentModel { get; set; } = new();
+
+        // LOB
+        public List<LOBModel> LOBList { get; set; } = new();
+        public LOBModel lobModel { get; set; } = new();
+
+
 
     }
 

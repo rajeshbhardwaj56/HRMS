@@ -84,6 +84,9 @@ namespace HRMS.Models.AttendenceList
         public string? Status { get; set; }
         public long? RoleId { get; set; }
         public string? conStr { get; set; }
+        public long SubDepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public int? HierarchyLevel { get; set; }
 
     }
 
@@ -116,6 +119,11 @@ namespace HRMS.Models.AttendenceList
 
         public long? CreatedBy { get; set; }
         public bool? IsDeleted { get; set; }
+        public string? AppliedByName { get; set; }
+        public DateTime? AppliedDate { get; set; }
+
+        public string? ApprovedByName { get; set; }
+        public DateTime? ApprovedDate { get; set; }
     }
 
     public class CompOffLogSubmission
@@ -142,6 +150,11 @@ namespace HRMS.Models.AttendenceList
         public string? EmployeeNumber { get; set; } = string.Empty;
         public string? EmployeeName { get; set; } = string.Empty;
         public bool IsManager { get; set; }
+    }
+    public class CompOffApprovalVM
+    {
+        public List<Joblcoations> JobLocations { get; set; }
+        public List<SubDepartment> SubDepartments { get; set; }
     }
 }
 

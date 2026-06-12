@@ -2,6 +2,7 @@ using HRMS.API.BusinessLayer;
 using HRMS.API.BusinessLayer.ITF;
 using HRMS.API.DataLayer;
 using HRMS.API.DataLayer.ITF;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -20,6 +21,7 @@ builder.Services.AddControllers();
 builder.Services.AddSingleton<IDataLayer, DataLayer>();
 builder.Services.AddSingleton<IAttandanceDataLayer, AttandanceDataLayer>();
 builder.Services.AddSingleton<IJWTAuthentication, JWTAuthentication>();
+builder.Services.AddSingleton<IS3Service, S3Service>();
 builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
 builder.Services.AddSingleton<IJWTAuthentication, JWTAuthentication>();
 

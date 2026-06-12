@@ -122,14 +122,21 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetLeaveForFuture(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetLeaveForFuture(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch,
+                long jobLocationID = 0,
+    long subDepartmentID = 0,
+    int hierarchyLevel = 0)
         {
             MyInfoInputParams employee = new MyInfoInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
+
+            employee.JobLocationID = jobLocationID;
+            employee.SubDepartmentID = subDepartmentID;
+            employee.HierarchyLevel = hierarchyLevel;
+            var data = await _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+            var results = JsonConvert.DeserializeObject<LeaveResults>(data?.ToString());
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved && x.StartDate.Date > DateTime.Today).ToList();
             if (Approvals != null)
             {
@@ -181,49 +188,64 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetLeaveForApprovals(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetLeaveForApprovals(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch,
+                long jobLocationID = 0, long subDepartmentID = 0, int hierarchyLevel = 0)
         {
-            MyInfoInputParams employee = new MyInfoInputParams();
-            var Approvals = new List<LeaveSummaryModel>();
-            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            employee.StatusID = (int)LeaveStatus.PendingApproval;
-            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
-            var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
-            var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
-            if (leavePolicyModel != null)
+            try
             {
-                Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.PendingApproval).ToList();
-                if (Approvals != null)
+                MyInfoInputParams employee = new MyInfoInputParams();
+                var Approvals = new List<LeaveSummaryModel>();
+                employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+                employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+                employee.StatusID = (int)LeaveStatus.PendingApproval;
+                employee.JobLocationID = jobLocationID;
+                employee.SubDepartmentID = subDepartmentID;
+                employee.HierarchyLevel = hierarchyLevel;
+                var data = await _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+                var results = JsonConvert.DeserializeObject<LeaveResults>(data?.ToString());
+                var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
+                var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
+                if (leavePolicyModel != null)
                 {
-                    foreach (var leave in Approvals)
+                    Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.PendingApproval).ToList();
+                    if (Approvals != null)
                     {
-                        leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
-                        leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
+                        foreach (var leave in Approvals)
+                        {
+                            leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                            leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
+                        }
+                    }
+                    ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
+                    if (leavePolicyModel.Paternity_medicalDocument == true)
+                    {
+                        ViewBag.Paternity_medicalDocument = true;
                     }
                 }
-                ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
-                if (leavePolicyModel.Paternity_medicalDocument == true)
-                {
-                    ViewBag.Paternity_medicalDocument = true;
-                }
+                return Json(new { data = Approvals });
             }
-            return Json(new { data = Approvals });
+            catch(Exception ex)
+            {
+                return null;
+            }
         }
 
 
         [HttpPost]
-        public JsonResult GetLeaveForApproved(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetLeaveForApproved(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch,
+            long jobLocationID = 0, long subDepartmentID = 0, int hierarchyLevel = 0)
         {
             MyInfoInputParams employee = new MyInfoInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             employee.StatusID  = (int)LeaveStatus.Approved;
-            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
+            employee.JobLocationID = jobLocationID;
+            employee.SubDepartmentID = subDepartmentID;
+            employee.HierarchyLevel = hierarchyLevel;
+            var data = await _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+            var results = JsonConvert.DeserializeObject<LeaveResults>(data?.ToString());
             var Approvals = results.leavesSummary.ToList();
             if (Approvals != null)
             {
@@ -246,14 +268,21 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpPost]
-        public JsonResult GetLeaveForUserCancelled(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetLeaveForUserCancelled(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch,
+                long jobLocationID = 0,
+    long subDepartmentID = 0,
+    int hierarchyLevel = 0)
         {
             MyInfoInputParams employee = new MyInfoInputParams();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
+
+            employee.JobLocationID = jobLocationID;
+            employee.SubDepartmentID = subDepartmentID;
+            employee.HierarchyLevel = hierarchyLevel;
+            var data = await _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
+            var results = JsonConvert.DeserializeObject<LeaveResults>(data?.ToString());
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Cancelled).ToList();
             if (Approvals != null)
             {
@@ -273,34 +302,57 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetLeaveForReject(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch)
+        public async Task<JsonResult> GetLeaveForReject(
+            string sEcho,
+            int iDisplayStart,
+            int iDisplayLength,
+            string sSearch,
+            long jobLocationID = 0,
+            long subDepartmentID = 0,
+            int hierarchyLevel = 0)
         {
-            MyInfoInputParams employee = new MyInfoInputParams();
-            employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-            employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            var data = _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            var results = JsonConvert.DeserializeObject<LeaveResults>(data);
-            var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.NotApproved).ToList();
-            if (Approvals != null)
+            MyInfoInputParams employee = new MyInfoInputParams
             {
-                foreach (var leave in Approvals)
-                {
-                    leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
-                    leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
-                }
+                CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)),
+                EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
+                RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID)),
+                JobLocationID = jobLocationID,
+                SubDepartmentID = subDepartmentID,
+                HierarchyLevel = hierarchyLevel
+            };
+
+            var json = await _businessLayer.SendPostAPIRequest(
+                employee,
+                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            );
+
+            var results = JsonConvert.DeserializeObject<LeaveResults>(json.ToString());
+
+            var approvals = results?.leavesSummary?
+                .Where(x => x.LeaveStatusID == (int)LeaveStatus.NotApproved)
+                .ToList() ?? new List<LeaveSummaryModel>();
+
+            foreach (var leave in approvals)
+            {
+                leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                leave.Encrypted = _businessLayer.EncodeStringBase64(leave.EmployeeID.ToString());
             }
+
             var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
             var leavePolicyModel = GetLeavePolicyData(employee.CompanyID, employeeDetails.LeavePolicyID ?? 0);
 
-            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicyModel.Annual_MaximumConsecutiveLeavesAllowed);
+            ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(
+                leavePolicyModel?.Annual_MaximumConsecutiveLeavesAllowed ?? 0
+            );
 
-            return Json(new { data = Approvals });
+            return Json(new { data = approvals });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public JsonResult ApproveRejectLeave(long leaveSummaryID, bool isApproved, string approveRejectComment, int leaveTypeID)
+        public async Task<JsonResult> ApproveRejectLeave(long leaveSummaryID, bool isApproved, string approveRejectComment, int leaveTypeID)
         {
             var response = new ErrorLeaveResults();
 
@@ -318,11 +370,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 RoleId = RoleID
             };
             var bearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
-            var jsonData = _businessLayer.SendPostAPIRequest(inputParams,
+            var jsonData =await _businessLayer.SendPostAPIRequest(inputParams,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals),
-               bearerToken, true).Result?.ToString();
+               bearerToken, true);
 
-            var leaveResults = JsonConvert.DeserializeObject<LeaveResults>(jsonData);
+            var leaveResults = JsonConvert.DeserializeObject<LeaveResults>(jsonData?.ToString());
             var leaveRecord = leaveResults?.leavesSummary?.FirstOrDefault(x => x.LeaveSummaryID == leaveSummaryID);
 
             if (leaveRecord == null)
@@ -904,7 +956,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize, string SearchTerm, int jobLocationId, long managerId)
+        public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize, string SearchTerm, int jobLocationId, long managerId, long subDepartmentId)
         {
             var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var RoleID = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
@@ -919,7 +971,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 Page = Page,
                 SearchTerm = SearchTerm,
                 JobLocationID = jobLocationId,
-                ManagerID = managerId
+                ManagerID = managerId,
+                SubDepartmentID = subDepartmentId
             };
             AttendanceWithHolidaysVM model = new AttendanceWithHolidaysVM();
 
@@ -938,8 +991,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
             model.ManagerList = JsonConvert.DeserializeObject<List<Managers>>(managerobjdata);
             modeldata.CompanyId = CompanyID;
             var objdata = _businessLayer.SendPostAPIRequest(modeldata, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Common, APIApiActionConstants.GetJobLocationsByCompany), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-            model.JoblocationList = JsonConvert.DeserializeObject<List<Joblcoations>>(objdata);
+            var filterData =
+                JsonConvert.DeserializeObject<CompanyFilterResponse>(objdata);
 
+            model.JoblocationList = filterData.JobLocations;
+            model.SubDepartmentList = filterData.SubDepartments;
             return Json(new { data = model });
         }
 
@@ -988,7 +1044,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult ExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId, long? ManagerId)
+        public IActionResult ExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId, long? ManagerId, long? SubDepartmentId)
         {
             try
             {
@@ -1004,7 +1060,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     PageSize = 0,
                     Page = 1,
                     JobLocationID = jobLocationId,
-                    ManagerID = ManagerId ?? 0
+                    ManagerID = ManagerId ?? 0,
+                    SubDepartmentID = SubDepartmentId
                 };
 
                 var response = _businessLayer.SendPostAPIRequest(
@@ -1034,13 +1091,30 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.AddRange(dayKeys.Select(k => k.Replace("_", " ")));
                     headers.Add("TotalWorkingDays");
                     headers.Add("PresentDays");
+                    headers.Add("HolidayDays");
+                    headers.Add("WeekOffDays");
+                    headers.Add("HalfDays");
+                    headers.Add("WorkedOnHolidayDays(ECO)");
+                    headers.Add("PLDays");
+                    headers.Add("COLDays");
+                    headers.Add("MLDays");
+                    headers.Add("LWPDays");
+
+
                     headers.Add("TotalLeaves");
+                    headers.Add("PayableDays");
                     headers.Add("ManagerLevel1");
                     headers.Add("ManagerLevel2");
                     headers.Add("Privilege Leave Consumed");
                     headers.Add("Final Leave Balance");
                     headers.Add("Available Comp-Off Days");
-
+                    headers.Add("ProcessName");
+                    headers.Add("Location");
+                    headers.Add("PayrollType");
+                    headers.Add("DOJ");
+                    headers.Add("DOL");
+                    headers.Add("LeavingType");
+                    headers.Add("NoticeServedStatus");
 
 
                     for (int i = 0; i < headers.Count; i++)
@@ -1065,16 +1139,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
                                 : "";
                             worksheet.Cells[rowIndex, 3 + colIndex].Value = val;
                         }
-
                         worksheet.Cells[rowIndex, 3 + dayKeys.Count].Value = record.TotalWorkingDays.ToString() ?? "-";
                         worksheet.Cells[rowIndex, 4 + dayKeys.Count].Value = record.PresentDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.ManagerName.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.ManagerManagerName.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 8 + dayKeys.Count].Value = record.AnnualLeaveConsumed.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 9 + dayKeys.Count].Value = record.AnnualLeaveBalance.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 10 + dayKeys.Count].Value = record.AvailableCompOffDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.HolidayDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.WeekOffDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.HalfDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 8 + dayKeys.Count].Value = record.WorkedOnHolidayDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 9 + dayKeys.Count].Value = record.PLDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 10 + dayKeys.Count].Value = record.COLDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 11+ dayKeys.Count].Value = record.MLDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 12 + dayKeys.Count].Value = record.LWPDays.ToString() ?? "-";
 
+                        worksheet.Cells[rowIndex, 13 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 14 + dayKeys.Count].Value = record.PayableDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 15 + dayKeys.Count].Value = record.ManagerName ?? "-";
+                        worksheet.Cells[rowIndex, 16 + dayKeys.Count].Value = record.ManagerManagerName ?? "-";
+
+                        worksheet.Cells[rowIndex, 17 + dayKeys.Count].Value = record.AnnualLeaveConsumed.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 18 + dayKeys.Count].Value = record.AnnualLeaveBalance.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 19 + dayKeys.Count].Value = record.AvailableCompOffDays.ToString() ?? "-";
+
+                        worksheet.Cells[rowIndex, 20 + dayKeys.Count].Value = record.ProcessName ?? "-";
+                        worksheet.Cells[rowIndex, 21 + dayKeys.Count].Value = record.Location ?? "-";
+                        worksheet.Cells[rowIndex, 22 + dayKeys.Count].Value = record.PayrollType ?? "-";
+                        worksheet.Cells[rowIndex, 23 + dayKeys.Count].Value = record.DOJ?.ToString("dd-MM-yyyy") ?? "-";
+                        worksheet.Cells[rowIndex, 24 + dayKeys.Count].Value = record.DOL?.ToString("dd-MM-yyyy") ?? "-";
+                        worksheet.Cells[rowIndex, 25 + dayKeys.Count].Value = record.LeavingType ?? "-";
+                        worksheet.Cells[rowIndex, 26 + dayKeys.Count].Value = record.NoticeServedStatus?.ToString() ?? "-";
                         rowIndex++;
                     }
 
@@ -2389,62 +2480,333 @@ namespace HRMS.Web.Areas.Employee.Controllers
         #region Approve Leave
         public IActionResult ApproveLeave(string id)
         {
-
-            var model = new MyInfoInputParams
+            var input = new MyInfoInputParams
             {
-                LeaveSummaryID = string.IsNullOrEmpty(id) ? 0 : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
+                LeaveSummaryID = string.IsNullOrEmpty(id)
+                    ? 0
+                    : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
+
                 EmployeeID = GetSessionLong(Constants.EmployeeID),
                 GenderId = GetSessionInt(Constants.Gender),
                 JobLocationTypeID = GetSessionInt(Constants.JobLocationID),
                 UserID = GetSessionLong(Constants.UserID),
                 CompanyID = GetSessionLong(Constants.CompanyID)
             };
-            var RoleId = GetSessionInt(Constants.RoleID);
 
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(model.EmployeeID, (int)PageName.ApproveLeave);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            var formPermission = _CheckUserFormPermission.GetFormPermission(
+                input.EmployeeID,
+                (int)PageName.ApproveLeave
+            );
+
+            if (formPermission.HasPermission == 0 &&
+                roleId != (int)Roles.Admin &&
+                roleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
 
-            // Call API
+            // ==============================
+            // 1. GET MY INFO (LEAVE DATA)
+            // ==============================
             var jsonData = _businessLayer.SendPostAPIRequest(
-                model,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetMyInfo),
+                input,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.GetMyInfo),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result?.ToString();
 
             var results = JsonConvert.DeserializeObject<MyInfoResults>(jsonData);
 
-            // Encrypt and fetch certificates
+            // Process leave summaries
             if (results?.leaveResults?.leavesSummary != null)
             {
                 foreach (var leave in results.leaveResults.leavesSummary)
                 {
-                    leave.EncryptedIdentity = _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+                    leave.EncryptedIdentity =
+                        _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
 
                     if (!string.IsNullOrEmpty(leave.UploadCertificate))
-                        leave.UploadCertificate = _s3Service.GetFileUrl(leave.UploadCertificate);
+                        leave.UploadCertificate =
+                            _s3Service.GetFileUrl(leave.UploadCertificate);
                 }
             }
-            var employeeDetails = GetEmployeeDetails(model.CompanyID, model.EmployeeID);
-            var leavePolicy = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
 
+            // ==============================
+            // 2. GET JOB LOCATION + SUBDEPARTMENT
+            // ==============================
+            var filterResponse = _businessLayer.SendPostAPIRequest(
+                input,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetJobLocationsByCompany),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
 
+            var filterData = JsonConvert.DeserializeObject<CompanyFilterResponse>(filterResponse);
 
-
-            if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
+            if (results != null)
             {
-                ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
+                results.JobLocations = filterData?.JobLocations ?? new List<Joblcoations>();
+                results.SubDepartments = filterData?.SubDepartments ?? new List<SubDepartment>();
             }
+
+            // ==============================
+            // 3. EMPLOYEE + LEAVE POLICY
+            // ==============================
+            var employeeDetails = GetEmployeeDetails(input.CompanyID, input.EmployeeID);
+
+            var leavePolicy = GetLeavePolicyData(
+                input.CompanyID,
+                employeeDetails?.LeavePolicyID ?? 0
+            );
+
+            if (leavePolicy != null)
+            {
+                ViewBag.ConsecutiveAllowedDays =
+                    Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
+            }
+
+            // ==============================
+            // 4. RETURN VIEW
+            // ==============================
             return View(results);
         }
 
+        public IActionResult ExportApproveLeave(string id)
+        {
+            var input = new MyInfoInputParams
+            {
+                LeaveSummaryID = string.IsNullOrEmpty(id)
+                    ? 0
+                    : Convert.ToInt64(_businessLayer.DecodeStringBase64(id)),
+
+                EmployeeID = GetSessionLong(Constants.EmployeeID),
+                GenderId = GetSessionInt(Constants.Gender),
+                JobLocationTypeID = GetSessionInt(Constants.JobLocationID),
+                UserID = GetSessionLong(Constants.UserID),
+                CompanyID = GetSessionLong(Constants.CompanyID)
+            };
+
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            var formPermission = _CheckUserFormPermission.GetFormPermission(
+                input.EmployeeID,
+                (int)PageName.ApproveLeave
+            );
+
+            if (formPermission.HasPermission == 0 &&
+                roleId != (int)Roles.Admin &&
+                roleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            // ==============================
+            // 1. GET MY INFO (LEAVE DATA)
+            // ==============================
+            var jsonData = _businessLayer.SendPostAPIRequest(
+                input,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.GetMyInfo),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
+
+            var results = JsonConvert.DeserializeObject<MyInfoResults>(jsonData);
+
+            // Process leave summaries
+            if (results?.leaveResults?.leavesSummary != null)
+            {
+                foreach (var leave in results.leaveResults.leavesSummary)
+                {
+                    leave.EncryptedIdentity =
+                        _businessLayer.EncodeStringBase64(leave.LeaveSummaryID.ToString());
+
+                    if (!string.IsNullOrEmpty(leave.UploadCertificate))
+                        leave.UploadCertificate =
+                            _s3Service.GetFileUrl(leave.UploadCertificate);
+                }
+            }
+
+            // ==============================
+            // 2. GET JOB LOCATION + SUBDEPARTMENT
+            // ==============================
+            var filterResponse = _businessLayer.SendPostAPIRequest(
+                input,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetJobLocationsByCompany),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result?.ToString();
+
+            var filterData = JsonConvert.DeserializeObject<CompanyFilterResponse>(filterResponse);
+
+            if (results != null)
+            {
+                results.JobLocations = filterData?.JobLocations ?? new List<Joblcoations>();
+                results.SubDepartments = filterData?.SubDepartments ?? new List<SubDepartment>();
+            }
+
+            // ==============================
+            // 3. EMPLOYEE + LEAVE POLICY
+            // ==============================
+            var employeeDetails = GetEmployeeDetails(input.CompanyID, input.EmployeeID);
+
+            var leavePolicy = GetLeavePolicyData(
+                input.CompanyID,
+                employeeDetails?.LeavePolicyID ?? 0
+            );
+
+            if (leavePolicy != null)
+            {
+                ViewBag.ConsecutiveAllowedDays =
+                    Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
+            }
+
+            // ==============================
+            // 4. RETURN VIEW
+            // ==============================
+            return View(results);
+        }
+        [HttpGet]
+        public IActionResult ExportLeaveApprovalExcel(
+    long jobLocationID = 0,
+    long subDepartmentID = 0,
+    int hierarchyLevel = 0,
+    int leaveStatus = 1) // 1=Pending,2=Approved,3=Rejected,4=Cancelled
+        {
+            var employee = new MyInfoInputParams
+            {
+                CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)),
+                EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
+                RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID)),
+
+                JobLocationID = jobLocationID,
+                SubDepartmentID = subDepartmentID,
+                HierarchyLevel = hierarchyLevel
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                employee,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.GetLeaveForApprovals),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true
+            ).Result;
+
+            var results = JsonConvert.DeserializeObject<LeaveResults>(response.ToString());
+
+            var records = results?.leavesSummary ?? new List<LeaveSummaryModel>();
+
+            switch (leaveStatus)
+            {
+                case 1: // Pending
+                    records = records
+                        .Where(x => x.LeaveStatusID == (int)LeaveStatus.PendingApproval)
+                        .ToList();
+                    break;
+
+                case 2: // Approved
+                    records = records
+                        .Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved)
+                        .ToList();
+                    break;
+
+                case 3: // Rejected
+                    records = records
+                        .Where(x => x.LeaveStatusID == (int)LeaveStatus.NotApproved)
+                        .ToList();
+                    break;
+
+                case 4: // Cancelled
+                    records = records
+                        .Where(x => x.LeaveStatusID == (int)LeaveStatus.Cancelled)
+                        .ToList();
+                    break;
+
+                case 5: // Future Approved
+                    records = records
+                        .Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved
+                                 && x.StartDate.Date > DateTime.Today)
+                        .ToList();
+                    break;
+            }
+
+            using (var package = new OfficeOpenXml.ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Leave Approval");
+
+                ws.Cells[1, 1].Value = "Employee No";
+                ws.Cells[1, 2].Value = "Employee Name";
+                ws.Cells[1, 3].Value = "Applied By No";
+                ws.Cells[1, 4].Value = "Applied By Name";
+                ws.Cells[1, 5].Value = "Request Date";
+                ws.Cells[1, 6].Value = "Start Date";
+                ws.Cells[1, 7].Value = "End Date";
+                ws.Cells[1, 8].Value = "Leave Type";
+                ws.Cells[1, 9].Value = "No Of Days";
+                ws.Cells[1, 10].Value = "Status";
+                ws.Cells[1, 11].Value = "Reason";
+                ws.Cells[1, 12].Value = "Approved By";
+                ws.Cells[1, 13].Value = "Approved Date";
+
+                int row = 2;
+
+                foreach (var item in records)
+                {
+                    ws.Cells[row, 1].Value = item.EmployeeNumber;
+                    ws.Cells[row, 2].Value = item.EmployeeName;
+                    ws.Cells[row, 3].Value = item.AppliedByNumber;
+                    ws.Cells[row, 4].Value = item.AppliedByName;
+
+                    ws.Cells[row, 5].Value = item.RequestDate;
+                    ws.Cells[row, 6].Value = item.StartDate;
+                    ws.Cells[row, 7].Value = item.EndDate;
+
+                    ws.Cells[row, 8].Value = item.LeaveTypeName;
+                    ws.Cells[row, 9].Value = item.NoOfDays;
+                    ws.Cells[row, 10].Value = item.LeaveStatusName;
+                    ws.Cells[row, 11].Value = item.Reason;
+
+                    ws.Cells[row, 12].Value = item.ApprovedByName;
+                    ws.Cells[row, 13].Value = item.ApprovedDate;
+
+                    row++;
+                }
 
 
+                // Apply formats once after the loop
+                ws.Column(5).Style.Numberformat.Format = "dd-MM-yyyy HH:mm:ss"; // Request Date
+                ws.Column(6).Style.Numberformat.Format = "dd-MM-yyyy";          // Start Date
+                ws.Column(7).Style.Numberformat.Format = "dd-MM-yyyy";          // End Date
+                ws.Column(13).Style.Numberformat.Format = "dd-MM-yyyy HH:mm:ss"; // Approved Date
+                ws.Cells.AutoFitColumns();
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                string fileName =
+                    $"LeaveApproval_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+
+                return File(
+                    stream,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName);
+            }
+        }
         #endregion Approve Leave
 
 
@@ -2576,8 +2938,11 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
+            var filterResponse =
+                JsonConvert.DeserializeObject<CompanyFilterResponse>(objdata);
 
-            model.JoblocationList = JsonConvert.DeserializeObject<List<Joblcoations>>(objdata);
+            model.JoblocationList = filterResponse?.JobLocations ?? new List<Joblcoations>();
+
 
             return Json(new
             {

@@ -334,7 +334,15 @@
                 </select>
 
             </div>
+            <div class="input-group input-group-sm" style="max-width: 350px;">
+            <span class="input-group-text">
+                Sub Department
+            </span>
 
+            <select id="subDepartmentDropdown" class="form-select form-select-sm">
+                <option value="">Select Sub Department</option>
+            </select>
+           </div>
             <div class="input-group input-group-sm" style="max-width: 350px; ">
                 <span class="input-group-text">
                     Manager
@@ -591,7 +599,8 @@
 
                 headerHtml += `<th data-col="${day}">${displayText}</th>`;
             });
-            headerHtml += `<th>  Working Days</th><th>Present Days</th><th>  Leaves</th><th>ManagerLevel1</th><th>  ManagerLevel2</th>`;
+            headerHtml += `<th>Working Days</th><th>Present Days</th><th>H</th><th>Week Off</th><th>Half Day </th><th>Worked On HolidayDays(ECO)</th><th>PL</th>
+            <th>COL</th><th>ML</th><th>LWP</th><th>Total Leaves</th><th>Payable Days</th><th>ManagerLevel1</th><th>  ManagerLevel2</th> <th> Process Name</th>`;
 		  thead.html(headerHtml);
 
 		  data.forEach(record => {
@@ -656,7 +665,8 @@
                 row += `<td class="${className}" data-date="${day.replace("_", "-")}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${displayStatus}</span></td>`;
 			});
 
-              row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.totalLeaves ?? '-'}</td><td>${record.managerName ?? '-'}</td><td>${record.managerManagerName ?? '-'}</td></tr>`;
+              row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.holidayDays ?? '-'}</td><td>${record.weekOffDays ?? '-'}</td><td>${record.halfDays ?? '-'}</td><td>${record.workedOnHolidayDays ?? '-'}</td>
+              <td>${record.plDays ?? 0}</td><td>${record.colDays ?? 0}</td><td>${record.mlDays ?? 0}</td><td>${record.lwpDays ?? 0}</td><td>${record.totalLeaves ?? '-'}</td><td>${record.payableDays ?? '-'}</td><td>${record.managerName ?? '-'}</td><td>${record.managerManagerName ?? '-'}</td><td>${record.processName ?? '-'}</td></tr>`;
 			tbody.append(row);
 		  });
 		}
@@ -677,7 +687,7 @@
 		  $pagination.html(html);
 		}
 
-		function fetchAttendanceData(year, month, page, search = "", overridePageSize = null, jobLocationId = 0,managerId = 0) {
+		function fetchAttendanceData(year, month, page, search = "", overridePageSize = null, jobLocationId = 0,managerId = 0,subDepartmentId = 0) {
 		  if (isLoading) return;
 		  isLoading = true;
 		  showLoading();
@@ -686,22 +696,35 @@
 		  $.ajax({
 			url: '/employee/MyInfo/TeamAttendenceCalendarList',
 			type: 'GET',
-              data: { Year: year, Month: month, Page: page, PageSize: effectivePageSize, SearchTerm: search, JobLocationID: jobLocationId, ManagerID: managerId },
+              data: { Year: year, Month: month, Page: page, PageSize: effectivePageSize, SearchTerm: search, JobLocationID: jobLocationId, ManagerID: managerId, SubDepartmentID: subDepartmentId },
 			dataType: 'json',
 			success: function (res) {
 			  const jobList = res.data.joblocationList;
 			  const managerList = res.data.managerList;
+              const subDepartmentList = res.data.subDepartmentList;
 			  const $ddl = $('#jobLocationDropdown');
               const managerDropdownList = $('#managerDropdown');
+              const subDepartmentDropdown = $('#subDepartmentDropdown');
 			  const selectedId = $ddl.val();
               const selectedManagerID = managerDropdownList.val();
+              const selectedSubDept = subDepartmentDropdown.val();
 			  $ddl.empty().append('<option value="">Select Location </option>');
               managerDropdownList.empty().append('<option value="">Select Manager </option>');
 			  $.each(jobList, (i, loc) => $ddl.append(`<option value="${loc.jobLocationID}">${loc.jobLocationName}</option>`));
                 $.each(managerList, (i, manager) => managerDropdownList.append(`<option value="${manager.employeeID}">${manager.employeNumber}${manager.employeeName}</option>`));
 			  $ddl.val(selectedId);
               managerDropdownList.val(selectedManagerID);
+              subDepartmentDropdown.empty()
+              .append('<option value="">Select Sub Department</option>');
+              $.each(subDepartmentList, function (i, dept) {
+                    subDepartmentDropdown.append(
+                        `<option value="${dept.subDepartmentID}">
+                            ${dept.subDepartmentName}
+                        </option>`
+                    );
+                });
 
+                subDepartmentDropdown.val(selectedSubDept);
 			  const total = res.data.totalRecords || 0;
 			  if (!total) {
 				$("#attendance-data").html(`<tr><td colspan="100%" class="text-center text-muted">No records found</td></tr>`);
@@ -769,8 +792,8 @@
 
         const jobLocationId = parseInt($("#jobLocationDropdown").val()) || 0;
         const managerId = parseInt($("#managerDropdown").val()) || 0;
-
-        const url = `/employee/MyInfo/ExportAttendance?FromDate=${fromDate}&ToDate=${toDate}&JobLocationID=${jobLocationId}&ManagerId=${managerId}`;
+        const subDepartmentId = parseInt($("#subDepartmentDropdown").val()) || 0;
+        const url = `/employee/MyInfo/ExportAttendance?FromDate=${fromDate}&ToDate=${toDate}&JobLocationID=${jobLocationId}&ManagerId=${managerId}&SubDepartmentID=${subDepartmentId}`;
 
         const $btn = $("#export-btn");
         $btn.prop("disabled", true).text("Please wait...");
@@ -838,11 +861,12 @@
 				$(document).on("submit", "#statusForm", function (e) {
 					 e.preventDefault();
 		const status = $("#statusSelect").val();
+         const oldStatus = $("#oldStatus").val();
 		const remarks = $("#statusComment").val();
 		const workDate = $("#attendanceDetailModal").data("workdate"); 
 		const employeeId = $("#attendanceDetailModal").data("employeeid");
                     const encryptedStatusId = $("#encryptedStatusChangeID").val();
-
+oldStatus: $("#oldStatus").val();
 
 		if (!status) {
 			 toastEMessage('Error', "Please select a status before saving.");
@@ -857,8 +881,9 @@
 			url: '/employee/Attendance/SaveAttendanceStatus',
 			type: 'POST',
 			data: {
-				 EmployeeId: employeeId,
+				EmployeeId: employeeId,
 				Status: status,
+                OldStatus : oldStatus,
 				Remarks: remarks,
 				WorkDate: workDate,
                 EncryptedStatusChangeID: encryptedStatusId 
@@ -888,19 +913,33 @@
 
 		  $("#year-select, #month-select").on("change", () => {
 			currentPage = 1;
-              fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0, parseInt($("#managerDropdown").val()) || 0);
+              fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0, parseInt($("#managerDropdown").val()) || 0, parseInt($("#subDepartmentDropdown").val()) || 0,);
 		  });
 
 		  $('#jobLocationDropdown').on('change', function () {
 			currentPage = 1;
-              fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($(this).val()) || 0, parseInt($("#managerDropdown").val()) || 0);
+              fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($(this).val()) || 0, parseInt($("#managerDropdown").val()) || 0, parseInt($("#subDepartmentDropdown").val()) || 0,);
 		  });
 
             $('#managerDropdown').on('change', function () {
                 currentPage = 1;
-                fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0, parseInt($(this).val()) || 0,);
+                fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0, parseInt($(this).val()) || 0, parseInt($("#subDepartmentDropdown").val()) || 0,);
             });
+            $('#subDepartmentDropdown').on('change', function () {
 
+                currentPage = 1;
+
+                fetchAttendanceData(
+                    getSelectedYear(),
+                    getSelectedMonth(),
+                    currentPage,
+                    '',
+                    null,
+                    parseInt($("#jobLocationDropdown").val()) || 0,
+                    parseInt($("#managerDropdown").val()) || 0,
+                    parseInt($(this).val()) || 0
+                );
+            });
 			 let searchTimer;
 
             $("#search-box").on("keyup", function (e) {
@@ -918,14 +957,15 @@
                         text,
                         override,
                         parseInt($("#jobLocationDropdown").val()) || 0,
-                        parseInt($("#managerDropdown").val()) || 0
+                        parseInt($("#managerDropdown").val()) || 0,
+                        parseInt($("#subDepartmentDropdown").val()) || 0
                     );
                 }
             });
 		  $("#page-size-select").on("change", function () {
 			pageSize = parseInt($(this).val());
 			currentPage = 1;
-              fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0, parseInt($("#managerDropdown").val()) || 0);
+              fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0, parseInt($("#managerDropdown").val()) || 0,    parseInt($("#subDepartmentDropdown").val()) || 0);
 		  });
 
 		  $("#pagination-container").on("click", "a.page-link", function (e) {
@@ -933,7 +973,7 @@
 			const page = $(this).data("page");
 			if (page && page !== currentPage && page >= 1 && page <= totalPages) {
 			  currentPage = page;
-                fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0, parseInt($("#managerDropdown").val()) || 0);
+                fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, '', null, parseInt($("#jobLocationDropdown").val()) || 0, parseInt($("#managerDropdown").val()) || 0,    parseInt($("#subDepartmentDropdown").val()) || 0);
 			}
 		  });
 
@@ -1107,11 +1147,13 @@
                             if (employeeTypeID !== 3) {
                                 return "";
                             }
-
+                            console.log(data);
                             if (!canEditStatus(fullDate)) return "";
+                            const oldStatus = data.attendance?.attendanceStatus || "";
 
                             return `
 <form id="statusForm">
+ <input type="hidden" id="oldStatus" value="${oldStatus}" />
 <div class="row mb-2">
 
 <div class="col-md-6">

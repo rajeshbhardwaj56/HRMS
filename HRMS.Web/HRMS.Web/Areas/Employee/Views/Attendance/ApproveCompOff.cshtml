@@ -20,7 +20,49 @@
 				<div class="group-box anim">
 					<div class="tabsInfo" id="">
 						<h3>CompOff Info</h3>
-					
+						<div class="row mb-3 align-items-end">
+
+							<div class="col-md-3">
+								<label class="form-label">Location</label>
+								<select id="ddlLocation" class="form-select">
+									<option value="0">All Locations</option>
+									@if (Model?.JobLocations != null)
+									{
+										foreach (var item in Model.JobLocations)
+										{
+											<option value="@item.JobLocationID">
+												@item.JobLocationName
+											</option>
+										}
+									}
+								</select>
+							</div>
+
+							<div class="col-md-3">
+								<label class="form-label">Process</label>
+								<select id="ddlSubDepartment" class="form-select">
+									<option value="0">All Process</option>
+									@if (Model?.SubDepartments != null)
+									{
+										foreach (var item in Model.SubDepartments)
+										{
+											<option value="@item.SubDepartmentID">
+												@item.SubDepartmentName
+											</option>
+										}
+									}
+								</select>
+							</div>
+							<div class="col-md-3">
+								<label class="form-label">Level</label>
+								<select id="ddlHierarchyLevel" class="form-select">
+									<option value="0">All Level</option>
+									<option value="1">Level 1</option>
+									<option value="2">Level 2</option>
+								</select>
+							</div>
+
+						</div>
 						<nav>
 							<div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
 								<button class="nav-link active" id="applied-compOff-tab1" data-bs-toggle="tab" data-bs-target="#applied-compOff-tab" type="button" role="tab" aria-controls="applied-compOff-tab" aria-selected="true" href="#pendingTab">CompOff For Approval </button>
@@ -34,6 +76,7 @@
 									<div class="tabsInfo" id="myTabContent-timeoff">
 										<h3>CompOff For Approval</h3>
 									</div>
+
 									<div role="tabpanel" aria-labelledby="apply-tab">
 										<div class="row">
 											<div class="col-lg-12 col-md-12 col-sm-12">
@@ -51,6 +94,7 @@
 																	<th>Total Hours</th>
 																	<th>Status</th>
 																	<th>Remark</th>
+
 																	<th>Action</th>
 																</tr>
 															</thead>
@@ -88,6 +132,7 @@
 																	<th>Total Hours</th>
 																	<th>Status</th>
 																	<th>Remark</th>
+
 																</tr>
 															</thead>
 														</table>
@@ -121,6 +166,8 @@
 																	<th>Total Hours</th>
 																	<th>Status</th>
 																	<th>Remark</th>
+
+
 																</tr>
 															</thead>
 
@@ -254,47 +301,61 @@
 <input type="hidden" id="AttStartDate" />
 <input type="hidden" id="AttEndDate" />
 <script>
-	 $(document).ready(function () {
-		 ApprovalcompOffAutoReload();
-		 //ApprovedcompOffAutoReload();
+		let activeCompOffStatus = 1;
+	$(document).ready(function () {
 
-		 $("input[name='compOffStatus']").change(function () {
-			 ApprovalcompOffAutoReload();
-		 });
+		//ApprovalcompOffAutoReload();
 
-		 $("input[name='approvedcompOffStatus']").change(function () {
-			 ApprovedcompOffAutoReload();
-		 });
-	 });
+		// ❌ REMOVED suggestion: duplicate binding risk (kept as-is but safer below)
 
-	 function ApprovedcompOffAutoReload() {
-			 let tableId = '#tblcompOffForApproved';
+		$("input[name='compOffStatus']").change(function () {
+			ApprovalcompOffAutoReload();
+		});
 
-		 let status = $("input[name='approvedcompOffStatus']:checked").val();
-		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetManagerApprovedCompOff';
-		 if ($.fn.DataTable.isDataTable(tableId)) {
-		$(tableId).DataTable().clear().draw();
+		$("input[name='approvedcompOffStatus']").change(function () {
+			ApprovedcompOffAutoReload();
+		});
+
+	});
+
+	function ApprovedcompOffAutoReload() {
+
+		let tableId = '#tblcompOffForApproved';
+
+		let status = $("input[name='approvedcompOffStatus']:checked").val();
+
+		let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetManagerApprovedCompOff';
+
+		if ($.fn.DataTable.isDataTable(tableId)) {
+			$(tableId).DataTable().clear().draw();
+		}
+
+		RefreshTable12(tableId, url, status);
+
+		if (!$.fn.DataTable.isDataTable(tableId)) {
+			InittblcompOffForApproved();
+		}
 	}
-		 RefreshTable12(tableId, url, status);
-				 if (!$.fn.DataTable.isDataTable(tableId)) {
-					 InittblcompOffForApproved();
-				 }
-	 }
 
 	 //First Tab
-	 function ApprovalcompOffAutoReload() {
-	
-		 let tableId = '#tblcompOffForApproval';
-		 let status =1;
-	
-		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
-		 RefreshTable12(tableId, url, status);
-				 if (!$.fn.DataTable.isDataTable(tableId)) {
-					 InitcompOffForApproval();
-				 }
-	 }
+	function ApprovalcompOffAutoReload() {
+
+		let tableId = '#tblcompOffForApproval';
+		let status = 1;
+			  activeCompOffStatus = 1;
+		let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
+				InitcompOffForApproval();   // ALWAYS init first ONCE
+		RefreshTable12(tableId, url, status);
+
+		if (!$.fn.DataTable.isDataTable(tableId)) {
+			InitcompOffForApproval();
+		}
+	}
 	 //First Tab load
 	 function InitcompOffForApproval() {
+				 if ($.fn.DataTable.isDataTable('#tblcompOffForApproval')) {
+			return; // STOP double init
+		}
 		 $('#tblcompOffForApproval').DataTable({
 			 ordering: true,
 			 paging: true,
@@ -343,54 +404,64 @@
 	 }
 
 	function RefreshTable12(tableId, urlData, status) {
-		 $.ajax({
-			 url: urlData,
-			 type: 'POST',
-			 contentType: 'application/json',
-			 data: JSON.stringify({ compOffStatus: parseInt(status) }),
-			 success: function (json) {
-				 let table = $(tableId).dataTable();
-				 let oSettings = table.fnSettings();
 
-				 table.fnClearTable();
+		const request = {
+			compOffStatus: parseInt(status),
+			jobLocationID: parseInt($("#ddlLocation").val() || 0),
+			subDepartmentID: parseInt($("#ddlSubDepartment").val() || 0),
+			hierarchyLevel: parseInt($("#ddlHierarchyLevel").val() || 0)
+		};
 
-				 for (var i = 0; i < json.data.length; i++) {
-					 table.oApi._fnAddData(oSettings, json.data[i]);
-				 }
+		$.ajax({
+			url: urlData,
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(request),
 
-				 oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-				 table.fnDraw();
-			 },
-			 error: function (xhr, status, error) {
-				 console.error("Error in RefreshTable12:", error);
-					 window.location.href = '/Home/ErrorPage';
-			 }
-		 });
-	 }
+			success: function (json) {
 
+				// 🔥 IMPORTANT: ensure DataTable exists
+				if (!$.fn.DataTable.isDataTable(tableId)) {
+					return; // stop if not initialized
+				}
 
-	 function compOffForApproved() {
+				let table = $(tableId).DataTable();
 
-				 let tableId = '#tblcompOffForApproved';			 
-		 let status =2;
-		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
-		 if ($.fn.DataTable.isDataTable(tableId)) {
-		$(tableId).DataTable().clear().draw();
+				table.clear();
+				table.rows.add(json.data || []);
+				table.draw();
+			}
+		});
 	}
-			 RefreshTable12(tableId, url, status);
-				 if (!$.fn.DataTable.isDataTable(tableId)) {
-					 InittblcompOffForApproved();
-				 }
-	 }	
-	 function compOffForReject() {
-		 let status =3;
-				 let tableId = '#tblcompOffForReject';
-		 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
-			 RefreshTable12(tableId, url, status);
-				 if (!$.fn.DataTable.isDataTable(tableId)) {
-					 InittblcompOffForReject();
-				 }
-	 }
+
+		function compOffForApproved() {
+
+		let tableId = '#tblcompOffForApproved';
+		let status = 2;
+		activeCompOffStatus = 2;
+
+		let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
+
+		if (!$.fn.DataTable.isDataTable(tableId)) {
+			InittblcompOffForApproved();
+		}
+
+		RefreshTable12(tableId, url, status);
+	}
+	function compOffForReject() {
+
+		let tableId = '#tblcompOffForReject';
+		let status = 3;
+		activeCompOffStatus = 3;
+
+		let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
+
+		if (!$.fn.DataTable.isDataTable(tableId)) {
+			InittblcompOffForReject();
+		}
+
+		RefreshTable12(tableId, url, status);
+	}
 	  $("input[name='compOffRejectStatus']").change(function () {
 			 compOffForReject();
 		 });
@@ -429,6 +500,8 @@
 	},
 				 { data: "attendanceStatus", autoWidth: true },
 				 { data: "comments", autoWidth: true },
+
+
 
 			 ]
 		 });
@@ -682,3 +755,34 @@
 		return `${h}h ${m}m`;
 	}
 </script>
+<script>
+		$(document).ready(function () {
+
+		ApprovalcompOffAutoReload();
+
+			let filterTimer;
+
+	$("#ddlLocation, #ddlSubDepartment, #ddlHierarchyLevel").on("change", function () {
+
+		clearTimeout(filterTimer);
+
+		filterTimer = setTimeout(function () {
+
+			// Always reload all 3 tables safely
+			ApprovalcompOffAutoReload();
+
+			if ($.fn.DataTable.isDataTable('#tblcompOffForApproved')) {
+				compOffForApproved();
+			}
+
+			if ($.fn.DataTable.isDataTable('#tblcompOffForReject')) {
+				compOffForReject();
+			}
+
+		}, 300);
+	});
+
+	});
+
+</script>
+
