@@ -1406,7 +1406,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 JoiningDays = (DateTime.Today - joinDate.Value).TotalDays;
             }
+            double JoiningDaysOnLeaveDate = 0;
 
+            if (joinDate.HasValue)
+            {
+                JoiningDaysOnLeaveDate =
+                    (leaveSummary.StartDate.Date - joinDate.Value.Date).TotalDays;
+            }
             // Prepare Holiday list if needed
             List<HolidayModel> Holidaylist = new();
             if (leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel
@@ -1544,13 +1550,17 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 case LeaveType.AnnualLeavel:
                 case LeaveType.MedicalLeave:
-                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
+                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDaysOnLeaveDate)
                     {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        TempData[HRMS.Models.Common.Constants.toastType] =
+                            HRMS.Models.Common.Constants.toastTypeError;
+
                         return Json(new
                         {
                             isValid = false,
-                            message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining"
+                            message =
+                                $"You can't apply leave(s) before completing " +
+                                $"{leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining."
                         });
                     }
                     var leaveValidationData = GetLeaveSummaryDetailData(leaveSummary.EmployeeID, leaveSummary.LeaveSummaryID);
@@ -1970,7 +1980,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             {
                 JoiningDays = (DateTime.Today - joinDate.Value).TotalDays;
             }
+            double JoiningDaysOnLeaveDate = 0;
 
+            if (joinDate.HasValue)
+            {
+                JoiningDaysOnLeaveDate =
+                    (leaveSummary.StartDate.Date - joinDate.Value.Date).TotalDays;
+            }
             // Prepare Holiday list if needed
             List<HolidayModel> Holidaylist = new();
             if (leaveSummary.LeaveTypeID == (int)LeaveType.AnnualLeavel
@@ -2108,16 +2124,20 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 case LeaveType.AnnualLeavel:
                 case LeaveType.MedicalLeave:
-                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDays)
+
+                    if (leavePolicyModel.Annual_ApplicableAfterWorkingDays > JoiningDaysOnLeaveDate)
                     {
-                        TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+                        TempData[HRMS.Models.Common.Constants.toastType] =
+                            HRMS.Models.Common.Constants.toastTypeError;
+
                         return Json(new
                         {
                             isValid = false,
-                            message = $"You can't apply leave(s) before {leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining"
+                            message =
+                                $"You can't apply leave(s) before completing " +
+                                $"{leavePolicyModel.Annual_ApplicableAfterWorkingDays} days of joining."
                         });
                     }
-
                     var leaveValidationData = GetLeaveSummaryDetailData(leaveSummary.EmployeeID, leaveSummary.LeaveSummaryID);
                     decimal approvedLeaves = leaveValidationData.ApprovedLeaveCount;
                     decimal pendingLeaves = leaveValidationData.PendingLeaveCount;

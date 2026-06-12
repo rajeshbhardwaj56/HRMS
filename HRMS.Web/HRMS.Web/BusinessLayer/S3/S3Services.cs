@@ -304,14 +304,27 @@ namespace HRMS.Web.BusinessLayer.S3
         }
 
         public void ProcessFileUpload(
-            List<IFormFile> files,
-            string existingKey,
-            out string uploadedKey)
+    List<IFormFile> files,
+    string existingKey,
+    out string uploadedKey)
         {
             uploadedKey = string.Empty;
 
             if (files == null || files.Count == 0)
                 return;
+
+            // ✅ DELETE OLD FILE FIRST
+            if (!string.IsNullOrEmpty(existingKey))
+            {
+                try
+                {
+                    DeleteFile(existingKey);
+                }
+                catch (Exception ex)
+                {
+                    // optional: log error, don't block upload
+                }
+            }
 
             foreach (var file in files)
             {
@@ -322,30 +335,18 @@ namespace HRMS.Web.BusinessLayer.S3
 
                 var imageExtensions = new[]
                 {
-                    ".jpg",
-                    ".jpeg",
-                    ".png",
-                    ".webp",
-                    ".gif",
-                    ".bmp",
-                    ".tiff",
-                    ".tif",
-                    ".heic",
-                    ".heif"
-                };
+            ".jpg", ".jpeg", ".png", ".webp", ".gif",
+            ".bmp", ".tiff", ".tif", ".heic", ".heif"
+        };
 
                 if (imageExtensions.Contains(extension))
                 {
                     var compressedFile = CompressImage(file);
-                    uploadedKey = UploadFile(
-                        compressedFile,
-                        compressedFile.FileName);
+                    uploadedKey = UploadFile(compressedFile, compressedFile.FileName);
                 }
                 else
                 {
-                    uploadedKey = UploadFile(
-                        file,
-                        file.FileName);
+                    uploadedKey = UploadFile(file, file.FileName);
                 }
 
                 if (!string.IsNullOrEmpty(uploadedKey))
