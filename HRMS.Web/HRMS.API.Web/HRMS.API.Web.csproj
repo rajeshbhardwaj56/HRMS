@@ -22,7 +22,6 @@
     <ProjectReference Include="..\HRMS.API.DataLayer.ITF\HRMS.API.DataLayer.ITF.csproj" />
     <ProjectReference Include="..\HRMS.API.DataLayer\HRMS.API.DataLayer.csproj" />
     <ProjectReference Include="..\HRMS.Models\HRMS.Models.csproj" />
-    <ProjectReference Include="..\HRMS.Web\HRMS.Web.csproj" />
   </ItemGroup>
 
 </Project>
