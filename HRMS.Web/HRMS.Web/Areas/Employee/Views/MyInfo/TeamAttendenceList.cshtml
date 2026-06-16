@@ -127,32 +127,32 @@
         cursor: pointer;
         font-size: 0.5rem;
     }
-    .HPL\/HA {
+    .HPL {
         background: #04336f;
         cursor: pointer;
         font-size: 0.5rem;
     }
-    .HLWP\/HA {
+    .HLWP {
         background: #04336f;
         cursor: pointer;
         font-size: 0.5rem;
     }
-    .HCOL\/HA {
+    .HCOL {
         background: #04336f;
         cursor: pointer;
         font-size: 0.5rem;
     }
-    .HML\/HA {
+    .HML {
         background: #04336f;
         cursor: pointer;
         font-size: 0.5rem;
     }
-    .HL\/HA {
+    .HL {
         background: #04336f;
         cursor: pointer;
         font-size: 0.5rem;
     }
-    .HCO\/HPL {
+    .HCOL\/HPL {
         background: #04336f;
         cursor: pointer;
         font-size: 0.5rem;
@@ -644,16 +644,16 @@
                 }
 
                 // Half Leave + Absent
-                else if (status.includes("/HA")) {
+                else if (["HPL", "HCOL", "HML", "HL","HLWP"].includes(status)) {
 
                     className = "HL";
-                /*    displayStatus = status;*/
+                   displayStatus = status;
                 }
  
 
                 // Full Leave
                 else if (
-                    ["PL", "LWP", "COL", "ML","HCO/HPL", "L"].includes(status)
+                    ["PL", "LWP", "COL", "ML","HCOL/HPL", "L"].includes(status)
                 ) {
 
                     className = status;
