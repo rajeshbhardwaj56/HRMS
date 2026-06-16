@@ -226,6 +226,12 @@
 		cursor: pointer;
 		font-size: 0.5rem;
 	}
+    
+	.HECO {
+		background-color: #04336f;
+		cursor: pointer;
+		font-size: 0.5rem;
+	}
 	.table-warning {
 		background-color: #fff3cd;
 		color: #856404;
@@ -336,11 +342,11 @@
             </div>
             <div class="input-group input-group-sm" style="max-width: 350px;">
             <span class="input-group-text">
-                Sub Department
+               Process
             </span>
 
             <select id="subDepartmentDropdown" class="form-select form-select-sm">
-                <option value="">Select Sub Department</option>
+                <option value="">Select Process</option>
             </select>
            </div>
             <div class="input-group input-group-sm" style="max-width: 350px; ">
@@ -457,7 +463,7 @@
         <span class="legend-item HD">HLWP - Half Leave Without Pay</span>
         <span class="legend-item HD">HCOL - Half Comp Off Leave</span>
         <span class="legend-item HD">HML - Half Maternity Leave</span>
-
+        <span class="legend-item HECO">HECO - Half Earned Comp Off</span>
 
 
     </div>
@@ -599,7 +605,7 @@
 
                 headerHtml += `<th data-col="${day}">${displayText}</th>`;
             });
-            headerHtml += `<th>Working Days</th><th>Present Days</th><th>H</th><th>Week Off</th><th>Half Day </th><th>Worked On HolidayDays(ECO)</th><th>PL</th>
+            headerHtml += `<th>Working Days</th><th>Present Days</th><th>Week Off</th><th>Half Day </th><th>Holiday</th><th>ECO</th><th>HECO</th><th>PL</th>
             <th>COL</th><th>ML</th><th>LWP</th><th>Total Leaves</th><th>Payable Days</th><th>ManagerLevel1</th><th>  ManagerLevel2</th> <th> Process Name</th>`;
 		  thead.html(headerHtml);
 
@@ -635,6 +641,10 @@
                 else if (status === "ECO") {
                     className = "ECO";
                 }
+                                // HECO
+                else if (status === "HECO") {
+                    className = "HECO";
+                }
 
                 // Half Day + Leave
                 else if (status.startsWith("HD/")) {
@@ -665,7 +675,7 @@
                 row += `<td class="${className}" data-date="${day.replace("_", "-")}" data-empid="${record.encryptedIdentity}" data-empno="${record.employeeNumberWithoutAbbr}"><span class="${status} status-badge">${displayStatus}</span></td>`;
 			});
 
-              row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.holidayDays ?? '-'}</td><td>${record.weekOffDays ?? '-'}</td><td>${record.halfDays ?? '-'}</td><td>${record.workedOnHolidayDays ?? '-'}</td>
+              row += `<td>${record.totalWorkingDays ?? '-'}</td><td>${record.presentDays ?? '-'}</td><td>${record.weekOffDays ?? '-'}</td><td>${record.halfDays ?? '-'}</td><td>${record.holidayDays ?? '-'}</td><td>${record.eco ?? '-'}</td><td>${record.heco ?? '-'}</td>
               <td>${record.plDays ?? 0}</td><td>${record.colDays ?? 0}</td><td>${record.mlDays ?? 0}</td><td>${record.lwpDays ?? 0}</td><td>${record.totalLeaves ?? '-'}</td><td>${record.payableDays ?? '-'}</td><td>${record.managerName ?? '-'}</td><td>${record.managerManagerName ?? '-'}</td><td>${record.processName ?? '-'}</td></tr>`;
 			tbody.append(row);
 		  });
@@ -715,7 +725,7 @@
 			  $ddl.val(selectedId);
               managerDropdownList.val(selectedManagerID);
               subDepartmentDropdown.empty()
-              .append('<option value="">Select Sub Department</option>');
+              .append('<option value="">Select Process</option>');
               $.each(subDepartmentList, function (i, dept) {
                     subDepartmentDropdown.append(
                         `<option value="${dept.subDepartmentID}">
