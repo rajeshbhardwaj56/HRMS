@@ -62,6 +62,15 @@
                     <option value="">Select Manager</option>
                 </select>
             </div>
+        <div class="col-md-2">
+            <label class="form-label">Process</label>
+
+            <select id="subDepartmentDropdown"
+                    class="form-select">
+                <option value="">Select Process</option>
+            </select>
+        </div>
+
             <div class="col-md-2">
                 <label class="form-label">From Date <span class="text-danger">*</span></label>
 
@@ -142,6 +151,20 @@
                     );
 
                 });
+                // Sub Departments
+                const subDepartments = res.data.subDepartmentList || [];
+                const $subDepartment = $("#subDepartmentDropdown");
+
+                $subDepartment.empty();
+                $subDepartment.append('<option value="">Select Process</option>');
+
+                $.each(subDepartments, function (i, dept) {
+                $subDepartment.append(
+                `<option value="${dept.subDepartmentID}">
+                ${dept.subDepartmentName}
+                </option>`
+                );
+                });
 
             },
 
@@ -170,6 +193,8 @@
 
 		const managerId =
 			$("#managerDropdown").val() || 0;
+        const subDepartmentId =
+        $("#subDepartmentDropdown").val() || 0;
 
 		// Validation
 		if (!fromDate || !toDate) {
@@ -193,7 +218,8 @@
 			`&ToDate=${toDate}` +
 			/*`&SearchTerm=${encodeURIComponent(searchTerm)}` +*/
 			`&JobLocationID=${jobLocationId}` +
-			`&ManagerId=${managerId}`;
+    `&ManagerId=${managerId}` +
+    `&SubDepartmentID=${subDepartmentId}`;
 
 		const $btn = $("#export-btn");
 

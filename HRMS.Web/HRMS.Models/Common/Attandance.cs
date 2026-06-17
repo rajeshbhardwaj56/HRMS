@@ -85,7 +85,8 @@ namespace HRMS.Models.Common
         public decimal WeekOffDays { get; set; }
         public decimal HalfDays { get; set; }
         public decimal HolidayDays { get; set; }
-        public decimal WorkedOnHolidayDays { get; set; }
+        public decimal HECO { get; set; }
+        public decimal ECO { get; set; }
         public decimal PayableDays { get; set; }
 
         public decimal PLDays { get; set; }
@@ -320,6 +321,7 @@ namespace HRMS.Models.Common
     public class ExportFilterViewModel
     {
         public List<Joblcoations> JoblocationList { get; set; } =  new List<Joblcoations>();
+        public List<SubDepartment> SubDepartmentList { get; set; } = new List<SubDepartment>();
         public List<Managers> ManagerList { get; set; } = new List<Managers>();
     }
 }
