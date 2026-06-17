@@ -3674,6 +3674,9 @@ namespace HRMS.API.BusinessLayer
                             NoticeServedStatus = dataRow.Table.Columns.Contains("NoticeServedStatus")
     ? dataRow.Field<bool?>("NoticeServedStatus")
     : null,
+                            DOR = dataRow.Table.Columns.Contains("DOR")
+    ? dataRow.Field<DateTime?>("DOR")
+    : null,
                             AttendanceByDay = new Dictionary<string, string>()
                         };
 

@@ -402,7 +402,7 @@
 		},
 					 { data: "attendanceStatus", autoWidth: true },
 									 { data: "comments", autoWidth: true },
-										  { data: "appliedByName" },
+									 { data: "appliedByName" },
 			{
 				data: "appliedDate",
 				render: formatDate
@@ -434,40 +434,48 @@
 
 				success: function (json) {
 
-					// 🔁 FIX: safer check
+					// 🔥 IMPORTANT: ensure DataTable exists
+					if (!$.fn.DataTable.isDataTable(tableId)) {
+						return; // stop if not initialized
+					}
+
 					let table = $(tableId).DataTable();
 
 					table.clear();
-					table.rows.add(json.data || []); // 🟢 FIX null crash protection
+					table.rows.add(json.data || []);
 					table.draw();
 				}
 			});
 		}
 
-		 function compOffForApproved() {
+			function compOffForApproved() {
 
-					 let tableId = '#tblcompOffForApproved';
-			 let status =2;
-				   activeCompOffStatus = 2;
-			 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
-			 if ($.fn.DataTable.isDataTable(tableId)) {
-			$(tableId).DataTable().clear().draw();
+			let tableId = '#tblcompOffForApproved';
+			let status = 2;
+			activeCompOffStatus = 2;
+
+			let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
+
+			if (!$.fn.DataTable.isDataTable(tableId)) {
+				InittblcompOffForApproved();
+			}
+
+			RefreshTable12(tableId, url, status);
 		}
-				 RefreshTable12(tableId, url, status);
-					 if (!$.fn.DataTable.isDataTable(tableId)) {
-						 InittblcompOffForApproved();
-					 }
-		 }
-		 function compOffForReject() {
-			 let status =3;
-				   activeCompOffStatus = 3;
-					 let tableId = '#tblcompOffForReject';
-			 let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
-				 RefreshTable12(tableId, url, status);
-					 if (!$.fn.DataTable.isDataTable(tableId)) {
-						 InittblcompOffForReject();
-					 }
-		 }
+		function compOffForReject() {
+
+			let tableId = '#tblcompOffForReject';
+			let status = 3;
+			activeCompOffStatus = 3;
+
+			let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
+
+			if (!$.fn.DataTable.isDataTable(tableId)) {
+				InittblcompOffForReject();
+			}
+
+			RefreshTable12(tableId, url, status);
+		}
 		  $("input[name='compOffRejectStatus']").change(function () {
 				 compOffForReject();
 			 });
@@ -506,8 +514,9 @@
 		},
 					 { data: "attendanceStatus", autoWidth: true },
 					 { data: "comments", autoWidth: true },
-						 { data: "appliedByName" },
+											 { data: "appliedByName" },
 		{ data: "appliedDate", render: formatDate },
+
 
 
 				 ]
@@ -737,10 +746,11 @@
 
 					 { data: "attendanceStatus", autoWidth: true },
 									 { data: "comments", autoWidth: true },
-										 { data: "appliedByName" },
+																			 { data: "appliedByName" },
 		{ data: "appliedDate", render: formatDate },
 		{ data: "approvedByName" },
 		{ data: "approvedDate", render: formatDate },
+
 
 				 ]
 			 });
@@ -764,7 +774,7 @@
 
 			return `${h}h ${m}m`;
 		}
-				function exportCompOffExcel() {
+		function exportCompOffExcel() {
 
 				// =========================
 				// GET SAME FILTERS YOU USE IN TABLE
@@ -814,14 +824,27 @@
 			let filterTimer;
 
 	$("#ddlLocation, #ddlSubDepartment, #ddlHierarchyLevel").on("change", function () {
+
 		clearTimeout(filterTimer);
 
 		filterTimer = setTimeout(function () {
+
+			// Always reload all 3 tables safely
 			ApprovalcompOffAutoReload();
+
+			if ($.fn.DataTable.isDataTable('#tblcompOffForApproved')) {
+				compOffForApproved();
+			}
+
+			if ($.fn.DataTable.isDataTable('#tblcompOffForReject')) {
+				compOffForReject();
+			}
+
 		}, 300);
 	});
 
 	});
 
 </script>
+
 

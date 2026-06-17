@@ -1114,6 +1114,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.Add("PayrollType");
                     headers.Add("DOJ");
                     headers.Add("DOL");
+                    headers.Add("DOR");
                     headers.Add("LeavingType");
                     headers.Add("NoticeServedStatus");
 
@@ -1166,8 +1167,9 @@ namespace HRMS.Web.Areas.Employee.Controllers
                         worksheet.Cells[rowIndex, 23 + dayKeys.Count].Value = record.PayrollType ?? "-";
                         worksheet.Cells[rowIndex, 24 + dayKeys.Count].Value = record.DOJ?.ToString("dd-MM-yyyy") ?? "-";
                         worksheet.Cells[rowIndex, 25 + dayKeys.Count].Value = record.DOL?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 26 + dayKeys.Count].Value = record.LeavingType ?? "-";
-                        worksheet.Cells[rowIndex, 27 + dayKeys.Count].Value = record.NoticeServedStatus?.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 26 + dayKeys.Count].Value = record.DOR?.ToString("dd-MM-yyyy") ?? "-";
+                        worksheet.Cells[rowIndex, 27 + dayKeys.Count].Value = record.LeavingType ?? "-";
+                        worksheet.Cells[rowIndex, 28 + dayKeys.Count].Value = record.NoticeServedStatus?.ToString() ?? "-";
                         rowIndex++;
                     }
 
@@ -3038,15 +3040,30 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.AddRange(dayKeys.Select(k => k.Replace("_", " ")));
                     headers.Add("TotalWorkingDays");
                     headers.Add("PresentDays");
+                    headers.Add("HolidayDays");
+                    headers.Add("WeekOffDays");
+                    headers.Add("HalfDays");
+                    headers.Add("ECO");
+                    headers.Add("HECO");
+                    headers.Add("PLDays");
+                    headers.Add("COLDays");
+                    headers.Add("MLDays");
+                    headers.Add("LWPDays");
+
+
                     headers.Add("TotalLeaves");
+                    headers.Add("PayableDays");
                     headers.Add("ManagerLevel1");
                     headers.Add("ManagerLevel2");
                     headers.Add("Privilege Leave Consumed");
                     headers.Add("Final Leave Balance");
                     headers.Add("Available Comp-Off Days");
                     headers.Add("ProcessName");
+                    headers.Add("Location");
+                    headers.Add("PayrollType");
                     headers.Add("DOJ");
                     headers.Add("DOL");
+                    headers.Add("DOR");
                     headers.Add("LeavingType");
                     headers.Add("NoticeServedStatus");
 
@@ -3077,17 +3094,33 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                         worksheet.Cells[rowIndex, 3 + dayKeys.Count].Value = record.TotalWorkingDays.ToString() ?? "-";
                         worksheet.Cells[rowIndex, 4 + dayKeys.Count].Value = record.PresentDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.ManagerName.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.ManagerManagerName.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 8 + dayKeys.Count].Value = record.AnnualLeaveConsumed.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 9 + dayKeys.Count].Value = record.AnnualLeaveBalance.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 10 + dayKeys.Count].Value = record.AvailableCompOffDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 11 + dayKeys.Count].Value = record.ProcessName ?? "-";
-                        worksheet.Cells[rowIndex, 12 + dayKeys.Count].Value = record.DOJ?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 13 + dayKeys.Count].Value = record.DOL?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 14 + dayKeys.Count].Value = record.LeavingType ?? "-";
-                        worksheet.Cells[rowIndex, 15 + dayKeys.Count].Value = record.NoticeServedStatus?.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.HolidayDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.WeekOffDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.HalfDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 8 + dayKeys.Count].Value = record.ECO.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 9 + dayKeys.Count].Value = record.HECO.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 10 + dayKeys.Count].Value = record.PLDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 11 + dayKeys.Count].Value = record.COLDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 12 + dayKeys.Count].Value = record.MLDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 13 + dayKeys.Count].Value = record.LWPDays.ToString() ?? "-";
+
+                        worksheet.Cells[rowIndex, 14 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 15 + dayKeys.Count].Value = record.PayableDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 16 + dayKeys.Count].Value = record.ManagerName ?? "-";
+                        worksheet.Cells[rowIndex, 17 + dayKeys.Count].Value = record.ManagerManagerName ?? "-";
+
+                        worksheet.Cells[rowIndex, 18 + dayKeys.Count].Value = record.AnnualLeaveConsumed.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 19 + dayKeys.Count].Value = record.AnnualLeaveBalance.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, 20 + dayKeys.Count].Value = record.AvailableCompOffDays.ToString() ?? "-";
+
+                        worksheet.Cells[rowIndex, 21 + dayKeys.Count].Value = record.ProcessName ?? "-";
+                        worksheet.Cells[rowIndex, 22 + dayKeys.Count].Value = record.Location ?? "-";
+                        worksheet.Cells[rowIndex, 23 + dayKeys.Count].Value = record.PayrollType ?? "-";
+                        worksheet.Cells[rowIndex, 24 + dayKeys.Count].Value = record.DOJ?.ToString("dd-MM-yyyy") ?? "-";
+                        worksheet.Cells[rowIndex, 25 + dayKeys.Count].Value = record.DOL?.ToString("dd-MM-yyyy") ?? "-";
+                        worksheet.Cells[rowIndex, 26 + dayKeys.Count].Value = record.DOR?.ToString("dd-MM-yyyy") ?? "-";
+                        worksheet.Cells[rowIndex, 27 + dayKeys.Count].Value = record.LeavingType ?? "-";
+                        worksheet.Cells[rowIndex, 28 + dayKeys.Count].Value = record.NoticeServedStatus?.ToString() ?? "-";
 
                         rowIndex++;
                     }

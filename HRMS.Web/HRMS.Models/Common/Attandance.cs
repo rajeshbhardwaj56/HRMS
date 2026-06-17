@@ -121,6 +121,7 @@ namespace HRMS.Models.Common
         public DateTime? DOL { get; set; }
         public string? LeavingType { get; set; }
         public bool? NoticeServedStatus { get; set; }
+        public DateTime? DOR { get; set; }
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
         public List<Joblcoations> JobLocations { get; set; } = new();
         public List<SubDepartment> SubDepartments { get; set; } = new();

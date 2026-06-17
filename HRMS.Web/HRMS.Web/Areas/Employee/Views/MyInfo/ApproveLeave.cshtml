@@ -1279,10 +1279,10 @@ function InitOverviewDataTable() {
 			${data.noOfDays}
 		</span>`;
 
-				$('td:eq(8)', row)
-					.html(styledSpan)
-					.attr('title', tooltipMessage)
-					.tooltip();
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
 			}
 		}
 
@@ -1430,11 +1430,10 @@ ajax: {
                            style="background-color:red;color:white !important;padding:2px 4px;border-radius:3px;">
                         ${data.noOfDays}
                     </span>`;
-
-                $('td:eq(8)', row)
-                    .html(styledSpan)
-                    .attr('title', tooltipMessage)
-                    .tooltip();
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
             }
         }
     });
@@ -1549,10 +1548,10 @@ ajax: {
 				${data.noOfDays}
 			</span>`;
 
-					$('td:eq(8)', row)
-						.html(styledSpan) // Replace the cell content with the styled span
-						.attr('title', tooltipMessage)
-						.tooltip(); // Initialize tooltip
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
 				}
 			}
 		});
@@ -1666,10 +1665,10 @@ ajax: {
 				${data.noOfDays}
 			</span>`;
 
-					$('td:eq(8)', row)
-						.html(styledSpan) // Replace the cell content with the styled span
-						.attr('title', tooltipMessage)
-						.tooltip(); // Initialize tooltip
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
 				}
 			}
 		});
@@ -1904,11 +1903,10 @@ ajax: {
 			<span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
 				${data.noOfDays}
 			</span>`;
-
-					$('td:eq(8)', row)
-						.html(styledSpan) // Replace the cell content with the styled span
-						.attr('title', tooltipMessage)
-						.tooltip(); // Initialize tooltip
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
 				}
 			}
 		});
