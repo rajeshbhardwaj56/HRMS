@@ -872,38 +872,55 @@
         }
         function getPayrollRange(year, month) {
             const leap = moment([year]).isLeapYear();
+            //JAN
             if (month === 0) {
                 return {
                     start: moment([year - 1, 11, 21]), 
                     end: moment([year, 0, 20])         
                 };
             }
-       
+            //FEB
             if (month === 1) {
                 return {
                     start: moment([year, 0, 21]),
                     end: moment([year, 1, leap ? 18 : 17])
                 };
             }
+            //MAR
             if (month === 2) {
                 return {
                     start: moment([year, 1, leap ? 19 : 18]),
                     end: moment([year, 2, 20])
                 };
             }
+            //APR
             if (month === 3) {
                 return {
                     start: moment([year, 2, 21]),
                     end: moment([year, 3, 19])
                 };
             }
+            //MAY
             if (month === 4) {
                 return {
                     start: moment([year, 3, 20]),
                     end: moment([year, 4, 20])
                 };
             }
-
+            //JUN
+            if (month === 5) {
+                return {
+                    start: moment([year, 4, 21]),
+                    end: moment([year, 5, 19])
+                };
+            }
+            //JULY
+            if (month === 6) {
+                return {
+                    start: moment([year, 5, 20]),
+                    end: moment([year, 6, 20])
+                };
+            }
             return {
                 start: moment([year, month - 1, 21]),
                 end: moment([year, month, 20])
@@ -1085,7 +1102,7 @@
                                 break;
 
                             case 'EarnedCompOff':
-                                statusText = 'Comp Off';
+                                statusText = 'EarnedCompOff';
                                 statusClass = 'status-compoff';
                                 break;
                             case 'HalfLeave/HalfAbsent':

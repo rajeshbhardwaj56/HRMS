@@ -593,30 +593,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
         }
         private bool ValidateAlreadyTakenLeaves(MyInfoResults model, string leaveSummaryData, long employeeId)
         {
-            var leaveSummaryDataResult = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryData)?.leavesSummary;
-            var isAlreadyTakenLeave = false;
-            var id = model.leaveResults.leaveSummaryModel.LeaveSummaryID;
-            if ((int)LeaveDay.HalfDay == model.leaveResults.leaveSummaryModel.LeaveDurationTypeID)
-            {
-                isAlreadyTakenLeave = leaveSummaryDataResult?.Any(x => 
-                x.StartDate.Date <= model.leaveResults.leaveSummaryModel.StartDate.Date &&
-                x.EndDate.Date >= model.leaveResults.leaveSummaryModel.StartDate.Date &&
-                x.EmployeeID == employeeId && x.LeaveSummaryID != id && x.LeaveStatusID != (int)LeaveStatus.NotApproved) ?? false;
-
-            }
-            else
-            {
-                // Additional validation logic for full-day leaves can be added here.
-                // Check if full-day leave has already been taken
-                isAlreadyTakenLeave = leaveSummaryDataResult?.Any(x =>
-                    x.StartDate.Date <= model.leaveResults.leaveSummaryModel.EndDate.Date && // Existing leave starts before or on the new leave's end date
-                    x.EndDate.Date >= model.leaveResults.leaveSummaryModel.StartDate.Date && x.EmployeeID == employeeId
-                    && x.LeaveSummaryID != id// Existing leave ends after or on the new leave's start date
-                    && x.LeaveStatusID != (int)LeaveStatus.NotApproved
-                ) ?? false;
-
-            }
-
+            LeaveEligibilityInputParams inputParams = new LeaveEligibilityInputParams();
+            inputParams.EmployeeID = employeeId;
+            inputParams.FromDate  = model.leaveResults.leaveSummaryModel.StartDate;
+            inputParams.ToDate  = model.leaveResults.leaveSummaryModel.StartDate;
+            inputParams.LeaveSummaryID  = model.leaveResults.leaveSummaryModel.LeaveSummaryID;
+            var response = _businessLayer.SendPostAPIRequest(inputParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.ValidateAlreadyTakenLeaves), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<LeaveEligibilityResult>(response);
+            bool isAlreadyTakenLeave = result != null && !result.IsEligible;
             return isAlreadyTakenLeave;
         }
 

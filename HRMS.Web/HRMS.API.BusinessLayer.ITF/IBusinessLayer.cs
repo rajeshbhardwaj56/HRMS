@@ -233,5 +233,6 @@ namespace HRMS.API.BusinessLayer.ITF
         public bool CheckDuplicateSubDepartment(SubDepartmentModel model);
 
         #endregion
+        public LeaveEligibilityResult ValidateAlreadyTakenLeaves(LeaveEligibilityInputParams model);
     }
 }
