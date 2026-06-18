@@ -409,6 +409,7 @@ namespace HRMS.Models.Common
         public const string GetSubDepartmentDetails = "GetSubDepartmentDetails";
         public const string AddUpdateSubDepartment = "AddUpdateSubDepartment";
         public const string CheckDuplicateSubDepartment = "CheckDuplicateSubDepartment";
+        public const string ValidateAlreadyTakenLeaves = "ValidateAlreadyTakenLeaves";
         public const string CheckWeekOffLimit = "CheckWeekOffLimit";
         public const string CheckWeekOffLimitBulk = "CheckWeekOffLimitBulk";
     }

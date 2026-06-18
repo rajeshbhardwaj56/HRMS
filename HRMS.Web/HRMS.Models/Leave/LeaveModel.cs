@@ -10,6 +10,18 @@ using System.Threading.Tasks;
 
 namespace HRMS.Models.Leave
 {
+    public class LeaveEligibilityResult
+    {
+        public bool IsEligible { get; set; }
+        public string? Message { get; set; }
+    }
+    public class LeaveEligibilityInputParams
+    {
+        public long EmployeeID { get; set; }
+        public DateTime FromDate { get; set; }
+        public DateTime ToDate { get; set; }
+        public long? LeaveSummaryID { get; set; }
+    }
     public class LeaveWeekOfInputParams
     {
         public long EmployeeID { get; set; }

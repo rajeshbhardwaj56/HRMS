@@ -235,6 +235,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public bool CheckDuplicateSubDepartment(SubDepartmentModel model);
 
         #endregion
+        public LeaveEligibilityResult ValidateAlreadyTakenLeaves(LeaveEligibilityInputParams model);
         public WeekOffLimitResult CheckWeekOffLimit(WeekOffLimitModel modelData);
         public List<WeekOffLimitResult> CheckWeekOffLimitBulk(List<WeekOffLimitModel> modelData);
     }

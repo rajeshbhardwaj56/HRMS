@@ -494,5 +494,12 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetLeaveCountForValidation(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult ValidateAlreadyTakenLeaves(LeaveEligibilityInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.ValidateAlreadyTakenLeaves(model));
+            return response;
+        }
     }
 }

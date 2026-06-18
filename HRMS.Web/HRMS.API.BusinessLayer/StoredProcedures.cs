@@ -194,6 +194,9 @@ namespace HRMS.API.BusinessLayer
         public const string usp_ValidateShiftType = "usp_ValidateShiftType";
         public const string usp_GetLeaveSummaryDayWiseDetails = "usp_GetLeaveSummaryDayWiseDetails";
         public const string usp_GetLeaveCountForValidation = "usp_GetLeaveCountForValidation";
+        public const string usp_CheckLeaveEligibility = "usp_CheckLeaveEligibility";
+        
+
         public const string usp_CheckWeekOffLimit = "usp_CheckWeekOffLimit";
         public const string usp_CheckWeekOffLimit_Bulk = "usp_CheckWeekOffLimit_Bulk";
         #region Payroll
