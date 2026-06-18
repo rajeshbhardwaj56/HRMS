@@ -1,5 +1,6 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
 using HRMS.Models.Common;
+using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.ShiftType;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,20 @@ namespace HRMS.API.Web.Controllers
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.ValidateShiftType(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult CheckWeekOffLimit(WeekOffLimitModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CheckWeekOffLimit(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult CheckWeekOffLimitBulk(List<WeekOffLimitModel> model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CheckWeekOffLimitBulk(model));
             return response;
         }
     }

@@ -53,7 +53,10 @@
                (controller == "LeavePolicy" && action == "LeavePolicyDetailsListing") ||
                (controller == "LeavePolicy" && action == "WhatshappeningListing") ||
                (controller == "company" && action == "CompanyListing") ||
-               (controller == "ShiftType" && action == "ShiftTypeListing");
+               (controller == "ShiftType" && action == "ShiftTypeListing") ||
+               (controller == "Holiday" && action == "DesignationListings") ||
+               (controller == "Holiday" && action == "LOBListings") ||
+               (controller == "Holiday" && action == "SubDepartmentListings");
     }
 
 }
@@ -745,6 +748,23 @@
 
                 }
 
+
+                
+                <ul class="hrms-menu-group">
+
+                    @if (Model.FormPermissionList.Any(x => x.FormID == 37 && x.IsFormPermissions && x.FormLevel == 2))
+                    {
+                        <li>
+                            <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Employee" && currentAction == "ResetPasswordByAdmin" ? "hrms-active" : "")"
+                               asp-area="@(HRMS.Models.Common.Constants.ManageHR )"
+                               asp-controller="Employee"
+                               asp-action="ResetPasswordByAdmin">
+                                <i class="bi bi-shield-lock hrms-menu-title1"></i>
+                                <span class="hrms-menu-label ms-3"> Reset Password</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
     }

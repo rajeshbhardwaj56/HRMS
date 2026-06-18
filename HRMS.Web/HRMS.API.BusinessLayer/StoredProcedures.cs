@@ -18,6 +18,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdate_Employee = "usp_AddUpdate_Employee";
         public const string usp_AddUpdateExcelImport = "usp_AddUpdateExcelImport";
         public const string usp_Get_FogotPasswordDetails = "usp_Get_FogotPasswordDetails";
+        public const string usp_Get_AdminFogotPasswordDetails = "usp_Get_AdminFogotPasswordDetails";
         public const string usp_Get_Celebrations = "usp_Get_Celebrations";
         public const string usp_Get_CompanyDepartments = "usp_Get_CompanyDepartments";
         public const string usp_Get_CompanyEmployeeTypes = "usp_Get_CompanyEmployeeTypes";
@@ -80,6 +81,7 @@ namespace HRMS.API.BusinessLayer
 
         public const string usp_GetDashBoardDetails = "usp_GetDashBoardDetails";
         public const string usp_ResetPassword = "usp_ResetPassword";
+        public const string usp_ResetPasswordByAdmin = "usp_ResetPasswordByAdmin";
         public const string usp_Get_LeaveForApprovals = "usp_Get_LeaveForApprovals";
 
         public const string usp_Get_ShiftTypeDetails = "usp_Get_ShiftTypeDetails";
@@ -192,8 +194,8 @@ namespace HRMS.API.BusinessLayer
         public const string usp_ValidateShiftType = "usp_ValidateShiftType";
         public const string usp_GetLeaveSummaryDayWiseDetails = "usp_GetLeaveSummaryDayWiseDetails";
         public const string usp_GetLeaveCountForValidation = "usp_GetLeaveCountForValidation";
-        
-
+        public const string usp_CheckWeekOffLimit = "usp_CheckWeekOffLimit";
+        public const string usp_CheckWeekOffLimit_Bulk = "usp_CheckWeekOffLimit_Bulk";
         #region Payroll
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";
         public const string usp_GetEmployeeSalary = "usp_GetEmployeeSalary";
@@ -221,6 +223,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_UserPolicyAcknowledgements = "usp_UserPolicyAcknowledgements";
         public const string usp_TemplatesByIDLog = "usp_TemplatesByIDLog";
         public const string usp_EmploymentDetailByIDLog = "usp_EmploymentDetailByIDLog";
+        public const string usp_GetUserByIDLog = "usp_GetUserByIDLog";
         #endregion Logs
 
         #region TeamAlignment

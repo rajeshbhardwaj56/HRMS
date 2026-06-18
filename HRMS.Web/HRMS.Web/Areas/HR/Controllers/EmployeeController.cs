@@ -1865,5 +1865,220 @@ namespace HRMS.Web.Areas.HR.Controllers
                     dates.Add(date.Value.Date);  // Always add as date-only (ignores time part)
             }
         }
+        public ActionResult ResetPasswordByAdmin()
+        {
+            ResetPasswordModel model = new ResetPasswordModel();
+
+            model.UserName = "PTK";
+
+            try
+            {
+                CompanyLoginModel companyModel = new CompanyLoginModel();
+
+                var companyId = _configuration["CompanyDetails:CompanyId"];
+                companyModel.CompanyID = Convert.ToInt64(companyId);
+
+                var companyData = _businessLayer.SendPostAPIRequest(
+                    companyModel,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Company,
+                        APIApiActionConstants.GetCompaniesLogo),
+                    " ",
+                    false).Result.ToString();
+
+                companyModel =
+                    JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(companyData)
+                    .companyLoginModel;
+
+                if (!string.IsNullOrEmpty(companyModel.CompanyLogo))
+                {
+                    companyModel.CompanyLogo = _s3Service.GetFileUrl(companyModel.CompanyLogo);
+                }
+
+                model.CompanyLogo = companyModel.CompanyLogo;
+            }
+            catch (Exception)
+            {
+            }
+
+            return View(model);
+        }
+        [HttpPost]
+        public ActionResult ResetPasswordByAdmin(ResetPasswordModel model)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(model.UserName))
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "User Name is required.";
+                    return View(model);
+                }
+
+                if (string.IsNullOrWhiteSpace(model.Password))
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Password is required.";
+                    return View(model);
+                }
+
+                if (model.Password != model.ConfirmPassword)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Password and Confirm Password do not match.";
+                    return View(model);
+                }
+
+                //==============================================
+                // Validate User
+                //==============================================
+
+                ChangePasswordModel changeModel = new ChangePasswordModel();
+                changeModel.EmailId = model.UserName;
+
+                string validateApi = _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetAdminFogotPasswordDetails);
+
+                string validateResponse = _businessLayer
+                    .SendPostAPIRequest(changeModel, validateApi, null, false)
+                    .Result
+                    .ToString();
+
+                Result validateResult = JsonConvert.DeserializeObject<Result>(validateResponse);
+
+                if (validateResult == null || validateResult.Data == null)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "User not found.";
+                    return View(model);
+                }
+
+                UserModel user = JsonConvert.DeserializeObject<UserModel>((string)validateResult.Data);
+
+                if (user == null || user.EmployeeID <= 0)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "User not found. Please check the entered details and try again.";
+                    return View(model);
+                }
+
+                if (!user.IsActive)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "This account is currently inactive. Please activate the account first to reset the password.";
+                    return View(model);
+                }
+
+                if (user.IsDeleted)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "User is deleted. Password cannot be reset.";
+                    return View(model);
+                }
+
+                //==============================================
+                // Fill Hidden Values
+                //==============================================
+
+                model.EmployeeID = user.EmployeeID.ToString();
+                model.UserID = user.EmployeeID.ToString();
+                model.CompanyID = user.CompanyID.ToString();
+                model.UpdatedByUserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+                //==============================================
+                // Reset Password
+                //==============================================
+
+                string apiUrl = _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.ResetPasswordByAdmin);
+
+                string response = _businessLayer
+                    .SendPostAPIRequest(model, apiUrl, null, false)
+                    .Result
+                    .ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(response);
+
+                if (result == null)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Invalid response from server.";
+                    return View(model);
+                }
+
+                if (result.UserID < 0)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypetWarning;
+                    TempData[Constants.toastMessage] = result.Message;
+                    return View(model);
+                }
+
+                TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                TempData[Constants.toastMessage] = "Password reset successfully.";
+                TempData["GeneratedPassword"] = model.Password;
+                TempData["ShowCopy"] = true;
+
+                return RedirectToAction("ResetPasswordByAdmin");
+            }
+            catch (Exception ex)
+            {
+                TempData[Constants.toastType] = Constants.toastTypetWarning;
+                TempData[Constants.toastMessage] = ex.Message;
+
+                return View(model);
+            }
+        }
+        [HttpPost]
+        public JsonResult CheckWeekOffLimitBulk([FromBody] List<WeekOffLimitModel> request)
+        {
+            if (request == null || !request.Any())
+            {
+                return Json(new
+                {
+                    isExceeded = false,
+                    message = "No data received."
+                });
+            }
+
+            foreach (var item in request)
+            {
+                if (!string.IsNullOrEmpty(item.EmployeeNumber) &&
+                    item.EmployeeNumber.Contains("_"))
+                {
+                    item.EmployeeNumber = item.EmployeeNumber.Split('_')[1];
+                }
+            }
+
+            var data = _businessLayer.SendPostAPIRequest(
+                request,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.ShiftType,
+                    APIApiActionConstants.CheckWeekOffLimitBulk),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var result = JsonConvert.DeserializeObject<List<WeekOffLimitResult>>(
+                data.Result.ToString());
+
+            var exceeded = result.FirstOrDefault(x => x.IsExceeded);
+
+            if (exceeded != null)
+            {
+                return Json(new
+                {
+                    isExceeded = true,
+                    message = exceeded.Message,
+                    weekOffCount = exceeded.WeekOffCount
+                });
+            }
+
+            return Json(new
+            {
+                isExceeded = false,
+                message = "",
+                weekOffCount = 0
+            });
+        }
     }
 }

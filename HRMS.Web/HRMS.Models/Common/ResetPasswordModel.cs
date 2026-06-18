@@ -29,6 +29,7 @@ namespace HRMS.Models.Common
         public string CompanyID { get; set; }
         public string UserName { get; set; }
         public string? CompanyLogo { get; set; }
+        public long? UpdatedByUserID { get; set; }
 
     }
 
@@ -38,7 +39,7 @@ namespace HRMS.Models.Common
 
 
 
-	public class ChangePasswordModel
+    public class ChangePasswordModel
 	{
 
 		//[Required(ErrorMessage = "Username is required")]

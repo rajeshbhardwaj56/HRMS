@@ -157,7 +157,12 @@ namespace HRMS.Models.Common
         ExportAttendanceForm = 30,
         DesignationListing=31,
         LOBListing= 32,
-        SubDepartmentListing = 33
+        SubDepartmentListing = 33,
+        ExportTeamAttendenceApprovalList = 34,
+        ExportApproveCompOff = 35,
+        ExportApproveLeave = 36,
+        ResetPasswordByAdmin = 37
+
     }
 
 
@@ -280,7 +285,9 @@ namespace HRMS.Models.Common
         public const string GetAllAttendenceList = "GetAllAttendenceList";
         public const string AddUpdateAttendenceList = "AddUpdateAttendenceList";
         public const string ResetPassword = "ResetPassword";
+        public const string ResetPasswordByAdmin = "ResetPasswordByAdmin";
         public const string GetFogotPasswordDetails = "GetFogotPasswordDetails";
+        public const string GetAdminFogotPasswordDetails = "GetAdminFogotPasswordDetails";
         public const string AddUpdateShiftType = "AddUpdateShiftType";
         public const string GetAllShiftTypes = "GetAllShiftTypes";
         public const string DeleteLeavesSummary = "DeleteLeavesSummary";
@@ -402,6 +409,8 @@ namespace HRMS.Models.Common
         public const string GetSubDepartmentDetails = "GetSubDepartmentDetails";
         public const string AddUpdateSubDepartment = "AddUpdateSubDepartment";
         public const string CheckDuplicateSubDepartment = "CheckDuplicateSubDepartment";
+        public const string CheckWeekOffLimit = "CheckWeekOffLimit";
+        public const string CheckWeekOffLimitBulk = "CheckWeekOffLimitBulk";
     }
 
     public class MyInfoTabs

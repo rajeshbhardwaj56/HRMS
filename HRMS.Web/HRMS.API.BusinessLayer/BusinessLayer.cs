@@ -110,6 +110,7 @@ namespace HRMS.API.BusinessLayer
             }
             return results;
         }
+     
         public Result GetFogotPasswordDetails(ChangePasswordModel model)
         {
             Result results = new Result();
@@ -139,6 +140,7 @@ namespace HRMS.API.BusinessLayer
             results.Data = JsonConvert.SerializeObject(data);
             return results;
         }
+  
         public Results GetAllEmployees(EmployeeInputParams model)
         {
             Results result = new Results();
@@ -8002,6 +8004,218 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
         }
         #endregion
 
+        public WeekOffLimitResult CheckWeekOffLimit(WeekOffLimitModel modelData)
+        {
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@EmployeeNumber", modelData.EmployeeNumber));
+            sqlParameter.Add(new SqlParameter("@WorkDate", modelData.WorkDate));
+
+            var ds = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_CheckWeekOffLimit,
+                sqlParameter);
+
+            if (ds != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                DataRow dr = ds.Tables[0].Rows[0];
+
+                return new WeekOffLimitResult
+                {
+                    WeekOffCount = Convert.ToInt32(dr["WeekOffCount"]),
+                    IsExceeded = Convert.ToBoolean(dr["IsExceeded"]),
+                    Message = dr["Message"].ToString()
+                };
+            }
+
+            return new WeekOffLimitResult();
+        }
+        private DataTable CreateWeekOffTVP(List<WeekOffLimitModel> models)
+        {
+            DataTable dt = new DataTable();
+
+            dt.Columns.Add("EmployeeNumber", typeof(string));
+            dt.Columns.Add("WorkDate", typeof(DateTime));
+
+            foreach (var item in models)
+            {
+                dt.Rows.Add(item.EmployeeNumber, item.WorkDate);
+            }
+
+            return dt;
+        }
+        public List<WeekOffLimitResult> CheckWeekOffLimitBulk(List<WeekOffLimitModel> modelData)
+        {
+            DataTable tvpTable = CreateWeekOffTVP(modelData);
+
+            SqlParameter param = new SqlParameter("@Input", tvpTable)
+            {
+                SqlDbType = SqlDbType.Structured,
+                TypeName = "dbo.WeekOffCheckType"
+            };
+
+            var ds = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_CheckWeekOffLimit_Bulk,
+                new List<SqlParameter> { param });
+
+            List<WeekOffLimitResult> resultList = new List<WeekOffLimitResult>();
+
+            if (ds != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    resultList.Add(new WeekOffLimitResult
+                    {
+                        EmployeeNumber = dr["EmployeeNumber"].ToString(),
+                        PayrollStartDate = Convert.ToDateTime(dr["PayrollStartDate"]),
+                        PayrollEndDate = Convert.ToDateTime(dr["PayrollEndDate"]),
+                        WeekOffCount = Convert.ToInt32(dr["WeekOffCount"]),
+                        IsExceeded = Convert.ToBoolean(dr["IsExceeded"]),
+                        Message = dr["Message"].ToString()
+                    });
+                }
+            }
+
+            return resultList;
+        }
+        #region Admin Reset Password
+        public Result ResetPasswordByAdmin(ResetPasswordModel model)
+        {
+            Result result = new Result();
+
+            try
+            {
+                // FIX: ensure UpdatedByUserID is always valid
+                long updatedByUserId = model.UpdatedByUserID ?? 0;
+
+                // ==============================
+                // OLD DATA
+                // ==============================
+                List<SqlParameter> oldParams = new List<SqlParameter>();
+                oldParams.Add(new SqlParameter("@EmployeeID", Convert.ToInt64(model.EmployeeID)));
+
+                DataSet oldDataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetUserByIDLog,
+                    oldParams
+                );
+
+                DataTable oldData = oldDataSet.Tables[0];
+
+                // ==============================
+                // UPDATE PASSWORD
+                // ==============================
+                List<SqlParameter> sqlParameter = new List<SqlParameter>();
+                sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
+                sqlParameter.Add(new SqlParameter("@Password", model.Password));
+
+                sqlParameter.Add(new SqlParameter("@UpdatedByUserID", updatedByUserId));
+
+
+                DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_ResetPasswordByAdmin,
+                    sqlParameter
+                );
+
+                if (dataSet.Tables[0].Columns.Contains("Result"))
+                {
+                    result = dataSet.Tables[0].AsEnumerable()
+                        .Select(dataRow => new Result
+                        {
+                            Message = dataRow.Field<string>("Result"),
+                            UserID = dataRow.Field<long?>("EmployeeID")
+                        })
+                        .FirstOrDefault();
+                }
+
+                long id = result.UserID ?? Convert.ToInt64(model.EmployeeID);
+
+                // ==============================
+                // NEW DATA
+                // ==============================
+                List<SqlParameter> newParams = new List<SqlParameter>();
+                newParams.Add(new SqlParameter("@EmployeeID", id));
+
+                DataSet newDataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetUserByIDLog,
+                    newParams
+                );
+
+                DataTable newData = newDataSet.Tables[0];
+
+                // ==============================
+                // AUDIT LOG (WHO UPDATED SAVED HERE)
+                // ==============================
+                TrackLogAudit(
+                    oldData,
+                    newData,
+                    "AdminResetPassword",
+                    updatedByUserId,   // 👈 THIS IS WHO UPDATED PASSWORD
+                    "Users",
+                    "tbl_Users",
+                    id,
+                    "tbl_Users_Log",
+                    "Reset Password By Admin"
+                );
+
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+                result.UserID = -1;
+            }
+
+            return result;
+        }
+        public Result GetAdminFogotPasswordDetails(ChangePasswordModel model)
+        {
+            Result results = new Result();
+
+            List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@EmailId", model.EmailId)
+    };
+
+            var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_Get_AdminFogotPasswordDetails,
+                sqlParameter
+            );
+
+            if (dataSet == null || dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
+            {
+                results.Data = null;
+                return results;
+            }
+
+            var data = dataSet.Tables[0].AsEnumerable()
+                .Select(dataRow => new UserModel
+                {
+                    EmployeeID = dataRow.Field<long?>("EmployeeID") ?? 0,
+                    UserID = dataRow.Field<long?>("UserID") ?? 0,
+                    guid = dataRow.Field<Guid?>("guid") ?? Guid.Empty,
+                    CompanyID = dataRow.Field<long?>("CompanyID") ?? 0,
+                    UserName = dataRow.Field<string>("UserName"),
+                    FullName = dataRow.Field<string>("FullName"),
+                    DepartmentName = dataRow.Field<string>("DepartmentName"),
+                    ManagerName = dataRow.Field<string>("ManagerName"),
+                    IsResetPasswordRequired = dataRow.Field<bool?>("IsResetPasswordRequired") ?? false,
+                    IsActive = dataRow.Field<bool?>("EmpIsActive") ?? false,
+                    IsDeleted = dataRow.Field<bool?>("EmpIsDeleted") ?? false,
+                    RoleID = dataRow.Field<int?>("RoleID") ?? 0,
+                    Email = dataRow.Field<string>("OfficialEmailID"),
+                    EmployeeTypeID = dataRow.Field<long?>("EmployeeTypeID") ?? 0,
+                    ManagerEmailL1 = dataRow.Field<string>("ManagerEmailL1"),
+                    ManagerEmailL2 = dataRow.Field<string>("ManagerEmailL2"),
+                    AdminEmail = dataRow.Field<string>("AdminEmail"),
+                })
+                .FirstOrDefault();
+
+            results.Data = JsonConvert.SerializeObject(data);
+            return results;
+        }
+        #endregion Admin Reset Password
     }
 
 

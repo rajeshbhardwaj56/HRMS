@@ -121,4 +121,22 @@ namespace HRMS.Models.ExportEmployeeExcel
         public string? StartTime { get; set; }
         public string? EndTime { get; set; }
     }
+    public class WeekOffLimitModel
+    {
+
+        public string? EmployeeNumber { get; set; }
+
+        public DateTime WorkDate { get; set; }
+
+    }
+
+    public class WeekOffLimitResult
+    {
+        public string? EmployeeNumber { get; set; }
+        public DateTime PayrollStartDate { get; set; }
+        public DateTime PayrollEndDate { get; set; }
+        public int WeekOffCount { get; set; }
+        public bool IsExceeded { get; set; }
+        public string? Message { get; set; }
+    }
 }
