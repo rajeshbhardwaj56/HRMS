@@ -34,7 +34,23 @@ namespace HRMS.Models.Common
     }
 
 
+    public class AdminResetPasswordModel
+    {
+        public string UserID { get; set; }
+        public string EmployeeID { get; set; }
+        [Required(ErrorMessage = "Password is required")]
+        public string? Password { get; set; }
 
+        public string? ConfirmPassword { get; set; }
+        public bool IsResetPasswordRequired { get; set; }
+        public bool IsResetPasswordExpired { get; set; }
+        public DateTime dt { get; set; }
+        public string? CompanyID { get; set; }
+        public string? UserName { get; set; }
+        public string? CompanyLogo { get; set; }
+        public long? UpdatedByUserID { get; set; }
+
+    }
 
 
 
