@@ -1099,6 +1099,18 @@ oldStatus: $("#oldStatus").val();
                         /* ---------------- STATUS EDIT PERMISSION ---------------- */
 
                         function canEditStatus(workDateStr) {
+                            const tempWorkDateCheck = parseISTDate(workDateStr);
+
+                            tempWorkDateCheck.setHours(0, 0, 0, 0);
+
+                            // Hard-coded cutoff date: 20-Jun-2026
+                            const tempCutoffDateCheck = new Date(2026, 5, 20); // Month is 0-based, so 5 = June
+                            tempCutoffDateCheck.setHours(0, 0, 0, 0);
+
+                            if (tempWorkDateCheck < tempCutoffDateCheck) {
+                                return false;
+                            }
+                           
 
                             const roleName = parseInt(document.getElementById('hdnRoleName').value);
 
@@ -1106,6 +1118,8 @@ oldStatus: $("#oldStatus").val();
                                 return true;
                             }
                             
+                            
+
                             const workDate = parseISTDate(workDateStr);
                             const month = workDate.getMonth();
 							if (workDate > todayIST) return false;
