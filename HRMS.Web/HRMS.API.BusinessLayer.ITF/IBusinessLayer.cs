@@ -24,7 +24,7 @@ namespace HRMS.API.BusinessLayer.ITF
     {
         LoginUser LoginUser(LoginUser loginUser);
         public Result ResetPassword(ResetPasswordModel loginUser);
-        public Result ResetPasswordByAdmin(ResetPasswordModel model);
+        public Result ResetPasswordByAdmin(AdminResetPasswordModel model);
         public Results GetAllCountries();
         public Results GetAllLanguages();
         public Results GetAllCompanyLanguages(long companyID);

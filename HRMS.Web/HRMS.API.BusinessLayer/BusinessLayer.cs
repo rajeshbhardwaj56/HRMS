@@ -8113,7 +8113,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
             return resultList;
         }
         #region Admin Reset Password
-        public Result ResetPasswordByAdmin(ResetPasswordModel model)
+        public Result ResetPasswordByAdmin(AdminResetPasswordModel model)
         {
             Result result = new Result();
 

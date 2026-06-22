@@ -77,7 +77,7 @@ namespace HRMS.API.Web.Controllers.Common
         }
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult ResetPasswordByAdmin(ResetPasswordModel model)
+        public IActionResult ResetPasswordByAdmin(AdminResetPasswordModel model)
         {
             IActionResult response = Unauthorized();
             response = Ok(_businessLayer.ResetPasswordByAdmin(model));

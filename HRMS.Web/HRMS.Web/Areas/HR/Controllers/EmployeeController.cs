@@ -1867,7 +1867,7 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
         public ActionResult ResetPasswordByAdmin()
         {
-            ResetPasswordModel model = new ResetPasswordModel();
+            AdminResetPasswordModel model = new AdminResetPasswordModel();
 
             model.UserName = "PTK";
 
@@ -1904,7 +1904,7 @@ namespace HRMS.Web.Areas.HR.Controllers
             return View(model);
         }
         [HttpPost]
-        public ActionResult ResetPasswordByAdmin(ResetPasswordModel model)
+        public ActionResult ResetPasswordByAdmin(AdminResetPasswordModel model)
         {
             try
             {
@@ -1922,12 +1922,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                     return View(model);
                 }
 
-                if (model.Password != model.ConfirmPassword)
-                {
-                    TempData[Constants.toastType] = Constants.toastTypeError;
-                    TempData[Constants.toastMessage] = "Password and Confirm Password do not match.";
-                    return View(model);
-                }
+
 
                 //==============================================
                 // Validate User
