@@ -1039,6 +1039,14 @@ oldStatus: $("#oldStatus").val();
                         finalYear = selectedYear - 1;
                     }
                 }
+                else if (currentMonth == 6 && day == 20)
+                {
+                    finalMonth =  selectedMonth - 1;
+                    if (finalMonth === 0) {
+                        finalMonth = 12;
+                        finalYear = selectedYear - 1;
+                    }
+                }
 			   else if (day >= 21)
 			   {
 				finalMonth = selectedMonth - 1;
