@@ -592,6 +592,13 @@
 				data: data,
 				success: function (json) {
 					try {
+                        if (json.success === false) {
+                            showToast(json.message || "Action not allowed.");
+                            CloseApproveRejectModel();
+                            approveButton.prop('disabled', false).text('Approve');
+                            rejectButton.prop('disabled', false).text('Reject');
+                            return; // ⛔ stop further execution
+                        }
 						if (json && json.message) {
 							if (json.success) {
 								showToast(json.message);

@@ -1072,7 +1072,18 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             }
 
 
+            // ===== TEMPORARY HARD CHECK =====
+            var tempCompOffCutoffDate = new DateTime(2026, 6, 20);
 
+            if (workDate.Date < tempCompOffCutoffDate)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Comp Off records before 20-Jun-2026 cannot be approved or rejected."
+                });
+            }
+            // ===== END TEMPORARY HARD CHECK =====
             // Submit updated attendance
             var updateApiResponse = _businessLayer.SendPostAPIRequest(
                 attendanceModel,
@@ -1591,6 +1602,18 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
             try
             {
+                var hardCutoffDate = new DateTime(2026, 6, 20);
+                if (records.Any(x => x.WorkDate.HasValue &&
+                     x.WorkDate.Value.Date < hardCutoffDate))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Attendance records before 20-Jun-2026 cannot be approved or rejected."
+                    });
+                }
+
+
                 foreach (var record in records)
                 {
                     
