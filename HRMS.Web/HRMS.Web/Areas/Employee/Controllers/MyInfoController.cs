@@ -385,6 +385,16 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 return Json(new { data = response });
             }
 
+            var tempLeaveCutoffDate = new DateTime(2026, 6, 20);
+
+            if (leaveRecord.StartDate.Date < tempLeaveCutoffDate)
+            {
+                response.status = 1;
+                response.message = "Leaves before 20-Jun-2026 cannot be approved or rejected.";
+                return Json(new { data = response });
+            }
+            // ===== END TEMPORARY HARD CHECK =====
+
             // Update leave record with approval/rejection info
             leaveRecord.UserID = userID;
             leaveRecord.ApproveRejectComment = approveRejectComment;
@@ -1324,7 +1334,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime minLeaveDate = new DateTime(2026, 5, 21);
+            DateTime minLeaveDate = new DateTime(2026, 6, 20);
             if (startDate.Date < minLeaveDate.Date || endDate.Date < minLeaveDate.Date)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
@@ -1900,7 +1910,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime minLeaveDate = new DateTime(2026, 5, 21);
+            DateTime minLeaveDate = new DateTime(2026, 6, 20);
             if (startDate.Date < minLeaveDate.Date || endDate.Date < minLeaveDate.Date)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
