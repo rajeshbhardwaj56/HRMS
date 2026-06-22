@@ -1248,7 +1248,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
             DateTime fiscalYearStart;
             DateTime fiscalYearEnd;
 
-            if (today.Year == 2026)
+            if (today >= new DateTime(2026, 4, 20) &&
+    today <= new DateTime(2027, 3, 20))
             {
                 if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
                 {
