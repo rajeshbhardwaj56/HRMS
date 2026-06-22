@@ -880,22 +880,22 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             return View(model);
         }
         [HttpPost]
-        public JsonResult GetManagerApprovedCompOff([FromBody] AttendanceStatusRequest request)
+        public async Task<JsonResult> GetManagerApprovedCompOff([FromBody] AttendanceStatusRequest request)
         {
             AttendanceInputParams attendenceListParams = new AttendanceInputParams();
             attendenceListParams.AttendanceStatusId = request.AttendanceStatus;
             attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            var data = _businessLayer.SendPostAPIRequest(
+            var data = await _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetManagerApprovedAttendance), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
-            ).Result.ToString();
-            var model = JsonConvert.DeserializeObject<List<Attendance>>(data).ToList();
+            );
+            var model = JsonConvert.DeserializeObject<List<Attendance>>(data?.ToString()).ToList();
             return Json(new { data = model });
         }
 
         [HttpPost]
-        public JsonResult GetApprovedCompOff([FromBody] AttendanceStatusRequest request)
+        public async Task<JsonResult> GetApprovedCompOff([FromBody] AttendanceStatusRequest request)
         {
             CompOffInputParams attendenceListParams = new CompOffInputParams();
             attendenceListParams.AttendanceStatusId = request.CompOffStatus;
@@ -905,12 +905,12 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             attendenceListParams.SubDepartmentID = request.SubDepartmentID;
             attendenceListParams.HierarchyLevel = request.HierarchyLevel;
 
-            var data = _businessLayer.SendPostAPIRequest(
+            var data = await _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedCompOff), HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
-            ).Result.ToString();
-            var model = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data).ToList();
+            );
+            var model = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data?.ToString()).ToList();
 
             return Json(new { data = model });
         }
@@ -1005,7 +1005,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         }
 
         [HttpPost]
-        public JsonResult ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
+        public async Task<JsonResult> ApproveRejectCompOff(long compOffId, long attendanceId, long employeeId, string status, string approveRejectComment, DateTime startDate, DateTime endDate, DateTime workDate, int attendanceStatusId, string actionText)
         {
             string approvesStatus = "";
             var modifiedBy = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
@@ -1021,8 +1021,8 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetEmployeeDetails),
                 bearerToken,
                 true
-            ).Result.ToString();
-            var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse);
+            );
+            var employeeResult = JsonConvert.DeserializeObject<EmployeePersonalDetails>(employeeApiResponse?.ToString());
 
             // Prepare attendance model
             var attendanceModel = new CompOffAttendanceRequestModel

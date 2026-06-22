@@ -1,10 +1,4 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Reflection;
-using System.Xml;
-using System.Xml.Serialization;
-using HRMS.API.BusinessLayer.ITF;
+﻿using HRMS.API.BusinessLayer.ITF;
 using HRMS.API.DataLayer.ITF;
 using HRMS.Models;
 using HRMS.Models.AttendenceList;
@@ -30,6 +24,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Serilog.Core;
+using System.Data;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -8068,10 +8069,15 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
 
             dt.Columns.Add("EmployeeNumber", typeof(string));
             dt.Columns.Add("WorkDate", typeof(DateTime));
+            dt.Columns.Add("WeekStartDate", typeof(DateTime));
 
             foreach (var item in models)
             {
-                dt.Rows.Add(item.EmployeeNumber, item.WorkDate);
+                dt.Rows.Add(
+                    item.EmployeeNumber,
+                    item.WorkDate,
+                    item.WeekStartDate
+                );
             }
 
             return dt;
@@ -8100,12 +8106,23 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
                 {
                     resultList.Add(new WeekOffLimitResult
                     {
-                        EmployeeNumber = dr["EmployeeNumber"].ToString(),
+                        EmployeeNumber = Convert.ToString(dr["EmployeeNumber"]),
+
+                        WeekStartDate = Convert.ToDateTime(dr["WeekStartDate"]),
+
+                        WeekOffID = Convert.ToInt32(dr["WeekOffID"]),
+
+                        IsUpdate = Convert.ToBoolean(dr["IsUpdate"]),
+
                         PayrollStartDate = Convert.ToDateTime(dr["PayrollStartDate"]),
+
                         PayrollEndDate = Convert.ToDateTime(dr["PayrollEndDate"]),
+
                         WeekOffCount = Convert.ToInt32(dr["WeekOffCount"]),
+
                         IsExceeded = Convert.ToBoolean(dr["IsExceeded"]),
-                        Message = dr["Message"].ToString()
+
+                        Message = Convert.ToString(dr["Message"])
                     });
                 }
             }
