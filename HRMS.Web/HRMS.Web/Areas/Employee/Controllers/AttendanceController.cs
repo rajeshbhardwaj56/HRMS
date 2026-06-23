@@ -1073,14 +1073,14 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
 
             // ===== TEMPORARY HARD CHECK =====
-            var tempCompOffCutoffDate = new DateTime(2026, 6, 20);
+            var tempCompOffCutoffDate = new DateTime(2026, 5, 21);
 
             if (workDate.Date < tempCompOffCutoffDate)
             {
                 return Json(new
                 {
                     success = false,
-                    message = "Comp Off records before 20-Jun-2026 cannot be approved or rejected."
+                    message = "Comp Off records before 21-May-2026 cannot be approved or rejected."
                 });
             }
             // ===== END TEMPORARY HARD CHECK =====
@@ -1602,14 +1602,14 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
             try
             {
-                var hardCutoffDate = new DateTime(2026, 6, 20);
+                var hardCutoffDate = new DateTime(2026, 5, 21);
                 if (records.Any(x => x.WorkDate.HasValue &&
                      x.WorkDate.Value.Date < hardCutoffDate))
                 {
                     return BadRequest(new
                     {
                         success = false,
-                        message = "Attendance records before 20-Jun-2026 cannot be approved or rejected."
+                        message = "Attendance records before 21-May-2026 cannot be approved or rejected."
                     });
                 }
 
