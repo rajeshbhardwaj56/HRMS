@@ -388,7 +388,7 @@ namespace HRMS.Models.Common
         public const string GetManagerPendingNotifications = "GetManagerPendingNotifications";
         public const string MarkAsReadNotification = "MarkAsReadNotification";
         public const string GetManagerApprovalCount = "GetManagerApprovalCount";
-
+        public const string GetAdminFogotPasswordDetails = "GetAdminFogotPasswordDetails";
         public const string AddUpdateDesignation = "AddUpdateDesignation";
         public const string GetAllDesignationList = "GetAllDesignationList";
         public const string DeleteDesignation = "DeleteDesignation";
@@ -402,6 +402,7 @@ namespace HRMS.Models.Common
         public const string GetSubDepartmentDetails = "GetSubDepartmentDetails";
         public const string AddUpdateSubDepartment = "AddUpdateSubDepartment";
         public const string CheckDuplicateSubDepartment = "CheckDuplicateSubDepartment";
+        public const string ResetPasswordByAdmin = "ResetPasswordByAdmin";
     }
 
     public class MyInfoTabs

@@ -494,5 +494,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetLeaveCountForValidation(model));
             return response;
         }
+
+
     }
 }

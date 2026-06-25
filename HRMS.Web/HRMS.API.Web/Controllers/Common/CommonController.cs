@@ -75,7 +75,14 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.ResetPassword(model));
             return response;
         }
-
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult ResetPasswordByAdmin(AdminResetPasswordModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.ResetPasswordByAdmin(model));
+            return response;
+        }
         [HttpPost]
         [AllowAnonymous]
         public IActionResult GetFogotPasswordDetails(ChangePasswordModel model)
@@ -84,7 +91,15 @@ namespace HRMS.API.Web.Controllers.Common
             response = Ok(_businessLayer.GetFogotPasswordDetails(model));
             return response;
         }
-
+        
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult GetAdminFogotPasswordDetails(ChangePasswordModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetAdminFogotPasswordDetails(model));
+            return response;
+        }
         #region Page Permission
 
         [HttpGet]

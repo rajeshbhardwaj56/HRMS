@@ -192,8 +192,9 @@ namespace HRMS.API.BusinessLayer
         public const string usp_ValidateShiftType = "usp_ValidateShiftType";
         public const string usp_GetLeaveSummaryDayWiseDetails = "usp_GetLeaveSummaryDayWiseDetails";
         public const string usp_GetLeaveCountForValidation = "usp_GetLeaveCountForValidation";
-        
-
+        public const string usp_Get_AdminFogotPasswordDetails = "usp_Get_AdminFogotPasswordDetails";
+        public const string usp_ResetPasswordByAdmin = "usp_ResetPasswordByAdmin";
+        public const string usp_GetUserByIDLog = "usp_GetUserByIDLog";
         #region Payroll
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";
         public const string usp_GetEmployeeSalary = "usp_GetEmployeeSalary";

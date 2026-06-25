@@ -24,6 +24,7 @@ namespace HRMS.API.BusinessLayer.ITF
     {
         LoginUser LoginUser(LoginUser loginUser);
         public Result ResetPassword(ResetPasswordModel loginUser);
+        public Result ResetPasswordByAdmin(AdminResetPasswordModel model);
         public Results GetAllCountries();
         public Results GetAllLanguages();
         public Results GetAllCompanyLanguages(long companyID);
@@ -54,6 +55,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmploymentSeparationDetails(EmploymentSeparationDetail employmentSeparationDetails);
         public EmploymentSeparationDetail GetEmploymentSeparationDetails(EmploymentSeparationInputParams model);
         public Result GetFogotPasswordDetails(ChangePasswordModel model);
+        public Result GetAdminFogotPasswordDetails(ChangePasswordModel model);
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
         public DashBoardModel GetDashBoardModel(DashBoardModelInputParams model);
