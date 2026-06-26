@@ -6,6 +6,7 @@
 @{
 	Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
 	ViewData["Title"] = "Approve Comp-Off";
+	var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
 }
 <style>
 	.fade:not(.show) {
@@ -73,9 +74,24 @@
 						<div class="tab-content" id="nav-tabContent1">
 							<div class="tab-pane fade show active" id="applied-compOff-tab" role="tabpanel" aria-labelledby="applied-compOff-tab1">
 								<div class="group-box anim">
-									<div class="tabsInfo" id="myTabContent-timeoff">
-										<h3>CompOff For Approval</h3>
-									</div>
+                                    <div class="tabsInfo d-flex align-items-center justify-content-between mb-3" id="myTabContent-timeoff">
+                                        <h3>CompOff For Approval</h3>
+                                        @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
+                                        {
+                                            <div class="d-flex align-items-center">
+                                                <input type="text" id="txtAdminCompOffComment" class="form-control form-control-sm me-2" placeholder="Enter comment" style="width:250px;" />
+
+                                                <select id="ddlCompOffStatus" class="form-select form-select-sm me-2" style="width:150px;">
+                                                    <option value="">Select Status</option>
+                                                    <option value="1">Approve</option>
+                                                    <option value="2">Reject</option>
+                                                </select>
+                                                <button id="btnUpdateSelectedCompOff" class="btn btn-primary btn-sm">
+                                                    Update Selected
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
 
 									<div role="tabpanel" aria-labelledby="apply-tab">
 										<div class="row">
@@ -84,19 +100,29 @@
 													<div class="card-body">
 														<table id="tblcompOffForApproval" class="table table-striped body-text" style="width:100%">
 															<thead>
-																<tr>
-																	<th>Emp No</th>	
-																	<th>Name</th>	
-																	<th>Manager</th>	
-																	<th>From Date</th>
-																	<th>To Date</th>
-																	<th>Work Date</th>
-																	<th>Total Hours</th>
-																	<th>Status</th>
-																	<th>Remark</th>
+                                                                <tr>
+                                                                    @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin)
+                                                                    {
+                                                                        <th style="width:40px;">
+                                                                            <input type="checkbox" id="selectAllCompOff" />
+                                                                        </th>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <th class="first" style="visibility:hidden"> </th>
+                                                                    }
+                                                                    <th>Emp No</th>
+                                                                    <th>Name</th>
+                                                                    <th>Manager</th>
+                                                                    <th>From Date</th>
+                                                                    <th>To Date</th>
+                                                                    <th>Work Date</th>
+                                                                    <th>Total Hours</th>
+                                                                    <th>Status</th>
+                                                                    <th>Remark</th>
 
-																	<th>Action</th>
-																</tr>
+                                                                    <th>Action</th>
+                                                                </tr>
 															</thead>
 
 														</table>
@@ -304,10 +330,6 @@
 		let activeCompOffStatus = 1;
 	$(document).ready(function () {
 
-		//ApprovalcompOffAutoReload();
-
-		// ❌ REMOVED suggestion: duplicate binding risk (kept as-is but safer below)
-
 		$("input[name='compOffStatus']").change(function () {
 			ApprovalcompOffAutoReload();
 		});
@@ -344,11 +366,25 @@
 		let status = 1;
 			  activeCompOffStatus = 1;
 		let url = '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff';
-				InitcompOffForApproval();   // ALWAYS init first ONCE
+					    	 @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin ) {
+    <text>
+    InitAdmincompOffForApproval();
+
+    </text>
+} else {
+    <text>InitcompOffForApproval();</text>
+}  // ALWAYS init first ONCE
 		RefreshTable12(tableId, url, status);
 
 		if (!$.fn.DataTable.isDataTable(tableId)) {
-			InitcompOffForApproval();
+			    	 @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin ) {
+    <text>
+    InitAdmincompOffForApproval();
+
+    </text>
+} else {
+    <text>InitcompOffForApproval();</text>
+}
 		}
 	}
 	 //First Tab load
@@ -363,6 +399,10 @@
 			 info: true,
 			 responsive: true,
 			 columns: [
+				 {
+					 data: "id",
+
+				 },
 				 { data: "employeeNumber", autoWidth: true },
 				 { data: "employeeName", autoWidth: true },
 				 { data: "managerName", autoWidth: true },
@@ -379,30 +419,231 @@
 				 {
 					 data: "workDate",
 					 autoWidth: true,
-						 render: formatWorkDate
+					 render: formatWorkDate
 				 },
-					{
-		data: "hoursWorked",
-		autoWidth: true,
-		render: function (data, type, row) {
-			return formatTimeToHoursMinutes(data);
-		}
-	},
+				 {
+					 data: "hoursWorked",
+					 autoWidth: true,
+					 render: function (data, type, row) {
+						 return formatTimeToHoursMinutes(data);
+					 }
+				 },
 				 { data: "attendanceStatus", autoWidth: true },
-								 { data: "comments", autoWidth: true },
+				 { data: "comments", autoWidth: true },
 
 				 {
 					 render: function (data, type, row) {
-                         let comments = row.comments ? row.comments.replace(/'/g, "\\'").replace(/\n/g, " ") : "";
-                         return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}','${row.hoursWorked}','${comments}')" href="#" title="Approve">
+						 let comments = row.comments ? row.comments.replace(/'/g, "\\'").replace(/\n/g, " ") : "";
+						 return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}','${row.hoursWorked}','${comments}')" href="#" title="Approve">
 									 <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
 								 </a>`;
 					 }
 				 }
+			 ],
+			 "columnDefs": [
+                 {
+
+                     "targets": [0],
+                     "orderable": false,
+                     "visible": false
+                 },
 			 ]
 		 });
 	 }
 
+    function InitAdmincompOffForApproval() {
+        if ($.fn.DataTable.isDataTable('#tblcompOffForApproval')) {
+            return; // STOP double init
+        }
+        $('#tblcompOffForApproval').DataTable({
+            ordering: true,
+            paging: true,
+            searching: true,
+            info: true,
+            responsive: true,
+            columns: [
+                {
+                    data: "id",
+                    render: function (data) {
+                        return `<input type="checkbox" class="row-select-compOff" value="${data}" />`;
+                    },
+                    orderable: false
+                },
+                { data: "employeeNumber", autoWidth: true },
+                { data: "employeeName", autoWidth: true },
+                { data: "managerName", autoWidth: true },
+                {
+                    data: "firstLogDate",
+                    autoWidth: true,
+                    render: formatDate
+                },
+                {
+                    data: "lastLogDate",
+                    autoWidth: true,
+                    render: formatDate
+                },
+                {
+                    data: "workDate",
+                    autoWidth: true,
+                    render: formatWorkDate
+                },
+                {
+                    data: "hoursWorked",
+                    autoWidth: true,
+                    render: function (data, type, row) {
+                        return formatTimeToHoursMinutes(data);
+                    }
+                },
+                { data: "attendanceStatus", autoWidth: true },
+                { data: "comments", autoWidth: true },
+
+                {
+                    render: function (data, type, row) {
+                        let comments = row.comments ? row.comments.replace(/'/g, "\\'").replace(/\n/g, " ") : "";
+                        return `<a onclick="OpenApproveRejectModel(${row.userId}, ${row.id},${row.attendanceId}, '${row.firstLogDate}', '${row.lastLogDate}', '${row.attendanceStatus}','${row.workDate}','${row.hoursWorked}','${comments}')" href="#" title="Approve">
+								 <img src="/assets/img/view.webp" width="23" height="23" alt="Approve" />
+							 </a>`;
+                    }
+                }
+            ]
+        });
+    }
+
+
+    $('#btnUpdateSelectedCompOff').on('click', function () {
+
+        const selectedStatus = $('#ddlCompOffStatus').val();
+        const comment = $('#txtAdminCompOffComment').val().trim();
+        if (!comment) {
+            showErrorToast('Enter a comment before updating');
+            return;
+        }
+        if (!selectedStatus) {
+            showToast('Select status (Approve/Reject)');
+            return;
+        }
+
+        const selectedRecords = [];
+
+        $('#tblcompOffForApproval .row-select-compOff:checked').each(function () {
+
+            const compOffID = $(this).val();
+
+            const table = $('#tblcompOffForApproval').DataTable();
+            const rowData = table.rows().data().toArray().find(r => r.id == compOffID);
+
+            if (rowData) {
+                selectedRecords.push({
+                    CompOffID: rowData.id,
+					AttendanceId: rowData.attendanceId,
+                    EmployeeId: rowData.userId,
+					EmployeeNumber: rowData.employeeNumber,
+                    Status: rowData.attendanceStatus,
+                    StartDate: rowData.firstLogDate,
+                    EndDate: rowData.lastLogDate,
+					WorkDate: rowData.workDate,
+                    AttendanceStatusId: rowData.attendanceStatusId
+                });
+            }
+        });
+        if (selectedRecords.length === 0) {
+            toastEMessage('Error', 'Select at least one compOff');
+            return;
+        }
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).text('Processing...');
+
+        const failedMessages = [];
+        let processedCount = 0;
+        let delay = 0;
+
+        selectedRecords.forEach(record => {
+
+            setTimeout(function () {
+
+                $.ajax({
+                    url: '/Employee/Attendance/ApproveRejectCompOff',
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    data: {
+                        compOffId: record.CompOffID,
+                        attendanceId: record.AttendanceId,
+                        employeeId: record.EmployeeId,
+                        status: record.Status,
+                        approveRejectComment: comment,
+                        startDate: record.StartDate,
+                        endDate: record.EndDate,
+                        workDate: record.WorkDate,
+                        attendanceStatusId: record.AttendanceStatusId,
+                        actionText: selectedStatus == "1" ? "approve" : "reject"
+                    },
+
+                    success: function (response) {
+
+                        if (!response.success) {
+                            failedMessages.push(`EmpNo ${record.EmployeeNumber}: ${response.message}`);
+                        }
+
+                    },
+
+                    error: function () {
+                        failedMessages.push(`EmpNo ${record.EmployeeNumber}: Server error`);
+                    },
+
+                    complete: function () {
+
+                        processedCount++;
+
+                        if (processedCount === selectedRecords.length) {
+
+                            $btn.prop('disabled', false).text('Update Selected');
+                            $('#selectAllCompOff').prop('checked', false);
+
+                            if ($.fn.DataTable.isDataTable('#tblcompOffForApproval')) {
+                               RefreshTable12(
+    '#tblcompOffForApproval',
+    '@(_configuration["AppSettings:RootUrl"])Employee/Attendance/GetApprovedCompOff',
+    1
+);
+                            }
+
+                            if (failedMessages.length > 0) {
+                                showErrorToast(failedMessages.join('<br>'));
+                            } else {
+                                showToast('All selected compOff processed successfully');
+                            }
+
+                        }
+
+                    }
+
+                });
+
+            }, delay);
+
+            delay += 500;
+
+        });
+
+    });
+
+    $(document).on('click', '#selectAllCompOff', function () {
+
+        const isChecked = $(this).prop('checked');
+
+        $('#tblcompOffForApproval tbody .row-select-compOff')
+            .prop('checked', isChecked);
+    });
+    $(document).on('change', '.row-select-compOff', function () {
+
+        const total = $('#tblcompOffForApproval tbody .row-select-compOff').length;
+        const checked = $('#tblcompOffForApproval tbody .row-select-compOff:checked').length;
+
+        $('#selectAllCompOff').prop('checked', total === checked);
+    });
 	function RefreshTable12(tableId, urlData, status) {
 
 		const request = {
@@ -657,7 +898,7 @@
             text: message,
             showHideTransition: 'slide',
             icon: 'warning',
-            position: 'top-right', 
+            position: 'top-right',
         });
     }
 	 function OpenApproveRejectModel(employeeID, Id,attendanceId, firstLogDate, lastLogDate, attendanceStatus, workDate,hoursWorked,comments) {
@@ -685,7 +926,7 @@
 				 $("#ManagerName").text(response.managerName);
 				 $("#EmployeeJoiningdate").text(response.employeeJoiningdate);
 				 $("#StartDate").text(formatDate(firstLogDate));
-				 $("#EndDate").text(formatDate(lastLogDate));				
+				 $("#EndDate").text(formatDate(lastLogDate));
 			 },
 			 error: function (xhr) {
 				 $('#responseMessage').text('Error: ' + xhr.responseText);
@@ -743,7 +984,7 @@
 		 });
 	 }
 
-	 function RefreshTable2(tableId, url) {
+	  function RefreshTable2(tableId, url) {
 		 $.post(url, function (json) {
 			 if (json.data && json.data.compOffs) {
 				 const table = $(tableId).DataTable();
@@ -752,7 +993,7 @@
 			 }
 		 });
 	 }
-		 function formatTimeToHoursMinutes(timeString) {
+      function formatTimeToHoursMinutes(timeString) {
 		if (!timeString) return '';
 
 		const [hours, minutes] = timeString.split(':');
