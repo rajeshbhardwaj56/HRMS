@@ -1073,7 +1073,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
 
             // ===== TEMPORARY HARD CHECK =====
-            var tempCompOffCutoffDate = new DateTime(2026, 5, 21);
+            var tempCompOffCutoffDate = new DateTime(2026, 6, 20);
 
             if (workDate.Date < tempCompOffCutoffDate)
             {
@@ -1602,7 +1602,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
             try
             {
-                var hardCutoffDate = new DateTime(2026, 5, 21);
+                var hardCutoffDate = new DateTime(2026, 6, 20);
                 if (records.Any(x => x.WorkDate.HasValue &&
                      x.WorkDate.Value.Date < hardCutoffDate))
                 {
