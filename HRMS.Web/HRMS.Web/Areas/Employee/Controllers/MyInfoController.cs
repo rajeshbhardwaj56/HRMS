@@ -384,12 +384,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 return Json(new { data = response });
             }
 
-            var tempLeaveCutoffDate = new DateTime(2026, 6, 20);
+            DateTime approvalCutoffDate = DateTime.Parse(_configuration["HRMSLockSettings:ApprovalCutoffDate"]);
 
-            if (leaveRecord.StartDate.Date < tempLeaveCutoffDate)
+            if (leaveRecord.StartDate.Date < approvalCutoffDate)
             {
                 response.status = 1;
-                response.message = "Leaves before 20-Jun-2026 cannot be approved or rejected.";
+                response.message = $"Leaves before {approvalCutoffDate:dd-MM-yyyy} cannot be approved or rejected.";
                 return Json(new { data = response });
             }
             // ===== END TEMPORARY HARD CHECK =====
@@ -638,7 +638,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             DateTime fiscalYearStart;
 
-            if (today.Year == 2026)
+            if (today.Year == 2026 || (today.Year == 2027 && (today.Month < 4 || (today.Month == 4 && today.Day < 21))))
             {
                 fiscalYearStart = new DateTime(2026, 4, 21);
             }
@@ -1349,15 +1349,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime minLeaveDate = new DateTime(2026, 6, 20);
-            if (startDate.Date < minLeaveDate.Date || endDate.Date < minLeaveDate.Date)
+            DateTime requestLockDate = DateTime.Parse(_configuration["HRMSLockSettings:RequestLockDate"]);
+            if (startDate.Date < requestLockDate.Date || endDate.Date < requestLockDate.Date)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
 
                 return Json(new
                 {
                     isValid = false,
-                    message = $"Leave cannot be applied before {minLeaveDate:dd-MM-yyyy}."
+                    message = $"Leave cannot be applied before {requestLockDate:dd-MM-yyyy}."
                 });
             }
             if ((int)LeaveDay.HalfDay == leaveSummary.LeaveDurationTypeID)
@@ -1925,15 +1925,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime minLeaveDate = new DateTime(2026, 6, 20);
-            if (startDate.Date < minLeaveDate.Date || endDate.Date < minLeaveDate.Date)
+            DateTime requestLockDate = DateTime.Parse(_configuration["HRMSLockSettings:RequestLockDate"]);
+            if (startDate.Date < requestLockDate.Date || endDate.Date < requestLockDate.Date)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
 
                 return Json(new
                 {
                     isValid = false,
-                    message = $"Leave cannot be applied before {minLeaveDate:dd-MM-yyyy}."
+                    message = $"Leave cannot be applied before {requestLockDate:dd-MM-yyyy}."
                 });
             }
 

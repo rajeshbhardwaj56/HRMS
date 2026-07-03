@@ -907,8 +907,9 @@ oldStatus: $("#oldStatus").val();
 				if ( response.data.pkNo > 0) {
 					toastMessage( 'Success',"Attendance status updated successfully!");
 					$("#attendanceDetailModal").modal("hide");
-					
-					fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
+                    const searchText = $("#search-box").val().trim();
+
+                    fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, searchText, searchText === "" ? null : 0,  parseInt($("#jobLocationDropdown").val()) || 0, parseInt($("#managerDropdown").val()) || 0, parseInt($("#subDepartmentDropdown").val()) || 0);
 				} else {
 					toastEMessage('Error', "Failed to update attendance.");
 				}
@@ -1116,7 +1117,7 @@ oldStatus: $("#oldStatus").val();
                             tempWorkDateCheck.setHours(0, 0, 0, 0);
 
                             // Hard-coded cutoff date: 20-Jun-2026
-                            const tempCutoffDateCheck = new Date(2026, 5, 20); // Month is 0-based, so 5 = June
+                            const tempCutoffDateCheck = new Date(2026, 6, 1); // Month is 0-based, so 5 = June
                             tempCutoffDateCheck.setHours(0, 0, 0, 0);
 
                             if (tempWorkDateCheck < tempCutoffDateCheck) {

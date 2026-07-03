@@ -1073,14 +1073,15 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
 
             // ===== TEMPORARY HARD CHECK =====
-            var tempCompOffCutoffDate = new DateTime(2026, 6, 20);
+            DateTime approvalCutoffDate = DateTime.Parse(_configuration["HRMSLockSettings:ApprovalCutoffDate"]);
 
-            if (workDate.Date < tempCompOffCutoffDate)
+
+            if (workDate.Date < approvalCutoffDate)
             {
                 return Json(new
                 {
                     success = false,
-                    message = "Comp Off records before 21-May-2026 cannot be approved or rejected."
+                    message = $"Comp Off records before {approvalCutoffDate:dd-MM-yyyy} cannot be approved or rejected."
                 });
             }
             // ===== END TEMPORARY HARD CHECK =====
