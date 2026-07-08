@@ -879,6 +879,8 @@
 		const remarks = $("#statusComment").val();
 		const workDate = $("#attendanceDetailModal").data("workdate"); 
 		const employeeId = $("#attendanceDetailModal").data("employeeid");
+        const employeeNumber = $("#attendanceDetailModal").data("employeenumber");
+
                     const encryptedStatusId = $("#encryptedStatusChangeID").val();
 oldStatus: $("#oldStatus").val();
 
@@ -891,34 +893,24 @@ oldStatus: $("#oldStatus").val();
 			toastEMessage('Error',"Please enter comment before saving..");
 			return;
 		}
-		$.ajax({
-			url: '/employee/Attendance/SaveAttendanceStatus',
-			type: 'POST',
-			data: {
-				EmployeeId: employeeId,
-				Status: status,
-                OldStatus : oldStatus,
-				Remarks: remarks,
-				WorkDate: workDate,
-                EncryptedStatusChangeID: encryptedStatusId 
-			},
-			success: function (response) {
-		
-				if ( response.data.pkNo > 0) {
-					toastMessage( 'Success',"Attendance status updated successfully!");
-					$("#attendanceDetailModal").modal("hide");
-                    const searchText = $("#search-box").val().trim();
+            console.log("Employee ID:", employeeId);
+    console.log("Employee Number:", employeeNumber);
+            // If Week Off selected, validate first
+if (status === "WO") {
 
-                    fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage, searchText, searchText === "" ? null : 0,  parseInt($("#jobLocationDropdown").val()) || 0, parseInt($("#managerDropdown").val()) || 0, parseInt($("#subDepartmentDropdown").val()) || 0);
-				} else {
-					toastEMessage('Error', "Failed to update attendance.");
-				}
-			},
-			error: function (xhr, status, error) {
-				toastEMessage('Error', "Failed to update attendance.");
-			}
-		});
+    const employeeNumber = $("#attendanceDetailModal").data("employeenumber");
+
+    validateWeekOff(
+
+        employeeNumber,
+        workDate
+    );
+    
+    return;
+}
+		 saveAttendanceStatus(); 
 	});
+
 
 
 
@@ -1069,6 +1061,8 @@ oldStatus: $("#oldStatus").val();
 			$("#attendanceDetailModal")
 	.data("workdate", fullDate)     
 	.data("employeeid", empId)      
+            .data("employeenumber", empNo)
+
 	.modal("show");
                 $("#attendanceDetailBody").html("Loading...");
 
@@ -1479,6 +1473,63 @@ No attendance record found for this day.
 			$("#export-btn").on("click", exportAttendance);
 
 		});
+           function saveAttendanceStatus() {
+
+    const status = $("#statusSelect").val();
+    const oldStatus = $("#oldStatus").val();
+    const remarks = $("#statusComment").val();
+    const workDate = $("#attendanceDetailModal").data("workdate");
+    const employeeId = $("#attendanceDetailModal").data("employeeid");
+    const encryptedStatusId = $("#encryptedStatusChangeID").val();
+
+    $.ajax({
+        url: '/employee/Attendance/SaveAttendanceStatus',
+        type: 'POST',
+        data: {
+            EmployeeId: employeeId,
+            Status: status,
+            OldStatus: oldStatus,
+            Remarks: remarks,
+            WorkDate: workDate,
+            EncryptedStatusChangeID: encryptedStatusId
+        },
+        success: function (response) {
+
+            if (response.data.pkNo > 0) {
+                toastMessage('Success', 'Attendance status updated successfully!');
+                $("#attendanceDetailModal").modal("hide");
+                fetchAttendanceData(getSelectedYear(), getSelectedMonth(), currentPage);
+            }
+            else {
+                toastEMessage('Error', 'Failed to update attendance.');
+            }
+        },
+        error: function () {
+            toastEMessage('Error', 'Failed to update attendance.');
+        }
+    });
+}
+   function validateWeekOff(employeeNumber, workDate) {
+
+    $.ajax({
+        url: '/employee/MyInfo/CheckWeekOffLimit',
+        type: 'POST',
+        data: {
+            employeeNumber: employeeNumber,
+            workDate: workDate
+          
+        },
+        success: function (result) {
+
+            if (result.isExceeded) {
+                toastEMessage("Error", result.message);
+                return;
+            }
+
+            saveAttendanceStatus();
+        }
+    });
+}
 
     $("#leave-export-btn").on("click", exportEmployeeLeaves);
     function renderLeaveSummary(data) {

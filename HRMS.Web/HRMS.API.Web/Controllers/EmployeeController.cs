@@ -397,6 +397,20 @@ namespace HRMS.API.Web.Controllers
             return response;
         }
         [HttpPost]
+        public IActionResult CheckWeekOffLimit(WeekOffLimitModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CheckWeekOffLimit(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult CheckWeekOffLimitBulk(List<WeekOffLimitModel> model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CheckWeekOffLimitBulk(model));
+            return response;
+        }
+        [HttpPost]
         public IActionResult GetEmployeesHierarchyUnderManager(WeekOfInputParams model)
         {
             IActionResult response = Unauthorized();

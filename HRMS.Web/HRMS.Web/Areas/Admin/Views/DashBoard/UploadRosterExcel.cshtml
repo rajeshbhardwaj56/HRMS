@@ -46,8 +46,13 @@
 </style>
 
 <div class="main-header anim" style="--delay: 0s">Import Employee Roster</div>
-<form id="uploadForm">
-    <div class="row mb-3">
+<div class="row">
+
+    <!-- Left Side -->
+    <div class="col-lg-8">
+
+        <form id="uploadForm">
+            <div class="row mb-3 mt-3">
 
         <div class="col-md-3">
             <label for="yearSelect" class="form-label">Year</label>
@@ -90,7 +95,29 @@
 
     </div>
 </form>
+    </div>
+    <!-- Right Side -->
+    <div class="col-lg-4">
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Shift Type List</h5>
+            </div>
 
+            <div class="card-body">
+                <table id="tblShiftTypeListing" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th style="display:none;">ID</th>
+                            <th>Shift Type Name</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     $('#yearDropdown').on('change', function () {
@@ -218,9 +245,63 @@
         }
         const selectedYear = parseInt($('#yearDropdown').val());
         populateWeekDropdown(selectedYear);
+           loadShiftTypeList();
 
+    function loadShiftTypeList() {
 
+        $('#tblShiftTypeListing').DataTable({
+
+            processing: true,
+            serverSide: true,
+            destroy: true,
+
+            ajax: {
+                url: '/Admin/ShiftType/ShiftTypeListings',
+                type: 'POST',
+                data: function (d) {
+
+                    var sortColumn = d.order.length > 0
+                        ? d.columns[d.order[0].column].data
+                        : 'shiftTypeID';
+
+                    var sortDirection = d.order.length > 0
+                        ? d.order[0].dir
+                        : 'asc';
+
+                    return {
+                        sEcho: d.draw,
+                        iDisplayStart: d.start,
+                        iDisplayLength: d.length,
+                        sSearch: d.search.value,
+                        sortCol: sortColumn,
+                        sortDir: sortDirection
+                    };
+                }
+            },
+
+            columns: [
+
+                {
+                    data: "shiftTypeID",
+                    visible: false
+                },
+                {
+                    data: "shiftTypeName"
+                },
+                {
+                    data: "startTime"
+                },
+                {
+                    data: "endTime"
+                }
+
+            ]
+        });
+
+    }
     });
+
+
 
     document.getElementById("uploadForm").addEventListener("submit", function (e) {
         e.preventDefault();

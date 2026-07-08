@@ -1304,7 +1304,56 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
             }
 
+            // ================= WeekOff Limit Validation =================
 
+            var weekOffRequest = models
+                .Where(x => !string.IsNullOrWhiteSpace(x.EmployeeNumber))
+                .SelectMany(x => new List<WeekOffLimitModel>
+                {
+        x.DayOff1.HasValue ? new WeekOffLimitModel
+        {
+            EmployeeNumber = x.EmployeeNumber.Trim(),
+            WorkDate = x.DayOff1.Value,
+            WeekStartDate = x.WeekStartDate.Value
+        } : null,
+
+        x.DayOff2.HasValue ? new WeekOffLimitModel
+        {
+            EmployeeNumber = x.EmployeeNumber.Trim(),
+            WorkDate = x.DayOff2.Value,
+            WeekStartDate = x.WeekStartDate.Value
+        } : null
+                })
+                .Where(x => x != null)
+                .GroupBy(x => new
+                {
+                    x.EmployeeNumber,
+                    x.WorkDate,
+                    x.WeekStartDate
+                })
+                .Select(g => g.First())
+                .ToList();
+
+            if (weekOffRequest.Any())
+            {
+                var response = _businessLayer.SendPostAPIRequest(
+                    weekOffRequest,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.ShiftType,
+                        APIApiActionConstants.CheckWeekOffLimitBulk),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var weekOffResults = JsonConvert.DeserializeObject<List<WeekOffLimitResult>>(response);
+
+                foreach (var result in weekOffResults)
+                {
+                    if (result.IsExceeded)
+                    {
+                        errors.Add($"Employee {result.EmployeeNumber}: {result.Message}");
+                    }
+                }
+            }
 
             return errors.Any() ? string.Join("\n", errors) : null;
         }

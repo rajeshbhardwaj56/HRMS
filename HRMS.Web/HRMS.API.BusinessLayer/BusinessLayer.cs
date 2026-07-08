@@ -8136,6 +8136,99 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
             return results;
         }
         #endregion Admin Reset Password
+        public WeekOffLimitResult CheckWeekOffLimit(WeekOffLimitModel modelData)
+        {
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@EmployeeNumber", modelData.EmployeeNumber));
+            sqlParameter.Add(new SqlParameter("@WorkDate", modelData.WorkDate));
+
+            var ds = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_CheckWeekOffLimit,
+                sqlParameter);
+
+            if (ds != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                DataRow dr = ds.Tables[0].Rows[0];
+
+                return new WeekOffLimitResult
+                {
+                    WeekOffCount = Convert.ToInt32(dr["WeekOffCount"]),
+                    IsExceeded = Convert.ToBoolean(dr["IsExceeded"]),
+                    Message = dr["Message"].ToString()
+                };
+            }
+
+            return new WeekOffLimitResult();
+        }
+        private DataTable CreateWeekOffTVP(List<WeekOffLimitModel> models)
+        {
+            DataTable dt = new DataTable();
+
+            dt.Columns.Add("EmployeeNumber", typeof(string));
+            dt.Columns.Add("WorkDate", typeof(DateTime));
+            dt.Columns.Add("WeekStartDate", typeof(DateTime));
+
+            foreach (var item in models)
+            {
+                dt.Rows.Add(
+                    item.EmployeeNumber,
+                    item.WorkDate,
+                    item.WeekStartDate
+                );
+            }
+
+            return dt;
+        }
+        public List<WeekOffLimitResult> CheckWeekOffLimitBulk(List<WeekOffLimitModel> modelData)
+        {
+            DataTable tvpTable = CreateWeekOffTVP(modelData);
+
+            SqlParameter param = new SqlParameter("@Input", tvpTable)
+            {
+                SqlDbType = SqlDbType.Structured,
+                TypeName = "dbo.WeekOffCheckType"
+            };
+
+            var ds = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_CheckWeekOffLimit_Bulk,
+                new List<SqlParameter> { param });
+
+            List<WeekOffLimitResult> resultList = new List<WeekOffLimitResult>();
+
+            if (ds != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    resultList.Add(new WeekOffLimitResult
+                    {
+                        EmployeeNumber = Convert.ToString(dr["EmployeeNumber"]),
+
+                        WeekStartDate = Convert.ToDateTime(dr["WeekStartDate"]),
+
+                        WeekOffID = Convert.ToInt32(dr["WeekOffID"]),
+
+                        IsUpdate = Convert.ToBoolean(dr["IsUpdate"]),
+
+                        PayrollStartDate = Convert.ToDateTime(dr["PayrollStartDate"]),
+
+                        PayrollEndDate = Convert.ToDateTime(dr["PayrollEndDate"]),
+
+                        WeekOffCount = Convert.ToInt32(dr["WeekOffCount"]),
+
+                        IsExceeded = Convert.ToBoolean(dr["IsExceeded"]),
+
+                        Message = Convert.ToString(dr["Message"])
+                    });
+                }
+            }
+
+            return resultList;
+        }
     }
 
 

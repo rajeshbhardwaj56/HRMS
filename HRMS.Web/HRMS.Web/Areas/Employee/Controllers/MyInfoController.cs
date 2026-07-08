@@ -3,6 +3,7 @@ using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
@@ -3179,6 +3180,36 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var results = JsonConvert.DeserializeObject<List<LeaveDayDetailModel>>(data);
 
             return Json(new { data = results });
+        }
+        [HttpPost]
+        public JsonResult CheckWeekOffLimit(string employeeNumber, DateTime workDate)
+        {
+            var employeeId = Convert.ToInt64(_businessLayer.DecodeStringBase64(employeeNumber));
+
+            WeekOffLimitModel model = new WeekOffLimitModel
+            {
+                EmployeeNumber = employeeId.ToString(),
+                WorkDate = workDate
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.CheckWeekOffLimit),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+
+            var result = JsonConvert.DeserializeObject<WeekOffLimitResult>(
+                data.Result.ToString());
+
+            return Json(new
+            {
+                isExceeded = result.IsExceeded,
+                message = result.Message,
+                weekOffCount = result.WeekOffCount
+            });
         }
     }
 }

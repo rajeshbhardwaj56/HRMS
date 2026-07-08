@@ -116,6 +116,7 @@
                 </div>
 
             </div>
+            <div id="weekOffError" style="color:red;font-weight:600;"></div>
 
 
 
@@ -312,22 +313,72 @@
 
 
 
-    $('form').on('submit', function () {
+    $('form').off('submit').on('submit', function (e) {
+           e.preventDefault();
 
-    const selectedWeekValue = $('#weekDropdown').val();
-        const selectedYear = $('#yearSelect').val();
-          if (selectedWeekValue) {
-        const parts = selectedWeekValue.split('|');
-        if (parts.length === 3) {
-            const startDate = convertToISO(parts[1]);
-            $('#WeekStartDateHidden').val(startDate);
-        }
-    }
+           const employeeNumber = $('#EmployeeIdWithEmployeeNo').val();
+           const weekValue = $('#weekDropdown').val();
+           const selectedYear = $('#yearSelect').val();
 
+           // 🔵 SET HIDDEN VALUES FIRST
+           if (weekValue) {
+               const parts = weekValue.split('|');
+               if (parts.length === 3) {
+                   const startDate = convertToISO(parts[1]);
+                   $('#WeekStartDateHidden').val(startDate);
+               }
+           }
 
-        $('#HiddenSelectedYear').val(selectedYear);
+           $('#HiddenSelectedYear').val(selectedYear);
 
-    });
+           // 🔴 VALIDATION
+           if (!employeeNumber || !weekValue) {
+               alert("Please select required fields");
+               return;
+           }
+
+       const requests = [];
+
+       const dayOff1 = $('#DayOff1').val();
+       const dayOff2 = $('#DayOff2').val();
+       const weekStartDate = $('#WeekStartDateHidden').val();
+
+       if (dayOff1) {
+           requests.push({
+               employeeNumber: employeeNumber,
+               workDate: dayOff1,
+               weekStartDate: weekStartDate
+           });
+       }
+
+       if (dayOff2) {
+           requests.push({
+               employeeNumber: employeeNumber,
+               workDate: dayOff2,
+               weekStartDate: weekStartDate
+           });
+       }
+
+       validateWeekOff(requests, function (result) {
+
+               if (!result) return;
+
+               if (result.isExceeded) {
+                   alert(result.message);
+                   $('#weekOffError').text(result.message);
+                   return;
+               }
+
+               $('#weekOffError').text('');
+
+               // 🔵 FINAL SUBMIT
+               setTimeout(() => {
+                   $('form')[0].submit();
+               }, 50);
+           });
+
+           return false;
+       });
 
     $(document).ready(function () {
          if (isEditMode) {
@@ -445,7 +496,33 @@
 
 
     });
+      function validateWeekOff(requestData, callback) {
 
+        $.ajax({
+            url: '/HR/Employee/CheckWeekOffLimitBulk',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData),
+
+            success: function (res) {
+
+                // res is OBJECT, not array
+                if (res && res.isExceeded === true) {
+                    callback(res);
+                }
+                else {
+                    callback({
+                        isExceeded: false
+                    });
+                }
+            },
+
+            error: function () {
+                alert("Error checking WeekOff limit");
+                callback(null);
+            }
+        });
+    }
 
 
 </script>

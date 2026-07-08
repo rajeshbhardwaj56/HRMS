@@ -1785,8 +1785,9 @@ $('td:eq(8)', row).find('button')
                     ${data.noOfDays}
                 </span>`;
 
-                $('td:eq(9)', row)   // correct index for Days column
-                    .html(styledSpan)
+                    $('td:eq(9)', row)
+                    .find('button')
+                    .addClass('bg-danger text-white')
                     .attr('title', tooltipMessage)
                     .tooltip();
             }

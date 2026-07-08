@@ -91,12 +91,25 @@
         });
 
 
-        if (weekRanges.length > 0) {
-            const firstValue = `${weekRanges[0].weekNumber}|${weekRanges[0].startDate}|${weekRanges[0].endDate}`;
+    const today = new Date();
+    let currentWeekValue = null;
 
-            weekDropdown.val(firstValue).trigger('change');
-            weekVal = firstValue;   
+    weekRanges.forEach(w => {
+
+        const start = new Date(convertToISO(w.startDate));
+        const end = new Date(convertToISO(w.endDate));
+
+        end.setHours(23, 59, 59, 999);
+
+        if (today >= start && today <= end) {
+            currentWeekValue = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
         }
+    });
+
+    if (currentWeekValue) {
+        weekDropdown.val(currentWeekValue).trigger('change');
+        weekVal = currentWeekValue;
+    }
     }
     function getWeekRanges(year) {
 

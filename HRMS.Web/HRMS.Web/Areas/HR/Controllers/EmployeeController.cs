@@ -2025,5 +2025,56 @@ namespace HRMS.Web.Areas.HR.Controllers
                 return View(model);
             }
         }
+        [HttpPost]
+        public JsonResult CheckWeekOffLimitBulk([FromBody] List<WeekOffLimitModel> request)
+        {
+            if (request == null || !request.Any())
+            {
+                return Json(new
+                {
+                    isExceeded = false,
+                    message = "No data received."
+                });
+            }
+
+            foreach (var item in request)
+            {
+                if (!string.IsNullOrEmpty(item.EmployeeNumber) &&
+                    item.EmployeeNumber.Contains("_"))
+                {
+                    item.EmployeeNumber = item.EmployeeNumber.Split('_')[1];
+                }
+            }
+
+            var data = _businessLayer.SendPostAPIRequest(
+                request,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.CheckWeekOffLimitBulk),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var result = JsonConvert.DeserializeObject<List<WeekOffLimitResult>>(
+                data.Result.ToString());
+
+            var exceeded = result.FirstOrDefault(x => x.IsExceeded);
+
+            if (exceeded != null)
+            {
+                return Json(new
+                {
+                    isExceeded = true,
+                    message = exceeded.Message,
+                    weekOffCount = exceeded.WeekOffCount
+                });
+            }
+
+            return Json(new
+            {
+                isExceeded = false,
+                message = "",
+                weekOffCount = 0
+            });
+        }
     }
 }
