@@ -1546,7 +1546,7 @@ ${renderStatusEditor(selectedDate, data)}
  tempWorkDateCheck.setHours(0, 0, 0, 0);
 
  // Hard-coded cutoff date: 20-Jun-2026
- const tempCutoffDateCheck = new Date(2026, 6, 1); // Month is 0-based, so 5 = June
+ const tempCutoffDateCheck = new Date(2026, 6, 10); // Month is 0-based, so 5 = June
  tempCutoffDateCheck.setHours(0, 0, 0, 0);
 
  if (tempWorkDateCheck < tempCutoffDateCheck) {

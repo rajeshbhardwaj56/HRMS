@@ -1349,7 +1349,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime requestLockDate = DateTime.Parse(_configuration["HRMSLockSettings:RequestLockDate"]);
+            DateTime requestLockDate = DateTime.Parse(_configuration["HRMSLockSettings:ApplyCutoffDate"]);
             if (startDate.Date < requestLockDate.Date || endDate.Date < requestLockDate.Date)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
@@ -1925,7 +1925,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime requestLockDate = DateTime.Parse(_configuration["HRMSLockSettings:RequestLockDate"]);
+            DateTime requestLockDate = DateTime.Parse(_configuration["HRMSLockSettings:ApplyCutoffDate"]);
             if (startDate.Date < requestLockDate.Date || endDate.Date < requestLockDate.Date)
             {
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
