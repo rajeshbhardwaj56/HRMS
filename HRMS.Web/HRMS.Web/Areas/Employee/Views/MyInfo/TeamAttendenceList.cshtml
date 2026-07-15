@@ -74,7 +74,9 @@
     .legend-item.A {
         background: #dc3545;
     }
-
+    .legend-item.LEFT {
+        background: #607d8b;
+    }
     .legend-item.H {
         background: #1c5db1;
     }
@@ -179,7 +181,11 @@
 		cursor: pointer;
 		font-size: 0.5rem;
 	}
-
+    .LEFT {
+        background-color: #607d8b;
+        cursor: pointer;
+        font-size: 0.5rem;
+    }
 	.H {
 		background-color: #1c5db1;
 		cursor: pointer;
@@ -450,6 +456,7 @@
 
         <span class="legend-item P">P - Present</span>
         <span class="legend-item A">A - Absent</span>
+        <span class="legend-item LEFT">LEFT- Left</span>
         <span class="legend-item H">H - Holiday</span>
         <span class="legend-item WO">WO - Week Off</span>
         <span class="legend-item ECO">ECO - Earned Comp Off</span>
@@ -630,7 +637,10 @@
                 else if (status === "A") {
                     className = "A";
                 }
-
+                // Absent
+                else if (status === "LEFT") {
+                    className = "LEFT";
+                }
                 // Week Off
                 else if (status === "WO") {
                     className = "WO";
