@@ -2015,6 +2015,7 @@ namespace HRMS.API.BusinessLayer
                 result.PendingLeaveCount = Convert.ToDecimal(row["PendingLeaveCount"]);
 
                 result.TotalLeaveCount = Convert.ToDecimal(row["TotalLeaveCount"]);
+                result.AvailableLeaveBalance = Convert.ToDecimal(row["AvailableLeaveBalance"]);
             }
 
             return result;

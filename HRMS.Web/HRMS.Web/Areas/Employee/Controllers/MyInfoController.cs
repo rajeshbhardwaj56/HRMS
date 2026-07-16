@@ -406,66 +406,66 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
             if (isApproved && leaveRecord.LeaveTypeID == (int)LeaveType.AnnualLeavel)
             {
-                DateTime today = DateTime.Today;
+                //DateTime today = DateTime.Today;
 
-                DateTime fiscalYearStart;
-                DateTime fiscalYearEnd;
-                if (today.Year == 2026)
-                {
-                    if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
-                    {
-                        fiscalYearStart = new DateTime(2026, 4, 20);
-                        fiscalYearEnd = new DateTime(2027, 3, 20);
-                    }
-                    else
-                    {
-                        fiscalYearStart = new DateTime(2025, 4, 21);
-                        fiscalYearEnd = new DateTime(2026, 4, 19);
-                    }
-                }
-                else
-                {
+                //DateTime fiscalYearStart;
+                //DateTime fiscalYearEnd;
+                //if (today.Year == 2026)
+                //{
+                //    if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
+                //    {
+                //        fiscalYearStart = new DateTime(2026, 4, 20);
+                //        fiscalYearEnd = new DateTime(2027, 3, 20);
+                //    }
+                //    else
+                //    {
+                //        fiscalYearStart = new DateTime(2025, 4, 21);
+                //        fiscalYearEnd = new DateTime(2026, 4, 19);
+                //    }
+                //}
+                //else
+                //{
 
-                    if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                    {
-                        fiscalYearStart = new DateTime(today.Year, 3, 21);
-                        fiscalYearEnd = new DateTime(today.Year + 1, 3, 20);
-                    }
-                    else
-                    {
-                        fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
-                        fiscalYearEnd = new DateTime(today.Year, 3, 20);
-                    }
-                }
+                //    if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+                //    {
+                //        fiscalYearStart = new DateTime(today.Year, 3, 21);
+                //        fiscalYearEnd = new DateTime(today.Year + 1, 3, 20);
+                //    }
+                //    else
+                //    {
+                //        fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+                //        fiscalYearEnd = new DateTime(today.Year, 3, 20);
+                //    }
+                //}
                 // Fetch leave summary for this employee & company
                 var leaveSummaryDataJson = GetLeaveSummaryData(leaveRecord.EmployeeID, leaveRecord.UserID, leaveRecord.CompanyID);
-                var leaveSummaryData1 = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryDataJson);
-                var leaveSummaryData = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryDataJson)?.leavesSummary;
+                var leaveSummaryData = JsonConvert.DeserializeObject<LeaveResults>(leaveSummaryDataJson);
+                decimal availableLeaveBalance =leaveSummaryData?.leaveBalance?.AnnualLeaveBalance ?? 0m;
 
-               
-                var approvedLeaves = leaveSummaryData1?.leaveBalance?.AnnualLeaveConsumed;
-                double approvedLeaveTotal = Convert.ToDouble(approvedLeaves ?? 0m);
-                double maxAnnualLeaveLimit = 30;
 
-                // Load leave policy & calculate accrued leaves
-                var leavePolicy = GetLeavePolicyData(leaveRecord.CompanyID, leaveRecord.LeavePolicyID);
-                double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(leaveRecord.JoiningDate ?? DateTime.Today, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
-                accruedLeave = Math.Min(accruedLeave, maxAnnualLeaveLimit);
-                // Add carry forward if applicable
-                if (leavePolicy.Annual_IsCarryForward)
-                {
-                    double carryForward = Convert.ToDouble(GetEmployeeDetails(leaveRecord.CompanyID, leaveRecord.EmployeeID)?.CarryForword ?? 0);
-                    accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
-                }
-                double totalLeaveWithCarryForward = accruedLeave - approvedLeaveTotal;
-                // Final cap for safety
-                totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
-                totalLeaveWithCarryForward = Math.Max(totalLeaveWithCarryForward, 0);
+                //var approvedLeaves = leaveSummaryData?.leaveBalance?.AnnualLeaveConsumed;
+                //double approvedLeaveTotal = Convert.ToDouble(approvedLeaves ?? 0m);
+                //double maxAnnualLeaveLimit = 30;
+
+                //// Load leave policy & calculate accrued leaves
+                //var leavePolicy = GetLeavePolicyData(leaveRecord.CompanyID, leaveRecord.LeavePolicyID);
+                //double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(leaveRecord.JoiningDate ?? DateTime.Today, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
+                //accruedLeave = Math.Min(accruedLeave, maxAnnualLeaveLimit);
+                //// Add carry forward if applicable
+                //if (leavePolicy.Annual_IsCarryForward)
+                //{
+                //    double carryForward = Convert.ToDouble(GetEmployeeDetails(leaveRecord.CompanyID, leaveRecord.EmployeeID)?.CarryForword ?? 0);
+                //    accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
+                //}
+                //double totalLeaveWithCarryForward = accruedLeave - approvedLeaveTotal;
+                //// Final cap for safety
+                //totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
+                //totalLeaveWithCarryForward = Math.Max(totalLeaveWithCarryForward, 0);
                 // Validation: Requested days should not exceed balance
-                if ((double)leaveRecord.NoOfDays > totalLeaveWithCarryForward)
+                if (leaveRecord.NoOfDays > availableLeaveBalance)
                 {
                     response.status = 1;
-                    response.message = $"Leave duration exceeds the privilege leave balance of {totalLeaveWithCarryForward} days.";
+                    response.message = $"Leave duration exceeds the privilege leave balance of {availableLeaveBalance:0.##} days.";
                     return Json(new { data = response, });
                 }
             }
@@ -767,9 +767,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeSuccess;
                 TempData[HRMS.Models.Common.Constants.toastMessage] = results.Message;
             }
-            return RedirectToActionPermanent(
-                      Constants.ApplyAgentLeave,
-                       WebControllarsConstants.MyInfo);
+            return RedirectToActionPermanent(Constants.ApplyAgentLeave,WebControllarsConstants.MyInfo);
         }
         [HttpGet]
         public IActionResult PolicyDetails()
@@ -1259,34 +1257,34 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leavePolicy = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
 
             // Fiscal year: March 21
-            DateTime today = DateTime.Today;
-            DateTime fiscalYearStart;
-            DateTime fiscalYearEnd;
+            //DateTime today = DateTime.Today;
+            //DateTime fiscalYearStart;
+            //DateTime fiscalYearEnd;
 
-            if (today.Year == 2026)
-            {
-                if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
-                {
-                    fiscalYearStart = new DateTime(2026, 4, 20);
-                    fiscalYearEnd = new DateTime(2027, 3, 20);
-                }
-                else
-                {
-                    fiscalYearStart = new DateTime(2025, 4, 21);
-                    fiscalYearEnd = new DateTime(2026, 4, 19);
-                }
-            }
-            else
-            {
-                if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                {
-                    fiscalYearStart = new DateTime(today.Year, 3, 21);
-                }
-                else
-                {
-                    fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
-                }
-            }
+            //if (today.Year == 2026)
+            //{
+            //    if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
+            //    {
+            //        fiscalYearStart = new DateTime(2026, 4, 20);
+            //        fiscalYearEnd = new DateTime(2027, 3, 20);
+            //    }
+            //    else
+            //    {
+            //        fiscalYearStart = new DateTime(2025, 4, 21);
+            //        fiscalYearEnd = new DateTime(2026, 4, 19);
+            //    }
+            //}
+            //else
+            //{
+            //    if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+            //    {
+            //        fiscalYearStart = new DateTime(today.Year, 3, 21);
+            //    }
+            //    else
+            //    {
+            //        fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+            //    }
+            //}
 
             // Approved leaves: Annual + Medical only
             //var approvedLeaves = results?.leaveResults?.leavesSummary?
@@ -1296,45 +1294,46 @@ namespace HRMS.Web.Areas.Employee.Controllers
             //    .ToList();
 
             var approvedLeaves = results?.leaveResults?.leaveBalance.AnnualLeaveConsumed;
-
+            
             if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
             {
-                decimal approvedLeaveDays = approvedLeaves??0.0m;
-                double approvedLeaveTotal = (double)approvedLeaveDays;
+                //decimal approvedLeaveDays = approvedLeaves??0.0m;
+                //double approvedLeaveTotal = (double)approvedLeaveDays;
 
-                double maxAnnualLeaveLimit = 30;
-                double totalLeaveWithCarryForward = 0;
+                //double maxAnnualLeaveLimit = 30;
+                //double totalLeaveWithCarryForward = 0;
 
-                if (approvedLeaveTotal >= maxAnnualLeaveLimit)
-                {
+                //if (approvedLeaveTotal >= maxAnnualLeaveLimit)
+                //{
 
-                    totalLeaveWithCarryForward = 0;
-                }
-                else
-                {
+                //    totalLeaveWithCarryForward = 0;
+                //}
+                //else
+                //{
 
-                    DateTime joinDate = results.employmentDetail.JoiningDate.Value;
-                    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
-                    accruedLeave = Math.Min(accruedLeave, maxAnnualLeaveLimit);
+                //    DateTime joinDate = results.employmentDetail.JoiningDate.Value;
+                //    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
+                //    accruedLeave = Math.Min(accruedLeave, maxAnnualLeaveLimit);
 
-                    // Add carry forward if applicable
-                    if (leavePolicy.Annual_IsCarryForward == true)
-                    {
-                        double carryForward = employeeDetails.CarryForword ?? 0.0;
-                        // Add carry forward but ensure total stays capped
-                        accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
-                    }
-                    totalLeaveWithCarryForward = accruedLeave - approvedLeaveTotal;
+                //    // Add carry forward if applicable
+                //    if (leavePolicy.Annual_IsCarryForward == true)
+                //    {
+                //        double carryForward = employeeDetails.CarryForword ?? 0.0;
+                //        // Add carry forward but ensure total stays capped
+                //        accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
+                //    }
+                //    totalLeaveWithCarryForward = accruedLeave - approvedLeaveTotal;
 
 
-                    // Final safety cap 
-                    totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
-                    totalLeaveWithCarryForward = Math.Max(totalLeaveWithCarryForward, 0);
-                }
+                //    // Final safety cap 
+                //    totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
+                //    totalLeaveWithCarryForward = Math.Max(totalLeaveWithCarryForward, 0);
+                //}
 
                 // ViewBag assignments
-                ViewBag.TotalLeave = approvedLeaveDays;
-                ViewBag.TotalAnnualLeave = totalLeaveWithCarryForward;
+                var annualLeavesBalance = results?.leaveResults?.leaveBalance.AnnualLeaveBalance;
+                ViewBag.TotalLeave = approvedLeaves;
+                ViewBag.TotalAnnualLeave = annualLeavesBalance;
                 ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
             }
 
@@ -1580,31 +1579,54 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     var leaveValidationData = GetLeaveSummaryDetailData(leaveSummary.EmployeeID, leaveSummary.LeaveSummaryID);
                     decimal approvedLeaves = leaveValidationData.ApprovedLeaveCount;
                     decimal pendingLeaves = leaveValidationData.PendingLeaveCount;
-                    decimal totalLeavesDays = leaveValidationData.TotalLeaveCount;    
-                    double totalLeaves = (double)totalLeavesDays;
-                    double maxAnnualLeaveLimit = 30;
-                    double accruedLeaves = 0;
-                    if (totalLeaves < maxAnnualLeaveLimit)
+                    decimal totalLeavesDays = leaveValidationData.TotalLeaveCount;
+                    decimal availableLeaveBalance = leaveValidationData.AvailableLeaveBalance;
+              
+                    const decimal maxAnnualLeaveLimit = 30m;
+                    decimal totalAfterRequest = approvedLeaves + pendingLeaves + leaveSummary.NoOfDays;
+                    if (totalAfterRequest > maxAnnualLeaveLimit)
                     {
-                        double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+                        TempData[HRMS.Models.Common.Constants.toastType] =
+                            HRMS.Models.Common.Constants.toastTypeError;
 
-                        if (leavePolicyModel.Annual_IsCarryForward == true)
+                        return Json(new
                         {
-                            double carryForward = Convert.ToDouble(employeeDetails.CarryForword);
-                            accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
-                        }
-
-                        accruedLeaves = accruedLeave - totalLeaves;
-                        // Final safety cap (optional)
-                        accruedLeaves = Math.Min(accruedLeaves, maxAnnualLeaveLimit);
-                        accruedLeaves = Math.Max(accruedLeaves, 0);
-
+                            isValid = false,
+                            message =
+                                $"You cannot apply {leaveSummary.NoOfDays:0.##} day(s) leave. " +
+                                $"The annual leave limit is {maxAnnualLeaveLimit:0.##} day(s). " +
+                                $"Approved = {approvedLeaves:0.##}, Pending = {pendingLeaves:0.##}. " +
+                                $"You can apply only {Math.Max(0, maxAnnualLeaveLimit - approvedLeaves - pendingLeaves):0.##} more day(s)."
+                        });
                     }
-                    else
-                    {
-                        accruedLeaves = 0;
-                    }
-                    if (leaveSummary.NoOfDays > (decimal)accruedLeaves)
+                    decimal finalAvailableBalance = Math.Max(0m, availableLeaveBalance - pendingLeaves);
+
+
+                    //decimal totalLeavesDays = leaveValidationData.TotalLeaveCount;    
+                    //double totalLeaves = (double)totalLeavesDays;
+                    //double maxAnnualLeaveLimit = 30;
+                    //double accruedLeaves = 0;
+                    //if (totalLeaves < maxAnnualLeaveLimit)
+                    //{
+                    //    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+
+                    //    if (leavePolicyModel.Annual_IsCarryForward == true)
+                    //    {
+                    //        double carryForward = Convert.ToDouble(employeeDetails.CarryForword);
+                    //        accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
+                    //    }
+
+                    //    accruedLeaves = accruedLeave - totalLeaves;
+                    //    // Final safety cap (optional)
+                    //    accruedLeaves = Math.Min(accruedLeaves, maxAnnualLeaveLimit);
+                    //    accruedLeaves = Math.Max(accruedLeaves, 0);
+
+                    //}
+                    //else
+                    //{
+                    //    accruedLeaves = 0;
+                    //}
+                    if (leaveSummary.NoOfDays > finalAvailableBalance)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new
@@ -1612,7 +1634,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                             isValid = false,
                             message =
                             $"You cannot apply {leaveSummary.NoOfDays} day(s) leave. " +
-                            $"Available balance is {accruedLeaves:0.##} day(s). " +
+                            $"Available balance is {finalAvailableBalance:0.##} day(s). " +
                             $"Already utilized leaves: Approved = {approvedLeaves:0.##} day(s), " +
                             $"Pending = {pendingLeaves:0.##} day(s)."
                         });
@@ -1836,34 +1858,34 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var leavePolicy = GetLeavePolicyData(model.CompanyID, employeeDetails.LeavePolicyID ?? 0);
 
             // Fiscal year: March 21
-            DateTime today = DateTime.Today;
-            DateTime fiscalYearStart;
-            DateTime fiscalYearEnd;
+            //DateTime today = DateTime.Today;
+            //DateTime fiscalYearStart;
+            //DateTime fiscalYearEnd;
 
-            if (today.Year == 2026)
-            {
-                if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
-                {
-                    fiscalYearStart = new DateTime(2026, 4, 20);
-                    fiscalYearEnd = new DateTime(2027, 3, 20);
-                }
-                else
-                {
-                    fiscalYearStart = new DateTime(2025, 4, 21);
-                    fiscalYearEnd = new DateTime(2026, 4, 19);
-                }
-            }
-            else
-            {
-                if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
-                {
-                    fiscalYearStart = new DateTime(today.Year, 3, 21);
-                }
-                else
-                {
-                    fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
-                }
-            }
+            //if (today.Year == 2026)
+            //{
+            //    if (today.Month > 4 || (today.Month == 4 && today.Day >= 20))
+            //    {
+            //        fiscalYearStart = new DateTime(2026, 4, 20);
+            //        fiscalYearEnd = new DateTime(2027, 3, 20);
+            //    }
+            //    else
+            //    {
+            //        fiscalYearStart = new DateTime(2025, 4, 21);
+            //        fiscalYearEnd = new DateTime(2026, 4, 19);
+            //    }
+            //}
+            //else
+            //{
+            //    if (today.Month > 3 || (today.Month == 3 && today.Day >= 21))
+            //    {
+            //        fiscalYearStart = new DateTime(today.Year, 3, 21);
+            //    }
+            //    else
+            //    {
+            //        fiscalYearStart = new DateTime(today.Year - 1, 3, 21);
+            //    }
+            //}
 
             // Approved leaves: Annual + Medical only
             //var approvedLeaves = results?.leaveResults?.leavesSummary?
@@ -1874,42 +1896,43 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var approvedLeaves = results?.leaveResults?.leaveBalance.AnnualLeaveConsumed;
             if (leavePolicy != null && results?.employmentDetail?.JoiningDate != null)
             {
-                decimal approvedLeaveDays = approvedLeaves ?? 0.0m;
-                double approvedLeaveTotal = (double)approvedLeaveDays;
+                //decimal approvedLeaveDays = approvedLeaves ?? 0.0m;
+                //double approvedLeaveTotal = (double)approvedLeaveDays;
 
-                double maxAnnualLeaveLimit = 30;
-                double totalLeaveWithCarryForward = 0;
+                //double maxAnnualLeaveLimit = 30;
+                //double totalLeaveWithCarryForward = 0;
 
-                if (approvedLeaveTotal >= maxAnnualLeaveLimit)
-                {
+                //if (approvedLeaveTotal >= maxAnnualLeaveLimit)
+                //{
 
-                    totalLeaveWithCarryForward = 0;
-                }
-                else
-                {
-                    // Calculate accrual
-                    DateTime joinDate = results.employmentDetail.JoiningDate.Value;
-                    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
-                    accruedLeave = Math.Min(accruedLeave, maxAnnualLeaveLimit);
+                //    totalLeaveWithCarryForward = 0;
+                //}
+                //else
+                //{
+                //    // Calculate accrual
+                //    DateTime joinDate = results.employmentDetail.JoiningDate.Value;
+                //    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate, leavePolicy.Annual_MaximumLeaveAllocationAllowed);
+                //    accruedLeave = Math.Min(accruedLeave, maxAnnualLeaveLimit);
 
-                    // Add carry forward if applicable
-                    if (leavePolicy.Annual_IsCarryForward == true)
-                    {
-                        double carryForward = employeeDetails.CarryForword ?? 0.0;
-                        // Add carry forward but ensure total stays capped
-                        accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
-                    }
+                //    // Add carry forward if applicable
+                //    if (leavePolicy.Annual_IsCarryForward == true)
+                //    {
+                //        double carryForward = employeeDetails.CarryForword ?? 0.0;
+                //        // Add carry forward but ensure total stays capped
+                //        accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
+                //    }
 
-                    totalLeaveWithCarryForward = accruedLeave - approvedLeaveTotal;
+                //    totalLeaveWithCarryForward = accruedLeave - approvedLeaveTotal;
 
-                    // Final safety cap 
-                    totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
-                    totalLeaveWithCarryForward = Math.Max(totalLeaveWithCarryForward, 0);
-                }
+                //    // Final safety cap 
+                //    totalLeaveWithCarryForward = Math.Min(totalLeaveWithCarryForward, maxAnnualLeaveLimit);
+                //    totalLeaveWithCarryForward = Math.Max(totalLeaveWithCarryForward, 0);
+                //}
 
                 // ViewBag assignments
-                ViewBag.TotalLeave = approvedLeaveDays;
-                ViewBag.TotalAnnualLeave = totalLeaveWithCarryForward;
+                var annualLeavesBalance = results?.leaveResults?.leaveBalance.AnnualLeaveBalance;
+                ViewBag.TotalLeave = approvedLeaves;
+                ViewBag.TotalAnnualLeave = annualLeavesBalance;
                 ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
             }
 
@@ -2156,31 +2179,53 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     decimal approvedLeaves = leaveValidationData.ApprovedLeaveCount;
                     decimal pendingLeaves = leaveValidationData.PendingLeaveCount;
                     decimal totalLeavesDays = leaveValidationData.TotalLeaveCount;
-                    double totalLeaves = (double)totalLeavesDays;
-                    double maxAnnualLeaveLimit = 30;
-                    double accruedLeaves = 0;
-                    if (totalLeaves < maxAnnualLeaveLimit)
-                    {
-                        double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+                    decimal availableLeaveBalance = leaveValidationData.AvailableLeaveBalance;
 
-                        if (leavePolicyModel.Annual_IsCarryForward == true)
+                    const decimal maxAnnualLeaveLimit = 30m;
+                    decimal totalAfterRequest = approvedLeaves + pendingLeaves + leaveSummary.NoOfDays;
+                    if (totalAfterRequest > maxAnnualLeaveLimit)
+                    {
+                        TempData[HRMS.Models.Common.Constants.toastType] =
+                            HRMS.Models.Common.Constants.toastTypeError;
+
+                        return Json(new
                         {
-                            double carryForward = Convert.ToDouble(employeeDetails.CarryForword);
-                            accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
-                        }
+                            isValid = false,
+                            message =
+                                $"You cannot apply {leaveSummary.NoOfDays:0.##} day(s) leave. " +
+                                $"The annual leave limit is {maxAnnualLeaveLimit:0.##} day(s). " +
+                                $"Approved = {approvedLeaves:0.##}, Pending = {pendingLeaves:0.##}. " +
+                                $"You can apply only {Math.Max(0, maxAnnualLeaveLimit - approvedLeaves - pendingLeaves):0.##} more day(s)."
+                        });
+                    }
+                    decimal finalAvailableBalance = Math.Max(0m, availableLeaveBalance - pendingLeaves);
 
-                        accruedLeaves = accruedLeave - totalLeaves;
-                        // Final safety cap (optional)
-                        accruedLeaves = Math.Min(accruedLeaves, maxAnnualLeaveLimit);
-                        accruedLeaves = Math.Max(accruedLeaves, 0);
-                    }
-                    else
-                    {
-                        accruedLeaves = 0; // Block both accrual and carry forward
-                    }
+                    //decimal totalLeavesDays = leaveValidationData.TotalLeaveCount;
+                    //double totalLeaves = (double)totalLeavesDays;
+                    //double maxAnnualLeaveLimit = 30;
+                    //double accruedLeaves = 0;
+                    //if (totalLeaves < maxAnnualLeaveLimit)
+                    //{
+                    //    double accruedLeave = CalculateAccruedLeaveForCurrentFiscalYear(joinDate.Value, leavePolicyModel.Annual_MaximumLeaveAllocationAllowed);
+
+                    //    if (leavePolicyModel.Annual_IsCarryForward == true)
+                    //    {
+                    //        double carryForward = Convert.ToDouble(employeeDetails.CarryForword);
+                    //        accruedLeave = Math.Min(accruedLeave + carryForward, maxAnnualLeaveLimit);
+                    //    }
+
+                    //    accruedLeaves = accruedLeave - totalLeaves;
+                    //    // Final safety cap (optional)
+                    //    accruedLeaves = Math.Min(accruedLeaves, maxAnnualLeaveLimit);
+                    //    accruedLeaves = Math.Max(accruedLeaves, 0);
+                    //}
+                    //else
+                    //{
+                    //    accruedLeaves = 0; // Block both accrual and carry forward
+                    //}
 
                     // Step 3: Final validation
-                    if (leaveSummary.NoOfDays > (decimal)accruedLeaves)
+                    if (leaveSummary.NoOfDays > finalAvailableBalance)
                     {
                         TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
                         return Json(new
@@ -2188,7 +2233,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                             isValid = false,
                             message =
                             $"You cannot apply {leaveSummary.NoOfDays} day(s) leave. " +
-                            $"Available balance is {accruedLeaves:0.##} day(s). " +
+                            $"Available balance is {finalAvailableBalance:0.##} day(s). " +
                             $"Already utilized leaves: Approved = {approvedLeaves:0.##} day(s), " +
                             $"Pending = {pendingLeaves:0.##} day(s)."
                         });

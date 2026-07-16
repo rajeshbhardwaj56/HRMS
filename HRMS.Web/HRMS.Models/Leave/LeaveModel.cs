@@ -190,7 +190,7 @@ namespace HRMS.Models.Leave
 
         public string? LeaveStatusTypeName { get; set; }
 
-      
+
     }
     public class LeaveCountValidationResult
     {
@@ -199,5 +199,7 @@ namespace HRMS.Models.Leave
         public decimal PendingLeaveCount { get; set; }
 
         public decimal TotalLeaveCount { get; set; }
+
+        public decimal AvailableLeaveBalance { get; set; }
     }
 }
