@@ -57,7 +57,15 @@
 				}
 			</select>
 		</div>
-
+		<div class="col-md-3">
+			<label class="form-label">Level</label>
+			<select id="ddlHierarchyLevel" class="form-select">
+				<option value="0">All Level</option>
+				<option value="1">Level 1</option>
+				<option value="2">Level 2</option>
+				<option value="3">Level 3+</option>
+			</select>
+		</div>
 				
 
 	</div>
@@ -121,7 +129,8 @@
 								sortDir: sortDirection,
 
 								jobLocationID: $('#ddlLocation').val(),
-								subDepartmentID: $('#ddlSubDepartment').val()
+								subDepartmentID: $('#ddlSubDepartment').val(),
+								hierarchyLevel: $('#ddlHierarchyLevel').val()
 							};
 						}
 			    },
@@ -156,8 +165,8 @@
                     order: []
 		   });
 
-			$('#ddlLocation, #ddlSubDepartment').on('change', function () {
-		table.ajax.reload();
+	$('#ddlLocation, #ddlSubDepartment, #ddlHierarchyLevel').on('change', function () {
+			table.ajax.reload();
 	});
 
 		$('#selectAll').on('click', function () {

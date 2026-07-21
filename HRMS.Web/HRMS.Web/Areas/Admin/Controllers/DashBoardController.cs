@@ -1027,7 +1027,17 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 if (file == null || file.Length == 0)
                     return BadRequest(new { success = false, message = "No file uploaded." });
+                var applyCutoffDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
+                if (week.Date <= applyCutoffDate.Date)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = $"Week Off cannot be uploaded for weeks up to {applyCutoffDate:dd-MMM-yyyy}."
+                    });
+                }
 
                 tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + Path.GetExtension(file.FileName));
                 using (var stream = new FileStream(tempFilePath, FileMode.Create))

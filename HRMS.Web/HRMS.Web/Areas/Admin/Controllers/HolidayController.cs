@@ -45,10 +45,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult HolidayListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long? locationId)
+        public JsonResult HolidayListings(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, long? locationId, long? subDepartmentId)
         {
             HolidayInputParams HolidayParams = new HolidayInputParams();
             HolidayParams.LocationID = locationId;
+            HolidayParams.SubDepartmentID = subDepartmentId;
             HolidayParams.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             var data = _businessLayer.SendPostAPIRequest(HolidayParams, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.GetAllHolidayList), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
             var results = JsonConvert.DeserializeObject<Results>(data);
@@ -60,6 +61,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 {
                     jobLocationID = j.Value,   
                     jobLocationName = j.Text
+                }),
+                subDepartments = results.DepartmentList.Select(j => new
+                {
+                 subDepartmentID = j.Value,
+                 name = j.Text
                 })
             });
         }
@@ -80,6 +86,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 var holidayResult = JsonConvert.DeserializeObject<Results>(data);
                 HolidayModel = holidayResult.holidayModel ?? new HolidayModel();
                 HolidayModel.JobLocationList = holidayResult.JobLocationList;
+                HolidayModel.SubDepartmentList = holidayResult.DepartmentList;
 
             }
             else
@@ -94,30 +101,89 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 var holidayResult = JsonConvert.DeserializeObject<Results>(data);
                 HolidayModel.JobLocationList = holidayResult.JobLocationList;
+                HolidayModel.SubDepartmentList = holidayResult.DepartmentList;
             }
             return View(HolidayModel);
         }
-
         [HttpPost]
         public IActionResult Index(HolidayModel HolidayModel)
         {
             if (ModelState.IsValid)
             {
-                HolidayModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
-                HolidayModel.UserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-                var data = _businessLayer.SendPostAPIRequest(HolidayModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Holiday, APIApiActionConstants.AddUpdateHoliday), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
-                var result = JsonConvert.DeserializeObject<Result>(data);
+                HolidayModel.CompanyID = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.CompanyID));
+
+                HolidayModel.UserID = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.EmployeeID));
+
 
                 if (HolidayModel.HolidayID > 0)
                 {
+                    // EDIT - Only one Location and Process
+
+                    HolidayModel.JobLocationTypeID = HolidayModel.JobLocationTypeID;
+                    HolidayModel.SubDepartmentID = HolidayModel.SubDepartmentID;
+
+
+                    var data = _businessLayer.SendPostAPIRequest(
+                        HolidayModel,
+                        _businessLayer.GetFormattedAPIUrl(
+                            APIControllarsConstants.Holiday,
+                            APIApiActionConstants.AddUpdateHoliday),
+                        HttpContext.Session.GetString(Constants.SessionBearerToken),
+                        true
+                    ).Result.ToString();
+
+
+                    var result = JsonConvert.DeserializeObject<Result>(data);
+
+                    if (result.PKNo == 0)
+                    {
+                        SetWarningToast(result.Message);
+                        return View(HolidayModel);
+                    }
+
                     SetSuccessToast("Holiday data Modified successfully.");
-                    return RedirectToActionPermanent(WebControllarsConstants.HolidayListing, WebControllarsConstants.Holiday);
+
                 }
                 else
                 {
+                    // ADD - Multiple Location and Process
+
+                    foreach (var locationId in HolidayModel.JobLocationTypeIDs)
+                    {
+                        foreach (var processId in HolidayModel.SubDepartmentIDs)
+                        {
+                            HolidayModel.JobLocationTypeID = locationId;
+                            HolidayModel.SubDepartmentID = processId;
+
+                            var data = _businessLayer.SendPostAPIRequest(
+                                HolidayModel,
+                                _businessLayer.GetFormattedAPIUrl(
+                                    APIControllarsConstants.Holiday,
+                                    APIApiActionConstants.AddUpdateHoliday),
+                                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                                true
+                            ).Result.ToString();
+
+
+                            var result = JsonConvert.DeserializeObject<Result>(data);
+
+                            if (result.PKNo == 0)
+                            {
+                                SetWarningToast(result.Message);
+                                return View(HolidayModel);
+                            }
+                        }
+                    }
+
                     SetSuccessToast("Holiday details Added successfully");
-                    return RedirectToActionPermanent(WebControllarsConstants.HolidayListing, WebControllarsConstants.Holiday);
                 }
+
+
+                return RedirectToActionPermanent(
+                    WebControllarsConstants.HolidayListing,
+                    WebControllarsConstants.Holiday);
             }
             else
             {

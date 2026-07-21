@@ -4,7 +4,10 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Holiday";
-}<div class="main-header anim" style="--delay: 0s">  Holiday Details</div>
+}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+<div class="main-header anim" style="--delay: 0s">  Holiday Details</div>
 <form method="post" id="submitForm" enctype="multipart/form-data">
 
     <div class="group-box anim" style="--delay: .3s">
@@ -50,7 +53,61 @@
                         Location <label class="Mandetory">*</label>
                     </div>
                     <div class="col-md-12">
-                        @Html.DropDownListFor(a => a.JobLocationTypeID, Model.JobLocationList, "-- Select Location --", new { @class = "form-control", @required = "required" })
+                        @if (Model.HolidayID > 0)
+                        {
+                            @Html.DropDownListFor(
+                                a => a.JobLocationTypeID,
+                                Model.JobLocationList,
+                                "Select Location",
+                                new
+                                {
+                                    @class = "form-control select2",
+                                    required = "required"
+                                })
+                        }
+                        else
+                        {
+                            @Html.ListBoxFor(
+                                a => a.JobLocationTypeIDs,
+                                Model.JobLocationList,
+                                new
+                                {
+                                    @class = "form-control select2",
+                                    multiple = "multiple",
+                                    required = "required"
+                                })
+                        }
+                    </div>
+                </div>
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Process <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @if (Model.HolidayID > 0)
+                        {
+                            @Html.DropDownListFor(
+                                a => a.SubDepartmentID,
+                                Model.SubDepartmentList,
+                                "Select Process",
+                                new
+                                {
+                                    @class = "form-control select2",
+                                    required = "required"
+                                })
+                        }
+                        else
+                        {
+                            @Html.ListBoxFor(
+                                a => a.SubDepartmentIDs,
+                                Model.SubDepartmentList,
+                                new
+                                {
+                                    @class = "form-control select2",
+                                    multiple = "multiple",
+                                    required = "required"
+                                })
+                        }
                     </div>
                 </div>
                 <div class="col-md-4 form-group">
@@ -79,4 +136,22 @@
     document.getElementById('cancelButton').addEventListener('click', function () {
         window.location.href = '@Url.Action("HolidayListing", "Holiday")';
     });
+</script>
+<script>
+
+    $(document).ready(function () {
+
+        $("#JobLocationTypeIDs").select2({
+            placeholder: "Select Location",
+            width: '100%'
+        });
+
+
+        $("#SubDepartmentIDs").select2({
+            placeholder: "Select Process",
+            width: '100%'
+        });
+
+    });
+
 </script>

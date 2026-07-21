@@ -52,6 +52,15 @@
                     </div>
 
                     <div class="col-md-3">
+                        <label class="form-label">Level</label>
+                        <select id="ddlHierarchyLevel" class="form-select">
+                            <option value="0">All Level</option>
+                            <option value="1">Level 1</option>
+                            <option value="2">Level 2</option>
+                            <option value="3">Level 3+</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
                         <button id="export-btn"
                                 class="btn btn-primary ">
                             <i class="fa fa-file-export me-1"></i>
@@ -127,8 +136,8 @@
 
         loadAttendanceTable();
 
-        $("#ddlLocation,#ddlSubDepartment").change(function () {
-            table.ajax.reload();
+    $("#ddlLocation,#ddlSubDepartment,#ddlHierarchyLevel").change(function () {
+                table.ajax.reload();
         });
 
         $("#pending-tab-btn").click(function () {
@@ -170,7 +179,8 @@
                 '@Url.Action("ExportAttendanceApprovalExcel", "Attendance", new { area = "Employee" })'
                 + '?jobLocationID=' + ($('#ddlLocation').val() || 0)
                 + '&subDepartmentID=' + ($('#ddlSubDepartment').val() || 0)
-                + '&approvalStatus=' + approvalStatus;
+                + '&approvalStatus=' + approvalStatus
+                + '&hierarchyLevel=' + ($('#ddlHierarchyLevel').val() || 0);
 
             window.location.href = url;
         });
@@ -221,7 +231,8 @@
                         subDepartmentID:
                             parseInt($("#ddlSubDepartment").val() || 0),
 
-                        approvalStatus: approvalStatus
+                        approvalStatus: approvalStatus,
+                          hierarchyLevel: parseInt($("#ddlHierarchyLevel").val() || 0)
                     };
                 }
             },

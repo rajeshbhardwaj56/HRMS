@@ -19,6 +19,17 @@
 			</select>
 		</div>
 	</div>
+	<div class="col-md-3 col-sm-6 mb-2 mb-md-0">
+		<div class="d-flex align-items-center">
+			<label for="subDepartmentDropdown" class="mr-2 mb-0" style="font-size:12px; white-space:nowrap;">
+				Select Process:
+			</label>
+
+			<select id="subDepartmentDropdown" class="form-control form-control-sm">
+				<option value="">All Process</option>
+			</select>
+		</div>
+	</div>
 	<a href="~/Admin/Holiday">
 	<button type="button" class="btn btn-addBtn" id="openFormBtn">Add Holiday</button></a>
 	
@@ -40,7 +51,8 @@
 				<th>From Date</th>
 				<th>To Date</th>
 				<th>Description</th>
-				<th>Location</th>
+				<th>Location</th> 
+			    <th>Process</th>
 				<th>Status</th>	
 				<th>Action</th>
 			</tr>
@@ -55,6 +67,9 @@
 		$('#locationDropdown').change(function () {
 		$('#tblHolidayListing').DataTable().ajax.reload();
 	});
+			$('#subDepartmentDropdown').change(function () {
+			$('#tblHolidayListing').DataTable().ajax.reload();
+		});
 	$(document).ready(function () {
 		$('#tblHolidayListing').DataTable({
 			"ajax": {
@@ -64,24 +79,60 @@
 				 "data": function (d) {
 				
 				d.locationId = $('#locationDropdown').val();
+				d.subDepartmentId = $('#subDepartmentDropdown').val();
 			},
-			"dataSrc": function (json) {
-				var dropdown = $('#locationDropdown');
-				 var selectedVal = dropdown.val();
-				dropdown.empty();
-				dropdown.append('<option value="">All Locations</option>');
+					dataSrc: function (json) {
 
-				if (json.locations && json.locations.length) {
-					$.each(json.locations, function (index, location) {
-						dropdown.append(
-							$('<option></option>').val(location.jobLocationID).text(location.jobLocationName)
-						);
-					});
-				}
-				dropdown.val(selectedVal);
+			// Location
+			var location = $('#locationDropdown');
+			var selectedLocation = location.val();
 
-				return json.data;
+			location.empty();
+			location.append('<option value="">All Locations</option>');
+
+			if (json.locations) {
+
+				$.each(json.locations, function (i, item) {
+
+					location.append(
+						$('<option></option>')
+							.val(item.jobLocationID)
+							.text(item.jobLocationName)
+					);
+
+				});
+
 			}
+
+			location.val(selectedLocation);
+
+
+			// Process
+			var process = $('#subDepartmentDropdown');
+			var selectedProcess = process.val();
+
+			process.empty();
+			process.append('<option value="">All Process</option>');
+
+			if (json.subDepartments) {
+
+				$.each(json.subDepartments, function (i, item) {
+
+					process.append(
+						$('<option></option>')
+							.val(item.subDepartmentID)
+							.text(item.name)
+					);
+
+				});
+
+			}
+
+			process.val(selectedProcess);
+
+			return json.data;
+
+		}
 			},
 			"ordering": true,
 			"paging": true,
@@ -111,6 +162,7 @@
 				},
 				{ "data": "description", "autoWidth": true },
 				{ "data": "location", "autoWidth": true },
+					{ "data": "processName", "autoWidth": true },
 				{  "data": "status",
 	"autoWidth": true,
 	"render": function (data, type, row) {

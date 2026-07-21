@@ -1338,7 +1338,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
     string sortCol,
     string sortDir,
         long jobLocationID = 0,
-    long subDepartmentID = 0)
+    long subDepartmentID = 0, int hierarchyLevel = 0)
         {
             long reportingToId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
@@ -1367,6 +1367,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
                 JobLocationID = jobLocationID,
                 SubDepartmentID = subDepartmentID,
+                HierarchyLevel = hierarchyLevel
             };
 
             var apiResponse = _businessLayer.SendPostAPIRequest(
@@ -1731,7 +1732,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             string sortDir,
             long jobLocationID = 0,
             long subDepartmentID = 0,
-            int? approvalStatus = null)
+            int? approvalStatus = null,int hierarchyLevel = 0)
         {
             long employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
@@ -1766,7 +1767,8 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
                 JobLocationID = jobLocationID,
                 SubDepartmentID = subDepartmentID,
-                ApprovalStatus = approvalStatus
+                ApprovalStatus = approvalStatus,
+                HierarchyLevel = hierarchyLevel
             };
 
             var apiResponse = _businessLayer.SendPostAPIRequest(

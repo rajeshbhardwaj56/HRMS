@@ -1658,7 +1658,20 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 //int currentDay = DateTime.Today.Day;
                 //model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
+                var applyCutoffDate = DateTime.Parse(
+    _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
+                if (model.WeekStartDate.HasValue &&
+                    model.WeekStartDate.Value.Date <= applyCutoffDate.Date)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] =
+                        $"Week Off cannot be saved for weeks up to {applyCutoffDate:dd-MMM-yyyy}.";
+
+                    return RedirectToAction(
+                        WebControllarsConstants.EmployeesWeekOffRoster,
+                        WebControllarsConstants.Employee);
+                }
                 var weekOffUploadModel = new WeekOffUploadModelList
                 {
                     WeekOffList = new List<WeekOffUploadModel> { model },

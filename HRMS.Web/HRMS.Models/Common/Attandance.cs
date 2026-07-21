@@ -36,7 +36,7 @@ namespace HRMS.Models.Common
         public string? SortCol { get; set; }      // @SortCol
         public string? SortDir { get; set; }
         public int? ApprovalStatus { get; set; }
-
+        public int? HierarchyLevel { get; set; }
     }
     public class Attendance
     {

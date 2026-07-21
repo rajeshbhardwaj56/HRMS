@@ -9,7 +9,7 @@ namespace HRMS.Models
         public long CompanyID { get; set; }
         public long? LocationID { get; set; }
         public long? EmployeeID { get; set; }
-
+        public long? SubDepartmentID { get; set; }
 
     }
     public class HolidayModel
@@ -22,8 +22,10 @@ namespace HRMS.Models
         public DateTime FromDate { get; set; }
         public string? Description { get; set; }
         public bool Status { get; set; } = true;
-        public long JobLocationTypeID { get; set; }
+        public long? JobLocationTypeID { get; set; }
+        public long? SubDepartmentID { get; set; }
         public string? Location { get; set; }
+        public string? ProcessName { get; set; }
         public bool IsDeleted { get; set; } = false;
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
@@ -31,5 +33,9 @@ namespace HRMS.Models
         public long UpdatedBy { get; set; }
         public long? UserID { get; set; }
         public List<SelectListItem> JobLocationList { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> SubDepartmentList { get; set; } = new List<SelectListItem>();
+        public List<long> JobLocationTypeIDs { get; set; } = new();
+        public List<long> SubDepartmentIDs { get; set; } = new();
+
     }
 }

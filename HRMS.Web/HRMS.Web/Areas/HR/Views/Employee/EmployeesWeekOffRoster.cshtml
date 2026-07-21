@@ -2,6 +2,8 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @using HRMS.Models;
 @using HRMS.Models.Common;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 
 @model HRMS.Models.Common.Results
@@ -13,6 +15,7 @@
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
+    var applyCutoffDate = Configuration["HRMSLockSettings:ApplyCutoffDate"];
 }
 
 <div class="main-header anim" style="--delay: 0s">
@@ -58,7 +61,10 @@
         </thead>
     </table>
 </div>
-
+<script>
+    var applyCutoffDate = new Date('@applyCutoffDate');
+    applyCutoffDate.setHours(0,0,0,0);
+</script>
 <script type="text/javascript">
     $('#yearDropdown').on('change', function () {
         const year = parseInt($(this).val());
@@ -253,26 +259,63 @@
                     "data": "modifiedDate", "autoWidth": true,
                     "render": function (data) { return formatDateTimeCell(data); }
                 },
-                {
-                    "data": null,
-                    "render": function (data, type, row) {
-                     
-                        var linkEdit = '<div class="table-data-feature">' +
-                            '<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' + row.encryptedIdentity + '&emp=' + row.encryptedEmployeeId + '" title="Edit">' +
-                            '<img src="/assets/img/edit.png" width="20" height="20" />' +
-                            '</a></div>';
+    {
+        "data": null,
+        "render": function (data, type, row) {
 
-                        var DeleteRecord = '<div class="table-data-feature">' +
-                            '<a data-toggle="tooltip" data-placement="top" class="item delete-button" href="DeleteWeekOffRoster?id=' + row.encryptedIdentity + '" title="Delete">' +
-                            '<img src="/assets/img/delete.png" width="20" height="20" />' +
-                            '</a></div>';
+            var html = '';
+
+            var dayOff1 = row.dayOff1 ? new Date(row.dayOff1) : null;
+            var dayOff2 = row.dayOff2 ? new Date(row.dayOff2) : null;
+
+            if(dayOff1)
+                dayOff1.setHours(0,0,0,0);
+
+            if(dayOff2)
+                dayOff2.setHours(0,0,0,0);
 
 
-                        return linkEdit + DeleteRecord;
-                    },
-                    "orderable": false,
-                    "className": "Edit-Button"
-                }
+            var isLocked = false;
+
+            if(dayOff1 && dayOff1 <= applyCutoffDate)
+            {
+                isLocked = true;
+            }
+
+            if(dayOff2 && dayOff2 <= applyCutoffDate)
+            {
+                isLocked = true;
+            }
+
+
+            if(!isLocked)
+            {
+                html +=
+                '<div class="table-data-feature">' +
+                    '<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' +
+                    row.encryptedIdentity +
+                    '&emp=' +
+                    row.encryptedEmployeeId +
+                    '" title="Edit">' +
+                    '<img src="/assets/img/edit.png" width="20" height="20" />' +
+                '</a></div>';
+
+
+                html +=
+                '<div class="table-data-feature">' +
+                    '<a data-toggle="tooltip" data-placement="top" class="item delete-button" href="DeleteWeekOffRoster?id=' +
+                    row.encryptedIdentity +
+                    '" title="Delete">' +
+                    '<img src="/assets/img/delete.png" width="20" height="20" />' +
+                '</a></div>';
+            }
+
+
+            return html;
+        },
+        "orderable": false,
+        "className": "Edit-Button"
+    }
             ],
             "createdRow": function (row, data, dataIndex) {
 

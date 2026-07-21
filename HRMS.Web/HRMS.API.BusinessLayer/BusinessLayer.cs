@@ -1634,12 +1634,29 @@ namespace HRMS.API.BusinessLayer
                                   ToDate = dataRow.Field<DateTime>("ToDate"),
                                   Description = dataRow.Field<string>("Description"),
                                   Status = dataRow.Field<bool>("Status"),
-                                  JobLocationTypeID = dataRow.Field<long>("JobLocationTypeID")
+                                  JobLocationTypeID = dataRow.Field<long?>("JobLocationTypeID"),
+                                  SubDepartmentID = dataRow.Field<long?>("SubDepartmentID")
                               }).ToList();
-
             if (model.HolidayID > 0)
             {
-                result.holidayModel = result.Holiday.FirstOrDefault();
+                var holidayData = result.Holiday.ToList();
+
+                result.holidayModel = holidayData.FirstOrDefault();
+
+                if (result.holidayModel != null)
+                {
+                    result.holidayModel.JobLocationTypeIDs = holidayData
+                        .Where(x => x.JobLocationTypeID.HasValue)
+                        .Select(x => x.JobLocationTypeID.Value)
+                        .Distinct()
+                        .ToList();
+
+                    result.holidayModel.SubDepartmentIDs = holidayData
+                        .Where(x => x.SubDepartmentID.HasValue)
+                        .Select(x => x.SubDepartmentID.Value)
+                        .Distinct()
+                        .ToList();
+                }
             }
             result.JobLocationList = dataSet.Tables[1].AsEnumerable()
                             .Select(dataRow => new SelectListItem
@@ -1647,6 +1664,12 @@ namespace HRMS.API.BusinessLayer
                                 Value = dataRow.Field<long>("ID").ToString(),
                                 Text = dataRow.Field<string>("Name")
                             }).ToList();
+            result.DepartmentList = dataSet.Tables[2].AsEnumerable()
+                        .Select(row => new SelectListItem
+                        {
+                            Value = row.Field<long>("ID").ToString(),
+                            Text = row.Field<string>("Name")
+                        }).ToList();
             return result;
         }
 
@@ -1663,6 +1686,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@Status", HolidayModel.Status));
             sqlParameter.Add(new SqlParameter("@Description", HolidayModel.Description));
             sqlParameter.Add(new SqlParameter("@JobLocationTypeID", HolidayModel.JobLocationTypeID));
+            sqlParameter.Add(new SqlParameter("@SubDepartmentID", HolidayModel.SubDepartmentID));
             sqlParameter.Add(new SqlParameter("@UserID", HolidayModel.UserID));
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_Holiday, sqlParameter);
 
@@ -1721,6 +1745,10 @@ namespace HRMS.API.BusinessLayer
             {
                 sqlParameter.Add(new SqlParameter("@JobLocationID", model.LocationID.Value));
             }
+            if (model.SubDepartmentID.HasValue && model.SubDepartmentID.Value > 0)
+            {
+                sqlParameter.Add(new SqlParameter("@SubDepartmentID", model.SubDepartmentID.Value));
+            }
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_HolidayList, sqlParameter);
 
             result.Holiday = dataSet.Tables[0].AsEnumerable()
@@ -1733,6 +1761,7 @@ namespace HRMS.API.BusinessLayer
                                    ToDate = dataRow.Field<DateTime>("ToDate"),
                                    Description = dataRow.Field<string>("Description"),
                                    Location = dataRow.Field<string>("JobLocationName"),
+                                   ProcessName = dataRow.Field<string>("ProcessName"),
                                    Status = dataRow.Field<bool>("Status"),
                                }).ToList();
             result.JobLocationList = dataSet.Tables[1].AsEnumerable()
@@ -1741,6 +1770,12 @@ namespace HRMS.API.BusinessLayer
                                Value = dataRow.Field<long>("JobLocationID").ToString(),
                                Text = dataRow.Field<string>("JobLocationName")
                            }).ToList();
+            result.DepartmentList = dataSet.Tables[2].AsEnumerable()
+               .Select(dataRow => new SelectListItem
+               {
+                   Value = dataRow.Field<long>("SubDepartmentID").ToString(),
+                   Text = dataRow.Field<string>("Name")
+               }).ToList();
 
             if (model.CompanyID > 0)
             {
@@ -2285,11 +2320,19 @@ namespace HRMS.API.BusinessLayer
      }).ToList();
 
 
-                var LeaveDetails = dataSet.Tables[4].AsEnumerable()
-                              .Select(dataRow => new DashBoardModel
-                              {
-                                  TotalLeave = dataRow.Field<decimal>("TotalLeave"),
-                              }).ToList().FirstOrDefault();
+                dashBoardModel.LeaveSummary = dataSet.Tables[4].AsEnumerable()
+                    .Select(row => new LeaveSummaryTypeModel
+                    {
+                        LeaveCode = row.Field<string>("LeaveCode"),
+                        LeaveType = row.Field<string>("LeaveType"),
+                        TotalLeave = row.Field<decimal>("TotalLeave")
+                    }).ToList();
+
+                if (dashBoardModel.LeaveSummary.Any())
+                {
+                    dashBoardModel.TotalLeaves =
+                        dataSet.Tables[4].Rows[0].Field<decimal>("AllLeavesTotal");
+                }
 
                 var HolidayList = dataSet.Tables[5].AsEnumerable()
                               .Select(dataRow => new HolidayModel
@@ -2426,7 +2469,6 @@ namespace HRMS.API.BusinessLayer
                 }
 
                 dashBoardModel.NoOfEmployees = OtherDetails.NoOfEmployees;
-                dashBoardModel.TotalLeave = LeaveDetails.TotalLeave;
                 dashBoardModel.HolidayList = HolidayList;
                 dashBoardModel.WhatsHappening = WhatsHappening;
                 // dashBoardModel.NoOfCompanies = OtherDetails.NoOfCompanies;
@@ -6295,8 +6337,10 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC"),
 new SqlParameter("@Searching", model.SearchTerm ?? (object)DBNull.Value),
 new SqlParameter("@DisplayStart", model.DisplayStart),
 new SqlParameter("@DisplayLength", model.DisplayLength),
-        new SqlParameter("@JobLocationID", model.JobLocationID),
-        new SqlParameter("@SubDepartmentID", model.SubDepartmentID),
+new SqlParameter("@JobLocationID", model.JobLocationID),
+new SqlParameter("@SubDepartmentID", model.SubDepartmentID),
+new SqlParameter("@HierarchyLevel", model.HierarchyLevel),
+
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(
@@ -6360,7 +6404,9 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
         new SqlParameter("@ApprovalStatus",
             model.ApprovalStatus.HasValue
                 ? (object)model.ApprovalStatus.Value
-                : DBNull.Value)
+                : DBNull.Value),
+        new SqlParameter("@HierarchyLevel", model.HierarchyLevel),
+
     };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(
