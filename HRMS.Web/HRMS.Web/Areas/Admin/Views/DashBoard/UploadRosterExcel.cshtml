@@ -1,11 +1,14 @@
 ﻿@using HRMS.Models.ExportEmployeeExcel;
 @using Microsoft.AspNetCore.Http
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @model List<WeekOffShift>
 
 @{
     Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Upload Roster Excel";
+    var rosterCutoffDate = Configuration["HRMSLockSettings:ApplyCutoffDate"];
 }
 
 <style>
@@ -112,7 +115,8 @@
 
         const weekRanges = getWeekRanges(year);
         let selectedValue = null;
-        const periodEndDate = new Date("2026-05-20"); 
+    const periodEndDate = new Date('@rosterCutoffDate');
+    periodEndDate.setHours(0, 0, 0, 0);
         weekRanges.forEach(w => {
             const weekStart = new Date(convertToISO(w.startDate));
             if (weekStart <= periodEndDate) {

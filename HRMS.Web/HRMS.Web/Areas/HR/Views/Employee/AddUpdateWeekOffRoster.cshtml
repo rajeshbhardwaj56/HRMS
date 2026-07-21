@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.Extensions.Configuration
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-@inject IConfiguration _configuration
+@inject IConfiguration Configuration
 @model WeekOffUploadModel
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
@@ -22,7 +22,7 @@
     int currentYear = DateTime.Today.Year;
 
     bool isEditMode = Model.Id > 0;
-   
+    var weekOffCutoffDate = Configuration["HRMSLockSettings:ApplyCutoffDate"];
 }
 
 
@@ -157,7 +157,8 @@
         const weekRanges = getWeekRanges(year);
         const today = new Date();
         let selectedValue = null;
-           const periodEndDate = new Date("2026-05-20"); 
+    const periodEndDate = new Date('@weekOffCutoffDate');
+    periodEndDate.setHours(0,0,0,0);
            weekRanges.forEach(w => {
                const weekStart = new Date(convertToISO(w.startDate));
                if (weekStart <= periodEndDate) {

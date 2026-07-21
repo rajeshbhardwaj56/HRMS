@@ -90,7 +90,8 @@ namespace HRMS.Models.DashBoard
         public string? ContactPersonRelationship { get; set; } = string.Empty;
         public string? ITSkillsKnowledge { get; set; } = string.Empty;
         public int HolidayCount { get; set; }
-        public decimal TotalLeave { get; set; }
+        public List<LeaveSummaryTypeModel> LeaveSummary { get; set; } = new();
+        public decimal TotalLeaves { get; set; }
         public long? LeavePolicyId { get; set; }
         public double CarryForword { get; set; }
         public int? RecordPresent { get; set; }
@@ -112,15 +113,15 @@ namespace HRMS.Models.DashBoard
         public string? FirstName { get; set; } = string.Empty;
         public string? MiddleName { get; set; } = string.Empty;
         public string? Surname { get; set; } = string.Empty;
-       
+
         public long DepartmentID { get; set; }
         public long JobLocationID { get; set; }
         public long ReportingToIDL1 { get; set; }
         public string OfficialEmailID { get; set; } = string.Empty;
-        
+
         public DateTime? JoiningDate { get; set; }
-       
-     
+
+
 
     }
     public class HierarchyEmployee
@@ -236,5 +237,11 @@ namespace HRMS.Models.DashBoard
     public class ManagerApprovalCount
     {
         public long PendingLeaveCount { get; set; }
+    }
+    public class LeaveSummaryTypeModel
+    {
+        public string? LeaveCode { get; set; }
+        public string? LeaveType { get; set; }
+        public decimal TotalLeave { get; set; }
     }
 }

@@ -2286,11 +2286,19 @@ namespace HRMS.API.BusinessLayer
      }).ToList();
 
 
-                var LeaveDetails = dataSet.Tables[4].AsEnumerable()
-                              .Select(dataRow => new DashBoardModel
-                              {
-                                  TotalLeave = dataRow.Field<decimal>("TotalLeave"),
-                              }).ToList().FirstOrDefault();
+                dashBoardModel.LeaveSummary = dataSet.Tables[4].AsEnumerable()
+                    .Select(row => new LeaveSummaryTypeModel
+                    {
+                        LeaveCode = row.Field<string>("LeaveCode"),
+                        LeaveType = row.Field<string>("LeaveType"),
+                        TotalLeave = row.Field<decimal>("TotalLeave")
+                    }).ToList();
+
+                if (dashBoardModel.LeaveSummary.Any())
+                {
+                    dashBoardModel.TotalLeaves =
+                        dataSet.Tables[4].Rows[0].Field<decimal>("AllLeavesTotal");
+                }
 
                 var HolidayList = dataSet.Tables[5].AsEnumerable()
                               .Select(dataRow => new HolidayModel
@@ -2427,7 +2435,6 @@ namespace HRMS.API.BusinessLayer
                 }
 
                 dashBoardModel.NoOfEmployees = OtherDetails.NoOfEmployees;
-                dashBoardModel.TotalLeave = LeaveDetails.TotalLeave;
                 dashBoardModel.HolidayList = HolidayList;
                 dashBoardModel.WhatsHappening = WhatsHappening;
                 // dashBoardModel.NoOfCompanies = OtherDetails.NoOfCompanies;
