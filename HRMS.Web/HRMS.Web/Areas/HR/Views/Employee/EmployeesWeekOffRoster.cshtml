@@ -62,10 +62,24 @@
     </table>
 </div>
 <script>
-    var applyCutoffDate = new Date('@applyCutoffDate');
-    applyCutoffDate.setHours(0,0,0,0);
-</script>
+    const applyCutoffDate = '@Configuration["HRMSLockSettings:ApplyCutoffDate"]';
+    const adminEditCutoffDate = '@Configuration["HRMSLockSettings:AdminEditCutoffDate"]';
+    const allowSuperAdminEdit = '@Configuration["HRMSLockSettings:AllowSuperAdminEdit"]'.toLowerCase() === 'true';
 
+    const roleId = @Context.Session.GetString(Constants.RoleID);
+
+    const ROLE_ADMIN = @((int)Roles.Admin);
+    const ROLE_SUPERADMIN = @((int)Roles.SuperAdmin);
+
+    let effectiveCutoffDate = new Date(applyCutoffDate + "T00:00:00");
+
+    if (allowSuperAdminEdit &&
+        (roleId === ROLE_ADMIN || roleId === ROLE_SUPERADMIN)) {
+        effectiveCutoffDate = new Date(adminEditCutoffDate + "T00:00:00");
+    }
+
+    effectiveCutoffDate.setHours(0, 0, 0, 0);
+</script>
 <script type="text/javascript">
     $('#yearDropdown').on('change', function () {
         const year = parseInt($(this).val());
@@ -248,59 +262,57 @@
                     "render": function (data) { return formatDateTimeCell(data); }
                 },
                 {
-    "data": null,
-    "render": function (data, type, row) {
+                    "data": null,
+                    "render": function (data, type, row) {
 
-        var html = '';
+                        var html = '';
 
-        var dayOff1 = row.dayOff1 ? new Date(row.dayOff1) : null;
-        var dayOff2 = row.dayOff2 ? new Date(row.dayOff2) : null;
+                        var dayOff1 = row.dayOff1 ? new Date(row.dayOff1) : null;
+                        var dayOff2 = row.dayOff2 ? new Date(row.dayOff2) : null;
 
-        if(dayOff1)
-            dayOff1.setHours(0,0,0,0);
+                        if(dayOff1)
+                            dayOff1.setHours(0,0,0,0);
 
-        if(dayOff2)
-            dayOff2.setHours(0,0,0,0);
-
-
-        var isLocked = false;
-
-        if(dayOff1 && dayOff1 <= applyCutoffDate)
-        {
-            isLocked = true;
-        }
-
-        if(dayOff2 && dayOff2 <= applyCutoffDate)
-        {
-            isLocked = true;
-        }
+                        if(dayOff2)
+                            dayOff2.setHours(0,0,0,0);
 
 
-        if(!isLocked)
-        {
-            html +=
-            '<div class="table-data-feature">' +
-                '<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' +
-                row.encryptedIdentity +
-                '&emp=' +
-                row.encryptedEmployeeId +
-                '" title="Edit">' +
-                '<img src="/assets/img/edit.png" width="20" height="20" />' +
-            '</a></div>';
+                    var isLocked = false;
+
+                    if (dayOff1 && dayOff1 <= effectiveCutoffDate) {
+                        isLocked = true;
+                    }
+
+                    if (dayOff2 && dayOff2 <= effectiveCutoffDate) {
+                        isLocked = true;
+                    }
 
 
-            html +=
-            '<div class="table-data-feature">' +
-                '<a data-toggle="tooltip" data-placement="top" class="item delete-button" href="DeleteWeekOffRoster?id=' +
-                row.encryptedIdentity +
-                '" title="Delete">' +
-                '<img src="/assets/img/delete.png" width="20" height="20" />' +
-            '</a></div>';
-        }
+                        if(!isLocked)
+                        {
+                            html +=
+                            '<div class="table-data-feature">' +
+                                '<a data-toggle="tooltip" data-placement="top" class="item" href="AddUpdateWeekOffRoster?id=' +
+                                row.encryptedIdentity +
+                                '&emp=' +
+                                row.encryptedEmployeeId +
+                                '" title="Edit">' +
+                                '<img src="/assets/img/edit.png" width="20" height="20" />' +
+                            '</a></div>';
 
 
-        return html;
-    },
+                            html +=
+                            '<div class="table-data-feature">' +
+                                '<a data-toggle="tooltip" data-placement="top" class="item delete-button" href="DeleteWeekOffRoster?id=' +
+                                row.encryptedIdentity +
+                                '" title="Delete">' +
+                                '<img src="/assets/img/delete.png" width="20" height="20" />' +
+                            '</a></div>';
+                        }
+
+
+                        return html;
+                    },
                     "orderable": false,
                     "className": "Edit-Button"
                 }

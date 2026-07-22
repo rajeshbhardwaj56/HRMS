@@ -1027,15 +1027,33 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 if (file == null || file.Length == 0)
                     return BadRequest(new { success = false, message = "No file uploaded." });
-                var applyCutoffDate = DateTime.Parse(
-               _configuration["HRMSLockSettings:ApplyCutoffDate"]);
+                DateTime applyCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
-                if (week.Date <= applyCutoffDate.Date)
+                DateTime adminEditCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+
+                bool allowSuperAdminEdit = Convert.ToBoolean(
+                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+                int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+                // Default cutoff
+                DateTime effectiveCutoffDate = applyCutoffDate;
+
+                // Admin/SuperAdmin can edit only from AdminEditCutoffDate if enabled
+                if (allowSuperAdminEdit &&
+                    (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+                {
+                    effectiveCutoffDate = adminEditCutoffDate;
+                }
+
+                if (week.Date <= effectiveCutoffDate.Date)
                 {
                     return BadRequest(new
                     {
                         success = false,
-                        message = $"Week Off cannot be uploaded for weeks up to {applyCutoffDate:dd-MMM-yyyy}."
+                        message = $"Week Off cannot be uploaded for weeks up to {effectiveCutoffDate:dd-MMM-yyyy}."
                     });
                 }
 

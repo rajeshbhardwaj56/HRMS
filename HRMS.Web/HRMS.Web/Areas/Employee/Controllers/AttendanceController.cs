@@ -732,6 +732,35 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             try
             {
                 var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+                DateTime attendanceCutoffDate = DateTime.Parse(
+                     _configuration["HRMSLockSettings:AttendanceCutoffDate"]);
+
+                DateTime adminEditCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+
+                bool allowSuperAdminEdit = Convert.ToBoolean(
+                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+                int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+                // Default cutoff
+                DateTime effectiveCutoffDate = attendanceCutoffDate;
+
+                // Admin/SuperAdmin use AdminEditCutoffDate when enabled
+                if (allowSuperAdminEdit &&
+                    (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+                {
+                    effectiveCutoffDate = adminEditCutoffDate;
+                }
+
+                if (submission.Logs.Any(x => x.AttendanceDate.Date < effectiveCutoffDate.Date))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Comp Off requests before {effectiveCutoffDate:dd-MMM-yyyy} cannot be submitted."
+                    });
+                }
                 foreach (var attendance in submission.Logs)
                 {
                     var compOff = new CompOffAttendanceRequestModel
@@ -1073,15 +1102,33 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
 
             // ===== TEMPORARY HARD CHECK =====
-            DateTime approvalCutoffDate = DateTime.Parse(_configuration["HRMSLockSettings:ApprovalCutoffDate"]);
+            DateTime approvalCutoffDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:ApprovalCutoffDate"]);
 
+            DateTime adminEditCutoffDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
 
-            if (workDate.Date < approvalCutoffDate)
+            bool allowSuperAdminEdit = Convert.ToBoolean(
+                _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+            int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+            // Default cutoff
+            DateTime effectiveCutoffDate = approvalCutoffDate;
+
+            // Admin/SuperAdmin use AdminEditCutoffDate only when enabled
+            if (allowSuperAdminEdit &&
+                (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+            {
+                effectiveCutoffDate = adminEditCutoffDate;
+            }
+
+            if (workDate.Date < effectiveCutoffDate.Date)
             {
                 return Json(new
                 {
                     success = false,
-                    message = $"Comp Off records before {approvalCutoffDate:dd-MM-yyyy} cannot be approved or rejected."
+                    message = $"Comp Off records before {effectiveCutoffDate:dd-MM-yyyy} cannot be approved or rejected."
                 });
             }
             // ===== END TEMPORARY HARD CHECK =====
@@ -1603,17 +1650,36 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
             try
             {
-                var hardCutoffDate = new DateTime(2026, 6, 20);
+                DateTime hardCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:AttendanceCutoffDate"]);
+
+                DateTime adminEditCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+
+                bool allowSuperAdminEdit = Convert.ToBoolean(
+                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+                int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+                // Default cutoff
+                DateTime effectiveCutoffDate = hardCutoffDate;
+
+                // Admin/SuperAdmin use the configured cutoff only when enabled
+                if (allowSuperAdminEdit &&
+                    (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+                {
+                    effectiveCutoffDate = adminEditCutoffDate;
+                }
+
                 if (records.Any(x => x.WorkDate.HasValue &&
-                     x.WorkDate.Value.Date < hardCutoffDate))
+                                     x.WorkDate.Value.Date < effectiveCutoffDate.Date))
                 {
                     return BadRequest(new
                     {
                         success = false,
-                        message = "Attendance records before 21-May-2026 cannot be approved or rejected."
+                        message = $"Attendance records before {effectiveCutoffDate.AddDays(1):dd-MMM-yyyy} cannot be approved or rejected."
                     });
                 }
-
 
                 foreach (var record in records)
                 {

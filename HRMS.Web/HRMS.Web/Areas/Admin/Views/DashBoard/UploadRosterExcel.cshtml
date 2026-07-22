@@ -1,4 +1,5 @@
-﻿@using HRMS.Models.ExportEmployeeExcel;
+﻿@using HRMS.Models.Common
+@using HRMS.Models.ExportEmployeeExcel;
 @using Microsoft.AspNetCore.Http
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @using Microsoft.Extensions.Configuration
@@ -115,13 +116,20 @@
 
         const weekRanges = getWeekRanges(year);
         let selectedValue = null;
-    const periodEndDate = new Date('@rosterCutoffDate');
-    periodEndDate.setHours(0, 0, 0, 0);
+            let periodEndDate = new Date(rosterCutoffDate + "T00:00:00");
+
+            if (allowSuperAdminEdit &&
+                (roleId === ROLE_ADMIN || roleId === ROLE_SUPERADMIN)) {
+                periodEndDate = new Date(adminEditCutoffDate + "T00:00:00");
+            }
+
+            periodEndDate.setHours(0, 0, 0, 0);
+
         weekRanges.forEach(w => {
             const weekStart = new Date(convertToISO(w.startDate));
-            if (weekStart <= periodEndDate) {
-                return; 
-            }
+                if (weekStart <= periodEndDate) {
+                    return;
+                }
 
             const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
             const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
@@ -343,4 +351,13 @@
     });
 </script>
 
+<script>
+    const rosterCutoffDate = '@Configuration["HRMSLockSettings:ApplyCutoffDate"]';
+    const adminEditCutoffDate = '@Configuration["HRMSLockSettings:AdminEditCutoffDate"]';
+    const allowSuperAdminEdit = '@Configuration["HRMSLockSettings:AllowSuperAdminEdit"]'.toLowerCase() === 'true';
 
+    const roleId = @Context.Session.GetString(Constants.RoleID);
+
+    const ROLE_ADMIN = @((int)Roles.Admin);
+    const ROLE_SUPERADMIN = @((int)Roles.SuperAdmin);
+</script>

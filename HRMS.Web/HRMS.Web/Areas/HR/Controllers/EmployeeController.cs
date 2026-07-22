@@ -1657,15 +1657,33 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 //int currentDay = DateTime.Today.Day;
                 //model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
-                var applyCutoffDate = DateTime.Parse(
-    _configuration["HRMSLockSettings:ApplyCutoffDate"]);
+                DateTime applyCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:ApplyCutoffDate"]);
+
+                DateTime adminEditCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+
+                bool allowSuperAdminEdit = Convert.ToBoolean(
+                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+                int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+                // Default cutoff for all users
+                DateTime effectiveCutoffDate = applyCutoffDate;
+
+                // Admin/SuperAdmin get the configured earlier cutoff only when enabled
+                if (allowSuperAdminEdit &&
+                    (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+                {
+                    effectiveCutoffDate = adminEditCutoffDate;
+                }
 
                 if (model.WeekStartDate.HasValue &&
-                    model.WeekStartDate.Value.Date <= applyCutoffDate.Date)
+                    model.WeekStartDate.Value.Date <= effectiveCutoffDate.Date)
                 {
                     TempData[Constants.toastType] = Constants.toastTypeError;
                     TempData[Constants.toastMessage] =
-                        $"Week Off cannot be saved for weeks up to {applyCutoffDate:dd-MMM-yyyy}.";
+                        $"Week Off cannot be saved for weeks up to {effectiveCutoffDate:dd-MMM-yyyy}.";
 
                     return RedirectToAction(
                         WebControllarsConstants.EmployeesWeekOffRoster,

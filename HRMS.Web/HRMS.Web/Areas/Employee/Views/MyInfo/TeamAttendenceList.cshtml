@@ -1122,18 +1122,20 @@ oldStatus: $("#oldStatus").val();
                         /* ---------------- STATUS EDIT PERMISSION ---------------- */
 
                         function canEditStatus(workDateStr) {
-                            const tempWorkDateCheck = parseISTDate(workDateStr);
 
+                            const tempWorkDateCheck = parseISTDate(workDateStr);
                             tempWorkDateCheck.setHours(0, 0, 0, 0);
 
-                            // Hard-coded cutoff date: 20-Jun-2026
-                                const tempCutoffDateCheck = new Date(attendanceCutoffDate + "T00:00:00"); // Month is 0-based, so 5 = June
-                            tempCutoffDateCheck.setHours(0, 0, 0, 0);
+                            let effectiveCutoffDate = new Date(attendanceCutoffDate + "T00:00:00");
 
-                            if (tempWorkDateCheck < tempCutoffDateCheck) {
-                                return false;
+                            if (allowSuperAdminEdit &&
+                                (roleId === ROLE_ADMIN || roleId === ROLE_SUPERADMIN)) {
+                                effectiveCutoffDate = new Date(adminEditCutoffDate + "T00:00:00");
                             }
-                            return true;
+
+                            effectiveCutoffDate.setHours(0, 0, 0, 0);
+
+                            return tempWorkDateCheck >= effectiveCutoffDate;
                         }
 
                         /* ---------------- STATUS EDITOR ---------------- */
@@ -1521,5 +1523,12 @@ ${data.availableCompOffDays ?? 0}
 </script>
 <script>
     const attendanceCutoffDate = '@Configuration["HRMSLockSettings:AttendanceCutoffDate"]';
+    const adminEditCutoffDate = '@Configuration["HRMSLockSettings:AdminEditCutoffDate"]';
+    const allowSuperAdminEdit = '@Configuration["HRMSLockSettings:AllowSuperAdminEdit"]'.toLowerCase() === 'true';
+
+    const roleId = @Context.Session.GetString(Constants.RoleID);
+
+    const ROLE_ADMIN = @((int)Roles.Admin);
+    const ROLE_SUPERADMIN = @((int)Roles.SuperAdmin);
 </script>
 

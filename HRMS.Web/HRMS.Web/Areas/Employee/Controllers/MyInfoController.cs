@@ -1,4 +1,5 @@
 ﻿
+using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
@@ -384,12 +385,31 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 return Json(new { data = response });
             }
 
-            DateTime approvalCutoffDate = DateTime.Parse(_configuration["HRMSLockSettings:ApprovalCutoffDate"]);
+            DateTime approvalCutoffDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:ApprovalCutoffDate"]);
 
-            if (leaveRecord.StartDate.Date < approvalCutoffDate)
+            DateTime adminEditCutoffDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+
+            bool allowSuperAdminEdit = Convert.ToBoolean(
+                _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+            int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+            // Default cutoff for all users
+            DateTime effectiveCutoffDate = approvalCutoffDate;
+
+            // Admin/SuperAdmin use the configured cutoff only when enabled
+            if (allowSuperAdminEdit &&
+                (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+            {
+                effectiveCutoffDate = adminEditCutoffDate;
+            }
+
+            if (leaveRecord.StartDate.Date < effectiveCutoffDate.Date)
             {
                 response.status = 1;
-                response.message = $"Leaves before {approvalCutoffDate:dd-MM-yyyy} cannot be approved or rejected.";
+                response.message = $"Leaves before {effectiveCutoffDate:dd-MM-yyyy} cannot be approved or rejected.";
                 return Json(new { data = response });
             }
             // ===== END TEMPORARY HARD CHECK =====
@@ -1348,15 +1368,34 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime requestLockDate = DateTime.Parse(_configuration["HRMSLockSettings:ApplyCutoffDate"]);
-            if (startDate.Date < requestLockDate.Date || endDate.Date < requestLockDate.Date)
-            {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+            DateTime requestLockDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
+            DateTime adminEditCutoffDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+
+            bool allowSuperAdminEdit = Convert.ToBoolean(
+                _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+            int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+            // Default cutoff for everyone
+            DateTime effectiveCutoffDate = requestLockDate;
+
+            // If enabled, Admin/SuperAdmin get a different cutoff
+            if (allowSuperAdminEdit &&
+                (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+            {
+                effectiveCutoffDate = adminEditCutoffDate;
+            }
+
+            if (startDate.Date < effectiveCutoffDate.Date ||
+                endDate.Date < effectiveCutoffDate.Date)
+            {
                 return Json(new
                 {
                     isValid = false,
-                    message = $"Leave cannot be applied before {requestLockDate:dd-MM-yyyy}."
+                    message = $"Leave cannot be applied before {effectiveCutoffDate:dd-MM-yyyy}."
                 });
             }
             if ((int)LeaveDay.HalfDay == leaveSummary.LeaveDurationTypeID)
@@ -1948,15 +1987,34 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime requestLockDate = DateTime.Parse(_configuration["HRMSLockSettings:ApplyCutoffDate"]);
-            if (startDate.Date < requestLockDate.Date || endDate.Date < requestLockDate.Date)
-            {
-                TempData[HRMS.Models.Common.Constants.toastType] = HRMS.Models.Common.Constants.toastTypeError;
+            DateTime requestLockDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
+            DateTime adminEditCutoffDate = DateTime.Parse(
+                _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+
+            bool allowSuperAdminEdit = Convert.ToBoolean(
+                _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+            int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+            // Default cutoff for everyone
+            DateTime effectiveCutoffDate = requestLockDate;
+
+            // If enabled, Admin/SuperAdmin get a different cutoff
+            if (allowSuperAdminEdit &&
+                (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+            {
+                effectiveCutoffDate = adminEditCutoffDate;
+            }
+
+            if (startDate.Date < effectiveCutoffDate.Date ||
+                endDate.Date < effectiveCutoffDate.Date)
+            {
                 return Json(new
                 {
                     isValid = false,
-                    message = $"Leave cannot be applied before {requestLockDate:dd-MM-yyyy}."
+                    message = $"Leave cannot be applied before {effectiveCutoffDate:dd-MM-yyyy}."
                 });
             }
 
