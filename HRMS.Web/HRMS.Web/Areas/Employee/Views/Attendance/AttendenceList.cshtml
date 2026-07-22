@@ -1552,59 +1552,7 @@ ${renderStatusEditor(selectedDate, data)}
  if (tempWorkDateCheck < tempCutoffDateCheck) {
      return false;
  }
-                           
-
-
-
-            const RoleName = parseInt(document.getElementById('hdnRoleName').value);
-            if (RoleName === 5 || RoleName === 2) {
-                return true;
-            }
-
-
-            const todayIST = new Date(
-                new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-            );
-
-
-            const workDate = parseISTDate(workDateStr);
-            const month = workDate.getMonth();
-            if (workDate > todayIST) return false;
-
-            let payrollStart, payrollEnd, cutoffDate;
-
-            if (
-                (month === 1 && workDate.getDate() >= 18) ||
-                (month === 2 && workDate.getDate() <= 20)
-            ) {
-                payrollStart = new Date(workDate.getFullYear(), 1, 18);
-                payrollEnd = new Date(workDate.getFullYear(), 2, 20);
-                cutoffDate = new Date(workDate.getFullYear(), 2, 20);
-            }
-            else if (
-                month === 3 && workDate.getDate() == 20
-            ) {
-                payrollStart = new Date(workDate.getFullYear(), 3, 20);
-                payrollEnd = new Date(workDate.getFullYear(), 4, 20);
-                cutoffDate = new Date(workDate.getFullYear(), 4, 23);
-            }
-            else {
-                if (workDate.getDate() >= 21) {
-
-                    payrollStart = new Date(workDate.getFullYear(), workDate.getMonth(), 21);
-                    payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 20);
-                    cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth() + 1, 30);
-
-                } else {
-
-                    payrollStart = new Date(workDate.getFullYear(), workDate.getMonth() - 1, 21);
-                    payrollEnd = new Date(workDate.getFullYear(), workDate.getMonth(), 20);
-                    cutoffDate = new Date(workDate.getFullYear(), workDate.getMonth(), 30);
-                }
-            }
-
-
-            return todayIST <= cutoffDate;
+            return true;                    
         }
         function parseISTDate(dateStr) {
             const [year, month, day] = dateStr.split("-").map(Number);

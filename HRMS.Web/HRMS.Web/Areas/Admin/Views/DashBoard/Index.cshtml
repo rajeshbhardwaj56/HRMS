@@ -169,7 +169,7 @@
             var latestItem = Model.AttendanceModel
             .OrderByDescending(x => x.Day)
             .FirstOrDefault();
-            var locationsToShow = new List<string> { "Kolkata", "Mohali","New Delhi","Cheenai" };
+            var locationsToShow = new List<string> { "Kolkata", "Mohali","New Delhi","Chennai" };
 
             @if (latestItem != null)
             {
