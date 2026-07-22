@@ -1135,7 +1135,11 @@ oldStatus: $("#oldStatus").val();
 
                             effectiveCutoffDate.setHours(0, 0, 0, 0);
 
-                            return tempWorkDateCheck >= effectiveCutoffDate;
+                            if (tempWorkDateCheck < effectiveCutoffDate) {
+                                return false;
+                            }
+
+                            return true;
                         }
 
                         /* ---------------- STATUS EDITOR ---------------- */
