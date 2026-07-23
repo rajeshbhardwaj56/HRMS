@@ -30,6 +30,8 @@ namespace HRMS.Models.DashBoard
         public long EmployeeTypeID { get; set; }
         public long PayrollTypeID { get; set; }
         public long DepartmentID { get; set; }
+        public string? DesignationName { get; set; }
+        public string? DepartmentName { get; set; }
         public long JobLocationID { get; set; }
         public long ReportingToIDL1 { get; set; }
         public long ReportingToIDL2 { get; set; }
@@ -116,6 +118,9 @@ namespace HRMS.Models.DashBoard
 
         public long DepartmentID { get; set; }
         public long JobLocationID { get; set; }
+        public long DesignationID { get; set; }
+        public string? DesignationName { get; set; }
+        public string? DepartmentName { get; set; }
         public long ReportingToIDL1 { get; set; }
         public string OfficialEmailID { get; set; } = string.Empty;
 

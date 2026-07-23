@@ -3,6 +3,8 @@
 @using HRMS.Models.Common
 @model HRMS.Models.FormPermission.FormPermissionListViewModel
     @using Microsoft.AspNetCore.Http
+@using System.Text.Json
+@using System.Text
 @{
     var LoginRole = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
     var EmployeeID = Convert.ToInt64(this.Context.Session.GetString(Constants.EmployeeID));
@@ -12,6 +14,21 @@
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var firstPendingLeaveCount = Model.FormPermissionList?.FirstOrDefault()?.PendingLeaveCount ?? 0;
+    var firstName = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.FirstName) ?? "";
+    var middleName = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.MiddleName) ?? "";
+    var surname = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.Surname) ?? "";
+
+    var surveyData = new
+    {
+        employee_id = EmployeeNumber,
+        employee_name = string.Join(" ", new[] { firstName, middleName, surname }
+            .Where(x => !string.IsNullOrWhiteSpace(x))),
+        department = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.DepartmentName),
+        designation = this.HttpContextAccessor.HttpContext.Session.GetString(Constants.DesignationName)
+    };
+
+    string json = JsonSerializer.Serialize(surveyData);
+    string token = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
 
     bool IsLeaveSubmenuActive()
     {
@@ -761,7 +778,19 @@
                         </li>
                     }
                 </ul>
-
+                @if (Model.FormPermissionList.Any(x => x.FormID == 38 && x.IsFormPermissions && x.FormLevel == 2))
+                {
+                    <ul class="hrms-menu-group">
+                        <li>
+                            <a href="http://172.17.3.56/employee_survey/employee/sso_login.php?token={@token}" target="_blank"
+                               onclick="openSurvey();"
+                               class="hrms-menu-title d-flex align-items-center">
+                                <i class="bi bi-ui-checks-grid hrms-menu-title1"></i>
+                                <span class="hrms-menu-label ms-3">Survey</span>
+                            </a>
+                        </li>
+                    </ul>
+                }
             </div>
         </div>
     }
@@ -770,4 +799,5 @@
         &copy; @DateTime.Now.Year - Protalk HRMS.Web
 
     </div>
+
 </div>

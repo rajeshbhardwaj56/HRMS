@@ -90,6 +90,8 @@ namespace HRMS.Models.Common
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
         public const string JobLocationID = "JobLocationID";
         public const string DepartmentID = "DepartmentID";
+        public const string DepartmentName = "DepartmentName";
+        public const string DesignationName = "DesignationName";
         public const string ApplyLeave = "ApplyLeave";
         public const string ApplyAgentLeave = "ApplyAgentLeave";
         public const string ApproveLeave = "ApproveLeave";
@@ -157,7 +159,12 @@ namespace HRMS.Models.Common
         ExportAttendanceForm = 30,
         DesignationListing=31,
         LOBListing= 32,
-        SubDepartmentListing = 33
+        SubDepartmentListing = 33,
+        ExportTeamAttendenceApprovalList=34,
+        ExportApproveCompOff =35,
+        ExportApproveLeave=36,
+        ResetPasswordByAdmin=37,
+        Survey =38
     }
 
 

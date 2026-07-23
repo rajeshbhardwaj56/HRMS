@@ -2471,11 +2471,15 @@ namespace HRMS.API.BusinessLayer
                                       FirstName = dataRow.Field<string>("FirstName"),
                                       MiddleName = dataRow.Field<string>("MiddleName"),
                                       Surname = dataRow.Field<string>("Surname"),
-                                      
-                                     
+
+
                                       //EmploymentDetails
-                                      
+
                                       DepartmentID = dataRow.Field<long>("DepartmentID"),
+                                      DepartmentName = dataRow.Field<string>("DepartmentName"),
+
+                                      DesignationID = dataRow.Field<long>("DesignationID"),
+                                      DesignationName = dataRow.Field<string>("DesignationName"),
                                       JobLocationID = dataRow.Field<long>("JobLocationID"),
                                       ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
                                       OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),                                 
