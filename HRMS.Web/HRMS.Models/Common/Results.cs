@@ -59,7 +59,7 @@ namespace HRMS.Models.Common
         // LOB
         public List<LOBModel> LOBList { get; set; } = new();
         public LOBModel lobModel { get; set; } = new();
-
+        public List<CutoffDateSettingModel> CutoffDateSettingsList { get; set; } = new();
 
 
     }
@@ -73,6 +73,7 @@ namespace HRMS.Models.Common
         public bool IsResetPasswordRequired { get; set; }
 
         public object? Data { get; set; }
+
     }
 
 

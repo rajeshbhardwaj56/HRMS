@@ -82,6 +82,7 @@ builder.Services.AddSingleton<IS3Service, S3Service>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddSingleton<ICheckUserFormPermission, CheckUserFormPermission>();
 builder.Services.AddSingleton<IBusinessLayer, BusinessLayer>();
+builder.Services.AddScoped<ICutoffSettingsService, CutoffSettingsService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {

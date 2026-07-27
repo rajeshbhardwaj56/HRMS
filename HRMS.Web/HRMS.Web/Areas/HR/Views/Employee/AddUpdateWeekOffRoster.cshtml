@@ -23,7 +23,7 @@
     int currentYear = DateTime.Today.Year;
 
     bool isEditMode = Model.Id > 0;
-    var weekOffCutoffDate = Configuration["HRMSLockSettings:ApplyCutoffDate"];
+
 }
 
 
@@ -466,9 +466,9 @@
 
 </script>
 <script>
-    const weekOffCutoffDate = '@Configuration["HRMSLockSettings:ApplyCutoffDate"]';
-    const adminEditCutoffDate = '@Configuration["HRMSLockSettings:AdminEditCutoffDate"]';
-    const allowSuperAdminEdit = '@Configuration["HRMSLockSettings:AllowSuperAdminEdit"]'.toLowerCase() === 'true';
+    const weekOffCutoffDate = '@Model.ApplyCutoffDate?.ToString("yyyy-MM-dd")';
+    const adminEditCutoffDate = '@Model.AdminEditCutoffDate?.ToString("yyyy-MM-dd")';
+    const allowSuperAdminEdit = @Model.AllowSuperAdminEdit.ToString().ToLower();
 
     const roleId = @Context.Session.GetString(Constants.RoleID);
 

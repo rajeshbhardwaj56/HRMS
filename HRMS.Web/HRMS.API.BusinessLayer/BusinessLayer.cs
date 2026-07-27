@@ -8148,6 +8148,99 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
             return results;
         }
         #endregion Admin Reset Password
+        #region CutOffStetting
+        public Results GetCutoffDateSettings()
+        {
+            try
+            {
+                Results result = new Results();
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetCutoffDateSettings,
+                    null);
+
+                result.CutoffDateSettingsList = dataSet.Tables[0].AsEnumerable()
+                    .Select(dataRow => new CutoffDateSettingModel
+                    {
+                        SettingID = dataRow.Field<int>("SettingID"),
+                        SettingKey = dataRow.Field<string>("SettingKey"),
+                        SettingValue = dataRow.Field<string>("SettingValue"),
+                        UpdatedBy = dataRow.Field<long?>("UpdatedBy") ?? 0,
+                        UpdatedDate = dataRow.Field<DateTime?>("UpdatedDate")
+                    }).ToList();
+
+                return result;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public Result UpdateCutoffDateSetting(CutoffDateSettingModel modelData)
+        {
+            try
+            {
+                Result model = new Result();
+
+                var oldData = GetDataByStoredProcedure(
+                    StoredProcedures.usp_GetCutoffDateSettingByIDLog,
+                    modelData.SettingID);
+
+                List<SqlParameter> sqlParameter = new List<SqlParameter>
+    {
+        new SqlParameter("@SettingKey", modelData.SettingKey),
+        new SqlParameter("@SettingValue", modelData.SettingValue),
+        new SqlParameter("@UpdatedBy", modelData.UpdatedBy)
+    };
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_UpdateCutoffDateSetting,
+                    sqlParameter);
+
+                long settingId = modelData.SettingID;
+
+                if (dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row = dataSet.Tables[0].Rows[0];
+
+                    model.Message = row["Result"]?.ToString();
+
+                    if (dataSet.Tables[0].Columns.Contains("PKNo"))
+                    {
+                        settingId = row["PKNo"] == DBNull.Value
+                            ? modelData.SettingID
+                            : Convert.ToInt64(row["PKNo"]);
+
+                        model.PKNo = settingId;
+                    }
+                }
+
+                var newData = GetDataByStoredProcedure(
+                    StoredProcedures.usp_GetCutoffDateSettingByIDLog,
+                    settingId);
+
+                TrackLogAudit(
+                    oldData,
+                    newData,
+                    "Edit",
+                    modelData.UpdatedBy ?? 0,
+                    "CutoffDateSettings",
+                    "tbl_CutoffDateSettings",
+                    settingId,
+                    "tbl_CutoffDateSettings_Log",
+                    "Cutoff Date Settings"
+                );
+
+                return model;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+        #endregion
     }
 
 

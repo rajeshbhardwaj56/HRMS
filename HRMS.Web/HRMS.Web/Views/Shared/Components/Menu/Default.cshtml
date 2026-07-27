@@ -791,6 +791,23 @@
                         </li>
                     </ul>
                 }
+                 @if (Model.FormPermissionList.Any(x => x.FormID == 38 && x.IsFormPermissions && x.FormLevel == 2))
+                {
+                    if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
+                    {
+                        <ul class="hrms-menu-group">
+                        <li>
+                            <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Employee" && currentAction == "CutoffDateSettings" ? "hrms-active" : "")"
+                               asp-area="@(HRMS.Models.Common.Constants.ManageHR )"
+                               asp-controller="Employee"
+                               asp-action="CutoffDateSettings">
+                               <i class="bi bi-gear-fill hrms-menu-title1"></i>
+                                <span class="hrms-menu-label ms-3"> Cutoff Date Settings</span>
+                            </a>
+                        </li>
+                        </ul>
+                    }
+                }
             </div>
         </div>
     }

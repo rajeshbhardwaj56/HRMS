@@ -235,5 +235,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public bool CheckDuplicateSubDepartment(SubDepartmentModel model);
 
         #endregion
+        public Result UpdateCutoffDateSetting(CutoffDateSettingModel modelData);
+        public Results GetCutoffDateSettings();
     }
 }

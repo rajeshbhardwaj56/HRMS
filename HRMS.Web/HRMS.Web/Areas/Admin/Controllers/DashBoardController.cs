@@ -42,7 +42,8 @@ namespace HRMS.Web.Areas.Admin.Controllers
         IHttpContextAccessor _context;
         private readonly IS3Service _s3Service;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IWebHostEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service)
+        private readonly ICutoffSettingsService _cutoffSettingsService;
+        public DashBoardController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, Microsoft.AspNetCore.Hosting.IWebHostEnvironment _environment, IHttpContextAccessor context, IS3Service s3Service, ICutoffSettingsService cutoffSettingsService)
         {
             Environment = _environment;
             _configuration = configuration;
@@ -50,7 +51,7 @@ namespace HRMS.Web.Areas.Admin.Controllers
             _businessLayer = businessLayer;
             _s3Service = s3Service;
             _CheckUserFormPermission = CheckUserFormPermission;
-
+            _cutoffSettingsService = cutoffSettingsService;
         }
         public async Task<IActionResult> Index()
         {
@@ -997,18 +998,46 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> UploadRosterExcel()
         {
-            var EmployeeID = GetSessionInt(Constants.EmployeeID);
-            var RoleId = GetSessionInt(Constants.RoleID);
-            var FormPermission = _CheckUserFormPermission.GetFormPermission(EmployeeID, (int)PageName.WeekOffRoster);
-            if (FormPermission.HasPermission == 0 && RoleId != (int)Roles.Admin && RoleId != (int)Roles.SuperAdmin)
+            var employeeId = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            var formPermission = _CheckUserFormPermission.GetFormPermission(
+                employeeId,
+                (int)PageName.WeekOffRoster);
+
+            if (formPermission.HasPermission == 0 &&
+                roleId != (int)Roles.Admin &&
+                roleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
-                HttpContext.SignOutAsync();
+                await HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
-            var apiResponse = _businessLayer.SendPostAPIRequest(null, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.DashBoard, APIApiActionConstants.GetWeekOffShifts), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result?.ToString();
-            var apiResult = JsonConvert.DeserializeObject<List<WeekOffShift>>(apiResponse);
-            return View(apiResult);
+
+            // WeekOff shifts
+            var apiResponse = _businessLayer.SendPostAPIRequest(
+                null,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.DashBoard,
+                    APIApiActionConstants.GetWeekOffShifts),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result?.ToString();
+
+            var weekOffShifts = JsonConvert.DeserializeObject<List<WeekOffShift>>(apiResponse);
+
+            // Cutoff settings
+            var cutoff = _cutoffSettingsService.GetCutoffSettings(
+                HttpContext.Session.GetString(Constants.SessionBearerToken));
+
+            var model = new UploadRosterExcelViewModel
+            {
+                WeekOffShifts = weekOffShifts,
+                ApplyCutoffDate = cutoff.ApplyCutoffDate,
+                AdminEditCutoffDate = cutoff.AdminEditCutoffDate,
+                AllowSuperAdminEdit = cutoff.AllowSuperAdminEdit
+            };
+
+            return View(model);
         }
         private long GetSessionLong(string key)
         {
@@ -1027,14 +1056,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
             {
                 if (file == null || file.Length == 0)
                     return BadRequest(new { success = false, message = "No file uploaded." });
-                DateTime applyCutoffDate = DateTime.Parse(
-                    _configuration["HRMSLockSettings:ApplyCutoffDate"]);
+                var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+                    HttpContext.Session.GetString(Constants.SessionBearerToken));
 
-                DateTime adminEditCutoffDate = DateTime.Parse(
-                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
-
-                bool allowSuperAdminEdit = Convert.ToBoolean(
-                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+                DateTime applyCutoffDate = cutoffSettings.ApplyCutoffDate.Value;
+                DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+                bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
 
                 int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
 

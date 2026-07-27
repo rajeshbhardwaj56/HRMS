@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Http;
+﻿@using HRMS.Models.ExportEmployeeExcel
+@using Microsoft.AspNetCore.Http;
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @using HRMS.Models;
 @using HRMS.Models.Common;
@@ -6,7 +7,7 @@
 @inject IConfiguration Configuration
 <link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 
-@model HRMS.Models.Common.Results
+@model EmployeeWeekOffRosterViewModel
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
     var RoleName = Convert.ToInt64(this.Context.Session.GetString(Constants.RoleID));
@@ -15,7 +16,7 @@
 
     var success = TempData["Success"];
     var Err = TempData["Error"];
-    var applyCutoffDate = Configuration["HRMSLockSettings:ApplyCutoffDate"];
+
 }
 
 <div class="main-header anim" style="--delay: 0s">
@@ -62,9 +63,9 @@
     </table>
 </div>
 <script>
-    const applyCutoffDate = '@Configuration["HRMSLockSettings:ApplyCutoffDate"]';
-    const adminEditCutoffDate = '@Configuration["HRMSLockSettings:AdminEditCutoffDate"]';
-    const allowSuperAdminEdit = '@Configuration["HRMSLockSettings:AllowSuperAdminEdit"]'.toLowerCase() === 'true';
+    const applyCutoffDate = '@Model.ApplyCutoffDate?.ToString("yyyy-MM-dd")';
+    const adminEditCutoffDate = '@Model.AdminEditCutoffDate?.ToString("yyyy-MM-dd")';
+    const allowSuperAdminEdit = @Model.AllowSuperAdminEdit.ToString().ToLower();
 
     const roleId = @Context.Session.GetString(Constants.RoleID);
 

@@ -1554,7 +1554,7 @@ ${renderStatusEditor(selectedDate, data)}
 
             effectiveCutoffDate.setHours(0, 0, 0, 0);
 
-            if (tempWorkDateCheck < effectiveCutoffDate) {
+            if (tempWorkDateCheck <= effectiveCutoffDate) {
                 return false;
             }
 
@@ -1631,9 +1631,9 @@ ${renderStatusEditor(selectedDate, data)}
         });
     </script>
 <script>
-    const attendanceCutoffDate = '@Configuration["HRMSLockSettings:AttendanceCutoffDate"]';
-    const adminEditCutoffDate = '@Configuration["HRMSLockSettings:AdminEditCutoffDate"]';
-    const allowSuperAdminEdit = '@Configuration["HRMSLockSettings:AllowSuperAdminEdit"]'.toLowerCase() === 'true';
+    const attendanceCutoffDate = '@Model.AttendanceCutoffDate?.ToString("yyyy-MM-dd")';
+    const adminEditCutoffDate = '@Model.AdminEditCutoffDate?.ToString("yyyy-MM-dd")';
+    const allowSuperAdminEdit = @Model.AllowSuperAdminEdit.ToString().ToLower();
 
     const roleId = @Context.Session.GetString(Constants.RoleID);
 

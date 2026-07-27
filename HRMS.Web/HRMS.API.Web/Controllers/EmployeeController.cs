@@ -494,7 +494,20 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetLeaveCountForValidation(model));
             return response;
         }
-
+        [HttpGet]
+        public IActionResult GetCutoffDateSettings()
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.GetCutoffDateSettings());
+            return response;
+        }
+        [HttpPost]
+        public IActionResult UpdateCutoffDateSetting(CutoffDateSettingModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.UpdateCutoffDateSetting(model));
+            return response;
+        }
 
     }
 }

@@ -37,12 +37,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
         private readonly IS3Service _s3Service;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
         private readonly NotificationService _notificationService;
-        public MyInfoController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, IHttpContextAccessor context, IS3Service s3Service, NotificationService notificationService)
+        private readonly ICutoffSettingsService _cutoffSettingsService;
+
+        public MyInfoController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, IHttpContextAccessor context, IS3Service s3Service, NotificationService notificationService, ICutoffSettingsService cutoffSettingsService)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
             _context = context;
             _s3Service = s3Service;
+            _cutoffSettingsService = cutoffSettingsService;
             _CheckUserFormPermission = CheckUserFormPermission;
             _notificationService = notificationService;
         }
@@ -385,15 +388,12 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 return Json(new { data = response });
             }
 
-            DateTime approvalCutoffDate = DateTime.Parse(
-                _configuration["HRMSLockSettings:ApprovalCutoffDate"]);
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+          HttpContext.Session.GetString(Constants.SessionBearerToken));
 
-            DateTime adminEditCutoffDate = DateTime.Parse(
-                _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
-
-            bool allowSuperAdminEdit = Convert.ToBoolean(
-                _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
-
+            DateTime approvalCutoffDate = cutoffSettings.ApprovalCutoffDate.Value;
+            DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+            bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
 
             // Default cutoff for all users
@@ -406,7 +406,7 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 effectiveCutoffDate = adminEditCutoffDate;
             }
 
-            if (leaveRecord.StartDate.Date < effectiveCutoffDate.Date)
+            if (leaveRecord.StartDate.Date <= effectiveCutoffDate.Date)
             {
                 response.status = 1;
                 response.message = $"Leaves before {effectiveCutoffDate:dd-MM-yyyy} cannot be approved or rejected.";
@@ -981,7 +981,17 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var middleName = Convert.ToString(HttpContext.Session.GetString(Constants.MiddleName)); // Assuming this exists
             var lastName = Convert.ToString(HttpContext.Session.GetString(Constants.Surname)); // Assuming this exists
             ViewBag.EmployeeName = $"{firstName} {middleName} {lastName}".Trim();
-            return View();
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+            var settings = _cutoffSettingsService.GetCutoffSettings(token);
+
+            AttendanceViewModel model = new AttendanceViewModel
+            {
+                AttendanceCutoffDate = settings.AttendanceCutoffDate,
+                AdminEditCutoffDate = settings.AdminEditCutoffDate,
+                AllowSuperAdminEdit = settings.AllowSuperAdminEdit
+            };
+            return View(model);
         }
         [HttpGet]
         public IActionResult TeamAttendenceCalendarList(int year, int month, int Page, int PageSize, string SearchTerm, int jobLocationId, long managerId, long subDepartmentId)
@@ -1368,14 +1378,14 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime requestLockDate = DateTime.Parse(
-                _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
-            DateTime adminEditCutoffDate = DateTime.Parse(
-                _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
 
-            bool allowSuperAdminEdit = Convert.ToBoolean(
-                _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+        HttpContext.Session.GetString(Constants.SessionBearerToken));
+
+            DateTime requestLockDate = cutoffSettings.ApplyCutoffDate.Value;
+            DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+            bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
 
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
 
@@ -1389,8 +1399,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 effectiveCutoffDate = adminEditCutoffDate;
             }
 
-            if (startDate.Date < effectiveCutoffDate.Date ||
-                endDate.Date < effectiveCutoffDate.Date)
+            if (startDate.Date <= effectiveCutoffDate.Date ||
+                endDate.Date <= effectiveCutoffDate.Date)
             {
                 return Json(new
                 {
@@ -1987,15 +1997,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var startDate = leaveSummary.StartDate;
             var endDate = leaveSummary.EndDate;
             //min date validation
-            DateTime requestLockDate = DateTime.Parse(
-                _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
-            DateTime adminEditCutoffDate = DateTime.Parse(
-                _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+    HttpContext.Session.GetString(Constants.SessionBearerToken));
 
-            bool allowSuperAdminEdit = Convert.ToBoolean(
-                _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
-
+            DateTime requestLockDate = cutoffSettings.ApplyCutoffDate.Value;
+            DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+            bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
 
             // Default cutoff for everyone
@@ -2008,8 +2016,8 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 effectiveCutoffDate = adminEditCutoffDate;
             }
 
-            if (startDate.Date < effectiveCutoffDate.Date ||
-                endDate.Date < effectiveCutoffDate.Date)
+            if (startDate.Date <= effectiveCutoffDate.Date ||
+                endDate.Date <= effectiveCutoffDate.Date)
             {
                 return Json(new
                 {

@@ -195,6 +195,11 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_AdminFogotPasswordDetails = "usp_Get_AdminFogotPasswordDetails";
         public const string usp_ResetPasswordByAdmin = "usp_ResetPasswordByAdmin";
         public const string usp_GetUserByIDLog = "usp_GetUserByIDLog";
+
+        public const string usp_GetCutoffDateSettings = "usp_GetCutoffDateSettings";
+        public const string usp_UpdateCutoffDateSetting = "usp_UpdateCutoffDateSetting";
+        public const string usp_GetCutoffDateSettingByIDLog = "usp_GetCutoffDateSettingByIDLog";
+
         #region Payroll
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";
         public const string usp_GetEmployeeSalary = "usp_GetEmployeeSalary";

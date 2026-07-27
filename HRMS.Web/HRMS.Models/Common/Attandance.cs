@@ -125,6 +125,11 @@ namespace HRMS.Models.Common
         public Dictionary<string, string> AttendanceByDay { get; set; } = new Dictionary<string, string>();
         public List<Joblcoations> JobLocations { get; set; } = new();
         public List<SubDepartment> SubDepartments { get; set; } = new();
+        public DateTime? AttendanceCutoffDate { get; set; }
+
+        public DateTime? AdminEditCutoffDate { get; set; }
+
+        public bool? AllowSuperAdminEdit { get; set; }
     }
 
 

@@ -4,12 +4,12 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @using Microsoft.Extensions.Configuration
 @inject IConfiguration Configuration
-@model List<WeekOffShift>
+@model UploadRosterExcelViewModel
 
 @{
     Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName)}/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Upload Roster Excel";
-    var rosterCutoffDate = Configuration["HRMSLockSettings:ApplyCutoffDate"];
+
 }
 
 <style>
@@ -352,9 +352,9 @@
 </script>
 
 <script>
-    const rosterCutoffDate = '@Configuration["HRMSLockSettings:ApplyCutoffDate"]';
-    const adminEditCutoffDate = '@Configuration["HRMSLockSettings:AdminEditCutoffDate"]';
-    const allowSuperAdminEdit = '@Configuration["HRMSLockSettings:AllowSuperAdminEdit"]'.toLowerCase() === 'true';
+    const rosterCutoffDate = '@Model.ApplyCutoffDate?.ToString("yyyy-MM-dd")';
+    const adminEditCutoffDate = '@Model.AdminEditCutoffDate?.ToString("yyyy-MM-dd")';
+    const allowSuperAdminEdit = @Model.AllowSuperAdminEdit.ToString().ToLower();
 
     const roleId = @Context.Session.GetString(Constants.RoleID);
 

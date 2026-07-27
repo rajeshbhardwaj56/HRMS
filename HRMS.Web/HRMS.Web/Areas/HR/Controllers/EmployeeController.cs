@@ -51,12 +51,15 @@ namespace HRMS.Web.Areas.HR.Controllers
         private readonly IS3Service _s3Service;
         private readonly IHttpContextAccessor _context;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-        public EmployeeController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context)
+        private readonly ICutoffSettingsService _cutoffSettingsService;
+
+        public EmployeeController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, IHostingEnvironment _environment, IS3Service s3Service, IHttpContextAccessor context, ICutoffSettingsService cutoffSettingsService)
         {
             Environment = _environment;
             _configuration = configuration;
             _businessLayer = businessLayer;
             EmailSender.configuration = _configuration;
+            _cutoffSettingsService = cutoffSettingsService; 
             _s3Service = s3Service;
             _context = context;
             _CheckUserFormPermission = CheckUserFormPermission;
@@ -1459,8 +1462,17 @@ namespace HRMS.Web.Areas.HR.Controllers
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+                HttpContext.Session.GetString(Constants.SessionBearerToken));
 
-            return View(new HRMS.Models.Common.Results());
+            var model = new EmployeeWeekOffRosterViewModel
+            {
+                ApplyCutoffDate = cutoffSettings.ApplyCutoffDate,
+                AdminEditCutoffDate = cutoffSettings.AdminEditCutoffDate,
+                AllowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -1600,8 +1612,15 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
 
 
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+            HttpContext.Session.GetString(Constants.SessionBearerToken));
+
+            modeldata.ApplyCutoffDate = cutoffSettings.ApplyCutoffDate;
+            modeldata.AdminEditCutoffDate = cutoffSettings.AdminEditCutoffDate;
+            modeldata.AllowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
 
             return View(modeldata);
+
         }
 
 
@@ -1657,15 +1676,13 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 //int currentDay = DateTime.Today.Day;
                 //model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
-                DateTime applyCutoffDate = DateTime.Parse(
-                    _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
-                DateTime adminEditCutoffDate = DateTime.Parse(
-                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+                var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+    HttpContext.Session.GetString(Constants.SessionBearerToken));
 
-                bool allowSuperAdminEdit = Convert.ToBoolean(
-                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
-
+                DateTime applyCutoffDate = cutoffSettings.ApplyCutoffDate.Value;
+                DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+                bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
                 int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
 
                 // Default cutoff for all users
@@ -2055,5 +2072,130 @@ namespace HRMS.Web.Areas.HR.Controllers
                 return View(model);
             }
         }
+        #region Cutoffdate 
+        [HttpGet]
+        public async Task<IActionResult> CutoffDateSettings()
+        {
+            var employeeID = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            var formPermission = _CheckUserFormPermission.GetFormPermission(
+                employeeID,
+                (int)PageName.CutoffDateSettings);
+
+            if (formPermission.HasPermission == 0
+                && roleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            var data = _businessLayer.SendGetAPIRequest(
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Employee,
+                    APIApiActionConstants.GetCutoffDateSettings),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result.ToString();
+
+            var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(data);
+            CutoffDateSettingViewModel model = new CutoffDateSettingViewModel();
+
+            if (result?.CutoffDateSettingsList != null)
+            {
+                foreach (var item in result.CutoffDateSettingsList)
+                {
+                    switch (item.SettingKey)
+                    {
+                        case "ApplyCutoffDate":
+                            model.ApplyCutoffDate = Convert.ToDateTime(item.SettingValue);
+                            break;
+
+                        case "ApprovalCutoffDate":
+                            model.ApprovalCutoffDate = Convert.ToDateTime(item.SettingValue);
+                            break;
+
+                        case "AttendanceCutoffDate":
+                            model.AttendanceCutoffDate = Convert.ToDateTime(item.SettingValue);
+                            break;
+
+                        case "AdminEditCutoffDate":
+                            model.AdminEditCutoffDate = Convert.ToDateTime(item.SettingValue);
+                            break;
+
+                        case "AllowSuperAdminEdit":
+                            model.AllowSuperAdminEdit =
+                                item.SettingValue == "1" ||
+                                item.SettingValue.Equals("true", StringComparison.OrdinalIgnoreCase);
+                            break;
+                    }
+                }
+            }
+
+            return View(model);
+        }
+        [HttpPost]
+        public IActionResult CutoffDateSettings(CutoffDateSettingViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                List<CutoffDateSettingModel> settings = new List<CutoffDateSettingModel>
+        {
+            new CutoffDateSettingModel
+            {
+                SettingKey = "ApplyCutoffDate",
+                SettingValue = model.ApplyCutoffDate?.ToString("yyyy-MM-dd"),
+                UpdatedBy = GetSessionInt(Constants.EmployeeID)
+            },
+            new CutoffDateSettingModel
+            {
+                SettingKey = "ApprovalCutoffDate",
+                SettingValue = model.ApprovalCutoffDate?.ToString("yyyy-MM-dd"),
+                UpdatedBy = GetSessionInt(Constants.EmployeeID)
+            },
+            new CutoffDateSettingModel
+            {
+                SettingKey = "AttendanceCutoffDate",
+                SettingValue = model.AttendanceCutoffDate?.ToString("yyyy-MM-dd"),
+                UpdatedBy = GetSessionInt(Constants.EmployeeID)
+            },
+            new CutoffDateSettingModel
+            {
+                SettingKey = "AdminEditCutoffDate",
+                SettingValue = model.AdminEditCutoffDate?.ToString("yyyy-MM-dd"),
+                UpdatedBy = GetSessionInt(Constants.EmployeeID)
+            },
+            new CutoffDateSettingModel
+            {
+                SettingKey = "AllowSuperAdminEdit",
+                SettingValue = model.AllowSuperAdminEdit ? "1" : "0",
+                UpdatedBy = GetSessionInt(Constants.EmployeeID)
+            }
+        };
+
+                foreach (var setting in settings)
+                {
+                    _businessLayer.SendPostAPIRequest(
+                        setting,
+                        _businessLayer.GetFormattedAPIUrl(
+                            APIControllarsConstants.Employee,
+                            APIApiActionConstants.UpdateCutoffDateSetting),
+                        HttpContext.Session.GetString(Constants.SessionBearerToken),
+                        true).Wait();
+                }
+
+                SetSuccessToast("Cutoff settings updated successfully.");
+
+                return RedirectToActionPermanent(
+                    WebControllarsConstants.CutoffDateSettings,
+                    WebControllarsConstants.Employee);
+            }
+
+            SetWarningToast("Please check all data and try again.");
+
+            return View(model);
+        }
+        #endregion
     }
 }

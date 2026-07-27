@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -32,8 +33,11 @@ namespace HRMS.Models.ExportEmployeeExcel
         public int? SelectedMonth { get; set; }
         public int? SelectedYear { get; set; }
         public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
-       
 
+
+        public DateTime? ApplyCutoffDate { get; set; }
+        public DateTime? AdminEditCutoffDate { get; set; }
+        public bool? AllowSuperAdminEdit { get; set; }
 
     }
 
@@ -120,5 +124,23 @@ namespace HRMS.Models.ExportEmployeeExcel
         public string? ShiftTypeName { get; set; }
         public string? StartTime { get; set; }
         public string? EndTime { get; set; }
+    }
+    public class UploadRosterExcelViewModel
+    {
+        public List<WeekOffShift> WeekOffShifts { get; set; } = new();
+
+        public DateTime? ApplyCutoffDate { get; set; }
+
+        public DateTime? AdminEditCutoffDate { get; set; }
+
+        public bool AllowSuperAdminEdit { get; set; }
+    }
+    public class EmployeeWeekOffRosterViewModel
+    {
+        public Results Results { get; set; } = new Results();
+
+        public DateTime? ApplyCutoffDate { get; set; }
+        public DateTime? AdminEditCutoffDate { get; set; }
+        public bool AllowSuperAdminEdit { get; set; }
     }
 }

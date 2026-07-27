@@ -1,0 +1,94 @@
+﻿@using HRMS.Models
+@model CutoffDateSettingViewModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Cutoff Date Settings";
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    Cutoff Date Settings
+</div>
+
+<form method="post" id="submitForm">
+
+    <div class="group-box anim" style="--delay: .3s">
+        <div class="Container">
+
+            <div class="row">
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Apply Cutoff Date <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(m => m.ApplyCutoffDate,
+                            "{0:yyyy-MM-dd}",
+                            new { @class = "form-control", type = "date" })
+                    </div>
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Approval Cutoff Date <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(m => m.ApprovalCutoffDate,
+                            "{0:yyyy-MM-dd}",
+                            new { @class = "form-control", type = "date" })
+                    </div>
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Attendance Cutoff Date <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(m => m.AttendanceCutoffDate,
+                            "{0:yyyy-MM-dd}",
+                            new { @class = "form-control", type = "date" })
+                    </div>
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Admin Edit Cutoff Date <label class="Mandetory">*</label>
+                    </div>
+                    <div class="col-md-12">
+                        @Html.TextBoxFor(m => m.AdminEditCutoffDate,
+                            "{0:yyyy-MM-dd}",
+                            new { @class = "form-control", type = "date" })
+                    </div>
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Allow Super Admin Edit
+                    </div>
+                    <div class="col-md-12">
+                        @Html.CheckBoxFor(m => m.AllowSuperAdminEdit)
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <input id="submitBtn"
+                   type="submit"
+                   value="Save"
+                   class="btn btn-success" />
+
+            <input id="cancelButton"
+                   type="button"
+                   value="Cancel"
+                   class="btn btn-danger" />
+
+        </div>
+    </div>
+
+</form>

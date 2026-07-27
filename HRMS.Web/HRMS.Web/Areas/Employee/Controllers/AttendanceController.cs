@@ -31,12 +31,13 @@ namespace HRMS.Web.Areas.Employee.Controllers
         private readonly IConfiguration _configuration;
         private readonly IBusinessLayer _businessLayer;
         private readonly ICheckUserFormPermission _CheckUserFormPermission;
-
-        public AttendanceController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer)
+        private readonly ICutoffSettingsService _cutoffSettingsService;
+        public AttendanceController(ICheckUserFormPermission CheckUserFormPermission, IConfiguration configuration, IBusinessLayer businessLayer, ICutoffSettingsService cutoffSettingsService)
         {
             _configuration = configuration;
             _businessLayer = businessLayer;
             _CheckUserFormPermission = CheckUserFormPermission;
+            _cutoffSettingsService = cutoffSettingsService;
         }
 
         public IActionResult AttendenceListing()
@@ -132,7 +133,18 @@ namespace HRMS.Web.Areas.Employee.Controllers
                 HttpContext.SignOutAsync();
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
-            return View();
+            var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+            var settings = _cutoffSettingsService.GetCutoffSettings(token);
+
+            AttendanceViewModel model = new AttendanceViewModel
+            {
+                AttendanceCutoffDate = settings.AttendanceCutoffDate,
+                AdminEditCutoffDate = settings.AdminEditCutoffDate,
+                AllowSuperAdminEdit = settings.AllowSuperAdminEdit
+            };
+
+            return View(model);
         }
         [HttpPost]
         public IActionResult AttendenceCalendarList(AttendanceInputParams objmodel)
@@ -732,14 +744,13 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
             try
             {
                 var userId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-                DateTime attendanceCutoffDate = DateTime.Parse(
-                     _configuration["HRMSLockSettings:AttendanceCutoffDate"]);
 
-                DateTime adminEditCutoffDate = DateTime.Parse(
-                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+                var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+                HttpContext.Session.GetString(Constants.SessionBearerToken));
 
-                bool allowSuperAdminEdit = Convert.ToBoolean(
-                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+                DateTime attendanceCutoffDate = cutoffSettings.AttendanceCutoffDate.Value;
+                DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+                bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
 
                 int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
 
@@ -753,7 +764,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                     effectiveCutoffDate = adminEditCutoffDate;
                 }
 
-                if (submission.Logs.Any(x => x.AttendanceDate.Date < effectiveCutoffDate.Date))
+                if (submission.Logs.Any(x => x.AttendanceDate.Date <= effectiveCutoffDate.Date))
                 {
                     return Json(new
                     {
@@ -1102,15 +1113,12 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
 
             // ===== TEMPORARY HARD CHECK =====
-            DateTime approvalCutoffDate = DateTime.Parse(
-                _configuration["HRMSLockSettings:ApprovalCutoffDate"]);
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+         HttpContext.Session.GetString(Constants.SessionBearerToken));
 
-            DateTime adminEditCutoffDate = DateTime.Parse(
-                _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
-
-            bool allowSuperAdminEdit = Convert.ToBoolean(
-                _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
-
+            DateTime approvalCutoffDate = cutoffSettings.ApprovalCutoffDate.Value;
+            DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+            bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
 
             // Default cutoff
@@ -1123,7 +1131,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 effectiveCutoffDate = adminEditCutoffDate;
             }
 
-            if (workDate.Date < effectiveCutoffDate.Date)
+            if (workDate.Date <= effectiveCutoffDate.Date)
             {
                 return Json(new
                 {
@@ -1650,14 +1658,13 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
 
             try
             {
-                DateTime hardCutoffDate = DateTime.Parse(
-                    _configuration["HRMSLockSettings:AttendanceCutoffDate"]);
 
-                DateTime adminEditCutoffDate = DateTime.Parse(
-                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+                var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+    HttpContext.Session.GetString(Constants.SessionBearerToken));
 
-                bool allowSuperAdminEdit = Convert.ToBoolean(
-                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+                DateTime hardCutoffDate = cutoffSettings.AttendanceCutoffDate.Value;
+                DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+                bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
 
                 int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
 
@@ -1672,7 +1679,7 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 }
 
                 if (records.Any(x => x.WorkDate.HasValue &&
-                                     x.WorkDate.Value.Date < effectiveCutoffDate.Date))
+                                     x.WorkDate.Value.Date <= effectiveCutoffDate.Date))
                 {
                     return BadRequest(new
                     {

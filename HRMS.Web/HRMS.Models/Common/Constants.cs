@@ -164,7 +164,8 @@ namespace HRMS.Models.Common
         ExportApproveCompOff =35,
         ExportApproveLeave=36,
         ResetPasswordByAdmin=37,
-        Survey =38
+        Survey =38,
+        CutoffDateSettings=39
     }
 
 
@@ -222,6 +223,7 @@ namespace HRMS.Models.Common
         public const string DesignationListings = "DesignationListings";
         public const string SubDepartmentListings = "SubDepartmentListings";
         public const string LOBListings = "LOBListings";
+        public const string CutoffDateSettings = "CutoffDateSettings";
     }
 
     public class APIApiActionConstants
@@ -410,6 +412,10 @@ namespace HRMS.Models.Common
         public const string AddUpdateSubDepartment = "AddUpdateSubDepartment";
         public const string CheckDuplicateSubDepartment = "CheckDuplicateSubDepartment";
         public const string ResetPasswordByAdmin = "ResetPasswordByAdmin";
+
+        public const string GetCutoffDateSettings = "GetCutoffDateSettings";
+        public const string UpdateCutoffDateSetting = "UpdateCutoffDateSetting";
+
     }
 
     public class MyInfoTabs
