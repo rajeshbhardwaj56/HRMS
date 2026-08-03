@@ -357,7 +357,20 @@
                                                                                 }
                                                                                 else if (item.LeaveStatusID == (int)LeaveStatus.Approved)
                                                                                 {
-                                                                                    @if (item.StartDate > DateTime.Now)
+                                                                                    bool canCancel = false;
+
+                                                                                if (RoleName == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin) || RoleName == Convert.ToInt64(HRMS.Models.Common.Roles.Admin))
+                                                                                    {
+                                                                                        // Admin / Super Admin
+                                                                                        canCancel = item.RequestDate.Date == DateTime.Today;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        // Existing functionality for other roles
+                                                                                        canCancel = item.StartDate > DateTime.Now;
+                                                                                    }
+
+                                                                                    if (canCancel)
                                                                                     {
                                                                                         <td>
                                                                                             <form action="/employee/MyInfo/UpdateAgentLeaveStatus" method="post" style="display:inline;">

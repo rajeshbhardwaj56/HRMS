@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace HRMS.API.Web.Controllers
 {
@@ -508,6 +510,41 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.UpdateCutoffDateSetting(model));
             return response;
         }
+        [HttpPost]
+        public async Task<IActionResult> UploadAttendanceCorrections(
+            AttendanceUploadModelList model)
+        {
+            try
+            {
+                if (model == null ||
+                    model.AttendanceList == null ||
+                    !model.AttendanceList.Any())
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "No attendance records found."
+                    });
+                }
 
+
+                var result =
+                    await _businessLayer.UploadAttendanceCorrections(model);
+
+                return Ok(new
+                {
+                    rawResult = result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

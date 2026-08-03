@@ -422,6 +422,13 @@
                         <i class="fa fa-file-excel me-1"></i> Leave Export
                     </button>
                 </div>
+            <div class="input-group input-group-sm" style="max-width: 220px;">
+                    <button id="attendance-import-btn"
+                            class="btn btn-primary btn-sm"
+                            onclick="location.href='@Url.Action("UploadAttendanceExcel", "Dashboard", new { area = "Admin" })'">
+                        <i class="fas fa-upload me-1"></i> Import Attendance
+                    </button>
+            </div>
             }
         </div>
     </div>

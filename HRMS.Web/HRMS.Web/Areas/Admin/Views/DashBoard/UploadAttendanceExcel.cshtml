@@ -1,0 +1,361 @@
+﻿@using HRMS.Models.Common
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Http
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Upload Attendance Excel";
+}
+
+
+<style>
+
+.alert {
+    margin-top:20px;
+    padding:11px 18px;
+    border-radius:8px;
+    width:665px;
+}
+
+.alert-danger {
+    background-color:#fdecea;
+    color:#b71c1c;
+}
+
+.alert-success {
+    background-color:#e6f4ea;
+    color:#2e7d32;
+}
+
+</style>
+
+
+<div class="main-header anim">
+    Import Attendance Excel
+</div>
+
+
+
+<form id="uploadForm">
+
+
+<div class="Container">
+
+<div class="group-box">
+
+<div class="card-body">
+
+
+<h4 class="titleweekof">
+    Upload Attendance Excel
+</h4>
+
+
+
+<div class="importemployee-section">
+
+<div class="small-header">
+    Import Attendance
+</div>
+
+
+<span>
+
+<a class="UploadExcel"
+   href="/assets/downloadexcel/AttendanceImport.xlsx"
+   download>
+    Download Sample File
+</a>
+
+</span>
+
+</div>
+
+
+
+
+<div class="d-flex align-items-center mb-3"
+     style="max-width:600px;">
+
+
+<input type="file"
+       class="form-control me-2"
+       id="excelFile"
+       accept=".xls,.xlsx"
+       required />
+
+
+<button type="submit"
+        id="uploadButton"
+        class="btn btn-primary">
+
+Upload
+
+</button>
+
+
+</div>
+
+
+
+<div id="progressBar"
+     class="progress d-none mb-3">
+
+
+<div class="progress-bar progress-bar-striped progress-bar-animated"
+     style="width:0%">
+
+</div>
+
+
+</div>
+
+
+
+<div id="resultMessage"></div>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+</form>
+
+
+
+
+
+<script>
+
+
+document
+.getElementById("uploadForm")
+.addEventListener("submit",function(e)
+{
+
+e.preventDefault();
+
+
+const fileInput =
+document.getElementById("excelFile");
+
+
+const file =
+fileInput.files[0];
+
+
+const uploadButton =
+document.getElementById("uploadButton");
+
+
+const resultMessage =
+document.getElementById("resultMessage");
+
+
+const progressBar =
+document.getElementById("progressBar");
+
+
+
+resultMessage.innerHTML="";
+
+
+
+if(!file)
+{
+    resultMessage.innerHTML =
+    `<div class="alert alert-danger">
+        Please select attendance file.
+     </div>`;
+
+    return;
+}
+
+
+
+uploadButton.disabled=true;
+uploadButton.innerHTML="Uploading...";
+
+
+
+const formData =
+new FormData();
+
+
+formData.append("file",file);
+
+
+
+const xhr =
+new XMLHttpRequest();
+
+
+
+xhr.open(
+"POST",
+"/admin/Dashboard/UploadAttendanceExcel",
+true);
+
+
+
+xhr.upload.addEventListener(
+"loadstart",
+function()
+{
+
+progressBar.classList.remove("d-none");
+
+progressBar
+.querySelector(".progress-bar")
+.style.width="0%";
+
+});
+
+
+
+xhr.upload.addEventListener(
+"progress",
+function(e)
+{
+
+if(e.lengthComputable)
+{
+
+let percent =
+(e.loaded/e.total)*100;
+
+
+progressBar
+.querySelector(".progress-bar")
+.style.width =
+percent+"%";
+
+}
+
+
+});
+
+
+
+
+
+xhr.onreadystatechange=function()
+{
+
+
+if(xhr.readyState===4)
+{
+
+
+progressBar.classList.add("d-none");
+
+
+uploadButton.disabled=false;
+uploadButton.innerHTML="Upload";
+
+
+
+    if(xhr.status >= 200 && xhr.status < 300)
+    {
+        let response = JSON.parse(xhr.responseText);
+
+
+        if(response.success)
+        {
+            resultMessage.innerHTML =
+            `
+            <div class="alert alert-success">
+
+                <strong>${response.message}</strong>
+
+                <br/>
+
+
+                ${
+                    response.processedRecords
+                    ? "Processed Records : " + response.processedRecords
+                    : ""
+                }
+
+            </div>
+            `;
+        }
+        else
+        {
+            resultMessage.innerHTML =
+            `
+            <div class="alert alert-danger">
+
+                <strong>${response.message}</strong>
+
+            </div>
+            `;
+        }
+
+
+        fileInput.value="";
+    }
+else
+{
+
+
+try
+{
+
+let response =
+JSON.parse(xhr.responseText);
+
+
+
+resultMessage.innerHTML =
+`
+<div class="alert alert-danger">
+
+<strong>
+${response.message}
+</strong>
+
+<br/>
+
+${response.details ?? ""}
+
+</div>
+`;
+
+
+}
+catch
+{
+
+
+resultMessage.innerHTML =
+`
+<div class="alert alert-danger">
+Upload failed.
+</div>
+`;
+
+}
+
+
+}
+
+
+}
+
+
+}
+
+
+
+xhr.send(formData);
+
+
+
+});
+
+
+</script>

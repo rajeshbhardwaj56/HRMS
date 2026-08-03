@@ -8241,6 +8241,114 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
             }
         }
         #endregion
+        #region UploadAttendance 
+        public async Task<string> UploadAttendanceCorrections(AttendanceUploadModelList model)
+        {
+            var data = CreateAttendanceDataTable(model.AttendanceList);
+
+            return await UploadAttendance(data, model.UserID);
+        }
+        public DataTable CreateAttendanceDataTable(List<AttendanceUploadModel> models)
+        {
+            var dt = new DataTable();
+
+            dt.Columns.Add("EmployeeNumber", typeof(string));
+            dt.Columns.Add("WorkDate", typeof(DateTime));
+            dt.Columns.Add("AttendanceStatus", typeof(string));
+            dt.Columns.Add("Remarks", typeof(string));
+
+            foreach (var item in models)
+            {
+                var row = dt.NewRow();
+
+                row["EmployeeNumber"] = item.EmployeeNumber ?? string.Empty;
+                row["WorkDate"] = item.WorkDate;
+                row["AttendanceStatus"] = item.AttendanceStatus ?? string.Empty;
+                row["Remarks"] = string.IsNullOrWhiteSpace(item.Remarks)
+                                    ? (object)DBNull.Value
+                                    : item.Remarks;
+
+                dt.Rows.Add(row);
+            }
+
+            return dt;
+        }
+        public async Task<string> UploadAttendance(DataTable dt, long userId)
+        {
+            try
+            {
+                string connStr = _configuration["ConnectionStrings:conStr"];
+
+                using var conn = new SqlConnection(connStr);
+
+                await conn.OpenAsync();
+
+                using var cmd = new SqlCommand(
+                    "dbo.usp_ImportAttendanceCorrections",
+                    conn);
+
+                cmd.CommandType = CommandType.StoredProcedure;
+
+
+                var tvpParam = cmd.Parameters.AddWithValue(
+                    "@Attendance",
+                    dt);
+
+                tvpParam.SqlDbType = SqlDbType.Structured;
+                tvpParam.TypeName = "dbo.AttendanceImportType";
+
+
+                cmd.Parameters.AddWithValue(
+                    "@UserID",
+                    userId);
+
+
+                DataTable result = new DataTable();
+
+
+                using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                {
+                    result.Load(reader);
+                }
+
+
+                if (result.Rows.Count == 0)
+                {
+                    return JsonConvert.SerializeObject(new
+                    {
+                        success = false,
+                        message = "No response from database."
+                    });
+                }
+
+
+                DataRow row = result.Rows[0];
+
+
+                return JsonConvert.SerializeObject(new
+                {
+                    success = Convert.ToInt32(row["Status"]) == 1,
+
+                    status = Convert.ToInt32(row["Status"]),
+
+                    message = row["Message"]?.ToString(),
+
+                    importID = row.Table.Columns.Contains("ImportID")
+                        ? Convert.ToInt64(row["ImportID"])
+                        : 0,
+
+                    processedRecords = row.Table.Columns.Contains("ProcessedRecords")
+                        ? Convert.ToInt32(row["ProcessedRecords"])
+                        : 0
+                });
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 
 

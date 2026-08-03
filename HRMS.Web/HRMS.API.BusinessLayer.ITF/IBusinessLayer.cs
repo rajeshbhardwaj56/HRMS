@@ -237,5 +237,6 @@ namespace HRMS.API.BusinessLayer.ITF
         #endregion
         public Result UpdateCutoffDateSetting(CutoffDateSettingModel modelData);
         public Results GetCutoffDateSettings();
+        public Task<string> UploadAttendanceCorrections(AttendanceUploadModelList model);
     }
 }

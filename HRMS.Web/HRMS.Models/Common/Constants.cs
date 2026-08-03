@@ -415,6 +415,7 @@ namespace HRMS.Models.Common
 
         public const string GetCutoffDateSettings = "GetCutoffDateSettings";
         public const string UpdateCutoffDateSetting = "UpdateCutoffDateSetting";
+        public const string UploadAttendanceCorrections = "UploadAttendanceCorrections";
 
     }
 

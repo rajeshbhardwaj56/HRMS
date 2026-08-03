@@ -1,34 +1,36 @@
-﻿using HRMS.Models.Common;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
+using HRMS.Models;
+using HRMS.Models.AttendenceList;
+using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
+using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.LeavePolicy;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
-using System.Formats.Asn1;
-using System.Globalization;
-using System.Data;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
-using DocumentFormat.OpenXml.Spreadsheet;
-using ClosedXML.Excel;
-using System.Text;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using HRMS.Web.BusinessLayer.S3;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Packaging.Ionic.Zlib;
-using System.Diagnostics;
-using HRMS.Models.ExportEmployeeExcel;
+using System.Data;
 using System.Data.SqlClient;
-using Microsoft.AspNetCore.Authentication;
-using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.Formats.Asn1;
+using System.Globalization;
 using System.Reflection;
-using HRMS.Models.AttendenceList;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace HRMS.Web.Areas.Admin.Controllers
 {
@@ -1238,15 +1240,44 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 return null;
 
             var value = row[columnName]?.ToString()?.Trim();
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrWhiteSpace(value))
                 return null;
 
-            string[] formats = { "dd/MM/yyyy", "d/M/yyyy" };
+            string[] formats =
+            {
+                "dd/MM/yyyy",
+                "d/M/yyyy",
+                "MM/dd/yyyy",
+                "M/d/yyyy",
+                "yyyy-MM-dd",
+                "yyyy/MM/dd",
+                "dd-MM-yyyy",
+                "d-M-yyyy",
+                "MM-dd-yyyy",
+                "M-d-yyyy",
+                "dd MMM yyyy",
+                "dd-MMM-yyyy",
+                "MMM dd, yyyy",
+                "MMMM dd, yyyy"
+            };
 
-            if (DateTime.TryParseExact(value, formats,
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None,
-                out var date))
+            // Try known formats first
+            if (DateTime.TryParseExact(
+                    value,
+                    formats,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTime date))
+            {
+                return date;
+            }
+
+            // Fall back to general parsing
+            if (DateTime.TryParse(
+                    value,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out date))
             {
                 return date;
             }
@@ -1735,5 +1766,352 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
 
         #endregion Notification
+
+
+        #region AttendanceCorrection
+        [HttpGet]
+        public IActionResult UploadAttendanceExcel()
+        {
+            var employeeId = GetSessionLong(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            if (roleId != (int)Roles.Admin &&
+                roleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> UploadAttendanceExcel(IFormFile file)
+        {
+            string tempFilePath = null;
+
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Please upload attendance file."
+                    });
+                }
+
+
+                var roleId = GetSessionInt(Constants.RoleID);
+
+
+                // Only Admin / Super Admin
+                if (roleId != (int)Roles.Admin &&
+                    roleId != (int)Roles.SuperAdmin)
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "You do not have permission to import attendance."
+                    });
+                }
+
+
+
+                var employeeIdString =
+                    HttpContext.Session.GetString(Constants.EmployeeID);
+
+
+                var token =
+                    HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+
+
+                if (string.IsNullOrEmpty(employeeIdString) ||
+                    string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "Session expired."
+                    });
+                }
+
+
+
+                long userId = Convert.ToInt64(employeeIdString);
+
+
+
+                // Save temporary file
+
+                tempFilePath = Path.Combine(
+                    Path.GetTempPath(),
+                    Guid.NewGuid() + Path.GetExtension(file.FileName)
+                );
+
+
+                using (FileStream stream = new FileStream(
+                    tempFilePath,
+                    FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+
+
+                // Read Excel
+
+                DataTable dataTable = ReadAttendanceExcelToDataTable(tempFilePath);
+
+
+
+                // Convert Wide Excel to Normalized List
+
+                List<AttendanceUploadModel> attendanceList =
+                    ConvertAttendanceExcel(dataTable);
+                // Attendance Cutoff Validation
+
+                var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+            HttpContext.Session.GetString(Constants.SessionBearerToken));
+
+                DateTime hardCutoffDate = cutoffSettings.AttendanceCutoffDate.Value;
+                DateTime adminEditCutoffDate = cutoffSettings.AdminEditCutoffDate.Value;
+                bool allowSuperAdminEdit = cutoffSettings.AllowSuperAdminEdit;
+
+                DateTime effectiveCutoffDate = hardCutoffDate;
+
+
+                // Admin/SuperAdmin allowed different cutoff
+                if (allowSuperAdminEdit &&
+                    (roleId == (int)Roles.Admin ||
+                     roleId == (int)Roles.SuperAdmin))
+                {
+                    effectiveCutoffDate = adminEditCutoffDate;
+                }
+
+
+                // Block old attendance upload
+                var invalidRecords = attendanceList
+                    .Where(x => x.WorkDate.HasValue &&
+                                x.WorkDate.Value.Date <= effectiveCutoffDate.Date)
+                    .ToList();
+
+
+                if (invalidRecords.Any())
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = $"Attendance records before {effectiveCutoffDate.AddDays(1):dd-MMM-yyyy} cannot be uploaded."
+                    });
+                }
+
+
+                if (attendanceList.Count == 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "No attendance records found."
+                    });
+                }
+
+
+
+                // Create API Model
+
+                AttendanceUploadModelList request =
+                    new AttendanceUploadModelList
+                    {
+                        UserID = userId,
+                        AttendanceList = attendanceList
+                    };
+
+
+
+                var apiUrl =
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Employee,
+                        APIApiActionConstants.UploadAttendanceCorrections
+                    );
+
+
+
+                var response = await _businessLayer.SendPostAPIRequest(
+    request,
+    apiUrl,
+    token,
+    true
+);
+
+                if (response == null)
+                {
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "Attendance import failed."
+                    });
+                }
+
+                var wrapper = JObject.Parse(response.ToString());
+
+                var apiResult = JObject.Parse(wrapper["rawResult"]?.ToString() ?? "{}");
+
+                return Ok(new
+                {
+                    success = apiResult["success"]?.Value<bool>() ?? false,
+                    message = apiResult["message"]?.ToString(),
+                    importID = apiResult["importID"]?.Value<long>() ?? 0,
+                    processedRecords = apiResult["processedRecords"]?.Value<int>() ?? 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error while importing attendance.",
+                    details = ex.Message
+                });
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(tempFilePath) &&
+                   System.IO.File.Exists(tempFilePath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(tempFilePath);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+        }
+        private DataTable ReadAttendanceExcelToDataTable(string filePath)
+        {
+            var dt = new DataTable();
+
+            using var package = new ExcelPackage(new FileInfo(filePath));
+
+            var ws = package.Workbook.Worksheets.First();
+
+            if (ws.Dimension == null)
+                throw new Exception("Excel file is empty.");
+
+            int columns = ws.Dimension.End.Column;
+            int rows = ws.Dimension.End.Row;
+
+
+            for (int col = 1; col <= columns; col++)
+            {
+                var header = ws.Cells[1, col].Text.Trim();
+
+                if (string.IsNullOrEmpty(header))
+                {
+                    header = "Column" + col;
+                }
+
+
+                if (dt.Columns.Contains(header))
+                {
+                    throw new Exception(
+                        $"Duplicate column found in Excel: {header}"
+                    );
+                }
+
+
+                dt.Columns.Add(header);
+            }
+
+
+            for (int row = 2; row <= rows; row++)
+            {
+                DataRow dr = dt.NewRow();
+
+                for (int col = 1; col <= columns; col++)
+                {
+                    dr[col - 1] = ws.Cells[row, col].Text.Trim();
+                }
+
+                dt.Rows.Add(dr);
+            }
+
+
+            return dt;
+        }
+        private List<AttendanceUploadModel> ConvertAttendanceExcel(DataTable dt)
+        {
+            var list = new List<AttendanceUploadModel>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                string employeeNumber = row["EmployeeNumber"]?.ToString()?.Trim();
+                int excelRow = dt.Rows.IndexOf(row) + 2;
+
+                if (string.IsNullOrWhiteSpace(employeeNumber))
+                {
+                    throw new Exception($"Employee Number is required at Excel row {excelRow}.");
+                }
+
+
+                string employeeName = row["EmployeeName"]?.ToString()?.Trim();
+
+                if (string.IsNullOrWhiteSpace(employeeName))
+                {
+                    throw new Exception(
+                        $"Employee Name is required for Employee '{employeeNumber}' at Excel row {excelRow}."
+                    );
+                }
+                if (!DateTime.TryParse(row["WorkDate"]?.ToString(), out DateTime workDate))
+                {
+                    throw new Exception($"Invalid WorkDate for Employee '{employeeNumber}'.");
+                }
+
+                string status = row["Status"]?.ToString()?.Trim();
+
+                if (string.IsNullOrWhiteSpace(status))
+                {
+                    throw new Exception(
+                        $"Attendance Status is required for Employee '{employeeNumber}' on {workDate:dd-MMM-yyyy}."
+                    );
+                }
+
+                var validStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    "P",
+                    "A",
+                    "HD",
+                    "WO"
+                };
+
+                if (!validStatuses.Contains(status))
+                {
+                    throw new Exception(
+                        $"Invalid attendance status '{status}' for Employee '{employeeNumber}' on {workDate:dd-MMM-yyyy}. Allowed values are: P, A, HD, WO."
+                    );
+                }
+
+                string remarks = row["Remarks"]?.ToString()?.Trim();
+                if (string.IsNullOrWhiteSpace(remarks))
+                {
+                    throw new Exception(
+                        $"Remarks are required for Employee '{employeeName}' ({employeeNumber}) on {workDate:dd-MMM-yyyy}."
+                    );
+                }
+                list.Add(new AttendanceUploadModel
+                {
+                    EmployeeNumber = employeeNumber,
+                    WorkDate = workDate,
+                    AttendanceStatus = status,
+                    Remarks = remarks
+                });
+            }
+
+            return list;
+        }
+        #endregion
     }
 }
