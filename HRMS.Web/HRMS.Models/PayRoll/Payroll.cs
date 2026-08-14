@@ -74,7 +74,20 @@ namespace HRMS.Models.PayRoll
 
         public int? TotalRecords { get; set; } = 0;
         public int? FilteredRecords { get; set; } = 0;
+        public decimal EmployerPF { get; set; }
+        public decimal EmployerESI { get; set; }
+        public decimal EmployerLWF { get; set; }
+        public decimal TotalEmployerContribution { get; set; }
 
+        public decimal EPFWages { get; set; }
+        public decimal EPSWages { get; set; }
+        public decimal EDLIWages { get; set; }
+
+        public decimal EPFAdminCharges { get; set; }
+        public decimal EDLIContribution { get; set; }
+        public decimal EDLIAdminCharges { get; set; }
+
+        public decimal CTC { get; set; }
     }
 
 
@@ -168,6 +181,39 @@ namespace HRMS.Models.PayRoll
 
         public decimal TotalDeduction { get; set; }
         public decimal NetPayable { get; set; }
+        public decimal EmployerPF { get; set; }
+        public decimal EmployerESI { get; set; }
+        public decimal EmployerLWF { get; set; }
+        public decimal TotalEmployerContribution { get; set; }
+
+        public decimal EPFWages { get; set; }
+        public decimal EPSWages { get; set; }
+        public decimal EDLIWages { get; set; }
+
+        public decimal EPFAdminCharges { get; set; }
+        public decimal EDLIContribution { get; set; }
+        public decimal EDLIAdminCharges { get; set; }
+
+        public decimal CTC { get; set; }
+        public string? BankAccountNumber { get; set; }
+
+        public string? BankName { get; set; }
+
+        public string? Designation { get; set; }
+
+        public string? Department { get; set; }
+
+        public string? Location { get; set; }
+
+        public DateTime? DateOfJoining { get; set; }
+
+        public string? CompanyLogo { get; set; }
+
+        public string? MonthName { get; set; }
+
+        public string? NetPayableInWords { get; set; }
+        public string? IFSCCode { get; set; }
+        public string? UANNumber { get; set; }
     }
 
 
@@ -179,21 +225,39 @@ namespace HRMS.Models.PayRoll
     }
    
 
-    public class EmployeeSalaryCalculationModel
+
+public class EmployeeSalaryCalculationModel
     {
+        // ------------------------------------------------------------
+        // BASIC INFORMATION
+        // ------------------------------------------------------------
+
         public long EmployeeID { get; set; }
         public long PayrollTypeID { get; set; }
         public int SalaryMonth { get; set; }
         public int SalaryYear { get; set; }
 
+        // ------------------------------------------------------------
+        // SALARY
+        // ------------------------------------------------------------
+
         public decimal RevisedGross { get; set; }
         public decimal MonthDays { get; set; }
         public decimal PayableDays { get; set; }
+
+        // ------------------------------------------------------------
+        // FIXED SALARY
+        // ------------------------------------------------------------
+
         public decimal BasicFixed { get; set; }
         public decimal HRAFixed { get; set; }
         public decimal ConveyanceFixed { get; set; }
         public decimal SpecialAllowanceFixed { get; set; }
         public decimal GrossSalaryFixed { get; set; }
+
+        // ------------------------------------------------------------
+        // PAYABLE SALARY
+        // ------------------------------------------------------------
 
         public decimal BasicPayable { get; set; }
         public decimal HRAPayable { get; set; }
@@ -202,6 +266,10 @@ namespace HRMS.Models.PayRoll
 
         public decimal GrossSalaryPayable { get; set; }
 
+        // ------------------------------------------------------------
+        // EARNINGS
+        // ------------------------------------------------------------
+
         public decimal ClientIncentive { get; set; }
         public decimal PLI { get; set; }
         public decimal FloorIncentive { get; set; }
@@ -209,20 +277,92 @@ namespace HRMS.Models.PayRoll
         public decimal TrainingFee { get; set; }
         public decimal GWR { get; set; }
         public decimal OtherAdditonArrear { get; set; }
+
+        // ------------------------------------------------------------
+        // EMPLOYEE DEDUCTIONS
+        // ------------------------------------------------------------
+
         public decimal EMPLWF { get; set; }
         public decimal TDS { get; set; }
         public decimal DbtDeduction { get; set; }
         public decimal Advanceded { get; set; }
         public decimal InsuranceDeduction { get; set; }
         public decimal OtherDeduction { get; set; }
-        public long InsertedByUserID { get; set; }
+
+        // ------------------------------------------------------------
+        // EMPLOYEE STATUTORY DEDUCTIONS
+        // ------------------------------------------------------------
 
         public decimal EMPPF { get; set; }
         public decimal EMPESI { get; set; }
         public decimal PTAX { get; set; }
 
+        // ------------------------------------------------------------
+        // TOTAL EMPLOYEE DEDUCTION
+        // ------------------------------------------------------------
+
         public decimal TotalDeduction { get; set; }
         public decimal NetPayable { get; set; }
+
+        // ------------------------------------------------------------
+        // EMPLOYER CONTRIBUTION
+        // ------------------------------------------------------------
+
+        public decimal EmployerPF { get; set; }
+        public decimal EmployerESI { get; set; }
+        public decimal EmployerLWF { get; set; }
+
+        public decimal TotalEmployerContribution { get; set; }
+
+        // ------------------------------------------------------------
+        // EPF / EPS / EDLI
+        // ------------------------------------------------------------
+
+        public decimal EPFWages { get; set; }
+        public decimal EPSWages { get; set; }
+        public decimal EDLIWages { get; set; }
+
+        public decimal EPFAdminCharges { get; set; }
+        public decimal EDLIContribution { get; set; }
+        public decimal EDLIAdminCharges { get; set; }
+
+        // ------------------------------------------------------------
+        // FINAL CTC
+        // ------------------------------------------------------------
+
+        public decimal CTC { get; set; }
+
+        // ------------------------------------------------------------
+        // USER
+        // ------------------------------------------------------------
+
+        public long InsertedByUserID { get; set; }
+        // =====================================================
+        // SALARY SLIP DISPLAY FIELDS
+        // =====================================================
+
+        public string? BankAccountNumber { get; set; }
+
+        public string? BankName { get; set; }
+
+        public string? Designation { get; set; }
+
+        public string? Department { get; set; }
+
+        public string? Location { get; set; }
+
+        public DateTime? DateOfJoining { get; set; }
+
+        public string? CompanyLogo { get; set; }
+
+        public string? MonthName { get; set; }
+
+        public string? NetPayableInWords { get; set; }
+        public string? EmployeeNumber { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? IFSCCode { get; set; }
+        public string? UANNumber { get; set; }
     }
+
 
 }

@@ -1,4 +1,5 @@
 ﻿using HRMS.API.BusinessLayer.ITF;
+using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.PayRoll;
 using Microsoft.AspNetCore.Authorization;
@@ -52,8 +53,45 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.SaveEmployeeSalary(model));
             return response;
         }
+        [HttpPost]
+        public IActionResult GetPayrollPeriodDetails(PayrollPeriodRequestModel model)
+        {
+            IActionResult response = Unauthorized();
 
+            response = Ok(
+                _businessLayer.GetPayrollPeriodDetails(
+                    model.SalaryMonth,
+                    model.SalaryYear
+                )
+            );
 
+            return response;
+        }
+        [HttpPost]
+        public IActionResult GetSalarySlipSettings(SalarySlipSettingsInputParams model)
+        {
+            IActionResult response = Unauthorized();
 
+            response = Ok(
+                _businessLayer.GetSalarySlipSettings(
+                    model.CompanyID,
+                    model.SalarySlipSettingID
+                )
+            );
+
+            return response;
+        }
+        [HttpPost]
+        public IActionResult AddUpdateSalarySlipSettings(
+    SalarySlipSettingsModel model)
+        {
+            IActionResult response = Unauthorized();
+
+            response = Ok(
+                _businessLayer.AddUpdateSalarySlipSettings(model)
+            );
+
+            return response;
+        }
     }
 }

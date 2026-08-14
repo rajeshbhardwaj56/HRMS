@@ -1,0 +1,411 @@
+﻿@model HRMS.Models.SalarySlipSettingsModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    ViewData["Title"] = "Salary Slip Template Preview";
+
+    var LogoImage = !string.IsNullOrEmpty(Model.LogoPath)
+        ? Model.LogoPath
+        : HRMS.Models.Common.Constants.NoImagePath;
+}
+
+<style>
+    @@page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    body {
+        background: #f5f5f5;
+    }
+
+    .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .preview-header h4 {
+            margin: 0;
+        }
+
+    .salary-slip-container {
+        width: 210mm;
+        min-height: 297mm;
+        margin: auto;
+        background: #fff;
+        padding: 15mm;
+        box-shadow: 0 0 8px rgba(0, 0, 0, .15);
+        box-sizing: border-box;
+    }
+
+    .company-header {
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    .company-logo {
+        max-width: 250px;
+        max-height: 90px;
+        object-fit: contain;
+        margin-bottom: 10px;
+    }
+
+    .company-name {
+        font-size: 22px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    .company-address {
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .company-contact {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .salary-title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        margin: 25px 0;
+        text-transform: uppercase;
+    }
+
+    .template-preview-box {
+        border: 1px solid #ddd;
+        padding: 20px;
+        min-height: 170mm;
+    }
+
+    .sample-section {
+        margin-bottom: 20px;
+    }
+
+    .sample-section-title {
+        background: #f1f1f1;
+        border: 1px solid #ddd;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .sample-row {
+        display: flex;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .sample-label {
+        width: 30%;
+        padding: 10px;
+        font-weight: bold;
+        background: #fafafa;
+    }
+
+    .sample-value {
+        width: 70%;
+        padding: 10px;
+    }
+
+    .footer {
+        border-top: 1px solid #999;
+        padding-top: 10px;
+        margin-top: 25px;
+        text-align: center;
+        font-size: 12px;
+        color: #555;
+    }
+
+    .back-button {
+        background: #6c757d;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        padding: 8px 20px;
+        text-decoration: none;
+    }
+
+        .back-button:hover {
+            color: white;
+            background: #5a6268;
+            text-decoration: none;
+        }
+
+    @@media print {
+        body {
+            background: white;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        .salary-slip-container {
+            width: 100%;
+            min-height: auto;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        .template-preview-box {
+            border: none;
+        }
+    }
+</style>
+
+
+<div class="main-header anim" style="--delay: 0s">
+
+    <div class="preview-header">
+
+        <h4>
+            Salary Slip Template Preview
+        </h4>
+
+        <div class="no-print">
+
+            <a href="@Url.Action(
+                                               "SalarySlipTemplate",
+                                               "Payroll",
+                                               new
+                                               {
+                                                   area = "Admin",
+                                                   id = Model.SalarySlipSettingID
+                                               })"
+                   class="back-button">
+
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="salary-slip-container">
+
+    <!-- COMPANY INFORMATION -->
+
+    <div class="company-header">
+
+        @if (!string.IsNullOrEmpty(Model.LogoPath))
+        {
+            <img src="@LogoImage"
+                 class="company-logo"
+                 alt="Company Logo" />
+        }
+
+        @if (!string.IsNullOrEmpty(Model.CompanyName))
+        {
+            <div class="company-name">
+                @Model.CompanyName
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.CompanyAddress))
+        {
+            <div class="company-address">
+                @Model.CompanyAddress
+            </div>
+        }
+
+        <div class="company-contact">
+
+            @if (!string.IsNullOrEmpty(Model.CompanyPhone))
+            {
+                <span>
+                    @Model.CompanyPhone
+                </span>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.CompanyPhone) &&
+                             !string.IsNullOrEmpty(Model.CompanyEmail))
+            {
+                <span> | </span>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.CompanyEmail))
+            {
+                <span>
+                    @Model.CompanyEmail
+                </span>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.CompanyWebsite))
+            {
+                <span> | </span>
+
+                <span>
+                    @Model.CompanyWebsite
+                </span>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- SALARY SLIP TITLE -->
+    @if (!string.IsNullOrEmpty(Model.SalarySlipTitle))
+    {
+        <div class="salary-title">
+            @Model.SalarySlipTitle
+        </div>
+    }
+
+
+    <!-- TEMPLATE PREVIEW -->
+
+    <div class="template-preview-box">
+
+        <!-- Employee Information -->
+
+        <div class="sample-section">
+
+            <div class="sample-section-title">
+                Employee Information
+            </div>
+
+            <div class="sample-row">
+
+                <div class="sample-label">
+                    Employee Name
+                </div>
+
+                <div class="sample-value">
+                    Employee Name
+                </div>
+
+            </div>
+
+            <div class="sample-row">
+
+                <div class="sample-label">
+                    Employee ID
+                </div>
+
+                <div class="sample-value">
+                    EMP001
+                </div>
+
+            </div>
+
+            <div class="sample-row">
+
+                <div class="sample-label">
+                    Salary Month
+                </div>
+
+                <div class="sample-value">
+                    Month / Year
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Salary Information -->
+
+        <div class="sample-section">
+
+            <div class="sample-section-title">
+                Salary Details
+            </div>
+
+            <div class="sample-row">
+
+                <div class="sample-label">
+                    Earnings
+                </div>
+
+                <div class="sample-value">
+                    ₹ 0.00
+                </div>
+
+            </div>
+
+            <div class="sample-row">
+
+                <div class="sample-label">
+                    Deductions
+                </div>
+
+                <div class="sample-value">
+                    ₹ 0.00
+                </div>
+
+            </div>
+
+            <div class="sample-row">
+
+                <div class="sample-label">
+                    Net Salary
+                </div>
+
+                <div class="sample-value">
+                    ₹ 0.00
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- NET SALARY -->
+
+        <div style="
+            margin-top:30px;
+            padding:15px;
+            border:2px solid #000;
+            text-align:right;
+            font-weight:bold;
+            font-size:18px;
+            ">
+
+            Net Salary: ₹ 0.00
+
+        </div>
+
+
+        <!-- PREVIEW INFORMATION -->
+
+        <div style="
+            margin-top:40px;
+            text-align:center;
+            color:#777;
+            font-size:12px;
+            ">
+
+            This is a template preview.
+            Actual employee salary information will appear
+            when generating the salary slip.
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+    @if (!string.IsNullOrEmpty(Model.SalarySlipFooter))
+    {
+        <div class="footer">
+
+            @Html.Raw(Model.SalarySlipFooter)
+
+        </div>
+    }
+
+</div>

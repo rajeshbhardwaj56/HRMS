@@ -6729,48 +6729,65 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
                             SalaryYear = dataRow.Field<int>("SalaryYear"),
 
                             // ✅ Core Salary
-                            RevisedGross = dataRow.Field<decimal>("RevisedGross"),
-                            MonthDays = dataRow.Field<decimal>("MonthDays"),
-                            PayableDays = dataRow.Field<decimal>("PayableDays"),
+                            RevisedGross = dataRow.Field<decimal?>("RevisedGross") ?? 0m,
+                            MonthDays = dataRow.Field<decimal?>("MonthDays") ?? 0m,
+                            PayableDays = dataRow.Field<decimal?>("PayableDays") ?? 0m,
 
                             // 🔹 FIXED COMPONENTS
-                            BasicFixed = dataRow.Field<decimal>("BasicFixed"),
-                            HRAFixed = dataRow.Field<decimal>("HRAFixed"),
-                            ConveyanceFixed = dataRow.Field<decimal>("ConveyanceFixed"),
-                            SpecialAllowanceFixed = dataRow.Field<decimal>("SpecialAllowanceFixed"),
-                            GrossSalaryFixed = dataRow.Field<decimal>("GrossSalaryFixed"),
+                            BasicFixed = dataRow.Field<decimal?>("BasicFixed") ?? 0m,
+                            HRAFixed = dataRow.Field<decimal?>("HRAFixed") ?? 0m,
+                            ConveyanceFixed = dataRow.Field<decimal?>("ConveyanceFixed") ?? 0m,
+                            SpecialAllowanceFixed = dataRow.Field<decimal?>("SpecialAllowanceFixed") ?? 0m,
+                            GrossSalaryFixed = dataRow.Field<decimal?>("GrossSalaryFixed") ?? 0m,
 
                             // 🔹 PAYABLE COMPONENTS
-                            BasicPayable = dataRow.Field<decimal>("BasicPayable"),
-                            HRAPayable = dataRow.Field<decimal>("HRAPayable"),
-                            ConveyancePayable = dataRow.Field<decimal>("ConveyancePayable"),
-                            SpecialAllowancePayable = dataRow.Field<decimal>("SpecialAllowancePayable"),
-                            GrossSalaryPayable = dataRow.Field<decimal>("GrossSalaryPayable"),
+                            BasicPayable = dataRow.Field<decimal?>("BasicPayable") ?? 0m,
+                            HRAPayable = dataRow.Field<decimal?>("HRAPayable") ?? 0m,
+                            ConveyancePayable = dataRow.Field<decimal?>("ConveyancePayable") ?? 0m,
+                            SpecialAllowancePayable = dataRow.Field<decimal?>("SpecialAllowancePayable") ?? 0m,
+                            GrossSalaryPayable = dataRow.Field<decimal?>("GrossSalaryPayable") ?? 0m,
 
                             // 🔹 ADDITIONS
-                            ClientIncentive = dataRow.Field<decimal>("ClientIncentive"),
-                            PLI = dataRow.Field<decimal>("PLI"),
-                            FloorIncentive = dataRow.Field<decimal>("FloorIncentive"),
-                            EmpReferal = dataRow.Field<decimal>("EmpReferal"),
-                            TrainingFee = dataRow.Field<decimal>("TrainingFee"),
-                            GWR = dataRow.Field<decimal>("GWR"),
-                            OtherAdditonArrear = dataRow.Field<decimal>("OtherAdditonArrear"),
+                            ClientIncentive = dataRow.Field<decimal?>("ClientIncentive") ?? 0m,
+                            PLI = dataRow.Field<decimal?>("PLI") ?? 0m,
+                            FloorIncentive = dataRow.Field<decimal?>("FloorIncentive") ?? 0m,
+                            EmpReferal = dataRow.Field<decimal?>("EmpReferal") ?? 0m,
+                            TrainingFee = dataRow.Field<decimal?>("TrainingFee") ?? 0m,
+                            GWR = dataRow.Field<decimal?>("Gwr") ?? 0m,
+                            OtherAdditonArrear = dataRow.Field<decimal?>("OtherAdditonArrear") ?? 0m,
 
                             // 🔹 DEDUCTIONS
-                            EMPPF = dataRow.Field<decimal>("EMPPF"),
-                            EMPESI = dataRow.Field<decimal>("EMPESI"),
-                            EMPLWF = dataRow.Field<decimal>("EMPLWF"),
-                            PTAX = dataRow.Field<decimal>("PTAX"),
-                            TDS = dataRow.Field<decimal>("TDS"),
-                            DbtDeduction = dataRow.Field<decimal>("DbtDeduction"),
-                            Advanceded = dataRow.Field<decimal>("Advanceded"),
-                            InsuranceDeduction = dataRow.Field<decimal>("InsuranceDeduction"),
-                            OtherDeduction = dataRow.Field<decimal>("OtherDeduction"),
+                            EMPPF = dataRow.Field<decimal?>("EMPPF") ?? 0m,
+                            EMPESI = dataRow.Field<decimal?>("EMPESI") ?? 0m,
+                            EMPLWF = dataRow.Field<decimal?>("EMPLWF") ?? 0m,
+                            PTAX = dataRow.Field<decimal?>("PTAX") ?? 0m,
+                            TDS = dataRow.Field<decimal?>("TDS") ?? 0m,
+                            DbtDeduction = dataRow.Field<decimal?>("DbtDeduction") ?? 0m,
+                            Advanceded = dataRow.Field<decimal?>("Advanceded") ?? 0m,
+                            InsuranceDeduction = dataRow.Field<decimal?>("InsuranceDeduction") ?? 0m,
+                            OtherDeduction = dataRow.Field<decimal?>("OtherDeduction") ?? 0m,
 
-                            // 🔹 FINAL
-                            TotalDeduction = dataRow.Field<decimal>("TotalDeduction"),
-                            NetPayable = dataRow.Field<decimal>("NetPayable")
-                            //CTC = dataRow.Field<decimal>("CTC"),
+                            // Final
+                            TotalDeduction = dataRow.Field<decimal?>("TotalDeduction") ?? 0m,
+                            NetPayable = dataRow.Field<decimal?>("NetPayable") ?? 0m,
+
+                            // Employer Contribution
+                            EmployerPF = dataRow.Field<decimal?>("EMPRPF") ?? 0m,
+                            EmployerESI = dataRow.Field<decimal?>("EMPRESI") ?? 0m,
+                            EmployerLWF = dataRow.Field<decimal?>("EMPRLWF") ?? 0m,
+                            TotalEmployerContribution = dataRow.Field<decimal?>("TotalEmprCont") ?? 0m,
+
+                            // EPF / EPS / EDLI
+                            EPFWages = dataRow.Field<decimal?>("EPFWages") ?? 0m,
+                            EPSWages = dataRow.Field<decimal?>("EPSWages") ?? 0m,
+                            EDLIWages = dataRow.Field<decimal?>("EDLIWages") ?? 0m,
+
+                            EPFAdminCharges = dataRow.Field<decimal?>("EPFAdminCharges") ?? 0m,
+                            EDLIContribution = dataRow.Field<decimal?>("EDLIContribution") ?? 0m,
+                            EDLIAdminCharges = dataRow.Field<decimal?>("EDLIAdminCharges") ?? 0m,
+
+                            // CTC
+                            CTC = dataRow.Field<decimal?>("CTC") ?? 0m
 
                             // ✅ Flags
                             //IsActive = dataRow.Field<bool>("IsActive")
@@ -6785,19 +6802,26 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
 
             return result;
         }
-        public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequestModel model)
+
+public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequestModel model)
         {
             EmployeeSalaryCalculationModel salary = new EmployeeSalaryCalculationModel();
 
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
+            // ------------------------------------------------------------
+            // BASIC PARAMETERS
+            // ------------------------------------------------------------
+
             sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
             sqlParameter.Add(new SqlParameter("@PayrollTypeID", model.PayrollTypeID));
             sqlParameter.Add(new SqlParameter("@Month", model.Month));
             sqlParameter.Add(new SqlParameter("@Year", model.Year));
-            sqlParameter.Add(new SqlParameter("@MonthDays", model.MonthDays));
-            sqlParameter.Add(new SqlParameter("@PayableDays", model.PayableDays));
             sqlParameter.Add(new SqlParameter("@RevisedGross", model.RevisedGross));
+
+            // ------------------------------------------------------------
+            // EARNINGS
+            // ------------------------------------------------------------
 
             sqlParameter.Add(new SqlParameter("@ClientIncentive", model.ClientIncentive));
             sqlParameter.Add(new SqlParameter("@PLI", model.PLI));
@@ -6807,6 +6831,10 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
             sqlParameter.Add(new SqlParameter("@GWR", model.GWR));
             sqlParameter.Add(new SqlParameter("@OtherAdditonArrear", model.OtherAdditonArrear));
 
+            // ------------------------------------------------------------
+            // DEDUCTIONS
+            // ------------------------------------------------------------
+
             sqlParameter.Add(new SqlParameter("@EMPLWF", model.EMPLWF));
             sqlParameter.Add(new SqlParameter("@TDS", model.TDS));
             sqlParameter.Add(new SqlParameter("@DbtDeduction", model.DbtDeduction));
@@ -6815,146 +6843,586 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
             sqlParameter.Add(new SqlParameter("@OtherDeduction", model.OtherDeduction));
 
             sqlParameter.Add(new SqlParameter("@InsertedByUserID", model.InsertedByUserID));
+
+            // ------------------------------------------------------------
+            // EXECUTE STORED PROCEDURE
+            // ------------------------------------------------------------
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(
                 StoredProcedures.usp_CalculateEmployeeSalary,
                 sqlParameter
             );
 
-            if (dataSet.Tables[0].Rows.Count > 0)
+            // ------------------------------------------------------------
+            // MAP RESULT
+            // ------------------------------------------------------------
+
+            if (dataSet != null &&
+                dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0].Rows.Count > 0)
             {
                 var row = dataSet.Tables[0].Rows[0];
+
+                // --------------------------------------------------------
+                // BASIC INFORMATION
+                // --------------------------------------------------------
 
                 salary.EmployeeID = Convert.ToInt64(row["EmployeeID"]);
                 salary.PayrollTypeID = Convert.ToInt32(row["PayrollTypeID"]);
                 salary.SalaryMonth = Convert.ToInt32(row["SalaryMonth"]);
                 salary.SalaryYear = Convert.ToInt32(row["SalaryYear"]);
 
-                salary.RevisedGross = Convert.ToDecimal(row["RevisedGross"]);
+                salary.RevisedGross =
+                    Convert.ToDecimal(row["RevisedGross"]);
+                salary.MonthDays =
+                    Convert.ToDecimal(row["MonthDays"]);
 
-                salary.BasicFixed = Convert.ToDecimal(row["BasicFixed"]);
-                salary.HRAFixed = Convert.ToDecimal(row["HRAFixed"]);
-                salary.ConveyanceFixed = Convert.ToDecimal(row["ConveyanceFixed"]);
-                salary.SpecialAllowanceFixed = Convert.ToDecimal(row["SpecialAllowanceFixed"]);
-                salary.GrossSalaryFixed = Convert.ToDecimal(row["GrossSalaryFixed"]);
+                salary.PayableDays =
+                    Convert.ToDecimal(row["PayableDays"]);
+                // --------------------------------------------------------
+                // FIXED SALARY
+                // --------------------------------------------------------
 
-                salary.BasicPayable = Convert.ToDecimal(row["BasicPayable"]);
-                salary.HRAPayable = Convert.ToDecimal(row["HRAPayable"]);
-                salary.ConveyancePayable = Convert.ToDecimal(row["ConveyancePayable"]);
-                salary.SpecialAllowancePayable = Convert.ToDecimal(row["SpecialAllowancePayable"]);
+                salary.BasicFixed =
+                    Convert.ToDecimal(row["BasicFixed"]);
 
-                salary.GrossSalaryPayable = Convert.ToDecimal(row["GrossSalaryPayable"]);
+                salary.HRAFixed =
+                    Convert.ToDecimal(row["HRAFixed"]);
 
-                salary.EMPPF = Convert.ToDecimal(row["EMPPF"]);
-                salary.EMPESI = Convert.ToDecimal(row["EMPESI"]);
-                salary.PTAX = Convert.ToDecimal(row["PTAX"]);
+                salary.ConveyanceFixed =
+                    Convert.ToDecimal(row["ConveyanceFixed"]);
 
-                salary.TotalDeduction = Convert.ToDecimal(row["TotalDeduction"]);
-                salary.NetPayable = Convert.ToDecimal(row["NetPayable"]);
+                salary.SpecialAllowanceFixed =
+                    Convert.ToDecimal(row["SpecialAllowanceFixed"]);
+
+                salary.GrossSalaryFixed =
+                    Convert.ToDecimal(row["GrossSalaryFixed"]);
+
+                // --------------------------------------------------------
+                // PAYABLE SALARY
+                // --------------------------------------------------------
+
+                salary.BasicPayable =
+                    Convert.ToDecimal(row["BasicPayable"]);
+
+                salary.HRAPayable =
+                    Convert.ToDecimal(row["HRAPayable"]);
+
+                salary.ConveyancePayable =
+                    Convert.ToDecimal(row["ConveyancePayable"]);
+
+                salary.SpecialAllowancePayable =
+                    Convert.ToDecimal(row["SpecialAllowancePayable"]);
+
+                // --------------------------------------------------------
+                // EARNINGS
+                // --------------------------------------------------------
+
+                salary.ClientIncentive =
+                    Convert.ToDecimal(row["ClientIncentive"]);
+
+                salary.PLI =
+                    Convert.ToDecimal(row["PLI"]);
+
+                salary.FloorIncentive =
+                    Convert.ToDecimal(row["FloorIncentive"]);
+
+                salary.EmpReferal =
+                    Convert.ToDecimal(row["EmpReferal"]);
+
+                salary.TrainingFee =
+                    Convert.ToDecimal(row["TrainingFee"]);
+
+                salary.GWR =
+                    Convert.ToDecimal(row["GWR"]);
+
+                salary.OtherAdditonArrear =
+                    Convert.ToDecimal(row["OtherAdditonArrear"]);
+
+                salary.GrossSalaryPayable =
+                    Convert.ToDecimal(row["GrossSalaryPayable"]);
+
+                // --------------------------------------------------------
+                // EMPLOYEE DEDUCTIONS
+                // --------------------------------------------------------
+
+                salary.EMPPF =
+                    Convert.ToDecimal(row["EmployeePF"]);
+
+                salary.EMPESI =
+                    Convert.ToDecimal(row["EmployeeESI"]);
+
+                salary.EMPLWF =
+                    Convert.ToDecimal(row["EmployeeLWF"]);
+
+                salary.PTAX =
+                    Convert.ToDecimal(row["ProfessionalTax"]);
+
+                salary.TDS =
+                    Convert.ToDecimal(row["TDS"]);
+
+                salary.DbtDeduction =
+                    Convert.ToDecimal(row["DBTDeduction"]);
+
+                salary.Advanceded =
+                    Convert.ToDecimal(row["AdvanceDeduction"]);
+
+                salary.InsuranceDeduction =
+                    Convert.ToDecimal(row["InsuranceDeduction"]);
+
+                salary.OtherDeduction =
+                    Convert.ToDecimal(row["OtherDeduction"]);
+
+                // --------------------------------------------------------
+                // TOTAL DEDUCTION / NET PAY
+                // --------------------------------------------------------
+
+                salary.TotalDeduction =
+                    Convert.ToDecimal(row["TotalDeduction"]);
+
+                salary.NetPayable =
+                    Convert.ToDecimal(row["NetPayable"]);
+
+                // --------------------------------------------------------
+                // EMPLOYER CONTRIBUTION
+                // --------------------------------------------------------
+
+                salary.EmployerPF =
+                    Convert.ToDecimal(row["EmployerPF"]);
+
+                salary.EmployerESI =
+                    Convert.ToDecimal(row["EmployerESI"]);
+
+                salary.EmployerLWF =
+                    Convert.ToDecimal(row["EmployerLWF"]);
+
+                salary.TotalEmployerContribution =
+                    Convert.ToDecimal(row["TotalEmployerContribution"]);
+
+                // --------------------------------------------------------
+                // EPF / EPS / EDLI
+                // --------------------------------------------------------
+
+                salary.EPFWages =
+                    Convert.ToDecimal(row["EPFWages"]);
+
+                salary.EPSWages =
+                    Convert.ToDecimal(row["EPSWages"]);
+
+                salary.EDLIWages =
+                    Convert.ToDecimal(row["EDLIWages"]);
+
+                salary.EPFAdminCharges =
+                    Convert.ToDecimal(row["EPFAdminCharges"]);
+
+                salary.EDLIContribution =
+                    Convert.ToDecimal(row["EDLIContribution"]);
+
+                salary.EDLIAdminCharges =
+                    Convert.ToDecimal(row["EDLIAdminCharges"]);
+
+                // --------------------------------------------------------
+                // FINAL CTC
+                // --------------------------------------------------------
+
+                salary.CTC =
+                    Convert.ToDecimal(row["CTC"]);
             }
 
             return salary;
         }
 
-        public EmployeeSalaryCalculationModel GetEmployeeSalary(EmployeeSalaryGetRequestModel request)
+
+
+        public EmployeeSalaryCalculationModel GetEmployeeSalary(
+    EmployeeSalaryGetRequestModel request)
         {
-            EmployeeSalaryCalculationModel salary = new EmployeeSalaryCalculationModel();
+            EmployeeSalaryCalculationModel salary =
+                new EmployeeSalaryCalculationModel();
 
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
 
-            sqlParameter.Add(new SqlParameter("@EmployeeID", request.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@SalaryMonth", request.SalaryMonth));
-            sqlParameter.Add(new SqlParameter("@SalaryYear", request.SalaryYear));
+            sqlParameter.Add(
+                new SqlParameter("@EmployeeID", request.EmployeeID)
+            );
+
+            sqlParameter.Add(
+                new SqlParameter("@SalaryMonth", request.SalaryMonth)
+            );
+
+            sqlParameter.Add(
+                new SqlParameter("@SalaryYear", request.SalaryYear)
+            );
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(
                 StoredProcedures.usp_GetEmployeeSalary,
                 sqlParameter
             );
 
-            if (dataSet.Tables[0].Rows.Count > 0)
+            if (dataSet != null &&
+                dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0].Rows.Count > 0)
             {
                 var row = dataSet.Tables[0].Rows[0];
 
-                salary.EmployeeID = Convert.ToInt64(row["EmployeeID"]);
-                salary.PayrollTypeID = Convert.ToInt64(row["EmpPayrollTypeID"]);
-                salary.SalaryMonth = Convert.ToInt32(row["SalaryMonth"]);
-                salary.SalaryYear = Convert.ToInt32(row["SalaryYear"]);
+                // --------------------------------------------------------
+                // BASIC INFORMATION
+                // --------------------------------------------------------
 
-                salary.RevisedGross = Convert.ToDecimal(row["RevisedGross"]);
-                salary.MonthDays = Convert.ToDecimal(row["EmpMonthDays"]);
+                salary.EmployeeID =
+                    Convert.ToInt64(row["EmployeeID"]);
 
-                salary.BasicFixed = Convert.ToDecimal(row["BasicFixed"]);
-                salary.HRAFixed = Convert.ToDecimal(row["HRAFixed"]);
-                salary.ConveyanceFixed = Convert.ToDecimal(row["ConveyanceFixed"]);
-                salary.SpecialAllowanceFixed = Convert.ToDecimal(row["SpecialAllowanceFixed"]);
-                salary.GrossSalaryFixed = Convert.ToDecimal(row["EmpGrossSalaryFixed"]);
+                salary.PayrollTypeID =
+                    Convert.ToInt64(row["PayrollTypeID"]);
 
-                salary.BasicPayable = Convert.ToDecimal(row["BasicPayable"]);
-                salary.HRAPayable = Convert.ToDecimal(row["HRAPayable"]);
-                salary.ConveyancePayable = Convert.ToDecimal(row["ConveyancePayable"]);
-                salary.SpecialAllowancePayable = Convert.ToDecimal(row["SpecialAllowancePayable"]);
+                salary.SalaryMonth =
+                    Convert.ToInt32(row["SalaryMonth"]);
 
-                salary.GrossSalaryPayable = Convert.ToDecimal(row["GrossSalaryPayable"]);
+                salary.SalaryYear =
+                    Convert.ToInt32(row["SalaryYear"]);
+                salary.MonthName = row["MonthName"]?.ToString();
+                // --------------------------------------------------------
+                // SALARY
+                // --------------------------------------------------------
 
-                salary.EMPPF = Convert.ToDecimal(row["EMPPF"]);
-                salary.EMPESI = Convert.ToDecimal(row["EMPESI"]);
-                salary.PTAX = Convert.ToDecimal(row["PTAX"]);
+                salary.RevisedGross =
+                    Convert.ToDecimal(row["RevisedGross"]);
 
-                salary.TotalDeduction = Convert.ToDecimal(row["TotalDeduction"]);
-                salary.NetPayable = Convert.ToDecimal(row["NetPayable"]);
+                salary.MonthDays =
+                    Convert.ToDecimal(row["MonthDays"]);
+
+                salary.PayableDays =
+                    Convert.ToDecimal(row["PayableDays"]);
+
+                // --------------------------------------------------------
+                // FIXED SALARY
+                // --------------------------------------------------------
+
+                salary.BasicFixed =
+                    Convert.ToDecimal(row["BasicFixed"]);
+
+                salary.HRAFixed =
+                    Convert.ToDecimal(row["HRAFixed"]);
+
+                salary.ConveyanceFixed =
+                    Convert.ToDecimal(row["ConveyanceFixed"]);
+
+                salary.SpecialAllowanceFixed =
+                    Convert.ToDecimal(row["SpecialAllowanceFixed"]);
+
+                salary.GrossSalaryFixed =
+                    Convert.ToDecimal(row["GrossSalaryFixed"]);
+
+                // --------------------------------------------------------
+                // PAYABLE SALARY
+                // --------------------------------------------------------
+
+                salary.BasicPayable =
+                    Convert.ToDecimal(row["BasicPayable"]);
+
+                salary.HRAPayable =
+                    Convert.ToDecimal(row["HRAPayable"]);
+
+                salary.ConveyancePayable =
+                    Convert.ToDecimal(row["ConveyancePayable"]);
+
+                salary.SpecialAllowancePayable =
+                    Convert.ToDecimal(row["SpecialAllowancePayable"]);
+
+                salary.GrossSalaryPayable =
+                    Convert.ToDecimal(row["GrossSalaryPayable"]);
+
+                // --------------------------------------------------------
+                // EARNINGS
+                // --------------------------------------------------------
+
+                salary.ClientIncentive =
+                    Convert.ToDecimal(row["ClientIncentive"]);
+
+                salary.PLI =
+                    Convert.ToDecimal(row["PLI"]);
+
+                salary.FloorIncentive =
+                    Convert.ToDecimal(row["FloorIncentive"]);
+
+                salary.EmpReferal =
+                    Convert.ToDecimal(row["EmpReferal"]);
+
+                salary.TrainingFee =
+                    Convert.ToDecimal(row["TrainingFee"]);
+
+                salary.GWR =
+                    Convert.ToDecimal(row["Gwr"]);
+
+                salary.OtherAdditonArrear =
+                    Convert.ToDecimal(row["OtherAdditonArrear"]);
+
+                // --------------------------------------------------------
+                // EMPLOYEE DEDUCTIONS
+                // --------------------------------------------------------
+
+                salary.EMPPF =
+                    Convert.ToDecimal(row["EMPPF"]);
+
+                salary.EMPESI =
+                    Convert.ToDecimal(row["EMPESI"]);
+
+                salary.EMPLWF =
+                    Convert.ToDecimal(row["EMPLWF"]);
+
+                salary.PTAX =
+                    Convert.ToDecimal(row["PTAX"]);
+
+                salary.TDS =
+                    Convert.ToDecimal(row["TDS"]);
+
+                salary.DbtDeduction =
+                    Convert.ToDecimal(row["DbtDeduction"]);
+
+                salary.Advanceded =
+                    Convert.ToDecimal(row["Advanceded"]);
+
+                salary.InsuranceDeduction =
+                    Convert.ToDecimal(row["InsuranceDeduction"]);
+
+                salary.OtherDeduction =
+                    Convert.ToDecimal(row["OtherDeduction"]);
+
+                // --------------------------------------------------------
+                // FINAL
+                // --------------------------------------------------------
+
+                salary.TotalDeduction =
+                    Convert.ToDecimal(row["TotalDeduction"]);
+
+                salary.NetPayable =
+                    Convert.ToDecimal(row["NetPayable"]);
+                salary.NetPayableInWords = NumberToWords(salary.NetPayable);
+                // --------------------------------------------------------
+                // EMPLOYER CONTRIBUTION
+                // --------------------------------------------------------
+
+                salary.EmployerPF =
+                    Convert.ToDecimal(row["EmployerPF"]);
+
+                salary.EmployerESI =
+                    Convert.ToDecimal(row["EmployerESI"]);
+
+                salary.EmployerLWF =
+                    Convert.ToDecimal(row["EmployerLWF"]);
+
+                salary.TotalEmployerContribution =
+                    Convert.ToDecimal(row["TotalEmployerContribution"]);
+
+                // --------------------------------------------------------
+                // EPF / EPS / EDLI
+                // --------------------------------------------------------
+
+                salary.EPFWages =
+                    Convert.ToDecimal(row["EPFWages"]);
+
+                salary.EPSWages =
+                    Convert.ToDecimal(row["EPSWages"]);
+
+                salary.EDLIWages =
+                    Convert.ToDecimal(row["EDLIWages"]);
+
+                salary.EPFAdminCharges =
+                    Convert.ToDecimal(row["EPFAdminCharges"]);
+
+                salary.EDLIContribution =
+                    Convert.ToDecimal(row["EDLIContribution"]);
+
+                salary.EDLIAdminCharges =
+                    Convert.ToDecimal(row["EDLIAdminCharges"]);
+
+                // --------------------------------------------------------
+                // CTC
+                // --------------------------------------------------------
+
+                salary.CTC =
+                    Convert.ToDecimal(row["CTC"]);
+                salary.EmployeeNumber =
+    row["EmployeeNumber"]?.ToString();
+
+                salary.Designation =
+                    row["Designation"]?.ToString();
+
+                salary.Department =
+                    row["Department"]?.ToString();
+
+                salary.Location =
+                    row["Location"]?.ToString();
+
+                salary.DateOfJoining =
+                    row["DateOfJoining"] == DBNull.Value
+                        ? null
+                        : Convert.ToDateTime(row["DateOfJoining"]);
+
+                salary.BankAccountNumber =
+                    row["BankAccountNumber"]?.ToString();
+
+                salary.BankName =
+                    row["BankName"]?.ToString();
+
+                salary.IFSCCode =
+                    row["IFSCCode"]?.ToString();
+
+                salary.UANNumber =
+                    row["UANNumber"]?.ToString();
+                salary.EmployeeName =
+    row["EmployeeName"]?.ToString();
             }
 
             return salary;
         }
 
+        private string NumberToWords(decimal amount)
+        {
+            long rupees = (long)Math.Floor(amount);
+            int paise = (int)Math.Round((amount - rupees) * 100);
+
+            string result = NumberToIndianWords(rupees) + " Rupees";
+
+            if (paise > 0)
+            {
+                result += " and " + NumberToIndianWords(paise) + " Paise";
+            }
+
+            return result + " Only";
+        }
+        private string NumberToIndianWords(long number)
+        {
+            if (number == 0)
+                return "Zero";
+
+            string[] ones =
+            {
+        "", "One", "Two", "Three", "Four", "Five",
+        "Six", "Seven", "Eight", "Nine", "Ten",
+        "Eleven", "Twelve", "Thirteen", "Fourteen",
+        "Fifteen", "Sixteen", "Seventeen", "Eighteen",
+        "Nineteen"
+    };
+
+            string[] tens =
+            {
+        "", "", "Twenty", "Thirty", "Forty",
+        "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
+    };
+
+            if (number < 20)
+                return ones[number];
+
+            if (number < 100)
+                return tens[number / 10] +
+                       (number % 10 > 0 ? " " + ones[number % 10] : "");
+
+            if (number < 1000)
+                return ones[number / 100] + " Hundred" +
+                       (number % 100 > 0
+                           ? " " + NumberToIndianWords(number % 100)
+                           : "");
+
+            if (number < 100000)
+                return NumberToIndianWords(number / 1000) +
+                       " Thousand" +
+                       (number % 1000 > 0
+                           ? " " + NumberToIndianWords(number % 1000)
+                           : "");
+
+            if (number < 10000000)
+                return NumberToIndianWords(number / 100000) +
+                       " Lakh" +
+                       (number % 100000 > 0
+                           ? " " + NumberToIndianWords(number % 100000)
+                           : "");
+
+            return NumberToIndianWords(number / 10000000) +
+                   " Crore" +
+                   (number % 10000000 > 0
+                       ? " " + NumberToIndianWords(number % 10000000)
+                       : "");
+        }
         public Result SaveEmployeeSalary(EmployeeSalaryRequestModel model)
         {
             Result result = new Result();
 
-            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+            var sqlParameter = new List<SqlParameter>
+    {
+        // ----------------------------------------------------
+        // BASIC INFORMATION
+        // ----------------------------------------------------
 
-            sqlParameter.Add(new SqlParameter("@EmployeeID", model.EmployeeID));
-            sqlParameter.Add(new SqlParameter("@PayrollTypeID", model.PayrollTypeID));
-            sqlParameter.Add(new SqlParameter("@Month", model.Month ));
-            sqlParameter.Add(new SqlParameter("@Year", model.Year));
+        new SqlParameter("@EmployeeID", model.EmployeeID),
+        new SqlParameter("@PayrollTypeID", model.PayrollTypeID),
+        new SqlParameter("@Month", model.Month),
+        new SqlParameter("@Year", model.Year),
 
-            sqlParameter.Add(new SqlParameter("@MonthDays", model.MonthDays ));
-            sqlParameter.Add(new SqlParameter("@PayableDays", model.PayableDays ));
-            sqlParameter.Add(new SqlParameter("@RevisedGross", model.RevisedGross));
+        // ----------------------------------------------------
+        // ATTENDANCE / SALARY INPUT
+        // ----------------------------------------------------
 
+        new SqlParameter("@MonthDays", model.MonthDays),
+        new SqlParameter("@PayableDays", model.PayableDays),
+        new SqlParameter("@RevisedGross", model.RevisedGross),
 
-            sqlParameter.Add(new SqlParameter("@ClientIncentive", model.ClientIncentive));
-            sqlParameter.Add(new SqlParameter("@PLI", model.PLI));
-            sqlParameter.Add(new SqlParameter("@FloorIncentive", model.FloorIncentive));
-            sqlParameter.Add(new SqlParameter("@EmpReferal", model.EmpReferal));
-            sqlParameter.Add(new SqlParameter("@TrainingFee", model.TrainingFee));
-            sqlParameter.Add(new SqlParameter("@GWR", model.GWR));
-            sqlParameter.Add(new SqlParameter("@OtherAdditonArrear", model.OtherAdditonArrear));
+        // ----------------------------------------------------
+        // EARNINGS
+        // ----------------------------------------------------
 
-            sqlParameter.Add(new SqlParameter("@EMPLWF", model.EMPLWF));
-            sqlParameter.Add(new SqlParameter("@TDS", model.TDS));
-            sqlParameter.Add(new SqlParameter("@DbtDeduction", model.DbtDeduction));
-            sqlParameter.Add(new SqlParameter("@Advanceded", model.Advanceded));
-            sqlParameter.Add(new SqlParameter("@InsuranceDeduction", model.InsuranceDeduction));
-            sqlParameter.Add(new SqlParameter("@OtherDeduction", model.OtherDeduction));
+        new SqlParameter("@ClientIncentive", model.ClientIncentive),
+        new SqlParameter("@PLI", model.PLI),
+        new SqlParameter("@FloorIncentive", model.FloorIncentive),
+        new SqlParameter("@EmpReferal", model.EmpReferal),
+        new SqlParameter("@TrainingFee", model.TrainingFee),
+        new SqlParameter("@GWR", model.GWR),
+        new SqlParameter("@OtherAdditonArrear", model.OtherAdditonArrear),
 
-            sqlParameter.Add(new SqlParameter("@InsertedByUserID", model.InsertedByUserID));
+        // ----------------------------------------------------
+        // EMPLOYEE DEDUCTIONS
+        // ----------------------------------------------------
+
+        new SqlParameter("@EMPLWF", model.EMPLWF),
+        new SqlParameter("@TDS", model.TDS),
+        new SqlParameter("@DbtDeduction", model.DbtDeduction),
+        new SqlParameter("@Advanceded", model.Advanceded),
+        new SqlParameter("@InsuranceDeduction", model.InsuranceDeduction),
+        new SqlParameter("@OtherDeduction", model.OtherDeduction),
+
+        // ----------------------------------------------------
+        // USER
+        // ----------------------------------------------------
+
+        new SqlParameter("@InsertedByUserID", model.InsertedByUserID)
+    };
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(
                 StoredProcedures.usp_SaveEmployeeSalary,
                 sqlParameter
             );
 
-            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            if (dataSet != null &&
+                dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0].Rows.Count > 0)
             {
                 var row = dataSet.Tables[0].Rows[0];
 
-                result.PKNo = row["PKNo"] != DBNull.Value ? Convert.ToInt64(row["PKNo"]) : null;
-                result.Message = row["Message"].ToString();
+                result.PKNo =
+                    row["PKNo"] != DBNull.Value
+                        ? Convert.ToInt64(row["PKNo"])
+                        : null;
+
+                result.Message =
+                    row["Message"] != DBNull.Value
+                        ? row["Message"].ToString()
+                        : string.Empty;
             }
 
             return result;
         }
+
+
         #endregion Payroll
 
 
@@ -8248,7 +8716,9 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
 
             return await UploadAttendance(data, model.UserID);
         }
-        public DataTable CreateAttendanceDataTable(List<AttendanceUploadModel> models)
+
+public DataTable CreateAttendanceDataTable(
+    List<AttendanceUploadModel> models)
         {
             var dt = new DataTable();
 
@@ -8259,21 +8729,40 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
 
             foreach (var item in models)
             {
-                var row = dt.NewRow();
+                if (item == null)
+                    continue;
 
-                row["EmployeeNumber"] = item.EmployeeNumber ?? string.Empty;
-                row["WorkDate"] = item.WorkDate;
-                row["AttendanceStatus"] = item.AttendanceStatus ?? string.Empty;
-                row["Remarks"] = string.IsNullOrWhiteSpace(item.Remarks)
-                                    ? (object)DBNull.Value
-                                    : item.Remarks;
+                DataRow row = dt.NewRow();
+
+                row["EmployeeNumber"] =
+                    string.IsNullOrWhiteSpace(item.EmployeeNumber)
+                        ? DBNull.Value
+                        : item.EmployeeNumber.Trim();
+
+                row["WorkDate"] =
+                    item.WorkDate == default(DateTime)
+                        ? DBNull.Value
+                        : item.WorkDate;
+
+                row["AttendanceStatus"] =
+                    string.IsNullOrWhiteSpace(item.AttendanceStatus)
+                        ? DBNull.Value
+                        : item.AttendanceStatus.Trim().ToUpper();
+
+                row["Remarks"] =
+                    string.IsNullOrWhiteSpace(item.Remarks)
+                        ? DBNull.Value
+                        : item.Remarks.Trim();
 
                 dt.Rows.Add(row);
             }
 
             return dt;
         }
-        public async Task<string> UploadAttendance(DataTable dt, long userId)
+
+
+
+public async Task<string> UploadAttendance(DataTable dt, long userId)
         {
             try
             {
@@ -8288,65 +8777,575 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
                     conn);
 
                 cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 3600;
 
-
-                var tvpParam = cmd.Parameters.AddWithValue(
-                    "@Attendance",
-                    dt);
-
-                tvpParam.SqlDbType = SqlDbType.Structured;
+                // TVP
+                var tvpParam = cmd.Parameters.Add("@Attendance", SqlDbType.Structured);
                 tvpParam.TypeName = "dbo.AttendanceImportType";
+                tvpParam.Value = dt;
 
+                // User ID
+                cmd.Parameters.Add("@UserID", SqlDbType.BigInt).Value = userId;
 
-                cmd.Parameters.AddWithValue(
-                    "@UserID",
-                    userId);
+                using SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
+                DataTable result = null;
 
-                DataTable result = new DataTable();
-
-
-                using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                do
                 {
-                    result.Load(reader);
-                }
+                    // Check whether this result set has columns
+                    if (reader.FieldCount > 0)
+                    {
+                        bool hasStatusColumn = false;
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (string.Equals(
+                                reader.GetName(i),
+                                "Status",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                hasStatusColumn = true;
+                                break;
+                            }
+                        }
+
+                        if (hasStatusColumn)
+                        {
+                            result = new DataTable();
+                            result.Load(reader);
+                            break;
+                        }
+                    }
+
+                } while (await reader.NextResultAsync());
 
 
-                if (result.Rows.Count == 0)
+                // No result returned by SP
+                if (result == null || result.Rows.Count == 0)
                 {
                     return JsonConvert.SerializeObject(new
                     {
                         success = false,
-                        message = "No response from database."
+                        status = -1,
+                        message = "No response from database.",
+                        importID = 0,
+                        processedRecords = 0
                     });
                 }
 
 
                 DataRow row = result.Rows[0];
 
+                int status = row["Status"] == DBNull.Value
+                    ? -1
+                    : Convert.ToInt32(row["Status"]);
+
+                string message = row["Message"] == DBNull.Value
+                    ? ""
+                    : row["Message"].ToString();
+
+                long importID =
+                    result.Columns.Contains("ImportID") &&
+                    row["ImportID"] != DBNull.Value
+                        ? Convert.ToInt64(row["ImportID"])
+                        : 0;
+
+                int processedRecords =
+                    result.Columns.Contains("ProcessedRecords") &&
+                    row["ProcessedRecords"] != DBNull.Value
+                        ? Convert.ToInt32(row["ProcessedRecords"])
+                        : 0;
+
 
                 return JsonConvert.SerializeObject(new
                 {
-                    success = Convert.ToInt32(row["Status"]) == 1,
-
-                    status = Convert.ToInt32(row["Status"]),
-
-                    message = row["Message"]?.ToString(),
-
-                    importID = row.Table.Columns.Contains("ImportID")
-                        ? Convert.ToInt64(row["ImportID"])
-                        : 0,
-
-                    processedRecords = row.Table.Columns.Contains("ProcessedRecords")
-                        ? Convert.ToInt32(row["ProcessedRecords"])
-                        : 0
+                    success = status == 1,
+                    status = status,
+                    message = message,
+                    importID = importID,
+                    processedRecords = processedRecords
                 });
-
+            }
+            catch (SqlException ex)
+            {
+                return JsonConvert.SerializeObject(new
+                {
+                    success = false,
+                    status = -1,
+                    message = ex.Message,
+                    importID = 0,
+                    processedRecords = 0
+                });
             }
             catch (Exception ex)
             {
-                throw;
+                return JsonConvert.SerializeObject(new
+                {
+                    success = false,
+                    status = -1,
+                    message = ex.Message,
+                    importID = 0,
+                    processedRecords = 0
+                });
             }
+        }
+        public PayrollPeriodDetailsModel GetPayrollPeriodDetails(
+    int salaryMonth,
+    int salaryYear)
+        {
+            try
+            {
+                var parameters = new List<SqlParameter>
+        {
+            new SqlParameter("@SalaryMonth", salaryMonth),
+            new SqlParameter("@SalaryYear", salaryYear)
+        };
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetPayrollPeriodDetails,
+                    parameters);
+
+                if (dataSet == null ||
+                    dataSet.Tables.Count == 0 ||
+                    dataSet.Tables[0].Rows.Count == 0)
+                {
+                    return null;
+                }
+
+                var dataRow = dataSet.Tables[0].Rows[0];
+
+                return new PayrollPeriodDetailsModel
+                {
+                    MonthDays = dataRow.Field<int>("MonthDays"),
+
+                    PayrollStartDate =
+                        dataRow.Field<DateTime?>("PayrollStartDate"),
+
+                    PayrollEndDate =
+                        dataRow.Field<DateTime?>("PayrollEndDate")
+                };
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public Result AddUpdateSalarySlipSettings(SalarySlipSettingsModel modelData)
+        {
+            Result model = new Result();
+
+            try
+            {
+                // ============================================================
+                // VALIDATION
+                // ============================================================
+
+                if (modelData == null)
+                {
+                    model.Message = "Salary slip settings data is required.";
+                    model.PKNo = 0;
+                    return model;
+                }
+
+                // ============================================================
+                // GET OLD DATA FOR AUDIT
+                // ============================================================
+
+                DataTable? oldData = null;
+
+                if (modelData.SalarySlipSettingID > 0)
+                {
+                    oldData = GetDataByStoredProcedure(
+                        StoredProcedures.usp_GetSalarySlipSettingsLog,
+                        modelData.SalarySlipSettingID
+                    );
+                }
+
+                // ============================================================
+                // SQL PARAMETERS
+                // ============================================================
+
+                List<SqlParameter> sqlParameter = new List<SqlParameter>
+        {
+            // --------------------------------------------------------
+            // ID
+            // --------------------------------------------------------
+
+            new SqlParameter(
+                "@SalarySlipSettingID",
+                SqlDbType.BigInt
+            )
+            {
+                Value = modelData.SalarySlipSettingID
+            },
+
+            // --------------------------------------------------------
+            // COMPANY ID
+            // --------------------------------------------------------
+
+            new SqlParameter(
+                "@CompanyID",
+                SqlDbType.BigInt
+            )
+            {
+                Value = modelData.CompanyID
+            },
+
+            // --------------------------------------------------------
+            // COMPANY
+            // --------------------------------------------------------
+
+            new SqlParameter(
+                "@CompanyName",
+                SqlDbType.NVarChar,
+                200
+            )
+            {
+                Value = (object?)modelData.CompanyName ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@CompanyAddress",
+                SqlDbType.NVarChar,
+                500
+            )
+            {
+                Value = (object?)modelData.CompanyAddress ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@CompanyPhone",
+                SqlDbType.NVarChar,
+                100
+            )
+            {
+                Value = (object?)modelData.CompanyPhone ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@CompanyEmail",
+                SqlDbType.NVarChar,
+                200
+            )
+            {
+                Value = (object?)modelData.CompanyEmail ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@CompanyWebsite",
+                SqlDbType.NVarChar,
+                200
+            )
+            {
+                Value = (object?)modelData.CompanyWebsite ?? DBNull.Value
+            },
+
+            // --------------------------------------------------------
+            // LOGO
+            // --------------------------------------------------------
+
+            new SqlParameter(
+                "@LogoPath",
+                SqlDbType.NVarChar,
+                500
+            )
+            {
+                Value = (object?)modelData.LogoPath ?? DBNull.Value
+            },
+
+            // --------------------------------------------------------
+            // SALARY SLIP
+            // --------------------------------------------------------
+
+            new SqlParameter(
+                "@SalarySlipTitle",
+                SqlDbType.NVarChar,
+                200
+            )
+            {
+                Value = (object?)modelData.SalarySlipTitle ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@FooterText",
+                SqlDbType.NVarChar,
+                1000
+            )
+            {
+                Value = (object?)modelData.SalarySlipFooter ?? DBNull.Value
+            },
+
+            // --------------------------------------------------------
+            // TEMPLATE
+            // --------------------------------------------------------
+
+            new SqlParameter(
+                "@TemplateName",
+                SqlDbType.NVarChar,
+                200
+            )
+            {
+                Value = (object?)modelData.TemplateName ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@TemplateDescription",
+                SqlDbType.NVarChar,
+                500
+            )
+            {
+                Value = (object?)modelData.TemplateDescription ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@IsDefault",
+                SqlDbType.Bit
+            )
+            {
+                Value = modelData.IsDefault
+            },
+
+            new SqlParameter(
+                "@TemplateHTML",
+                SqlDbType.NVarChar
+            )
+            {
+                Value = (object?)modelData.TemplateHTML ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@TemplateCSS",
+                SqlDbType.NVarChar
+            )
+            {
+                Value = (object?)modelData.TemplateCSS ?? DBNull.Value
+            },
+
+            // --------------------------------------------------------
+            // USER
+            // --------------------------------------------------------
+
+            new SqlParameter(
+                "@UserID",
+                SqlDbType.BigInt
+            )
+            {
+                Value = modelData.UserID
+            }
+        };
+
+                // ============================================================
+                // EXECUTE STORED PROCEDURE
+                // ============================================================
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures.usp_SaveSalarySlipSettings,
+                        sqlParameter
+                    );
+
+                // ============================================================
+                // READ RESULT
+                // ============================================================
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row = dataSet.Tables[0].Rows[0];
+
+                    if (dataSet.Tables[0].Columns.Contains("Message"))
+                    {
+                        model.Message =
+                            row["Message"] != DBNull.Value
+                                ? row["Message"].ToString()
+                                : "";
+                    }
+
+                    if (dataSet.Tables[0].Columns.Contains(
+                        "SalarySlipSettingID"))
+                    {
+                        model.PKNo =
+                            row["SalarySlipSettingID"] != DBNull.Value
+                                ? Convert.ToInt64(
+                                    row["SalarySlipSettingID"])
+                                : 0;
+                    }
+
+                    if (dataSet.Tables[0].Columns.Contains("Success"))
+                    {
+                        int success =
+                            row["Success"] != DBNull.Value
+                                ? Convert.ToInt32(row["Success"])
+                                : 0;
+
+                        if (success != 1)
+                        {
+                            model.PKNo = 0;
+                        }
+                    }
+                }
+                else
+                {
+                    model.Message =
+                        "Stored procedure did not return any data.";
+
+                    model.PKNo = 0;
+                }
+
+                // ============================================================
+                // GET NEW ID
+                // ============================================================
+
+                long newId = model.PKNo ?? 0;
+
+                // ============================================================
+                // GET NEW DATA FOR AUDIT
+                // ============================================================
+
+                DataTable? newData = null;
+
+                if (newId > 0)
+                {
+                    newData = GetDataByStoredProcedure(
+                        StoredProcedures.usp_GetSalarySlipSettingsLog,
+                        newId
+                    );
+                }
+
+                // ============================================================
+                // ADD / EDIT
+                // ============================================================
+
+                string editMode =
+                    modelData.SalarySlipSettingID == 0
+                        ? "Add"
+                        : "Edit";
+
+                // ============================================================
+                // AUDIT
+                // ============================================================
+
+                TrackLogAudit(
+                    oldData,
+                    newData,
+                    editMode,
+                    modelData.UserID,
+                    "Salary Slip Settings",
+                    "tbl_SalarySlipSettings",
+                    newId,
+                    "tbl_SalarySlipSettings_Log",
+                    "Salary Slip Settings Details"
+                );
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.Message = ex.Message;
+                model.PKNo = 0;
+
+                return model;
+            }
+        }
+        public Results GetSalarySlipSettings(
+    long companyID,
+    long salarySlipSettingID)
+        {
+            Results result = new Results();
+
+            List<SqlParameter> sqlParameter =
+            [
+                new SqlParameter("@CompanyID", companyID),
+        new SqlParameter("@SalarySlipSettingID", salarySlipSettingID)
+            ];
+
+            DataSet dataSet = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_GetSalarySlipSettings,
+                sqlParameter);
+
+            if (dataSet != null &&
+                dataSet.Tables.Count > 0)
+            {
+                result.SalarySlipSettingsList =
+                    dataSet.Tables[0]
+                    .AsEnumerable()
+                    .Select(dataRow => new SalarySlipSettingsModel
+                    {
+                        SalarySlipSettingID =
+                            dataRow.Field<long?>("SalarySlipSettingID") ?? 0,
+
+                        CompanyID =
+                            dataRow.Field<long?>("CompanyID") ?? 0,
+
+                        // Company
+                        CompanyName =
+                            dataRow.Field<string>("CompanyName"),
+
+                        CompanyAddress =
+                            dataRow.Field<string>("CompanyAddress"),
+
+                        CompanyPhone =
+                            dataRow.Field<string>("CompanyPhone"),
+
+                        CompanyEmail =
+                            dataRow.Field<string>("CompanyEmail"),
+
+                        CompanyWebsite =
+                            dataRow.Field<string>("CompanyWebsite"),
+
+                        // Logo
+                        LogoPath =
+                            dataRow.Field<string>("LogoPath"),
+
+                        // Salary Slip
+                        SalarySlipTitle =
+                            dataRow.Field<string>("SalarySlipTitle"),
+
+                        SalarySlipFooter =
+                            dataRow.Field<string>("FooterText"),
+
+                        // Template
+                        TemplateName =
+                            dataRow.Field<string>("TemplateName"),
+
+                        TemplateDescription =
+                            dataRow.Field<string>("TemplateDescription"),
+
+                        IsDefault =
+                            dataRow.Field<bool?>("IsDefault") ?? false,
+
+                        TemplateHTML =
+                            dataRow.Field<string>("TemplateHTML"),
+
+                        TemplateCSS =
+                            dataRow.Field<string>("TemplateCSS"),
+
+                        // Audit
+                        CreatedBy =
+                            dataRow.Field<long?>("CreatedBy") ?? 0,
+
+                        CreatedDate =
+                            dataRow.Field<DateTime?>("CreatedDate"),
+
+                        ModifiedBy =
+                            dataRow.Field<long?>("ModifiedBy") ?? 0,
+
+                        ModifiedDate =
+                            dataRow.Field<DateTime?>("ModifiedDate")
+                    })
+                    .ToList();
+            }
+
+            if (salarySlipSettingID > 0)
+            {
+                result.salarySlipSettingsModel =
+                    result.SalarySlipSettingsList
+                        .FirstOrDefault();
+            }
+
+            return result;
         }
         #endregion
     }

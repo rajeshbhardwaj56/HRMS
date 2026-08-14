@@ -21,27 +21,44 @@
 
             <div class="col-md-3">
                 <label>Employee</label>
-                <select asp-for="EmployeeID" class="form-select" id="empTypeDropdown" @(isEditMode ? "disabled" : "")></select>
+                <select asp-for="EmployeeID"
+                        class="form-select"
+                        id="empTypeDropdown"
+                    @(isEditMode ? "disabled" : "")>
+                </select>
             </div>
 
             <div class="col-md-3">
                 <label>Payroll Type<span class="Mandetory">*</span></label>
-                <select class="form-select" id="PayrollTypeID" disabled>
-                    <option value="">-- Select Payroll Type --</option>
+
+                <select class="form-select"
+                        id="PayrollTypeID"
+                    @(isEditMode ? "disabled" : "")>
+
+                    <option value="" selected>-- Select Payroll Type --</option>
                     <option value="1">Regular</option>
                     <option value="2">OJT</option>
                     <option value="3">NAPS</option>
+                    <option value="4">NATS</option>
                 </select>
             </div>
 
             <div class="col-md-3">
                 <label>Year</label>
-                <select asp-for="SalaryYear" class="form-select" id="YearDropdown" @(isEditMode ? "disabled" : "")></select>
+                <select asp-for="SalaryYear"
+                        class="form-select"
+                        id="YearDropdown"
+                    @(isEditMode ? "disabled" : "")>
+                </select>
             </div>
 
             <div class="col-md-3">
                 <label>Month</label>
-                <select asp-for="SalaryMonth" class="form-select" id="MonthDropdown" @(isEditMode ? "disabled" : "")></select>
+                <select asp-for="SalaryMonth"
+                        class="form-select"
+                        id="MonthDropdown"
+                    @(isEditMode ? "disabled" : "")>
+                </select>
             </div>
         </div>
 
@@ -51,24 +68,47 @@
         <div class="row">
             <div class="col-md-3">
                 <label>Gross Salary</label>
-                @Html.TextBoxFor(m => m.RevisedGross, new { @class = "form-control", type = "number", step = "0.01", id = "RevisedGross" })
+                <input type="number"
+                       class="form-control"
+                       id="RevisedGross"
+                       name="RevisedGross"
+                       step="0.01"
+                       value="@Model.RevisedGross">
             </div>
 
             <div class="col-md-3">
                 <label>Month Days</label>
-                @Html.TextBoxFor(m => m.MonthDays, new { @class = "form-control", type = "number", step = "0.01", id = "MonthDays", @readonly = "readonly" })
+                <input type="number"
+                       class="form-control"
+                       id="MonthDays"
+                       name="MonthDays"
+                       step="0.01"
+                       value="@Model.MonthDays"
+                       readonly />
             </div>
 
             <div class="col-md-3">
                 <label>Payable Days</label>
-                @Html.TextBoxFor(m => m.PayableDays, new { @class = "form-control", type = "number", step = "0.01", id = "PayableDays" })
-                <small id="PayableDaysError" style="color:red; display:none;"></small>
+                <input type="number"
+                       class="form-control"
+                       id="PayableDays"
+                       name="PayableDays"
+                       step="0.01"
+                       value="@Model.PayableDays" />
+
+                <small id="PayableDaysInfo" class="text-muted">
+                    Payable days are calculated from attendance.
+                </small>
             </div>
 
             <div class="col-md-3">
                 <label>Client Incentive</label>
-                @Html.TextBoxFor(m => m.ClientIncentive, new { @class = "form-control", type = "number", step = "0.01", id = "ClientIncentive" })
-
+                <input type="number"
+                       class="form-control"
+                       id="ClientIncentive"
+                       name="ClientIncentive"
+                       step="0.01"
+                       value="@Model.ClientIncentive" />
             </div>
         </div>
 
@@ -129,7 +169,7 @@
             </div>
 
             <div class="col-md-3">
-                <label>Advanced</label>
+                <label>Advance DED</label>
                 @Html.TextBoxFor(m => m.Advanceded, new { @class = "form-control", type = "number", step = "0.01", id = "Advanceded" })
             </div>
 
@@ -147,13 +187,31 @@
         <br />
 
         <div class="row">
-            <div class="col-md-12 d-flex mt-3">
-                <button type="button" class="btn btn-primary me-2" onclick="calculateSalary()">
+            <div class="col-md-12 d-flex align-items-center mt-3">
+
+                <button type="button"
+                        class="btn btn-primary me-2"
+                        onclick="calculateSalary()">
                     Calculate Salary
                 </button>
-                <button type="button" class="btn btn-primary" onclick="saveSalary()">
+
+                <button type="button"
+                        class="btn btn-primary me-2"
+                        id="btnSaveSalary"
+                        onclick="saveSalary()"
+                        title="Please calculate salary first">
                     Save Salary
                 </button>
+
+                <button type="button"
+                        class="btn btn-primary"
+                        id="printSalaryBtn"
+                        onclick="openSalarySlipPage()"
+                        title="Please save the salary first to generate the correct salary slip.">
+                    <i class="fa fa-print me-1"></i>
+                    Print Salary Slip
+                </button>
+
             </div>
         </div>
 
@@ -161,95 +219,426 @@
 
         <h5>Calculated Salary</h5>
 
+        <!-- ===================================================== -->
+        <!-- FIXED SALARY -->
+        <!-- ===================================================== -->
+
+        <h6>Fixed Salary</h6>
+
         <div class="row">
+
             <div class="col-md-3">
-                <label>Basic</label>
-                @Html.TextBoxFor(m => m.BasicPayable, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "BasicPayable" })
+                <label>Basic Fixed</label>
+                <input type="number"
+                       class="form-control"
+                       id="BasicFixed"
+                       step="0.01"
+                       readonly />
             </div>
 
             <div class="col-md-3">
-                <label>HRA</label>
-                @Html.TextBoxFor(m => m.HRAPayable, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "HRAPayable" })
+                <label>HRA Fixed</label>
+                <input type="number"
+                       class="form-control"
+                       id="HRAFixed"
+                       step="0.01"
+                       readonly />
             </div>
 
             <div class="col-md-3">
-                <label>Conveyance</label>
-                @Html.TextBoxFor(m => m.ConveyanceFixed, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "ConveyanceFixed" })
+                <label>Conveyance Fixed</label>
+                <input type="number"
+                       class="form-control"
+                       id="ConveyanceFixed"
+                       step="0.01"
+                       readonly />
             </div>
 
             <div class="col-md-3">
-                <label>Special Allowance</label>
-                @Html.TextBoxFor(m => m.SpecialAllowanceFixed, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "SpecialAllowanceFixed" })
+                <label>Special Allowance Fixed</label>
+                <input type="number"
+                       class="form-control"
+                       id="SpecialAllowanceFixed"
+                       step="0.01"
+                       readonly />
             </div>
+
         </div>
 
         <br />
 
         <div class="row">
+
             <div class="col-md-3">
-                <label>Gross Payable</label>
-                @Html.TextBoxFor(m => m.GrossSalaryPayable, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "GrossSalaryPayable" })
+                <label>Gross Salary Fixed</label>
+                <input type="number"
+                       class="form-control"
+                       id="GrossSalaryFixed"
+                       step="0.01"
+                       readonly />
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- PAYABLE SALARY -->
+        <!-- ===================================================== -->
+
+        <h6 class="mt-3">Payable Salary</h6>
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>Basic Payable</label>
+                <input type="number"
+                       class="form-control"
+                       id="BasicPayable"
+                       step="0.01"
+                       readonly />
             </div>
 
             <div class="col-md-3">
-                <label>PF</label>
-                @Html.TextBoxFor(m => m.EMPPF, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "EMPPF" })
+                <label>HRA Payable</label>
+                <input type="number"
+                       class="form-control"
+                       id="HRAPayable"
+                       step="0.01"
+                       readonly />
             </div>
 
             <div class="col-md-3">
-                <label>ESI</label>
-                @Html.TextBoxFor(m => m.EMPESI, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "EMPESI" })
+                <label>Conveyance Payable</label>
+                <input type="number"
+                       class="form-control"
+                       id="ConveyancePayable"
+                       step="0.01"
+                       readonly />
             </div>
 
             <div class="col-md-3">
-                <label>PTAX</label>
-                @Html.TextBoxFor(m => m.PTAX, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "PTAX" })
+                <label>Special Allowance Payable</label>
+                <input type="number"
+                       class="form-control"
+                       id="SpecialAllowancePayable"
+                       step="0.01"
+                       readonly />
             </div>
+
         </div>
 
         <br />
 
         <div class="row">
+
+            <div class="col-md-3">
+                <label>Gross Salary Payable</label>
+                <input type="number"
+                       class="form-control"
+                       id="GrossSalaryPayable"
+                       step="0.01"
+                       readonly />
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- EMPLOYEE STATUTORY -->
+        <!-- ===================================================== -->
+
+        <h6 class="mt-3">Employee Statutory Deductions</h6>
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>Employee PF</label>
+                <input type="number"
+                       class="form-control"
+                       id="EMPPF"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>Employee ESI</label>
+                <input type="number"
+                       class="form-control"
+                       id="EMPESI"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>Professional Tax</label>
+                <input type="number"
+                       class="form-control"
+                       id="PTAX"
+                       step="0.01"
+                       readonly />
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- CALCULATED DEDUCTIONS -->
+        <!-- IMPORTANT: DIFFERENT IDs -->
+        <!-- ===================================================== -->
+
+        <h6 class="mt-3">Calculated Employee Deductions</h6>
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>Employee LWF</label>
+                <input type="number"
+                       class="form-control"
+                       id="CalculatedEMPLWF"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>TDS</label>
+                <input type="number"
+                       class="form-control"
+                       id="CalculatedTDS"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>DBT Deduction</label>
+                <input type="number"
+                       class="form-control"
+                       id="CalculatedDbtDeduction"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>Advance Deduction</label>
+                <input type="number"
+                       class="form-control"
+                       id="CalculatedAdvanceded"
+                       step="0.01"
+                       readonly />
+            </div>
+
+        </div>
+
+        <br />
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>Insurance Deduction</label>
+                <input type="number"
+                       class="form-control"
+                       id="CalculatedInsuranceDeduction"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>Other Deduction</label>
+                <input type="number"
+                       class="form-control"
+                       id="CalculatedOtherDeduction"
+                       step="0.01"
+                       readonly />
+            </div>
+
             <div class="col-md-3">
                 <label>Total Deduction</label>
-                @Html.TextBoxFor(m => m.TotalDeduction, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "TotalDeduction" })
+                <input type="number"
+                       class="form-control"
+                       id="TotalDeduction"
+                       step="0.01"
+                       readonly />
             </div>
 
             <div class="col-md-3">
                 <label>Net Payable</label>
-                @Html.TextBoxFor(m => m.NetPayable, new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly", id = "NetPayable" })
+                <input type="number"
+                       class="form-control"
+                       id="NetPayable"
+                       step="0.01"
+                       readonly />
             </div>
+
         </div>
 
+
+        <!-- ===================================================== -->
+        <!-- EMPLOYER CONTRIBUTION -->
+        <!-- ===================================================== -->
+
+        <h6 class="mt-3">Employer Contribution</h6>
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>Employer PF</label>
+                <input type="number"
+                       class="form-control"
+                       id="EmployerPF"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>Employer ESI</label>
+                <input type="number"
+                       class="form-control"
+                       id="EmployerESI"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>Employer LWF</label>
+                <input type="number"
+                       class="form-control"
+                       id="EmployerLWF"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>Total Employer Contribution</label>
+                <input type="number"
+                       class="form-control"
+                       id="TotalEmployerContribution"
+                       step="0.01"
+                       readonly />
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- PF / EPS / EDLI -->
+        <!-- ===================================================== -->
+
+        <h6 class="mt-3">PF / EPS / EDLI</h6>
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>EPF Wages</label>
+                <input type="number"
+                       class="form-control"
+                       id="EPFWages"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>EPS Wages</label>
+                <input type="number"
+                       class="form-control"
+                       id="EPSWages"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>EDLI Wages</label>
+                <input type="number"
+                       class="form-control"
+                       id="EDLIWages"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>EPF Admin Charges</label>
+                <input type="number"
+                       class="form-control"
+                       id="EPFAdminCharges"
+                       step="0.01"
+                       readonly />
+            </div>
+
+        </div>
+
+        <br />
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>EDLI Contribution</label>
+                <input type="number"
+                       class="form-control"
+                       id="EDLIContribution"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>EDLI Admin Charges</label>
+                <input type="number"
+                       class="form-control"
+                       id="EDLIAdminCharges"
+                       step="0.01"
+                       readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label>CTC</label>
+                <input type="number"
+                       class="form-control"
+                       id="CTC"
+                       step="0.01"
+                       readonly />
+            </div>
+
+        </div>
+
+
     </div>
+
 </div>
 
 <script>
-    $(document).ready(function () {
+      $(document).ready(function () {
+
         const isEditMode = @isEditMode.ToString().ToLower();
-         const initialEmployee = {
-        id: '@Model.EmployeeID',
-        text: '@Model.EmployeeNumber - @Model.EmployeeName'
-    };
+
+        const initialEmployee = {
+            id: '@Model.EmployeeID',
+            text: '@Model.EmployeeNumber - @Model.EmployeeName'
+        };
+
         const selectedYear = @selectedYear;
         const selectedMonth = @selectedMonth;
+
         const employeeId = '@Model.EmployeeID';
         const payrollTypeId = '@Model.PayrollTypeID';
 
-
         const currentYear = new Date().getFullYear();
+
         const $yearDropdown = $('#YearDropdown');
         const $monthDropdown = $('#MonthDropdown');
 
-
-        const currentMonth = new Date().getMonth() + 1;
-
-
+        // =========================
+        // YEAR
+        // =========================
 
         for (let y = currentYear; y >= currentYear - 5; y--) {
+
             const selected = (y === selectedYear) ? 'selected' : '';
-            $yearDropdown.append(`<option value="${y}" ${selected}>${y}</option>`);
+
+            $yearDropdown.append(
+                `<option value="${y}" ${selected}>${y}</option>`
+            );
         }
+
+        // =========================
+        // MONTH
+        // =========================
 
         const monthNames = [
             "January", "February", "March", "April", "May", "June",
@@ -257,16 +646,62 @@
         ];
 
         for (let m = 1; m <= 12; m++) {
+
             const selected = (m === selectedMonth) ? 'selected' : '';
-            $monthDropdown.append(`<option value="${m}" ${selected}>${monthNames[m - 1]}</option>`);
+
+            $monthDropdown.append(
+                `<option value="${m}" ${selected}>${monthNames[m - 1]}</option>`
+            );
         }
 
+        // =========================
+        // PAYROLL TYPE
+        // =========================
+
         if (payrollTypeId) {
+
             $("#PayrollTypeID").val(payrollTypeId);
+
             $("#PayrollTypeIDHidden").val(payrollTypeId);
         }
 
+        // =========================
+        // EMPLOYEE DROPDOWN
+        // =========================
+
         initializeEmployeeDropdown(initialEmployee, isEditMode);
+
+
+        // =========================
+        // IMPORTANT
+        // =========================
+
+        const empId = $("#empTypeDropdown").val();
+
+        if (empId) {
+
+            // Employee already selected
+            // Get employee salary details
+             setPayableDaysMode(true);
+
+             fetchPayrollData(empId);
+
+        } else {
+
+            // No employee selected
+            // Get MonthDays for current selected Year/Month
+               setPayableDaysMode(false);
+
+            fetchPayrollPeriodDetails();
+        }
+            $("#PayrollTypeID").on("change", function () {
+
+        var payrollTypeId = parseInt($(this).val()) || 0;
+
+        $("#PayrollTypeIDHidden").val(payrollTypeId);
+
+        console.log("Selected Payroll Type:", payrollTypeId);
+    });
     });
     function getVal(id) {
         return parseFloat($(id).val()) || 0;
@@ -276,25 +711,31 @@
         return parseInt($(id).val()) || 0;
     }
 
+
     function saveSalary() {
+
         var monthDays = parseFloat($("#MonthDays").val()) || 0;
         var payableDays = parseFloat($("#PayableDays").val()) || 0;
 
         $("#PayableDaysError").hide().text("");
 
-
         if (payableDays < 0) {
-            $("#PayableDaysError").text("Payable days cannot be negative").show();
+            $("#PayableDaysError")
+                .text("Payable days cannot be negative")
+                .show();
             return;
         }
 
         if (payableDays > monthDays) {
-            $("#PayableDaysError").text("Payable days cannot be greater than month days").show();
+            $("#PayableDaysError")
+                .text("Payable days cannot be greater than month days")
+                .show();
             return;
         }
 
-
         const salaryData = {
+
+            // BASIC
             EmployeeID: getInt("#empTypeDropdown"),
             PayrollTypeID: getInt("#PayrollTypeIDHidden"),
             Year: getInt("#YearDropdown"),
@@ -304,6 +745,21 @@
             MonthDays: getVal("#MonthDays"),
             PayableDays: getVal("#PayableDays"),
 
+            // FIXED
+            BasicFixed: getVal("#BasicFixed"),
+            HRAFixed: getVal("#HRAFixed"),
+            ConveyanceFixed: getVal("#ConveyanceFixed"),
+            SpecialAllowanceFixed: getVal("#SpecialAllowanceFixed"),
+            GrossSalaryFixed: getVal("#GrossSalaryFixed"),
+
+            // PAYABLE
+            BasicPayable: getVal("#BasicPayable"),
+            HRAPayable: getVal("#HRAPayable"),
+            ConveyancePayable: getVal("#ConveyancePayable"),
+            SpecialAllowancePayable: getVal("#SpecialAllowancePayable"),
+            GrossSalaryPayable: getVal("#GrossSalaryPayable"),
+
+            // EARNINGS
             ClientIncentive: getVal("#ClientIncentive"),
             PLI: getVal("#PLI"),
             FloorIncentive: getVal("#FloorIncentive"),
@@ -312,6 +768,7 @@
             GWR: getVal("#GWR"),
             OtherAdditonArrear: getVal("#OtherAdditonArrear"),
 
+            // EMPLOYEE DEDUCTIONS
             EMPLWF: getVal("#EMPLWF"),
             TDS: getVal("#TDS"),
             DbtDeduction: getVal("#DbtDeduction"),
@@ -319,31 +776,49 @@
             InsuranceDeduction: getVal("#InsuranceDeduction"),
             OtherDeduction: getVal("#OtherDeduction"),
 
-            BasicFixed: getVal("#BasicFixed"),
-            HRAFixed: getVal("#HRAFixed"),
-            ConveyanceFixed: getVal("#ConveyanceFixed"),
-            SpecialAllowanceFixed: getVal("#SpecialAllowanceFixed"),
-
-            GrossSalaryPayable: getVal("#GrossSalaryPayable"),
+            // EMPLOYEE STATUTORY
             EMPPF: getVal("#EMPPF"),
             EMPESI: getVal("#EMPESI"),
             PTAX: getVal("#PTAX"),
 
+            // TOTALS
             TotalDeduction: getVal("#TotalDeduction"),
-            NetPayable: getVal("#NetPayable")
+            NetPayable: getVal("#NetPayable"),
+
+            // EMPLOYER
+            EmployerPF: getVal("#EmployerPF"),
+            EmployerESI: getVal("#EmployerESI"),
+            EmployerLWF: getVal("#EmployerLWF"),
+            TotalEmployerContribution: getVal("#TotalEmployerContribution"),
+
+            // EPF / EPS / EDLI
+            EPFWages: getVal("#EPFWages"),
+            EPSWages: getVal("#EPSWages"),
+            EDLIWages: getVal("#EDLIWages"),
+            EPFAdminCharges: getVal("#EPFAdminCharges"),
+            EDLIContribution: getVal("#EDLIContribution"),
+            EDLIAdminCharges: getVal("#EDLIAdminCharges"),
+
+            // CTC
+            CTC: getVal("#CTC")
         };
 
         if (!salaryData.EmployeeID || !salaryData.PayrollTypeID) {
             alert("Please select Employee and Payroll Type");
             return;
         }
+
         $.ajax({
             url: '/Admin/Payroll/SaveSalary',
             type: 'POST',
             data: JSON.stringify(salaryData),
-            contentType: 'application/json',
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+
             success: function (response) {
+
                 if (response.success) {
+
                     $.toast({
                         heading: 'Success',
                         text: response.message || "Salary saved successfully!",
@@ -351,7 +826,9 @@
                         icon: 'success',
                         position: 'top-right'
                     });
+
                 } else {
+
                     $.toast({
                         heading: 'Error',
                         text: response.message || "Failed to save salary.",
@@ -361,8 +838,10 @@
                     });
                 }
             },
-            error: function (err) {
-             
+
+            error: function (xhr) {
+
+
                 $.toast({
                     heading: 'Error',
                     text: "An unexpected error occurred while saving salary.",
@@ -373,103 +852,517 @@
             }
         });
     }
-    function calculateSalary() {
+
+
+           function calculateSalary() {
+
+        var employeeId = parseInt($("#empTypeDropdown").val()) || 0;
+        var payrollTypeId = parseInt($("#PayrollTypeID").val()) || 0;
+
+        var month = parseInt($("#MonthDropdown").val()) || 0;
+        var year = parseInt($("#YearDropdown").val()) || 0;
+
         var monthDays = parseFloat($("#MonthDays").val()) || 0;
         var payableDays = parseFloat($("#PayableDays").val()) || 0;
 
         $("#PayableDaysError").hide().text("");
 
-  
+        // Keep hidden Payroll Type synchronized
+        $("#PayrollTypeIDHidden").val(payrollTypeId);
+
+        // Payroll Type is mandatory
+        if (!payrollTypeId) {
+
+            $.toast({
+                heading: 'Error',
+                text: 'Please select Payroll Type.',
+                icon: 'error',
+                position: 'top-right'
+            });
+
+            return;
+        }
+
+        if (!month || !year) {
+
+            $.toast({
+                heading: 'Error',
+                text: 'Please select Month and Year.',
+                icon: 'error',
+                position: 'top-right'
+            });
+
+            return;
+        }
+
         if (payableDays < 0) {
-            $("#PayableDaysError").text("Payable days cannot be negative").show();
+
+            $("#PayableDaysError")
+                .text("Payable days cannot be negative")
+                .show();
+
             return;
         }
 
-        if (payableDays > monthDays) {
-            $("#PayableDaysError").text("Payable days cannot be greater than month days").show();
+        if (monthDays > 0 && payableDays > monthDays) {
+
+            $("#PayableDaysError")
+                .text("Payable days cannot be greater than month days")
+                .show();
+
             return;
         }
-
 
         var model = {
 
-            EmployeeID: $("#empTypeDropdown").val(),
-            PayrollTypeID: $("#PayrollTypeIDHidden").val(),
-            Month: $("#MonthDropdown").val(),
-            Year: $("#YearDropdown").val(),
+            // Employee can be 0
+            EmployeeID: employeeId,
+
+            PayrollTypeID: payrollTypeId,
+
+            Month: month,
+
+            Year: year,
 
             RevisedGross: $("#RevisedGross").val(),
+
             MonthDays: $("#MonthDays").val(),
+
             PayableDays: $("#PayableDays").val(),
 
             ClientIncentive: $("#ClientIncentive").val(),
+
             PLI: $("#PLI").val(),
+
             FloorIncentive: $("#FloorIncentive").val(),
+
             EmpReferal: $("#EmpReferal").val(),
+
             TrainingFee: $("#TrainingFee").val(),
+
             GWR: $("#GWR").val(),
-            OtherAdditonArrear: $("#OtherAdditonArrear").val(),
 
-            EMPLWF: $("#EMPLWF").val(),
-            TDS: $("#TDS").val(),
-            DbtDeduction: $("#DbtDeduction").val(),
-            Advanceded: $("#Advanceded").val(),
-            InsuranceDeduction: $("#InsuranceDeduction").val(),
-            OtherDeduction: $("#OtherDeduction").val()
+            OtherAdditonArrear:
+                $("#OtherAdditonArrear").val(),
 
+            EMPLWF:
+                $("#EMPLWF").val(),
+
+            TDS:
+                $("#TDS").val(),
+
+            DbtDeduction:
+                $("#DbtDeduction").val(),
+
+            Advanceded:
+                $("#Advanceded").val(),
+
+            InsuranceDeduction:
+                $("#InsuranceDeduction").val(),
+
+            OtherDeduction:
+                $("#OtherDeduction").val()
         };
+
+        console.log(
+            "Salary Calculation Request:",
+            model
+        );
 
         $.ajax({
 
             url: '/Admin/Payroll/CalculateSalary',
+
             type: 'POST',
+
             data: model,
 
             success: function (data) {
 
-                $("#BasicFixed").val(data.basicFixed);
-                $("#HRAFixed").val(data.hraPayable);
-                $("#BasicPayable").val(data.basicPayable);
-                $("#HRAPayable").val(data.hraFixed);
-                $("#ConveyanceFixed").val(data.conveyanceFixed);
-                $("#SpecialAllowanceFixed").val(data.specialAllowanceFixed);
+                if (!data) {
 
-                $("#GrossSalaryPayable").val(data.grossSalaryPayable);
-                $("#EMPPF").val(data.emppf);
-                $("#EMPESI").val(data.empesi);
-                $("#PTAX").val(data.ptax);
+                    $.toast({
+                        heading: 'Error',
+                        text: 'Salary calculation failed.',
+                        icon: 'error',
+                        position: 'top-right'
+                    });
 
-                $("#TotalDeduction").val(data.totalDeduction);
-                $("#NetPayable").val(data.netPayable);
+                    return;
+                }
 
+                var salaryData =
+                    data.data ??
+                    data.result ??
+                    data;
+
+                console.log(
+                    "Salary Calculation Response:",
+                    salaryData
+                );
+
+                fillPayrollFields(salaryData);
+
+                $.toast({
+                    heading: 'Success',
+                    text: 'Salary calculated successfully.',
+                    icon: 'success',
+                    position: 'top-right'
+                });
+
+            },
+
+            error: function (xhr) {
+
+                console.log(
+                    "Calculate Salary Error:",
+                    xhr.responseText
+                );
+
+                $.toast({
+                    heading: 'Error',
+                    text: 'Unable to calculate salary.',
+                    icon: 'error',
+                    position: 'top-right'
+                });
             }
-
         });
-
     }
-    function fillPayrollFields(data) {
+        function fillPayrollFields(data) {
 
 
-        $("#PayrollTypeID").val(data.payrollTypeID).trigger('change');
-        $("#PayrollTypeIDHidden").val(data.payrollTypeID);
-        $("#RevisedGross").val(data.revisedGross);
-        $("#MonthDays").val(data.monthDays);
-        $("#PayableDays").val(data.payableDays);
+        if (!data) {
+            console.log("No salary data received.");
+            return;
+        }
 
-        //$("#ClientIncentive").val(data.clientIncentive);
-        //$("#PLI").val(data.pLI);
-        //$("#FloorIncentive").val(data.floorIncentive);
-        //$("#EmpReferal").val(data.empReferal);
-        //$("#TrainingFee").val(data.trainingFee);
-        //$("#GWR").val(data.gWR);
-        //$("#OtherAdditonArrear").val(data.otherAdditonArrear);
+        // In case response is wrapped again
+        if (data.data) {
+            data = data.data;
+        }
 
-        //$("#EMPLWF").val(data.eMPLWF);
-        //$("#TDS").val(data.tDS);
-        //$("#DbtDeduction").val(data.dbtDeduction);
-        //$("#Advanceded").val(data.advanceded);
-        //$("#InsuranceDeduction").val(data.insuranceDeduction);
-        //$("#OtherDeduction").val(data.otherDeduction);
+        // =========================================================
+        // PAYROLL INFORMATION
+        // =========================================================
+
+        $("#PayrollTypeID").val(
+            data.payrollTypeID ??
+            data.PayrollTypeID ??
+            0
+        );
+
+        $("#PayrollTypeIDHidden").val(
+            data.payrollTypeID ??
+            data.PayrollTypeID ??
+            0
+        );
+
+
+        // =========================================================
+        // BASIC INPUT INFORMATION
+        // =========================================================
+
+        $("#RevisedGross").val(
+            data.revisedGross ??
+            data.RevisedGross ??
+            0
+        );
+
+        $("#MonthDays").val(
+            data.monthDays ??
+            data.MonthDays ??
+            0
+        );
+
+        $("#PayableDays").val(
+            data.payableDays ??
+            data.PayableDays ??
+            0
+        );
+
+
+        // =========================================================
+        // EARNINGS / ADDITIONS
+        // =========================================================
+
+        $("#ClientIncentive").val(
+            data.clientIncentive ??
+            data.ClientIncentive ??
+            0
+        );
+
+        $("#PLI").val(
+            data.pli ??
+            data.pLI ??
+            data.PLI ??
+            0
+        );
+
+        $("#FloorIncentive").val(
+            data.floorIncentive ??
+            data.FloorIncentive ??
+            0
+        );
+
+        $("#EmpReferal").val(
+            data.empReferal ??
+            data.EmpReferal ??
+            0
+        );
+
+        $("#TrainingFee").val(
+            data.trainingFee ??
+            data.TrainingFee ??
+            0
+        );
+
+        $("#GWR").val(
+            data.gwr ??
+            data.gWR ??
+            data.GWR ??
+            0
+        );
+
+        $("#OtherAdditonArrear").val(
+            data.otherAdditonArrear ??
+            data.OtherAdditonArrear ??
+            0
+        );
+
+
+        // =========================================================
+        // EMPLOYEE INPUT DEDUCTIONS
+        // =========================================================
+
+            $("#CalculatedEMPLWF").val(
+        data.emplwf ??
+        data.eMPLWF ??
+        data.EMPLWF ??
+        0
+        );
+
+        $("#CalculatedTDS").val(
+            data.tds ??
+            data.TDS ??
+            0
+        );
+
+        $("#CalculatedDbtDeduction").val(
+            data.dbtDeduction ??
+            data.DbtDeduction ??
+            0
+        );
+
+        $("#CalculatedAdvanceded").val(
+            data.advanceded ??
+            data.Advanceded ??
+            0
+        );
+
+        $("#CalculatedInsuranceDeduction").val(
+            data.insuranceDeduction ??
+            data.InsuranceDeduction ??
+            0
+        );
+
+        $("#CalculatedOtherDeduction").val(
+            data.otherDeduction ??
+            data.OtherDeduction ??
+            0
+        );
+
+
+        // =========================================================
+        // FIXED SALARY
+        // =========================================================
+
+        $("#BasicFixed").val(
+            data.basicFixed ??
+            data.BasicFixed ??
+            0
+        );
+
+        $("#HRAFixed").val(
+            data.hraFixed ??
+            data.HRAFixed ??
+            0
+        );
+
+        $("#ConveyanceFixed").val(
+            data.conveyanceFixed ??
+            data.ConveyanceFixed ??
+            0
+        );
+
+        $("#SpecialAllowanceFixed").val(
+            data.specialAllowanceFixed ??
+            data.SpecialAllowanceFixed ??
+            0
+        );
+
+        $("#GrossSalaryFixed").val(
+            data.grossSalaryFixed ??
+            data.GrossSalaryFixed ??
+            0
+        );
+
+
+        // =========================================================
+        // PAYABLE SALARY
+        // =========================================================
+
+        $("#BasicPayable").val(
+            data.basicPayable ??
+            data.BasicPayable ??
+            0
+        );
+
+        $("#HRAPayable").val(
+            data.hraPayable ??
+            data.HRAPayable ??
+            0
+        );
+
+        $("#ConveyancePayable").val(
+            data.conveyancePayable ??
+            data.ConveyancePayable ??
+            0
+        );
+
+        $("#SpecialAllowancePayable").val(
+            data.specialAllowancePayable ??
+            data.SpecialAllowancePayable ??
+            0
+        );
+
+        $("#GrossSalaryPayable").val(
+            data.grossSalaryPayable ??
+            data.GrossSalaryPayable ??
+            0
+        );
+
+
+        // =========================================================
+        // EMPLOYEE STATUTORY DEDUCTIONS
+        // =========================================================
+
+        $("#EMPPF").val(
+            data.emppf ??
+            data.EMPPF ??
+            0
+        );
+
+        $("#EMPESI").val(
+            data.empesi ??
+            data.EMPESI ??
+            0
+        );
+
+        $("#PTAX").val(
+            data.ptax ??
+            data.PTAX ??
+            0
+        );
+
+
+        // =========================================================
+        // TOTAL DEDUCTION / NET PAY
+        // =========================================================
+
+        $("#TotalDeduction").val(
+            data.totalDeduction ??
+            data.TotalDeduction ??
+            0
+        );
+
+        $("#NetPayable").val(
+            data.netPayable ??
+            data.NetPayable ??
+            0
+        );
+
+
+        // =========================================================
+        // EMPLOYER CONTRIBUTION
+        // =========================================================
+
+        $("#EmployerPF").val(
+            data.employerPF ??
+            data.EmployerPF ??
+            0
+        );
+
+        $("#EmployerESI").val(
+            data.employerESI ??
+            data.EmployerESI ??
+            0
+        );
+
+        $("#EmployerLWF").val(
+            data.employerLWF ??
+            data.EmployerLWF ??
+            0
+        );
+
+        $("#TotalEmployerContribution").val(
+            data.totalEmployerContribution ??
+            data.TotalEmployerContribution ??
+            0
+        );
+
+
+        // =========================================================
+        // PF / EPS / EDLI
+        // =========================================================
+
+        $("#EPFWages").val(
+            data.epfWages ??
+            data.EPFWages ??
+            0
+        );
+
+        $("#EPSWages").val(
+            data.epsWages ??
+            data.EPSWages ??
+            0
+        );
+
+        $("#EDLIWages").val(
+            data.edliWages ??
+            data.EDLIWages ??
+            0
+        );
+
+        $("#EPFAdminCharges").val(
+            data.epfAdminCharges ??
+            data.EPFAdminCharges ??
+            0
+        );
+
+        $("#EDLIContribution").val(
+            data.edliContribution ??
+            data.EDLIContribution ??
+            0
+        );
+
+        $("#EDLIAdminCharges").val(
+            data.edliAdminCharges ??
+            data.EDLIAdminCharges ??
+            0
+        );
+
+
+        // =========================================================
+        // CTC
+        // =========================================================
+
+        $("#CTC").val(
+            data.ctc ??
+            data.CTC ??
+            0
+        );
+
+
     }
     function initializeEmployeeDropdown(initialEmployee = null, isEditMode = false) {
 
@@ -500,58 +1393,309 @@
             }
         });
 
-        function fetchPayrollData(employeeId) {
+    function fetchPayrollData(employeeId) {
 
-            const selectedMonth = $("#MonthDropdown").val();
-            const selectedYear = $("#YearDropdown").val();
+        const selectedMonth = $("#MonthDropdown").val();
+        const selectedYear = $("#YearDropdown").val();
 
-            if (!employeeId || !selectedMonth || !selectedYear) return;
+        if (!employeeId || !selectedMonth || !selectedYear) {
+            return;
+        }
 
-            $.ajax({
-                url: '/Admin/Payroll/GetSalaryDetails',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    EmployeeID: employeeId,
-                    SalaryMonth: selectedMonth,
-                    SalaryYear: selectedYear
-                },
-                success: function (data) {
+        console.log("Fetching salary:", {
+            EmployeeID: employeeId,
+            SalaryMonth: selectedMonth,
+            SalaryYear: selectedYear
+        });
 
-                    if (!data) return;
+        $.ajax({
+            url: '/Admin/Payroll/GetSalaryDetails',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                EmployeeID: employeeId,
+                SalaryMonth: selectedMonth,
+                SalaryYear: selectedYear
+            },
+    success: function (data) {
 
-                    fillPayrollFields(data);
 
-                    $("#PayrollTypeID").val(data.payrollTypeID);
-                    $("#PayrollTypeIDHidden").val(data.payrollTypeID);
+        if (!data) {
+            console.log("No salary data found");
+            return;
+        }
+
+        var salaryData = data.data ?? data.result ?? data;
+
+
+        fillPayrollFields(salaryData);
+
+        $("#PayrollTypeID").val(
+            salaryData.payrollTypeID ??
+            salaryData.PayrollTypeID ??
+            0
+        );
+
+        $("#PayrollTypeIDHidden").val(
+            salaryData.payrollTypeID ??
+            salaryData.PayrollTypeID ??
+            0
+        );
+    },
+            error: function (xhr, status, error) {
+
+
+                $.toast({
+                    heading: 'Error',
+                    text: 'Unable to load salary details.',
+                    icon: 'error',
+                    position: 'top-right'
+                });
+            }
+        });
+    }
+
+    $dropdown.on('select2:select', function (e) {
+
+        const employeeId = e.params.data.id;
+
+        // Payroll Type readonly
+        setPayrollTypeReadonly(true);
+
+        // Payable Days readonly because attendance will be used
+        setPayableDaysMode(true);
+
+        fetchPayrollData(employeeId);
+    });
+    $dropdown.on('select2:clear', function () {
+
+        // Enable Payroll Type
+        setPayrollTypeReadonly(false);
+
+        // Enable manual Payable Days
+        setPayableDaysMode(false);
+
+        $("#PayrollTypeIDHidden").val($("#PayrollTypeID").val());
+
+        fetchPayrollPeriodDetails();
+    });
+    $("#MonthDropdown, #YearDropdown").on("change", function () {
+
+        const empId = $dropdown.val();
+
+        if (empId) {
+
+            // Employee is selected
+            // Get employee's salary details for new Year/Month
+            setPayableDaysMode(true);
+
+            fetchPayrollData(empId);
+
+        } else {
+
+            // No employee selected
+            // Only get payroll period / MonthDays
+            setPayableDaysMode(false);
+
+            fetchPayrollPeriodDetails();
+        }
+    });
+
+    if (isEditMode && initialEmployee && initialEmployee.id) {
+
+        const option = new Option(
+            initialEmployee.text,
+            initialEmployee.id,
+            true,
+            true
+        );
+
+        $dropdown.append(option).trigger('change');
+
+        $dropdown.prop('disabled', true);
+
+        // Payroll Type should also be readonly in edit mode
+        setPayrollTypeReadonly(true);
+
+        fetchPayrollData(initialEmployee.id);
+    }
+    }
+        function fetchPayrollPeriodDetails() {
+
+        var salaryMonth = parseInt($("#MonthDropdown").val()) || 0;
+        var salaryYear = parseInt($("#YearDropdown").val()) || 0;
+
+        if (!salaryMonth || !salaryYear) {
+            $("#MonthDays").val(0);
+            return;
+        }
+
+        $.ajax({
+            url: '/Admin/Payroll/GetPayrollPeriodDetails',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                salaryMonth: salaryMonth,
+                salaryYear: salaryYear
+            },
+
+            success: function (data) {
+
+                if (!data) {
+                    $("#MonthDays").val(0);
+                    return;
                 }
+
+                $("#MonthDays").val(
+                    data.monthDays ??
+                    data.MonthDays ??
+                    0
+                );
+
+                console.log("Payroll Period:", data);
+            },
+
+            error: function (xhr) {
+
+                console.log("Error loading payroll period:", xhr.responseText);
+
+                $("#MonthDays").val(0);
+            }
+        });
+    }
+        $("#CompanyLogo").on("change", function () {
+
+        const file = this.files[0];
+
+        if (!file) {
+            $("#LogoPreview").hide();
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            $("#LogoPreview")
+                .attr("src", e.target.result)
+                .show();
+        };
+
+        reader.readAsDataURL(file);
+    });
+      
+
+</script>
+<script>
+   
+        
+         function setPayableDaysMode(isEmployeeSelected) {
+
+        if (isEmployeeSelected) {
+
+            // Employee selected
+            // Payable days come from attendance
+            $("#PayableDays").prop("readonly", true);
+
+            $("#PayableDaysInfo")
+                .text("Payable days are calculated from attendance.")
+                .show();
+
+        } else {
+
+            // No employee selected
+            // User can enter payable days manually
+            $("#PayableDays").prop("readonly", false);
+
+            $("#PayableDaysInfo").hide();
+
+            // Optional: clear the value
+            // $("#PayableDays").val("");
+        }
+    }
+      
+        
+     
+  
+
+function setPayrollTypeReadonly(isReadonly) {
+    $("#PayrollTypeID").prop("disabled", isReadonly);
+
+    if (isReadonly) {
+        // Keep hidden field synchronized because disabled fields
+        // are not submitted
+        $("#PayrollTypeIDHidden").val($("#PayrollTypeID").val());
+    }
+}
+   
+  
+ 
+    </script>
+<script>
+          function openSalarySlipPage() {
+
+        const employeeId = $("#empTypeDropdown").val();
+        const salaryMonth = $("#MonthDropdown").val();
+        const salaryYear = $("#YearDropdown").val();
+
+        if (!employeeId || employeeId == "0") {
+            $.toast({
+                heading: "Warning",
+                text: "Please select an employee.",
+                icon: "warning",
+                position: "top-right"
             });
+            return;
         }
 
-        $dropdown.on('select2:select', function (e) {
-            fetchPayrollData(e.params.data.id);
-        });
-
-        $("#MonthDropdown, #YearDropdown").on("change", function () {
-            const empId = $dropdown.val();
-            if (empId) fetchPayrollData(empId);
-        });
-
-        if (isEditMode && initialEmployee && initialEmployee.id) {
-
-            const option = new Option(
-                initialEmployee.text,
-                initialEmployee.id,
-                true,
-                true
-            );
-            $dropdown.append(option).trigger('change');
-
-            $dropdown.prop('disabled', true);
-            //$("#PayrollTypeID").prop('disabled', true);
-            //$("#YearDropdown").prop('disabled', true);
-            //$("#MonthDropdown").prop('disabled', true);
-
+        if (!salaryMonth || salaryMonth == "0") {
+            $.toast({
+                heading: "Warning",
+                text: "Please select salary month.",
+                icon: "warning",
+                position: "top-right"
+            });
+            return;
         }
+
+        if (!salaryYear || salaryYear == "0") {
+            $.toast({
+                heading: "Warning",
+                text: "Please select salary year.",
+                icon: "warning",
+                position: "top-right"
+            });
+            return;
+        }
+
+        // Create temporary POST form
+        const form = $('<form>', {
+            method: 'POST',
+            action: '/Admin/Payroll/SalarySlipPreview',
+            target: '_blank'
+        });
+
+        form.append($('<input>', {
+            type: 'hidden',
+            name: 'EmployeeID',
+            value: employeeId
+        }));
+
+        form.append($('<input>', {
+            type: 'hidden',
+            name: 'SalaryMonth',
+            value: salaryMonth
+        }));
+
+        form.append($('<input>', {
+            type: 'hidden',
+            name: 'SalaryYear',
+            value: salaryYear
+        }));
+
+        $('body').append(form);
+
+        form.submit();
+
+        form.remove();
     }
 </script>

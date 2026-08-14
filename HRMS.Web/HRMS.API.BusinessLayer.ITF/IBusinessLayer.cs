@@ -238,5 +238,10 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result UpdateCutoffDateSetting(CutoffDateSettingModel modelData);
         public Results GetCutoffDateSettings();
         public Task<string> UploadAttendanceCorrections(AttendanceUploadModelList model);
+        public PayrollPeriodDetailsModel GetPayrollPeriodDetails(int salaryMonth,int salaryYear);
+        public Result AddUpdateSalarySlipSettings(SalarySlipSettingsModel modelData);
+        public Results GetSalarySlipSettings(
+            long companyID,
+            long salarySlipSettingID);
     }
 }

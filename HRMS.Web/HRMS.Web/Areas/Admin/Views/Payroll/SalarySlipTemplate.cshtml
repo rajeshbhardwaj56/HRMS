@@ -1,0 +1,485 @@
+﻿@model HRMS.Models.SalarySlipSettingsModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Salary Slip Template";
+
+    var LogoImage = "";
+
+    if (!string.IsNullOrEmpty(Model.LogoPath))
+    {
+        LogoImage = Model.LogoPath;
+    }
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    Salary Slip Template Details
+</div>
+
+<form method="post"
+      id="submitForm"
+      enctype="multipart/form-data">
+
+    <div class="Container">
+
+        <div class="group-box anim" style="--delay: .3s">
+
+            <!-- Hidden Fields -->
+            @Html.HiddenFor(x => x.SalarySlipSettingID)
+            @Html.HiddenFor(x => x.CompanyID)
+            @Html.HiddenFor(x => x.LogoPath)
+
+
+            <!-- ============================================ -->
+            <!-- COMPANY DETAILS -->
+            <!-- ============================================ -->
+
+            <div class="row">
+
+                <div class="col-md-6 form-group">
+
+                    <label>
+                        Company Name
+                        <span class="Mandetory">*</span>
+                    </label>
+
+                    @Html.TextBoxFor(
+                        x => x.CompanyName,
+                        new
+                        {
+                            @class = "form-control",
+                            required = "required",
+                            placeholder = "Enter company name"
+                        })
+
+                </div>
+
+
+                <div class="col-md-6 form-group">
+
+                    <label>
+                        Company Phone
+                    </label>
+
+                    @Html.TextBoxFor(
+                        x => x.CompanyPhone,
+                        new
+                        {
+                            @class = "form-control",
+                            placeholder = "Enter company phone"
+                        })
+
+                </div>
+
+
+                <div class="col-md-6 form-group">
+
+                    <label>
+                        Company Email
+                    </label>
+
+                    @Html.TextBoxFor(
+                        x => x.CompanyEmail,
+                        new
+                        {
+                            @class = "form-control",
+                            type = "email",
+                            placeholder = "Enter company email"
+                        })
+
+                </div>
+
+
+                <div class="col-md-6 form-group">
+
+                    <label>
+                        Company Website
+                    </label>
+
+                    @Html.TextBoxFor(
+                        x => x.CompanyWebsite,
+                        new
+                        {
+                            @class = "form-control",
+                            placeholder = "Enter company website"
+                        })
+
+                </div>
+
+
+                <div class="col-md-12 form-group">
+
+                    <label>
+                        Company Address
+                    </label>
+
+                    @Html.TextAreaFor(
+                        x => x.CompanyAddress,
+                        new
+                        {
+                            @class = "form-control",
+                            rows = "3",
+                            placeholder = "Enter company address"
+                        })
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+
+            <!-- ============================================ -->
+            <!-- COMPANY LOGO -->
+            <!-- ============================================ -->
+
+            <div class="row">
+
+                <div class="col-md-6 form-group">
+
+                    <label>
+                        Company Logo
+                    </label>
+
+                    <div class="row d-flex align-items-center">
+
+                        <div class="col-md-4">
+
+                            <img id="previewImage"
+                                 src="@LogoImage"
+                                 onerror="this.onerror=null; this.src='@(HRMS.Models.Common.Constants.NoImagePath)'"
+                                 style="width:100px; height:100px; object-fit:contain;" />
+
+                        </div>
+
+                        <div class="col-md-8">
+
+                            <input type="file"
+                                   name="CompanyLogo"
+                                   id="CompanyLogo"
+                                   accept="image/*"
+                                   onchange="showPreview(event)" />
+
+                            <small class="text-muted">
+                                Maximum size: 4MB
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+
+            <!-- ============================================ -->
+            <!-- SALARY SLIP DETAILS -->
+            <!-- ============================================ -->
+
+            <div class="row">
+
+                <div class="col-md-12">
+
+                    <h5>
+                        Salary Slip Details
+                    </h5>
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-md-12 form-group">
+
+                    <label>
+                        Salary Slip Title
+                        <span class="Mandetory">*</span>
+                    </label>
+
+                    @Html.TextBoxFor(
+                        x => x.SalarySlipTitle,
+                        new
+                        {
+                            @class = "form-control",
+                            required = "required",
+                            placeholder = "Example: SALARY SLIP"
+                        })
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+
+            <!-- ============================================ -->
+            <!-- FOOTER -->
+            <!-- ============================================ -->
+
+            <div class="row">
+
+                <div class="col-md-12">
+
+                    <label>
+                        Footer Text
+                    </label>
+
+                    @Html.TextAreaFor(
+                        x => x.SalarySlipFooter,
+                        new
+                        {
+                            @class = "form-control",
+                            rows = "4",
+                            placeholder = "Enter footer text"
+                        })
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                &nbsp;
+            </div>
+
+
+            <!-- ============================================ -->
+            <!-- BUTTONS -->
+            <!-- ============================================ -->
+
+            <div class="row">
+
+                <div class="col-md-12">
+
+                    <input id="submitBtn"
+                           type="submit"
+                           value="@(Model.SalarySlipSettingID > 0 ? "Update" : "Submit")"
+                           class="btn btn-success" />
+
+                    <button id="cancelButton"
+                            class="btn btn-danger"
+                            type="button">
+
+                        Cancel
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+
+<script>
+
+    // =========================================================
+    // CANCEL
+    // =========================================================
+
+    document
+        .getElementById('cancelButton')
+        .addEventListener('click', function () {
+
+            window.location.href =
+                '@Url.Action("CalculateSalary", "Payroll", new { area = "Admin" })';
+
+        });
+
+
+    // =========================================================
+    // FORM SUBMIT
+    // =========================================================
+
+    $("#submitForm").on("submit", function (e) {
+
+        e.preventDefault();
+
+        var form = document.getElementById("submitForm");
+
+        var formData = new FormData(form);
+
+        $("#submitBtn")
+            .prop("disabled", true)
+            .val("Saving...");
+
+
+        $.ajax({
+
+            url: '@Url.Action("SaveSalarySlipSettings", "Payroll", new { area = "Admin" })',
+
+            type: "POST",
+
+            data: formData,
+
+            processData: false,
+
+            contentType: false,
+
+            success: function (response) {
+
+                if (response.success) {
+
+                    $.toast({
+
+                        heading: "Success",
+
+                        text:
+                            response.message ||
+                            "Salary slip settings saved successfully.",
+
+                        icon: "success",
+
+                        position: "top-right"
+
+                    });
+
+
+                    setTimeout(function () {
+
+                        window.location.href =
+                            '@Url.Action("SalarySlipTemplate", "Payroll", new { area = "Admin" })'
+                            + '?id=' + response.pkNo;
+
+                    }, 1000);
+
+                }
+                else {
+
+                    $.toast({
+
+                        heading: "Error",
+
+                        text:
+                            response.message ||
+                            "Unable to save salary slip settings.",
+
+                        icon: "error",
+
+                        position: "top-right"
+
+                    });
+
+
+                    $("#submitBtn")
+                        .prop("disabled", false)
+                        .val(
+                            '@(Model.SalarySlipSettingID > 0 ? "Update" : "Submit")'
+                        );
+
+                }
+
+            },
+
+            error: function (xhr) {
+
+                console.log(xhr.responseText);
+
+                $.toast({
+
+                    heading: "Error",
+
+                    text:
+                        "Error while saving salary slip settings.",
+
+                    icon: "error",
+
+                    position: "top-right"
+
+                });
+
+
+                $("#submitBtn")
+                    .prop("disabled", false)
+                    .val(
+                        '@(Model.SalarySlipSettingID > 0 ? "Update" : "Submit")'
+                    );
+
+            }
+
+        });
+
+    });
+
+
+    // =========================================================
+    // LOGO PREVIEW
+    // =========================================================
+
+    function showPreview(event) {
+
+        const file =
+            event.target.files[0];
+
+        const maxSizeInMB = 4;
+
+
+        if (!file) {
+            return;
+        }
+
+
+        const maxSizeInBytes =
+            maxSizeInMB * 1024 * 1024;
+
+
+        // Check image
+
+        if (!file.type.startsWith('image/')) {
+
+            alert("Only image files are allowed.");
+
+            event.target.value = "";
+
+            return;
+        }
+
+
+        // Check size
+
+        if (file.size > maxSizeInBytes) {
+
+            alert("Image size should not exceed 4MB.");
+
+            event.target.value = "";
+
+            return;
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload = function (e) {
+
+            document
+                .getElementById('previewImage')
+                .src = e.target.result;
+
+        };
+
+
+        reader.readAsDataURL(file);
+
+    }
+
+</script>

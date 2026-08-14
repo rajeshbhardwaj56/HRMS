@@ -204,6 +204,12 @@ namespace HRMS.API.BusinessLayer
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";
         public const string usp_GetEmployeeSalary = "usp_GetEmployeeSalary";
         public const string usp_SaveEmployeeSalary = "usp_SaveEmployeeSalary";
+        public const string usp_TestCalculateEmployeeSalary = "usp_TestCalculateEmployeeSalary";
+        public const string usp_GetPayrollPeriodDetails = "usp_GetPayrollPeriodDetails";
+        public const string usp_SaveSalarySlipSettings = "usp_SaveSalarySlipSettings";
+        public const string usp_GetSalarySlipSettingsLog = "usp_GetSalarySlipSettingsLog";
+        public const string usp_GetSalarySlipSettings = "usp_GetSalarySlipSettings";
+
         #endregion Payroll
 
 

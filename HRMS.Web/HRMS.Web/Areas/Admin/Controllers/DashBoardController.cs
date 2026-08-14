@@ -174,6 +174,18 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> ImportExcel()
         {
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            if (roleId != (int)Roles.Admin &&
+                roleId != (int)Roles.SuperAdmin)
+            {
+
+                return RedirectToActionPermanent(
+                    Constants.Index,
+                    _businessLayer.GetControllarNameByRole(roleId),
+                    new { area = "admin" }
+                );
+            }
             return View();
         }
         [HttpPost]
@@ -1778,8 +1790,12 @@ namespace HRMS.Web.Areas.Admin.Controllers
             if (roleId != (int)Roles.Admin &&
                 roleId != (int)Roles.SuperAdmin)
             {
-                HttpContext.Session.Clear();
-                return RedirectToAction("Index", "Home");
+
+                return RedirectToActionPermanent(
+                    Constants.Index,
+                    _businessLayer.GetControllarNameByRole(roleId),
+                    new { area = "admin" }
+                );
             }
 
             return View();
@@ -2046,68 +2062,89 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             var list = new List<AttendanceUploadModel>();
 
+            if (!dt.Columns.Contains("EmployeeNumber"))
+                throw new Exception("EmployeeNumber column missing.");
+
+            if (!dt.Columns.Contains("EmployeeName"))
+                throw new Exception("EmployeeName column missing.");
+
+            var validStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "P",
+        "A",
+        "HD",
+        "WO",
+        "PL",
+        "HPL",
+        "COL",
+        "HCOL",
+        "HCOL/HPL",
+        "LWP",
+        "HLWP",
+        "HD/HPL",
+                "HD/HCOL",
+                "HD/HLWP",
+            "LEFT"// if your business supports it
+    };
+
             foreach (DataRow row in dt.Rows)
             {
                 string employeeNumber = row["EmployeeNumber"]?.ToString()?.Trim();
-                int excelRow = dt.Rows.IndexOf(row) + 2;
-
-                if (string.IsNullOrWhiteSpace(employeeNumber))
-                {
-                    throw new Exception($"Employee Number is required at Excel row {excelRow}.");
-                }
-
-
                 string employeeName = row["EmployeeName"]?.ToString()?.Trim();
 
+                if (string.IsNullOrWhiteSpace(employeeNumber))
+                    throw new Exception("Employee Number is required.");
+
                 if (string.IsNullOrWhiteSpace(employeeName))
-                {
-                    throw new Exception(
-                        $"Employee Name is required for Employee '{employeeNumber}' at Excel row {excelRow}."
-                    );
-                }
-                if (!DateTime.TryParse(row["WorkDate"]?.ToString(), out DateTime workDate))
-                {
-                    throw new Exception($"Invalid WorkDate for Employee '{employeeNumber}'.");
-                }
+                    throw new Exception($"Employee Name is required for Employee '{employeeNumber}'.");
 
-                string status = row["Status"]?.ToString()?.Trim();
-
-                if (string.IsNullOrWhiteSpace(status))
+                for (int c = 3; c <= dt.Columns.Count; c++)
                 {
-                    throw new Exception(
-                        $"Attendance Status is required for Employee '{employeeNumber}' on {workDate:dd-MMM-yyyy}."
-                    );
+                    string columnName = dt.Columns[c - 1].ColumnName;
+
+                    if (columnName.Equals("Payable Day's", StringComparison.OrdinalIgnoreCase) ||
+                        columnName.Equals("TotalWorkingDays", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (!DateTime.TryParse(columnName, out DateTime workDate))
+                        continue;
+
+                    string status = row[c - 1]?.ToString()?.Trim().ToUpper();
+
+                    if (string.IsNullOrWhiteSpace(status))
+                        continue;
+
+                    if (!validStatuses.Contains(status))
+                    {
+                        throw new Exception(
+                            $"Invalid Status '{status}' for Employee '{employeeNumber}' on {workDate:dd-MMM-yyyy}."
+                        );
+                    }
+
+                    if (status == "LEFT")
+                    {
+                        continue;
+                    }
+
+                    list.Add(new AttendanceUploadModel
+                    {
+                        EmployeeNumber = employeeNumber,
+                        WorkDate = workDate,
+                        AttendanceStatus = status,
+                        Remarks = "Attendance corrected by Admin as per request."
+                    });
                 }
+            }
 
-                var validStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    "P",
-                    "A",
-                    "HD",
-                    "WO"
-                };
+            var duplicate = list
+                .GroupBy(x => new { x.EmployeeNumber, x.WorkDate })
+                .FirstOrDefault(g => g.Count() > 1);
 
-                if (!validStatuses.Contains(status))
-                {
-                    throw new Exception(
-                        $"Invalid attendance status '{status}' for Employee '{employeeNumber}' on {workDate:dd-MMM-yyyy}. Allowed values are: P, A, HD, WO."
-                    );
-                }
-
-                string remarks = row["Remarks"]?.ToString()?.Trim();
-                if (string.IsNullOrWhiteSpace(remarks))
-                {
-                    throw new Exception(
-                        $"Remarks are required for Employee '{employeeName}' ({employeeNumber}) on {workDate:dd-MMM-yyyy}."
-                    );
-                }
-                list.Add(new AttendanceUploadModel
-                {
-                    EmployeeNumber = employeeNumber,
-                    WorkDate = workDate,
-                    AttendanceStatus = status,
-                    Remarks = remarks
-                });
+            if (duplicate != null)
+            {
+                throw new Exception(
+                    $"Duplicate attendance found for Employee '{duplicate.Key.EmployeeNumber}' on {duplicate.Key.WorkDate:dd-MMM-yyyy}."
+                );
             }
 
             return list;

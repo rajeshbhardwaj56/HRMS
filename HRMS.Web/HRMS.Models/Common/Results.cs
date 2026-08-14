@@ -60,7 +60,9 @@ namespace HRMS.Models.Common
         public List<LOBModel> LOBList { get; set; } = new();
         public LOBModel lobModel { get; set; } = new();
         public List<CutoffDateSettingModel> CutoffDateSettingsList { get; set; } = new();
+        public List<SalarySlipSettingsModel> SalarySlipSettingsList { get; set; } = new();
 
+        public SalarySlipSettingsModel salarySlipSettingsModel { get; set; } = new();
 
     }
 
