@@ -4,6 +4,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Employee;
 using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.Leave;
+using HRMS.Models.PayRoll;
 using HRMS.Models.TeamAlignment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -545,6 +546,36 @@ namespace HRMS.API.Web.Controllers
                     message = ex.Message
                 });
             }
+        }
+        [HttpPost]
+        public IActionResult CheckWeekOffLimit(WeekOffLimitModel model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CheckWeekOffLimit(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult CheckWeekOffLimitBulk(List<WeekOffLimitModel> model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.CheckWeekOffLimitBulk(model));
+            return response;
+        }
+        [HttpPost]
+        public IActionResult CalculateBulkEmployeeSalary(
+            BulkSalaryImportRequestModel model)
+        {
+            IActionResult response = Unauthorized();
+
+            response = Ok(
+                _businessLayer.CalculateBulkEmployeeSalary(
+                    model.SalaryList,
+                    model.FileName,
+                    model.UserID
+                )
+            );
+
+            return response;
         }
     }
 }

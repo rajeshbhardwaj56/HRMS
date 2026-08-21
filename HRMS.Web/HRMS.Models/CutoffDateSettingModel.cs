@@ -29,6 +29,8 @@ namespace HRMS.Models
         public DateTime? AdminEditCutoffDate { get; set; }
 
         public bool AllowSuperAdminEdit { get; set; }
+        public bool ShowImportAttendanceExcel { get; set; }
+        public bool ShowAutoCalculateMonthSalary { get; set; }
         public long? UpdatedBy { get; set; }
     }
 }

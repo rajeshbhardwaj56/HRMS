@@ -1,0 +1,1065 @@
+﻿@using HRMS.Models.Common
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Http
+
+@{
+    Layout = $"~/Areas/{HttpContextAccessor.HttpContext.Session.GetString(Constants.AreaName)}/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Import Bulk Salary";
+}
+
+<style>
+
+    .alert {
+        margin-top: 20px;
+        padding: 11px 18px;
+        border-radius: 8px;
+        width: 665px;
+    }
+
+    .alert-danger {
+        background-color: #fdecea;
+        color: #b71c1c;
+    }
+
+    .alert-success {
+        background-color: #e6f4ea;
+        color: #2e7d32;
+    }
+
+    .alert-warning {
+        background-color: #fff8e1;
+        color: #8a6d1d;
+    }
+
+    .salary-result {
+        margin-top: 20px;
+        width: 100%;
+        max-width: 1000px;
+    }
+
+    /* ------------------------------------------------------------
+           SUMMARY
+        ------------------------------------------------------------ */
+
+    .salary-summary {
+        margin-top: 20px;
+        width: 100%;
+        max-width: 1000px;
+        padding: 14px 18px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+        .salary-summary span {
+            white-space: nowrap;
+        }
+
+        .salary-summary .separator {
+            color: #999;
+            font-weight: bold;
+        }
+
+        .salary-summary .failed-count {
+            color: #b71c1c;
+        }
+
+    /* ------------------------------------------------------------
+           ERROR TABLE
+        ------------------------------------------------------------ */
+
+    .error-table-wrapper {
+        width: 100%;
+        max-width: 1000px;
+        overflow-x: auto;
+        margin-top: 10px;
+    }
+
+    .error-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+    }
+
+        .error-table th,
+        .error-table td {
+            padding: 9px 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .error-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .error-table td:last-child {
+            color: #b71c1c;
+        }
+
+    .error-title {
+        margin-top: 20px;
+        padding: 10px 15px;
+        background-color: #fff8e1;
+        color: #8a6d1d;
+        border-radius: 6px;
+        width: 100%;
+        max-width: 1000px;
+    }
+
+</style>
+
+
+<div class="main-header anim">
+    Import Bulk Salary
+</div>
+
+
+<form id="uploadForm">
+
+    <div class="Container">
+
+        <div class="group-box">
+
+            <div class="card-body">
+
+                <h4 class="titleweekof">
+                    Upload Bulk Salary Excel
+                </h4>
+
+
+                <div class="importemployee-section">
+
+                    <div class="small-header">
+                        Import Salary
+                    </div>
+
+                    <span>
+
+                        <a class="UploadExcel"
+                               href="/assets/downloadexcel/BulkSalaryImport.xlsx"
+                               download>
+                            Download Sample File
+                        </a>
+
+                    </span>
+
+                </div>
+
+
+                <div class="mb-3 d-flex align-items-center gap-2">
+
+                    <input type="file"
+                           class="form-control"
+                           id="excelFile"
+                           accept=".xls,.xlsx"
+                           required
+                           style="max-width:600px;" />
+
+                    <button type="submit"
+                            id="uploadButton"
+                            class="btn btn-primary">
+
+                        Upload & Calculate
+
+                    </button>
+
+                </div>
+
+
+                <div id="progressBar"
+                     class="progress d-none mb-3"
+                     style="max-width:600px; margin-top:20px;">
+
+                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                         style="width:0%">
+                    </div>
+
+                </div>
+
+
+                <div id="resultMessage"></div>
+
+
+                <div id="salaryResult"
+                     class="salary-result d-none">
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+
+<script>
+
+    // ============================================================
+    // GET ERROR PROPERTY SAFELY
+    // ============================================================
+
+    function getErrorValue(error, propertyName) {
+
+        if (!error) {
+            return "-";
+        }
+
+
+        // --------------------------------------------------------
+        // Direct property
+        // --------------------------------------------------------
+
+        if (error[propertyName] !== undefined &&
+            error[propertyName] !== null) {
+
+            return error[propertyName];
+        }
+
+
+        // --------------------------------------------------------
+        // Case-insensitive search
+        // --------------------------------------------------------
+
+        const key = Object.keys(error).find(function (k) {
+
+            return k.toLowerCase() === propertyName.toLowerCase();
+
+        });
+
+
+        if (key &&
+            error[key] !== undefined &&
+            error[key] !== null) {
+
+            return error[key];
+        }
+
+
+        return "-";
+    }
+
+
+    // ============================================================
+    // FORM SUBMIT
+    // ============================================================
+
+    document
+        .getElementById("uploadForm")
+        .addEventListener("submit", function (e) {
+
+            e.preventDefault();
+
+
+            // ----------------------------------------------------
+            // ELEMENTS
+            // ----------------------------------------------------
+
+            const fileInput =
+                document.getElementById("excelFile");
+
+
+            const file =
+                fileInput.files[0];
+
+
+            const uploadButton =
+                document.getElementById("uploadButton");
+
+
+            const resultMessage =
+                document.getElementById("resultMessage");
+
+
+            const progressBar =
+                document.getElementById("progressBar");
+
+
+            const salaryResult =
+                document.getElementById("salaryResult");
+
+
+            // ----------------------------------------------------
+            // CLEAR PREVIOUS RESULT
+            // ----------------------------------------------------
+
+            resultMessage.innerHTML = "";
+
+            salaryResult.innerHTML = "";
+
+            salaryResult.classList.add("d-none");
+
+
+            // ----------------------------------------------------
+            // FILE VALIDATION
+            // ----------------------------------------------------
+
+            if (!file) {
+
+                resultMessage.innerHTML = `
+                    <div class="alert alert-danger">
+
+                        Please select salary Excel file.
+
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            // ----------------------------------------------------
+            // FILE EXTENSION VALIDATION
+            // ----------------------------------------------------
+
+            const fileName =
+                file.name.toLowerCase();
+
+
+            if (!fileName.endsWith(".xls") &&
+                !fileName.endsWith(".xlsx")) {
+
+                resultMessage.innerHTML = `
+                    <div class="alert alert-danger">
+
+                        Please upload a valid Excel file (.xls or .xlsx).
+
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            // ----------------------------------------------------
+            // DISABLE BUTTON
+            // ----------------------------------------------------
+
+            uploadButton.disabled = true;
+
+            uploadButton.innerHTML = "Uploading...";
+
+
+            // ----------------------------------------------------
+            // FORM DATA
+            // ----------------------------------------------------
+
+            const formData =
+                new FormData();
+
+
+            formData.append("file", file);
+
+
+            // ----------------------------------------------------
+            // AJAX REQUEST
+            // ----------------------------------------------------
+
+            const xhr =
+                new XMLHttpRequest();
+
+
+            xhr.open(
+                "POST",
+                "/admin/Dashboard/ImportBulkSalaryExcel",
+                true
+            );
+
+
+            // ----------------------------------------------------
+            // UPLOAD START
+            // ----------------------------------------------------
+
+            xhr.upload.addEventListener(
+                "loadstart",
+                function () {
+
+                    progressBar.classList.remove("d-none");
+
+                    progressBar
+                        .querySelector(".progress-bar")
+                        .style.width = "0%";
+
+                }
+            );
+
+
+            // ----------------------------------------------------
+            // UPLOAD PROGRESS
+            // ----------------------------------------------------
+
+            xhr.upload.addEventListener(
+                "progress",
+                function (e) {
+
+                    if (e.lengthComputable) {
+
+                        let percent =
+                            (e.loaded / e.total) * 100;
+
+
+                        progressBar
+                            .querySelector(".progress-bar")
+                            .style.width =
+                            percent + "%";
+
+                    }
+
+                }
+            );
+
+
+            // ----------------------------------------------------
+            // RESPONSE
+            // ----------------------------------------------------
+
+            xhr.onreadystatechange = function () {
+
+                if (xhr.readyState !== 4) {
+                    return;
+                }
+
+
+                // ------------------------------------------------
+                // HIDE PROGRESS
+                // ------------------------------------------------
+
+                progressBar.classList.add("d-none");
+
+
+                // ------------------------------------------------
+                // ENABLE BUTTON
+                // ------------------------------------------------
+
+                uploadButton.disabled = false;
+
+                uploadButton.innerHTML =
+                    "Upload & Calculate";
+
+
+                // =================================================
+                // SUCCESS RESPONSE
+                // =================================================
+
+                if (xhr.status >= 200 &&
+                    xhr.status < 300) {
+
+                    try {
+
+                        // ------------------------------------------------
+                        // PARSE RESPONSE
+                        // ------------------------------------------------
+
+                        let response =
+                            JSON.parse(xhr.responseText);
+
+
+                        // ------------------------------------------------
+                        // DEBUG
+                        // ------------------------------------------------
+
+                        console.log(
+                            "FULL API RESPONSE:",
+                            response
+                        );
+
+                        console.log(
+                            "ERRORS FROM API:",
+                            response.errors
+                        );
+
+                        console.log(
+                            "ERROR COUNT:",
+                            response.errors?.length
+                        );
+
+
+                        // ------------------------------------------------
+                        // FAILED RECORD COUNT
+                        // ------------------------------------------------
+
+                        const failedRecords =
+                            Number(
+                                response.failedRecords ?? 0
+                            );
+
+
+                        // ------------------------------------------------
+                        // CHECK ERRORS
+                        // ------------------------------------------------
+
+                        let errors =
+                            response.errors;
+
+
+                        // ------------------------------------------------
+                        // IF ERRORS IS STRING, PARSE IT
+                        // ------------------------------------------------
+
+                        if (typeof errors === "string") {
+
+                            try {
+
+                                errors =
+                                    JSON.parse(errors);
+
+                            }
+                            catch (e) {
+
+                                console.error(
+                                    "Unable to parse errors:",
+                                    e
+                                );
+
+                                errors = [];
+
+                            }
+
+                        }
+
+
+                        // ------------------------------------------------
+                        // MAKE SURE ERRORS IS ARRAY
+                        // ------------------------------------------------
+
+                        if (!Array.isArray(errors)) {
+
+                            errors = [];
+
+                        }
+
+
+                        console.log(
+                            "FINAL ERROR ARRAY:",
+                            errors
+                        );
+
+
+                        // ------------------------------------------------
+                        // CHECK IF IMPORT HAS RESULT
+                        // ------------------------------------------------
+
+                        const hasErrors =
+                            errors.length > 0;
+
+
+                        if (response.success ||
+                            failedRecords > 0 ||
+                            hasErrors) {
+
+
+                            // =================================================
+                            // MESSAGE
+                            // =================================================
+
+                            if (failedRecords > 0 ||
+                                hasErrors) {
+
+                                resultMessage.innerHTML = `
+
+                                    <div class="alert alert-warning">
+
+                                        <strong>
+
+                                            ${
+                                                response.message ??
+                                                "Bulk salary import completed with some failed records."
+                                            }
+
+                                        </strong>
+
+                                    </div>
+
+                                `;
+
+                            }
+                            else {
+
+                                resultMessage.innerHTML = `
+
+                                    <div class="alert alert-success">
+
+                                        <strong>
+
+                                            ${
+                                                response.message ??
+                                                "Salary imported successfully."
+                                            }
+
+                                        </strong>
+
+                                    </div>
+
+                                `;
+
+                            }
+
+
+                            // =================================================
+                            // SHOW RESULT CONTAINER
+                            // =================================================
+
+                            salaryResult.classList.remove("d-none");
+
+
+                            // =================================================
+                            // SUMMARY - ONE LINE
+                            // =================================================
+
+                            salaryResult.innerHTML = `
+
+                                <div class="salary-summary">
+
+                                    <span>
+
+                                        <strong>
+                                            Total Records:
+                                        </strong>
+
+                                        ${response.totalRecords ?? 0}
+
+                                    </span>
+
+
+                                    <span class="separator">
+                                        |
+                                    </span>
+
+
+                                    <span>
+
+                                        <strong>
+                                            Valid:
+                                        </strong>
+
+                                        ${response.validRecords ?? 0}
+
+                                    </span>
+
+
+                                    <span class="separator">
+                                        |
+                                    </span>
+
+
+                                    <span class="${
+                                        failedRecords > 0
+                                            ? "failed-count"
+                                            : ""
+                                    }">
+
+                                        <strong>
+                                            Failed:
+                                        </strong>
+
+                                        ${failedRecords}
+
+                                    </span>
+
+
+                                    <span class="separator">
+                                        |
+                                    </span>
+
+
+                                    <span>
+
+                                        <strong>
+                                            Inserted:
+                                        </strong>
+
+                                        ${response.insertedRecords ?? 0}
+
+                                    </span>
+
+
+                                    <span class="separator">
+                                        |
+                                    </span>
+
+
+                                    <span>
+
+                                        <strong>
+                                            Updated:
+                                        </strong>
+
+                                        ${response.updatedRecords ?? 0}
+
+                                    </span>
+
+
+                                    <span class="separator">
+                                        |
+                                    </span>
+
+
+                                    <span>
+
+                                        <strong>
+                                            Skipped:
+                                        </strong>
+
+                                        ${response.skippedRecords ?? 0}
+
+                                    </span>
+
+                                </div>
+
+                            `;
+
+
+                            // =================================================
+                            // SHOW ERRORS
+                            // =================================================
+
+                            if (errors.length > 0) {
+
+
+                                let errorHtml = `
+
+                                    <div class="error-title">
+
+                                        <strong>
+
+                                            ${errors.length}
+                                            record(s) could not be imported.
+
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="error-table-wrapper">
+
+                                        <table class="error-table">
+
+                                            <thead>
+
+                                                <tr>
+
+                                                    <th>
+                                                        Row
+                                                    </th>
+
+                                                    <th>
+                                                        Employee Number
+                                                    </th>
+
+                                                    <th>
+                                                        Payroll Type
+                                                    </th>
+
+                                                    <th>
+                                                        Year
+                                                    </th>
+
+                                                    <th>
+                                                        Month
+                                                    </th>
+
+                                                    <th>
+                                                        Error
+                                                    </th>
+
+                                                </tr>
+
+                                            </thead>
+
+
+                                            <tbody>
+
+                                `;
+
+
+                                // =============================================
+                                // LOOP ERRORS
+                                // =============================================
+
+                                errors.forEach(function (error) {
+
+
+                                    console.log(
+                                        "ERROR OBJECT:",
+                                        error
+                                    );
+
+
+                                    console.log(
+                                        "ERROR KEYS:",
+                                        Object.keys(error)
+                                    );
+
+
+                                    const rowNumber =
+                                        getErrorValue(
+                                            error,
+                                            "rowNumber"
+                                        );
+
+
+                                    const employeeNumber =
+                                        getErrorValue(
+                                            error,
+                                            "employeeNumber"
+                                        );
+
+
+                                    const payrollType =
+                                        getErrorValue(
+                                            error,
+                                            "payrollType"
+                                        );
+
+
+                                    const salaryYear =
+                                        getErrorValue(
+                                            error,
+                                            "salaryYear"
+                                        );
+
+
+                                    const salaryMonth =
+                                        getErrorValue(
+                                            error,
+                                            "salaryMonth"
+                                        );
+
+
+                                    const errorMessage =
+                                        getErrorValue(
+                                            error,
+                                            "errorMessage"
+                                        );
+
+
+                                    console.log(
+                                        "DISPLAY VALUES:",
+                                        {
+                                            rowNumber,
+                                            employeeNumber,
+                                            payrollType,
+                                            salaryYear,
+                                            salaryMonth,
+                                            errorMessage
+                                        }
+                                    );
+
+
+                                    errorHtml += `
+
+                                        <tr>
+
+                                            <td>
+                                                ${rowNumber}
+                                            </td>
+
+
+                                            <td>
+                                                ${employeeNumber}
+                                            </td>
+
+
+                                            <td>
+                                                ${payrollType}
+                                            </td>
+
+
+                                            <td>
+                                                ${salaryYear}
+                                            </td>
+
+
+                                            <td>
+                                                ${salaryMonth}
+                                            </td>
+
+
+                                            <td>
+
+                                                <strong>
+                                                    ${errorMessage}
+                                                </strong>
+
+                                            </td>
+
+                                        </tr>
+
+                                    `;
+
+                                });
+
+
+                                // =============================================
+                                // CLOSE TABLE
+                                // =============================================
+
+                                errorHtml += `
+
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                `;
+
+
+                                salaryResult.innerHTML +=
+                                    errorHtml;
+
+                            }
+
+
+                            // ------------------------------------------------
+                            // CLEAR FILE
+                            // ------------------------------------------------
+
+                            fileInput.value = "";
+
+                        }
+                        else {
+
+
+                            // =================================================
+                            // FAILED WITHOUT RECORD DETAILS
+                            // =================================================
+
+                            resultMessage.innerHTML = `
+
+                                <div class="alert alert-danger">
+
+                                    <strong>
+
+                                        ${
+                                            response.message ??
+                                            "Salary import failed."
+                                        }
+
+                                    </strong>
+
+                                    <br/>
+
+                                    ${
+                                        response.details ??
+                                        ""
+                                    }
+
+                                </div>
+
+                            `;
+
+                        }
+
+                    }
+                    catch (error) {
+
+
+                        // =================================================
+                        // INVALID JSON
+                        // =================================================
+
+                        console.error(
+                            "JSON PARSE ERROR:",
+                            error
+                        );
+
+
+                        console.error(
+                            "RAW RESPONSE:",
+                            xhr.responseText
+                        );
+
+
+                        resultMessage.innerHTML = `
+
+                            <div class="alert alert-danger">
+
+                                <strong>
+                                    Invalid response received from server.
+                                </strong>
+
+                            </div>
+
+                        `;
+
+                    }
+
+                }
+
+                // ============================================================
+                // SERVER ERROR
+                // ============================================================
+
+                else {
+
+                    try {
+
+                        let response =
+                            JSON.parse(
+                                xhr.responseText
+                            );
+
+
+                        resultMessage.innerHTML = `
+
+                            <div class="alert alert-danger">
+
+                                <strong>
+
+                                    ${
+                                        response.message ??
+                                        "Upload failed."
+                                    }
+
+                                </strong>
+
+                                <br/>
+
+                                ${
+                                    response.details ??
+                                    ""
+                                }
+
+                            </div>
+
+                        `;
+
+                    }
+                    catch {
+
+                        resultMessage.innerHTML = `
+
+                            <div class="alert alert-danger">
+
+                                Upload failed.
+
+                            </div>
+
+                        `;
+
+                    }
+
+                }
+
+            };
+
+
+            // ----------------------------------------------------
+            // SEND REQUEST
+            // ----------------------------------------------------
+
+            xhr.send(formData);
+
+        });
+
+</script>

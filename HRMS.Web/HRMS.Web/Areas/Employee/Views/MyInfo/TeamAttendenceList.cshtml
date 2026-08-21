@@ -8,7 +8,7 @@
 	ViewData["Title"] = "Team Attendance Report";
 	var RoleName = Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.RoleID));
 	var employeeType = Convert.ToInt64(HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.EmployeeTypeID));
-	
+
 }
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
@@ -422,13 +422,18 @@
                         <i class="fa fa-file-excel me-1"></i> Leave Export
                     </button>
                 </div>
-@*             <div class="input-group input-group-sm" style="max-width: 220px;">
-                    <button id="attendance-import-btn"
-                            class="btn btn-primary btn-sm"
-                            onclick="location.href='@Url.Action("UploadAttendanceExcel", "Dashboard", new { area = "Admin" })'">
-                        <i class="fas fa-upload me-1"></i> Import Attendance
-                    </button>
-            </div> *@
+                @if (Model.ShowImportAttendanceExcel)
+                {
+                    <div class="input-group input-group-sm" style="max-width: 220px;">
+                        <button id="attendance-import-btn"
+                                type="button"
+                                class="btn btn-primary btn-sm"
+                                onclick="location.href='@Url.Action("UploadAttendanceExcel", "Dashboard", new { area = "Admin" })'">
+                            <i class="fas fa-upload me-1"></i>
+                            Import Attendance
+                        </button>
+                    </div>
+                }
             }
         </div>
     </div>

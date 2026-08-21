@@ -73,8 +73,41 @@
             </div>
 
         </div>
+     
     </div>
+    <div class="main-header anim" style="--delay: 0s">
+        Attendance & Salary Settings
+    </div>
+    <div class="group-box anim" style="--delay: .4s">
 
+        <div class="Container">
+
+
+
+            <div class="row">
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Show Import Attendance Excel
+                    </div>
+                    <div class="col-md-12">
+                        @Html.CheckBoxFor(m => m.ShowImportAttendanceExcel)
+                    </div>
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <div class="col-md-12">
+                        Show Auto Calculate Month Salary
+                    </div>
+                    <div class="col-md-12">
+                        @Html.CheckBoxFor(m => m.ShowAutoCalculateMonthSalary)
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12">
 

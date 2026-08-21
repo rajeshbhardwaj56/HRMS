@@ -175,13 +175,14 @@ namespace HRMS.API.BusinessLayer.ITF
 
 
         #region Payroll
-
+        public List<EmployeeSalaryMonth> GetEmployeeSalaryMonths(long employeeId);
         public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model);
         public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequestModel model);
 
         public EmployeeSalaryCalculationModel GetEmployeeSalary(EmployeeSalaryGetRequestModel request);
         public Result SaveEmployeeSalary(EmployeeSalaryRequestModel model);
-
+        public BulkSalaryImportResultModel CalculateBulkEmployeeSalary(List<BulkEmployeeSalaryRequestModel> models,string fileName,long userID);
+        public List<SalaryDetails> GetEmployeeSalaryForExport(int year,int month);
         #endregion Payroll
 
         #region TeamAlignment
@@ -239,9 +240,19 @@ namespace HRMS.API.BusinessLayer.ITF
         public Results GetCutoffDateSettings();
         public Task<string> UploadAttendanceCorrections(AttendanceUploadModelList model);
         public PayrollPeriodDetailsModel GetPayrollPeriodDetails(int salaryMonth,int salaryYear);
+        public List<PayrollPeriodDropdownModel> GetPayrollPeriodsForDropdown();
         public Result AddUpdateSalarySlipSettings(SalarySlipSettingsModel modelData);
         public Results GetSalarySlipSettings(
             long companyID,
             long salarySlipSettingID);
+        public List<WeekOffLimitResult> CheckWeekOffLimitBulk(List<WeekOffLimitModel> modelData);
+        public WeekOffLimitResult CheckWeekOffLimit(WeekOffLimitModel modelData);
+        public Results AutoCalculateEmployeeSalary(int month, int year, long userID);
+        public Result VerifyEmployeeSalary(
+           List<long> employeeIDs,
+            int month,
+            int year,
+            long verifiedByUserID
+            );
     }
 }

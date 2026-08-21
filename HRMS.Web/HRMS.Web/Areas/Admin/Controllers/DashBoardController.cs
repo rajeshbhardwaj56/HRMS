@@ -10,6 +10,7 @@ using HRMS.Models.Employee;
 using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.ImportFromExcel;
 using HRMS.Models.LeavePolicy;
+using HRMS.Models.PayRoll;
 using HRMS.Web.BusinessLayer;
 using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authentication;
@@ -2148,6 +2149,637 @@ namespace HRMS.Web.Areas.Admin.Controllers
             }
 
             return list;
+        }
+        #endregion
+        #region calcaulteSalary 
+        [HttpGet]
+        public IActionResult ImportBulkSalaryExcel()
+        {
+            var employeeId = GetSessionLong(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            if (roleId != (int)Roles.Admin &&
+                roleId != (int)Roles.SuperAdmin)
+            {
+
+                return RedirectToActionPermanent(
+                    Constants.Index,
+                    _businessLayer.GetControllarNameByRole(roleId),
+                    new { area = "admin" }
+                );
+            }
+
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ImportBulkSalaryExcel(IFormFile file)
+        {
+            string tempFilePath = null;
+
+            try
+            {
+                // ------------------------------------------------------------
+                // FILE VALIDATION
+                // ------------------------------------------------------------
+
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Please upload salary file."
+                    });
+                }
+
+
+                // ------------------------------------------------------------
+                // GET USER ID AND TOKEN
+                // ------------------------------------------------------------
+
+                var employeeIdString =
+                    HttpContext.Session.GetString(Constants.EmployeeID);
+
+                var token =
+                    HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+                if (string.IsNullOrEmpty(employeeIdString) ||
+                    string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "Session expired."
+                    });
+                }
+
+                long userId = Convert.ToInt64(employeeIdString);
+
+
+                // ------------------------------------------------------------
+                // SAVE TEMPORARY FILE
+                // ------------------------------------------------------------
+
+                tempFilePath = Path.Combine(
+                    Path.GetTempPath(),
+                    Guid.NewGuid() + Path.GetExtension(file.FileName)
+                );
+
+                using (FileStream stream = new FileStream(
+                    tempFilePath,
+                    FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+
+                // ------------------------------------------------------------
+                // READ EXCEL
+                // ------------------------------------------------------------
+
+                DataTable dataTable =
+                    ReadBulkSalaryExcelToDataTable(tempFilePath);
+
+
+                // ------------------------------------------------------------
+                // CONVERT EXCEL TO MODEL LIST
+                // ------------------------------------------------------------
+
+                List<BulkEmployeeSalaryRequestModel> salaryList =
+                    ConvertBulkSalaryExcel(dataTable);
+
+
+                if (salaryList == null || salaryList.Count == 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "No salary records found."
+                    });
+                }
+
+
+                // ------------------------------------------------------------
+                // API REQUEST MODEL
+                // ------------------------------------------------------------
+
+                BulkSalaryImportRequestModel request =
+                    new BulkSalaryImportRequestModel
+                    {
+                        UserID = userId,
+                        FileName = file.FileName,
+                        SalaryList = salaryList
+                    };
+
+
+                // ------------------------------------------------------------
+                // API URL
+                // ------------------------------------------------------------
+
+                var apiUrl =
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Employee,
+                        APIApiActionConstants.CalculateBulkEmployeeSalary
+                    );
+
+
+                // ------------------------------------------------------------
+                // CALL API
+                // ------------------------------------------------------------
+
+                var response = await _businessLayer.SendPostAPIRequest(
+                    request,
+                    apiUrl,
+                    token,
+                    true
+                );
+
+
+                // ------------------------------------------------------------
+                // API RESPONSE
+                // ------------------------------------------------------------
+
+                if (response == null)
+                {
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "Bulk salary import failed."
+                    });
+                }
+
+                string json = response.ToString();
+
+                // response is JSON string, so unwrap it first
+                if (json.StartsWith("\"") && json.EndsWith("\""))
+                {
+                    json = JsonConvert.DeserializeObject<string>(json);
+                }
+
+                JObject apiResult = JObject.Parse(json);
+
+                bool hasFailures =
+                    (apiResult["failedRecords"]?.Value<int>() ?? 0) > 0;
+
+                Guid batchId = Guid.Empty;
+
+                Guid.TryParse(
+                    apiResult["batchID"]?.ToString(),
+                    out batchId
+                );
+
+                // ------------------------------------------------------------
+                // CONVERT API ERRORS PROPERLY
+                // ------------------------------------------------------------
+
+                var errors = new List<object>();
+
+                var apiErrors = apiResult["errors"] as JArray;
+
+                if (apiErrors != null)
+                {
+                    foreach (var error in apiErrors)
+                    {
+                        // If API returned proper object
+                        if (error is JObject errorObject)
+                        {
+                            errors.Add(new
+                            {
+                                rowNumber =
+                                    errorObject["rowNumber"]?.Value<int?>()
+                                    ?? errorObject["RowNumber"]?.Value<int?>(),
+
+                                employeeNumber =
+                                    errorObject["employeeNumber"]?.ToString()
+                                    ?? errorObject["EmployeeNumber"]?.ToString(),
+
+                                payrollType =
+                                    errorObject["payrollType"]?.ToString()
+                                    ?? errorObject["PayrollType"]?.ToString(),
+
+                                salaryYear =
+                                    errorObject["salaryYear"]?.Value<int?>()
+                                    ?? errorObject["SalaryYear"]?.Value<int?>(),
+
+                                salaryMonth =
+                                    errorObject["salaryMonth"]?.Value<int?>()
+                                    ?? errorObject["SalaryMonth"]?.Value<int?>(),
+
+                                errorMessage =
+                                    errorObject["errorMessage"]?.ToString()
+                                    ?? errorObject["ErrorMessage"]?.ToString()
+                            });
+                        }
+                    }
+                }
+
+
+                // ------------------------------------------------------------
+                // RETURN RESPONSE TO UI
+                // ------------------------------------------------------------
+
+                return Ok(new
+                {
+                    success = !hasFailures,
+
+                    message = hasFailures
+                        ? "Bulk salary import completed with some failed records."
+                        : "Bulk salary import completed successfully.",
+
+                    batchID = batchId,
+
+                    totalRecords =
+                        apiResult["totalRecords"]?.Value<int>() ?? 0,
+
+                    validRecords =
+                        apiResult["validRecords"]?.Value<int>() ?? 0,
+
+                    failedRecords =
+                        apiResult["failedRecords"]?.Value<int>() ?? 0,
+
+                    insertedRecords =
+                        apiResult["insertedRecords"]?.Value<int>() ?? 0,
+
+                    updatedRecords =
+                        apiResult["updatedRecords"]?.Value<int>() ?? 0,
+
+                    skippedRecords =
+                        apiResult["skippedRecords"]?.Value<int>() ?? 0,
+
+                    errors = errors
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error while importing bulk salary.",
+                    details = ex.Message
+                });
+            }
+            finally
+            {
+                // ------------------------------------------------------------
+                // DELETE TEMP FILE
+                // ------------------------------------------------------------
+
+                if (!string.IsNullOrEmpty(tempFilePath) &&
+                    System.IO.File.Exists(tempFilePath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(tempFilePath);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+        }
+        private DataTable ReadBulkSalaryExcelToDataTable(string filePath)
+        {
+            var dt = new DataTable();
+
+            using var package =
+                new ExcelPackage(new FileInfo(filePath));
+
+            var ws =
+                package.Workbook.Worksheets.FirstOrDefault();
+
+            if (ws == null || ws.Dimension == null)
+            {
+                throw new Exception("Excel file is empty.");
+            }
+
+            int columns = ws.Dimension.End.Column;
+            int rows = ws.Dimension.End.Row;
+
+
+            // ------------------------------------------------------------
+            // READ HEADERS
+            // ------------------------------------------------------------
+
+            for (int col = 1; col <= columns; col++)
+            {
+                string header =
+                    ws.Cells[1, col].Text.Trim();
+
+                if (string.IsNullOrEmpty(header))
+                {
+                    header = "Column" + col;
+                }
+
+                if (dt.Columns.Contains(header))
+                {
+                    throw new Exception(
+                        $"Duplicate column found in Excel: {header}"
+                    );
+                }
+
+                dt.Columns.Add(header);
+            }
+
+
+            // ------------------------------------------------------------
+            // READ DATA
+            // ------------------------------------------------------------
+
+            for (int row = 2; row <= rows; row++)
+            {
+                DataRow dr = dt.NewRow();
+
+                for (int col = 1; col <= columns; col++)
+                {
+                    dr[col - 1] =
+                        ws.Cells[row, col].Text.Trim();
+                }
+
+                dt.Rows.Add(dr);
+            }
+
+
+            return dt;
+        }
+        private List<BulkEmployeeSalaryRequestModel>
+    ConvertBulkSalaryExcel(DataTable dt)
+        {
+            var list =
+                new List<BulkEmployeeSalaryRequestModel>();
+
+
+            // ------------------------------------------------------------
+            // REQUIRED COLUMNS
+            // ------------------------------------------------------------
+
+            string[] requiredColumns =
+            {
+        "EmployeeNumber",
+        "PayrollType",
+        "Year",
+        "Month",
+        "GrossSalary"
+    };
+
+
+            foreach (string column in requiredColumns)
+            {
+                if (!dt.Columns.Contains(column))
+                {
+                    throw new Exception(
+                        $"'{column}' column missing in Excel."
+                    );
+                }
+            }
+
+
+            // ------------------------------------------------------------
+            // PROCESS ROWS
+            // ------------------------------------------------------------
+
+            int rowNumber = 1;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                rowNumber++;
+
+
+                // --------------------------------------------------------
+                // EMPLOYEE NUMBER
+                // --------------------------------------------------------
+
+                string employeeNumber =
+                    row["EmployeeNumber"]?.ToString()?.Trim();
+
+                if (string.IsNullOrWhiteSpace(employeeNumber))
+                {
+                    throw new Exception(
+                        $"Employee Number is required at Excel row {rowNumber}."
+                    );
+                }
+
+
+                // --------------------------------------------------------
+                // PAYROLL TYPE
+                // --------------------------------------------------------
+
+                string payrollType =
+                    row["PayrollType"]?.ToString()?.Trim();
+
+                if (string.IsNullOrWhiteSpace(payrollType))
+                {
+                    throw new Exception(
+                        $"Payroll Type is required for Employee '{employeeNumber}'."
+                    );
+                }
+
+
+                // --------------------------------------------------------
+                // YEAR
+                // --------------------------------------------------------
+
+                if (!int.TryParse(
+                        row["Year"]?.ToString(),
+                        out int year))
+                {
+                    throw new Exception(
+                        $"Invalid Year for Employee '{employeeNumber}'."
+                    );
+                }
+
+
+                // --------------------------------------------------------
+                // MONTH
+                // --------------------------------------------------------
+                string monthValue = row["Month"]?.ToString()?.Trim();
+
+                if (string.IsNullOrWhiteSpace(monthValue))
+                {
+                    throw new Exception(
+                        $"Month is required for Employee '{employeeNumber}'."
+                    );
+                }
+
+                int month;
+
+                if (int.TryParse(monthValue, out int numericMonth))
+                {
+                    // Excel contains 1-12
+                    month = numericMonth;
+                }
+                else if (DateTime.TryParseExact(
+                            monthValue,
+                            new[]
+                            {
+                "MMM",
+                "MMMM"
+                            },
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            System.Globalization.DateTimeStyles.None,
+                            out DateTime parsedMonth))
+                {
+                    // Excel contains Jan / January / Jul / July etc.
+                    month = parsedMonth.Month;
+                }
+                else
+                {
+                    throw new Exception(
+                        $"Invalid Month '{monthValue}' for Employee '{employeeNumber}'."
+                    );
+                }
+
+                if (month < 1 || month > 12)
+                {
+                    throw new Exception(
+                        $"Invalid Month '{monthValue}' for Employee '{employeeNumber}'."
+                    );
+                }
+
+
+                // --------------------------------------------------------
+                // GROSS SALARY
+                // --------------------------------------------------------
+
+                if (!decimal.TryParse(
+                        row["GrossSalary"]?.ToString(),
+                        out decimal grossSalary))
+                {
+                    throw new Exception(
+                        $"Invalid Gross Salary for Employee '{employeeNumber}'."
+                    );
+                }
+
+
+                // --------------------------------------------------------
+                // CREATE MODEL
+                // --------------------------------------------------------
+
+                var model =
+                    new BulkEmployeeSalaryRequestModel
+                    {
+                        RowNumber = rowNumber,
+
+                        EmployeeNumber = employeeNumber,
+
+                        PayrollType = payrollType,
+
+                        Year = year,
+
+                        Month = month,
+
+                        GrossSalary = grossSalary,
+
+                        MonthDays = GetNullableDecimal(
+                            row,
+                            "MonthDays"
+                        ),
+
+                        PayableDays = GetNullableDecimal(
+                            row,
+                            "PayableDays"
+                        ),
+
+                        // Earnings
+
+                        ClientIncentive =
+                            GetDecimal(row, "ClientIncentive"),
+
+                        PLI =
+                            GetDecimal(row, "PLI"),
+
+                        FloorIncentive =
+                            GetDecimal(row, "FloorIncentive"),
+
+                        EmployeeReferral =
+                            GetDecimal(row, "EmployeeReferral"),
+
+                        TrainingFee =
+                            GetDecimal(row, "TrainingFee"),
+
+                        GWR =
+                            GetDecimal(row, "GWR"),
+
+                        OtherAdditionArrear =
+                            GetDecimal(row, "OtherAdditionArrear"),
+
+                        // Deductions
+
+                        EMPLWF =
+                            GetDecimal(row, "EMPLWF"),
+
+                        TDS =
+                            GetDecimal(row, "TDS"),
+
+                        DBTDeduction =
+                            GetDecimal(row, "DBTDeduction"),
+
+                        AdvanceDeduction =
+                            GetDecimal(row, "AdvanceDeduction"),
+
+                        InsuranceDeduction =
+                            GetDecimal(row, "InsuranceDeduction"),
+
+                        OtherDeduction =
+                            GetDecimal(row, "OtherDeduction")
+                    };
+
+
+                list.Add(model);
+            }
+
+
+            return list;
+        }
+        private decimal GetDecimal(
+    DataRow row,
+    string columnName)
+        {
+            if (!row.Table.Columns.Contains(columnName))
+            {
+                return 0;
+            }
+
+            string value =
+                row[columnName]?.ToString()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return 0;
+            }
+
+            if (decimal.TryParse(value, out decimal result))
+            {
+                return result;
+            }
+
+            throw new Exception(
+                $"Invalid decimal value '{value}' in column '{columnName}'."
+            );
+        }
+        private decimal? GetNullableDecimal(
+    DataRow row,
+    string columnName)
+        {
+            if (!row.Table.Columns.Contains(columnName))
+            {
+                return null;
+            }
+
+            string value =
+                row[columnName]?.ToString()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            if (decimal.TryParse(value, out decimal result))
+            {
+                return result;
+            }
+
+            throw new Exception(
+                $"Invalid decimal value '{value}' in column '{columnName}'."
+            );
         }
         #endregion
     }

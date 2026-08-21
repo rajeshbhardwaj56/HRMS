@@ -209,9 +209,16 @@ namespace HRMS.API.BusinessLayer
         public const string usp_SaveSalarySlipSettings = "usp_SaveSalarySlipSettings";
         public const string usp_GetSalarySlipSettingsLog = "usp_GetSalarySlipSettingsLog";
         public const string usp_GetSalarySlipSettings = "usp_GetSalarySlipSettings";
+        public const string usp_ImportBulkSalary = "usp_ImportBulkSalary";
+        public const string usp_ExportEmployeeSalary = "usp_ExportEmployeeSalary";
+        public const string usp_AutoCalculateEmployeeSalary = "usp_AutoCalculateEmployeeSalary";
+        public const string usp_VerifyEmployeeSalary ="usp_VerifyEmployeeSalary";
+        public const string usp_GetEmployeeSalaryByIDLog ="usp_GetEmployeeSalaryByIDLog";
+        public const string usp_GetPayrollPeriodsForDropdown = "usp_GetPayrollPeriodsForDropdown";
 
         #endregion Payroll
-
+        public const string usp_CheckWeekOffLimit = "usp_CheckWeekOffLimit";
+        public const string usp_CheckWeekOffLimit_Bulk = "usp_CheckWeekOffLimit_Bulk";
 
         #region Logs
         public const string usp_InsertAuditLog = "usp_InsertAuditLog";

@@ -984,12 +984,15 @@ namespace HRMS.Web.Areas.Employee.Controllers
             var token = HttpContext.Session.GetString(Constants.SessionBearerToken);
 
             var settings = _cutoffSettingsService.GetCutoffSettings(token);
-
+            // ============================================
+            // PASS SETTINGS TO VIEW
+            // ============================================
             AttendanceViewModel model = new AttendanceViewModel
             {
                 AttendanceCutoffDate = settings.AttendanceCutoffDate,
                 AdminEditCutoffDate = settings.AdminEditCutoffDate,
-                AllowSuperAdminEdit = settings.AllowSuperAdminEdit
+                AllowSuperAdminEdit = settings.AllowSuperAdminEdit,
+                ShowImportAttendanceExcel = settings.ShowImportAttendanceExcel
             };
             return View(model);
         }

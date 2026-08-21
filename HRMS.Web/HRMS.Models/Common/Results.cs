@@ -1,11 +1,12 @@
-using HRMS.Models.Employee;
-using HRMS.Models.Template;
-using HRMS.Models.Company;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using HRMS.Models.LeavePolicy;
 using HRMS.Models.AttendenceList;
+using HRMS.Models.Company;
+using HRMS.Models.Employee;
+using HRMS.Models.LeavePolicy;
+using HRMS.Models.PayRoll;
 using HRMS.Models.ShiftType;
+using HRMS.Models.Template;
 using HRMS.Models.WhatsHappeningModel;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HRMS.Models.Common
 {
@@ -63,6 +64,10 @@ namespace HRMS.Models.Common
         public List<SalarySlipSettingsModel> SalarySlipSettingsList { get; set; } = new();
 
         public SalarySlipSettingsModel salarySlipSettingsModel { get; set; } = new();
+        public List<AutoSalaryCalculationModel> AutoSalaryCalculationList { get; set; } = new();
+        public AutoSalaryCalculationModel autoSalaryCalculationModelModel { get; set; } = new();
+        public List<AutoSalaryCalculationErrorModel> AutoSalaryCalculationErrors { get; set; } = new();
+        public AutoSalaryCalculationErrorModel autoSalaryCalculationErrorsModel { get; set; } = new();
 
     }
 

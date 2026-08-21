@@ -378,8 +378,8 @@ namespace HRMS.Models.Common
         public const string GetManagerDropdown = "GetManagerDropdown";
         public const string GetCompanyHoliday = "GetCompanyHoliday";
 
-
         public const string GetEmployeesMonthlySalary = "GetEmployeesMonthlySalary";
+        public const string GetEmployeeSalaryMonths = "GetEmployeeSalaryMonths";
         public const string AddUpdateEmployeeMonthlySalary = "AddUpdateEmployeeMonthlySalary";
         public const string GetTeamAlignment = "GetTeamAlignment";
 
@@ -419,6 +419,11 @@ namespace HRMS.Models.Common
         public const string GetPayrollPeriodDetails = "GetPayrollPeriodDetails";
         public const string GetSalarySlipSettings = "GetSalarySlipSettings";
         public const string AddUpdateSalarySlipSettings = "AddUpdateSalarySlipSettings";
+        public const string CalculateBulkEmployeeSalary = "CalculateBulkEmployeeSalary";
+        public const string ExportEmployeeSalary = "ExportEmployeeSalary";
+        public const string AutoCalculateEmployeeSalary = "AutoCalculateEmployeeSalary";
+        public const string VerifyEmployeeSalary = "VerifyEmployeeSalary";
+        public const string GetPayrollPeriodsForDropdown = "GetPayrollPeriodsForDropdown";
 
     }
 

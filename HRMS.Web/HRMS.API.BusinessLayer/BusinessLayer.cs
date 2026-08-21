@@ -6685,6 +6685,44 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
 
 
         #region Payroll
+        public List<EmployeeSalaryMonth> GetEmployeeSalaryMonths(long employeeId)
+        {
+            List<EmployeeSalaryMonth> result = new List<EmployeeSalaryMonth>();
+
+            try
+            {
+                List<SqlParameter> sqlParameter = new List<SqlParameter>
+        {
+            new SqlParameter("@EmployeeID", employeeId)
+        };
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    "usp_GetEmployeeSalaryMonths",
+                    sqlParameter
+                );
+
+                if (dataSet != null && dataSet.Tables.Count > 0)
+                {
+                    result = dataSet.Tables[0]
+                        .AsEnumerable()
+                        .Select(dataRow => new EmployeeSalaryMonth
+                        {
+                            Month = dataRow.Field<int>("Month"),
+
+                            Year = dataRow.Field<int>("Year"),
+
+                            MonthName = dataRow.Field<string>("MonthName")
+                        })
+                        .ToList();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return result;
+        }
         public List<SalaryDetails> GetEmployeesMonthlySalary(SalaryInputParams model)
         {
             List<SalaryDetails> result = new List<SalaryDetails>();
@@ -6787,15 +6825,19 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
                             EDLIAdminCharges = dataRow.Field<decimal?>("EDLIAdminCharges") ?? 0m,
 
                             // CTC
-                            CTC = dataRow.Field<decimal?>("CTC") ?? 0m
-
+                            CTC = dataRow.Field<decimal?>("CTC") ?? 0m,
+                            OfficialEmail = dataRow["OfficialEmailID"] == DBNull.Value
+                                ? string.Empty
+                                : Convert.ToString(dataRow["OfficialEmailID"]),
+                            // ✅ Flags
+                            IsVerified = dataRow.Field<bool?>("IsVerified") ?? false
                             // ✅ Flags
                             //IsActive = dataRow.Field<bool>("IsActive")
                         })
                         .ToList();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
             }
@@ -7272,6 +7314,8 @@ public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequ
                     row["UANNumber"]?.ToString();
                 salary.EmployeeName =
     row["EmployeeName"]?.ToString();
+                salary.OfficialEmail =
+row["OfficialEmail"]?.ToString();
             }
 
             return salary;
@@ -7421,8 +7465,567 @@ public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequ
 
             return result;
         }
+        private DataTable CreateBulkSalaryDataTable(
+            List<BulkEmployeeSalaryRequestModel> models)
+        {
+            DataTable table = new DataTable();
 
+            table.Columns.Add("RowNumber", typeof(int));
+            table.Columns.Add("EmployeeNumber", typeof(string));
+            table.Columns.Add("PayrollType", typeof(string));
 
+            table.Columns.Add("SalaryYear", typeof(int));
+            table.Columns.Add("SalaryMonth", typeof(int));
+
+            table.Columns.Add("GrossSalary", typeof(decimal));
+            table.Columns.Add("MonthDays", typeof(decimal));
+            table.Columns.Add("PayableDays", typeof(decimal));
+
+            // Earnings
+            table.Columns.Add("ClientIncentive", typeof(decimal));
+            table.Columns.Add("PLI", typeof(decimal));
+            table.Columns.Add("FloorIncentive", typeof(decimal));
+            table.Columns.Add("EmployeeReferral", typeof(decimal));
+            table.Columns.Add("TrainingFee", typeof(decimal));
+            table.Columns.Add("GWR", typeof(decimal));
+            table.Columns.Add("OtherAdditionArrear", typeof(decimal));
+
+            // Deductions
+            table.Columns.Add("EMPLWF", typeof(decimal));
+            table.Columns.Add("TDS", typeof(decimal));
+            table.Columns.Add("DBTDeduction", typeof(decimal));
+            table.Columns.Add("AdvanceDeduction", typeof(decimal));
+            table.Columns.Add("InsuranceDeduction", typeof(decimal));
+            table.Columns.Add("OtherDeduction", typeof(decimal));
+
+            foreach (var model in models)
+            {
+                DataRow row = table.NewRow();
+
+                row["RowNumber"] = model.RowNumber;
+
+                row["EmployeeNumber"] =
+                    string.IsNullOrWhiteSpace(model.EmployeeNumber)
+                        ? (object)DBNull.Value
+                        : model.EmployeeNumber.Trim();
+
+                row["PayrollType"] =
+                    string.IsNullOrWhiteSpace(model.PayrollType)
+                        ? (object)DBNull.Value
+                        : model.PayrollType.Trim();
+
+                row["SalaryYear"] = model.Year;
+
+                row["SalaryMonth"] = model.Month;
+
+                row["GrossSalary"] = model.GrossSalary;
+
+                row["MonthDays"] =
+                    model.MonthDays.HasValue
+                        ? model.MonthDays.Value
+                        : (object)DBNull.Value;
+
+                row["PayableDays"] =
+                    model.PayableDays.HasValue
+                        ? model.PayableDays.Value
+                        : (object)DBNull.Value;
+
+                // --------------------------------------------------------
+                // EARNINGS
+                // --------------------------------------------------------
+
+                row["ClientIncentive"] = model.ClientIncentive;
+                row["PLI"] = model.PLI;
+                row["FloorIncentive"] = model.FloorIncentive;
+                row["EmployeeReferral"] = model.EmployeeReferral;
+                row["TrainingFee"] = model.TrainingFee;
+                row["GWR"] = model.GWR;
+                row["OtherAdditionArrear"] = model.OtherAdditionArrear;
+
+                // --------------------------------------------------------
+                // DEDUCTIONS
+                // --------------------------------------------------------
+
+                row["EMPLWF"] = model.EMPLWF;
+                row["TDS"] = model.TDS;
+                row["DBTDeduction"] = model.DBTDeduction;
+                row["AdvanceDeduction"] = model.AdvanceDeduction;
+                row["InsuranceDeduction"] = model.InsuranceDeduction;
+                row["OtherDeduction"] = model.OtherDeduction;
+
+                table.Rows.Add(row);
+            }
+
+            return table;
+        }
+        public BulkSalaryImportResultModel CalculateBulkEmployeeSalary(
+    List<BulkEmployeeSalaryRequestModel> models,
+    string fileName,
+    long userID)
+        {
+            BulkSalaryImportResultModel result =
+                new BulkSalaryImportResultModel();
+
+            if (models == null || models.Count == 0)
+            {
+                return result;
+            }
+
+            Guid batchID = Guid.NewGuid();
+
+            result.BatchID = batchID;
+
+            // ------------------------------------------------------------
+            // CREATE TVP DATA
+            // ------------------------------------------------------------
+
+            DataTable salaryData =
+                CreateBulkSalaryDataTable(models);
+
+            // ------------------------------------------------------------
+            // SQL PARAMETERS
+            // ------------------------------------------------------------
+
+            List<SqlParameter> sqlParameter =
+                new List<SqlParameter>();
+
+            sqlParameter.Add(
+                new SqlParameter("@BatchID", SqlDbType.UniqueIdentifier)
+                {
+                    Value = batchID
+                }
+            );
+
+            sqlParameter.Add(
+                new SqlParameter("@FileName", SqlDbType.NVarChar, 500)
+                {
+                    Value = string.IsNullOrWhiteSpace(fileName)
+                        ? (object)DBNull.Value
+                        : fileName
+                }
+            );
+
+            sqlParameter.Add(
+                new SqlParameter("@CreatedByUserID", SqlDbType.BigInt)
+                {
+                    Value = userID
+                }
+            );
+
+            // ------------------------------------------------------------
+            // TABLE VALUED PARAMETER
+            // ------------------------------------------------------------
+
+            SqlParameter salaryDataParameter =
+                new SqlParameter("@SalaryData", SqlDbType.Structured);
+
+            salaryDataParameter.TypeName =
+                "dbo.BulkSalaryImportType";
+
+            salaryDataParameter.Value =
+                salaryData;
+
+            sqlParameter.Add(salaryDataParameter);
+
+            // ------------------------------------------------------------
+            // EXECUTE SP
+            // ------------------------------------------------------------
+
+            var dataSet =
+                DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_ImportBulkSalary,
+                    sqlParameter
+                );
+
+            // ------------------------------------------------------------
+            // SUMMARY
+            // ------------------------------------------------------------
+
+            if (dataSet != null &&
+                dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0].Rows.Count > 0)
+            {
+                DataRow row = dataSet.Tables[0].Rows[0];
+
+                if (row["BatchID"] != DBNull.Value)
+                {
+                    result.BatchID =
+                        Guid.Parse(row["BatchID"].ToString());
+                }
+
+                result.TotalRecords =
+                    row["TotalRecords"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt32(row["TotalRecords"]);
+
+                result.ValidRecords =
+                    row["ValidRecords"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt32(row["ValidRecords"]);
+
+                result.FailedRecords =
+                    row["FailedRecords"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt32(row["FailedRecords"]);
+
+                // --------------------------------------------------------
+                // INSERTED
+                // --------------------------------------------------------
+
+                result.InsertedRecords =
+                    row["InsertedRecords"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt32(row["InsertedRecords"]);
+
+                // --------------------------------------------------------
+                // UPDATED
+                // --------------------------------------------------------
+
+                result.UpdatedRecords =
+                    row["UpdatedRecords"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt32(row["UpdatedRecords"]);
+
+                // --------------------------------------------------------
+                // SKIPPED
+                // --------------------------------------------------------
+
+                result.SkippedRecords =
+                    row["SkippedRecords"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt32(row["SkippedRecords"]);
+            }
+
+            // ------------------------------------------------------------
+            // ERRORS
+            // ------------------------------------------------------------
+
+            if (dataSet != null &&
+                dataSet.Tables.Count > 1 &&
+                dataSet.Tables[1].Rows.Count > 0)
+            {
+                foreach (DataRow row in dataSet.Tables[1].Rows)
+                {
+                    result.Errors.Add(
+                        new BulkSalaryImportErrorModel
+                        {
+                            RowNumber =
+                                row["RowNumber"] == DBNull.Value
+                                    ? 0
+                                    : Convert.ToInt32(
+                                        row["RowNumber"]
+                                    ),
+
+                            EmployeeNumber =
+                                row["EmployeeNumber"] == DBNull.Value
+                                    ? string.Empty
+                                    : row["EmployeeNumber"].ToString(),
+
+                            PayrollType =
+                                row["PayrollType"] == DBNull.Value
+                                    ? string.Empty
+                                    : row["PayrollType"].ToString(),
+
+                            SalaryYear =
+                                row["SalaryYear"] == DBNull.Value
+                                    ? (int?)null
+                                    : Convert.ToInt32(
+                                        row["SalaryYear"]
+                                    ),
+
+                            SalaryMonth =
+                                row["SalaryMonth"] == DBNull.Value
+                                    ? (int?)null
+                                    : Convert.ToInt32(
+                                        row["SalaryMonth"]
+                                    ),
+
+                            ErrorMessage =
+                                row["ErrorMessage"] == DBNull.Value
+                                    ? string.Empty
+                                    : row["ErrorMessage"].ToString()
+                        }
+                    );
+                }
+            }
+
+            return result;
+        }
+        public List<SalaryDetails> GetEmployeeSalaryForExport(
+            int year,
+            int month)
+        {
+            List<SalaryDetails> result =
+                new List<SalaryDetails>();
+
+            List<SqlParameter> sqlParameter =
+                new List<SqlParameter>();
+
+            sqlParameter.Add(
+                new SqlParameter("@Year", SqlDbType.Int)
+                {
+                    Value = year
+                }
+            );
+
+            sqlParameter.Add(
+                new SqlParameter("@Month", SqlDbType.Int)
+                {
+                    Value = month
+                }
+            );
+
+            var dataSet =
+                DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_ExportEmployeeSalary,
+                    sqlParameter
+                );
+
+            if (dataSet == null ||
+                dataSet.Tables.Count == 0 ||
+                dataSet.Tables[0].Rows.Count == 0)
+            {
+                return result;
+            }
+
+            DataTable table = dataSet.Tables[0];
+
+            foreach (DataRow row in table.Rows)
+            {
+                SalaryDetails model = new SalaryDetails
+                {
+                    SalaryID = row["SalaryID"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt64(row["SalaryID"]),
+
+                    EmployeeID = row["EmployeeID"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt64(row["EmployeeID"]),
+
+                    PayrollTypeID = row["PayrollTypeID"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt64(row["PayrollTypeID"]),
+
+                    SalaryMonth = row["SalaryMonth"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt32(row["SalaryMonth"]),
+
+                    SalaryYear = row["SalaryYear"] == DBNull.Value
+                        ? 0
+                        : Convert.ToInt32(row["SalaryYear"]),
+
+                    EmployeeNumber = row["EmployeeNumber"]?.ToString(),
+                    EmployeeName = row["EmployeeName"]?.ToString(),
+
+                    PayrollTypeName = row["PayrollTypeName"]?.ToString(),
+
+                    RevisedGross = row["RevisedGross"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["RevisedGross"]),
+
+                    MonthDays = row["MonthDays"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["MonthDays"]),
+
+                    PayableDays = row["PayableDays"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["PayableDays"]),
+
+                    BasicFixed = row["BasicFixed"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["BasicFixed"]),
+
+                    HRAFixed = row["HRAFixed"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["HRAFixed"]),
+
+                    ConveyanceFixed = row["ConveyanceFixed"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["ConveyanceFixed"]),
+
+                    SpecialAllowanceFixed = row["SpecialAllowanceFixed"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["SpecialAllowanceFixed"]),
+
+                    GrossSalaryFixed = row["GrossSalaryFixed"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["GrossSalaryFixed"]),
+
+                    BasicPayable = row["BasicPayable"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["BasicPayable"]),
+
+                    HRAPayable = row["HRAPayable"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["HRAPayable"]),
+
+                    ConveyancePayable = row["ConveyancePayable"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["ConveyancePayable"]),
+
+                    SpecialAllowancePayable = row["SpecialAllowancePayable"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["SpecialAllowancePayable"]),
+
+                    GrossSalaryPayable = row["GrossSalaryPayable"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["GrossSalaryPayable"]),
+
+                    ClientIncentive = row["ClientIncentive"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["ClientIncentive"]),
+
+                    PLI = row["PLI"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["PLI"]),
+
+                    FloorIncentive = row["FloorIncentive"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["FloorIncentive"]),
+
+                    EmpReferal = row["EmpReferal"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EmpReferal"]),
+
+                    TrainingFee = row["TrainingFee"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["TrainingFee"]),
+
+                    GWR = row["Gwr"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["Gwr"]),
+
+                    OtherAdditonArrear = row["OtherAdditonArrear"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["OtherAdditonArrear"]),
+
+                    EMPLWF = row["EMPLWF"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EMPLWF"]),
+
+                    TDS = row["TDS"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["TDS"]),
+
+                    DbtDeduction = row["DbtDeduction"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["DbtDeduction"]),
+
+                    Advanceded = row["Advanceded"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["Advanceded"]),
+
+                    InsuranceDeduction = row["InsuranceDeduction"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["InsuranceDeduction"]),
+
+                    OtherDeduction = row["OtherDeduction"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["OtherDeduction"]),
+
+                    EMPPF = row["EMPPF"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EMPPF"]),
+
+                    EMPESI = row["EMPESI"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EMPESI"]),
+
+                    PTAX = row["PTAX"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["PTAX"]),
+
+                    TotalDeduction = row["TotalDeduction"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["TotalDeduction"]),
+
+                    NetPayable = row["NetPayable"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["NetPayable"]),
+
+                    EmployerPF = row["EmployerPF"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EmployerPF"]),
+
+                    EmployerESI = row["EmployerESI"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EmployerESI"]),
+
+                    EmployerLWF = row["EmployerLWF"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EmployerLWF"]),
+
+                    TotalEmployerContribution = row["TotalEmployerContribution"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["TotalEmployerContribution"]),
+
+                    EPFWages = row["EPFWages"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EPFWages"]),
+
+                    EPSWages = row["EPSWages"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EPSWages"]),
+
+                    EDLIWages = row["EDLIWages"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EDLIWages"]),
+
+                    EPFAdminCharges = row["EPFAdminCharges"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EPFAdminCharges"]),
+
+                    EDLIContribution = row["EDLIContribution"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EDLIContribution"]),
+
+                    EDLIAdminCharges = row["EDLIAdminCharges"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["EDLIAdminCharges"]),
+
+                    CTC = row["CTC"] == DBNull.Value
+                        ? 0
+                        : Convert.ToDecimal(row["CTC"]),
+
+                    OfficialEmail = row["OfficialEmail"]?.ToString(),
+
+                    Designation = row["Designation"]?.ToString(),
+                    Department = row["Department"]?.ToString(),
+                    Location = row["Location"]?.ToString(),
+
+                    BankAccountNumber = row["BankAccountNumber"]?.ToString(),
+                    BankName = row["BankName"]?.ToString(),
+                    IFSCCode = row["IFSCCode"]?.ToString(),
+                    UANNumber = row["UANNumber"]?.ToString(),
+
+                    MonthName = row["MonthName"]?.ToString(),
+
+                    EmployeeGrossSalaryFixed =
+                        row["EmployeeGrossSalaryFixed"] == DBNull.Value
+                            ? 0
+                            : Convert.ToDecimal(row["EmployeeGrossSalaryFixed"]),
+
+                    PayrollStartDate =
+                        row["PayrollStartDate"] == DBNull.Value
+                            ? null
+                            : Convert.ToDateTime(row["PayrollStartDate"]),
+
+                    PayrollEndDate =
+                        row["PayrollEndDate"] == DBNull.Value
+                            ? null
+                            : Convert.ToDateTime(row["PayrollEndDate"]),
+
+                    DateOfJoining =
+                        row["DateOfJoining"] == DBNull.Value
+                            ? null
+                            : Convert.ToDateTime(row["DateOfJoining"])
+                };
+
+                result.Add(model);
+            }
+
+            return result;
+        }
         #endregion Payroll
 
 
@@ -8931,6 +9534,57 @@ public async Task<string> UploadAttendance(DataTable dt, long userId)
                 return null;
             }
         }
+        public List<PayrollPeriodDropdownModel> GetPayrollPeriodsForDropdown()
+        {
+            try
+            {
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetPayrollPeriodsForDropdown,
+                    new List<SqlParameter>());
+
+                if (dataSet == null ||
+                    dataSet.Tables.Count == 0 ||
+                    dataSet.Tables[0].Rows.Count == 0)
+                {
+                    return new List<PayrollPeriodDropdownModel>();
+                }
+
+                var result = new List<PayrollPeriodDropdownModel>();
+
+                foreach (DataRow dataRow in dataSet.Tables[0].Rows)
+                {
+                    result.Add(new PayrollPeriodDropdownModel
+                    {
+                        PayrollPeriodID =
+                            dataRow.Field<int>("PayrollPeriodID"),
+
+                        PayrollYear =
+                            dataRow.Field<int>("PayrollYear"),
+
+                        PayrollMonth =
+                            dataRow.Field<int>("PayrollMonth"),
+
+                        PayrollMonthName =
+                            dataRow.Field<string>("PayrollMonthName"),
+
+                        PayrollStartDate =
+                            dataRow.Field<DateTime>("PayrollStartDate"),
+
+                        PayrollEndDate =
+                            dataRow.Field<DateTime>("PayrollEndDate"),
+
+                        IsCurrentPeriod =
+                            dataRow.Field<int>("IsCurrentPeriod") == 1
+                    });
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new List<PayrollPeriodDropdownModel>();
+            }
+        }
         public Result AddUpdateSalarySlipSettings(SalarySlipSettingsModel modelData)
         {
             Result model = new Result();
@@ -9348,6 +10002,437 @@ public async Task<string> UploadAttendance(DataTable dt, long userId)
             return result;
         }
         #endregion
+        #region Check Weekoff
+        public WeekOffLimitResult CheckWeekOffLimit(WeekOffLimitModel modelData)
+        {
+            List<SqlParameter> sqlParameter = new List<SqlParameter>();
+
+            sqlParameter.Add(new SqlParameter("@EmployeeNumber", modelData.EmployeeNumber));
+            sqlParameter.Add(new SqlParameter("@WorkDate", modelData.WorkDate));
+
+            var ds = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_CheckWeekOffLimit,
+                sqlParameter);
+
+            if (ds != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                DataRow dr = ds.Tables[0].Rows[0];
+
+                return new WeekOffLimitResult
+                {
+                    WeekOffCount = Convert.ToInt32(dr["WeekOffCount"]),
+                    IsExceeded = Convert.ToBoolean(dr["IsExceeded"]),
+                    Message = dr["Message"].ToString()
+                };
+            }
+
+            return new WeekOffLimitResult();
+        }
+        private DataTable CreateWeekOffTVP(List<WeekOffLimitModel> models)
+        {
+            DataTable dt = new DataTable();
+
+            dt.Columns.Add("EmployeeNumber", typeof(string));
+            dt.Columns.Add("WorkDate", typeof(DateTime));
+            dt.Columns.Add("WeekStartDate", typeof(DateTime));
+
+            foreach (var item in models)
+            {
+                dt.Rows.Add(
+                    item.EmployeeNumber,
+                    item.WorkDate,
+                    item.WeekStartDate
+                );
+            }
+
+            return dt;
+        }
+        public List<WeekOffLimitResult> CheckWeekOffLimitBulk(List<WeekOffLimitModel> modelData)
+        {
+            DataTable tvpTable = CreateWeekOffTVP(modelData);
+
+            SqlParameter param = new SqlParameter("@Input", tvpTable)
+            {
+                SqlDbType = SqlDbType.Structured,
+                TypeName = "dbo.WeekOffCheckType"
+            };
+
+            var ds = DataLayer.GetDataSetByStoredProcedure(
+                StoredProcedures.usp_CheckWeekOffLimit_Bulk,
+                new List<SqlParameter> { param });
+
+            List<WeekOffLimitResult> resultList = new List<WeekOffLimitResult>();
+
+            if (ds != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    resultList.Add(new WeekOffLimitResult
+                    {
+                        EmployeeNumber = Convert.ToString(dr["EmployeeNumber"]),
+
+                        WeekStartDate = Convert.ToDateTime(dr["WeekStartDate"]),
+
+                        WeekOffID = Convert.ToInt32(dr["WeekOffID"]),
+
+                        IsUpdate = Convert.ToBoolean(dr["IsUpdate"]),
+
+                        PayrollStartDate = Convert.ToDateTime(dr["PayrollStartDate"]),
+
+                        PayrollEndDate = Convert.ToDateTime(dr["PayrollEndDate"]),
+
+                        WeekOffCount = Convert.ToInt32(dr["WeekOffCount"]),
+
+                        IsExceeded = Convert.ToBoolean(dr["IsExceeded"]),
+
+                        Message = Convert.ToString(dr["Message"])
+                    });
+                }
+            }
+
+            return resultList;
+        }
+        #endregion
+        public Results AutoCalculateEmployeeSalary(int month, int year, long userID)
+        {
+            try
+            {
+                Results result = new Results();
+
+                var parameters = new List<SqlParameter>
+        {
+            new SqlParameter("@Month", month),
+            new SqlParameter("@Year", year),
+            new SqlParameter("@UserID", userID)
+        };
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_AutoCalculateEmployeeSalary,
+                    parameters);
+
+                if (dataSet == null || dataSet.Tables.Count == 0)
+                {
+                    return result;
+                }
+
+                // =====================================================
+                // RESULT 1 - SALARY CALCULATION SUMMARY
+                // =====================================================
+
+                if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+                {
+                    result.AutoSalaryCalculationList = dataSet.Tables[0]
+                        .AsEnumerable()
+                        .Select(row => new AutoSalaryCalculationModel
+                        {
+                            SalaryYear = row.Field<int>("SalaryYear"),
+                            SalaryMonth = row.Field<int>("SalaryMonth"),
+                            PayrollStartDate = row.Field<DateTime?>("PayrollStartDate"),
+                            PayrollEndDate = row.Field<DateTime?>("PayrollEndDate"),
+                            InsertedRecords = row.Field<int>("InsertedRecords"),
+                            UpdatedRecords = row.Field<int>("UpdatedRecords"),
+                            FailedRecords = row.Field<int>("FailedRecords"),
+                            SkippedRecords = row.Field<int>("SkippedRecords"),
+                            TotalProcessed = row.Field<int>("TotalProcessed")
+                        })
+                        .ToList();
+                }
+
+                // =====================================================
+                // RESULT 2 - FAILED EMPLOYEES
+                // =====================================================
+
+                if (dataSet.Tables.Count > 1 && dataSet.Tables[1].Rows.Count > 0)
+                {
+                    result.AutoSalaryCalculationErrors = dataSet.Tables[1]
+                        .AsEnumerable()
+                        .Select(row => new AutoSalaryCalculationErrorModel
+                        {
+                            EmployeeID = row.Field<long?>("EmployeeID"),
+                            PayrollTypeID = row.Field<long?>("PayrollTypeID"),
+                            GrossSalary = row.Field<decimal?>("GrossSalary"),
+                            ErrorMessage = row.Field<string>("ErrorMessage"),
+                            ErrorDate = row.Field<DateTime?>("ErrorDate")
+                        })
+                        .ToList();
+                }
+                else
+                {
+                    result.AutoSalaryCalculationErrors =
+                        new List<AutoSalaryCalculationErrorModel>();
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Do NOT return null.
+                // Let the actual exception reach the API/controller.
+                throw;
+            }
+        }
+        public Result VerifyEmployeeSalary(
+            List<long> employeeIDs,
+            int month,
+            int year,
+            long verifiedByUserID
+            )
+        {
+            Result model = new Result();
+
+            try
+            {
+                // =========================================================
+                // VALIDATION
+                // =========================================================
+
+                if (employeeIDs == null || employeeIDs.Count == 0)
+                {
+                    model.PKNo = 0;
+                    model.Message = "No employees selected.";
+                    model.ErrorCode = "NO_EMPLOYEE_SELECTED";
+
+                    return model;
+                }
+
+
+                int successCount = 0;
+                int failedCount = 0;
+
+                List<string> errors = new List<string>();
+
+
+                // =========================================================
+                // PROCESS EACH EMPLOYEE
+                // =========================================================
+
+                foreach (long employeeID in employeeIDs)
+                {
+                    try
+                    {
+                        // =====================================================
+                        // GET OLD DATA
+                        // =====================================================
+
+                        DataSet oldDataSet =
+                            DataLayer.GetDataSetByStoredProcedure(
+                                StoredProcedures.usp_GetEmployeeSalaryByIDLog,
+                                new List<SqlParameter>
+                                {
+                            new SqlParameter("@EmployeeID", employeeID),
+                            new SqlParameter("@Month", month),
+                            new SqlParameter("@Year", year)
+                                }
+                            );
+
+
+                        DataTable oldData =
+                            oldDataSet.Tables.Count > 0
+                                ? oldDataSet.Tables[0]
+                                : new DataTable();
+
+
+                        // =====================================================
+                        // VERIFY PARAMETERS
+                        // =====================================================
+
+                        List<SqlParameter> sqlParameter =
+                            new List<SqlParameter>
+                            {
+                        new SqlParameter("@EmployeeID", employeeID),
+                        new SqlParameter("@Month", month),
+                        new SqlParameter("@Year", year),
+                        new SqlParameter("@VerifiedByUserID", verifiedByUserID)
+                            };
+
+
+                        // =====================================================
+                        // CALL VERIFY SP
+                        // =====================================================
+
+                        DataSet dataSet =
+                            DataLayer.GetDataSetByStoredProcedure(
+                                StoredProcedures.usp_VerifyEmployeeSalary,
+                                sqlParameter
+                            );
+
+
+                        long salaryID = 0;
+
+                        string verifyMessage = "";
+
+
+                        // =====================================================
+                        // READ SP RESPONSE
+                        // =====================================================
+
+                        if (dataSet.Tables.Count > 0 &&
+                            dataSet.Tables[0].Rows.Count > 0)
+                        {
+                            DataRow row =
+                                dataSet.Tables[0].Rows[0];
+
+
+                            if (dataSet.Tables[0].Columns.Contains("PKNo") &&
+                                row["PKNo"] != DBNull.Value)
+                            {
+                                salaryID =
+                                    Convert.ToInt64(row["PKNo"]);
+                            }
+
+
+                            if (dataSet.Tables[0].Columns.Contains("Message") &&
+                                row["Message"] != DBNull.Value)
+                            {
+                                verifyMessage =
+                                    row["Message"].ToString();
+                            }
+                        }
+
+
+                        // =====================================================
+                        // SUCCESS
+                        // =====================================================
+
+                        if (salaryID > 0)
+                        {
+                            successCount++;
+
+
+                            // =================================================
+                            // GET NEW DATA
+                            // =================================================
+
+                            DataSet newDataSet =
+                                DataLayer.GetDataSetByStoredProcedure(
+                                    StoredProcedures.usp_GetEmployeeSalaryByIDLog,
+                                    new List<SqlParameter>
+                                    {
+                                new SqlParameter("@EmployeeID", employeeID),
+                                new SqlParameter("@Month", month),
+                                new SqlParameter("@Year", year)
+                                    }
+                                );
+
+
+                            DataTable newData =
+                                newDataSet.Tables.Count > 0
+                                    ? newDataSet.Tables[0]
+                                    : new DataTable();
+
+
+                            // =================================================
+                            // AUDIT LOG
+                            // =================================================
+
+                            TrackLogAudit(
+                                oldData,
+                                newData,
+                                "Verify",
+                                verifiedByUserID,
+                                "EmployeeSalary",
+                                "tbl_EmployeeSalary",
+                                salaryID,
+                                "tbl_EmployeeSalary_Log",
+                                "Employee Salary Verification"
+                            );
+                        }
+                        else
+                        {
+                            failedCount++;
+
+                            errors.Add(
+                                "EmployeeID " +
+                                employeeID +
+                                ": " +
+                                (
+                                    string.IsNullOrWhiteSpace(verifyMessage)
+                                        ? "Salary could not be verified."
+                                        : verifyMessage
+                                )
+                            );
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        failedCount++;
+
+                        errors.Add(
+                            "EmployeeID " +
+                            employeeID +
+                            ": " +
+                            ex.Message
+                        );
+                    }
+                }
+
+
+                // =========================================================
+                // FINAL RESULT
+                // =========================================================
+
+                model.PKNo =
+                    successCount > 0
+                        ? 1
+                        : 0;
+
+
+                // =========================================================
+                // MESSAGE
+                // =========================================================
+
+                model.Message =
+                    $"Salary verification completed. " +
+                    $"Verified: {successCount}, " +
+                    $"Failed: {failedCount}.";
+
+
+                // =========================================================
+                // ERROR CODE
+                // =========================================================
+
+                if (successCount == 0 && failedCount > 0)
+                {
+                    model.ErrorCode = "VERIFY_FAILED";
+                }
+                else if (successCount > 0 && failedCount > 0)
+                {
+                    model.ErrorCode = "PARTIAL_SUCCESS";
+                }
+                else
+                {
+                    model.ErrorCode = "";
+                }
+
+
+                // =========================================================
+                // DETAILS
+                // =========================================================
+
+                model.Data = new
+                {
+                    TotalSelected = employeeIDs.Count,
+                    VerifiedCount = successCount,
+                    FailedCount = failedCount,
+                    Errors = errors
+                };
+
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.PKNo = 0;
+                model.Message = ex.Message;
+                model.ErrorCode = "VERIFY_ERROR";
+
+                return model;
+            }
+        }
     }
 
 

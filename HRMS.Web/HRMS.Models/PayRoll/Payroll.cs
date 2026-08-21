@@ -20,23 +20,33 @@ namespace HRMS.Models.PayRoll
         public string? SortCol { get; set; }
         public string? SortDir { get; set; }
     }
-
+    public class AutoCalculateSalaryRequestModel
+    {
+        public int? Month { get; set; }
+        public int? Year { get; set; }
+        public long? UserID { get; set; }
+    }
     public class SalaryDetails
     {
         public string? EncryptedSalaryID { get; set; }
         public string? EmployeeNumber { get; set; }
         public string? EmployeeName { get; set; }
+
         public long EmployeeID { get; set; }
         public long MonthlySalaryID { get; set; }
         public long SalaryID { get; set; }
+
         public long PayrollTypeID { get; set; }
         public string? PayrollTypeName { get; set; }
+
         public int SalaryMonth { get; set; }
         public int SalaryYear { get; set; }
 
         public decimal RevisedGross { get; set; }
+
         public decimal MonthDays { get; set; }
         public decimal PayableDays { get; set; }
+
         public decimal BasicFixed { get; set; }
         public decimal HRAFixed { get; set; }
         public decimal ConveyanceFixed { get; set; }
@@ -47,7 +57,6 @@ namespace HRMS.Models.PayRoll
         public decimal HRAPayable { get; set; }
         public decimal ConveyancePayable { get; set; }
         public decimal SpecialAllowancePayable { get; set; }
-
         public decimal GrossSalaryPayable { get; set; }
 
         public decimal ClientIncentive { get; set; }
@@ -57,13 +66,13 @@ namespace HRMS.Models.PayRoll
         public decimal TrainingFee { get; set; }
         public decimal GWR { get; set; }
         public decimal OtherAdditonArrear { get; set; }
+
         public decimal EMPLWF { get; set; }
         public decimal TDS { get; set; }
         public decimal DbtDeduction { get; set; }
         public decimal Advanceded { get; set; }
         public decimal InsuranceDeduction { get; set; }
         public decimal OtherDeduction { get; set; }
-        public long InsertedByUserID { get; set; }
 
         public decimal EMPPF { get; set; }
         public decimal EMPESI { get; set; }
@@ -72,8 +81,6 @@ namespace HRMS.Models.PayRoll
         public decimal TotalDeduction { get; set; }
         public decimal NetPayable { get; set; }
 
-        public int? TotalRecords { get; set; } = 0;
-        public int? FilteredRecords { get; set; } = 0;
         public decimal EmployerPF { get; set; }
         public decimal EmployerESI { get; set; }
         public decimal EmployerLWF { get; set; }
@@ -88,6 +95,34 @@ namespace HRMS.Models.PayRoll
         public decimal EDLIAdminCharges { get; set; }
 
         public decimal CTC { get; set; }
+
+        public string? OfficialEmail { get; set; }
+
+        // ============================================================
+        // EXPORT / SALARY SLIP DETAILS
+        // ============================================================
+
+        public DateTime? PayrollStartDate { get; set; }
+        public DateTime? PayrollEndDate { get; set; }
+
+        public string? Designation { get; set; }
+        public string? Department { get; set; }
+        public string? Location { get; set; }
+
+        public DateTime? DateOfJoining { get; set; }
+
+        public string? BankAccountNumber { get; set; }
+        public string? BankName { get; set; }
+        public string? IFSCCode { get; set; }
+        public string? UANNumber { get; set; }
+
+        public string? MonthName { get; set; }
+
+        public decimal EmployeeGrossSalaryFixed { get; set; }
+
+        public int? TotalRecords { get; set; } = 0;
+        public int? FilteredRecords { get; set; } = 0;
+        public bool? IsVerified { get; set; }
     }
 
 
@@ -214,6 +249,7 @@ namespace HRMS.Models.PayRoll
         public string? NetPayableInWords { get; set; }
         public string? IFSCCode { get; set; }
         public string? UANNumber { get; set; }
+        public string? OfficialEmail { get; set; }
     }
 
 
@@ -362,7 +398,154 @@ public class EmployeeSalaryCalculationModel
         public string? EmployeeName { get; set; }
         public string? IFSCCode { get; set; }
         public string? UANNumber { get; set; }
+        public string? OfficialEmail { get; set; }
     }
 
+    public class EmailSalarySlipsRequest
+    {
+        public long EmployeeID { get; set; }
 
+        public List<SalaryMonthRequest> Months { get; set; }
+            = new List<SalaryMonthRequest>();
+    }
+
+    public class SalaryMonthRequest
+    {
+        public int Month { get; set; }
+
+        public int Year { get; set; }
+    }
+    public class EmployeeSalaryMonth
+    {
+        public int Month { get; set; }
+
+        public int Year { get; set; }
+
+        public string? MonthName { get; set; }
+    }
+    public class EmployeeSalaryMonthRequestModel
+    {
+        public long EmployeeID { get; set; }
+    }
+    public class BulkEmployeeSalaryRequestModel
+    {
+        public int RowNumber { get; set; }
+
+        public string? EmployeeNumber { get; set; }
+
+        public string? PayrollType { get; set; }
+
+        public int Year { get; set; }
+
+        public int Month { get; set; }
+
+        public decimal GrossSalary { get; set; }
+
+        public decimal? MonthDays { get; set; }
+
+        public decimal? PayableDays { get; set; }
+
+        // Earnings
+
+        public decimal ClientIncentive { get; set; }
+
+        public decimal PLI { get; set; }
+
+        public decimal FloorIncentive { get; set; }
+
+        public decimal EmployeeReferral { get; set; }
+
+        public decimal TrainingFee { get; set; }
+
+        public decimal GWR { get; set; }
+
+        public decimal OtherAdditionArrear { get; set; }
+
+        // Deductions
+
+        public decimal EMPLWF { get; set; }
+
+        public decimal TDS { get; set; }
+
+        public decimal DBTDeduction { get; set; }
+
+        public decimal AdvanceDeduction { get; set; }
+
+        public decimal InsuranceDeduction { get; set; }
+
+        public decimal OtherDeduction { get; set; }
+
+    }
+    public class BulkSalaryImportResultModel
+    {
+        public Guid BatchID { get; set; }
+
+        public int TotalRecords { get; set; }
+
+        public int ValidRecords { get; set; }
+
+        public int FailedRecords { get; set; }
+
+        public List<BulkSalaryImportErrorModel> Errors { get; set; }
+            = new List<BulkSalaryImportErrorModel>();
+        public int InsertedRecords { get; set; }
+
+        public int UpdatedRecords { get; set; }
+
+        public int SkippedRecords { get; set; }
+    }
+    public class BulkSalaryImportErrorModel
+    {
+        public int RowNumber { get; set; }
+
+        public string? EmployeeNumber { get; set; }
+
+        public string? PayrollType { get; set; }
+
+        public int? SalaryYear { get; set; }
+
+        public int? SalaryMonth { get; set; }
+
+        public string? ErrorMessage { get; set; }
+    }
+    public class BulkSalaryImportRequestModel
+    {
+        public long UserID { get; set; }
+
+        public string? FileName { get; set; }
+
+        public List<BulkEmployeeSalaryRequestModel> SalaryList { get; set; } = new();
+    }
+    public class AutoSalaryCalculationModel
+    {
+        public int SalaryYear { get; set; }
+        public int SalaryMonth { get; set; }
+        public DateTime? PayrollStartDate { get; set; }
+        public DateTime? PayrollEndDate { get; set; }
+        public int InsertedRecords { get; set; }
+        public int UpdatedRecords { get; set; }
+        public int FailedRecords { get; set; }
+        public int SkippedRecords { get; set; }
+        public int TotalProcessed { get; set; }
+    }
+
+    public class AutoSalaryCalculationErrorModel
+    {
+        public long? EmployeeID { get; set; }
+        public long? PayrollTypeID { get; set; }
+        public decimal? GrossSalary { get; set; }
+        public string? ErrorMessage { get; set; }
+        public DateTime? ErrorDate { get; set; }
+    }
+    public class VerifyEmployeeSalaryRequestModel
+    {
+        public List<long> EmployeeIDs { get; set; } = new List<long>();
+
+        public int Month { get; set; }
+
+        public int Year { get; set; }
+
+        public long UserID { get; set; }
+
+    }
 }

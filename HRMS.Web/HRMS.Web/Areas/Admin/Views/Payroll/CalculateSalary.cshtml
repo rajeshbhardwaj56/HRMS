@@ -8,7 +8,29 @@
     var selectedMonth = Model.Month > 0 ? Model.Month : DateTime.Now.Month;
     var GrossSalary = Model.RevisedGross;
 }
+<style>
 
+    .salary-slip-modal-body {
+        background: #e9ecef !important;
+        overflow: auto !important;
+        padding: 20px !important;
+    }
+
+    .salary-slip-preview-container {
+        width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        overflow-y: visible;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+        .salary-slip-preview-container .salary-slip-preview-root {
+            flex: 0 0 210mm;
+        }
+
+</style>
 <div class="card">
     <div class="card-header">
         <h4>Calculate Salary</h4>
@@ -73,7 +95,8 @@
                        id="RevisedGross"
                        name="RevisedGross"
                        step="0.01"
-                       value="@Model.RevisedGross">
+                       value="@Model.RevisedGross" 
+                        />
             </div>
 
             <div class="col-md-3">
@@ -96,7 +119,7 @@
                        step="0.01"
                        value="@Model.PayableDays" />
 
-                <small id="PayableDaysInfo" class="text-muted">
+                <small id="PayableDaysInfo" class="text-muted" style="font-size:11px;">
                     Payable days are calculated from attendance.
                 </small>
             </div>
@@ -206,7 +229,7 @@
                 <button type="button"
                         class="btn btn-primary"
                         id="printSalaryBtn"
-                        onclick="openSalarySlipPage()"
+                        onclick="openSalarySlipModal()"
                         title="Please save the salary first to generate the correct salary slip.">
                     <i class="fa fa-print me-1"></i>
                     Print Salary Slip
@@ -601,7 +624,85 @@
     </div>
 
 </div>
+<!-- Salary Slip Preview Modal -->
+<div class="modal fade"
+     id="salarySlipModal"
+     tabindex="-1"
+     aria-labelledby="salarySlipModalLabel"
+     aria-hidden="true">
 
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="salarySlipModalLabel">
+                    Salary Slip Preview
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+            <div class="modal-body p-0 salary-slip-modal-body">
+
+                <div id="salarySlipLoader"
+                     class="text-center p-5">
+
+                    <div class="spinner-border text-primary"
+                         role="status">
+                    </div>
+
+                    <div class="mt-2">
+                        Loading salary slip...
+                    </div>
+
+                </div>
+
+                <div id="salarySlipPreviewContainer"
+                     class="salary-slip-preview-container"
+                     style="display:none;">
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-primary"
+                        onclick="printSalarySlip()">
+
+                    <i class="fa fa-print me-1"></i>
+                    Print
+
+                </button>
+
+                <button type="button"
+                        class="btn btn-primary"
+                        onclick="downloadSalarySlipPdf(event)">
+
+                    <i class="fa fa-file-pdf me-1"></i>
+                    Download PDF
+
+                </button>
+                <button type="button"
+                        class="btn btn-primary"
+                        onclick="emailSalarySlip()">
+                    <i class="fa fa-envelope me-1"></i>
+                    Share 
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 <script>
       $(document).ready(function () {
 
@@ -1631,71 +1732,694 @@ function setPayrollTypeReadonly(isReadonly) {
  
     </script>
 <script>
-          function openSalarySlipPage() {
+             function openSalarySlipModal() {
 
         const employeeId = $("#empTypeDropdown").val();
         const salaryMonth = $("#MonthDropdown").val();
         const salaryYear = $("#YearDropdown").val();
 
         if (!employeeId || employeeId == "0") {
+
             $.toast({
                 heading: "Warning",
                 text: "Please select an employee.",
                 icon: "warning",
                 position: "top-right"
             });
+
             return;
         }
 
         if (!salaryMonth || salaryMonth == "0") {
+
             $.toast({
                 heading: "Warning",
                 text: "Please select salary month.",
                 icon: "warning",
                 position: "top-right"
             });
+
             return;
         }
 
         if (!salaryYear || salaryYear == "0") {
+
             $.toast({
                 heading: "Warning",
                 text: "Please select salary year.",
                 icon: "warning",
                 position: "top-right"
             });
+
             return;
         }
 
-        // Create temporary POST form
-        const form = $('<form>', {
-            method: 'POST',
-            action: '/Admin/Payroll/SalarySlipPreview',
-            target: '_blank'
+        // Show modal
+        const modalElement = document.getElementById("salarySlipModal");
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        modal.show();
+
+        // Reset preview
+        $("#salarySlipPreviewContainer")
+            .hide()
+            .html("");
+
+        $("#salarySlipLoader")
+            .show();
+
+        $.ajax({
+
+            url: '/Admin/Payroll/SalarySlipPreview',
+
+            type: 'POST',
+
+            data: {
+                EmployeeID: employeeId,
+                SalaryMonth: salaryMonth,
+                SalaryYear: salaryYear
+            },
+
+            success: function (response) {
+
+                $("#salarySlipLoader").hide();
+
+                $("#salarySlipPreviewContainer")
+                    .html(response)
+                    .show();
+
+            },
+
+            error: function (xhr) {
+
+                $("#salarySlipLoader").hide();
+
+                $("#salarySlipPreviewContainer")
+                    .html(`
+                        <div class="alert alert-danger m-3">
+                            Unable to load salary slip.
+                        </div>
+                    `)
+                    .show();
+
+                console.error(xhr.responseText);
+            }
+
         });
+    }
+         
+    function downloadSalarySlipPdf(event) {
 
-        form.append($('<input>', {
-            type: 'hidden',
-            name: 'EmployeeID',
-            value: employeeId
-        }));
+        const employeeId = $("#empTypeDropdown").val();
+        const salaryMonth = $("#MonthDropdown").val();
+        const salaryYear = $("#YearDropdown").val();
 
-        form.append($('<input>', {
-            type: 'hidden',
-            name: 'SalaryMonth',
-            value: salaryMonth
-        }));
+        // -----------------------------
+        // Validation
+        // -----------------------------
 
-        form.append($('<input>', {
-            type: 'hidden',
-            name: 'SalaryYear',
-            value: salaryYear
-        }));
+        if (!employeeId || employeeId === "0") {
 
-        $('body').append(form);
+            $.toast({
+                heading: "Warning",
+                text: "Please select an employee.",
+                icon: "warning",
+                position: "top-right"
+            });
 
-        form.submit();
+            return;
+        }
 
-        form.remove();
+        if (!salaryMonth || salaryMonth === "0") {
+
+            $.toast({
+                heading: "Warning",
+                text: "Please select salary month.",
+                icon: "warning",
+                position: "top-right"
+            });
+
+            return;
+        }
+
+        if (!salaryYear || salaryYear === "0") {
+
+            $.toast({
+                heading: "Warning",
+                text: "Please select salary year.",
+                icon: "warning",
+                position: "top-right"
+            });
+
+            return;
+        }
+
+        // -----------------------------
+        // Button loading state
+        // -----------------------------
+
+        const button = event.currentTarget;
+        const originalHtml = button.innerHTML;
+
+        button.disabled = true;
+
+        button.innerHTML = `
+            <span class="spinner-border spinner-border-sm"></span>
+            Generating...
+        `;
+
+        // -----------------------------
+        // AJAX request
+        // -----------------------------
+
+        $.ajax({
+
+            url: "/Admin/Payroll/SalarySlipPdf",
+
+            type: "POST",
+
+            data: {
+                EmployeeID: employeeId,
+                SalaryMonth: salaryMonth,
+                SalaryYear: salaryYear
+            },
+
+            xhrFields: {
+                responseType: "blob"
+            },
+
+            success: function (data, status, xhr) {
+
+                // -----------------------------
+                // Create PDF blob
+                // -----------------------------
+
+                const blob = new Blob(
+                    [data],
+                    {
+                        type: "application/pdf"
+                    }
+                );
+
+                const url = window.URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+
+                a.style.display = "none";
+                a.href = url;
+
+                // -----------------------------
+                // Get filename from header
+                // -----------------------------
+
+                const contentDisposition =
+                    xhr.getResponseHeader("Content-Disposition");
+
+                let fileName = "SalarySlip.pdf";
+
+                if (contentDisposition) {
+
+                    console.log(
+                        "Content-Disposition:",
+                        contentDisposition
+                    );
+
+                    /*
+                     * Priority:
+                     *
+                     * 1. filename*=UTF-8''
+                     * 2. filename="..."
+                     * 3. filename=...
+                     */
+
+                    let match;
+
+                    // -----------------------------------------
+                    // 1. RFC 5987 / UTF-8 filename
+                    // -----------------------------------------
+
+                    match = contentDisposition.match(
+                        /filename\*\s*=\s*UTF-8''([^;]+)/i
+                    );
+
+                    if (match && match[1]) {
+
+                        try {
+
+                            fileName = decodeURIComponent(
+                                match[1].trim()
+                            );
+
+                        }
+                        catch (e) {
+
+                            console.warn(
+                                "Unable to decode UTF-8 filename.",
+                                e
+                            );
+
+                            fileName = match[1].trim();
+                        }
+                    }
+
+                    // -----------------------------------------
+                    // 2. Normal quoted filename
+                    // -----------------------------------------
+
+                    if (!match) {
+
+                        match = contentDisposition.match(
+                            /filename\s*=\s*"([^"]+)"/i
+                        );
+
+                        if (match && match[1]) {
+
+                            fileName = match[1].trim();
+                        }
+                    }
+
+                    // -----------------------------------------
+                    // 3. Normal unquoted filename
+                    // -----------------------------------------
+
+                    if (!match) {
+
+                        match = contentDisposition.match(
+                            /filename\s*=\s*([^;]+)/i
+                        );
+
+                        if (match && match[1]) {
+
+                            fileName = match[1].trim();
+                        }
+                    }
+                }
+
+                // -----------------------------
+                // Clean filename
+                // -----------------------------
+
+                fileName = fileName
+                    .replace(/^["']|["']$/g, "")
+                    .trim();
+
+                // Prevent accidental filename_
+                // or Content-Disposition text
+                if (
+                    fileName.includes(";") ||
+                    fileName.includes("filename_") ||
+                    fileName.includes("Content-Disposition")
+                ) {
+                    fileName = "SalarySlip.pdf";
+                }
+
+                // Make sure extension exists
+                if (!fileName.toLowerCase().endsWith(".pdf")) {
+                    fileName += ".pdf";
+                }
+
+                console.log(
+                    "Final PDF filename:",
+                    fileName
+                );
+
+                // -----------------------------
+                // Download
+                // -----------------------------
+
+                a.download = fileName;
+
+                document.body.appendChild(a);
+
+                a.click();
+
+                a.remove();
+
+                // -----------------------------
+                // Release blob URL
+                // -----------------------------
+
+                setTimeout(function () {
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+            },
+
+            error: function (xhr) {
+
+                console.error(
+                    "Salary slip PDF error:",
+                    xhr
+                );
+
+                let message =
+                    "Unable to generate salary slip PDF.";
+
+                if (xhr.responseText) {
+
+                    console.error(
+                        "Server response:",
+                        xhr.responseText
+                    );
+                }
+
+                $.toast({
+                    heading: "Error",
+                    text: message,
+                    icon: "error",
+                    position: "top-right"
+                });
+            },
+
+            complete: function () {
+
+                button.disabled = false;
+
+                button.innerHTML = originalHtml;
+            }
+        });
+    }
+    </script>
+<script>
+    function printSalarySlip() {
+
+        const container = document.getElementById(
+            "salarySlipPreviewContainer"
+        );
+
+        if (!container || !container.innerHTML.trim()) {
+
+            $.toast({
+                heading: "Warning",
+                text: "Salary slip preview is not loaded.",
+                icon: "warning",
+                position: "top-right"
+            });
+
+            return;
+        }
+
+        const printWindow = window.open(
+            "",
+            "_blank",
+            "width=1000,height=800"
+        );
+
+        if (!printWindow) {
+
+            $.toast({
+                heading: "Error",
+                text: "Please allow pop-ups in your browser.",
+                icon: "error",
+                position: "top-right"
+            });
+
+            return;
+        }
+
+        // Copy salary slip HTML
+        const salaryHtml = container.innerHTML;
+
+        // Create document structure directly
+        const doc = printWindow.document;
+
+        doc.title = "Salary Slip";
+
+        // Add Bootstrap CSS
+        const bootstrapLink = doc.createElement("link");
+
+        bootstrapLink.rel = "stylesheet";
+
+        bootstrapLink.href =
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
+
+        doc.head.appendChild(bootstrapLink);
+
+
+        // Add print CSS
+        const style = doc.createElement("style");
+
+        style.textContent =
+            "html, body {" +
+                "margin: 0 !important;" +
+                "padding: 0 !important;" +
+                "background: white !important;" +
+            "}" +
+
+            "body {" +
+                "-webkit-print-color-adjust: exact !important;" +
+                "print-color-adjust: exact !important;" +
+            "}" +
+
+            "table {" +
+                "page-break-inside: auto;" +
+            "}" +
+
+            "tr {" +
+                "page-break-inside: avoid;" +
+                "page-break-after: auto;" +
+            "}" +
+
+            "thead {" +
+                "display: table-header-group;" +
+            "}" +
+
+            "tfoot {" +
+                "display: table-footer-group;" +
+            "}" +
+
+            "img {" +
+                "max-width: 100%;" +
+            "}" +
+
+            ".no-print {" +
+                "display: none !important;" +
+            "}" +
+
+            ".modal-footer {" +
+                "display: none !important;" +
+            "}";
+
+        doc.head.appendChild(style);
+
+
+        // Create body
+        const body = doc.body;
+
+        body.innerHTML = salaryHtml;
+
+
+        // Wait for Bootstrap CSS
+        bootstrapLink.onload = function () {
+
+            printSalaryWindow(printWindow);
+
+        };
+
+
+        // Fallback if CSS load event doesn't fire
+        setTimeout(function () {
+
+            printSalaryWindow(printWindow);
+
+        }, 1500);
+    }
+
+
+    function printSalaryWindow(printWindow) {
+
+        if (!printWindow || printWindow.closed) {
+            return;
+        }
+
+        // Wait for images
+        const images = printWindow.document.images;
+
+        let remainingImages = images.length;
+
+        if (remainingImages === 0) {
+
+            doPrint(printWindow);
+
+            return;
+        }
+
+
+        function imageFinished() {
+
+            remainingImages--;
+
+            if (remainingImages <= 0) {
+
+                doPrint(printWindow);
+
+            }
+        }
+
+
+        for (let i = 0; i < images.length; i++) {
+
+            if (images[i].complete) {
+
+                imageFinished();
+
+            }
+            else {
+
+                images[i].addEventListener(
+                    "load",
+                    imageFinished
+                );
+
+                images[i].addEventListener(
+                    "error",
+                    imageFinished
+                );
+            }
+        }
+
+
+        // Fallback
+        setTimeout(function () {
+
+            if (!printWindow.closed) {
+
+                doPrint(printWindow);
+
+            }
+
+        }, 3000);
+    }
+
+
+    function doPrint(printWindow) {
+
+        if (!printWindow || printWindow.closed) {
+            return;
+        }
+
+        printWindow.focus();
+
+        setTimeout(function () {
+
+            printWindow.print();
+
+        }, 500);
     }
 </script>
+<script>
+    function emailSalarySlip() {
+
+        const employeeId = $("#empTypeDropdown").val();
+        const salaryMonth = $("#MonthDropdown").val();
+        const salaryYear = $("#YearDropdown").val();
+
+        if (!employeeId || employeeId === "0") {
+
+            $.toast({
+                heading: "Warning",
+                text: "Please select an employee.",
+                icon: "warning",
+                position: "top-right"
+            });
+
+            return;
+        }
+
+        if (!salaryMonth || salaryMonth === "0") {
+
+            $.toast({
+                heading: "Warning",
+                text: "Please select salary month.",
+                icon: "warning",
+                position: "top-right"
+            });
+
+            return;
+        }
+
+        if (!salaryYear || salaryYear === "0") {
+
+            $.toast({
+                heading: "Warning",
+                text: "Please select salary year.",
+                icon: "warning",
+                position: "top-right"
+            });
+
+            return;
+        }
+
+        const button = event.currentTarget;
+
+        const originalHtml = button.innerHTML;
+
+        button.disabled = true;
+
+        button.innerHTML = `
+            <span class="spinner-border spinner-border-sm"></span>
+            Sending...
+        `;
+
+        $.ajax({
+
+            url: "/Admin/Payroll/EmailSalarySlip",
+
+            type: "POST",
+
+            dataType: "json",
+
+            data: {
+                EmployeeID: employeeId,
+                SalaryMonth: salaryMonth,
+                SalaryYear: salaryYear
+            },
+
+            success: function (response) {
+
+                if (response.success) {
+
+                    $.toast({
+                        heading: "Success",
+                        text: response.message ||
+                            "Salary slip sent successfully.",
+                        icon: "success",
+                        position: "top-right"
+                    });
+
+                }
+                else {
+
+                    $.toast({
+                        heading: "Error",
+                        text: response.message ||
+                            "Unable to send salary slip.",
+                        icon: "error",
+                        position: "top-right"
+                    });
+                }
+            },
+
+            error: function (xhr) {
+
+                console.error(
+                    "Email salary slip error:",
+                    xhr.responseText
+                );
+
+                $.toast({
+                    heading: "Error",
+                    text: "Unable to send salary slip.",
+                    icon: "error",
+                    position: "top-right"
+                });
+            },
+
+            complete: function () {
+
+                button.disabled = false;
+
+                button.innerHTML = originalHtml;
+            }
+        });
+    }</script>

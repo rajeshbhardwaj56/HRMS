@@ -270,6 +270,9 @@
 
                     @if (Model.FormPermissionList.Any(x => x.FormID == 29 && x.IsFormPermissions && x.FormLevel == 2))
                     {
+                        if (LoginRole == (long)HRMS.Models.Common.Roles.SuperAdmin
+                        || LoginRole == (long)HRMS.Models.Common.Roles.Admin)
+                    {
                         <li>
                             <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Payroll" && currentAction == "MonthlySalary" ? "hrms-active" : "")"
                                asp-area="@(HRMS.Models.Common.Constants.ManageAdmin )"
@@ -279,6 +282,7 @@
                                 <span class="hrms-menu-label ms-3"> Salary</span>
                             </a>
                         </li>
+                        }
                     }
                 </ul>
 

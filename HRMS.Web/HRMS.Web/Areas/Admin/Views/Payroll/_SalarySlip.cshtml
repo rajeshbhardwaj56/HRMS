@@ -1,0 +1,659 @@
+﻿@model HRMS.Models.PayRoll.EmployeeSalaryRequestModel
+
+<style>
+    /* =========================================================
+           SALARY SLIP - COMPLETELY ISOLATED STYLES
+           ========================================================= */
+
+    .salary-slip-preview-root,
+    .salary-slip-preview-root * {
+        box-sizing: border-box;
+    }
+
+    .salary-slip-preview-root {
+        width: 210mm !important;
+        min-width: 210mm !important;
+        max-width: 210mm !important;
+/*         min-height: 210mm; */
+        margin: 0 auto;
+        padding: 10mm;
+        background: #fff;
+        font-family: Arial, Helvetica, sans-serif !important;
+        color: #000 !important;
+        font-size: 10px;
+        line-height: normal;
+    }
+
+    .salary-slip-preview-page {
+        width: 100%;
+/*         min-height: 185mm; */
+        background: #fff;
+        border: 1px solid #000;
+        color: #000;
+    }
+
+    /* =========================================================
+           HEADER
+           ========================================================= */
+
+    .salary-slip-header {
+        width: 100%;
+        min-height: 42mm;
+        border-bottom: 1px solid #000;
+        position: relative;
+        text-align: center;
+        padding: 7mm 5mm 4mm 40mm;
+    }
+
+    .salary-slip-logo {
+        position: absolute !important;
+        left: 8mm !important;
+        top: 4mm !important;
+        width: 32mm !important;
+        height: 27mm !important;
+        max-width: none !important;
+        object-fit: contain !important;
+        display: block;
+    }
+
+    .salary-slip-company-name {
+        display: block;
+        width: 100%;
+        margin: 0 0 5px 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 18px !important;
+        line-height: 22px !important;
+        font-weight: bold !important;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .salary-slip-company-cin {
+        display: block;
+        width: 100%;
+        margin: 0 0 5px 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 11px !important;
+        line-height: 13px !important;
+        font-weight: bold !important;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .salary-slip-company-address {
+        display: block;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 10px !important;
+        line-height: 13px !important;
+        font-weight: bold !important;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+           TITLE
+           ========================================================= */
+
+    .salary-slip-title {
+        width: 100%;
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 14px !important;
+        line-height: 17px !important;
+        font-weight: bold !important;
+        padding: 5px;
+        border-bottom: 1px solid #000;
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+           TABLES
+           ========================================================= */
+
+    .salary-slip-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        table-layout: fixed;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+        .salary-slip-table td,
+        .salary-slip-table th {
+            border: 1px solid #000 !important;
+            padding: 4px 5px !important;
+            margin: 0 !important;
+            font-family: Arial, Helvetica, sans-serif !important;
+            font-size: 10px !important;
+            line-height: 12px !important;
+            color: #000 !important;
+            vertical-align: middle;
+        }
+
+    /* Employee details */
+
+    .salary-slip-label {
+        font-weight: bold !important;
+        width: 23%;
+    }
+
+    .salary-slip-value {
+        width: 27%;
+    }
+
+    /* Salary table */
+
+    .salary-slip-salary-table th {
+        text-align: center !important;
+        font-weight: bold !important;
+        background: #f5f5f5 !important;
+    }
+
+    .salary-slip-salary-table td {
+        height: 22px;
+    }
+
+    .salary-slip-amount {
+        text-align: right !important;
+        white-space: nowrap;
+    }
+
+    .salary-slip-total-row td {
+        font-weight: bold !important;
+        background: #f5f5f5 !important;
+    }
+
+    /* =========================================================
+           NET SECTION
+           ========================================================= */
+
+    .salary-slip-net-section {
+        width: 100%;
+        min-height: 35mm;
+        padding: 0 4px 6px 4px;
+        border-top: 1px solid #000;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 11px !important;
+        line-height: 18px !important;
+    }
+
+    /* =========================================================
+           FOOTER
+           ========================================================= */
+
+    .salary-slip-footer {
+        width: 100%;
+        min-height: 25mm;
+        padding: 0 4px 6px 4px;
+        border-top: 1px solid #000;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 11px !important;
+        line-height: 18px !important;
+    }
+
+    /* =========================================================
+           IMPORTANT - PREVENT ADMIN LAYOUT FROM MODIFYING IT
+           ========================================================= */
+
+    .salary-slip-preview-root table {
+        display: table !important;
+    }
+
+    .salary-slip-preview-root tr {
+        display: table-row !important;
+    }
+
+    .salary-slip-preview-root td {
+        display: table-cell !important;
+    }
+
+    .salary-slip-preview-root th {
+        display: table-cell !important;
+    }
+
+    .salary-slip-preview-root img {
+        max-width: none !important;
+    }
+
+
+    /* =========================================================
+           PRINT
+           ========================================================= */
+
+    @@media print {
+
+        html,
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff !important;
+        }
+
+        .salary-slip-preview-root {
+            width: 210mm !important;
+            min-width: 210mm !important;
+            max-width: 210mm !important;
+           /*  min-height: 210mm !important; */
+            margin: 0 !important;
+            padding: 10mm !important;
+        }
+
+        .salary-slip-preview-page {
+            width: 100% !important;
+        }
+    }
+</style>
+
+
+<div class="salary-slip-preview-root">
+
+    <div class="salary-slip-preview-page">
+
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+
+        <div class="salary-slip-header">
+
+            <img src="@Model.CompanyLogo"
+                 class="salary-slip-logo"
+                 alt="Company Logo" />
+
+            <div class="salary-slip-company-name">
+                PROTALK SOLUTIONS PRIVATE LIMITED
+            </div>
+
+            <div class="salary-slip-company-cin">
+                CIN-U62099PB2023PTC057998
+            </div>
+
+            <div class="salary-slip-company-address">
+                C-126, INDUSTRIAL AREA, PHASE – 8,
+                MOHALI, PUNJAB – 160055, INDIA
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             TITLE
+             ===================================================== -->
+
+        <div class="salary-slip-title">
+
+            Payslip for the month of
+            @Model.MonthName-@Model.Year.ToString().Substring(2)
+
+        </div>
+
+
+        <!-- =====================================================
+             EMPLOYEE DETAILS
+             ===================================================== -->
+
+        <table class="salary-slip-table">
+
+            <tr>
+                <td class="salary-slip-label">
+                    Emp Code
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.EmployeeNumber
+                </td>
+
+                <td class="salary-slip-label">
+                    Name
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.EmployeeName
+                </td>
+            </tr>
+
+            <tr>
+                <td class="salary-slip-label">
+                    Designation
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.Designation
+                </td>
+
+                <td class="salary-slip-label">
+                    Department
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.Department
+                </td>
+            </tr>
+
+            <tr>
+                <td class="salary-slip-label">
+                    Date of Joining
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.DateOfJoining
+                </td>
+
+                <td class="salary-slip-label">
+                    Bank
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.BankName
+                </td>
+            </tr>
+
+            <tr>
+                <td class="salary-slip-label">
+                    Location
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.Location
+                </td>
+
+                <td class="salary-slip-label">
+                    SB Account No
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.BankAccountNumber
+                </td>
+            </tr>
+
+            <tr>
+                <td class="salary-slip-label">
+                    Month Days
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.MonthDays
+                </td>
+
+                <td class="salary-slip-label">
+                    Paid Days
+                </td>
+
+                <td class="salary-slip-value">
+                    @Model.PayableDays
+                </td>
+            </tr>
+
+        </table>
+
+
+        <!-- =====================================================
+             SALARY
+             ===================================================== -->
+
+        <table class="salary-slip-table salary-slip-salary-table">
+
+            <tr>
+                <th style="width:28%;">
+                    Earning
+                </th>
+
+                <th style="width:20%;">
+                    Salary
+                </th>
+
+                <th style="width:20%;">
+                    Earned
+                </th>
+
+                <th style="width:20%;">
+                    Deductions
+                </th>
+
+                <th style="width:12%;">
+                    Monthly
+                </th>
+            </tr>
+
+
+            <tr>
+
+                <td>Basic/Stipend</td>
+
+                <td class="salary-slip-amount">
+                    @Model.BasicFixed
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.BasicPayable
+                </td>
+
+                <td>
+                    Employee PF
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.EMPPF
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>House Rent Allowance</td>
+
+                <td class="salary-slip-amount">
+                    @Model.HRAFixed
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.HRAPayable
+                </td>
+
+                <td>
+                    Employee ESI
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.EMPESI
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>Conveyance Allowance</td>
+
+                <td class="salary-slip-amount">
+                    @Model.ConveyanceFixed
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.ConveyancePayable
+                </td>
+
+                <td>
+                    TDS
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.TDS
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>Special Allowance</td>
+
+                <td class="salary-slip-amount">
+                    @Model.SpecialAllowanceFixed
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.SpecialAllowancePayable
+                </td>
+
+                <td>
+                    Professional Tax
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.PTAX
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>Bonus</td>
+
+                <td class="salary-slip-amount">0</td>
+
+                <td class="salary-slip-amount">0</td>
+
+                <td>
+                    Labor Welfare Fund
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.EMPLWF
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Performance Linked Incentive
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.PLI
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.PLI
+                </td>
+
+                <td>
+                    Advance
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.Advanceded
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Other Addition
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.OtherAdditonArrear
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.OtherAdditonArrear
+                </td>
+
+                <td>
+                    Other Deduction
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.OtherDeduction
+                </td>
+
+            </tr>
+
+
+            <tr class="salary-slip-total-row">
+
+                <td>
+                    Gross Earning
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.GrossSalaryFixed
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.GrossSalaryPayable
+                </td>
+
+                <td>
+                    Gross Deduction
+                </td>
+
+                <td class="salary-slip-amount">
+                    @Model.TotalDeduction
+                </td>
+
+            </tr>
+
+        </table>
+
+
+        <!-- =====================================================
+             NET AMOUNT
+             ===================================================== -->
+
+        <div class="salary-slip-net-section">
+
+            <div>
+
+                Net Amount:
+
+                <strong>
+                    @Model.NetPayable.ToString("0.00") /-
+                </strong>
+
+                (Net Pay in Words:
+
+                <strong>
+                    @Model.NetPayableInWords
+                </strong>)
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             FOOTER
+             ===================================================== -->
+
+        <div class="salary-slip-footer">
+
+            <strong>
+                This is a computer generated pay slip hence
+                signature is not required
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>

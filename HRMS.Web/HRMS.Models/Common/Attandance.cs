@@ -130,6 +130,7 @@ namespace HRMS.Models.Common
         public DateTime? AdminEditCutoffDate { get; set; }
 
         public bool? AllowSuperAdminEdit { get; set; }
+        public bool? ShowImportAttendanceExcel { get; set; }
     }
 
 

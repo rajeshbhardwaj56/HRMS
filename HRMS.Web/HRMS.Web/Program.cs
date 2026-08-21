@@ -117,7 +117,7 @@ builder.Services.AddSingleton<QuartzJobRunner>();
 builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 builder.Services.AddTransient<WeeklyFridayJob>();
 builder.Services.AddSingleton<IS3Service, S3Service>();
-
+builder.Services.AddScoped<SalarySlipPdfService>();
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(WeeklyFridayJob),
    cronExpression: "0 0 10 ? * FRI *"
