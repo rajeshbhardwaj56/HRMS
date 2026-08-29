@@ -1,0 +1,100 @@
+﻿@using HRMS.Models.Common;
+
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@{
+	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Designation";
+
+	var success = TempData["Success"];
+	var Err = TempData["Error"];
+}
+
+<div class="main-header anim" style="--delay: 0s">
+	Designation List
+
+    <a href="~/Admin/Holiday/AddDesignation">
+		<button type="button" class="btn btn-addBtn">
+			Add Designation
+		</button>
+	</a>
+</div>
+
+
+<div class="table-responsive py-3">
+
+	<table id="tblDesignationListing"
+		   class="table table-striped body-text"
+		   style="width:100%">
+		<thead>
+			<tr>
+				<th style="display:none;">ID</th>
+				<th>Designation Name</th>
+				<th>Status</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+	</table>
+
+</div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#tblDesignationListing').DataTable({
+
+            "ajax": {
+                "url": "DesignationListings/",
+                "type": "POST",
+                "datatype": "json",
+                "dataSrc": "data"
+            },
+
+            "ordering": true,
+            "order": [[0, "desc"]],
+            "paging": true,
+            "searching": true,
+            "info": true,
+
+            "columns": [
+
+                {
+                    "data": "designationID",
+                    "visible": false
+                },
+
+                {
+                    "data": "name",
+                    "autoWidth": true
+                },
+
+
+                {
+                    "data": "isActive",
+                    "autoWidth": true,
+                    "render": function (data) {
+                        return data ? "Active" : "Inactive";
+                    }
+                },
+
+                {
+                    mRender: function (data, type, row) {
+
+                        return '<div class="table-data-feature">' +
+                            '<a class="item" href="AddDesignation?id=' + row.encodedId + '">' +
+                            '<img src="/assets/img/edit.png" width="20" height="20" />' +
+                            '</a>' +
+                            '</div>';
+                    }
+                }
+            ],
+
+            "responsive": true
+        });
+
+    });
+
+</script>

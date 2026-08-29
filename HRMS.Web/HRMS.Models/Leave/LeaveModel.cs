@@ -1,4 +1,6 @@
-﻿using HRMS.Models.LeavePolicy;
+﻿using HRMS.Models.Common;
+using HRMS.Models.LeavePolicy;
+using HRMS.Models.MyInfo;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -24,6 +26,10 @@ namespace HRMS.Models.Leave
         public long? RoleId { get; set; }
         public int GenderId { get; set; }
         public long JobLocationTypeID { get; set; }
+        public long SubDepartmentID { get; set; }
+        public long JobLocationID { get; set; }
+        public int? HierarchyLevel { get; set; }
+        public int? StatusID { get; set; }
     }
     public class LeaveSummaryModel
     {
@@ -33,6 +39,7 @@ namespace HRMS.Models.Leave
         public string Encrypted { get; set; } = string.Empty;
         public long LeaveSummaryID { get; set; }
         public long LeaveStatusID { get; set; }
+        public long? ApprovedByLevel { get; set; }
         public string LeaveStatusName { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
         public DateTime RequestDate { get; set; }
@@ -69,7 +76,8 @@ namespace HRMS.Models.Leave
         public DateTime? ChildDOB { get; set; }
         public DateTime? JoiningDate { get; set; }
         public int? CampOff { get; set; }
-
+        public string ApprovedByName { get; set; } = string.Empty;
+        public DateTime? ApprovedDate { get; set; }
     }
 
     public class LeaveResults
@@ -81,6 +89,15 @@ namespace HRMS.Models.Leave
         public List<SelectListItem> leaveStatuses { get; set; } = new List<SelectListItem>();
 
         public LeaveBalanceModel leaveBalance { get; set; } = new LeaveBalanceModel();
+    }
+    public class ApproveLeaveViewModel
+    {
+        public MyInfoResults LeaveData { get; set; } = new();
+
+        public List<Joblcoations> JobLocations { get; set; } = new();
+        public List<SubDepartment> SubDepartments { get; set; } = new();
+
+        public decimal? ConsecutiveAllowedDays { get; set; }
     }
     public class LeaveBalanceModel
     {
@@ -173,7 +190,7 @@ namespace HRMS.Models.Leave
 
         public string? LeaveStatusTypeName { get; set; }
 
-      
+
     }
     public class LeaveCountValidationResult
     {
@@ -182,5 +199,7 @@ namespace HRMS.Models.Leave
         public decimal PendingLeaveCount { get; set; }
 
         public decimal TotalLeaveCount { get; set; }
+
+        public decimal AvailableLeaveBalance { get; set; }
     }
 }

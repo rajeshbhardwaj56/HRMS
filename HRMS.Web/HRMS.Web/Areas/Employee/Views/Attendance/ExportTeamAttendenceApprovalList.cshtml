@@ -1,0 +1,316 @@
+﻿@using HRMS.Models.Common
+
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Attendance Approval List";
+}
+
+<section class="lower-section">
+    <div class="container-fluid">
+
+        <div class="group-box anim">
+
+            <div class="tabsInfo">
+
+                <h3>Attendance Approval Info</h3>
+
+                <!-- Filters -->
+                <div class="row mb-3 align-items-end">
+
+                    <div class="col-md-3">
+                        <label class="form-label">Location</label>
+                        <select id="ddlLocation" class="form-select">
+                            <option value="0">All Locations</option>
+                            @if (Model?.JobLocations != null)
+                            {
+                                foreach (var item in Model.JobLocations)
+                                {
+                                    <option value="@item.JobLocationID">
+                                        @item.JobLocationName
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Process</label>
+                        <select id="ddlSubDepartment" class="form-select">
+                            <option value="0">All Process</option>
+                            @if (Model?.SubDepartments != null)
+                            {
+                                foreach (var item in Model.SubDepartments)
+                                {
+                                    <option value="@item.SubDepartmentID">
+                                        @item.SubDepartmentName
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <button id="export-btn"
+                                class="btn btn-primary ">
+                            <i class="fa fa-file-export me-1"></i>
+                            Export 
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Tabs -->
+                <nav>
+                    <div class="nav nav-tabs mb-3" id="attendanceTabs">
+
+                        <button class="nav-link active"
+                                id="pending-tab-btn"
+                                type="button">
+                            Pending Attendance
+                        </button>
+
+                        <button class="nav-link"
+                                id="approved-tab-btn"
+                                type="button">
+                            Approved Attendance
+                        </button>
+
+                        <button class="nav-link"
+                                id="rejected-tab-btn"
+                                type="button">
+                            Rejected Attendance
+                        </button>
+
+                    </div>
+                </nav>
+
+                <div class="card">
+                    <div class="card-body">
+
+                        <table id="tblAttendance"
+                               class="table table-striped body-text"
+                               style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Emp No</th>
+                                    <th>Employee Name</th>
+                                    <th>Work Date</th>
+                                    <th>Attendance Status</th>
+                                    <th>Old Status</th>
+                                    <th>Remarks</th>
+                                    <th>Applied By</th>
+                                    <th>Applied On</th>
+                                    <th>Approved By</th>
+                                    <th>Approved On</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<script>
+
+    var table;
+    var approvalStatus = 0;
+
+    $(document).ready(function () {
+
+        loadAttendanceTable();
+
+        $("#ddlLocation,#ddlSubDepartment").change(function () {
+            table.ajax.reload();
+        });
+
+        $("#pending-tab-btn").click(function () {
+
+            $(".nav-link").removeClass("active");
+            $(this).addClass("active");
+
+            approvalStatus = 0;
+
+            toggleApprovalColumns();
+            table.ajax.reload();
+        });
+
+        $("#approved-tab-btn").click(function () {
+
+            $(".nav-link").removeClass("active");
+            $(this).addClass("active");
+
+            approvalStatus = 1;
+
+            toggleApprovalColumns();
+            table.ajax.reload();
+        });
+
+        $("#rejected-tab-btn").click(function () {
+
+            $(".nav-link").removeClass("active");
+            $(this).addClass("active");
+
+            approvalStatus = 2;
+
+            toggleApprovalColumns();
+            table.ajax.reload();
+        });
+
+        $("#export-btn").click(function () {
+
+            var url =
+                '@Url.Action("ExportAttendanceApprovalExcel", "Attendance", new { area = "Employee" })'
+                + '?jobLocationID=' + ($('#ddlLocation').val() || 0)
+                + '&subDepartmentID=' + ($('#ddlSubDepartment').val() || 0)
+                + '&approvalStatus=' + approvalStatus;
+
+            window.location.href = url;
+        });
+
+    });
+
+    function loadAttendanceTable() {
+
+        table = $('#tblAttendance').DataTable({
+
+            processing: true,
+            serverSide: true,
+            searching: true,
+            ordering: true,
+            paging: true,
+            destroy: true,
+
+            ajax: {
+
+                url: '@Url.Action("ExportAttendanceApprovalList", "Attendance", new { area = "Employee" })',
+                type: 'POST',
+
+                data: function (d) {
+
+                    var sortColumn =
+                        d.order.length > 0
+                            ? d.columns[d.order[0].column].data
+                            : "workDate";
+
+                    var sortDirection =
+                        d.order.length > 0
+                            ? d.order[0].dir
+                            : "desc";
+
+                    return {
+
+                        sEcho: d.draw,
+                        iDisplayStart: d.start,
+                        iDisplayLength: d.length,
+                        sSearch: d.search.value,
+
+                        sortCol: sortColumn,
+                        sortDir: sortDirection,
+
+                        jobLocationID:
+                            parseInt($("#ddlLocation").val() || 0),
+
+                        subDepartmentID:
+                            parseInt($("#ddlSubDepartment").val() || 0),
+
+                        approvalStatus: approvalStatus
+                    };
+                }
+            },
+
+            initComplete: function () {
+                toggleApprovalColumns();
+            },
+
+            columns: [
+
+                {
+                    data: "employeNumber",
+                    defaultContent: ""
+                },
+
+                {
+                    data: "employeeName",
+                    defaultContent: ""
+                },
+
+                {
+                    data: "workDate",
+                    render: function (data) {
+
+                        if (!data)
+                            return "";
+
+                        return new Date(data).toLocaleDateString();
+                    }
+                },
+
+                {
+                    data: "status",
+                    defaultContent: ""
+                },
+
+                {
+                    data: "oldAttendanceStatus",
+                    defaultContent: ""
+                },
+
+                {
+                    data: "remarks",
+                    defaultContent: ""
+                },
+
+                {
+                    data: "appliedBy",
+                    defaultContent: ""
+                },
+
+                {
+                    data: "appliedOn",
+                    render: function (data) {
+
+                        if (!data)
+                            return "";
+
+                        return new Date(data).toLocaleString();
+                    }
+                },
+
+                {
+                    data: "approvedBy",
+                    defaultContent: ""
+                },
+
+                {
+                    data: "approvedOn",
+                    render: function (data) {
+
+                        if (!data)
+                            return "";
+
+                        return new Date(data).toLocaleString();
+                    }
+                }
+
+            ]
+        });
+    }
+
+    function toggleApprovalColumns() {
+
+        // Hide Approved By & Approved On for Pending tab
+        var showApprovalColumns = approvalStatus != 0;
+
+        table.column(8).visible(showApprovalColumns);
+        table.column(9).visible(showApprovalColumns);
+    }
+
+</script>

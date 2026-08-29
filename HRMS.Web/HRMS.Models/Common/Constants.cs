@@ -90,6 +90,8 @@ namespace HRMS.Models.Common
         public const string EmployeeDocuments = "Uploads/EmployeeDocuments/";
         public const string JobLocationID = "JobLocationID";
         public const string DepartmentID = "DepartmentID";
+        public const string DepartmentName = "DepartmentName";
+        public const string DesignationName = "DesignationName";
         public const string ApplyLeave = "ApplyLeave";
         public const string ApplyAgentLeave = "ApplyAgentLeave";
         public const string ApproveLeave = "ApproveLeave";
@@ -153,8 +155,16 @@ namespace HRMS.Models.Common
         WeekOffRoster = 26,
         AttendanceApproval = 27,
         ApproveLeave=25,
-        ApplyAgentLeave=28
-
+        ApplyAgentLeave=28,
+        ExportAttendanceForm = 30,
+        DesignationListing=31,
+        LOBListing= 32,
+        SubDepartmentListing = 33,
+        ExportTeamAttendenceApprovalList=34,
+        ExportApproveCompOff =35,
+        ExportApproveLeave=36,
+        ResetPasswordByAdmin=37,
+        Survey =38
     }
 
 
@@ -208,6 +218,10 @@ namespace HRMS.Models.Common
         public const string ReferenceDetail = "ReferenceDetail";
         public const string EmploymentHistory = "EmploymentHistory";
         public const string FormPermission = "FormPermission";
+
+        public const string DesignationListings = "DesignationListings";
+        public const string SubDepartmentListings = "SubDepartmentListings";
+        public const string LOBListings = "LOBListings";
     }
 
     public class APIApiActionConstants
@@ -236,6 +250,7 @@ namespace HRMS.Models.Common
 
 
         public const string GetLeaveForApprovals = "GetLeaveForApprovals";
+        public const string ExportLeaveForApprovals = "ExportLeaveForApprovals";
         public const string AddUpdateLeavePolicy = "AddUpdateLeavePolicy";
         public const string GetAllLeavePolicies = "GetAllLeavePolicies";
         public const string AddUpdateEmployee = "AddUpdateEmployee";
@@ -300,6 +315,8 @@ namespace HRMS.Models.Common
         public const string SaveOrUpdateBulk = "SaveOrUpdateBulk";
         public const string SaveOrUpdateAttendanceStatus = "SaveOrUpdateAttendanceStatus";
         public const string GetTeamAttendanceForApproval = "GetTeamAttendanceForApproval";
+        public const string ExportAttendanceChangeApproval = "ExportAttendanceChangeApproval";
+        public const string ValidateShiftType = "ValidateShiftType";
 
 
 
@@ -378,8 +395,21 @@ namespace HRMS.Models.Common
         public const string GetManagerPendingNotifications = "GetManagerPendingNotifications";
         public const string MarkAsReadNotification = "MarkAsReadNotification";
         public const string GetManagerApprovalCount = "GetManagerApprovalCount";
-
-
+        public const string GetAdminFogotPasswordDetails = "GetAdminFogotPasswordDetails";
+        public const string AddUpdateDesignation = "AddUpdateDesignation";
+        public const string GetAllDesignationList = "GetAllDesignationList";
+        public const string DeleteDesignation = "DeleteDesignation";
+        public const string GetDesignationDetails = "GetDesignationDetails";
+        public const string CheckDuplicateDesignation = "CheckDuplicateDesignation";
+        public const string GetAllLOBList = "GetAllLOBList";
+        public const string GetLOBDetails = "GetLOBDetails";
+        public const string AddUpdateLOB = "AddUpdateLOB";
+        public const string CheckDuplicateLOB = "CheckDuplicateLOB";
+        public const string GetAllSubDepartmentList = "GetAllSubDepartmentList";
+        public const string GetSubDepartmentDetails = "GetSubDepartmentDetails";
+        public const string AddUpdateSubDepartment = "AddUpdateSubDepartment";
+        public const string CheckDuplicateSubDepartment = "CheckDuplicateSubDepartment";
+        public const string ResetPasswordByAdmin = "ResetPasswordByAdmin";
     }
 
     public class MyInfoTabs

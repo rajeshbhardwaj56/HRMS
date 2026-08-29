@@ -137,6 +137,555 @@ namespace HRMS.Web.Areas.Admin.Controllers
             TempData[Constants.toastType] = Constants.toastTypetWarning;
             TempData[Constants.toastMessage] = message;
         }
-         
+        #region Designation 
+        public IActionResult DesignationListings()
+        {
+            Results results = new Results();
+
+            var employeeID = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            var formPermission = _CheckUserFormPermission.GetFormPermission(
+                employeeID,
+                (int)PageName.DesignationListing); // Change page name
+
+            if (formPermission.HasPermission == 0
+                && roleId != (int)Roles.Admin
+                && roleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            return View(results);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult DesignationListings(
+            string sEcho,
+            int iDisplayStart,
+            int iDisplayLength,
+            string sSearch)
+        {
+            DesignationInputParams designationParams = new DesignationInputParams
+            {
+                CompanyID = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.CompanyID))
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                designationParams,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Holiday,
+                    APIApiActionConstants.GetAllDesignationList),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<Results>(data);
+
+            if (results?.DesignationList != null)
+            {
+                results.DesignationList.ForEach(x =>
+                    x.EncodedId = _businessLayer.EncodeStringBase64(
+                        x.DesignationID.ToString()));
+            }
+
+            return Json(new
+            {
+                data = results?.DesignationList ?? new List<DesignationModel>()
+            });
+        }
+
+        public IActionResult AddDesignation(string id)
+        {
+            DesignationInputParams model = new DesignationInputParams();
+            model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            DesignationModel designationModel = new DesignationModel();
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                id = _businessLayer.DecodeStringBase64(id);
+
+                model.DesignationID = Convert.ToInt64(id);
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    model,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Holiday,
+                        APIApiActionConstants.GetDesignationDetails),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Results>(data);
+
+                designationModel = result.designationModel ?? new DesignationModel();
+                designationModel.DepartmentList = result.DepartmentList;
+            }
+            else
+            {
+                var data = _businessLayer.SendPostAPIRequest(
+                    model,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Holiday,
+                        APIApiActionConstants.GetDesignationDetails),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Results>(data);
+
+                designationModel.DepartmentList = result.DepartmentList;
+                designationModel.IsActive = true;
+            }
+
+            return View(designationModel);
+        }
+        [HttpPost]
+        public IActionResult AddDesignation(DesignationModel designationModel)
+        {
+            if (ModelState.IsValid)
+            {
+                designationModel.CompanyID =
+                    Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+                designationModel.UserID =
+                    Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    designationModel,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Holiday,
+                        APIApiActionConstants.AddUpdateDesignation),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (designationModel.DesignationID > 0)
+                {
+                    SetSuccessToast("Designation modified successfully.");
+                }
+                else
+                {
+                    SetSuccessToast("Designation added successfully.");
+                }
+
+                return RedirectToAction(
+                    WebControllarsConstants.DesignationListings,
+                    WebControllarsConstants.Holiday);
+            }
+
+            SetWarningToast("Please check all data and try again.");
+
+            // Reload dropdown when validation fails
+            DesignationInputParams input = new DesignationInputParams
+            {
+                CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID))
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                input,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Holiday,
+                    APIApiActionConstants.GetDesignationDetails),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result.ToString();
+
+            var designationResult = JsonConvert.DeserializeObject<Results>(response);
+
+            designationModel.DepartmentList = designationResult.DepartmentList;
+
+            return View(designationModel);
+        }
+
+        [HttpPost]
+        public JsonResult CheckDuplicateDesignation(string designationName, long designationId = 0)
+        {
+            if (string.IsNullOrEmpty(designationName))
+            {
+                return Json(new { isDuplicate = false });
+            }
+
+            DesignationModel model = new DesignationModel
+            {
+                DesignationID = designationId,
+                Name = designationName,
+                CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID))
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Holiday,
+                    APIApiActionConstants.CheckDuplicateDesignation),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var result = JsonConvert.DeserializeObject<DuplicateDesignationResponse>(
+                data.Result.ToString());
+
+            return Json(new
+            {
+                isDuplicate = result?.IsDuplicate ?? false
+            });
+        }
+        #endregion
+        #region LOB 
+        public IActionResult LOBListings()
+        {
+            Results results = new Results();
+
+            var employeeID = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            var formPermission = _CheckUserFormPermission.GetFormPermission(
+                employeeID,
+                (int)PageName.LOBListing);
+
+            if (formPermission.HasPermission == 0
+                && roleId != (int)Roles.Admin
+                && roleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            return View(results);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult LOBListings(
+            string sEcho,
+            int iDisplayStart,
+            int iDisplayLength,
+            string sSearch)
+        {
+            LOBInputParams lobParams = new LOBInputParams
+            {
+                CompanyID = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.CompanyID))
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                lobParams,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Holiday,
+                    APIApiActionConstants.GetAllLOBList),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<Results>(data);
+
+            if (results?.LOBList != null)
+            {
+                results.LOBList.ForEach(x =>
+                    x.EncodedId = _businessLayer.EncodeStringBase64(
+                        x.LOBID.ToString()));
+            }
+
+            return Json(new
+            {
+                data = results?.LOBList ?? new List<LOBModel>()
+            });
+        }
+        public IActionResult AddLOB(string id)
+        {
+            LOBInputParams model = new LOBInputParams();
+            model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            LOBModel lobModel = new LOBModel();
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                id = _businessLayer.DecodeStringBase64(id);
+
+                model.LOBID = Convert.ToInt64(id);
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    model,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Holiday,
+                        APIApiActionConstants.GetLOBDetails),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Results>(data);
+
+                lobModel = result.lobModel ?? new LOBModel();
+            }
+            else
+            {
+                lobModel.IsActive = true;
+            }
+
+            return View(lobModel);
+        }
+
+        [HttpPost]
+        public IActionResult AddLOB(LOBModel lobModel)
+        {
+            if (ModelState.IsValid)
+            {
+                lobModel.CompanyID =
+                    Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+                lobModel.UserID =
+                    Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    lobModel,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Holiday,
+                        APIApiActionConstants.AddUpdateLOB),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (lobModel.LOBID > 0)
+                    SetSuccessToast("LOB modified successfully.");
+                else
+                    SetSuccessToast("LOB added successfully.");
+
+                return RedirectToAction(
+                    WebControllarsConstants.LOBListings,
+                    WebControllarsConstants.Holiday);
+            }
+
+            SetWarningToast("Please check all data and try again.");
+            return View(lobModel);
+        }
+        [HttpPost]
+        public JsonResult CheckDuplicateLOB(string lobName, long lobId = 0)
+        {
+            if (string.IsNullOrEmpty(lobName))
+            {
+                return Json(new { isDuplicate = false });
+            }
+
+            LOBModel model = new LOBModel
+            {
+                LOBID = lobId,
+                Name = lobName,
+                CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID))
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Holiday,
+                    APIApiActionConstants.CheckDuplicateLOB),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var result = JsonConvert.DeserializeObject<DuplicateLOBResponse>(
+                data.Result.ToString());
+
+            return Json(new
+            {
+                isDuplicate = result?.IsDuplicate ?? false
+            });
+        }
+        #endregion
+        #region  SubDepartment
+        public IActionResult SubDepartmentListings()
+        {
+            Results results = new Results();
+
+            var employeeID = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            var formPermission = _CheckUserFormPermission.GetFormPermission(
+                employeeID,
+                (int)PageName.SubDepartmentListing);
+
+            if (formPermission.HasPermission == 0
+                && roleId != (int)Roles.Admin
+                && roleId != (int)Roles.SuperAdmin)
+            {
+                HttpContext.Session.Clear();
+                HttpContext.SignOutAsync();
+
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+
+            return View(results);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public JsonResult SubDepartmentListings(
+            string sEcho,
+            int iDisplayStart,
+            int iDisplayLength,
+            string sSearch)
+        {
+            SubDepartmentInputParams subDeptParams = new SubDepartmentInputParams
+            {
+                CompanyID = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.CompanyID))
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                subDeptParams,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Holiday,
+                    APIApiActionConstants.GetAllSubDepartmentList),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result.ToString();
+
+            var results = JsonConvert.DeserializeObject<Results>(data);
+
+            if (results?.SubDepartmentList != null)
+            {
+                results.SubDepartmentList.ForEach(x =>
+                    x.EncodedId = _businessLayer.EncodeStringBase64(
+                        x.SubDepartmentID.ToString()));
+            }
+
+            return Json(new
+            {
+                data = results?.SubDepartmentList ?? new List<SubDepartmentModel>()
+            });
+        }
+        public IActionResult AddSubDepartment(string id)
+        {
+            SubDepartmentInputParams model = new SubDepartmentInputParams();
+            model.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            SubDepartmentModel subDeptModel = new SubDepartmentModel();
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                id = _businessLayer.DecodeStringBase64(id);
+
+                model.SubDepartmentID = Convert.ToInt64(id);
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    model,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Holiday,
+                        APIApiActionConstants.GetSubDepartmentDetails),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Results>(data);
+
+                subDeptModel = result.subDepartmentModel ?? new SubDepartmentModel();
+                subDeptModel.DepartmentList = result.DepartmentList;
+            }
+            else
+            {
+                var data = _businessLayer.SendPostAPIRequest(
+                    model,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Holiday,
+                        APIApiActionConstants.GetSubDepartmentDetails),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Results>(data);
+
+                subDeptModel.DepartmentList = result.DepartmentList;
+                subDeptModel.IsActive = true;
+            }
+
+            return View(subDeptModel);
+        }
+        [HttpPost]
+        public IActionResult AddSubDepartment(SubDepartmentModel subDeptModel)
+        {
+            if (ModelState.IsValid)
+            {
+                subDeptModel.CompanyID =
+                    Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+                subDeptModel.UserID =
+                    Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
+
+                var data = _businessLayer.SendPostAPIRequest(
+                    subDeptModel,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Holiday,
+                        APIApiActionConstants.AddUpdateSubDepartment),
+                    HttpContext.Session.GetString(Constants.SessionBearerToken),
+                    true).Result.ToString();
+
+                var result = JsonConvert.DeserializeObject<Result>(data);
+
+                if (subDeptModel.SubDepartmentID > 0)
+                    SetSuccessToast("Sub Department modified successfully.");
+                else
+                    SetSuccessToast("Sub Department added successfully.");
+
+                return RedirectToAction(
+                    WebControllarsConstants.SubDepartmentListings,
+                    WebControllarsConstants.Holiday);
+            }
+
+            SetWarningToast("Please check all data and try again.");
+
+            SubDepartmentInputParams input = new SubDepartmentInputParams
+            {
+                CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID))
+            };
+
+            var response = _businessLayer.SendPostAPIRequest(
+                input,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Holiday,
+                    APIApiActionConstants.GetSubDepartmentDetails),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true).Result.ToString();
+
+            var resultData = JsonConvert.DeserializeObject<Results>(response);
+
+            subDeptModel.DepartmentList = resultData.DepartmentList;
+
+            return View(subDeptModel);
+        }
+        [HttpPost]
+        public JsonResult CheckDuplicateSubDepartment(
+            string subDepartmentName,
+            long subDepartmentId = 0,
+            long departmentId = 0)
+        {
+            if (string.IsNullOrEmpty(subDepartmentName))
+            {
+                return Json(new { isDuplicate = false });
+            }
+
+            SubDepartmentModel model = new SubDepartmentModel
+            {
+                SubDepartmentID = subDepartmentId,
+                DepartmentID = departmentId,
+                Name = subDepartmentName,
+                CompanyID = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.CompanyID))
+            };
+
+            var data = _businessLayer.SendPostAPIRequest(
+                model,
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Holiday,
+                    APIApiActionConstants.CheckDuplicateSubDepartment),
+                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                true);
+
+            var result = JsonConvert.DeserializeObject<DuplicateSubDepartmentResponse>(
+                data.Result.ToString());
+
+            return Json(new
+            {
+                isDuplicate = result?.IsDuplicate ?? false
+            });
+        }
+        #endregion
     }
 }

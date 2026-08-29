@@ -13,5 +13,15 @@ namespace HRMS.Models.Common
         public string? JobLocationName { get; set; }
         
     }
-   
+    public class SubDepartment
+    {
+        public long SubDepartmentID { get; set; }
+        public string? SubDepartmentName { get; set; }
+    }
+
+    public class CompanyFilterResponse
+    {
+        public List<Joblcoations> JobLocations { get; set; } = new();
+        public List<SubDepartment> SubDepartments { get; set; } = new();
+    }
 }

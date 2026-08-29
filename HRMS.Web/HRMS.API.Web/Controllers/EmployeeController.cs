@@ -70,6 +70,15 @@ namespace HRMS.API.Web.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
+        public IActionResult ExportLeaveForApprovals(MyInfoInputParams model)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.ExportLeaveForApprovals(model));
+            return response;
+        }
+
+        [HttpPost]
         public IActionResult AddUpdateLeave(LeaveSummaryModel model)
         {
             IActionResult response = Unauthorized();
@@ -485,5 +494,7 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetLeaveCountForValidation(model));
             return response;
         }
+
+
     }
 }

@@ -180,7 +180,13 @@ namespace HRMS.API.Web.Controllers
             response = Ok(_businessLayer.GetTeamAttendanceForApproval(objmodel));
             return response;
         }
-
+        [HttpPost]
+        public IActionResult ExportAttendanceChangeApproval(AttendanceInputParams objmodel)
+        {
+            IActionResult response = Unauthorized();
+            response = Ok(_businessLayer.ExportAttendanceChangeApproval(objmodel));
+            return response;
+        }
 
         [HttpPost]
         public IActionResult SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)

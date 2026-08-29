@@ -1,20 +1,21 @@
-﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+﻿using DinkToPdf;
+using DinkToPdf.Contracts;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using HRMS.Web.AttendanceScheduler;
 using HRMS.Web.BusinessLayer;
+using HRMS.Web.BusinessLayer.Hubs;
+using HRMS.Web.BusinessLayer.S3;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.FileProviders;
+using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
-using Quartz;
 using System.Globalization;
 using WebMarkupMin.AspNetCore8;
-using HRMS.Web.BusinessLayer.S3;
-using DinkToPdf.Contracts;
-using DinkToPdf;
-using HRMS.Web.BusinessLayer.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,7 +100,7 @@ builder.Services.AddAuthentication("Cookies")
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddControllers();
 
 //builder.Services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -114,7 +115,7 @@ builder.Services.AddSingleton<QuartzJobRunner>();
  builder.Services.AddSingleton<IJobFactory, JobFactory>();
 builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 builder.Services.AddTransient<WeeklyFridayJob>();
-
+builder.Services.AddSingleton<IS3Service, S3Service>();
 
 builder.Services.AddSingleton(new JobSchedule(
     jobType: typeof(WeeklyFridayJob),
@@ -141,8 +142,15 @@ if (!app.Environment.IsDevelopment())
 
 //Required using WebMarkupMin.AspNetCore8;
 //app.UseWebMarkupMin();
+var fileStoragePath = builder.Configuration["FileStorage:RootPath"];
 
 app.UseStaticFiles();
+
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(fileStoragePath),
+//    RequestPath = "/uploads"
+//});
 app.UseSession();
 //app.UseMvc();
 app.UseRouting();
@@ -150,7 +158,7 @@ app.UseRouting();
 app.UseAuthentication();
 
 app.UseAuthorization();
-
+app.MapControllers();
 app.MapControllerRoute(
     name: "Area",
 pattern: "{area:exists}/{controller=DashBoard}/{action=Index}/{id?}");

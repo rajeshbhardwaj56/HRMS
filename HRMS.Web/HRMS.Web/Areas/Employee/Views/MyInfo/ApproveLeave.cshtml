@@ -128,6 +128,51 @@
 									<div class="group-box anim">
 										<div class="tabsInfo" id="">
 											<h3>Leave Approval Info</h3>
+                                            <div class="row mb-3 align-items-end">
+
+		<div class="col-md-3">
+			<label class="form-label">Location</label>
+			<select id="ddlLocation" class="form-select">
+				<option value="0">All Locations</option>
+				@if (Model?.JobLocations != null)
+				{
+					foreach (var item in Model.JobLocations)
+					{
+						<option value="@item.JobLocationID">
+							@item.JobLocationName
+						</option>
+					}
+				}
+			</select>
+		</div>
+
+		<div class="col-md-3">
+			<label class="form-label">Process</label>
+			<select id="ddlSubDepartment" class="form-select">
+				<option value="0">All Process</option>
+				@if (Model?.SubDepartments != null)
+				{
+					foreach (var item in Model.SubDepartments)
+					{
+						<option value="@item.SubDepartmentID">
+							@item.SubDepartmentName
+						</option>
+					}
+				}
+			</select>
+		</div>
+<div class="col-md-3">
+    <label class="form-label">Level</label>
+<select id="ddlHierarchyLevel" class="form-select">
+    <option value="0">All Level</option>
+    <option value="1">Level 1</option>
+    <option value="2">Level 2</option>
+    <option value="3">Level 3+</option>
+</select>
+</div>
+				
+
+	</div>
 											<nav>
                                                 <div class="nav nav-tabs mb-3" id="myTabs-timeoff" role="tablist">
                                                     <button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
@@ -141,6 +186,7 @@
 													}
                                                     <button class="nav-link  " id="leave-Cancelled-tab1" data-bs-toggle="tab" data-bs-target="#leave-Cancelled-tab" type="button" role="tab" aria-controls="leave-Cancelled-tab" aria-selected="false" onclick="LeavesForCancelled()">Employees Cancelled Leaves</button>
                                                 </div>
+                                                	
 											</nav>
                                             <div class="tab-content" id="nav-tabContent1">
                                                 <div class="tab-pane fade show active" id="applied-leave-tab" role="tabpanel" aria-labelledby="applied-leave-tab1">
@@ -1028,243 +1074,122 @@
 	function CloseApproveRejectModel() {
 		$('#ApproveRejectModel').modal('hide');
 	}
-	function RefreshTable(tableId, urlData) {
-		$.post(urlData, null, function (json) {
-			table = $(tableId).dataTable();
-			oSettings = table.fnSettings();
 
-			table.fnClearTable(this);
 
-			for (var i = 0; i < json.data.length; i++) {
-				table.oApi._fnAddData(oSettings, json.data[i]);
-			}
 
-			oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-			table.fnDraw();
-		});
-	}
-	function RefreshTable1(tableId, urlData) {
-		$.post(urlData, null, function (json) {
-			table = $(tableId).dataTable();
-			oSettings = table.fnSettings();
+function AutoReload() {
 
-			table.fnClearTable(this);
+    $('#leave-Cancelled-tab').hide();
+    $('#leave-Future-tab').hide();
 
-			for (var i = 0; i < json.data.length; i++) {
-				table.oApi._fnAddData(oSettings, json.data[i]);
-			}
+    if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
 
-			oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-			table.fnDraw();
-		});
-	}
-	function RefreshTable2(tableId, urlData) {
-		$.post(urlData, null, function (json) {
-			table = $(tableId).dataTable();
-			oSettings = table.fnSettings();
+    	 @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin ) {
+    <text>
+    InitAdminLeavesForApproval();
 
-			table.fnClearTable(this);
-
-			for (var i = 0; i < json.data.length; i++) {
-				table.oApi._fnAddData(oSettings, json.data[i]);
-			}
-
-			oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-			table.fnDraw();
-		});
-	}
-	function AutoReload() {
-		$('#leave-Cancelled-tab').hide();
-        $('#leave-Future-tab').hide();
-		RefreshTable('#tblLeavesForApproval', '@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApprovals/'); // All leave for approval
-		if (!$.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
-			 @if (RoleName == (int)Roles.Admin || RoleName == (int)Roles.SuperAdmin ) {
-            <text>
-            InitAdminLeavesForApproval();
-
-            </text>
-        } else {
-            <text>InitOverviewDataTable();</text>
-        }
-		}
-	}
-	function LeavesForApproved() {
-		$('#leave-approved-tab').css("display", "block");
-		RefreshTable1('#tblLeavesForApproved', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForApproved`); //Approved
-
-		if (!$.fn.DataTable.isDataTable('#tblLeavesForApproved')) {
-			InittblLeavesForApproved();
-		}
-	}
-	function LeavesForReject() {
-		$('#leave-Reject-tab').css("display", "block");
-		RefreshTable2('#tblLeavesForReject', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForReject`);//Rejected
-		if (!$.fn.DataTable.isDataTable('#tblLeavesForReject')) {
-			InittblLeavesForReject();
-		}
-	}
-	function LeavesForFuture() {
-	$('#leave-Future-tab').css("display", "block");
-	RefreshTable2('#tblLeavesForFuture', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForFuture`);//User Cancelled
-	if (!$.fn.DataTable.isDataTable('#tblLeavesForFuture')) {
-		InittblLeavesForFuture();
-	}
+    </text>
+} else {
+    <text>InitOverviewDataTable();</text>
 }
 
+    }
+}
+function LeavesForApproved() {
 
-	function LeavesForCancelled() {
-		$('#leave-Cancelled-tab').css("display", "block");
-		RefreshTable2('#tblLeavesForCancelled', `@(_configuration["AppSettings: RootUrl"])/Employee/myinfo/GetLeaveForUserCancelled`);//User Cancelled
-		if (!$.fn.DataTable.isDataTable('#tblLeavesForCancelled')) {
-			InittblLeavesForCancelled();
-		}
-	}
+    console.log("LeavesForApproved called");
 
+    $('#leave-approved-tab').show();
 
+    if (!$.fn.DataTable.isDataTable('#tblLeavesForApproved')) {
 
+        InittblLeavesForApproved();
 
-	$(document).ready(function () {
-			$('#applied-leave-tab1').click();
-			$('#leave-approved-tab').css("display", "none");
-			$('#leave-Reject-tab').css("display", "none");
-		AutoReload();
-	});
-	function InitOverviewDataTable() {
-		const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
-		oOverviewTable = $('#tblLeavesForApproval').DataTable({
-			"ordering": true,
-			"paging": true,
-			"searching": true,
-			"info": true,
-			"columns": [
-				{ "data": "leaveSummaryID", "autoWidth": true, },
-				{ "data": "employeeNumber", "autoWidth": true },
-				{ "data": "employeeName", "autoWidth": true },
-				{ "data": "appliedByNumber", "autoWidth": true },
-				{ "data": "appliedByName", "autoWidth": true },
-                {
-                    data: "requestDate",
-                    autoWidth: true,
-                    render: function (data) {
-                        if (!data) return "";
+    } else {
 
-                        var date = new Date(data);
+        $('#tblLeavesForApproved').DataTable().ajax.reload(null, false);
 
-                        var day = String(date.getDate()).padStart(2, '0');
-                        var month = String(date.getMonth() + 1).padStart(2, '0');
-                        var year = date.getFullYear();
+    }
+}
+function LeavesForReject() {
 
-                        var hours = date.getHours();
-                        var minutes = String(date.getMinutes()).padStart(2, '0');
+    $('#leave-Reject-tab').show();
 
-                        var ampm = hours >= 12 ? "PM" : "AM";
-                        hours = hours % 12;
-                        hours = hours ? hours : 12; // convert 0 → 12
-                        hours = String(hours).padStart(2, '0');
+    if (!$.fn.DataTable.isDataTable('#tblLeavesForReject')) {
 
-                        return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
-                    }
-                },
-				{ "data": "startDateFormatted", "autoWidth": true },
-				{ "data": "endDateFormatted", "autoWidth": true },
-				{ "data": "leaveTypeName", "autoWidth": true },
-                {
-                    data: "noOfDays",
-                    autoWidth: true,
-                    render: function (data, type, row) {
+        InittblLeavesForReject();
 
-                        if (!data) return "0";
+    } else {
 
-                        return `
-            <button type="button"
-                class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
-                data-bs-toggle="modal"
-                data-bs-target="#leaveDaysModal"
-                data-leavesummaryid="${row.encryptedIdentity}">
-                ${data}
-            </button>
-        `;
-                    }
-                },
-				{ "data": "leaveStatusName", "autoWidth": true },
-				{ "data": "reason", "autoWidth": true },
-				{
-					// this is Actions Column
-					mRender: function (data, type, row) {
-						var linkEdit = "<a data-toggle='tooltip' data-placement='top' class='item' onclick='OpenApproveRejectModel(" + row.employeeID + ", " + row.leaveSummaryID + ")' href='#' title='' data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
+        $('#tblLeavesForReject').DataTable().ajax.reload(null, false);
 
-						return linkEdit;
-					}
-				},
-			],
-			"columnDefs": [
-				{
-					target: 2,
-					visible: false,
-					searchable: false
-				},
+    }
+}
 
-				{
+function LeavesForFuture() {
 
-					"targets": [0], //first and last not sortable
-					"orderable": false,
-					"visible": false
-				},
+    $('#leave-Future-tab').show();
 
-				{
+    if (!$.fn.DataTable.isDataTable('#tblLeavesForFuture')) {
 
-					"targets": [1], //first and last not sortable
-					"orderable": true,
-					"defaultContent": " "
-				}
+        InittblLeavesForFuture();
 
-			]
-			, "responsive": true,
+    } else {
 
-			"createdRow": function (row, data, dataIndex) {
-				if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
-					(data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
+        $('#tblLeavesForFuture').DataTable().ajax.reload(null, false);
 
-					const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
-										? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
-						: `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+    }
+}
 
-					const styledSpan = `
-			<span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
-				${data.noOfDays}
-			</span>`;
+function LeavesForCancelled() {
 
-					$('td:eq(8)', row)
-						.html(styledSpan)
-						.attr('title', tooltipMessage)
-						.tooltip();
-				}
-			}
+    $('#leave-Cancelled-tab').show();
 
-		});
-	}
-	function InitAdminLeavesForApproval() {
-    const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+    if (!$.fn.DataTable.isDataTable('#tblLeavesForCancelled')) {
 
-    oOverviewTable1 = $('#tblLeavesForApproval').DataTable({
-        ordering: true,
-        paging: true,
-        searching: true,
-        info: true,
-        columns: [
-            {
-                data: "leaveSummaryID",
-                render: function (data) {
-                    return `<input type="checkbox" class="row-select-leave" value="${data}" />`;
-                },
-                orderable: false
+        InittblLeavesForCancelled();
+
+    } else {
+
+        $('#tblLeavesForCancelled').DataTable().ajax.reload(null, false);
+
+    }
+}
+
+function InitOverviewDataTable() {
+	const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+    oOverviewTable = $('#tblLeavesForApproval').DataTable({
+        destroy: true,
+		"ordering": true,
+		"paging": true,
+		"searching": true,
+        "info": true,
+        ajax: {
+            url: '/Employee/MyInfo/GetLeaveForApprovals',
+            type: 'POST',
+
+            data: function (d) {
+                d.jobLocationID = $('#ddlLocation').val() || 0;
+                d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
+                d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
             },
-            { "data": "employeeNumber" },
-            { "data": "employeeName" },
-            { "data": "appliedByNumber" },
-            { "data": "appliedByName" },
-			{
-				"data": "requestDate",
+
+            dataSrc: function (json) {
+
+                console.log("Response:", json);
+
+                return json.data;
+            }
+        },
+		"columns": [
+			{ "data": "leaveSummaryID", "autoWidth": true, },
+			{ "data": "employeeNumber", "autoWidth": true },
+			{ "data": "employeeName", "autoWidth": true },
+			{ "data": "appliedByNumber", "autoWidth": true },
+			{ "data": "appliedByName", "autoWidth": true },
+            {
+                data: "requestDate",
+                autoWidth: true,
                 render: function (data) {
                     if (!data) return "";
 
@@ -1284,10 +1209,10 @@
 
                     return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
                 }
-			},
-            { "data": "startDateFormatted" },
-            { "data": "endDateFormatted" },
-            { "data": "leaveTypeName" },
+            },
+			{ "data": "startDateFormatted", "autoWidth": true },
+			{ "data": "endDateFormatted", "autoWidth": true },
+			{ "data": "leaveTypeName", "autoWidth": true },
             {
                 data: "noOfDays",
                 autoWidth: true,
@@ -1296,39 +1221,219 @@
                     if (!data) return "0";
 
                     return `
-            <button type="button"
-                class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
-                data-bs-toggle="modal"
-                data-bs-target="#leaveDaysModal"
-                data-leavesummaryid="${row.encryptedIdentity }">
-                ${data}
-            </button>
-        `;
+        <button type="button"
+            class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
+            data-bs-toggle="modal"
+            data-bs-target="#leaveDaysModal"
+            data-leavesummaryid="${row.encryptedIdentity}">
+            ${data}
+        </button>
+    `;
                 }
             },
-            { "data": "leaveStatusName" },
-            { "data": "reason" },
+			{ "data": "leaveStatusName", "autoWidth": true },
+			{ "data": "reason", "autoWidth": true },
+			{
+				// this is Actions Column
+				mRender: function (data, type, row) {
+					var linkEdit = "<a data-toggle='tooltip' data-placement='top' class='item' onclick='OpenApproveRejectModel(" + row.employeeID + ", " + row.leaveSummaryID + ")' href='#' title='' data-original-title='Approve' title='Approve'><img title='Approve' src='/assets/img/view.webp' width='23' height='23' /></a>";
+
+					return linkEdit;
+				}
+			},
+		],
+		"columnDefs": [
+			{
+				target: 2,
+				visible: false,
+				searchable: false
+			},
+
+			{
+
+				"targets": [0], //first and last not sortable
+				"orderable": false,
+				"visible": false
+			},
+
+			{
+
+				"targets": [1], //first and last not sortable
+				"orderable": true,
+				"defaultContent": " "
+			}
+
+		]
+		, "responsive": true,
+
+		"createdRow": function (row, data, dataIndex) {
+			if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
+				(data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc) )) {
+
+				const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
+									? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
+					: `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+
+				const styledSpan = `
+		<span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
+			${data.noOfDays}
+		</span>`;
+
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
+			}
+		}
+
+	});
+}
+
+
+	$(document).ready(function () {
+			$('#applied-leave-tab1').click();
+			$('#leave-approved-tab').css("display", "none");
+			$('#leave-Reject-tab').css("display", "none");
+		AutoReload();
+	});
+function InitAdminLeavesForApproval() {
+
+    const maxConsecutiveDaysAllowed = @Html.Raw(Json.Serialize(ViewBag.ConsecutiveAllowedDays));
+
+    oOverviewTable1 = $('#tblLeavesForApproval').DataTable({
+        destroy: true,
+        ordering: true,
+        paging: true,
+        searching: true,
+        info: true,
+
+ajax: {
+    url: '/Employee/MyInfo/GetLeaveForApprovals',
+    type: 'POST',
+
+    data: function (d) {
+        d.jobLocationID = $('#ddlLocation').val() || 0;
+        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
+        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    },
+
+    dataSrc: function (json) {
+
+        console.log("Response:", json);
+
+        return json.data;
+    }
+},
+
+        columns: [
+            {
+                data: "leaveSummaryID",
+                render: function (data) {
+                    return `<input type="checkbox" class="row-select-leave" value="${data}" />`;
+                },
+                orderable: false
+            },
+            { data: "employeeNumber" },
+            { data: "employeeName" },
+            { data: "appliedByNumber" },
+            { data: "appliedByName" },
+            {
+                data: "requestDate",
+                render: function (data) {
+
+                    if (!data) return "";
+
+                    var date = new Date(data);
+
+                    var day = String(date.getDate()).padStart(2, '0');
+                    var month = String(date.getMonth() + 1).padStart(2, '0');
+                    var year = date.getFullYear();
+
+                    var hours = date.getHours();
+                    var minutes = String(date.getMinutes()).padStart(2, '0');
+
+                    var ampm = hours >= 12 ? "PM" : "AM";
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    hours = String(hours).padStart(2, '0');
+
+                    return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+                }
+            },
+            { data: "startDateFormatted" },
+            { data: "endDateFormatted" },
+            { data: "leaveTypeName" },
+            {
+                data: "noOfDays",
+                autoWidth: true,
+                render: function (data, type, row) {
+
+                    if (!data) return "0";
+
+                    return `
+                        <button type="button"
+                            class="btn btn-sm btn-outline-primary viewLeaveDaysBtn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#leaveDaysModal"
+                            data-leavesummaryid="${row.encryptedIdentity}">
+                            ${data}
+                        </button>`;
+                }
+            },
+            { data: "leaveStatusName" },
+            { data: "reason" },
             {
                 mRender: function (data, type, row) {
-                    return `<a data-toggle='tooltip' class='item' onclick='OpenApproveRejectModel(${row.employeeID}, ${row.leaveSummaryID})' href='#' title='Approve'><img src='/assets/img/view.webp' width='23' height='23'/></a>`;
+
+                    return `
+                        <a data-toggle='tooltip'
+                           class='item'
+                           onclick='OpenApproveRejectModel(${row.employeeID}, ${row.leaveSummaryID})'
+                           href='#'
+                           title='Approve'>
+                            <img src='/assets/img/view.webp' width='23' height='23'/>
+                        </a>`;
                 }
             }
         ],
+
         columnDefs: [
-            { targets: [0], orderable: false },
-            { targets: [2], visible: false }
+            {
+                targets: [0],
+                orderable: false
+            },
+            {
+                targets: [2],
+                visible: false
+            }
         ],
+
         responsive: true,
+
         createdRow: function (row, data) {
-            if ((data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) && data.noOfDays > maxConsecutiveDaysAllowed) ||
-                (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) && data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))) {
 
-                const tooltipMessage = data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
-                    ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
-                    : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+            if (
+                (data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel) &&
+                    data.noOfDays > maxConsecutiveDaysAllowed)
+                ||
+                (data.leaveTypeID === @Convert.ToInt32(LeaveType.MedicalLeave) &&
+                    data.noOfDays > @Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc))
+            ) {
 
-                const styledSpan = `<span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">${data.noOfDays}</span>`;
-                $('td:eq(8)', row).html(styledSpan).attr('title', tooltipMessage).tooltip();
+                const tooltipMessage =
+                    data.leaveTypeID === @Convert.ToInt32(LeaveType.AnnualLeavel)
+                        ? `Exceeds maximum consecutive allowed ${maxConsecutiveDaysAllowed} days leaves`
+                        : `Document required for more than ${@Convert.ToInt32(MaxMedicalLeaveDoc.MaxMedicalDoc)} days medical leave`;
+
+                const styledSpan =
+                    `<span class="fw-bold text-primary"
+                           style="background-color:red;color:white !important;padding:2px 4px;border-radius:3px;">
+                        ${data.noOfDays}
+                    </span>`;
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
             }
         }
     });
@@ -1341,6 +1446,19 @@
 			"paging": true,
 			"searching": true,
 			"info": true,
+            ajax: {
+    url: '/Employee/MyInfo/GetLeaveForApproved',
+    type: 'POST',
+    data: function (d) {
+        d.jobLocationID = $('#ddlLocation').val() || 0;
+        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
+        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    },
+    dataSrc: function (json) {
+        return json.data;
+    }
+},
+
 			"columns": [
 				{ "data": "leaveSummaryID", "autoWidth": true, },
 				{ "data": "employeeNumber", "autoWidth": true },
@@ -1430,10 +1548,10 @@
 				${data.noOfDays}
 			</span>`;
 
-					$('td:eq(8)', row)
-						.html(styledSpan) // Replace the cell content with the styled span
-						.attr('title', tooltipMessage)
-						.tooltip(); // Initialize tooltip
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
 				}
 			}
 		});
@@ -1446,6 +1564,18 @@
 			"paging": true,
 			"searching": true,
 			"info": true,
+            ajax: {
+    url: '/Employee/MyInfo/GetLeaveForReject',
+    type: 'POST',
+    data: function (d) {
+        d.jobLocationID = $('#ddlLocation').val() || 0;
+        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
+        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    },
+    dataSrc: function (json) {
+        return json.data;
+    }
+},
 			"columns": [
 				{ "data": "leaveSummaryID", "autoWidth": true, },
 				{ "data": "employeeNumber", "autoWidth": true },
@@ -1535,10 +1665,10 @@
 				${data.noOfDays}
 			</span>`;
 
-					$('td:eq(8)', row)
-						.html(styledSpan) // Replace the cell content with the styled span
-						.attr('title', tooltipMessage)
-						.tooltip(); // Initialize tooltip
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
 				}
 			}
 		});
@@ -1552,7 +1682,18 @@
         paging: true,
         searching: true,
         info: true,
-
+        ajax: {
+    url: '/Employee/MyInfo/GetLeaveForFuture',
+    type: 'POST',
+    data: function (d) {
+        d.jobLocationID = $('#ddlLocation').val() || 0;
+        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
+        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    },
+    dataSrc: function (json) {
+        return json.data;
+    }
+},
         columns: [
             {
                 data: "leaveSummaryID",
@@ -1662,6 +1803,18 @@
 			"paging": true,
 			"searching": true,
 			"info": true,
+            ajax: {
+    url: '/Employee/MyInfo/GetLeaveForUserCancelled',
+    type: 'POST',
+    data: function (d) {
+        d.jobLocationID = $('#ddlLocation').val() || 0;
+        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
+        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    },
+    dataSrc: function (json) {
+        return json.data;
+    }
+},
 			"columns": [
 				{ "data": "leaveSummaryID", "autoWidth": true, },
 				{ "data": "employeeNumber", "autoWidth": true },
@@ -1750,11 +1903,10 @@
 			<span class="fw-bold text-primary" style="background-color: red; color: white !important; padding: 2px 4px; border-radius: 3px;">
 				${data.noOfDays}
 			</span>`;
-
-					$('td:eq(8)', row)
-						.html(styledSpan) // Replace the cell content with the styled span
-						.attr('title', tooltipMessage)
-						.tooltip(); // Initialize tooltip
+$('td:eq(8)', row).find('button')
+  .addClass('bg-danger text-white')
+  .attr('title', tooltipMessage)
+  .tooltip();
 				}
 			}
 		});
@@ -1841,10 +1993,9 @@
                             $btn.prop('disabled', false).text('Update Selected');
                             $('#selectAllLeaves').prop('checked', false);
 
-                            RefreshTable(
-                                '#tblLeavesForApproval',
-                                '/Employee/MyInfo/GetLeaveForApprovals'
-                            );
+                            if ($.fn.DataTable.isDataTable('#tblLeavesForApproval')) {
+                                $('#tblLeavesForApproval').DataTable().ajax.reload(null, false);
+                            }
 
                             if (failedMessages.length > 0) {
                                 toastEMessage('Error', failedMessages.join('<br>'), 5000);
@@ -1934,12 +2085,12 @@
                     data: {
                         id: record.EncryptedIdentity,
                         empId: record.Encrypted,
-                        comment: comment   
+                        comment: comment
                     },
 
                     success: function (response) {
 
-                       
+
                         if (response?.status !== 1) {
                             failedMessages.push(`EmpNo ${record.EmployeeNumber}: ${response.message}`);
                         }
@@ -1960,10 +2111,9 @@
 
                             $('#selectAllFutureLeaves').prop('checked', false);
 
-                            RefreshTable2(
-                                '#tblLeavesForFuture',
-                                '/Employee/MyInfo/GetLeaveForFuture'
-                            );
+                            if ($.fn.DataTable.isDataTable('#tblLeavesForFuture')) {
+                                $('#tblLeavesForFuture').DataTable().ajax.reload(null, false);
+                            }
 
                             if (failedMessages.length > 0) {
                                 toastEMessage('Error', failedMessages.join('<br>'), 5000);
@@ -2073,7 +2223,6 @@
 	});
 
 </script>
-
 
 @* admin *@
 
@@ -2298,7 +2447,41 @@
     }
 
 </script>
+<script>
+    $(document).ready(function () {
 
+let timer;
+
+$('#ddlLocation, #ddlSubDepartment, #ddlHierarchyLevel').on('change', function () {
+
+    clearTimeout(timer);
+
+    timer = setTimeout(function () {
+
+        reloadTables();
+
+    }, 900); // debounce
+
+});
+
+function reloadTables() {
+
+    const tables = [
+        '#tblLeavesForApproval',
+        '#tblLeavesForApproved',
+        '#tblLeavesForReject',
+        '#tblLeavesForFuture',
+        '#tblLeavesForCancelled'
+    ];
+
+    tables.forEach(id => {
+        if ($.fn.DataTable.isDataTable(id)) {
+            $(id).DataTable().ajax.reload(null, false);
+        }
+    });
+}
+});
+</script>
 
 
 

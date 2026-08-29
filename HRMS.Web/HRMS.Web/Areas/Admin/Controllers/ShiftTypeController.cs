@@ -131,5 +131,16 @@ namespace HRMS.Web.Areas.Admin.Controllers
         {
             return int.TryParse(HttpContext.Session.GetString(key), out var value) ? value : 0;
         }
+        [HttpPost]
+        public JsonResult ValidateShiftType(ShiftTypeModel shiftTypeModel)
+        {
+            shiftTypeModel.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+
+            var data = _businessLayer.SendPostAPIRequest(shiftTypeModel, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.ShiftType,
+                APIApiActionConstants.ValidateShiftType), HttpContext.Session.GetString(Constants.SessionBearerToken), true).Result.ToString();
+            var result = JsonConvert.DeserializeObject<Result>(data);
+
+            return Json(result);
+        }
     }
 }

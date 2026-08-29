@@ -49,7 +49,25 @@ namespace HRMS.API.BusinessLayer
         public const string usp_Get_Employees = "usp_Get_Employees";
         public const string usp_Get_HolidayList = "usp_Get_HolidayList";
 
+        public const string usp_AddUpdate_Designation = "usp_AddUpdate_Designation";
+        public const string usp_Get_DesignationList = "usp_Get_DesignationList";
+        public const string usp_Get_DesignationDetails = "usp_Get_DesignationDetails";
 
+        public const string usp_AddUpdate_SubDepartment = "usp_AddUpdate_SubDepartment";
+        public const string usp_Get_SubDepartmentList = "usp_Get_SubDepartmentList";
+        public const string usp_AddUpdate_LOB = "usp_AddUpdate_LOB";
+        public const string usp_Get_LOBList = "usp_Get_LOBList";
+        public const string usp_Get_LOBDetails = "usp_Get_LOBDetails";
+        public const string usp_CheckDuplicateLOB = "usp_CheckDuplicateLOB";
+        public const string usp_GetDesignationByIDLog = "usp_GetDesignationByIDLog";
+        public const string usp_CheckDuplicateDesignation = "usp_CheckDuplicateDesignation";
+        public const string usp_GetSubDepartmentByIDLog = "usp_GetSubDepartmentByIDLog";
+        public const string usp_GetLOBByIDLog = "usp_GetLOBByIDLog";
+        public const string usp_Delete_Designation = "usp_Delete_Designation";
+        public const string usp_Delete_SubDepartment = "usp_Delete_SubDepartment";
+        public const string usp_Delete_LOB = "usp_Delete_LOB";
+        public const string usp_Get_SubDepartmentDetails = "usp_Get_SubDepartmentDetails";
+        public const string usp_CheckDuplicateSubDepartment = "usp_CheckDuplicateSubDepartment";
         public const string usp_InsertUserRole = "usp_InsertUserRole";
         public const string usp_AddUpdate_EmploymentDetails = "usp_AddUpdate_EmploymentDetails";
         public const string usp_Get_EmployeeDetailsFormDetails = "usp_Get_EmployeeDetailsFormDetails";
@@ -158,8 +176,10 @@ namespace HRMS.API.BusinessLayer
         public const string usp_GetFirstLevelEmployees = "usp_GetFirstLevelEmployees";
         public const string usp_Get_AgentLeavesSummary = "usp_Get_AgentLeavesSummary";
         public const string usp_Get_AgentLeavesSummaryForApproval = "usp_Get_AgentLeavesSummaryForApproval";
+        public const string usp_Export_AgentLeavesSummaryForApproval = "usp_Export_AgentLeavesSummaryForApproval";
 
         public const string usp_GetAttendanceForApprovalImmediateApprove = "usp_GetAttendanceForApprovalImmediateApprove";
+        public const string usp_ExportAttendanceChangeApproval = "usp_ExportAttendanceChangeApproval";
 
         public const string usp_Get_EmployeesWithoutWeekOffRoster = "usp_Get_EmployeesWithoutWeekOffRoster";
         public const string usp_Get_EmployeesHierarchyUnderManager = "usp_Get_EmployeesHierarchyUnderManager";
@@ -172,8 +192,9 @@ namespace HRMS.API.BusinessLayer
         public const string usp_ValidateShiftType = "usp_ValidateShiftType";
         public const string usp_GetLeaveSummaryDayWiseDetails = "usp_GetLeaveSummaryDayWiseDetails";
         public const string usp_GetLeaveCountForValidation = "usp_GetLeaveCountForValidation";
-        
-
+        public const string usp_Get_AdminFogotPasswordDetails = "usp_Get_AdminFogotPasswordDetails";
+        public const string usp_ResetPasswordByAdmin = "usp_ResetPasswordByAdmin";
+        public const string usp_GetUserByIDLog = "usp_GetUserByIDLog";
         #region Payroll
         public const string usp_CalculateEmployeeSalary = "usp_CalculateEmployeeSalary";
         public const string usp_GetEmployeeSalary = "usp_GetEmployeeSalary";

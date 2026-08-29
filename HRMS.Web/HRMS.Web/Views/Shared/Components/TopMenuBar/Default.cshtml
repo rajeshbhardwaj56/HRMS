@@ -106,6 +106,18 @@
 								{
 									<li class="nav-list__item submenu--triggers"><a class='nav-link' asp-area="admin" asp-controller="Template" asp-action="TemplateListing">Templates </a></li>
 								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 31 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item submenu--triggers"><a class='nav-link' asp-area="admin" asp-controller="Holiday" asp-action="DesignationListings">Designation </a></li>
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 32 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item submenu--triggers"><a class='nav-link' asp-area="admin" asp-controller="Holiday" asp-action="LOBListings">LOB </a></li>
+								}
+								@if (Model.FormPermissionList.Where(x => x.FormID == 33 && x.IsFormPermissions == true && x.FormLevel == 2).Count() > 0)
+								{
+									<li class="nav-list__item submenu--triggers"><a class='nav-link' asp-area="admin" asp-controller="Holiday" asp-action="SubDepartmentListings">SubDepartment </a></li>
+								}
 							</ul>
 						</div>
 					</div>

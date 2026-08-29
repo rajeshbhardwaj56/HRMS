@@ -1633,7 +1633,6 @@ namespace HRMS.Web.Areas.HR.Controllers
         }
 
 
-
         [HttpPost]
         public async Task<IActionResult> AddUpdateWeekOffRoster(WeekOffUploadModel model)
         {
@@ -1658,7 +1657,38 @@ namespace HRMS.Web.Areas.HR.Controllers
                 }
                 //int currentDay = DateTime.Today.Day;
                 //model.RosterMonth = new DateTime(model.SelectedYear??0, model.SelectedMonth??0, currentDay);
+                DateTime applyCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:ApplyCutoffDate"]);
 
+                DateTime adminEditCutoffDate = DateTime.Parse(
+                    _configuration["HRMSLockSettings:AdminEditCutoffDate"]);
+
+                bool allowSuperAdminEdit = Convert.ToBoolean(
+                    _configuration["HRMSLockSettings:AllowSuperAdminEdit"]);
+
+                int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+
+                // Default cutoff for all users
+                DateTime effectiveCutoffDate = applyCutoffDate;
+
+                // Admin/SuperAdmin get the configured earlier cutoff only when enabled
+                if (allowSuperAdminEdit &&
+                    (roleId == (int)Roles.Admin || roleId == (int)Roles.SuperAdmin))
+                {
+                    effectiveCutoffDate = adminEditCutoffDate;
+                }
+
+                if (model.WeekStartDate.HasValue &&
+                    model.WeekStartDate.Value.Date <= effectiveCutoffDate.Date)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] =
+                        $"Week Off cannot be saved for weeks up to {effectiveCutoffDate:dd-MMM-yyyy}.";
+
+                    return RedirectToAction(
+                        WebControllarsConstants.EmployeesWeekOffRoster,
+                        WebControllarsConstants.Employee);
+                }
                 var weekOffUploadModel = new WeekOffUploadModelList
                 {
                     WeekOffList = new List<WeekOffUploadModel> { model },
@@ -1863,6 +1893,166 @@ namespace HRMS.Web.Areas.HR.Controllers
                     errors.Add($"Row {rowNum}: {fieldName} '{date.Value}' is an invalid or unreasonable date.");
                 else
                     dates.Add(date.Value.Date);  // Always add as date-only (ignores time part)
+            }
+        }
+
+        public ActionResult ResetPasswordByAdmin()
+        {
+            AdminResetPasswordModel model = new AdminResetPasswordModel();
+
+            model.UserName = "PTK";
+
+            try
+            {
+                CompanyLoginModel companyModel = new CompanyLoginModel();
+
+                var companyId = _configuration["CompanyDetails:CompanyId"];
+                companyModel.CompanyID = Convert.ToInt64(companyId);
+
+                var companyData = _businessLayer.SendPostAPIRequest(
+                    companyModel,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Company,
+                        APIApiActionConstants.GetCompaniesLogo),
+                    " ",
+                    false).Result.ToString();
+
+                companyModel =
+                    JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(companyData)
+                    .companyLoginModel;
+
+                if (!string.IsNullOrEmpty(companyModel.CompanyLogo))
+                {
+                    companyModel.CompanyLogo = _s3Service.GetFileUrl(companyModel.CompanyLogo);
+                }
+
+                model.CompanyLogo = companyModel.CompanyLogo;
+            }
+            catch (Exception)
+            {
+            }
+
+            return View(model);
+        }
+        [HttpPost]
+        public ActionResult ResetPasswordByAdmin(AdminResetPasswordModel model)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(model.UserName))
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "User Name is required.";
+                    return View(model);
+                }
+
+                if (string.IsNullOrWhiteSpace(model.Password))
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Password is required.";
+                    return View(model);
+                }
+
+
+
+                //==============================================
+                // Validate User
+                //==============================================
+
+                ChangePasswordModel changeModel = new ChangePasswordModel();
+                changeModel.EmailId = model.UserName;
+
+                string validateApi = _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.GetAdminFogotPasswordDetails);
+
+                string validateResponse = _businessLayer
+                    .SendPostAPIRequest(changeModel, validateApi, null, false)
+                    .Result
+                    .ToString();
+
+                Result validateResult = JsonConvert.DeserializeObject<Result>(validateResponse);
+
+                if (validateResult == null || validateResult.Data == null)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "User not found.";
+                    return View(model);
+                }
+
+                UserModel user = JsonConvert.DeserializeObject<UserModel>((string)validateResult.Data);
+
+                if (user == null || user.EmployeeID <= 0)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "User not found. Please check the entered details and try again.";
+                    return View(model);
+                }
+
+                if (!user.IsActive)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "This account is currently inactive. Please activate the account first to reset the password.";
+                    return View(model);
+                }
+
+                if (user.IsDeleted)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "User is deleted. Password cannot be reset.";
+                    return View(model);
+                }
+
+                //==============================================
+                // Fill Hidden Values
+                //==============================================
+
+                model.EmployeeID = user.EmployeeID.ToString();
+                model.UserID = user.EmployeeID.ToString();
+                model.CompanyID = user.CompanyID.ToString();
+                model.UpdatedByUserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.UserID));
+                //==============================================
+                // Reset Password
+                //==============================================
+
+                string apiUrl = _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Common,
+                    APIApiActionConstants.ResetPasswordByAdmin);
+
+                string response = _businessLayer
+                    .SendPostAPIRequest(model, apiUrl, null, false)
+                    .Result
+                    .ToString();
+
+                Result result = JsonConvert.DeserializeObject<Result>(response);
+
+                if (result == null)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypeError;
+                    TempData[Constants.toastMessage] = "Invalid response from server.";
+                    return View(model);
+                }
+
+                if (result.UserID < 0)
+                {
+                    TempData[Constants.toastType] = Constants.toastTypetWarning;
+                    TempData[Constants.toastMessage] = result.Message;
+                    return View(model);
+                }
+
+                TempData[Constants.toastType] = Constants.toastTypeSuccess;
+                TempData[Constants.toastMessage] = "Password reset successfully.";
+                TempData["GeneratedPassword"] = model.Password;
+                TempData["ShowCopy"] = true;
+
+                return RedirectToAction("ResetPasswordByAdmin");
+            }
+            catch (Exception ex)
+            {
+                TempData[Constants.toastType] = Constants.toastTypetWarning;
+                TempData[Constants.toastMessage] = ex.Message;
+
+                return View(model);
             }
         }
     }

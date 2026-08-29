@@ -4,51 +4,58 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Shift Type";
 }
-
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
 <div class="main-header anim" style="--delay: 0s">Shift Type Details </div>
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" id="shiftTypeForm">
     <div class="Container">
         <div class="group-box anim" style="--delay: .3s">
             <div class="row">
-@* 
+                @* 
         <div class="col-md-12 container-heading">
             <label class="form-label" style="font-weight:500;">  </label>
         </div> *@
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-6 my-2">
-                    <div class="col-md-12">
-                        <label class="form-label"> Shift Type Name <span class="Mandetory">*</span> </label>
-                    </div>
-                    <div class="col-md-12">
-                        @Html.HiddenFor(x => x.ShiftTypeID)
-                        @Html.TextBoxFor(a => a.ShiftTypeName, new { @class = "form-control", @required = "required" })
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Shift Type Name <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.HiddenFor(x => x.ShiftTypeID)
 
+                                @Html.TextBoxFor(a => a.ShiftTypeName, new { @class = "form-control", required = "required" })
+                                <div id="shiftNameValidationMessage"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-6 my-2">
-                    <div class="col-md-12">
-                        <label class="form-label"> Shift Start Time (HH:MM:SS) <span class="Mandetory">*</span> </label>
-                    </div>
-                    <div class="col-md-12">
-                        @Html.TextBoxFor(a => a.StartTime, new { type = "time", @class = "form-control", @required = "required", step = 1 })
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Shift Start Time (HH:MM:SS) <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.TextBoxFor(a => a.StartTime, new { type = "time", @class = "form-control", required = "required", step = 1 })
+                                <div id="startTimeValidationMessage"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 my-2">
+                            <div class="col-md-12">
+                                <label class="form-label"> Shift End Time (HH:MM:SS) <span class="Mandetory">*</span> </label>
+                            </div>
+                            <div class="col-md-12">
+                                @Html.TextBoxFor(a => a.EndTime, new { type = "time", @class = "form-control", required = "required", step = 1 })
+                                <div id="endTimeValidationMessage"></div>
 
-                    </div>
-                </div>
-                <div class="col-md-6 my-2">
-                    <div class="col-md-12">
-                        <label class="form-label"> Shift End Time (HH:MM:SS) <span class="Mandetory">*</span> </label>
-                    </div>
-                    <div class="col-md-12">
-                        @Html.TextBoxFor(a => a.EndTime, new { type = "time", @class = "form-control", @required = "required", step = 1 })
-
-                    </div>
-                </div>
-
+                            </div>
+                        </div>
+                        @* 
                 <div class="col-md-6 my-2">
                     <div class="col-md-12">
                         <label class="form-label"> Holiday List <span class="Mandetory">*</span> </label>
@@ -66,18 +73,18 @@
 
                         @Html.CheckBoxFor(a => a.AutoAttendance)
                     </div>
+                </div> *@
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-12 container-heading">
+                @*         <div class="col-md-12 container-heading">
             <label class="form-label" style="font-weight:500;"> Auto attendance settings</label>
-        </div>
-        <div class="col-md-12">
+        </div> *@
+                <div class="col-md-12">
 
 
-            <div class="row">
+                    <div class="row">
 
-
+                        @* 
                 <div class="col-md-12">
                     <div class="row">
                         <div class="col-md-6 my-2">
@@ -215,21 +222,21 @@
                 </div>
 
 
-              @*   <div class="row">
+                 <div class="row">
                     <div class="col-md-12 my-2">
                         <input style="float:right" type="submit" value="Submit" class="btn btn-success" />
                         <input id="cancelButton" style="float:right;margin-right: 10px;" type="button" value="Cancel" class="btn btn-success" />
                     </div>
-                </div> *@
+                </div>  *@
                         <div class="row">
                             <div class="col-md-12">
-                                <input type="submit" value="Submit" class="btn btn-success" />
+                                <input type="submit" id="btnSubmit" value="Submit" class="btn btn-success" />
                                 <button id="cancelButton" class="btn btn-danger" type="button" value="Cancel">Cancel</button>
                             </div>
                         </div>
 
-            </div>
-        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -238,5 +245,214 @@
 <script>
     document.getElementById('cancelButton').addEventListener('click', function () {
         window.location.href = '@Url.Action("ShiftTypeListing", "ShiftType")';
+    });
+</script>
+
+<script>
+
+    let validationRequest = null;
+    let latestValidationToken = 0;
+    let validationTimeout = null;
+
+    function enableSubmitButton() {
+
+        $('#btnSubmit')
+            .prop('disabled', false)
+            .css({
+                'opacity': '1',
+                'cursor': 'pointer'
+            });
+    }
+
+    function disableSubmitButton() {
+
+        $('#btnSubmit')
+            .prop('disabled', true)
+            .css({
+                'opacity': '0.5',
+                'cursor': 'not-allowed'
+            });
+    }
+
+    function clearValidationMessages() {
+
+        $('#shiftNameValidationMessage').html('');
+        $('#startTimeValidationMessage').html('');
+        $('#endTimeValidationMessage').html('');
+    }
+
+    function validateShiftType() {
+
+        const shiftTypeName = $('#ShiftTypeName').val().trim();
+        const startTime = $('#StartTime').val();
+        const endTime = $('#EndTime').val();
+
+        clearValidationMessages();
+
+        if (!shiftTypeName || !startTime || !endTime) {
+
+            enableSubmitButton();
+            return;
+        }
+
+        const model = {
+
+            ShiftTypeID: $('#ShiftTypeID').val(),
+            ShiftTypeName: shiftTypeName,
+            StartTime: startTime,
+            EndTime: endTime
+        };
+
+        const currentToken = ++latestValidationToken;
+
+        if (validationRequest) {
+
+            validationRequest.abort();
+        }
+
+        validationRequest = $.ajax({
+
+            url: '@Url.Action("ValidateShiftType", "ShiftType")',
+            type: 'POST',
+            data: model,
+
+          success: function (response) {
+
+        if (currentToken !== latestValidationToken) {
+            return;
+        }
+
+        clearValidationMessages();
+
+        console.log(response);
+
+        // SUCCESS
+        if (response.pkNo == 1) {
+
+            enableSubmitButton();
+            return;
+        }
+
+        // FAILED VALIDATION
+        disableSubmitButton();
+
+        if (response.message &&
+            response.message.includes('Shift Type Name')) {
+
+            $('#shiftNameValidationMessage')
+                .html('<span class="text-danger">' + response.message + '</span>');
+        }
+
+        else if (response.message &&
+            response.message.includes('cannot be same')) {
+
+            $('#endTimeValidationMessage')
+                .html('<span class="text-danger">' + response.message + '</span>');
+        }
+
+        else if (response.message &&
+            response.message.includes('timing already exists')) {
+
+            $('#endTimeValidationMessage')
+                .html('<span class="text-danger">' + response.message + '</span>');
+        }
+    },
+
+            error: function (xhr, status) {
+
+                if (status === "abort") {
+
+                    return;
+                }
+
+                enableSubmitButton();
+            }
+        });
+    }
+
+    function triggerValidation() {
+
+        clearTimeout(validationTimeout);
+
+        validationTimeout = setTimeout(function () {
+
+            validateShiftType();
+
+        }, 300);
+    }
+
+    $(document).ready(function () {
+
+        $('#ShiftTypeName').on('blur', function () {
+
+            triggerValidation();
+        });
+
+        $('#StartTime').on('change', function () {
+
+            triggerValidation();
+        });
+
+        $('#EndTime').on('change', function () {
+
+            triggerValidation();
+        });
+
+        enableSubmitButton();
+    });
+        $('#shiftTypeForm').on('submit', function (e) {
+
+        const shiftTypeName = $('#ShiftTypeName').val().trim();
+        const startTime = $('#StartTime').val();
+        const endTime = $('#EndTime').val();
+
+        clearValidationMessages();
+
+        // Required validation
+        if (!shiftTypeName) {
+
+            $('#shiftNameValidationMessage')
+                .html('<span class="text-danger">Shift Type Name is required.</span>');
+
+            e.preventDefault();
+            return false;
+        }
+
+        if (!startTime) {
+
+            $('#startTimeValidationMessage')
+                .html('<span class="text-danger">Start Time is required.</span>');
+
+            e.preventDefault();
+            return false;
+        }
+
+        if (!endTime) {
+
+            $('#endTimeValidationMessage')
+                .html('<span class="text-danger">End Time is required.</span>');
+
+            e.preventDefault();
+            return false;
+        }
+
+        // Same time validation
+        if (startTime === endTime) {
+
+            $('#endTimeValidationMessage')
+                .html('<span class="text-danger">Start Time and End Time cannot be same.</span>');
+
+            e.preventDefault();
+            return false;
+        }
+
+        // Prevent submit if button disabled
+        if ($('#btnSubmit').prop('disabled')) {
+
+            e.preventDefault();
+            return false;
+        }
+
+        return true;
     });
 </script>

@@ -42,7 +42,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 var app = builder.Build();
 
-app.UseExceptionHandler("/error"); 
+app.UseExceptionHandler("/error");
 
 
 {

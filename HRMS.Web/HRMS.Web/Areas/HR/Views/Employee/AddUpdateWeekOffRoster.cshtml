@@ -1,10 +1,11 @@
-﻿@using HRMS.Models.ExportEmployeeExcel
+﻿@using HRMS.Models.Common
+@using HRMS.Models.ExportEmployeeExcel
 
 
 @using Microsoft.AspNetCore.Http
 @using Microsoft.Extensions.Configuration
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
-@inject IConfiguration _configuration
+@inject IConfiguration Configuration
 @model WeekOffUploadModel
 @{
     Layout = String.Format("~/Areas/{0}/Views/Shared/_Layout.cshtml", @HttpContextAccessor.HttpContext.Session.GetString(HRMS.Models.Common.Constants.AreaName));
@@ -22,7 +23,7 @@
     int currentYear = DateTime.Today.Year;
 
     bool isEditMode = Model.Id > 0;
-   
+    var weekOffCutoffDate = Configuration["HRMSLockSettings:ApplyCutoffDate"];
 }
 
 
@@ -157,8 +158,28 @@
         const weekRanges = getWeekRanges(year);
         const today = new Date();
         let selectedValue = null;
+    let periodEndDate = new Date(weekOffCutoffDate + "T00:00:00");
 
-        weekRanges.forEach(w => {
+    if (allowSuperAdminEdit &&
+        (roleId === ROLE_ADMIN || roleId === ROLE_SUPERADMIN)) {
+        periodEndDate = new Date(adminEditCutoffDate + "T00:00:00");
+    }
+
+    periodEndDate.setHours(0, 0, 0, 0);
+           weekRanges.forEach(w => {
+            const weekStart = new Date(convertToISO(w.startDate));
+
+            const existingWeekStart = $('#WeekStartDateHidden').val();
+
+            const isCurrentEditWeek =
+                existingWeekStart &&
+                convertToISO(w.startDate) === existingWeekStart.split(' ')[0];
+
+            if (weekStart <= periodEndDate &&
+                !isCurrentEditWeek) {
+                return;
+            }
+
             const label = `Week ${w.weekNumber} (${w.startDate} - ${w.endDate})`;
             const value = `${w.weekNumber}|${w.startDate}|${w.endDate}`;
 
@@ -443,4 +464,14 @@
 
 
 
+</script>
+<script>
+    const weekOffCutoffDate = '@Configuration["HRMSLockSettings:ApplyCutoffDate"]';
+    const adminEditCutoffDate = '@Configuration["HRMSLockSettings:AdminEditCutoffDate"]';
+    const allowSuperAdminEdit = '@Configuration["HRMSLockSettings:AllowSuperAdminEdit"]'.toLowerCase() === 'true';
+
+    const roleId = @Context.Session.GetString(Constants.RoleID);
+
+    const ROLE_ADMIN = @((int)Roles.Admin);
+    const ROLE_SUPERADMIN = @((int)Roles.SuperAdmin);
 </script>

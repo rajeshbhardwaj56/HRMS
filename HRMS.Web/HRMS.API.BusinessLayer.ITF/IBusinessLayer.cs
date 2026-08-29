@@ -24,6 +24,7 @@ namespace HRMS.API.BusinessLayer.ITF
     {
         LoginUser LoginUser(LoginUser loginUser);
         public Result ResetPassword(ResetPasswordModel loginUser);
+        public Result ResetPasswordByAdmin(AdminResetPasswordModel model);
         public Results GetAllCountries();
         public Results GetAllLanguages();
         public Results GetAllCompanyLanguages(long companyID);
@@ -40,6 +41,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public LeaveResults GetlLeavesSummary(MyInfoInputParams model);
         public Result AddUpdateLeave(LeaveSummaryModel leaveSummaryModel);
         public LeaveResults GetLeaveForApprovals(MyInfoInputParams model);
+        public LeaveResults ExportLeaveForApprovals(MyInfoInputParams model);
         public LeaveResults GetLeaveDurationTypes(MyInfoInputParams leaveInputParams);
         public LeaveResults GetLeaveTypes(MyInfoInputParams leaveInputParams);
         public Result AddUpdateLeavePolicy(LeavePolicyModel model);
@@ -53,6 +55,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmploymentSeparationDetails(EmploymentSeparationDetail employmentSeparationDetails);
         public EmploymentSeparationDetail GetEmploymentSeparationDetails(EmploymentSeparationInputParams model);
         public Result GetFogotPasswordDetails(ChangePasswordModel model);
+        public Result GetAdminFogotPasswordDetails(ChangePasswordModel model);
         public Result AddUpdateHoliday(HolidayModel model);
         public Results GetAllHolidays(HolidayInputParams model);
         public DashBoardModel GetDashBoardModel(DashBoardModelInputParams model);
@@ -61,6 +64,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<SelectListItem> GetAllEmployeesList(WeekOfEmployeeId Employeemodel);
         public Result AddUpdateShiftType(ShiftTypeModel shiftTypeModel);
         public Results GetAllShiftTypes(ShiftTypeInputParans model);
+        public Result ValidateShiftType(ShiftTypeModel model);
         public List<SelectListItem> GetHolidayList(HolidayInputParams model);
         public Results GetAllHolidayList(HolidayInputParams model);
         public string DeleteLeavesSummary(MyInfoInputParams model);
@@ -136,7 +140,7 @@ namespace HRMS.API.BusinessLayer.ITF
         public List<FormPermissionViewModel> GetUserFormByDepartmentID(FormPermissionVM obj);
         public EmployeePermissionVM CheckUserFormPermissionByEmployeeID(FormPermissionVM obj);
         #endregion Page Permission
-        public List<Joblcoations> GetJobLocationsByCompany(Joblcoations model);
+        public CompanyFilterResponse GetJobLocationsByCompany(Joblcoations model);
 
         #region Exception Handling
         void InsertException(ExceptionLogModel model);
@@ -154,6 +158,7 @@ namespace HRMS.API.BusinessLayer.ITF
 
         #region Attendance Approval
         AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model);
+        AttendanceWithHolidaysVM ExportAttendanceChangeApproval(AttendanceInputParams model);
         public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att);
         public Result SaveOrUpdateBulk(List<SaveAttendanceStatus> entries);
 
@@ -197,5 +202,38 @@ namespace HRMS.API.BusinessLayer.ITF
         public ManagerApprovalCount GetManagerApprovalCount(long reportingToEmployeeID);
         List<NotificationModel> GetManagerPendingNotifications(long reportingToEmployeeID, int notificationType);
         List<LeaveDayDetailModel> GetLeaveSummaryDayWiseDetails(LeaveSummaryInputParams model);
+        #region Designation
+        public Result AddUpdateDesignation(DesignationModel modelData);
+        public string DeleteDesignation(DesignationInputParams model);
+        public Results GetAllDesignationList(DesignationInputParams model);
+        public Results GetDesignationDetails(DesignationInputParams model);
+        public bool CheckDuplicateDesignation(DesignationModel modelData);
+        #endregion
+        #region LOB
+
+        public Result AddUpdateLOB(LOBModel model);
+
+        public Results GetAllLOBList(LOBInputParams model);
+
+        public Results GetLOBDetails(LOBInputParams model);
+
+        public string DeleteLOB(LOBInputParams model);
+
+        public bool CheckDuplicateLOB(LOBModel model);
+
+        #endregion
+        #region SubDepartment
+
+        public Result AddUpdateSubDepartment(SubDepartmentModel model);
+
+        public Results GetAllSubDepartmentList(SubDepartmentInputParams model);
+
+        public Results GetSubDepartmentDetails(SubDepartmentInputParams model);
+
+        public string DeleteSubDepartment(SubDepartmentInputParams model);
+
+        public bool CheckDuplicateSubDepartment(SubDepartmentModel model);
+
+        #endregion
     }
 }

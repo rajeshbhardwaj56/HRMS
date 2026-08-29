@@ -31,7 +31,7 @@ namespace HRMS.Models.ShiftType
         public bool CheckInBeforeShift { get; set; }
         public bool CheckOutAfterShift { get; set; }
         public long ProcessAttendanceAfter { get; set; }
-        public DateTime LastSyncDateTime { get; set; }
+        public DateTime? LastSyncDateTime { get; set; }
         public bool AutoAttendanceOnHoliday { get; set; }
         public long LastEntryGracePeriod { get; set; }
         public long EarlyExitGracePeriod { get; set; }
