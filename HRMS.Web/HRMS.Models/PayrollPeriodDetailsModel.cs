@@ -84,12 +84,18 @@ namespace HRMS.Models
     }
     public class PayrollPeriodDropdownModel
     {
-        public int PayrollPeriodID { get; set; }
+        public long PayrollPeriodID { get; set; }
+
         public int PayrollYear { get; set; }
+
         public int PayrollMonth { get; set; }
+
         public string? PayrollMonthName { get; set; }
+
         public DateTime PayrollStartDate { get; set; }
+
         public DateTime PayrollEndDate { get; set; }
+
         public bool IsCurrentPeriod { get; set; }
     }
 }

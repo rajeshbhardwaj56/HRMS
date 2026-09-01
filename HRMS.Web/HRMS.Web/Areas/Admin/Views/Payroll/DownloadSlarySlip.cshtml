@@ -1,0 +1,586 @@
+﻿@model HRMS.Models.PayRoll.EmployeeSalaryRequestModel
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Download Salary Slip";
+}
+
+<div class="modal fade"
+     id="downloadSalaryModal"
+     tabindex="-1"
+     aria-labelledby="downloadSalaryModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <!-- HEADER -->
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="downloadSalaryModalLabel">
+
+                    Download Salary Slips
+
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+
+            <!-- BODY -->
+
+            <div class="modal-body">
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-bold">
+                        Select Salary Months
+                    </label>
+
+                    <div id="employeeSalaryMonthList"
+                         class="border rounded p-3">
+
+                        <div class="text-muted text-center">
+
+                            Loading salary months...
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-danger mt-1" type="reset"
+                        data-bs-dismiss="modal">
+
+                    Cancel
+
+                </button>
+
+                <button type="button"
+                        class="btn btn-primary"
+                        id="btnDownloadSelectedSalarySlips">
+
+                    <i class="bi bi-download"></i>
+
+                    Download
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // ============================================================
+    // PAGE LOAD
+    // Open modal automatically when employee clicks
+    // "Download Salary Slip" from sidebar
+    // ============================================================
+
+    $(document).ready(function () {
+
+        var modalElement =
+            document.getElementById(
+                'downloadSalaryModal'
+            );
+
+        if (!modalElement) {
+            return;
+        }
+
+        var modal =
+            bootstrap.Modal.getOrCreateInstance(
+                modalElement
+            );
+
+        modal.show();
+
+        loadLoggedInEmployeeSalaryMonths();
+
+    });
+
+
+    // ============================================================
+    // LOAD AVAILABLE SALARY MONTHS
+    // ============================================================
+
+    function loadLoggedInEmployeeSalaryMonths() {
+
+        $('#employeeSalaryMonthList').html(`
+
+            <div class="text-muted text-center">
+
+                <span class="spinner-border spinner-border-sm me-2"></span>
+
+                Loading salary months...
+
+            </div>
+
+        `);
+
+
+        $.ajax({
+
+            url:
+                '@Url.Action("GetMySalaryMonths", "Payroll")',
+
+            type:
+                'GET',
+
+            dataType:
+                'json',
+
+            success:
+                function (response) {
+
+                    console.log(
+                        "Salary Months:",
+                        response
+                    );
+
+
+                    var data =
+                        response.data ??
+                        response;
+
+
+                    // -----------------------------------------
+                    // No salary records
+                    // -----------------------------------------
+
+                    if (!data || data.length === 0) {
+
+                        $('#employeeSalaryMonthList')
+                            .html(`
+
+                                <div class="alert alert-info mb-0">
+
+                                    <i class="bi bi-info-circle me-1"></i>
+
+                                    No salary slips are available.
+
+                                </div>
+
+                            `);
+
+                        $('#btnDownloadSelectedSalarySlips')
+                            .prop('disabled', true);
+
+                        return;
+                    }
+
+
+                    // -----------------------------------------
+                    // Enable download
+                    // -----------------------------------------
+
+                    $('#btnDownloadSelectedSalarySlips')
+                        .prop('disabled', false);
+
+
+                    var html = `
+
+                        <div class="form-check mb-3">
+
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   id="selectAllEmployeeSalaryMonths">
+
+                            <label class="form-check-label fw-bold"
+                                   for="selectAllEmployeeSalaryMonths">
+
+                                Select All
+
+                            </label>
+
+                        </div>
+
+                        <hr>
+
+                    `;
+
+
+                    // -----------------------------------------
+                    // Salary months
+                    // -----------------------------------------
+
+                    data.forEach(function (item) {
+
+                        var month =
+                            item.month ??
+                            item.Month ??
+                            item.salaryMonth ??
+                            item.SalaryMonth;
+
+
+                        var year =
+                            item.year ??
+                            item.Year ??
+                            item.salaryYear ??
+                            item.SalaryYear;
+
+
+                        var monthName =
+                            item.monthName ??
+                            item.MonthName ??
+                            item.salaryMonthName ??
+                            item.SalaryMonthName;
+
+
+                        html += `
+
+                            <div class="form-check mb-2">
+
+                                <input type="checkbox"
+
+                                       class="form-check-input employee-salary-month"
+
+                                       data-month="${month}"
+
+                                       data-year="${year}"
+
+                                       id="salary_${year}_${month}">
+
+
+                                <label class="form-check-label"
+                                       for="salary_${year}_${month}">
+
+                                    ${monthName} ${year}
+
+                                </label>
+
+                            </div>
+
+                        `;
+
+                    });
+
+
+                    $('#employeeSalaryMonthList')
+                        .html(html);
+
+                },
+
+
+            error:
+                function (xhr) {
+
+                    console.error(
+                        "GetMySalaryMonths Error:",
+                        xhr.responseText
+                    );
+
+
+                    $('#employeeSalaryMonthList')
+                        .html(`
+
+                            <div class="alert alert-danger mb-0">
+
+                                Unable to load salary months.
+
+                            </div>
+
+                        `);
+
+                    $('#btnDownloadSelectedSalarySlips')
+                        .prop('disabled', true);
+
+                }
+
+        });
+
+    }
+
+
+    // ============================================================
+    // SELECT ALL
+    // ============================================================
+
+    $(document).on(
+        'change',
+        '#selectAllEmployeeSalaryMonths',
+        function () {
+
+            $('.employee-salary-month')
+                .prop(
+                    'checked',
+                    $(this).prop('checked')
+                );
+
+        }
+    );
+
+
+    // ============================================================
+    // INDIVIDUAL CHECKBOX
+    // ============================================================
+
+    $(document).on(
+        'change',
+        '.employee-salary-month',
+        function () {
+
+            var total =
+                $('.employee-salary-month').length;
+
+            var checked =
+                $('.employee-salary-month:checked').length;
+
+            $('#selectAllEmployeeSalaryMonths')
+                .prop(
+                    'checked',
+                    total > 0 && total === checked
+                );
+
+        }
+    );
+
+
+    // ============================================================
+    // DOWNLOAD SELECTED SALARY SLIPS
+    // ============================================================
+
+    $(document).on(
+        'click',
+        '#btnDownloadSelectedSalarySlips',
+        function () {
+
+            var selectedMonths = [];
+
+
+            $('.employee-salary-month:checked')
+                .each(function () {
+
+                    selectedMonths.push({
+
+                        month: parseInt(
+                            $(this).data('month')
+                        ),
+
+                        year: parseInt(
+                            $(this).data('year')
+                        )
+
+                    });
+
+                });
+
+
+            if (selectedMonths.length === 0) {
+
+                $.toast({
+
+                    heading: "Warning",
+
+                    text:
+                        "Please select at least one salary month.",
+
+                    icon: "warning",
+
+                    position: "top-right"
+
+                });
+
+                return;
+            }
+
+
+            var button =
+                $('#btnDownloadSelectedSalarySlips');
+
+
+            button.prop(
+                'disabled',
+                true
+            );
+
+
+            button.html(`
+
+                <span class="spinner-border spinner-border-sm me-2"></span>
+
+                Preparing PDF...
+
+            `);
+
+
+            $.ajax({
+
+                url:
+                    '@Url.Action("DownloadMultipleSalarySlips", "Payroll")',
+
+                type:
+                    'POST',
+
+                contentType:
+                    'application/json',
+
+                data:
+                    JSON.stringify(selectedMonths),
+
+                xhrFields: {
+
+                    responseType: 'blob'
+
+                },
+
+
+                success:
+                    function (data, status, xhr) {
+
+                        var fileName =
+                            "SalarySlips.zip";
+
+
+                        var disposition =
+                            xhr.getResponseHeader(
+                                'Content-Disposition'
+                            );
+
+
+                        if (disposition) {
+
+                            var match =
+                                disposition.match(
+                                    /filename\*?=['"]?(?:UTF-8'')?([^'";]+)['"]?/i
+                                );
+
+
+                            if (match &&
+                                match[1]) {
+
+                                fileName =
+                                    decodeURIComponent(
+                                        match[1]
+                                    );
+
+                            }
+
+                        }
+
+
+                        var blob =
+                            new Blob(
+                                [data],
+                                {
+                                    type:
+                                        xhr.getResponseHeader(
+                                            'Content-Type'
+                                        ) ||
+                                        'application/zip'
+                                }
+                            );
+
+
+                        var url =
+                            window.URL.createObjectURL(
+                                blob
+                            );
+
+
+                        var a =
+                            document.createElement('a');
+
+
+                        a.href = url;
+
+                        a.download = fileName;
+
+                        document.body.appendChild(a);
+
+                        a.click();
+
+                        document.body.removeChild(a);
+
+                        window.URL.revokeObjectURL(url);
+
+
+                        $.toast({
+
+                            heading: "Success",
+
+                            text:
+                                "Salary slips downloaded successfully.",
+
+                            icon: "success",
+
+                            position: "top-right"
+
+                        });
+
+                    },
+
+
+                error:
+                    function (xhr) {
+
+                        console.error(
+                            xhr
+                        );
+
+
+                        $.toast({
+
+                            heading: "Error",
+
+                            text:
+                                "Unable to download salary slips.",
+
+                            icon: "error",
+
+                            position: "top-right"
+
+                        });
+
+                    },
+
+
+                complete:
+                    function () {
+
+                        button.prop(
+                            'disabled',
+                            false
+                        );
+
+
+                        button.html(`
+
+                            <i class="bi bi-download me-1"></i>
+
+                            Download Selected Salary Slips
+
+                        `);
+
+                    }
+
+            });
+
+        }
+    );
+
+
+</script>

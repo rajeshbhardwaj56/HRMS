@@ -1494,6 +1494,55 @@ ${renderStatusEditor(selectedDate, data)}
             
             if (!canEditStatus(fullDate)) return "";
             const oldStatus = data.attendance?.attendanceStatus || "";
+                /*
+     * CHECK BIOMETRIC RECORD
+     *
+     * Biometric record exists only when
+     * firstLogDate and lastLogDate are available.
+     */
+    const hasBiometricRecord =
+        data.attendance &&
+        data.attendance.firstLogDate &&
+        data.attendance.lastLogDate;
+
+    let statusOptions = "";
+
+    if (hasBiometricRecord) {
+
+        /*
+         * BIOMETRIC RECORD EXISTS
+         *
+         * Everyone can select:
+         * P / A / HD / WO
+         */
+        statusOptions = `
+            <option value="">Select status</option>
+            <option value="P">Present</option>
+            <option value="A">Absent</option>
+            <option value="HD">Half Day</option>
+            <option value="WO">Week Off</option>
+        `;
+
+    } else {
+
+        /*
+         * NO BIOMETRIC RECORD
+         *
+         * Employee is considered ABSENT.
+         *
+         * Same logic for:
+         * Normal User
+         * Admin
+         * SuperAdmin
+         *
+         * Only A / WO are allowed.
+         */
+        statusOptions = `
+            <option value="">Select status</option>
+            <option value="A">Absent</option>
+            <option value="WO">Week Off</option>
+        `;
+    }
             return `
 
          <form id="statusForm">
@@ -1506,11 +1555,7 @@ ${renderStatusEditor(selectedDate, data)}
                     Change Status
                 </label>
                 <select class="form-select" id="statusSelect" required>
-                    <option value="">Select status</option>
-                    <option value="P">Present</option>
-                    <option value="A">Absent</option>
-                    <option value="HD">Half Day</option>
-                    <option value="WO">Week Off</option>
+                  ${statusOptions}
                 </select>
             </div>
 

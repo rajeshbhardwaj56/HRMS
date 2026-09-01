@@ -795,6 +795,20 @@
                         </li>
                     </ul>
                 }
+@*                 @if (Model.FormPermissionList.Any(x => x.FormID == 40 && x.IsFormPermissions && x.FormLevel == 2))
+                {
+                    <ul class="hrms-menu-group">
+                        <li>
+                            <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Payroll" && currentAction == "DownloadSlarySlip" ? "hrms-active" : "")"
+                               asp-area="@(HRMS.Models.Common.Constants.ManageHR )"
+                               asp-controller="Payroll"
+                               asp-action="DownloadSlarySlip">
+                                <i class="bi bi-shield-lock hrms-menu-title1"></i>
+                                <span class="hrms-menu-label ms-3"> Download Salary Slip</span>
+                            </a>
+                        </li>
+                    </ul>
+                } *@
                  @if (Model.FormPermissionList.Any(x => x.FormID == 38 && x.IsFormPermissions && x.FormLevel == 2))
                 {
                     if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))

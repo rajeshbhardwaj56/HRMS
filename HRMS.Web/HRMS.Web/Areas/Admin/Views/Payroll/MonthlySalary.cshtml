@@ -401,7 +401,7 @@
             <div class="modal-footer">
 
                 <button type="button"
-                        class="btn btn-secondary"
+                        class="btn btn-danger mt-1" type="reset
                         data-bs-dismiss="modal">
 
                     Cancel
@@ -431,122 +431,390 @@
 
     $(document).ready(function () {
 
+        var payrollPeriods = [];
+        var salaryTable = null;
 
         // =====================================================
-        // INITIALIZATION
+        // GLOBAL SELECTION
         // =====================================================
 
-        populateYearDropdown();
+        // Stores selected Employee IDs across ALL DataTable pages
+        var selectedEmployeeIDs = new Set();
 
-        populateMonthDropdown();
-
-        initializeDataTable();
-
-        registerDropdownChange();
+        // Indicates that Select All across pages is active
+        var selectAllAcrossPages = false;
 
 
         // =====================================================
-        // YEAR DROPDOWN
+        // INITIAL LOAD
         // =====================================================
 
-        function populateYearDropdown() {
-
-            var currentYear =
-                new Date().getFullYear();
-
-            var startYear =
-                currentYear - 5;
-
-            var endYear =
-                currentYear + 1;
+        loadPayrollPeriods();
 
 
-            var yearDropdown =
-                $('#yearDropdown');
+        // =====================================================
+        // YEAR CHANGE
+        // =====================================================
 
+        $('#yearDropdown').on('change', function () {
 
-            yearDropdown.empty();
+            var selectedYear = $(this).val();
 
+            // Clear previous selections when payroll period changes
+            clearEmployeeSelection();
 
-            yearDropdown.append(
-                '<option value="">Select Year</option>'
-            );
+            if (!selectedYear) {
 
+                $('#monthDropdown').empty();
 
-            for (
-                var y = endYear;
-                y >= startYear;
-                y--
-            ) {
-
-                yearDropdown.append(
-                    new Option(y, y)
+                $('#monthDropdown').append(
+                    new Option("Select Month", "")
                 );
 
+                if ($.fn.DataTable.isDataTable('#tblMonthlySalary')) {
+
+                    $('#tblMonthlySalary')
+                        .DataTable()
+                        .ajax
+                        .reload();
+                }
+
+                return;
             }
 
+            loadPayrollMonths(
+                payrollPeriods,
+                selectedYear,
+                null
+            );
 
-            yearDropdown.val(currentYear);
+            $('#monthDropdown').trigger('change');
+
+        });
+
+
+        // =====================================================
+        // MONTH CHANGE
+        // =====================================================
+
+        $('#monthDropdown').on('change', function () {
+
+            var year = $('#yearDropdown').val();
+            var month = $('#monthDropdown').val();
+
+            console.log(
+                "Payroll filter changed:",
+                {
+                    year: year,
+                    month: month
+                }
+            );
+
+            // Clear previous selections when payroll period changes
+            clearEmployeeSelection();
+
+            if (!year || !month) {
+                return;
+            }
+
+            if ($.fn.DataTable.isDataTable('#tblMonthlySalary')) {
+
+                $('#tblMonthlySalary')
+                    .DataTable()
+                    .ajax
+                    .reload(null, false);
+            }
+
+        });
+
+
+        // =====================================================
+        // LOAD PAYROLL PERIODS
+        // =====================================================
+
+        function loadPayrollPeriods() {
+
+            $.ajax({
+
+                url: '@Url.Action("GetPayrollPeriodsForDropdown", "Payroll")',
+
+                type: 'POST',
+
+                dataType: 'json',
+
+                success: function (response) {
+
+                    console.log(
+                        "Payroll Period Response:",
+                        response
+                    );
+
+                    if (!response || response.length === 0) {
+
+                        $.toast({
+                            heading: "Warning",
+                            text: "No payroll periods available.",
+                            icon: "warning",
+                            position: "top-right"
+                        });
+
+                        return;
+                    }
+
+                    payrollPeriods = response;
+
+                    var yearDropdown =
+                        $('#yearDropdown');
+
+                    var monthDropdown =
+                        $('#monthDropdown');
+
+                    yearDropdown.empty();
+                    monthDropdown.empty();
+
+                    yearDropdown.append(
+                        new Option(
+                            "Select Year",
+                            ""
+                        )
+                    );
+
+                    monthDropdown.append(
+                        new Option(
+                            "Select Month",
+                            ""
+                        )
+                    );
+
+
+                    // =====================================================
+                    // YEARS
+                    // =====================================================
+
+                    var years = [];
+
+                    response.forEach(function (item) {
+
+                        var year =
+                            parseInt(item.payrollYear);
+
+                        if (!years.includes(year)) {
+
+                            years.push(year);
+
+                            yearDropdown.append(
+                                new Option(
+                                    year,
+                                    year
+                                )
+                            );
+                        }
+
+                    });
+
+
+                    // =====================================================
+                    // FIND CURRENT PAYROLL PERIOD
+                    // =====================================================
+
+                    var currentPeriod =
+                        response.find(function (item) {
+
+                            return (
+                                item.isCurrentPeriod === true ||
+                                item.isCurrentPeriod === 1
+                            );
+
+                        });
+
+
+                    console.log(
+                        "Current Payroll Period:",
+                        currentPeriod
+                    );
+
+
+                    // =====================================================
+                    // DEFAULT PERIOD
+                    // =====================================================
+
+                    if (currentPeriod) {
+
+                        yearDropdown.val(
+                            currentPeriod.payrollYear
+                        );
+
+                        loadPayrollMonths(
+                            response,
+                            currentPeriod.payrollYear,
+                            currentPeriod
+                        );
+
+                    }
+                    else {
+
+                        // If API does not return IsCurrentPeriod,
+                        // select latest payroll period.
+
+                        var latestPeriod =
+                            response
+                                .slice()
+                                .sort(function (a, b) {
+
+                                    return (
+                                        parseInt(b.payrollYear) -
+                                        parseInt(a.payrollYear)
+                                    ) ||
+                                    (
+                                        parseInt(b.payrollMonth) -
+                                        parseInt(a.payrollMonth)
+                                    );
+
+                                })[0];
+
+
+                        if (latestPeriod) {
+
+                            yearDropdown.val(
+                                latestPeriod.payrollYear
+                            );
+
+                            loadPayrollMonths(
+                                response,
+                                latestPeriod.payrollYear,
+                                latestPeriod
+                            );
+                        }
+                    }
+
+
+                    // =====================================================
+                    // INITIALIZE DATATABLE ONLY ONCE
+                    // =====================================================
+
+                    initializeDataTable();
+
+                },
+
+                error: function (xhr) {
+
+                    console.log(
+                        "Payroll Period Error:",
+                        xhr.responseText
+                    );
+
+                    $.toast({
+                        heading: "Error",
+                        text: "Unable to load payroll periods.",
+                        icon: "error",
+                        position: "top-right"
+                    });
+
+                }
+
+            });
+
         }
 
 
         // =====================================================
-        // MONTH DROPDOWN
+        // LOAD MONTHS
         // =====================================================
 
-        function populateMonthDropdown() {
-
-            var months = [
-
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December"
-
-            ];
-
-
-            var currentMonth =
-                new Date().getMonth() + 1;
-
+        function loadPayrollMonths(
+            periods,
+            selectedYear,
+            currentPeriod
+        ) {
 
             var monthDropdown =
                 $('#monthDropdown');
 
-
             monthDropdown.empty();
 
-
             monthDropdown.append(
-                '<option value="">Select Month</option>'
+                new Option(
+                    "Select Month",
+                    ""
+                )
             );
 
 
-            for (
-                var m = 1;
-                m <= 12;
-                m++
+            var yearPeriods =
+                periods.filter(function (item) {
+
+                    return (
+                        parseInt(item.payrollYear) ===
+                        parseInt(selectedYear)
+                    );
+
+                });
+
+
+            console.log(
+                "Periods for year:",
+                selectedYear,
+                yearPeriods
+            );
+
+
+            yearPeriods.forEach(function (item) {
+
+                var option =
+                    new Option(
+                        item.payrollMonthName,
+                        item.payrollMonth
+                    );
+
+
+                $(option).attr(
+                    'data-period-id',
+                    item.payrollPeriodID
+                );
+
+                $(option).attr(
+                    'data-start-date',
+                    item.payrollStartDate
+                );
+
+                $(option).attr(
+                    'data-end-date',
+                    item.payrollEndDate
+                );
+
+
+                monthDropdown.append(option);
+
+            });
+
+
+            // =====================================================
+            // SELECT CURRENT PERIOD
+            // =====================================================
+
+            if (
+                currentPeriod &&
+                parseInt(currentPeriod.payrollYear) ===
+                parseInt(selectedYear)
             ) {
 
-                monthDropdown.append(
-                    new Option(
-                        months[m - 1],
-                        m
-                    )
+                monthDropdown.val(
+                    currentPeriod.payrollMonth
                 );
 
             }
 
 
-            monthDropdown.val(currentMonth);
+            console.log(
+                "Selected Payroll Year:",
+                $('#yearDropdown').val()
+            );
+
+            console.log(
+                "Selected Payroll Month:",
+                $('#monthDropdown').val()
+            );
+
         }
 
 
@@ -556,279 +824,430 @@
 
         function initializeDataTable() {
 
-            $('#tblMonthlySalary').DataTable({
+            // Prevent double initialization
+            if ($.fn.DataTable.isDataTable('#tblMonthlySalary')) {
 
-                processing: true,
+                $('#tblMonthlySalary')
+                    .DataTable()
+                    .destroy();
 
-                serverSide: true,
-
-                destroy: true,
-
-                responsive: true,
-
-
-                ajax: {
-
-                    url:
-                        '@Url.Action("MonthlySalary", "Payroll")',
-
-                    type: 'POST',
-
-                    datatype: 'json',
+            }
 
 
-                    data: function (d) {
+            salaryTable =
+                $('#tblMonthlySalary').DataTable({
+
+                    processing: true,
+
+                    serverSide: true,
+
+                    destroy: true,
+
+                    responsive: true,
 
 
-                        var sortColumn =
-                            d.order &&
-                            d.order.length > 0
+                    // =================================================
+                    // IMPORTANT
+                    // Restore selected checkboxes after every draw
+                    // =================================================
 
-                                ? d.columns[
-                                    d.order[0].column
-                                  ].data
+                    drawCallback: function () {
 
-                                : 'EmployeeID';
+                        updateCurrentPageCheckboxes();
 
-
-                        var sortDirection =
-                            d.order &&
-                            d.order.length > 0
-
-                                ? d.order[0].dir
-
-                                : 'asc';
+                    },
 
 
-                        return {
+                    ajax: {
 
-                            sEcho:
-                                d.draw,
+                        url:
+                            '@Url.Action("MonthlySalary", "Payroll")',
 
-                            iDisplayStart:
-                                d.start,
+                        type: 'POST',
 
-                            iDisplayLength:
-                                d.length,
-
-                            sSearch:
-                                d.search.value,
-
-                            sortCol:
-                                sortColumn,
-
-                            sortDir:
-                                sortDirection,
-
-                            year:
-                                $('#yearDropdown').val(),
-
-                            month:
-                                $('#monthDropdown').val()
-
-                        };
-
-                    }
-
-                },
+                        dataType: 'json',
 
 
-                // =================================================
-                // COLUMNS
-                // =================================================
+                        data: function (d) {
+
+                            var sortColumn =
+                                d.order &&
+                                d.order.length > 0
+                                    ? d.columns[
+                                        d.order[0].column
+                                      ].data
+                                    : 'EmployeeID';
+
+
+                            var sortDirection =
+                                d.order &&
+                                d.order.length > 0
+                                    ? d.order[0].dir
+                                    : 'asc';
+
+
+                            var year =
+                                $('#yearDropdown').val();
+
+
+                            var month =
+                                $('#monthDropdown').val();
+
+
+                            console.log(
+                                "MonthlySalary Request:",
+                                {
+                                    year: year,
+                                    month: month
+                                }
+                            );
+
+
+                            return {
+
+                                sEcho:
+                                    d.draw,
+
+                                iDisplayStart:
+                                    d.start,
+
+                                iDisplayLength:
+                                    d.length,
+
+                                sSearch:
+                                    d.search.value,
+
+                                sortCol:
+                                    sortColumn,
+
+                                sortDir:
+                                    sortDirection,
+
+                                year:
+                                    year,
+
+                                month:
+                                    month
+
+                            };
+
+                        },
+
+
+                        error: function (
+                            xhr,
+                            error,
+                            thrown
+                        ) {
+
+                            console.log(
+                                "MonthlySalary DataTable Error:",
+                                xhr.responseText
+                            );
+
+                        }
+
+                    },
+
 
                     columns: [
 
-        // Employee Checkbox
-        {
-            data: null,
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row) {
-                return `
-                    <input type="checkbox"
-                           class="form-check-input employee-select"
-                           value="${row.employeeID}"
-                           data-name="${row.employeeName || ''}"
-                           data-email="${row.officialEmail || ''}"
-                           title="Select Employee">
-                `;
-            }
-        },
+                        // =================================================
+                        // Employee Checkbox
+                        // =================================================
 
-        // Employee Number
-        {
-            data: "employeeNumber"
-        },
+                        {
+                            data: null,
 
-        // Employee Name
-        {
-            data: "employeeName"
-        },
+                            orderable: false,
 
-        // Payroll Type
-        {
-            data: "payrollTypeName",
-            title: "Payroll Type"
-        },
+                            searchable: false,
 
-        // Salary Month
-    {
-        data: null,
-        title: "Salary Month",
-        render: function (data, type, row) {
+                            render: function (
+                                data,
+                                type,
+                                row
+                            ) {
 
-            if (!row.salaryMonth || !row.salaryYear) {
-                return "";
-            }
+                                return `
+                                    <input type="checkbox"
+                                           class="form-check-input employee-select"
+                                           value="${row.employeeID}"
+                                           data-name="${row.employeeName || ''}"
+                                           data-email="${row.officialEmail || ''}"
+                                           title="Select Employee">
+                                `;
 
-            var months = [
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December"
-            ];
+                            }
 
-            var monthName =
-                months[parseInt(row.salaryMonth) - 1];
-
-            return `${monthName} ${row.salaryYear}`;
-        }
-    },
-
-        // Revised Gross
-        {
-            data: "revisedGross"
-        },
-
-        // Basic
-        {
-            data: "basicFixed"
-        },
-
-        // HRA
-        {
-            data: "hraFixed"
-        },
-
-        // Conveyance
-        {
-            data: "conveyanceFixed"
-        },
-
-        // Special Allowance
-        {
-            data: "specialAllowanceFixed"
-        },
-
-        // Net Payable
-        {
-            data: "netPayable"
-        },
-
-        // Verification Status
-        {
-            data: "isVerified",
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row) {
-
-                if (data === true || data === 1) {
-                    return `
-                        <span class="badge bg-success">
-                            <i class="bi bi-check-circle"></i>
-                            Verified
-                        </span>
-                    `;
-                }
-
-                return `
-                    <span class="badge bg-warning text-dark">
-                        <i class="bi bi-clock"></i>
-                        Not Verified
-                    </span>
-                `;
-            }
-        },
-
-        // Action
-        {
-            data: null,
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row) {
-                return `
-                    <a class="item text-success"
-                       href="/admin/Payroll/CalculateSalary?id=${row.encryptedSalaryID}"
-                       data-bs-toggle="tooltip"
-                       title="Edit Salary">
-
-                        <i class="bi bi-pencil-fill"
-                           style="font-size:18px;">
-                        </i>
-
-                    </a>
-                `;
-            }
-        }
-    ]
-
-            });
-
-        }
+                        },
 
 
-        // =====================================================
-        // YEAR / MONTH CHANGE
-        // =====================================================
+                        // =================================================
+                        // Employee Number
+                        // =================================================
 
-        function registerDropdownChange() {
+                        {
+                            data: "employeeNumber"
+                        },
 
-            $('#yearDropdown, #monthDropdown')
-                .on('change', function () {
+
+                        // =================================================
+                        // Employee Name
+                        // =================================================
+
+                        {
+                            data: "employeeName"
+                        },
 
 
-                    $('#tblMonthlySalary')
-                        .DataTable()
-                        .ajax
-                        .reload();
+                        // =================================================
+                        // Payroll Type
+                        // =================================================
 
+                        {
+                            data: "payrollTypeName",
+                            title: "Payroll Type"
+                        },
+
+
+                        // =================================================
+                        // Salary Month
+                        // =================================================
+
+                        {
+                            data: null,
+
+                            title: "Salary Month",
+
+                            render: function (
+                                data,
+                                type,
+                                row
+                            ) {
+
+                                if (
+                                    row.salaryMonth == null ||
+                                    row.salaryYear == null
+                                ) {
+
+                                    return "";
+
+                                }
+
+
+                                var months = [
+
+                                    "January",
+                                    "February",
+                                    "March",
+                                    "April",
+                                    "May",
+                                    "June",
+                                    "July",
+                                    "August",
+                                    "September",
+                                    "October",
+                                    "November",
+                                    "December"
+
+                                ];
+
+
+                                var month =
+                                    parseInt(
+                                        row.salaryMonth
+                                    );
+
+
+                                if (
+                                    month < 1 ||
+                                    month > 12
+                                ) {
+
+                                    return "";
+
+                                }
+
+
+                                return (
+                                    months[month - 1] +
+                                    " " +
+                                    row.salaryYear
+                                );
+
+                            }
+
+                        },
+
+
+                        // =================================================
+                        // Revised Gross
+                        // =================================================
+
+                        {
+                            data: "revisedGross"
+                        },
+
+
+                        // =================================================
+                        // Basic
+                        // =================================================
+
+                        {
+                            data: "basicFixed"
+                        },
+
+
+                        // =================================================
+                        // HRA
+                        // =================================================
+
+                        {
+                            data: "hraFixed"
+                        },
+
+
+                        // =================================================
+                        // Conveyance
+                        // =================================================
+
+                        {
+                            data: "conveyanceFixed"
+                        },
+
+
+                        // =================================================
+                        // Special Allowance
+                        // =================================================
+
+                        {
+                            data: "specialAllowanceFixed"
+                        },
+
+
+                        // =================================================
+                        // Net Payable
+                        // =================================================
+
+                        {
+                            data: "netPayable"
+                        },
+
+
+                        // =================================================
+                        // Verification Status
+                        // =================================================
+
+                        {
+                            data: "isVerified",
+
+                            orderable: false,
+
+                            searchable: false,
+
+                            render: function (
+                                data,
+                                type,
+                                row
+                            ) {
+
+                                if (
+                                    data === true ||
+                                    data === 1 ||
+                                    data === "1"
+                                ) {
+
+                                    return `
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i>
+                                            Verified
+                                        </span>
+                                    `;
+
+                                }
+
+
+                                return `
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-clock"></i>
+                                        Not Verified
+                                    </span>
+                                `;
+
+                            }
+
+                        },
+
+
+                        // =================================================
+                        // Action
+                        // =================================================
+
+                        {
+                            data: null,
+
+                            orderable: false,
+
+                            searchable: false,
+
+                            render: function (
+                                data,
+                                type,
+                                row
+                            ) {
+
+                                return `
+                                    <a class="item text-success"
+                                       href="/admin/Payroll/CalculateSalary?id=${row.encryptedSalaryID}"
+                                       data-bs-toggle="tooltip"
+                                       title="Edit Salary">
+
+                                        <i class="bi bi-pencil-fill"
+                                           style="font-size:18px;">
+                                        </i>
+
+                                    </a>
+                                `;
+
+                            }
+
+                        }
+
+                    ]
 
                 });
 
         }
 
-    });
+
+        // =========================================================
+        // UPDATE CURRENT PAGE CHECKBOXES
+        // =========================================================
+
+        function updateCurrentPageCheckboxes() {
+
+            $('.employee-select').each(function () {
+
+                var employeeID =
+                    parseInt($(this).val());
 
 
+                $(this).prop(
+                    'checked',
+                    selectedEmployeeIDs.has(employeeID)
+                );
 
-    // =========================================================
-    // INDIVIDUAL EMPLOYEE SELECTION
-    // =========================================================
+            });
 
-    $(document).on(
-        'change',
-        '.employee-select',
-        function () {
 
-            var totalEmployees =
-                $('.employee-select').length;
+            // =====================================================
+            // UPDATE HEADER CHECKBOX
+            // =====================================================
 
-            var selectedEmployees =
-                $('.employee-select:checked').length;
-
-            // If all visible employees are selected
             if (
-                totalEmployees > 0 &&
-                selectedEmployees === totalEmployees
+                selectAllAcrossPages &&
+                selectedEmployeeIDs.size > 0
             ) {
 
                 $('#selectAllEmployees')
@@ -839,368 +1258,740 @@
 
                 $('#selectAllEmployees')
                     .prop('checked', false);
+
             }
 
-            // Update Verify / Email buttons
-            updateSelectedSalaryButtons();
         }
-    );
 
 
+        // =========================================================
+        // CLEAR EMPLOYEE SELECTION
+        // =========================================================
+
+        function clearEmployeeSelection() {
+
+            selectedEmployeeIDs.clear();
+
+            selectAllAcrossPages = false;
+
+            $('.employee-select')
+                .prop('checked', false);
+
+            $('#selectAllEmployees')
+                .prop('checked', false);
+
+            updateSelectedSalaryButtons();
+
+        }
 
 
+        // =========================================================
+        // SELECT / UNSELECT INDIVIDUAL EMPLOYEE
+        // =========================================================
+
+        $(document).on(
+            'change',
+            '.employee-select',
+            function () {
+
+                var employeeID =
+                    parseInt($(this).val());
 
 
-    // =========================================================
-    // LOAD EMPLOYEE SALARY MONTHS
-    // =========================================================
+                if ($(this).is(':checked')) {
 
-    function loadSalaryMonths(employeeId) {
-
-
-        $.ajax({
-
-            url:
-                '@Url.Action("GetEmployeeSalaryMonths", "Payroll")',
-
-            type: 'GET',
-
-            data: {
-
-                employeeId:
-                    employeeId
-
-            },
-
-
-            success: function (response) {
-
-
-                var html = '';
-
-
-                // ---------------------------------------------
-                // No records
-                // ---------------------------------------------
-
-                if (
-                    !response ||
-                    response.length === 0
-                ) {
-
-
-                    html = `
-
-                        <div class="text-muted">
-
-                            No salary records available.
-
-                        </div>
-
-                    `;
-
-
-                }
-
-
-                // ---------------------------------------------
-                // Salary records
-                // ---------------------------------------------
-
-                else {
-
-
-                    response.forEach(
-                        function (item) {
-
-
-                            html += `
-
-                                <div class="form-check mb-2">
-
-
-                                    <input type="checkbox"
-
-                                           class="form-check-input salary-month"
-
-                                           value="${item.month}-${item.year}"
-
-                                           data-month="${item.month}"
-
-                                           data-year="${item.year}">
-
-
-                                    <label class="form-check-label">
-
-                                        ${item.monthName}
-                                        ${item.year}
-
-                                    </label>
-
-
-                                </div>
-
-                            `;
-
-                        }
+                    selectedEmployeeIDs.add(
+                        employeeID
                     );
 
                 }
+                else {
+
+                    selectedEmployeeIDs.delete(
+                        employeeID
+                    );
+
+                    // One employee was manually unchecked
+                    selectAllAcrossPages = false;
+
+                    $('#selectAllEmployees')
+                        .prop(
+                            'checked',
+                            false
+                        );
+
+                }
 
 
-                $('#salaryMonthList')
-                    .html(html);
+                updateCurrentPageCheckboxes();
 
-            },
-
-
-            error: function () {
-
-
-                $('#salaryMonthList').html(`
-
-                    <div class="text-danger">
-
-                        Unable to load salary months.
-
-                    </div>
-
-                `);
-
-
-                $.toast({
-
-                    heading:
-                        "Error",
-
-                    text:
-                        "Unable to load salary months.",
-
-                    icon:
-                        "error",
-
-                    position:
-                        "top-right"
-
-                });
+                updateSelectedSalaryButtons();
 
             }
-
-        });
-
-    }
+        );
 
 
-    // =========================================================
-    // SEND SALARY EMAIL
-    // =========================================================
+        // =========================================================
+        // SELECT ALL EMPLOYEES - ALL PAGES
+        // =========================================================
 
-    $(document).on(
-        'click',
-        '#btnSendSalaryEmail',
-        function () {
+        $(document).on(
+            'change',
+            '#selectAllEmployees',
+            function () {
 
-
-            var employeeId =
-                $('#selectedEmployeeID').val();
-
-
-            var months = [];
+                var isChecked =
+                    $(this).is(':checked');
 
 
-            // -----------------------------------------------
-            // Collect selected months
-            // -----------------------------------------------
-
-            $('.salary-month:checked')
-                .each(function () {
+                var year =
+                    $('#yearDropdown').val();
 
 
-                    months.push({
+                var month =
+                    $('#monthDropdown').val();
 
-                        month:
-                            parseInt(
-                                $(this).data('month')
-                            ),
 
-                        year:
-                            parseInt(
-                                $(this).data('year')
-                            )
+                // =================================================
+                // VALIDATION
+                // =================================================
 
+                if (!year || !month) {
+
+                    $.toast({
+                        heading: "Warning",
+                        text: "Please select Year and Month.",
+                        icon: "warning",
+                        position: "top-right"
                     });
 
 
-                });
+                    $(this)
+                        .prop(
+                            'checked',
+                            false
+                        );
 
 
-            // -----------------------------------------------
-            // Validate
-            // -----------------------------------------------
+                    return;
 
-            if (!employeeId) {
-
-                $.toast({
-
-                    heading:
-                        "Warning",
-
-                    text:
-                        "Employee not selected.",
-
-                    icon:
-                        "warning",
-
-                    position:
-                        "top-right"
-
-                });
-
-                return;
-
-            }
+                }
 
 
-            if (months.length === 0) {
+                // =================================================
+                // SELECT ALL
+                // =================================================
 
-                $.toast({
+                if (isChecked) {
 
-                    heading:
-                        "Warning",
-
-                    text:
-                        "Please select at least one salary month.",
-
-                    icon:
-                        "warning",
-
-                    position:
-                        "top-right"
-
-                });
-
-                return;
-
-            }
+                    selectAllAcrossPages = true;
 
 
-            // -----------------------------------------------
-            // Button
-            // -----------------------------------------------
-
-            var button =
-                $(this);
+                    // Show loading
 
 
-            button.prop(
-                'disabled',
-                true
-            );
+
+                    // =================================================
+                    // GET ALL EMPLOYEE IDS
+                    // =================================================
+
+                    $.ajax({
+
+                        url:
+                            '@Url.Action("GetMonthlySalaryEmployeeIDs", "Payroll")',
+
+                        type: 'POST',
+
+                        contentType: 'application/json',
+
+                        data: JSON.stringify({
+
+                            year:
+                                parseInt(year),
+
+                            month:
+                                parseInt(month)
+
+                        }),
 
 
-            button.html(`
+                        success: function (response) {
 
-                <i class="bi bi-hourglass-split"></i>
-
-                Sending...
-
-            `);
-
-
-            // -----------------------------------------------
-            // AJAX
-            // -----------------------------------------------
-
-            $.ajax({
-
-                url:
-                    '@Url.Action("EmailMultipleSalarySlips", "Payroll")',
-
-                type:
-                    'POST',
-
-                contentType:
-                    'application/json',
-
-                data:
-                    JSON.stringify({
-
-                        employeeID:
-                            parseInt(employeeId),
-
-                        months:
-                            months
-
-                    }),
+                            console.log(
+                                "All Employee IDs Response:",
+                                response
+                            );
 
 
-                success:
-                    function (response) {
+                            if (
+                                !response ||
+                                response.success === false
+                            ) {
 
+                                selectAllAcrossPages = false;
 
-                        if (response.success) {
-
-
-                            // -------------------------------
-                            // Hide Modal
-                            // -------------------------------
-
-                            var modalElement =
-                                document.getElementById(
-                                    'emailSalaryModal'
-                                );
-
-
-                            var modal =
-                                bootstrap.Modal
-                                    .getOrCreateInstance(
-                                        modalElement
+                                $('#selectAllEmployees')
+                                    .prop(
+                                        'checked',
+                                        false
                                     );
 
 
-                            modal.hide();
+                                $.toast({
+                                    heading: "Error",
+                                    text:
+                                        response?.message ||
+                                        "Unable to select all employees.",
+                                    icon: "error",
+                                    position: "top-right"
+                                });
 
 
-                            // -------------------------------
-                            // Success
-                            // -------------------------------
+                                return;
 
-                            $.toast({
-
-                                heading:
-                                    "Success",
-
-                                text:
-                                    response.message,
-
-                                icon:
-                                    "success",
-
-                                position:
-                                    "top-right"
-
-                            });
+                            }
 
 
-                            // Uncheck employee
-                            $('.employee-select[value="' +
-                                employeeId +
-                                '"]')
+                            // =================================================
+                            // CLEAR OLD SELECTION
+                            // =================================================
+
+                            selectedEmployeeIDs.clear();
+
+
+                            // =================================================
+                            // ADD ALL EMPLOYEE IDS
+                            // =================================================
+
+                            if (
+                                response.employeeIDs &&
+                                response.employeeIDs.length > 0
+                            ) {
+
+                                response.employeeIDs.forEach(
+                                    function (id) {
+
+                                        selectedEmployeeIDs.add(
+                                            parseInt(id)
+                                        );
+
+                                    }
+                                );
+
+                            }
+
+
+                            console.log(
+                                "Total Selected Employees:",
+                                selectedEmployeeIDs.size
+                            );
+
+
+                            // =================================================
+                            // UPDATE CURRENT PAGE
+                            // =================================================
+
+                            updateCurrentPageCheckboxes();
+
+                            updateSelectedSalaryButtons();
+
+
+
+
+                        },
+
+
+                        error: function (xhr) {
+
+                            console.log(
+                                "Select All Error:",
+                                xhr.responseText
+                            );
+
+
+                            selectAllAcrossPages = false;
+
+
+                            selectedEmployeeIDs.clear();
+
+
+                            $('#selectAllEmployees')
                                 .prop(
                                     'checked',
                                     false
                                 );
 
-                            $('#selectAllEmployees')
-                                .prop('checked', false);
+
+                            $('.employee-select')
+                                .prop(
+                                    'checked',
+                                    false
+                                );
+
 
                             updateSelectedSalaryButtons();
 
 
+                            $.toast({
+                                heading: "Error",
+                                text: "Unable to select all employees.",
+                                icon: "error",
+                                position: "top-right"
+                            });
+
                         }
 
-                        else {
+                    });
 
+                }
+
+
+                // =================================================
+                // UNSELECT ALL
+                // =================================================
+
+                else {
+
+                    selectAllAcrossPages = false;
+
+
+                    selectedEmployeeIDs.clear();
+
+
+                    $('.employee-select')
+                        .prop(
+                            'checked',
+                            false
+                        );
+
+
+                    updateSelectedSalaryButtons();
+
+                }
+
+            }
+        );
+
+
+        // =========================================================
+        // UPDATE VERIFY / EMAIL BUTTONS
+        // =========================================================
+
+        function updateSelectedSalaryButtons() {
+
+            var selectedCount =
+                selectedEmployeeIDs.size;
+
+
+            // Hide buttons first
+            $('#btnSendSelectedEmail')
+                .hide();
+
+            $('#btnVerifySelected')
+                .hide();
+
+
+            // Nothing selected
+            if (selectedCount === 0) {
+
+                return;
+
+            }
+
+
+            // =====================================================
+            // VERIFY
+            // =====================================================
+
+            // Verify works for SINGLE and MULTIPLE
+            $('#btnVerifySelected')
+                .show();
+
+
+            // =====================================================
+            // EMAIL
+            // =====================================================
+
+            // Email works only for SINGLE employee
+            if (selectedCount === 1) {
+
+                $('#btnSendSelectedEmail')
+                    .show();
+
+            }
+
+        }
+
+
+        // =========================================================
+        // LOAD EMPLOYEE SALARY MONTHS
+        // =========================================================
+
+        function loadSalaryMonths(employeeId) {
+
+            $.ajax({
+
+                url:
+                    '@Url.Action("GetEmployeeSalaryMonths", "Payroll")',
+
+                type: 'GET',
+
+                data: {
+
+                    employeeId:
+                        employeeId
+
+                },
+
+
+                success: function (response) {
+
+                    var html = '';
+
+
+                    // =================================================
+                    // NO RECORDS
+                    // =================================================
+
+                    if (
+                        !response ||
+                        response.length === 0
+                    ) {
+
+                        html = `
+
+                            <div class="text-muted">
+
+                                No salary records available.
+
+                            </div>
+
+                        `;
+
+                    }
+
+
+                    // =================================================
+                    // SALARY RECORDS
+                    // =================================================
+
+                    else {
+
+                        response.forEach(
+                            function (item) {
+
+                                html += `
+
+                                    <div class="form-check mb-2">
+
+                                        <input type="checkbox"
+
+                                               class="form-check-input salary-month"
+
+                                               value="${item.month}-${item.year}"
+
+                                               data-month="${item.month}"
+
+                                               data-year="${item.year}">
+
+
+                                        <label class="form-check-label">
+
+                                            ${item.monthName}
+                                            ${item.year}
+
+                                        </label>
+
+                                    </div>
+
+                                `;
+
+                            }
+                        );
+
+                    }
+
+
+                    $('#salaryMonthList')
+                        .html(html);
+
+                },
+
+
+                error: function () {
+
+                    $('#salaryMonthList')
+                        .html(`
+
+                            <div class="text-danger">
+
+                                Unable to load salary months.
+
+                            </div>
+
+                        `);
+
+
+                    $.toast({
+
+                        heading:
+                            "Error",
+
+                        text:
+                            "Unable to load salary months.",
+
+                        icon:
+                            "error",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                }
+
+            });
+
+        }
+
+
+        // =========================================================
+        // SEND SALARY EMAIL
+        // =========================================================
+
+        $(document).on(
+            'click',
+            '#btnSendSalaryEmail',
+            function () {
+
+                var employeeId =
+                    $('#selectedEmployeeID').val();
+
+
+                var months = [];
+
+
+                // =================================================
+                // COLLECT SELECTED MONTHS
+                // =================================================
+
+                $('.salary-month:checked')
+                    .each(function () {
+
+                        months.push({
+
+                            month:
+                                parseInt(
+                                    $(this).data('month')
+                                ),
+
+                            year:
+                                parseInt(
+                                    $(this).data('year')
+                                )
+
+                        });
+
+                    });
+
+
+                // =================================================
+                // VALIDATE
+                // =================================================
+
+                if (!employeeId) {
+
+                    $.toast({
+
+                        heading:
+                            "Warning",
+
+                        text:
+                            "Employee not selected.",
+
+                        icon:
+                            "warning",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                    return;
+
+                }
+
+
+                if (months.length === 0) {
+
+                    $.toast({
+
+                        heading:
+                            "Warning",
+
+                        text:
+                            "Please select at least one salary month.",
+
+                        icon:
+                            "warning",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                    return;
+
+                }
+
+
+                // =================================================
+                // BUTTON
+                // =================================================
+
+                var button =
+                    $(this);
+
+
+                button.prop(
+                    'disabled',
+                    true
+                );
+
+
+                button.html(`
+
+                    <i class="bi bi-hourglass-split"></i>
+
+                    Sending...
+
+                `);
+
+
+                // =================================================
+                // AJAX
+                // =================================================
+
+                $.ajax({
+
+                    url:
+                        '@Url.Action("EmailMultipleSalarySlips", "Payroll")',
+
+                    type:
+                        'POST',
+
+                    contentType:
+                        'application/json',
+
+                    data:
+                        JSON.stringify({
+
+                            employeeID:
+                                parseInt(employeeId),
+
+                            months:
+                                months
+
+                        }),
+
+
+                    success:
+                        function (response) {
+
+                            if (response.success) {
+
+                                // Hide Modal
+
+                                var modalElement =
+                                    document.getElementById(
+                                        'emailSalaryModal'
+                                    );
+
+
+                                var modal =
+                                    bootstrap.Modal
+                                        .getOrCreateInstance(
+                                            modalElement
+                                        );
+
+
+                                modal.hide();
+
+
+                                // Success
+
+                                $.toast({
+
+                                    heading:
+                                        "Success",
+
+                                    text:
+                                        response.message,
+
+                                    icon:
+                                        "success",
+
+                                    position:
+                                        "top-right"
+
+                                });
+
+
+                                // Remove employee from selection
+
+                                selectedEmployeeIDs.delete(
+                                    parseInt(employeeId)
+                                );
+
+
+                                selectAllAcrossPages = false;
+
+
+                                $('.employee-select[value="' +
+                                    employeeId +
+                                    '"]')
+                                    .prop(
+                                        'checked',
+                                        false
+                                    );
+
+
+                                $('#selectAllEmployees')
+                                    .prop(
+                                        'checked',
+                                        false
+                                    );
+
+
+                                updateSelectedSalaryButtons();
+
+                            }
+
+                            else {
+
+                                $.toast({
+
+                                    heading:
+                                        "Error",
+
+                                    text:
+                                        response.message,
+
+                                    icon:
+                                        "error",
+
+                                    position:
+                                        "top-right"
+
+                                });
+
+                            }
+
+                        },
+
+
+                    error:
+                        function () {
 
                             $.toast({
 
@@ -1208,7 +1999,7 @@
                                     "Error",
 
                                 text:
-                                    response.message,
+                                    "Unable to send salary slips.",
 
                                 icon:
                                     "error",
@@ -1218,1040 +2009,182 @@
 
                             });
 
+                        },
+
+
+                    complete:
+                        function () {
+
+                            button.prop(
+                                'disabled',
+                                false
+                            );
+
+
+                            button.html(`
+
+                                <i class="bi bi-envelope"></i>
+
+                                Send Email
+
+                            `);
+
                         }
 
-                    },
+                });
+
+            }
+        );
 
 
-                error:
-                    function () {
+        // =========================================================
+        // RESET EMAIL MODAL WHEN CLOSED
+        // =========================================================
 
+        $('#emailSalaryModal')
+            .on(
+                'hidden.bs.modal',
+                function () {
 
-                        $.toast({
+                    $('#selectedEmployeeID')
+                        .val('');
 
-                            heading:
-                                "Error",
+                    $('#selectedEmployeeName')
+                        .val('');
 
-                            text:
-                                "Unable to send salary slips.",
+                    $('#salaryMonthList')
+                        .html(`
 
-                            icon:
-                                "error",
+                            <div class="text-muted">
 
-                            position:
-                                "top-right"
+                                Select an employee to load salary months.
 
-                        });
-
-                    },
-
-
-                complete:
-                    function () {
-
-
-                        button.prop(
-                            'disabled',
-                            false
-                        );
-
-
-                        button.html(`
-
-                            <i class="bi bi-envelope"></i>
-
-                            Send Email
+                            </div>
 
                         `);
 
-                    }
-
-            });
-
-        }
-    );
-
-
-    // =========================================================
-    // RESET MODAL WHEN CLOSED
-    // =========================================================
-
-    $('#emailSalaryModal')
-        .on(
-            'hidden.bs.modal',
-            function () {
-
-
-                $('#selectedEmployeeID')
-                    .val('');
-
-
-                $('#selectedEmployeeName')
-                    .val('');
-
-
-                $('#salaryMonthList')
-                    .html(`
-
-                        <div class="text-muted">
-
-                            Select an employee to load salary months.
-
-                        </div>
-
-                    `);
-
-
-                $('.salary-month')
-                    .prop(
-                        'checked',
-                        false
-                    );
-
-            }
-        );
-
-            // =========================================================
-    // EXPORT SALARY
-    // =========================================================
-
-    $(document).on('click', '#btnExportSalary', function () {
-
-        var year = $('#yearDropdown').val();
-        var month = $('#monthDropdown').val();
-
-        var table = $('#tblMonthlySalary').DataTable();
-
-        var search = table.search();
-
-        if (!year) {
-            $.toast({
-                heading: "Warning",
-                text: "Please select Year.",
-                icon: "warning",
-                position: "top-right"
-            });
-
-            return;
-        }
-
-        if (!month) {
-            $.toast({
-                heading: "Warning",
-                text: "Please select Month.",
-                icon: "warning",
-                position: "top-right"
-            });
-
-            return;
-        }
-
-        // Show loading
-        var button = $(this);
-
-        button.prop('disabled', true);
-
-        button.html(`
-            <i class="bi bi-hourglass-split"></i>
-            Exporting...
-        `);
-
-        // Build export URL
-        var url =
-            '@Url.Action("ExportMonthlySalary", "Payroll")' +
-            '?year=' + encodeURIComponent(year) +
-            '&month=' + encodeURIComponent(month) +
-            '&search=' + encodeURIComponent(search || '');
-
-        // Start download
-        window.location.href = url;
-
-        // Re-enable button
-        setTimeout(function () {
-
-            button.prop('disabled', false);
-
-            button.html(`
-                <i class="bi bi-download"></i>
-                Export
-            `);
-
-        }, 1500);
-
-    });
-        // =========================================================
-    // AUTO CALCULATE ALL MONTH SALARY
-    // =========================================================
-
-    $(document).on('click', '#btnAutoCalculateSalary', function () {
-
-        var year = $('#yearDropdown').val();
-        var month = $('#monthDropdown').val();
-
-        if (!year) {
-            $.toast({
-                heading: "Warning",
-                text: "Please select Year.",
-                icon: "warning",
-                position: "top-right"
-            });
-
-            return;
-        }
-
-        if (!month) {
-            $.toast({
-                heading: "Warning",
-                text: "Please select Month.",
-                icon: "warning",
-                position: "top-right"
-            });
-
-            return;
-        }
-
-        var button = $(this);
-
-        button.prop('disabled', true);
-
-        button.html(`
-            <i class="bi bi-hourglass-split"></i>
-            Calculating...
-        `);
-
-        $.ajax({
-
-            url: '@Url.Action("AutoCalculateEmployeeSalary", "Payroll")',
-
-            type: 'POST',
-
-            contentType: 'application/json',
-
-            data: JSON.stringify({
-                month: parseInt(month),
-                year: parseInt(year)
-            }),
-
-    success: function (response) {
-
-        console.log(
-            "Auto Salary Response:",
-            response
-        );
-
-
-        if (!response) {
-
-            $.toast({
-                heading: "Error",
-                text: "No response received from salary calculation.",
-                icon: "error",
-                position: "top-right"
-            });
-
-            return;
-        }
-
-
-        // =================================================
-        // GET SUMMARY
-        // =================================================
-
-        var summary = null;
-
-
-        if (
-            response.autoSalaryCalculationList &&
-            response.autoSalaryCalculationList.length > 0
-        ) {
-
-            summary =
-                response.autoSalaryCalculationList[0];
-
-        }
-
-
-        if (!summary) {
-
-            $.toast({
-                heading: "Error",
-                text: "Salary calculation summary was not returned.",
-                icon: "error",
-                position: "top-right"
-            });
-
-            return;
-        }
-
-
-        // =================================================
-        // SHOW SUMMARY + ERROR MESSAGES
-        // =================================================
-
-        showSalaryCalculationResult(
-            summary,
-            response.autoSalaryCalculationErrors
-        );
-
-
-        // =================================================
-        // TOAST
-        // =================================================
-
-        var message =
-            "Total: " +
-            (summary.totalProcessed ?? 0) +
-
-            " | Inserted: " +
-            (summary.insertedRecords ?? 0) +
-
-            " | Updated: " +
-            (summary.updatedRecords ?? 0) +
-
-            " | Skipped: " +
-            (summary.skippedRecords ?? 0) +
-
-            " | Failed: " +
-            (summary.failedRecords ?? 0);
-
-
-        if (
-            (summary.failedRecords ?? 0) > 0
-        ) {
-
-            $.toast({
-                heading: "Completed with errors",
-                text: message,
-                icon: "warning",
-                position: "top-right",
-                hideAfter: 8000
-            });
-
-        }
-        else {
-
-            $.toast({
-                heading: "Success",
-                text: message,
-                icon: "success",
-                position: "top-right",
-                hideAfter: 6000
-            });
-
-        }
-
-
-        // =================================================
-        // RELOAD DATATABLE
-        // =================================================
-
-        $('#tblMonthlySalary')
-            .DataTable()
-            .ajax
-            .reload(null, false);
-
-    },
-
-            error: function (xhr) {
-
-                var message =
-                    "Unable to calculate employee salaries.";
-
-                if (xhr.responseJSON &&
-                    xhr.responseJSON.message) {
-
-                    message = xhr.responseJSON.message;
+                    $('.salary-month')
+                        .prop(
+                            'checked',
+                            false
+                        );
 
                 }
-
-                $.toast({
-                    heading: "Error",
-                    text: message,
-                    icon: "error",
-                    position: "top-right"
-                });
-            },
-
-            complete: function () {
-
-                button.prop('disabled', false);
-
-                button.html(`
-                    <i class="bi bi-calculator"></i>
-                    Calculate All Month Salary
-                `);
-
-            }
-
-        });
-
-    });
-    // =========================================================
-    // SHOW SALARY CALCULATION RESULT
-    // =========================================================
-
-    function showSalaryCalculationResult(summary, errors) {
-
-        // =====================================================
-        // SUMMARY
-        // =====================================================
-
-        $('#salaryTotalProcessed')
-            .text(summary.totalProcessed ?? 0);
-
-        $('#salaryInsertedRecords')
-            .text(summary.insertedRecords ?? 0);
-
-        $('#salaryUpdatedRecords')
-            .text(summary.updatedRecords ?? 0);
-
-        $('#salarySkippedRecords')
-            .text(summary.skippedRecords ?? 0);
-
-        $('#salaryFailedRecords')
-            .text(summary.failedRecords ?? 0);
-
-
-        // =====================================================
-        // SHOW RESULT
-        // =====================================================
-
-        $('#salaryCalculationResult')
-            .show();
-
-
-        // =====================================================
-        // ERROR TABLE
-        // =====================================================
-
-        var tbody =
-            $('#salaryCalculationErrorBody');
-
-        tbody.empty();
-
-
-        // =====================================================
-        // CHECK ERRORS
-        // =====================================================
-
-        if (
-            !errors ||
-            errors.length === 0
-        ) {
-
-            $('#salaryCalculationErrors')
-                .hide();
-
-            return;
-        }
-
-
-        // =====================================================
-        // SHOW ERROR SECTION
-        // =====================================================
-
-        $('#salaryCalculationErrors')
-            .show();
-
-
-        // =====================================================
-        // ADD ERRORS
-        // =====================================================
-
-        errors.forEach(function (error) {
-
-            tbody.append(`
-
-                <tr>
-
-                    <td>
-                        ${error.employeeID ?? ''}
-                    </td>
-
-                    <td>
-                        ${error.payrollTypeID ?? ''}
-                    </td>
-
-                    <td>
-                        ${error.grossSalary ?? ''}
-                    </td>
-
-                    <td class="text-danger fw-semibold">
-                        ${error.errorMessage ?? 'Unknown error'}
-                    </td>
-
-                    <td>
-                        ${
-                            error.errorDate
-                                ? new Date(
-                                    error.errorDate
-                                  ).toLocaleString()
-                                : ''
-                        }
-                    </td>
-
-                </tr>
-
-            `);
-
-        });
-
-    }
-    // =========================================================
-    // UPDATE SELECTED BUTTONS
-    // =========================================================
-
-    function updateSelectedSalaryButtons() {
-
-        var selectedCount =
-            $('.employee-select:checked').length;
-
-
-        // Hide buttons first
-        $('#btnSendSelectedEmail').hide();
-
-        $('#btnVerifySelected').hide();
-
-
-        // Nothing selected
-        if (selectedCount === 0) {
-
-            return;
-        }
-
-
-        // =====================================================
-        // VERIFY
-        // =====================================================
-
-        // Verify works for SINGLE and MULTIPLE
-        $('#btnVerifySelected').show();
-
-
-        // =====================================================
-        // EMAIL
-        // =====================================================
-
-        // Email works only for SINGLE employee
-        if (selectedCount === 1) {
-
-            $('#btnSendSelectedEmail').show();
-        }
-    }
-        // =========================================================
-    // SEND EMAIL BUTTON
-    // =========================================================
-
-    $(document).on(
-        'click',
-        '#btnSendSelectedEmail',
-        function () {
-
-            var selected =
-                $('.employee-select:checked');
-
-            // Only one employee can be emailed
-            if (selected.length !== 1) {
-
-                $.toast({
-                    heading: "Warning",
-                    text: "Please select exactly one employee.",
-                    icon: "warning",
-                    position: "top-right"
-                });
-
-                return;
-            }
-
-            var checkbox =
-                selected.first();
-
-            // -----------------------------------------------
-            // Employee ID
-            // -----------------------------------------------
-
-            var employeeId =
-                checkbox.val();
-
-            // -----------------------------------------------
-            // Employee Name
-            // -----------------------------------------------
-
-            var employeeName =
-                checkbox.data('name');
-
-            // -----------------------------------------------
-            // Set selected employee
-            // -----------------------------------------------
-
-            $('#selectedEmployeeID')
-                .val(employeeId);
-
-            $('#selectedEmployeeName')
-                .val(employeeName || '');
-
-            // -----------------------------------------------
-            // Show loading
-            // -----------------------------------------------
-
-            $('#salaryMonthList').html(`
-
-                <div class="text-muted">
-
-                    Loading salary months...
-
-                </div>
-
-            `);
-
-            // -----------------------------------------------
-            // YOUR EXISTING FUNCTIONALITY
-            // -----------------------------------------------
-
-            loadSalaryMonths(employeeId);
-
-            // -----------------------------------------------
-            // OPEN EMAIL MODAL
-            // -----------------------------------------------
-
-            var modalElement =
-                document.getElementById(
-                    'emailSalaryModal'
-                );
-
-            if (!modalElement) {
-
-                console.error(
-                    'emailSalaryModal not found.'
-                );
-
-                return;
-            }
-
-            var modal =
-                bootstrap.Modal
-                    .getOrCreateInstance(
-                        modalElement
-                    );
-
-            modal.show();
-
-        }
-    );
-        // =========================================================
-    // SELECT ALL EMPLOYEES
-    // =========================================================
-
-    $(document).on(
-        'change',
-        '#selectAllEmployees',
-        function () {
-
-            var isChecked = $(this).is(':checked');
-
-            // Select / unselect all employee checkboxes
-            // currently displayed in the DataTable
-            $('.employee-select').prop(
-                'checked',
-                isChecked
             );
 
-            // Update buttons
-            updateSelectedSalaryButtons();
-        }
-    );
 
-    // =========================================================
-    // VERIFY SELECTED SALARY - SINGLE + MULTIPLE
-    // =========================================================
+        // =========================================================
+        // EXPORT SALARY
+        // =========================================================
 
-    $(document).on(
-        'click',
-        '#btnVerifySelected',
-        function () {
+        $(document).on(
+            'click',
+            '#btnExportSalary',
+            function () {
 
-            var selected =
-                $('.employee-select:checked');
+                var year =
+                    $('#yearDropdown').val();
 
+                var month =
+                    $('#monthDropdown').val();
 
-            // =====================================================
-            // VALIDATION
-            // =====================================================
 
-            if (selected.length === 0) {
+                var table =
+                    $('#tblMonthlySalary').DataTable();
 
-                $.toast({
-                    heading: "Warning",
-                    text: "Please select at least one employee.",
-                    icon: "warning",
-                    position: "top-right"
-                });
 
-                return;
-            }
+                var search =
+                    table.search();
 
 
-            var employeeIDs = [];
-
-
-            selected.each(function () {
-
-                employeeIDs.push(
-                    parseInt($(this).val())
-                );
-
-            });
-
-
-            var year =
-                parseInt($('#yearDropdown').val());
-
-            var month =
-                parseInt($('#monthDropdown').val());
-
-
-            if (!year || !month) {
-
-                $.toast({
-                    heading: "Warning",
-                    text: "Please select Year and Month.",
-                    icon: "warning",
-                    position: "top-right"
-                });
-
-                return;
-            }
-
-
-            // =====================================================
-            // BUTTON
-            // =====================================================
-
-            var button = $(this);
-
-            button.prop('disabled', true);
-
-            button.html(`
-                <i class="bi bi-hourglass-split"></i>
-                Verifying...
-            `);
-
-
-            // =====================================================
-            // AJAX
-            // =====================================================
-
-            $.ajax({
-
-                url:
-                    '@Url.Action("VerifyEmployeeSalary", "Payroll")',
-
-                type: 'POST',
-
-                contentType: 'application/json',
-
-                data: JSON.stringify({
-
-                    employeeIDs: employeeIDs,
-
-                    month: month,
-
-                    year: year
-
-                }),
-
-
-                // =================================================
-                // SUCCESS HTTP RESPONSE
-                // =================================================
-
-          success: function (response) {
-
-    console.log("VERIFY RESPONSE:", response);
-
-
-    // =====================================================
-    // NO RESPONSE
-    // =====================================================
-
-    if (!response) {
-
-        $.toast({
-            heading: "Error",
-            text: "No response received from server.",
-            icon: "error",
-            position: "top-right"
-        });
-
-        return;
-    }
-
-
-    // =====================================================
-    // GET MESSAGE
-    // =====================================================
-
-    var message =
-        response.message ||
-        response.Message ||
-        "";
-
-
-    // =====================================================
-    // GET PKNO
-    // =====================================================
-
-    var pkNo = 0;
-
-
-    // Normal ASP.NET JSON
-    if (response.pkNo !== undefined &&
-        response.pkNo !== null) {
-
-        pkNo = parseInt(response.pkNo);
-
-    }
-
-    // Possible PascalCase response
-    else if (response.PKNo !== undefined &&
-             response.PKNo !== null) {
-
-        pkNo = parseInt(response.PKNo);
-
-    }
-
-    // Possible pKNo response
-    else if (response.pKNo !== undefined &&
-             response.pKNo !== null) {
-
-        pkNo = parseInt(response.pKNo);
-
-    }
-
-    // Result may be inside Data
-    else if (
-        response.data &&
-        response.data.pkNo !== undefined &&
-        response.data.pkNo !== null
-    ) {
-
-        pkNo = parseInt(response.data.pkNo);
-
-    }
-
-    // Result may be inside Data with PascalCase
-    else if (
-        response.data &&
-        response.data.PKNo !== undefined &&
-        response.data.PKNo !== null
-    ) {
-
-        pkNo = parseInt(response.data.PKNo);
-
-    }
-
-
-    console.log("PKNo:", pkNo);
-    console.log("Message:", message);
-
-
-    // =====================================================
-    // CHECK MESSAGE COUNTS
-    // =====================================================
-
-    var verifiedMatch =
-        message.match(/Verified:\s*(\d+)/i);
-
-    var failedMatch =
-        message.match(/Failed:\s*(\d+)/i);
-
-
-    var verifiedCount =
-        verifiedMatch
-            ? parseInt(verifiedMatch[1])
-            : 0;
-
-
-    var failedCount =
-        failedMatch
-            ? parseInt(failedMatch[1])
-            : 0;
-
-
-    console.log(
-        "Verified Count:",
-        verifiedCount
-    );
-
-    console.log(
-        "Failed Count:",
-        failedCount
-    );
-
-
-    // =====================================================
-    // COMPLETE SUCCESS
-    // =====================================================
-
-    if (
-        verifiedCount > 0 &&
-        failedCount === 0
-    ) {
-
-        $.toast({
-
-            heading: "Success",
-
-            text:
-                message ||
-                "Salary verification completed successfully.",
-
-            icon: "success",
-
-            position: "top-right",
-
-            hideAfter: 5000
-
-        });
-
-    }
-
-
-    // =====================================================
-    // PARTIAL SUCCESS
-    // =====================================================
-
-    else if (
-        verifiedCount > 0 &&
-        failedCount > 0
-    ) {
-
-        $.toast({
-
-            heading: "Partial Success",
-
-            text:
-                message ||
-                "Some salaries could not be verified.",
-
-            icon: "warning",
-
-            position: "top-right",
-
-            hideAfter: 10000
-
-        });
-
-    }
-
-
-    // =====================================================
-    // COMPLETE FAILURE
-    // =====================================================
-
-    else {
-
-        $.toast({
-
-            heading: "Verification Failed",
-
-            text:
-                message ||
-                "Salary verification failed.",
-
-            icon: "error",
-
-            position: "top-right",
-
-            hideAfter: 10000
-
-        });
-
-    }
-
-
-    // =====================================================
-    // RELOAD TABLE
-    // =====================================================
-
-    $('#tblMonthlySalary')
-        .DataTable()
-        .ajax
-        .reload(null, false);
-
-
-    // =====================================================
-    // CLEAR SELECTION
-    // =====================================================
-
-    $('.employee-select')
-        .prop(
-            'checked',
-            false
-        );
-
-
-    $('#selectAllEmployees')
-        .prop(
-            'checked',
-            false
-        );
-
-
-    updateSelectedSalaryButtons();
-
-},
-
-
-                // =================================================
-                // HTTP ERROR
-                // =================================================
-
-                error: function (xhr) {
-
-                    console.log(
-                        "VERIFY HTTP ERROR:",
-                        xhr
-                    );
-
-
-                    var message =
-                        "Unable to verify salary.";
-
-
-                    if (
-                        xhr.responseJSON &&
-                        xhr.responseJSON.message
-                    ) {
-
-                        message =
-                            xhr.responseJSON.message;
-
-                    }
-
+                if (!year) {
 
                     $.toast({
 
-                        heading: "Error",
+                        heading:
+                            "Warning",
 
-                        text: message,
+                        text:
+                            "Please select Year.",
 
-                        icon: "error",
+                        icon:
+                            "warning",
 
-                        position: "top-right",
-
-                        hideAfter: 10000
+                        position:
+                            "top-right"
 
                     });
 
-                },
+                    return;
+
+                }
 
 
-                // =================================================
-                // COMPLETE
-                // =================================================
+                if (!month) {
 
-                complete: function () {
+                    $.toast({
+
+                        heading:
+                            "Warning",
+
+                        text:
+                            "Please select Month.",
+
+                        icon:
+                            "warning",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                    return;
+
+                }
+
+
+                // Show loading
+
+                var button =
+                    $(this);
+
+
+                button.prop(
+                    'disabled',
+                    true
+                );
+
+
+                button.html(`
+
+                    <i class="bi bi-hourglass-split"></i>
+
+                    Exporting...
+
+                `);
+
+
+                // Build export URL
+
+                var url =
+                    '@Url.Action("ExportMonthlySalary", "Payroll")' +
+                    '?year=' +
+                    encodeURIComponent(year) +
+                    '&month=' +
+                    encodeURIComponent(month) +
+                    '&search=' +
+                    encodeURIComponent(search || '');
+
+
+                // Start download
+
+                window.location.href =
+                    url;
+
+
+                // Re-enable button
+
+                setTimeout(function () {
 
                     button.prop(
                         'disabled',
@@ -2260,15 +2193,1186 @@
 
 
                     button.html(`
-                        <i class="bi bi-check-circle"></i>
-                        Verify Selected
+
+                        <i class="bi bi-download"></i>
+
+                        Export
+
                     `);
 
+                }, 1500);
+
+            }
+        );
+
+
+        // =========================================================
+        // AUTO CALCULATE ALL MONTH SALARY
+        // =========================================================
+
+        $(document).on(
+            'click',
+            '#btnAutoCalculateSalary',
+            function () {
+
+                var year =
+                    $('#yearDropdown').val();
+
+
+                var month =
+                    $('#monthDropdown').val();
+
+
+                if (!year) {
+
+                    $.toast({
+
+                        heading:
+                            "Warning",
+
+                        text:
+                            "Please select Year.",
+
+                        icon:
+                            "warning",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                    return;
+
                 }
+
+
+                if (!month) {
+
+                    $.toast({
+
+                        heading:
+                            "Warning",
+
+                        text:
+                            "Please select Month.",
+
+                        icon:
+                            "warning",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                    return;
+
+                }
+
+
+                var button =
+                    $(this);
+
+
+                button.prop(
+                    'disabled',
+                    true
+                );
+
+
+                button.html(`
+
+                    <i class="bi bi-hourglass-split"></i>
+
+                    Calculating...
+
+                `);
+
+
+                $.ajax({
+
+                    url:
+                        '@Url.Action("AutoCalculateEmployeeSalary", "Payroll")',
+
+                    type:
+                        'POST',
+
+                    contentType:
+                        'application/json',
+
+                    data:
+                        JSON.stringify({
+
+                            month:
+                                parseInt(month),
+
+                            year:
+                                parseInt(year)
+
+                        }),
+
+
+                    success:
+                        function (response) {
+
+                            console.log(
+                                "Auto Salary Response:",
+                                response
+                            );
+
+
+                            if (!response) {
+
+                                $.toast({
+
+                                    heading:
+                                        "Error",
+
+                                    text:
+                                        "No response received from salary calculation.",
+
+                                    icon:
+                                        "error",
+
+                                    position:
+                                        "top-right"
+
+                                });
+
+                                return;
+
+                            }
+
+
+                            // =================================================
+                            // GET SUMMARY
+                            // =================================================
+
+                            var summary =
+                                null;
+
+
+                            if (
+                                response.autoSalaryCalculationList &&
+                                response.autoSalaryCalculationList.length > 0
+                            ) {
+
+                                summary =
+                                    response.autoSalaryCalculationList[0];
+
+                            }
+
+
+                            if (!summary) {
+
+                                $.toast({
+
+                                    heading:
+                                        "Error",
+
+                                    text:
+                                        "Salary calculation summary was not returned.",
+
+                                    icon:
+                                        "error",
+
+                                    position:
+                                        "top-right"
+
+                                });
+
+                                return;
+
+                            }
+
+
+                            // =================================================
+                            // SHOW SUMMARY
+                            // =================================================
+
+                            showSalaryCalculationResult(
+                                summary,
+                                response.autoSalaryCalculationErrors
+                            );
+
+
+                            // =================================================
+                            // TOAST
+                            // =================================================
+
+                            var message =
+                                "Total: " +
+                                (summary.totalProcessed ?? 0) +
+
+                                " | Inserted: " +
+                                (summary.insertedRecords ?? 0) +
+
+                                " | Updated: " +
+                                (summary.updatedRecords ?? 0) +
+
+                                " | Skipped: " +
+                                (summary.skippedRecords ?? 0) +
+
+                                " | Failed: " +
+                                (summary.failedRecords ?? 0);
+
+
+                            if (
+                                (summary.failedRecords ?? 0) > 0
+                            ) {
+
+                                $.toast({
+
+                                    heading:
+                                        "Completed with errors",
+
+                                    text:
+                                        message,
+
+                                    icon:
+                                        "warning",
+
+                                    position:
+                                        "top-right",
+
+                                    hideAfter:
+                                        8000
+
+                                });
+
+                            }
+                            else {
+
+                                $.toast({
+
+                                    heading:
+                                        "Success",
+
+                                    text:
+                                        message,
+
+                                    icon:
+                                        "success",
+
+                                    position:
+                                        "top-right",
+
+                                    hideAfter:
+                                        6000
+
+                                });
+
+                            }
+
+
+                            // =================================================
+                            // CLEAR SELECTION
+                            // =================================================
+
+                            clearEmployeeSelection();
+
+
+                            // =================================================
+                            // RELOAD DATATABLE
+                            // =================================================
+
+                            $('#tblMonthlySalary')
+                                .DataTable()
+                                .ajax
+                                .reload(
+                                    null,
+                                    false
+                                );
+
+                        },
+
+
+                    error:
+                        function (xhr) {
+
+                            var message =
+                                "Unable to calculate employee salaries.";
+
+
+                            if (
+                                xhr.responseJSON &&
+                                xhr.responseJSON.message
+                            ) {
+
+                                message =
+                                    xhr.responseJSON.message;
+
+                            }
+
+
+                            $.toast({
+
+                                heading:
+                                    "Error",
+
+                                text:
+                                    message,
+
+                                icon:
+                                    "error",
+
+                                position:
+                                    "top-right"
+
+                            });
+
+                        },
+
+
+                    complete:
+                        function () {
+
+                            button.prop(
+                                'disabled',
+                                false
+                            );
+
+
+                            button.html(`
+
+                                <i class="bi bi-calculator"></i>
+
+                                Calculate All Month Salary
+
+                            `);
+
+                        }
+
+                });
+
+            }
+        );
+
+
+        // =========================================================
+        // SHOW SALARY CALCULATION RESULT
+        // =========================================================
+
+        function showSalaryCalculationResult(
+            summary,
+            errors
+        ) {
+
+            // =====================================================
+            // SUMMARY
+            // =====================================================
+
+            $('#salaryTotalProcessed')
+                .text(
+                    summary.totalProcessed ?? 0
+                );
+
+
+            $('#salaryInsertedRecords')
+                .text(
+                    summary.insertedRecords ?? 0
+                );
+
+
+            $('#salaryUpdatedRecords')
+                .text(
+                    summary.updatedRecords ?? 0
+                );
+
+
+            $('#salarySkippedRecords')
+                .text(
+                    summary.skippedRecords ?? 0
+                );
+
+
+            $('#salaryFailedRecords')
+                .text(
+                    summary.failedRecords ?? 0
+                );
+
+
+            // =====================================================
+            // SHOW RESULT
+            // =====================================================
+
+            $('#salaryCalculationResult')
+                .show();
+
+
+            // =====================================================
+            // ERROR TABLE
+            // =====================================================
+
+            var tbody =
+                $('#salaryCalculationErrorBody');
+
+
+            tbody.empty();
+
+
+            // =====================================================
+            // CHECK ERRORS
+            // =====================================================
+
+            if (
+                !errors ||
+                errors.length === 0
+            ) {
+
+                $('#salaryCalculationErrors')
+                    .hide();
+
+                return;
+
+            }
+
+
+            // =====================================================
+            // SHOW ERROR SECTION
+            // =====================================================
+
+            $('#salaryCalculationErrors')
+                .show();
+
+
+            // =====================================================
+            // ADD ERRORS
+            // =====================================================
+
+            errors.forEach(function (error) {
+
+                tbody.append(`
+
+                    <tr>
+
+                        <td>
+                            ${error.employeeID ?? ''}
+                        </td>
+
+                        <td>
+                            ${error.payrollTypeID ?? ''}
+                        </td>
+
+                        <td>
+                            ${error.grossSalary ?? ''}
+                        </td>
+
+                        <td class="text-danger fw-semibold">
+                            ${error.errorMessage ?? 'Unknown error'}
+                        </td>
+
+                        <td>
+                            ${
+                                error.errorDate
+                                    ? new Date(
+                                        error.errorDate
+                                      ).toLocaleString()
+                                    : ''
+                            }
+                        </td>
+
+                    </tr>
+
+                `);
 
             });
 
         }
-    );
+
+
+        // =========================================================
+        // SEND EMAIL BUTTON
+        // =========================================================
+
+        $(document).on(
+            'click',
+            '#btnSendSelectedEmail',
+            function () {
+
+                // Only one employee can be emailed
+                if (
+                    selectedEmployeeIDs.size !== 1
+                ) {
+
+                    $.toast({
+
+                        heading:
+                            "Warning",
+
+                        text:
+                            "Please select exactly one employee.",
+
+                        icon:
+                            "warning",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                    return;
+
+                }
+
+
+                var employeeId =
+                    Array.from(
+                        selectedEmployeeIDs
+                    )[0];
+
+
+                // Find employee checkbox on current page
+                var checkbox =
+                    $('.employee-select[value="' +
+                        employeeId +
+                        '"]');
+
+
+                var employeeName = '';
+
+
+                if (checkbox.length > 0) {
+
+                    employeeName =
+                        checkbox.data('name');
+
+                }
+
+
+                // =================================================
+                // SET SELECTED EMPLOYEE
+                // =================================================
+
+                $('#selectedEmployeeID')
+                    .val(employeeId);
+
+
+                $('#selectedEmployeeName')
+                    .val(
+                        employeeName || ''
+                    );
+
+
+                // =================================================
+                // SHOW LOADING
+                // =================================================
+
+                $('#salaryMonthList')
+                    .html(`
+
+                        <div class="text-muted">
+
+                            Loading salary months...
+
+                        </div>
+
+                    `);
+
+
+                // =================================================
+                // LOAD SALARY MONTHS
+                // =================================================
+
+                loadSalaryMonths(
+                    employeeId
+                );
+
+
+                // =================================================
+                // OPEN EMAIL MODAL
+                // =================================================
+
+                var modalElement =
+                    document.getElementById(
+                        'emailSalaryModal'
+                    );
+
+
+                if (!modalElement) {
+
+                    console.error(
+                        'emailSalaryModal not found.'
+                    );
+
+                    return;
+
+                }
+
+
+                var modal =
+                    bootstrap.Modal
+                        .getOrCreateInstance(
+                            modalElement
+                        );
+
+
+                modal.show();
+
+            }
+        );
+
+
+        // =========================================================
+        // VERIFY SELECTED SALARY
+        // =========================================================
+
+        $(document).on(
+            'click',
+            '#btnVerifySelected',
+            function () {
+
+                // =================================================
+                // VALIDATION
+                // =================================================
+
+                if (
+                    selectedEmployeeIDs.size === 0
+                ) {
+
+                    $.toast({
+
+                        heading:
+                            "Warning",
+
+                        text:
+                            "Please select at least one employee.",
+
+                        icon:
+                            "warning",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                    return;
+
+                }
+
+
+                // =================================================
+                // GET ALL SELECTED EMPLOYEE IDs
+                // =================================================
+
+                var employeeIDs =
+                    Array.from(
+                        selectedEmployeeIDs
+                    );
+
+
+                console.log(
+                    "Employee IDs to Verify:",
+                    employeeIDs
+                );
+
+
+                var year =
+                    parseInt(
+                        $('#yearDropdown').val()
+                    );
+
+
+                var month =
+                    parseInt(
+                        $('#monthDropdown').val()
+                    );
+
+
+                if (!year || !month) {
+
+                    $.toast({
+
+                        heading:
+                            "Warning",
+
+                        text:
+                            "Please select Year and Month.",
+
+                        icon:
+                            "warning",
+
+                        position:
+                            "top-right"
+
+                    });
+
+                    return;
+
+                }
+
+
+                // =================================================
+                // BUTTON
+                // =================================================
+
+                var button =
+                    $(this);
+
+
+                button.prop(
+                    'disabled',
+                    true
+                );
+
+
+                button.html(`
+
+                    <i class="bi bi-hourglass-split"></i>
+
+                    Verifying...
+
+                `);
+
+
+                // =================================================
+                // AJAX
+                // =================================================
+
+                $.ajax({
+
+                    url:
+                        '@Url.Action("VerifyEmployeeSalary", "Payroll")',
+
+                    type:
+                        'POST',
+
+                    contentType:
+                        'application/json',
+
+                    data:
+                        JSON.stringify({
+
+                            employeeIDs:
+                                employeeIDs,
+
+                            month:
+                                month,
+
+                            year:
+                                year
+
+                        }),
+
+
+                    // =================================================
+                    // SUCCESS
+                    // =================================================
+
+                    success:
+                        function (response) {
+
+                            console.log(
+                                "VERIFY RESPONSE:",
+                                response
+                            );
+
+
+                            // =================================================
+                            // NO RESPONSE
+                            // =================================================
+
+                            if (!response) {
+
+                                $.toast({
+
+                                    heading:
+                                        "Error",
+
+                                    text:
+                                        "No response received from server.",
+
+                                    icon:
+                                        "error",
+
+                                    position:
+                                        "top-right"
+
+                                });
+
+                                return;
+
+                            }
+
+
+                            // =================================================
+                            // GET MESSAGE
+                            // =================================================
+
+                            var message =
+                                response.message ||
+                                response.Message ||
+                                "";
+
+
+                            // =================================================
+                            // GET PKNO
+                            // =================================================
+
+                            var pkNo = 0;
+
+
+                            if (
+                                response.pkNo !== undefined &&
+                                response.pkNo !== null
+                            ) {
+
+                                pkNo =
+                                    parseInt(
+                                        response.pkNo
+                                    );
+
+                            }
+                            else if (
+                                response.PKNo !== undefined &&
+                                response.PKNo !== null
+                            ) {
+
+                                pkNo =
+                                    parseInt(
+                                        response.PKNo
+                                    );
+
+                            }
+                            else if (
+                                response.pKNo !== undefined &&
+                                response.pKNo !== null
+                            ) {
+
+                                pkNo =
+                                    parseInt(
+                                        response.pKNo
+                                    );
+
+                            }
+                            else if (
+                                response.data &&
+                                response.data.pkNo !== undefined &&
+                                response.data.pkNo !== null
+                            ) {
+
+                                pkNo =
+                                    parseInt(
+                                        response.data.pkNo
+                                    );
+
+                            }
+                            else if (
+                                response.data &&
+                                response.data.PKNo !== undefined &&
+                                response.data.PKNo !== null
+                            ) {
+
+                                pkNo =
+                                    parseInt(
+                                        response.data.PKNo
+                                    );
+
+                            }
+
+
+                            console.log(
+                                "PKNo:",
+                                pkNo
+                            );
+
+
+                            console.log(
+                                "Message:",
+                                message
+                            );
+
+
+                            // =================================================
+                            // CHECK MESSAGE COUNTS
+                            // =================================================
+
+                            var verifiedMatch =
+                                message.match(
+                                    /Verified:\s*(\d+)/i
+                                );
+
+
+                            var failedMatch =
+                                message.match(
+                                    /Failed:\s*(\d+)/i
+                                );
+
+
+                            var verifiedCount =
+                                verifiedMatch
+                                    ? parseInt(
+                                        verifiedMatch[1]
+                                      )
+                                    : 0;
+
+
+                            var failedCount =
+                                failedMatch
+                                    ? parseInt(
+                                        failedMatch[1]
+                                      )
+                                    : 0;
+
+
+                            console.log(
+                                "Verified Count:",
+                                verifiedCount
+                            );
+
+
+                            console.log(
+                                "Failed Count:",
+                                failedCount
+                            );
+
+
+                            // =================================================
+                            // COMPLETE SUCCESS
+                            // =================================================
+
+                            if (
+                                verifiedCount > 0 &&
+                                failedCount === 0
+                            ) {
+
+                                $.toast({
+
+                                    heading:
+                                        "Success",
+
+                                    text:
+                                        message ||
+                                        "Salary verification completed successfully.",
+
+                                    icon:
+                                        "success",
+
+                                    position:
+                                        "top-right",
+
+                                    hideAfter:
+                                        5000
+
+                                });
+
+                            }
+
+
+                            // =================================================
+                            // PARTIAL SUCCESS
+                            // =================================================
+
+                            else if (
+                                verifiedCount > 0 &&
+                                failedCount > 0
+                            ) {
+
+                                $.toast({
+
+                                    heading:
+                                        "Partial Success",
+
+                                    text:
+                                        message ||
+                                        "Some salaries could not be verified.",
+
+                                    icon:
+                                        "warning",
+
+                                    position:
+                                        "top-right",
+
+                                    hideAfter:
+                                        10000
+
+                                });
+
+                            }
+
+
+                            // =================================================
+                            // COMPLETE FAILURE
+                            // =================================================
+
+                            else {
+
+                                $.toast({
+
+                                    heading:
+                                        "Verification Failed",
+
+                                    text:
+                                        message ||
+                                        "Salary verification failed.",
+
+                                    icon:
+                                        "error",
+
+                                    position:
+                                        "top-right",
+
+                                    hideAfter:
+                                        10000
+
+                                });
+
+                            }
+
+
+                            // =================================================
+                            // CLEAR SELECTION
+                            // =================================================
+
+                            clearEmployeeSelection();
+
+
+                            // =================================================
+                            // RELOAD TABLE
+                            // =================================================
+
+                            $('#tblMonthlySalary')
+                                .DataTable()
+                                .ajax
+                                .reload(
+                                    null,
+                                    false
+                                );
+
+                        },
+
+
+                    // =================================================
+                    // HTTP ERROR
+                    // =================================================
+
+                    error:
+                        function (xhr) {
+
+                            console.log(
+                                "VERIFY HTTP ERROR:",
+                                xhr
+                            );
+
+
+                            var message =
+                                "Unable to verify salary.";
+
+
+                            if (
+                                xhr.responseJSON &&
+                                xhr.responseJSON.message
+                            ) {
+
+                                message =
+                                    xhr.responseJSON.message;
+
+                            }
+
+
+                            $.toast({
+
+                                heading:
+                                    "Error",
+
+                                text:
+                                    message,
+
+                                icon:
+                                    "error",
+
+                                position:
+                                    "top-right",
+
+                                hideAfter:
+                                    10000
+
+                            });
+
+                        },
+
+
+                    // =================================================
+                    // COMPLETE
+                    // =================================================
+
+                    complete:
+                        function () {
+
+                            button.prop(
+                                'disabled',
+                                false
+                            );
+
+
+                            button.html(`
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Verify Selected
+
+                            `);
+
+                        }
+
+                });
+
+            }
+        );
+
+
+    });
+
+
+    // =========================================================
+    // FORMAT PAYROLL DATE
+    // =========================================================
+
+    function formatPayrollDate(dateValue) {
+
+        if (!dateValue) {
+            return "";
+        }
+
+
+        var date =
+            new Date(dateValue);
+
+
+        if (isNaN(date.getTime())) {
+            return "";
+        }
+
+
+        var day =
+            String(
+                date.getDate()
+            ).padStart(
+                2,
+                '0'
+            );
+
+
+        var month =
+            String(
+                date.getMonth() + 1
+            ).padStart(
+                2,
+                '0'
+            );
+
+
+        var year =
+            date.getFullYear();
+
+
+        return (
+            day +
+            "-" +
+            month +
+            "-" +
+            year
+        );
+
+    }
 
 </script>

@@ -548,4 +548,23 @@ public class EmployeeSalaryCalculationModel
         public long UserID { get; set; }
 
     }
+    public class MultipleSalarySlipDownloadRequest
+    {
+        public List<SalarySlipMonthRequest> Months { get; set; }
+            = new List<SalarySlipMonthRequest>();
+    }
+
+
+    public class SalarySlipMonthRequest
+    {
+        public int Month { get; set; }
+
+        public int Year { get; set; }
+    }
+    public class SalarySlipDownloadMonthModel
+    {
+        public int Month { get; set; }
+
+        public int Year { get; set; }
+    }
 }

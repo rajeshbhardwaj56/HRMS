@@ -1157,54 +1157,157 @@ oldStatus: $("#oldStatus").val();
                         /* ---------------- STATUS EDITOR ---------------- */
 
                         const renderStatusEditor = (fullDate, data) => {
-                            if (!data)
-								return "";
-                            const employeeTypeID = parseInt(document.getElementById('hdnEmployeeTypeID').value);
-							const empTypeID = Number(data.leaveSummary.employeeTypeID);
-                            if (employeeTypeID !== 3) {
-                                return "";
-                            }
-                            console.log(data);
-                            if (!canEditStatus(fullDate)) return "";
-                            const oldStatus = data.attendance?.attendanceStatus || "";
 
-                            return `
-<form id="statusForm">
- <input type="hidden" id="oldStatus" value="${oldStatus}" />
-<div class="row mb-2">
+    if (!data) {
+        return "";
+    }
 
-<div class="col-md-6">
-<label><strong>Change Status:</strong></label>
+    const employeeTypeID = parseInt(
+        document.getElementById('hdnEmployeeTypeID').value
+    );
 
-<div class="position-relative w-100">
-<select class="form-control" id="statusSelect" required>
-<option value="">Select status</option>
-<option value="P">Present</option>
-<option value="A">Absent</option>
-<option value="HD">Half Day</option>
-<option value="WO">Week Off</option>
-</select>
+    // Only Employee Type 3 can edit attendance
+    if (employeeTypeID !== 3) {
+        return "";
+    }
 
-<i class="fa fa-chevron-down position-absolute"
-style="font-size:10px;color:gray;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"></i>
+    // Check cutoff date
+    if (!canEditStatus(fullDate)) {
+        return "";
+    }
 
-</div>
-</div>
+    const oldStatus = data.attendance?.attendanceStatus || "";
 
-<div class="col-md-6">
-<label><strong>Comment:</strong></label>
-<textarea class="form-control" id="statusComment" placeholder="Write comment..." required></textarea>
-</div>
+    /*
+     * NO BIOMETRIC RECORD = ABSENT
+     *
+     * If there is no firstLogDate / lastLogDate,
+     * employee has no biometric punch.
+     */
+    const hasBiometricRecord =
+        data.attendance &&
+        data.attendance.firstLogDate &&
+        data.attendance.lastLogDate;
 
-</div>
+    /*
+     * Admin / SuperAdmin can override an absent employee
+     * and mark P or HD.
+     */
+    const isAdminOrSuperAdmin =
+        roleId === ROLE_ADMIN ||
+        roleId === ROLE_SUPERADMIN;
 
-<div class="text-end mt-2">
-<button class="btn btn-primary" id="saveStatusChange">💾 Save Status</button>
-</div>
+    let statusOptions = "";
 
-</form>
-`;
-                        };
+    if (!hasBiometricRecord) {
+
+        // No biometric record = Absent
+
+        if (isAdminOrSuperAdmin) {
+
+            // Admin/SuperAdmin
+            statusOptions = `
+                <option value="">Select status</option>
+                <option value="P">Present</option>
+                <option value="A">Absent</option>
+                <option value="HD">Half Day</option>
+                <option value="WO">Week Off</option>
+            `;
+
+        } else {
+
+            // Normal user
+            statusOptions = `
+                <option value="">Select status</option>
+                <option value="A">Absent</option>
+                <option value="WO">Week Off</option>
+            `;
+        }
+
+    } else {
+
+        // Biometric record exists
+        // Everyone gets all options
+
+        statusOptions = `
+            <option value="">Select status</option>
+            <option value="P">Present</option>
+            <option value="A">Absent</option>
+            <option value="HD">Half Day</option>
+            <option value="WO">Week Off</option>
+        `;
+    }
+
+    return `
+        <form id="statusForm">
+
+            <input type="hidden"
+                   id="oldStatus"
+                   value="${oldStatus}" />
+
+            <div class="row mb-2">
+
+                <div class="col-md-6">
+
+                    <label>
+                        <strong>Change Status:</strong>
+                    </label>
+
+                    <div class="position-relative w-100">
+
+                        <select class="form-control"
+                                id="statusSelect"
+                                required>
+
+                            ${statusOptions}
+
+                        </select>
+
+                        <i class="fa fa-chevron-down position-absolute"
+                           style="
+                               font-size:10px;
+                               color:gray;
+                               right:10px;
+                               top:50%;
+                               transform:translateY(-50%);
+                               pointer-events:none;
+                           ">
+                        </i>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label>
+                        <strong>Comment:</strong>
+                    </label>
+
+                    <textarea
+                        class="form-control"
+                        id="statusComment"
+                        placeholder="Write comment..."
+                        required></textarea>
+
+                </div>
+
+            </div>
+
+            <div class="text-end mt-2">
+
+                <button class="btn btn-primary"
+                        id="saveStatusChange">
+
+                    💾 Save Status
+
+                </button>
+
+            </div>
+
+        </form>
+    `;
+};
 
                         /* ---------------- STATUS CHANGE TABLE ---------------- */
 

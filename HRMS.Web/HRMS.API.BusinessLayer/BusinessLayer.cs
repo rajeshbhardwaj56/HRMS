@@ -6731,113 +6731,299 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
             {
                 List<SqlParameter> sqlParameter = new List<SqlParameter>
         {
-           
-            new SqlParameter("@EmployeeID", model.EmployeeID ?? 0),
-            new SqlParameter("@SalaryID", model.SalaryID ?? (object)DBNull.Value),
-            new SqlParameter("@Year", model.Year),
-            new SqlParameter("@Month", model.Month),
-            new SqlParameter("@SortCol", model.SortCol ?? "EmployeeID"),
-            new SqlParameter("@SortDir", model.SortDir ?? "DESC"),
-            new SqlParameter("@Searching", string.IsNullOrEmpty(model.Searching) ? DBNull.Value : (object)model.Searching),
-            new SqlParameter("@DisplayStart", model.DisplayStart ?? 0),
-            new SqlParameter("@DisplayLength", model.DisplayLength ?? 10)
+            new SqlParameter("@SalaryID",
+                model.SalaryID.HasValue
+                    ? (object)model.SalaryID.Value
+                    : DBNull.Value),
+
+            new SqlParameter("@EmployeeID",
+                model.EmployeeID ?? 0),
+
+            new SqlParameter("@Year",
+                model.Year.HasValue
+                    ? (object)model.Year.Value
+                    : DBNull.Value),
+
+            new SqlParameter("@Month",
+                model.Month.HasValue
+                    ? (object)model.Month.Value
+                    : DBNull.Value),
+
+            new SqlParameter("@SortCol",
+                string.IsNullOrWhiteSpace(model.SortCol)
+                    ? "EmployeeID"
+                    : model.SortCol),
+
+            new SqlParameter("@SortDir",
+                string.IsNullOrWhiteSpace(model.SortDir)
+                    ? "DESC"
+                    : model.SortDir),
+
+            new SqlParameter("@Searching",
+                string.IsNullOrWhiteSpace(model.Searching)
+                    ? DBNull.Value
+                    : (object)model.Searching),
+
+            new SqlParameter("@DisplayStart",
+                model.DisplayStart ?? 0),
+
+            new SqlParameter("@DisplayLength",
+                model.DisplayLength ?? 10)
         };
 
-                var dataSet = DataLayer.GetDataSetByStoredProcedure("usp_GetMonthlySalary", sqlParameter);
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        "usp_GetMonthlySalary",
+                        sqlParameter
+                    );
 
-                if (dataSet != null && dataSet.Tables.Count > 0)
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
                 {
-                    result = dataSet.Tables[0].AsEnumerable()
+                    result = dataSet.Tables[0]
+                        .AsEnumerable()
                         .Select(dataRow => new SalaryDetails
                         {
+                            // --------------------------------------------------
+                            // BASIC INFORMATION
+                            // --------------------------------------------------
 
                             SalaryID = dataRow.Field<long>("SalaryID"),
+
                             EmployeeID = dataRow.Field<long>("EmployeeID"),
 
-                            // ✅ Employee Info
-                            EmployeeNumber = dataRow.Field<string>("EmployeNumber"),
-                            EmployeeName = dataRow.Field<string>("EmployeeName"),
+                            EmployeeNumber =
+                                dataRow.Field<string>("EmployeNumber") ?? string.Empty,
 
-                            // ✅ Payroll
-                            PayrollTypeID = dataRow.Field<long>("PayrollTypeID"),
-                            PayrollTypeName = dataRow.Field<string?>("PayrollTypeName"),
+                            EmployeeName =
+                                dataRow.Field<string>("EmployeeName") ?? string.Empty,
 
-                            // ✅ Date
-                            SalaryMonth = dataRow.Field<int>("SalaryMonth"),
-                            SalaryYear = dataRow.Field<int>("SalaryYear"),
 
-                            // ✅ Core Salary
-                            RevisedGross = dataRow.Field<decimal?>("RevisedGross") ?? 0m,
-                            MonthDays = dataRow.Field<decimal?>("MonthDays") ?? 0m,
-                            PayableDays = dataRow.Field<decimal?>("PayableDays") ?? 0m,
+                            // --------------------------------------------------
+                            // PAYROLL
+                            // --------------------------------------------------
 
-                            // 🔹 FIXED COMPONENTS
-                            BasicFixed = dataRow.Field<decimal?>("BasicFixed") ?? 0m,
-                            HRAFixed = dataRow.Field<decimal?>("HRAFixed") ?? 0m,
-                            ConveyanceFixed = dataRow.Field<decimal?>("ConveyanceFixed") ?? 0m,
-                            SpecialAllowanceFixed = dataRow.Field<decimal?>("SpecialAllowanceFixed") ?? 0m,
-                            GrossSalaryFixed = dataRow.Field<decimal?>("GrossSalaryFixed") ?? 0m,
+                            PayrollTypeID =
+                                dataRow.Field<long?>("PayrollTypeID") ?? 0,
 
-                            // 🔹 PAYABLE COMPONENTS
-                            BasicPayable = dataRow.Field<decimal?>("BasicPayable") ?? 0m,
-                            HRAPayable = dataRow.Field<decimal?>("HRAPayable") ?? 0m,
-                            ConveyancePayable = dataRow.Field<decimal?>("ConveyancePayable") ?? 0m,
-                            SpecialAllowancePayable = dataRow.Field<decimal?>("SpecialAllowancePayable") ?? 0m,
-                            GrossSalaryPayable = dataRow.Field<decimal?>("GrossSalaryPayable") ?? 0m,
+                            PayrollTypeName =
+                                dataRow.Field<string>("PayrollTypeName") ?? string.Empty,
 
-                            // 🔹 ADDITIONS
-                            ClientIncentive = dataRow.Field<decimal?>("ClientIncentive") ?? 0m,
-                            PLI = dataRow.Field<decimal?>("PLI") ?? 0m,
-                            FloorIncentive = dataRow.Field<decimal?>("FloorIncentive") ?? 0m,
-                            EmpReferal = dataRow.Field<decimal?>("EmpReferal") ?? 0m,
-                            TrainingFee = dataRow.Field<decimal?>("TrainingFee") ?? 0m,
-                            GWR = dataRow.Field<decimal?>("Gwr") ?? 0m,
-                            OtherAdditonArrear = dataRow.Field<decimal?>("OtherAdditonArrear") ?? 0m,
 
-                            // 🔹 DEDUCTIONS
-                            EMPPF = dataRow.Field<decimal?>("EMPPF") ?? 0m,
-                            EMPESI = dataRow.Field<decimal?>("EMPESI") ?? 0m,
-                            EMPLWF = dataRow.Field<decimal?>("EMPLWF") ?? 0m,
-                            PTAX = dataRow.Field<decimal?>("PTAX") ?? 0m,
-                            TDS = dataRow.Field<decimal?>("TDS") ?? 0m,
-                            DbtDeduction = dataRow.Field<decimal?>("DbtDeduction") ?? 0m,
-                            Advanceded = dataRow.Field<decimal?>("Advanceded") ?? 0m,
-                            InsuranceDeduction = dataRow.Field<decimal?>("InsuranceDeduction") ?? 0m,
-                            OtherDeduction = dataRow.Field<decimal?>("OtherDeduction") ?? 0m,
+                            // --------------------------------------------------
+                            // SALARY PERIOD
+                            // --------------------------------------------------
 
-                            // Final
-                            TotalDeduction = dataRow.Field<decimal?>("TotalDeduction") ?? 0m,
-                            NetPayable = dataRow.Field<decimal?>("NetPayable") ?? 0m,
+                            SalaryMonth =
+                                dataRow.Field<int?>("SalaryMonth") ?? 0,
 
-                            // Employer Contribution
-                            EmployerPF = dataRow.Field<decimal?>("EMPRPF") ?? 0m,
-                            EmployerESI = dataRow.Field<decimal?>("EMPRESI") ?? 0m,
-                            EmployerLWF = dataRow.Field<decimal?>("EMPRLWF") ?? 0m,
-                            TotalEmployerContribution = dataRow.Field<decimal?>("TotalEmprCont") ?? 0m,
+                            SalaryYear =
+                                dataRow.Field<int?>("SalaryYear") ?? 0,
 
+
+                            // --------------------------------------------------
+                            // CORE SALARY
+                            // --------------------------------------------------
+
+                            RevisedGross =
+                                dataRow.Field<decimal?>("RevisedGross") ?? 0m,
+
+                            MonthDays =
+                                dataRow.Field<decimal?>("MonthDays") ?? 0m,
+
+                            PayableDays =
+                                dataRow.Field<decimal?>("PayableDays") ?? 0m,
+
+
+                            // --------------------------------------------------
+                            // FIXED COMPONENTS
+                            // --------------------------------------------------
+
+                            BasicFixed =
+                                dataRow.Field<decimal?>("BasicFixed") ?? 0m,
+
+                            HRAFixed =
+                                dataRow.Field<decimal?>("HRAFixed") ?? 0m,
+
+                            ConveyanceFixed =
+                                dataRow.Field<decimal?>("ConveyanceFixed") ?? 0m,
+
+                            SpecialAllowanceFixed =
+                                dataRow.Field<decimal?>("SpecialAllowanceFixed") ?? 0m,
+
+                            GrossSalaryFixed =
+                                dataRow.Field<decimal?>("GrossSalaryFixed") ?? 0m,
+
+
+                            // --------------------------------------------------
+                            // PAYABLE COMPONENTS
+                            // --------------------------------------------------
+
+                            BasicPayable =
+                                dataRow.Field<decimal?>("BasicPayable") ?? 0m,
+
+                            HRAPayable =
+                                dataRow.Field<decimal?>("HRAPayable") ?? 0m,
+
+                            ConveyancePayable =
+                                dataRow.Field<decimal?>("ConveyancePayable") ?? 0m,
+
+                            SpecialAllowancePayable =
+                                dataRow.Field<decimal?>("SpecialAllowancePayable") ?? 0m,
+
+                            GrossSalaryPayable =
+                                dataRow.Field<decimal?>("GrossSalaryPayable") ?? 0m,
+
+
+                            // --------------------------------------------------
+                            // ADDITIONS
+                            // --------------------------------------------------
+
+                            ClientIncentive =
+                                dataRow.Field<decimal?>("ClientIncentive") ?? 0m,
+
+                            PLI =
+                                dataRow.Field<decimal?>("PLI") ?? 0m,
+
+                            FloorIncentive =
+                                dataRow.Field<decimal?>("FloorIncentive") ?? 0m,
+
+                            EmpReferal =
+                                dataRow.Field<decimal?>("EmpReferal") ?? 0m,
+
+                            TrainingFee =
+                                dataRow.Field<decimal?>("TrainingFee") ?? 0m,
+
+                            GWR =
+                                dataRow.Field<decimal?>("Gwr") ?? 0m,
+
+                            OtherAdditonArrear =
+                                dataRow.Field<decimal?>("OtherAdditonArrear") ?? 0m,
+
+
+                            // --------------------------------------------------
+                            // DEDUCTIONS
+                            // --------------------------------------------------
+
+                            EMPPF =
+                                dataRow.Field<decimal?>("EMPPF") ?? 0m,
+
+                            EMPESI =
+                                dataRow.Field<decimal?>("EMPESI") ?? 0m,
+
+                            EMPLWF =
+                                dataRow.Field<decimal?>("EMPLWF") ?? 0m,
+
+                            PTAX =
+                                dataRow.Field<decimal?>("PTAX") ?? 0m,
+
+                            TDS =
+                                dataRow.Field<decimal?>("TDS") ?? 0m,
+
+                            DbtDeduction =
+                                dataRow.Field<decimal?>("DbtDeduction") ?? 0m,
+
+                            Advanceded =
+                                dataRow.Field<decimal?>("Advanceded") ?? 0m,
+
+                            InsuranceDeduction =
+                                dataRow.Field<decimal?>("InsuranceDeduction") ?? 0m,
+
+                            OtherDeduction =
+                                dataRow.Field<decimal?>("OtherDeduction") ?? 0m,
+
+
+                            // --------------------------------------------------
+                            // FINAL SALARY
+                            // --------------------------------------------------
+
+                            TotalDeduction =
+                                dataRow.Field<decimal?>("TotalDeduction") ?? 0m,
+
+                            NetPayable =
+                                dataRow.Field<decimal?>("NetPayable") ?? 0m,
+
+
+                            // --------------------------------------------------
+                            // EMPLOYER CONTRIBUTION
+                            // --------------------------------------------------
+
+                            EmployerPF =
+                                dataRow.Field<decimal?>("EMPRPF") ?? 0m,
+
+                            EmployerESI =
+                                dataRow.Field<decimal?>("EMPRESI") ?? 0m,
+
+                            EmployerLWF =
+                                dataRow.Field<decimal?>("EMPRLWF") ?? 0m,
+
+                            TotalEmployerContribution =
+                                dataRow.Field<decimal?>("TotalEmprCont") ?? 0m,
+
+
+                            // --------------------------------------------------
                             // EPF / EPS / EDLI
-                            EPFWages = dataRow.Field<decimal?>("EPFWages") ?? 0m,
-                            EPSWages = dataRow.Field<decimal?>("EPSWages") ?? 0m,
-                            EDLIWages = dataRow.Field<decimal?>("EDLIWages") ?? 0m,
+                            // --------------------------------------------------
 
-                            EPFAdminCharges = dataRow.Field<decimal?>("EPFAdminCharges") ?? 0m,
-                            EDLIContribution = dataRow.Field<decimal?>("EDLIContribution") ?? 0m,
-                            EDLIAdminCharges = dataRow.Field<decimal?>("EDLIAdminCharges") ?? 0m,
+                            EPFWages =
+                                dataRow.Field<decimal?>("EPFWages") ?? 0m,
 
+                            EPSWages =
+                                dataRow.Field<decimal?>("EPSWages") ?? 0m,
+
+                            EDLIWages =
+                                dataRow.Field<decimal?>("EDLIWages") ?? 0m,
+
+                            EPFAdminCharges =
+                                dataRow.Field<decimal?>("EPFAdminCharges") ?? 0m,
+
+                            EDLIContribution =
+                                dataRow.Field<decimal?>("EDLIContribution") ?? 0m,
+
+                            EDLIAdminCharges =
+                                dataRow.Field<decimal?>("EDLIAdminCharges") ?? 0m,
+
+
+                            // --------------------------------------------------
                             // CTC
-                            CTC = dataRow.Field<decimal?>("CTC") ?? 0m,
-                            OfficialEmail = dataRow["OfficialEmailID"] == DBNull.Value
-                                ? string.Empty
-                                : Convert.ToString(dataRow["OfficialEmailID"]),
-                            // ✅ Flags
-                            IsVerified = dataRow.Field<bool?>("IsVerified") ?? false
-                            // ✅ Flags
-                            //IsActive = dataRow.Field<bool>("IsActive")
+                            // --------------------------------------------------
+
+                            CTC =
+                                dataRow.Field<decimal?>("CTC") ?? 0m,
+
+
+                            // --------------------------------------------------
+                            // EMPLOYEE EMAIL
+                            // --------------------------------------------------
+
+                            OfficialEmail =
+                                dataRow.Field<string>("OfficialEmailID")
+                                ?? string.Empty,
+
+
+                            // --------------------------------------------------
+                            // FLAGS
+                            // --------------------------------------------------
+
+                            IsVerified =
+                                dataRow.Field<bool?>("IsVerified") ?? false,
+
+
+                            // --------------------------------------------------
+                            // DATATABLE COUNTS
+                            // --------------------------------------------------
+
+                            TotalRecords =
+                                dataRow.Field<int?>("TotalRecords") ?? 0,
+
+                            FilteredRecords =
+                                dataRow.Field<int?>("FilteredRecords") ?? 0
                         })
                         .ToList();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -6845,7 +7031,8 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
             return result;
         }
 
-public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequestModel model)
+
+        public EmployeeSalaryCalculationModel CalculateEmployeeSalary(EmployeeSalaryRequestModel model)
         {
             EmployeeSalaryCalculationModel salary = new EmployeeSalaryCalculationModel();
 
@@ -9556,25 +9743,25 @@ public async Task<string> UploadAttendance(DataTable dt, long userId)
                     result.Add(new PayrollPeriodDropdownModel
                     {
                         PayrollPeriodID =
-                            dataRow.Field<int>("PayrollPeriodID"),
+                            Convert.ToInt64(dataRow["PayrollPeriodID"]),
 
                         PayrollYear =
-                            dataRow.Field<int>("PayrollYear"),
+                            Convert.ToInt32(dataRow["PayrollYear"]),
 
                         PayrollMonth =
-                            dataRow.Field<int>("PayrollMonth"),
+                            Convert.ToInt32(dataRow["PayrollMonth"]),
 
                         PayrollMonthName =
-                            dataRow.Field<string>("PayrollMonthName"),
+                            Convert.ToString(dataRow["PayrollMonthName"]),
 
                         PayrollStartDate =
-                            dataRow.Field<DateTime>("PayrollStartDate"),
+                            Convert.ToDateTime(dataRow["PayrollStartDate"]),
 
                         PayrollEndDate =
-                            dataRow.Field<DateTime>("PayrollEndDate"),
+                            Convert.ToDateTime(dataRow["PayrollEndDate"]),
 
                         IsCurrentPeriod =
-                            dataRow.Field<int>("IsCurrentPeriod") == 1
+                            Convert.ToInt32(dataRow["IsCurrentPeriod"]) == 1
                     });
                 }
 

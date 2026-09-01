@@ -4,8 +4,6 @@
     ViewData["Title"] = "Add Edit Salary";
 
     bool isEditMode = Model.SalaryID > 0;
-    var selectedYear = Model.Year > 0 ? Model.Year : DateTime.Now.Year;
-    var selectedMonth = Model.Month > 0 ? Model.Month : DateTime.Now.Month;
     var GrossSalary = Model.RevisedGross;
 }
 <style>
@@ -96,7 +94,7 @@
                        name="RevisedGross"
                        step="0.01"
                        value="@Model.RevisedGross" 
-                        />
+                       readonly />
             </div>
 
             <div class="col-md-3">
@@ -692,9 +690,9 @@
                 </button>
                 <button type="button"
                         class="btn btn-primary"
-                        onclick="emailSalarySlip()">
+                        onclick="emailSalarySlip(event)">
                     <i class="fa fa-envelope me-1"></i>
-                    Share 
+                    Share
                 </button>
             </div>
 
@@ -704,924 +702,937 @@
 
 </div>
 <script>
-      $(document).ready(function () {
 
-        const isEditMode = @isEditMode.ToString().ToLower();
+    // =========================================================
+    // GLOBAL VARIABLES
+    // =========================================================
 
-        const initialEmployee = {
-            id: '@Model.EmployeeID',
-            text: '@Model.EmployeeNumber - @Model.EmployeeName'
-        };
+    const isEditMode = @isEditMode.ToString().ToLower();
 
-        const selectedYear = @selectedYear;
-        const selectedMonth = @selectedMonth;
+    const initialEmployee = {
+        id: '@Model.EmployeeID',
+        text: '@Model.EmployeeNumber - @Model.EmployeeName'
+    };
 
-        const employeeId = '@Model.EmployeeID';
-        const payrollTypeId = '@Model.PayrollTypeID';
+    const modelEmployeeId = '@Model.EmployeeID';
+    const modelPayrollTypeId = '@Model.PayrollTypeID';
 
-        const currentYear = new Date().getFullYear();
+    let payrollPeriods = [];
 
-        const $yearDropdown = $('#YearDropdown');
-        const $monthDropdown = $('#MonthDropdown');
 
-        // =========================
-        // YEAR
-        // =========================
+    // =========================================================
+    // DOCUMENT READY
+    // =========================================================
 
-        for (let y = currentYear; y >= currentYear - 5; y--) {
+    $(document).ready(function () {
 
-            const selected = (y === selectedYear) ? 'selected' : '';
+        // -----------------------------------------------------
+        // Load Year / Month from Payroll Period table
+        // -----------------------------------------------------
 
-            $yearDropdown.append(
-                `<option value="${y}" ${selected}>${y}</option>`
+        loadPayrollPeriods();
+
+
+        // -----------------------------------------------------
+        // Payroll Type
+        // -----------------------------------------------------
+
+        if (modelPayrollTypeId) {
+
+            $("#PayrollTypeID").val(modelPayrollTypeId);
+
+            $("#PayrollTypeIDHidden").val(modelPayrollTypeId);
+        }
+
+            // Set initial Gross Salary state
+            setGrossSalaryMode();
+        // -----------------------------------------------------
+        // Employee Dropdown
+        // -----------------------------------------------------
+
+        initializeEmployeeDropdown(
+            initialEmployee,
+            isEditMode
+        );
+
+
+        // -----------------------------------------------------
+        // Payroll Type Change
+        // -----------------------------------------------------
+
+        $("#PayrollTypeID").on("change", function () {
+
+            const payrollTypeId =
+                parseInt($(this).val()) || 0;
+
+            $("#PayrollTypeIDHidden")
+                .val(payrollTypeId);
+            // Enable Gross Salary immediately
+            // when Payroll Type is selected
+            setGrossSalaryMode();
+            console.log(
+                "Selected Payroll Type:",
+                payrollTypeId
             );
-        }
+        });
 
-        // =========================
-        // MONTH
-        // =========================
-
-        const monthNames = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        ];
-
-        for (let m = 1; m <= 12; m++) {
-
-            const selected = (m === selectedMonth) ? 'selected' : '';
-
-            $monthDropdown.append(
-                `<option value="${m}" ${selected}>${monthNames[m - 1]}</option>`
-            );
-        }
-
-        // =========================
-        // PAYROLL TYPE
-        // =========================
-
-        if (payrollTypeId) {
-
-            $("#PayrollTypeID").val(payrollTypeId);
-
-            $("#PayrollTypeIDHidden").val(payrollTypeId);
-        }
-
-        // =========================
-        // EMPLOYEE DROPDOWN
-        // =========================
-
-        initializeEmployeeDropdown(initialEmployee, isEditMode);
-
-
-        // =========================
-        // IMPORTANT
-        // =========================
-
-        const empId = $("#empTypeDropdown").val();
-
-        if (empId) {
-
-            // Employee already selected
-            // Get employee salary details
-             setPayableDaysMode(true);
-
-             fetchPayrollData(empId);
-
-        } else {
-
-            // No employee selected
-            // Get MonthDays for current selected Year/Month
-               setPayableDaysMode(false);
-
-            fetchPayrollPeriodDetails();
-        }
-            $("#PayrollTypeID").on("change", function () {
-
-        var payrollTypeId = parseInt($(this).val()) || 0;
-
-        $("#PayrollTypeIDHidden").val(payrollTypeId);
-
-        console.log("Selected Payroll Type:", payrollTypeId);
     });
-    });
+
+
+    // =========================================================
+    // GET VALUE HELPERS
+    // =========================================================
+
     function getVal(id) {
+
         return parseFloat($(id).val()) || 0;
     }
 
+
     function getInt(id) {
+
         return parseInt($(id).val()) || 0;
     }
 
 
-    function saveSalary() {
+    // =========================================================
+    // LOAD PAYROLL PERIODS
+    // =========================================================
 
-        var monthDays = parseFloat($("#MonthDays").val()) || 0;
-        var payableDays = parseFloat($("#PayableDays").val()) || 0;
-
-        $("#PayableDaysError").hide().text("");
-
-        if (payableDays < 0) {
-            $("#PayableDaysError")
-                .text("Payable days cannot be negative")
-                .show();
-            return;
-        }
-
-        if (payableDays > monthDays) {
-            $("#PayableDaysError")
-                .text("Payable days cannot be greater than month days")
-                .show();
-            return;
-        }
-
-        const salaryData = {
-
-            // BASIC
-            EmployeeID: getInt("#empTypeDropdown"),
-            PayrollTypeID: getInt("#PayrollTypeIDHidden"),
-            Year: getInt("#YearDropdown"),
-            Month: getInt("#MonthDropdown"),
-
-            RevisedGross: getVal("#RevisedGross"),
-            MonthDays: getVal("#MonthDays"),
-            PayableDays: getVal("#PayableDays"),
-
-            // FIXED
-            BasicFixed: getVal("#BasicFixed"),
-            HRAFixed: getVal("#HRAFixed"),
-            ConveyanceFixed: getVal("#ConveyanceFixed"),
-            SpecialAllowanceFixed: getVal("#SpecialAllowanceFixed"),
-            GrossSalaryFixed: getVal("#GrossSalaryFixed"),
-
-            // PAYABLE
-            BasicPayable: getVal("#BasicPayable"),
-            HRAPayable: getVal("#HRAPayable"),
-            ConveyancePayable: getVal("#ConveyancePayable"),
-            SpecialAllowancePayable: getVal("#SpecialAllowancePayable"),
-            GrossSalaryPayable: getVal("#GrossSalaryPayable"),
-
-            // EARNINGS
-            ClientIncentive: getVal("#ClientIncentive"),
-            PLI: getVal("#PLI"),
-            FloorIncentive: getVal("#FloorIncentive"),
-            EmpReferal: getVal("#EmpReferal"),
-            TrainingFee: getVal("#TrainingFee"),
-            GWR: getVal("#GWR"),
-            OtherAdditonArrear: getVal("#OtherAdditonArrear"),
-
-            // EMPLOYEE DEDUCTIONS
-            EMPLWF: getVal("#EMPLWF"),
-            TDS: getVal("#TDS"),
-            DbtDeduction: getVal("#DbtDeduction"),
-            Advanceded: getVal("#Advanceded"),
-            InsuranceDeduction: getVal("#InsuranceDeduction"),
-            OtherDeduction: getVal("#OtherDeduction"),
-
-            // EMPLOYEE STATUTORY
-            EMPPF: getVal("#EMPPF"),
-            EMPESI: getVal("#EMPESI"),
-            PTAX: getVal("#PTAX"),
-
-            // TOTALS
-            TotalDeduction: getVal("#TotalDeduction"),
-            NetPayable: getVal("#NetPayable"),
-
-            // EMPLOYER
-            EmployerPF: getVal("#EmployerPF"),
-            EmployerESI: getVal("#EmployerESI"),
-            EmployerLWF: getVal("#EmployerLWF"),
-            TotalEmployerContribution: getVal("#TotalEmployerContribution"),
-
-            // EPF / EPS / EDLI
-            EPFWages: getVal("#EPFWages"),
-            EPSWages: getVal("#EPSWages"),
-            EDLIWages: getVal("#EDLIWages"),
-            EPFAdminCharges: getVal("#EPFAdminCharges"),
-            EDLIContribution: getVal("#EDLIContribution"),
-            EDLIAdminCharges: getVal("#EDLIAdminCharges"),
-
-            // CTC
-            CTC: getVal("#CTC")
-        };
-
-        if (!salaryData.EmployeeID || !salaryData.PayrollTypeID) {
-            alert("Please select Employee and Payroll Type");
-            return;
-        }
+    function loadPayrollPeriods() {
 
         $.ajax({
-            url: '/Admin/Payroll/SaveSalary',
+
+            url: '/Admin/Payroll/GetPayrollPeriodsForDropdown',
+
             type: 'POST',
-            data: JSON.stringify(salaryData),
-            contentType: 'application/json; charset=utf-8',
+
             dataType: 'json',
 
             success: function (response) {
 
-                if (response.success) {
+                console.log("Payroll Period API Response:", response);
 
-                    $.toast({
-                        heading: 'Success',
-                        text: response.message || "Salary saved successfully!",
-                        showHideTransition: 'slide',
-                        icon: 'success',
-                        position: 'top-right'
-                    });
+                // =====================================================
+                // NORMALIZE RESPONSE
+                // =====================================================
 
-                } else {
+                let data = [];
 
-                    $.toast({
-                        heading: 'Error',
-                        text: response.message || "Failed to save salary.",
-                        showHideTransition: 'slide',
-                        icon: 'error',
-                        position: 'top-right'
-                    });
+                if (Array.isArray(response)) {
+
+                    data = response;
+
                 }
-            },
+                else if (
+                    response &&
+                    Array.isArray(response.data)
+                ) {
 
-            error: function (xhr) {
+                    data = response.data;
+
+                }
+                else if (
+                    response &&
+                    Array.isArray(response.result)
+                ) {
+
+                    data = response.result;
+
+                }
+                else if (
+                    response &&
+                    response.data &&
+                    Array.isArray(response.data.data)
+                ) {
+
+                    data = response.data.data;
+
+                }
 
 
-                $.toast({
-                    heading: 'Error',
-                    text: "An unexpected error occurred while saving salary.",
-                    showHideTransition: 'slide',
-                    icon: 'error',
-                    position: 'top-right'
-                });
-            }
-        });
-    }
+                console.log(
+                    "Normalized Payroll Period Data:",
+                    data
+                );
 
 
-           function calculateSalary() {
+                // =====================================================
+                // NO DATA
+                // =====================================================
 
-        var employeeId = parseInt($("#empTypeDropdown").val()) || 0;
-        var payrollTypeId = parseInt($("#PayrollTypeID").val()) || 0;
+                if (!data || data.length === 0) {
 
-        var month = parseInt($("#MonthDropdown").val()) || 0;
-        var year = parseInt($("#YearDropdown").val()) || 0;
+                    $("#YearDropdown")
+                        .empty()
+                        .append(
+                            '<option value="">-- Select Year --</option>'
+                        );
 
-        var monthDays = parseFloat($("#MonthDays").val()) || 0;
-        var payableDays = parseFloat($("#PayableDays").val()) || 0;
+                    $("#MonthDropdown")
+                        .empty()
+                        .append(
+                            '<option value="">-- Select Month --</option>'
+                        );
 
-        $("#PayableDaysError").hide().text("");
-
-        // Keep hidden Payroll Type synchronized
-        $("#PayrollTypeIDHidden").val(payrollTypeId);
-
-        // Payroll Type is mandatory
-        if (!payrollTypeId) {
-
-            $.toast({
-                heading: 'Error',
-                text: 'Please select Payroll Type.',
-                icon: 'error',
-                position: 'top-right'
-            });
-
-            return;
-        }
-
-        if (!month || !year) {
-
-            $.toast({
-                heading: 'Error',
-                text: 'Please select Month and Year.',
-                icon: 'error',
-                position: 'top-right'
-            });
-
-            return;
-        }
-
-        if (payableDays < 0) {
-
-            $("#PayableDaysError")
-                .text("Payable days cannot be negative")
-                .show();
-
-            return;
-        }
-
-        if (monthDays > 0 && payableDays > monthDays) {
-
-            $("#PayableDaysError")
-                .text("Payable days cannot be greater than month days")
-                .show();
-
-            return;
-        }
-
-        var model = {
-
-            // Employee can be 0
-            EmployeeID: employeeId,
-
-            PayrollTypeID: payrollTypeId,
-
-            Month: month,
-
-            Year: year,
-
-            RevisedGross: $("#RevisedGross").val(),
-
-            MonthDays: $("#MonthDays").val(),
-
-            PayableDays: $("#PayableDays").val(),
-
-            ClientIncentive: $("#ClientIncentive").val(),
-
-            PLI: $("#PLI").val(),
-
-            FloorIncentive: $("#FloorIncentive").val(),
-
-            EmpReferal: $("#EmpReferal").val(),
-
-            TrainingFee: $("#TrainingFee").val(),
-
-            GWR: $("#GWR").val(),
-
-            OtherAdditonArrear:
-                $("#OtherAdditonArrear").val(),
-
-            EMPLWF:
-                $("#EMPLWF").val(),
-
-            TDS:
-                $("#TDS").val(),
-
-            DbtDeduction:
-                $("#DbtDeduction").val(),
-
-            Advanceded:
-                $("#Advanceded").val(),
-
-            InsuranceDeduction:
-                $("#InsuranceDeduction").val(),
-
-            OtherDeduction:
-                $("#OtherDeduction").val()
-        };
-
-        console.log(
-            "Salary Calculation Request:",
-            model
-        );
-
-        $.ajax({
-
-            url: '/Admin/Payroll/CalculateSalary',
-
-            type: 'POST',
-
-            data: model,
-
-            success: function (data) {
-
-                if (!data) {
-
-                    $.toast({
-                        heading: 'Error',
-                        text: 'Salary calculation failed.',
-                        icon: 'error',
-                        position: 'top-right'
-                    });
+                    $("#MonthDays").val(0);
 
                     return;
                 }
 
-                var salaryData =
-                    data.data ??
-                    data.result ??
-                    data;
+
+                // =====================================================
+                // STORE PAYROLL PERIODS
+                // =====================================================
+
+                payrollPeriods = data;
+
+
+                // =====================================================
+                // EDIT MODE
+                //
+                // Existing salary should show its saved
+                // Year + Month.
+                // =====================================================
+
+                const modelYear =
+                    parseInt('@Model.Year') || 0;
+
+                const modelMonth =
+                    parseInt('@Model.Month') || 0;
+
+
+                // =====================================================
+                // FIND CURRENT PAYROLL PERIOD
+                //
+                // Your DB has:
+                //
+                // 2026 | 9 | September | IsCurrentPeriod = 1
+                //
+                // Therefore:
+                //
+                // selectedYear  = 2026
+                // selectedMonth = 9
+                // =====================================================
+
+                const currentPayrollPeriod =
+                    data.find(function (item) {
+
+                        const isCurrent =
+                            item.isCurrentPeriod ??
+                            item.IsCurrentPeriod ??
+                            false;
+
+                        return (
+                            isCurrent === true ||
+                            isCurrent === 1 ||
+                            isCurrent === "1" ||
+                            isCurrent === "true" ||
+                            isCurrent === "True"
+                        );
+
+                    });
+
 
                 console.log(
-                    "Salary Calculation Response:",
-                    salaryData
+                    "Current Payroll Period:",
+                    currentPayrollPeriod
                 );
 
-                fillPayrollFields(salaryData);
 
-                $.toast({
-                    heading: 'Success',
-                    text: 'Salary calculated successfully.',
-                    icon: 'success',
-                    position: 'top-right'
-                });
+                // =====================================================
+                // GET LATEST PAYROLL PERIOD
+                // FALLBACK ONLY
+                // =====================================================
+
+                const latestPeriod =
+                    getLatestPayrollPeriod(data);
+
+
+                console.log(
+                    "Latest Payroll Period:",
+                    latestPeriod
+                );
+
+
+                // =====================================================
+                // FINAL YEAR / MONTH
+                // =====================================================
+
+                let selectedYear = 0;
+                let selectedMonth = 0;
+
+
+                // =====================================================
+                // EDIT MODE
+                // =====================================================
+
+                if (
+                    isEditMode &&
+                    modelYear > 0 &&
+                    modelMonth > 0
+                ) {
+
+                    selectedYear =
+                        modelYear;
+
+                    selectedMonth =
+                        modelMonth;
+
+                }
+
+                // =====================================================
+                // ADD MODE
+                //
+                // USE IsCurrentPeriod = 1
+                // =====================================================
+
+                else if (currentPayrollPeriod) {
+
+                    selectedYear =
+                        parseInt(
+                            currentPayrollPeriod.payrollYear ??
+                            currentPayrollPeriod.PayrollYear ??
+                            currentPayrollPeriod.year ??
+                            currentPayrollPeriod.Year ??
+                            0
+                        );
+
+                    selectedMonth =
+                        parseInt(
+                            currentPayrollPeriod.payrollMonth ??
+                            currentPayrollPeriod.PayrollMonth ??
+                            currentPayrollPeriod.month ??
+                            currentPayrollPeriod.Month ??
+                            0
+                        );
+
+                }
+
+                // =====================================================
+                // FALLBACK
+                // =====================================================
+
+                else {
+
+                    selectedYear =
+                        latestPeriod.year;
+
+                    selectedMonth =
+                        latestPeriod.month;
+
+                }
+
+
+                console.log(
+                    "FINAL SELECTED PAYROLL:",
+                    {
+                        year: selectedYear,
+                        month: selectedMonth
+                    }
+                );
+
+
+                // =====================================================
+                // POPULATE YEAR DROPDOWN
+                // =====================================================
+
+                populateYearDropdown(
+                    data,
+                    selectedYear
+                );
+
+
+                // =====================================================
+                // POPULATE MONTH DROPDOWN
+                // =====================================================
+
+                populateMonthDropdown(
+                    selectedYear,
+                    selectedMonth
+                );
+
+
+                // =====================================================
+                // LOAD MONTH DAYS
+                // =====================================================
+
+                fetchPayrollPeriodDetails();
+
+
+                // =====================================================
+                // EMPLOYEE
+                // =====================================================
+
+                const employeeId =
+                    $("#empTypeDropdown").val();
+
+
+                if (employeeId) {
+
+                    setPayableDaysMode(true);
+
+                    fetchPayrollData(
+                        employeeId
+                    );
+
+                }
+                else {
+
+                    setPayableDaysMode(false);
+
+                }
 
             },
 
             error: function (xhr) {
 
-                console.log(
-                    "Calculate Salary Error:",
+                console.error(
+                    "Get Payroll Periods Error:",
+                    xhr.status,
                     xhr.responseText
                 );
 
-                $.toast({
-                    heading: 'Error',
-                    text: 'Unable to calculate salary.',
-                    icon: 'error',
-                    position: 'top-right'
-                });
-            }
-        });
-    }
-        function fillPayrollFields(data) {
 
+                $("#YearDropdown")
+                    .empty()
+                    .append(
+                        '<option value="">-- Select Year --</option>'
+                    );
 
-        if (!data) {
-            console.log("No salary data received.");
-            return;
-        }
 
-        // In case response is wrapped again
-        if (data.data) {
-            data = data.data;
-        }
+                $("#MonthDropdown")
+                    .empty()
+                    .append(
+                        '<option value="">-- Select Month --</option>'
+                    );
 
-        // =========================================================
-        // PAYROLL INFORMATION
-        // =========================================================
 
-        $("#PayrollTypeID").val(
-            data.payrollTypeID ??
-            data.PayrollTypeID ??
-            0
-        );
-
-        $("#PayrollTypeIDHidden").val(
-            data.payrollTypeID ??
-            data.PayrollTypeID ??
-            0
-        );
-
-
-        // =========================================================
-        // BASIC INPUT INFORMATION
-        // =========================================================
-
-        $("#RevisedGross").val(
-            data.revisedGross ??
-            data.RevisedGross ??
-            0
-        );
-
-        $("#MonthDays").val(
-            data.monthDays ??
-            data.MonthDays ??
-            0
-        );
-
-        $("#PayableDays").val(
-            data.payableDays ??
-            data.PayableDays ??
-            0
-        );
-
-
-        // =========================================================
-        // EARNINGS / ADDITIONS
-        // =========================================================
-
-        $("#ClientIncentive").val(
-            data.clientIncentive ??
-            data.ClientIncentive ??
-            0
-        );
-
-        $("#PLI").val(
-            data.pli ??
-            data.pLI ??
-            data.PLI ??
-            0
-        );
-
-        $("#FloorIncentive").val(
-            data.floorIncentive ??
-            data.FloorIncentive ??
-            0
-        );
-
-        $("#EmpReferal").val(
-            data.empReferal ??
-            data.EmpReferal ??
-            0
-        );
-
-        $("#TrainingFee").val(
-            data.trainingFee ??
-            data.TrainingFee ??
-            0
-        );
-
-        $("#GWR").val(
-            data.gwr ??
-            data.gWR ??
-            data.GWR ??
-            0
-        );
-
-        $("#OtherAdditonArrear").val(
-            data.otherAdditonArrear ??
-            data.OtherAdditonArrear ??
-            0
-        );
-
-
-        // =========================================================
-        // EMPLOYEE INPUT DEDUCTIONS
-        // =========================================================
-
-            $("#CalculatedEMPLWF").val(
-        data.emplwf ??
-        data.eMPLWF ??
-        data.EMPLWF ??
-        0
-        );
-
-        $("#CalculatedTDS").val(
-            data.tds ??
-            data.TDS ??
-            0
-        );
-
-        $("#CalculatedDbtDeduction").val(
-            data.dbtDeduction ??
-            data.DbtDeduction ??
-            0
-        );
-
-        $("#CalculatedAdvanceded").val(
-            data.advanceded ??
-            data.Advanceded ??
-            0
-        );
-
-        $("#CalculatedInsuranceDeduction").val(
-            data.insuranceDeduction ??
-            data.InsuranceDeduction ??
-            0
-        );
-
-        $("#CalculatedOtherDeduction").val(
-            data.otherDeduction ??
-            data.OtherDeduction ??
-            0
-        );
-
-
-        // =========================================================
-        // FIXED SALARY
-        // =========================================================
-
-        $("#BasicFixed").val(
-            data.basicFixed ??
-            data.BasicFixed ??
-            0
-        );
-
-        $("#HRAFixed").val(
-            data.hraFixed ??
-            data.HRAFixed ??
-            0
-        );
-
-        $("#ConveyanceFixed").val(
-            data.conveyanceFixed ??
-            data.ConveyanceFixed ??
-            0
-        );
-
-        $("#SpecialAllowanceFixed").val(
-            data.specialAllowanceFixed ??
-            data.SpecialAllowanceFixed ??
-            0
-        );
-
-        $("#GrossSalaryFixed").val(
-            data.grossSalaryFixed ??
-            data.GrossSalaryFixed ??
-            0
-        );
-
-
-        // =========================================================
-        // PAYABLE SALARY
-        // =========================================================
-
-        $("#BasicPayable").val(
-            data.basicPayable ??
-            data.BasicPayable ??
-            0
-        );
-
-        $("#HRAPayable").val(
-            data.hraPayable ??
-            data.HRAPayable ??
-            0
-        );
-
-        $("#ConveyancePayable").val(
-            data.conveyancePayable ??
-            data.ConveyancePayable ??
-            0
-        );
-
-        $("#SpecialAllowancePayable").val(
-            data.specialAllowancePayable ??
-            data.SpecialAllowancePayable ??
-            0
-        );
-
-        $("#GrossSalaryPayable").val(
-            data.grossSalaryPayable ??
-            data.GrossSalaryPayable ??
-            0
-        );
-
-
-        // =========================================================
-        // EMPLOYEE STATUTORY DEDUCTIONS
-        // =========================================================
-
-        $("#EMPPF").val(
-            data.emppf ??
-            data.EMPPF ??
-            0
-        );
-
-        $("#EMPESI").val(
-            data.empesi ??
-            data.EMPESI ??
-            0
-        );
-
-        $("#PTAX").val(
-            data.ptax ??
-            data.PTAX ??
-            0
-        );
-
-
-        // =========================================================
-        // TOTAL DEDUCTION / NET PAY
-        // =========================================================
-
-        $("#TotalDeduction").val(
-            data.totalDeduction ??
-            data.TotalDeduction ??
-            0
-        );
-
-        $("#NetPayable").val(
-            data.netPayable ??
-            data.NetPayable ??
-            0
-        );
-
-
-        // =========================================================
-        // EMPLOYER CONTRIBUTION
-        // =========================================================
-
-        $("#EmployerPF").val(
-            data.employerPF ??
-            data.EmployerPF ??
-            0
-        );
-
-        $("#EmployerESI").val(
-            data.employerESI ??
-            data.EmployerESI ??
-            0
-        );
-
-        $("#EmployerLWF").val(
-            data.employerLWF ??
-            data.EmployerLWF ??
-            0
-        );
-
-        $("#TotalEmployerContribution").val(
-            data.totalEmployerContribution ??
-            data.TotalEmployerContribution ??
-            0
-        );
-
-
-        // =========================================================
-        // PF / EPS / EDLI
-        // =========================================================
-
-        $("#EPFWages").val(
-            data.epfWages ??
-            data.EPFWages ??
-            0
-        );
-
-        $("#EPSWages").val(
-            data.epsWages ??
-            data.EPSWages ??
-            0
-        );
-
-        $("#EDLIWages").val(
-            data.edliWages ??
-            data.EDLIWages ??
-            0
-        );
-
-        $("#EPFAdminCharges").val(
-            data.epfAdminCharges ??
-            data.EPFAdminCharges ??
-            0
-        );
-
-        $("#EDLIContribution").val(
-            data.edliContribution ??
-            data.EDLIContribution ??
-            0
-        );
-
-        $("#EDLIAdminCharges").val(
-            data.edliAdminCharges ??
-            data.EDLIAdminCharges ??
-            0
-        );
-
-
-        // =========================================================
-        // CTC
-        // =========================================================
-
-        $("#CTC").val(
-            data.ctc ??
-            data.CTC ??
-            0
-        );
-
-
-    }
-    function initializeEmployeeDropdown(initialEmployee = null, isEditMode = false) {
-
-        const $dropdown = $('#empTypeDropdown');
-
-        $dropdown.select2({
-            placeholder: "-- Select Employee --",
-            allowClear: true,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/employee/myinfo/GetLastLevelEmployeeDropdown/',
-                type: 'POST',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { searchTerm: params.term };
-                },
-                processResults: function (data) {
-                    if (!data || !data.data) return { results: [] };
-
-                    return {
-                        results: data.data.map(emp => ({
-                            id: emp.employeeID,
-                            text: `${emp.employeeNumber} - ${emp.employeeName}`
-                        }))
-                    };
-                }
-            }
-        });
-
-    function fetchPayrollData(employeeId) {
-
-        const selectedMonth = $("#MonthDropdown").val();
-        const selectedYear = $("#YearDropdown").val();
-
-        if (!employeeId || !selectedMonth || !selectedYear) {
-            return;
-        }
-
-        console.log("Fetching salary:", {
-            EmployeeID: employeeId,
-            SalaryMonth: selectedMonth,
-            SalaryYear: selectedYear
-        });
-
-        $.ajax({
-            url: '/Admin/Payroll/GetSalaryDetails',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                EmployeeID: employeeId,
-                SalaryMonth: selectedMonth,
-                SalaryYear: selectedYear
-            },
-    success: function (data) {
-
-
-        if (!data) {
-            console.log("No salary data found");
-            return;
-        }
-
-        var salaryData = data.data ?? data.result ?? data;
-
-
-        fillPayrollFields(salaryData);
-
-        $("#PayrollTypeID").val(
-            salaryData.payrollTypeID ??
-            salaryData.PayrollTypeID ??
-            0
-        );
-
-        $("#PayrollTypeIDHidden").val(
-            salaryData.payrollTypeID ??
-            salaryData.PayrollTypeID ??
-            0
-        );
-    },
-            error: function (xhr, status, error) {
+                $("#MonthDays").val(0);
 
 
                 $.toast({
-                    heading: 'Error',
-                    text: 'Unable to load salary details.',
-                    icon: 'error',
-                    position: 'top-right'
+
+                    heading:
+                        "Error",
+
+                    text:
+                        "Unable to load payroll periods.",
+
+                    icon:
+                        "error",
+
+                    position:
+                        "top-right"
+
                 });
+
             }
+
         });
     }
 
-    $dropdown.on('select2:select', function (e) {
 
-        const employeeId = e.params.data.id;
+    // =========================================================
+    // GET LATEST PAYROLL PERIOD
+    // =========================================================
 
-        // Payroll Type readonly
-        setPayrollTypeReadonly(true);
+    function getLatestPayrollPeriod(data) {
 
-        // Payable Days readonly because attendance will be used
-        setPayableDaysMode(true);
+        let latest = null;
 
-        fetchPayrollData(employeeId);
-    });
-    $dropdown.on('select2:clear', function () {
+        data.forEach(function (item) {
 
-        // Enable Payroll Type
-        setPayrollTypeReadonly(false);
+            const year =
+                parseInt(
+                    item.year ??
+                    item.Year ??
+                    item.salaryYear ??
+                    item.SalaryYear ??
+                    item.payrollYear ??
+                    item.PayrollYear ??
+                    0
+                );
 
-        // Enable manual Payable Days
-        setPayableDaysMode(false);
+            const month =
+                parseInt(
+                    item.month ??
+                    item.Month ??
+                    item.salaryMonth ??
+                    item.SalaryMonth ??
+                    item.payrollMonth ??
+                    item.PayrollMonth ??
+                    0
+                );
 
-        $("#PayrollTypeIDHidden").val($("#PayrollTypeID").val());
+            if (
+                !year ||
+                !month ||
+                month < 1 ||
+                month > 12
+            ) {
+                return;
+            }
 
-        fetchPayrollPeriodDetails();
-    });
+            if (!latest) {
+
+                latest = {
+                    year: year,
+                    month: month
+                };
+
+                return;
+            }
+
+            if (year > latest.year) {
+
+                latest = {
+                    year: year,
+                    month: month
+                };
+
+                return;
+            }
+
+            if (
+                year === latest.year &&
+                month > latest.month
+            ) {
+
+                latest = {
+                    year: year,
+                    month: month
+                };
+
+            }
+
+        });
+
+
+        if (!latest) {
+
+            const now = new Date();
+
+            latest = {
+
+                year:
+                    now.getFullYear(),
+
+                month:
+                    now.getMonth() + 1
+
+            };
+
+        }
+
+
+        return latest;
+    }
+
+
+    // =========================================================
+    // POPULATE YEAR DROPDOWN
+    // =========================================================
+
+    function populateYearDropdown(data, selectedYear) {
+
+        const $yearDropdown =
+            $("#YearDropdown");
+
+        $yearDropdown.empty();
+
+        $yearDropdown.append(
+            '<option value="">-- Select Year --</option>'
+        );
+
+
+        const years = [];
+
+
+        data.forEach(function (item) {
+
+            const year =
+                parseInt(
+                    item.payrollYear ??
+                    item.PayrollYear ??
+                    item.year ??
+                    item.Year ??
+                    0
+                );
+
+
+            if (
+                year &&
+                !years.includes(year)
+            ) {
+
+                years.push(year);
+
+            }
+
+        });
+
+
+        // Newest year first
+
+        years.sort(function (a, b) {
+
+            return b - a;
+
+        });
+
+
+        years.forEach(function (year) {
+
+            const option =
+                new Option(
+                    year,
+                    year,
+                    year === parseInt(selectedYear),
+                    year === parseInt(selectedYear)
+                );
+
+
+            $yearDropdown.append(option);
+
+        });
+
+
+        // Explicitly select
+
+        if (selectedYear) {
+
+            $yearDropdown.val(
+                String(selectedYear)
+            );
+
+        }
+
+
+        console.log(
+            "Selected Year:",
+            $yearDropdown.val()
+        );
+    }
+
+
+    // =========================================================
+    // POPULATE MONTH DROPDOWN
+    // =========================================================
+
+    function populateMonthDropdown(
+        selectedYear,
+        selectedMonth
+    ) {
+
+        const $monthDropdown =
+            $("#MonthDropdown");
+
+
+        $monthDropdown.empty();
+
+
+        $monthDropdown.append(
+            '<option value="">-- Select Month --</option>'
+        );
+
+
+        if (!selectedYear) {
+
+            return;
+
+        }
+
+
+        const availableMonths = [];
+
+
+        payrollPeriods.forEach(function (item) {
+
+            const year =
+                parseInt(
+                    item.payrollYear ??
+                    item.PayrollYear ??
+                    item.year ??
+                    item.Year ??
+                    0
+                );
+
+
+            const month =
+                parseInt(
+                    item.payrollMonth ??
+                    item.PayrollMonth ??
+                    item.month ??
+                    item.Month ??
+                    0
+                );
+
+
+            const monthName =
+                item.payrollMonthName ??
+                item.PayrollMonthName ??
+                "";
+
+
+            if (
+                year === parseInt(selectedYear) &&
+                month >= 1 &&
+                month <= 12
+            ) {
+
+                availableMonths.push({
+
+                    month: month,
+
+                    monthName:
+                        monthName
+
+                });
+
+            }
+
+        });
+
+
+        // Sort months
+
+        availableMonths.sort(function (a, b) {
+
+            return a.month - b.month;
+
+        });
+
+
+        availableMonths.forEach(function (item) {
+
+            const isSelected =
+                item.month === parseInt(selectedMonth);
+
+
+            const option =
+                new Option(
+
+                    item.monthName ||
+                    getMonthName(item.month),
+
+                    item.month,
+
+                    isSelected,
+
+                    isSelected
+
+                );
+
+
+            $monthDropdown.append(option);
+
+        });
+
+
+        // Explicitly select month
+
+        if (selectedMonth) {
+
+            $monthDropdown.val(
+                String(selectedMonth)
+            );
+
+        }
+
+
+        console.log(
+            "Selected Month:",
+            $monthDropdown.val()
+        );
+    }
+
+        function getMonthName(month) {
+
+        const monthNames = [
+
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+
+        ];
+
+        return monthNames[month - 1] || "";
+
+    }
+
+
+
+    // =========================================================
+    // YEAR / MONTH CHANGE
+    // =========================================================
+
     $("#MonthDropdown, #YearDropdown").on("change", function () {
 
-        const empId = $dropdown.val();
+        const employeeId =
+            $("#empTypeDropdown").val();
 
-        if (empId) {
+        const selectedYear =
+            parseInt($("#YearDropdown").val()) || 0;
 
-            // Employee is selected
-            // Get employee's salary details for new Year/Month
-            setPayableDaysMode(true);
+        const selectedMonth =
+            parseInt($("#MonthDropdown").val()) || 0;
 
-            fetchPayrollData(empId);
 
-        } else {
+        console.log("Year/Month changed:", {
+            employeeId: employeeId,
+            year: selectedYear,
+            month: selectedMonth
+        });
 
-            // No employee selected
-            // Only get payroll period / MonthDays
-            setPayableDaysMode(false);
+
+        // ---------------------------------------------------------
+        // If Year is changed
+        // ---------------------------------------------------------
+
+        if ($(this).attr("id") === "YearDropdown") {
+
+            if (!selectedYear) {
+
+                $("#MonthDropdown")
+                    .empty()
+                    .append(
+                        '<option value="">-- Select Month --</option>'
+                    );
+
+                $("#MonthDays").val(0);
+
+                setPayableDaysMode(false);
+
+                return;
+            }
+
+
+            // Get available months for selected year
+
+            let monthsForYear = [];
+
+
+            payrollPeriods.forEach(function (item) {
+
+                const year =
+                    parseInt(
+                        item.payrollYear ??
+                        item.PayrollYear ??
+                        item.year ??
+                        item.Year ??
+                        item.salaryYear ??
+                        item.SalaryYear ??
+                        0
+                    );
+
+
+                const month =
+                    parseInt(
+                        item.payrollMonth ??
+                        item.PayrollMonth ??
+                        item.month ??
+                        item.Month ??
+                        item.salaryMonth ??
+                        item.SalaryMonth ??
+                        0
+                    );
+
+
+                if (
+                    year === selectedYear &&
+                    month >= 1 &&
+                    month <= 12
+                ) {
+
+                    monthsForYear.push(month);
+                }
+
+            });
+
+
+            let selectedMonthForYear = 0;
+
+
+            if (monthsForYear.length > 0) {
+
+                selectedMonthForYear =
+                    Math.max(...monthsForYear);
+            }
+
+
+            // Populate months
+
+            populateMonthDropdown(
+                selectedYear,
+                selectedMonthForYear
+            );
+        }
+
+
+        // ---------------------------------------------------------
+        // Get final selected month after Year/Month change
+        // ---------------------------------------------------------
+
+        const finalMonth =
+            parseInt($("#MonthDropdown").val()) || 0;
+
+
+        const finalYear =
+            parseInt($("#YearDropdown").val()) || 0;
+
+
+        // ---------------------------------------------------------
+        // Load Month Days
+        // ---------------------------------------------------------
+
+        if (
+            finalYear &&
+            finalMonth
+        ) {
 
             fetchPayrollPeriodDetails();
+
         }
+        else {
+
+            $("#MonthDays").val(0);
+        }
+
+
+        // ---------------------------------------------------------
+        // Employee selected
+        // ---------------------------------------------------------
+
+        if (employeeId) {
+
+            setPayableDaysMode(true);
+
+            fetchPayrollData(employeeId);
+
+        }
+        else {
+
+            setPayableDaysMode(false);
+        }
+
     });
 
-    if (isEditMode && initialEmployee && initialEmployee.id) {
 
-        const option = new Option(
-            initialEmployee.text,
-            initialEmployee.id,
-            true,
-            true
-        );
+    // =========================================================
+    // FETCH PAYROLL PERIOD DETAILS
+    // =========================================================
 
-        $dropdown.append(option).trigger('change');
-
-        $dropdown.prop('disabled', true);
-
-        // Payroll Type should also be readonly in edit mode
-        setPayrollTypeReadonly(true);
-
-        fetchPayrollData(initialEmployee.id);
-    }
-    }
-        function fetchPayrollPeriodDetails() {
+    function fetchPayrollPeriodDetails() {
 
         var salaryMonth = parseInt($("#MonthDropdown").val()) || 0;
         var salaryYear = parseInt($("#YearDropdown").val()) || 0;
@@ -1658,152 +1669,1550 @@
 
             error: function (xhr) {
 
-                console.log("Error loading payroll period:", xhr.responseText);
+                console.log(
+                    "Error loading payroll period:",
+                    xhr.responseText
+                );
 
                 $("#MonthDays").val(0);
             }
         });
     }
-        $("#CompanyLogo").on("change", function () {
 
-        const file = this.files[0];
 
-        if (!file) {
-            $("#LogoPreview").hide();
+    // =========================================================
+    // EMPLOYEE DROPDOWN
+    // =========================================================
+
+    function initializeEmployeeDropdown(
+        initialEmployee = null,
+        isEditMode = false
+    ) {
+
+        const $dropdown =
+            $('#empTypeDropdown');
+
+
+        $dropdown.select2({
+
+            placeholder:
+                "-- Select Employee --",
+
+            allowClear:
+                true,
+
+            minimumInputLength:
+                3,
+
+            ajax: {
+
+                url:
+                    '/employee/myinfo/GetLastLevelEmployeeDropdown/',
+
+                type:
+                    'POST',
+
+                dataType:
+                    'json',
+
+                delay:
+                    250,
+
+                data: function (params) {
+
+                    return {
+
+                        searchTerm:
+                            params.term
+                    };
+
+                },
+
+                processResults: function (data) {
+
+                    if (
+                        !data ||
+                        !data.data
+                    ) {
+
+                        return {
+
+                            results: []
+                        };
+                    }
+
+
+                    return {
+
+                        results:
+                            data.data.map(
+                                emp => ({
+
+                                    id:
+                                        emp.employeeID,
+
+                                    text:
+                                        `${emp.employeeNumber} - ${emp.employeeName}`
+
+                                })
+                            )
+
+                    };
+                }
+            }
+        });
+
+
+        // -----------------------------------------------------
+        // Employee Selected
+        // -----------------------------------------------------
+
+        $dropdown.on(
+            'select2:select',
+            function (e) {
+
+                const employeeId =
+                    e.params.data.id;
+
+
+                setPayrollTypeReadonly(true);
+
+                setPayableDaysMode(true);
+
+                        // Employee selected = Gross Salary readonly
+                      setGrossSalaryMode();
+                fetchPayrollData(
+                    employeeId
+                );
+            }
+        );
+
+
+        // -----------------------------------------------------
+        // Employee Cleared
+        // -----------------------------------------------------
+
+        $dropdown.on(
+            'select2:clear',
+            function () {
+
+                setPayrollTypeReadonly(false);
+
+                setPayableDaysMode(false);
+
+
+                $("#PayrollTypeIDHidden")
+                    .val(
+                        $("#PayrollTypeID").val()
+                    );
+                // Employee cleared:
+                // Gross Salary becomes editable again
+                setGrossSalaryMode();
+
+                fetchPayrollPeriodDetails();
+            }
+        );
+
+
+        // -----------------------------------------------------
+        // Edit Mode
+        // -----------------------------------------------------
+
+            if (
+        isEditMode &&
+        initialEmployee &&
+        initialEmployee.id
+    ) {
+
+        const option =
+            new Option(
+                initialEmployee.text,
+                initialEmployee.id,
+                true,
+                true
+            );
+
+        $dropdown
+            .append(option)
+            .trigger('change');
+
+        $dropdown.prop(
+            'disabled',
+            true
+        );
+
+        setPayrollTypeReadonly(true);
+
+        // REMOVE fetchPayrollData() from here
+            // Employee exists in edit mode
+    // so Gross Salary is readonly
+    setGrossSalaryMode();
+    }
+    }
+
+
+    // =========================================================
+    // FETCH EMPLOYEE SALARY
+    // =========================================================
+
+    function fetchPayrollData(
+        employeeId
+    ) {
+
+        const selectedMonth =
+            $("#MonthDropdown").val();
+
+
+        const selectedYear =
+            $("#YearDropdown").val();
+
+
+        if (
+            !employeeId ||
+            !selectedMonth ||
+            !selectedYear
+        ) {
+
             return;
         }
 
-        const reader = new FileReader();
 
-        reader.onload = function (e) {
-            $("#LogoPreview")
-                .attr("src", e.target.result)
-                .show();
-        };
+        console.log(
+            "Fetching salary:",
+            {
 
-        reader.readAsDataURL(file);
-    });
-      
+                EmployeeID:
+                    employeeId,
 
-</script>
-<script>
-   
-        
-         function setPayableDaysMode(isEmployeeSelected) {
+                SalaryMonth:
+                    selectedMonth,
+
+                SalaryYear:
+                    selectedYear
+            }
+        );
+
+
+        $.ajax({
+
+            url:
+                '/Admin/Payroll/GetSalaryDetails',
+
+            type:
+                'POST',
+
+            dataType:
+                'json',
+
+            data: {
+
+                EmployeeID:
+                    employeeId,
+
+                SalaryMonth:
+                    selectedMonth,
+
+                SalaryYear:
+                    selectedYear
+            },
+
+    success: function (data) {
+
+        if (!data) {
+            console.log("No salary data found");
+            return;
+        }
+
+        var salaryData =
+            data.data ??
+            data.result ??
+            data;
+
+        console.log("Salary Details Response:", salaryData);
+
+        fillPayrollFields(salaryData);
+
+        $("#PayrollTypeID").val(
+            salaryData.payrollTypeID ??
+            salaryData.PayrollTypeID ??
+            0
+        );
+
+        $("#PayrollTypeIDHidden").val(
+            salaryData.payrollTypeID ??
+            salaryData.PayrollTypeID ??
+            0
+        );
+
+        // IMPORTANT:
+        // MonthDays must come from payroll period,
+        // not from employee salary details.
+        fetchPayrollPeriodDetails();
+    },
+
+            error: function (
+                xhr,
+                status,
+                error
+            ) {
+
+                console.error(
+                    "Get Salary Details Error:",
+                    xhr.responseText
+                );
+
+
+                $.toast({
+
+                    heading:
+                        'Error',
+
+                    text:
+                        'Unable to load salary details.',
+
+                    icon:
+                        'error',
+
+                    position:
+                        'top-right'
+                });
+
+            }
+
+        });
+    }
+
+
+    // =========================================================
+    // PAYABLE DAYS MODE
+    // =========================================================
+
+    function setPayableDaysMode(
+        isEmployeeSelected
+    ) {
 
         if (isEmployeeSelected) {
 
-            // Employee selected
-            // Payable days come from attendance
-            $("#PayableDays").prop("readonly", true);
+            $("#PayableDays")
+                .prop(
+                    "readonly",
+                    true
+                );
+
 
             $("#PayableDaysInfo")
-                .text("Payable days are calculated from attendance.")
+                .text(
+                    "Payable days are calculated from attendance."
+                )
                 .show();
 
-        } else {
+        }
+        else {
 
-            // No employee selected
-            // User can enter payable days manually
-            $("#PayableDays").prop("readonly", false);
+            $("#PayableDays")
+                .prop(
+                    "readonly",
+                    false
+                );
 
-            $("#PayableDaysInfo").hide();
 
-            // Optional: clear the value
-            // $("#PayableDays").val("");
+            $("#PayableDaysInfo")
+                .hide();
         }
     }
-      
-        
-     
-  
 
-function setPayrollTypeReadonly(isReadonly) {
-    $("#PayrollTypeID").prop("disabled", isReadonly);
 
-    if (isReadonly) {
-        // Keep hidden field synchronized because disabled fields
-        // are not submitted
-        $("#PayrollTypeIDHidden").val($("#PayrollTypeID").val());
+    // =========================================================
+    // PAYROLL TYPE READONLY
+    // =========================================================
+
+    function setPayrollTypeReadonly(
+        isReadonly
+    ) {
+
+        $("#PayrollTypeID")
+            .prop(
+                "disabled",
+                isReadonly
+            );
+
+
+        if (isReadonly) {
+
+            $("#PayrollTypeIDHidden")
+                .val(
+                    $("#PayrollTypeID").val()
+                );
+        }
     }
-}
-   
-  
- 
-    </script>
-<script>
-             function openSalarySlipModal() {
 
-        const employeeId = $("#empTypeDropdown").val();
-        const salaryMonth = $("#MonthDropdown").val();
-        const salaryYear = $("#YearDropdown").val();
 
-        if (!employeeId || employeeId == "0") {
+    // =========================================================
+    // CALCULATE SALARY
+    // =========================================================
+
+    function calculateSalary() {
+
+        const employeeId =
+            parseInt(
+                $("#empTypeDropdown").val()
+            ) || 0;
+
+
+        const payrollTypeId =
+            parseInt(
+                $("#PayrollTypeID").val()
+            ) || 0;
+
+
+        const month =
+            parseInt(
+                $("#MonthDropdown").val()
+            ) || 0;
+
+
+        const year =
+            parseInt(
+                $("#YearDropdown").val()
+            ) || 0;
+
+
+        const monthDays =
+            parseFloat(
+                $("#MonthDays").val()
+            ) || 0;
+
+
+        const payableDays =
+            parseFloat(
+                $("#PayableDays").val()
+            ) || 0;
+
+
+        $("#PayableDaysError")
+            .hide()
+            .text("");
+
+
+        $("#PayrollTypeIDHidden")
+            .val(payrollTypeId);
+
+
+        if (!payrollTypeId) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select an employee.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    'Error',
+
+                text:
+                    'Please select Payroll Type.',
+
+                icon:
+                    'error',
+
+                position:
+                    'top-right'
             });
 
             return;
         }
 
-        if (!salaryMonth || salaryMonth == "0") {
+
+        if (
+            !month ||
+            !year
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select salary month.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    'Error',
+
+                text:
+                    'Please select Month and Year.',
+
+                icon:
+                    'error',
+
+                position:
+                    'top-right'
             });
 
             return;
         }
 
-        if (!salaryYear || salaryYear == "0") {
+
+        if (
+            payableDays < 0
+        ) {
+
+            $("#PayableDaysError")
+                .text(
+                    "Payable days cannot be negative"
+                )
+                .show();
+
+            return;
+        }
+
+
+        if (
+            monthDays > 0 &&
+            payableDays > monthDays
+        ) {
+
+            $("#PayableDaysError")
+                .text(
+                    "Payable days cannot be greater than month days"
+                )
+                .show();
+
+            return;
+        }
+
+
+        const model = {
+
+            EmployeeID:
+                employeeId,
+
+            PayrollTypeID:
+                payrollTypeId,
+
+            Month:
+                month,
+
+            Year:
+                year,
+
+            RevisedGross:
+                $("#RevisedGross").val(),
+
+            MonthDays:
+                $("#MonthDays").val(),
+
+            PayableDays:
+                $("#PayableDays").val(),
+
+            ClientIncentive:
+                $("#ClientIncentive").val(),
+
+            PLI:
+                $("#PLI").val(),
+
+            FloorIncentive:
+                $("#FloorIncentive").val(),
+
+            EmpReferal:
+                $("#EmpReferal").val(),
+
+            TrainingFee:
+                $("#TrainingFee").val(),
+
+            GWR:
+                $("#GWR").val(),
+
+            OtherAdditonArrear:
+                $("#OtherAdditonArrear").val(),
+
+            EMPLWF:
+                $("#EMPLWF").val(),
+
+            TDS:
+                $("#TDS").val(),
+
+            DbtDeduction:
+                $("#DbtDeduction").val(),
+
+            Advanceded:
+                $("#Advanceded").val(),
+
+            InsuranceDeduction:
+                $("#InsuranceDeduction").val(),
+
+            OtherDeduction:
+                $("#OtherDeduction").val()
+        };
+
+
+        console.log(
+            "Salary Calculation Request:",
+            model
+        );
+
+
+        $.ajax({
+
+            url:
+                '/Admin/Payroll/CalculateSalary',
+
+            type:
+                'POST',
+
+            data:
+                model,
+
+            success: function (data) {
+
+                if (!data) {
+
+                    $.toast({
+
+                        heading:
+                            'Error',
+
+                        text:
+                            'Salary calculation failed.',
+
+                        icon:
+                            'error',
+
+                        position:
+                            'top-right'
+                    });
+
+                    return;
+                }
+
+
+                const salaryData =
+                    data.data ??
+                    data.result ??
+                    data;
+
+
+                console.log(
+                    "Salary Calculation Response:",
+                    salaryData
+                );
+
+
+                fillPayrollFields(
+                    salaryData
+                );
+
+
+                $.toast({
+
+                    heading:
+                        'Success',
+
+                    text:
+                        'Salary calculated successfully.',
+
+                    icon:
+                        'success',
+
+                    position:
+                        'top-right'
+                });
+
+            },
+
+            error: function (xhr) {
+
+                console.log(
+                    "Calculate Salary Error:",
+                    xhr.responseText
+                );
+
+
+                $.toast({
+
+                    heading:
+                        'Error',
+
+                    text:
+                        'Unable to calculate salary.',
+
+                    icon:
+                        'error',
+
+                    position:
+                        'top-right'
+                });
+
+            }
+
+        });
+    }
+
+
+    // =========================================================
+    // FILL PAYROLL FIELDS
+    // =========================================================
+
+    function fillPayrollFields(data) {
+
+        if (!data) {
+
+            console.log(
+                "No salary data received."
+            );
+
+            return;
+        }
+
+
+        if (data.data) {
+
+            data =
+                data.data;
+        }
+
+
+        // -----------------------------------------------------
+        // Payroll Information
+        // -----------------------------------------------------
+
+        const payrollTypeId =
+            data.payrollTypeID ??
+            data.PayrollTypeID ??
+            0;
+
+
+        $("#PayrollTypeID")
+            .val(payrollTypeId);
+
+
+        $("#PayrollTypeIDHidden")
+            .val(payrollTypeId);
+
+
+        // -----------------------------------------------------
+        // Basic Input
+        // -----------------------------------------------------
+
+        $("#RevisedGross").val(
+
+            data.revisedGross ??
+            data.RevisedGross ??
+            0
+        );
+
+
+        $("#MonthDays").val(
+
+            data.monthDays ??
+            data.MonthDays ??
+            0
+        );
+
+
+        $("#PayableDays").val(
+
+            data.payableDays ??
+            data.PayableDays ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // Earnings
+        // -----------------------------------------------------
+
+        $("#ClientIncentive").val(
+
+            data.clientIncentive ??
+            data.ClientIncentive ??
+            0
+        );
+
+
+        $("#PLI").val(
+
+            data.pli ??
+            data.pLI ??
+            data.PLI ??
+            0
+        );
+
+
+        $("#FloorIncentive").val(
+
+            data.floorIncentive ??
+            data.FloorIncentive ??
+            0
+        );
+
+
+        $("#EmpReferal").val(
+
+            data.empReferal ??
+            data.EmpReferal ??
+            0
+        );
+
+
+        $("#TrainingFee").val(
+
+            data.trainingFee ??
+            data.TrainingFee ??
+            0
+        );
+
+
+        $("#GWR").val(
+
+            data.gwr ??
+            data.gWR ??
+            data.GWR ??
+            0
+        );
+
+
+        $("#OtherAdditonArrear").val(
+
+            data.otherAdditonArrear ??
+            data.OtherAdditonArrear ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // Employee Deductions
+        // -----------------------------------------------------
+
+        $("#CalculatedEMPLWF").val(
+
+            data.emplwf ??
+            data.eMPLWF ??
+            data.EMPLWF ??
+            0
+        );
+
+
+        $("#CalculatedTDS").val(
+
+            data.tds ??
+            data.TDS ??
+            0
+        );
+
+
+        $("#CalculatedDbtDeduction").val(
+
+            data.dbtDeduction ??
+            data.DbtDeduction ??
+            0
+        );
+
+
+        $("#CalculatedAdvanceded").val(
+
+            data.advanceded ??
+            data.Advanceded ??
+            0
+        );
+
+
+        $("#CalculatedInsuranceDeduction").val(
+
+            data.insuranceDeduction ??
+            data.InsuranceDeduction ??
+            0
+        );
+
+
+        $("#CalculatedOtherDeduction").val(
+
+            data.otherDeduction ??
+            data.OtherDeduction ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // Fixed Salary
+        // -----------------------------------------------------
+
+        $("#BasicFixed").val(
+
+            data.basicFixed ??
+            data.BasicFixed ??
+            0
+        );
+
+
+        $("#HRAFixed").val(
+
+            data.hraFixed ??
+            data.HRAFixed ??
+            0
+        );
+
+
+        $("#ConveyanceFixed").val(
+
+            data.conveyanceFixed ??
+            data.ConveyanceFixed ??
+            0
+        );
+
+
+        $("#SpecialAllowanceFixed").val(
+
+            data.specialAllowanceFixed ??
+            data.SpecialAllowanceFixed ??
+            0
+        );
+
+
+        $("#GrossSalaryFixed").val(
+
+            data.grossSalaryFixed ??
+            data.GrossSalaryFixed ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // Payable Salary
+        // -----------------------------------------------------
+
+        $("#BasicPayable").val(
+
+            data.basicPayable ??
+            data.BasicPayable ??
+            0
+        );
+
+
+        $("#HRAPayable").val(
+
+            data.hraPayable ??
+            data.HRAPayable ??
+            0
+        );
+
+
+        $("#ConveyancePayable").val(
+
+            data.conveyancePayable ??
+            data.ConveyancePayable ??
+            0
+        );
+
+
+        $("#SpecialAllowancePayable").val(
+
+            data.specialAllowancePayable ??
+            data.SpecialAllowancePayable ??
+            0
+        );
+
+
+        $("#GrossSalaryPayable").val(
+
+            data.grossSalaryPayable ??
+            data.GrossSalaryPayable ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // Employee Statutory
+        // -----------------------------------------------------
+
+        $("#EMPPF").val(
+
+            data.emppf ??
+            data.EMPPF ??
+            0
+        );
+
+
+        $("#EMPESI").val(
+
+            data.empesi ??
+            data.EMPESI ??
+            0
+        );
+
+
+        $("#PTAX").val(
+
+            data.ptax ??
+            data.PTAX ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // Totals
+        // -----------------------------------------------------
+
+        $("#TotalDeduction").val(
+
+            data.totalDeduction ??
+            data.TotalDeduction ??
+            0
+        );
+
+
+        $("#NetPayable").val(
+
+            data.netPayable ??
+            data.NetPayable ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // Employer Contribution
+        // -----------------------------------------------------
+
+        $("#EmployerPF").val(
+
+            data.employerPF ??
+            data.EmployerPF ??
+            0
+        );
+
+
+        $("#EmployerESI").val(
+
+            data.employerESI ??
+            data.EmployerESI ??
+            0
+        );
+
+
+        $("#EmployerLWF").val(
+
+            data.employerLWF ??
+            data.EmployerLWF ??
+            0
+        );
+
+
+        $("#TotalEmployerContribution").val(
+
+            data.totalEmployerContribution ??
+            data.TotalEmployerContribution ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // PF / EPS / EDLI
+        // -----------------------------------------------------
+
+        $("#EPFWages").val(
+
+            data.epfWages ??
+            data.EPFWages ??
+            0
+        );
+
+
+        $("#EPSWages").val(
+
+            data.epsWages ??
+            data.EPSWages ??
+            0
+        );
+
+
+        $("#EDLIWages").val(
+
+            data.edliWages ??
+            data.EDLIWages ??
+            0
+        );
+
+
+        $("#EPFAdminCharges").val(
+
+            data.epfAdminCharges ??
+            data.EPFAdminCharges ??
+            0
+        );
+
+
+        $("#EDLIContribution").val(
+
+            data.edliContribution ??
+            data.EDLIContribution ??
+            0
+        );
+
+
+        $("#EDLIAdminCharges").val(
+
+            data.edliAdminCharges ??
+            data.EDLIAdminCharges ??
+            0
+        );
+
+
+        // -----------------------------------------------------
+        // CTC
+        // -----------------------------------------------------
+
+        $("#CTC").val(
+
+            data.ctc ??
+            data.CTC ??
+            0
+        );
+
+    }
+
+
+    // =========================================================
+    // SAVE SALARY
+    // =========================================================
+
+    function saveSalary() {
+
+        const monthDays =
+            parseFloat(
+                $("#MonthDays").val()
+            ) || 0;
+
+
+        const payableDays =
+            parseFloat(
+                $("#PayableDays").val()
+            ) || 0;
+
+
+        $("#PayableDaysError")
+            .hide()
+            .text("");
+
+
+        if (
+            payableDays < 0
+        ) {
+
+            $("#PayableDaysError")
+                .text(
+                    "Payable days cannot be negative"
+                )
+                .show();
+
+            return;
+        }
+
+
+        if (
+            payableDays > monthDays
+        ) {
+
+            $("#PayableDaysError")
+                .text(
+                    "Payable days cannot be greater than month days"
+                )
+                .show();
+
+            return;
+        }
+
+
+        const salaryData = {
+
+            EmployeeID:
+                getInt("#empTypeDropdown"),
+
+            PayrollTypeID:
+                getInt("#PayrollTypeIDHidden"),
+
+            Year:
+                getInt("#YearDropdown"),
+
+            Month:
+                getInt("#MonthDropdown"),
+
+            RevisedGross:
+                getVal("#RevisedGross"),
+
+            MonthDays:
+                getVal("#MonthDays"),
+
+            PayableDays:
+                getVal("#PayableDays"),
+
+
+            BasicFixed:
+                getVal("#BasicFixed"),
+
+            HRAFixed:
+                getVal("#HRAFixed"),
+
+            ConveyanceFixed:
+                getVal("#ConveyanceFixed"),
+
+            SpecialAllowanceFixed:
+                getVal("#SpecialAllowanceFixed"),
+
+            GrossSalaryFixed:
+                getVal("#GrossSalaryFixed"),
+
+
+            BasicPayable:
+                getVal("#BasicPayable"),
+
+            HRAPayable:
+                getVal("#HRAPayable"),
+
+            ConveyancePayable:
+                getVal("#ConveyancePayable"),
+
+            SpecialAllowancePayable:
+                getVal("#SpecialAllowancePayable"),
+
+            GrossSalaryPayable:
+                getVal("#GrossSalaryPayable"),
+
+
+            ClientIncentive:
+                getVal("#ClientIncentive"),
+
+            PLI:
+                getVal("#PLI"),
+
+            FloorIncentive:
+                getVal("#FloorIncentive"),
+
+            EmpReferal:
+                getVal("#EmpReferal"),
+
+            TrainingFee:
+                getVal("#TrainingFee"),
+
+            GWR:
+                getVal("#GWR"),
+
+            OtherAdditonArrear:
+                getVal("#OtherAdditonArrear"),
+
+
+            EMPLWF:
+                getVal("#EMPLWF"),
+
+            TDS:
+                getVal("#TDS"),
+
+            DbtDeduction:
+                getVal("#DbtDeduction"),
+
+            Advanceded:
+                getVal("#Advanceded"),
+
+            InsuranceDeduction:
+                getVal("#InsuranceDeduction"),
+
+            OtherDeduction:
+                getVal("#OtherDeduction"),
+
+
+            EMPPF:
+                getVal("#EMPPF"),
+
+            EMPESI:
+                getVal("#EMPESI"),
+
+            PTAX:
+                getVal("#PTAX"),
+
+
+            TotalDeduction:
+                getVal("#TotalDeduction"),
+
+            NetPayable:
+                getVal("#NetPayable"),
+
+
+            EmployerPF:
+                getVal("#EmployerPF"),
+
+            EmployerESI:
+                getVal("#EmployerESI"),
+
+            EmployerLWF:
+                getVal("#EmployerLWF"),
+
+            TotalEmployerContribution:
+                getVal("#TotalEmployerContribution"),
+
+
+            EPFWages:
+                getVal("#EPFWages"),
+
+            EPSWages:
+                getVal("#EPSWages"),
+
+            EDLIWages:
+                getVal("#EDLIWages"),
+
+            EPFAdminCharges:
+                getVal("#EPFAdminCharges"),
+
+            EDLIContribution:
+                getVal("#EDLIContribution"),
+
+            EDLIAdminCharges:
+                getVal("#EDLIAdminCharges"),
+
+
+            CTC:
+                getVal("#CTC")
+        };
+
+
+        if (
+            !salaryData.EmployeeID ||
+            !salaryData.PayrollTypeID
+        ) {
+
+            alert(
+                "Please select Employee and Payroll Type"
+            );
+
+            return;
+        }
+
+
+        $.ajax({
+
+            url:
+                '/Admin/Payroll/SaveSalary',
+
+            type:
+                'POST',
+
+            data:
+                JSON.stringify(salaryData),
+
+            contentType:
+                'application/json; charset=utf-8',
+
+            dataType:
+                'json',
+
+            success: function (response) {
+
+                if (response.success) {
+
+                    $.toast({
+
+                        heading:
+                            'Success',
+
+                        text:
+                            response.message ||
+                            "Salary saved successfully!",
+
+                        showHideTransition:
+                            'slide',
+
+                        icon:
+                            'success',
+
+                        position:
+                            'top-right'
+                    });
+
+                }
+                else {
+
+                    $.toast({
+
+                        heading:
+                            'Error',
+
+                        text:
+                            response.message ||
+                            "Failed to save salary.",
+
+                        showHideTransition:
+                            'slide',
+
+                        icon:
+                            'error',
+
+                        position:
+                            'top-right'
+                    });
+                }
+
+            },
+
+            error: function (xhr) {
+
+                console.error(
+                    "Save Salary Error:",
+                    xhr.responseText
+                );
+
+
+                $.toast({
+
+                    heading:
+                        'Error',
+
+                    text:
+                        "An unexpected error occurred while saving salary.",
+
+                    showHideTransition:
+                        'slide',
+
+                    icon:
+                        'error',
+
+                    position:
+                        'top-right'
+                });
+
+            }
+
+        });
+    }
+
+
+    // =========================================================
+    // SALARY SLIP PREVIEW
+    // =========================================================
+
+    function openSalarySlipModal() {
+
+        const employeeId =
+            $("#empTypeDropdown").val();
+
+
+        const salaryMonth =
+            $("#MonthDropdown").val();
+
+
+        const salaryYear =
+            $("#YearDropdown").val();
+
+
+        if (
+            !employeeId ||
+            employeeId === "0"
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select salary year.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select an employee.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        // Show modal
-        const modalElement = document.getElementById("salarySlipModal");
 
-        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        if (
+            !salaryMonth ||
+            salaryMonth === "0"
+        ) {
+
+            $.toast({
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select salary month.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
+            });
+
+            return;
+        }
+
+
+        if (
+            !salaryYear ||
+            salaryYear === "0"
+        ) {
+
+            $.toast({
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select salary year.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
+            });
+
+            return;
+        }
+
+
+        const modalElement =
+            document.getElementById(
+                "salarySlipModal"
+            );
+
+
+        const modal =
+            bootstrap.Modal
+                .getOrCreateInstance(
+                    modalElement
+                );
+
 
         modal.show();
 
-        // Reset preview
+
         $("#salarySlipPreviewContainer")
             .hide()
             .html("");
 
+
         $("#salarySlipLoader")
             .show();
 
+
         $.ajax({
 
-            url: '/Admin/Payroll/SalarySlipPreview',
+            url:
+                '/Admin/Payroll/SalarySlipPreview',
 
-            type: 'POST',
+            type:
+                'POST',
 
             data: {
-                EmployeeID: employeeId,
-                SalaryMonth: salaryMonth,
-                SalaryYear: salaryYear
+
+                EmployeeID:
+                    employeeId,
+
+                SalaryMonth:
+                    salaryMonth,
+
+                SalaryYear:
+                    salaryYear
             },
 
             success: function (response) {
 
-                $("#salarySlipLoader").hide();
+                $("#salarySlipLoader")
+                    .hide();
+
 
                 $("#salarySlipPreviewContainer")
                     .html(response)
@@ -1813,256 +3222,343 @@ function setPayrollTypeReadonly(isReadonly) {
 
             error: function (xhr) {
 
-                $("#salarySlipLoader").hide();
+                $("#salarySlipLoader")
+                    .hide();
+
 
                 $("#salarySlipPreviewContainer")
                     .html(`
+
                         <div class="alert alert-danger m-3">
                             Unable to load salary slip.
                         </div>
+
                     `)
                     .show();
 
-                console.error(xhr.responseText);
+
+                console.error(
+                    xhr.responseText
+                );
+
             }
 
         });
     }
-         
+
+
+    // =========================================================
+    // DOWNLOAD PDF
+    // =========================================================
+
     function downloadSalarySlipPdf(event) {
 
-        const employeeId = $("#empTypeDropdown").val();
-        const salaryMonth = $("#MonthDropdown").val();
-        const salaryYear = $("#YearDropdown").val();
+        const employeeId =
+            $("#empTypeDropdown").val();
 
-        // -----------------------------
-        // Validation
-        // -----------------------------
 
-        if (!employeeId || employeeId === "0") {
+        const salaryMonth =
+            $("#MonthDropdown").val();
+
+
+        const salaryYear =
+            $("#YearDropdown").val();
+
+
+        if (
+            !employeeId ||
+            employeeId === "0"
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select an employee.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select an employee.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        if (!salaryMonth || salaryMonth === "0") {
+
+        if (
+            !salaryMonth ||
+            salaryMonth === "0"
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select salary month.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select salary month.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        if (!salaryYear || salaryYear === "0") {
+
+        if (
+            !salaryYear ||
+            salaryYear === "0"
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select salary year.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select salary year.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        // -----------------------------
-        // Button loading state
-        // -----------------------------
 
-        const button = event.currentTarget;
-        const originalHtml = button.innerHTML;
+        const button =
+            event.currentTarget;
 
-        button.disabled = true;
+
+        const originalHtml =
+            button.innerHTML;
+
+
+        button.disabled =
+            true;
+
 
         button.innerHTML = `
+
             <span class="spinner-border spinner-border-sm"></span>
             Generating...
+
         `;
 
-        // -----------------------------
-        // AJAX request
-        // -----------------------------
 
         $.ajax({
 
-            url: "/Admin/Payroll/SalarySlipPdf",
+            url:
+                "/Admin/Payroll/SalarySlipPdf",
 
-            type: "POST",
+            type:
+                "POST",
 
             data: {
-                EmployeeID: employeeId,
-                SalaryMonth: salaryMonth,
-                SalaryYear: salaryYear
+
+                EmployeeID:
+                    employeeId,
+
+                SalaryMonth:
+                    salaryMonth,
+
+                SalaryYear:
+                    salaryYear
             },
 
             xhrFields: {
-                responseType: "blob"
+
+                responseType:
+                    "blob"
             },
 
-            success: function (data, status, xhr) {
+            success: function (
+                data,
+                status,
+                xhr
+            ) {
 
-                // -----------------------------
-                // Create PDF blob
-                // -----------------------------
-
-                const blob = new Blob(
-                    [data],
-                    {
-                        type: "application/pdf"
-                    }
-                );
-
-                const url = window.URL.createObjectURL(blob);
-
-                const a = document.createElement("a");
-
-                a.style.display = "none";
-                a.href = url;
-
-                // -----------------------------
-                // Get filename from header
-                // -----------------------------
-
-                const contentDisposition =
-                    xhr.getResponseHeader("Content-Disposition");
-
-                let fileName = "SalarySlip.pdf";
-
-                if (contentDisposition) {
-
-                    console.log(
-                        "Content-Disposition:",
-                        contentDisposition
+                const blob =
+                    new Blob(
+                        [data],
+                        {
+                            type:
+                                "application/pdf"
+                        }
                     );
 
-                    /*
-                     * Priority:
-                     *
-                     * 1. filename*=UTF-8''
-                     * 2. filename="..."
-                     * 3. filename=...
-                     */
+
+                const url =
+                    window.URL
+                        .createObjectURL(
+                            blob
+                        );
+
+
+                const a =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                a.style.display =
+                    "none";
+
+
+                a.href =
+                    url;
+
+
+                let fileName =
+                    "SalarySlip.pdf";
+
+
+                const contentDisposition =
+                    xhr.getResponseHeader(
+                        "Content-Disposition"
+                    );
+
+
+                if (
+                    contentDisposition
+                ) {
 
                     let match;
 
-                    // -----------------------------------------
-                    // 1. RFC 5987 / UTF-8 filename
-                    // -----------------------------------------
 
-                    match = contentDisposition.match(
-                        /filename\*\s*=\s*UTF-8''([^;]+)/i
-                    );
+                    match =
+                        contentDisposition.match(
+                            /filename\*\s*=\s*UTF-8''([^;]+)/i
+                        );
 
-                    if (match && match[1]) {
+
+                    if (
+                        match &&
+                        match[1]
+                    ) {
 
                         try {
 
-                            fileName = decodeURIComponent(
-                                match[1].trim()
-                            );
+                            fileName =
+                                decodeURIComponent(
+                                    match[1].trim()
+                                );
 
                         }
                         catch (e) {
 
-                            console.warn(
-                                "Unable to decode UTF-8 filename.",
-                                e
+                            fileName =
+                                match[1].trim();
+                        }
+                    }
+
+
+                    if (!match) {
+
+                        match =
+                            contentDisposition.match(
+                                /filename\s*=\s*"([^"]+)"/i
                             );
 
-                            fileName = match[1].trim();
+
+                        if (
+                            match &&
+                            match[1]
+                        ) {
+
+                            fileName =
+                                match[1].trim();
                         }
                     }
 
-                    // -----------------------------------------
-                    // 2. Normal quoted filename
-                    // -----------------------------------------
 
                     if (!match) {
 
-                        match = contentDisposition.match(
-                            /filename\s*=\s*"([^"]+)"/i
-                        );
+                        match =
+                            contentDisposition.match(
+                                /filename\s*=\s*([^;]+)/i
+                            );
 
-                        if (match && match[1]) {
 
-                            fileName = match[1].trim();
-                        }
-                    }
+                        if (
+                            match &&
+                            match[1]
+                        ) {
 
-                    // -----------------------------------------
-                    // 3. Normal unquoted filename
-                    // -----------------------------------------
-
-                    if (!match) {
-
-                        match = contentDisposition.match(
-                            /filename\s*=\s*([^;]+)/i
-                        );
-
-                        if (match && match[1]) {
-
-                            fileName = match[1].trim();
+                            fileName =
+                                match[1].trim();
                         }
                     }
                 }
 
-                // -----------------------------
-                // Clean filename
-                // -----------------------------
 
-                fileName = fileName
-                    .replace(/^["']|["']$/g, "")
-                    .trim();
+                fileName =
+                    fileName
+                        .replace(
+                            /^["']|["']$/g,
+                            ""
+                        )
+                        .trim();
 
-                // Prevent accidental filename_
-                // or Content-Disposition text
+
                 if (
                     fileName.includes(";") ||
                     fileName.includes("filename_") ||
                     fileName.includes("Content-Disposition")
                 ) {
-                    fileName = "SalarySlip.pdf";
+
+                    fileName =
+                        "SalarySlip.pdf";
                 }
 
-                // Make sure extension exists
-                if (!fileName.toLowerCase().endsWith(".pdf")) {
+
+                if (
+                    !fileName
+                        .toLowerCase()
+                        .endsWith(".pdf")
+                ) {
+
                     fileName += ".pdf";
                 }
 
-                console.log(
-                    "Final PDF filename:",
-                    fileName
-                );
 
-                // -----------------------------
-                // Download
-                // -----------------------------
+                a.download =
+                    fileName;
 
-                a.download = fileName;
 
-                document.body.appendChild(a);
+                document.body
+                    .appendChild(a);
+
 
                 a.click();
 
+
                 a.remove();
 
-                // -----------------------------
-                // Release blob URL
-                // -----------------------------
 
-                setTimeout(function () {
-                    window.URL.revokeObjectURL(url);
-                }, 100);
+                setTimeout(
+                    function () {
+
+                        window.URL
+                            .revokeObjectURL(
+                                url
+                            );
+
+                    },
+                    100
+                );
+
             },
 
             error: function (xhr) {
@@ -2072,174 +3568,281 @@ function setPayrollTypeReadonly(isReadonly) {
                     xhr
                 );
 
-                let message =
-                    "Unable to generate salary slip PDF.";
-
-                if (xhr.responseText) {
-
-                    console.error(
-                        "Server response:",
-                        xhr.responseText
-                    );
-                }
 
                 $.toast({
-                    heading: "Error",
-                    text: message,
-                    icon: "error",
-                    position: "top-right"
+
+                    heading:
+                        "Error",
+
+                    text:
+                        "Unable to generate salary slip PDF.",
+
+                    icon:
+                        "error",
+
+                    position:
+                        "top-right"
                 });
+
             },
 
             complete: function () {
 
-                button.disabled = false;
+                button.disabled =
+                    false;
 
-                button.innerHTML = originalHtml;
+
+                button.innerHTML =
+                    originalHtml;
             }
+
         });
     }
-    </script>
-<script>
+
+
+    // =========================================================
+    // PRINT SALARY SLIP
+    // =========================================================
+
     function printSalarySlip() {
 
-        const container = document.getElementById(
-            "salarySlipPreviewContainer"
-        );
+        const container =
+            document.getElementById(
+                "salarySlipPreviewContainer"
+            );
 
-        if (!container || !container.innerHTML.trim()) {
+
+        if (
+            !container ||
+            !container.innerHTML.trim()
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Salary slip preview is not loaded.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Salary slip preview is not loaded.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        const printWindow = window.open(
-            "",
-            "_blank",
-            "width=1000,height=800"
-        );
+
+        const printWindow =
+            window.open(
+                "",
+                "_blank",
+                "width=1000,height=800"
+            );
+
 
         if (!printWindow) {
 
             $.toast({
-                heading: "Error",
-                text: "Please allow pop-ups in your browser.",
-                icon: "error",
-                position: "top-right"
+
+                heading:
+                    "Error",
+
+                text:
+                    "Please allow pop-ups in your browser.",
+
+                icon:
+                    "error",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        // Copy salary slip HTML
-        const salaryHtml = container.innerHTML;
 
-        // Create document structure directly
-        const doc = printWindow.document;
+        const salaryHtml =
+            container.innerHTML;
 
-        doc.title = "Salary Slip";
 
-        // Add Bootstrap CSS
-        const bootstrapLink = doc.createElement("link");
+        const doc =
+            printWindow.document;
 
-        bootstrapLink.rel = "stylesheet";
+
+        doc.title =
+            "Salary Slip";
+
+
+        const bootstrapLink =
+            doc.createElement(
+                "link"
+            );
+
+
+        bootstrapLink.rel =
+            "stylesheet";
+
 
         bootstrapLink.href =
             "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
 
-        doc.head.appendChild(bootstrapLink);
+
+        doc.head.appendChild(
+            bootstrapLink
+        );
 
 
-        // Add print CSS
-        const style = doc.createElement("style");
-
-        style.textContent =
-            "html, body {" +
-                "margin: 0 !important;" +
-                "padding: 0 !important;" +
-                "background: white !important;" +
-            "}" +
-
-            "body {" +
-                "-webkit-print-color-adjust: exact !important;" +
-                "print-color-adjust: exact !important;" +
-            "}" +
-
-            "table {" +
-                "page-break-inside: auto;" +
-            "}" +
-
-            "tr {" +
-                "page-break-inside: avoid;" +
-                "page-break-after: auto;" +
-            "}" +
-
-            "thead {" +
-                "display: table-header-group;" +
-            "}" +
-
-            "tfoot {" +
-                "display: table-footer-group;" +
-            "}" +
-
-            "img {" +
-                "max-width: 100%;" +
-            "}" +
-
-            ".no-print {" +
-                "display: none !important;" +
-            "}" +
-
-            ".modal-footer {" +
-                "display: none !important;" +
-            "}";
-
-        doc.head.appendChild(style);
+        const style =
+            doc.createElement(
+                "style"
+            );
 
 
-        // Create body
-        const body = doc.body;
+        style.textContent = `
 
-        body.innerHTML = salaryHtml;
+            html,
+            body {
+
+                margin:
+                    0 !important;
+
+                padding:
+                    0 !important;
+
+                background:
+                    white !important;
+            }
 
 
-        // Wait for Bootstrap CSS
-        bootstrapLink.onload = function () {
+            body {
 
-            printSalaryWindow(printWindow);
+                -webkit-print-color-adjust:
+                    exact !important;
 
-        };
+                print-color-adjust:
+                    exact !important;
+            }
 
 
-        // Fallback if CSS load event doesn't fire
-        setTimeout(function () {
+            table {
 
-            printSalaryWindow(printWindow);
+                page-break-inside:
+                    auto;
+            }
 
-        }, 1500);
+
+            tr {
+
+                page-break-inside:
+                    avoid;
+
+                page-break-after:
+                    auto;
+            }
+
+
+            thead {
+
+                display:
+                    table-header-group;
+            }
+
+
+            tfoot {
+
+                display:
+                    table-footer-group;
+            }
+
+
+            img {
+
+                max-width:
+                    100%;
+            }
+
+
+            .no-print {
+
+                display:
+                    none !important;
+            }
+
+
+            .modal-footer {
+
+                display:
+                    none !important;
+            }
+
+        `;
+
+
+        doc.head.appendChild(
+            style
+        );
+
+
+        doc.body.innerHTML =
+            salaryHtml;
+
+
+        bootstrapLink.onload =
+            function () {
+
+                printSalaryWindow(
+                    printWindow
+                );
+            };
+
+
+        setTimeout(
+            function () {
+
+                printSalaryWindow(
+                    printWindow
+                );
+
+            },
+            1500
+        );
     }
 
 
-    function printSalaryWindow(printWindow) {
+    function printSalaryWindow(
+        printWindow
+    ) {
 
-        if (!printWindow || printWindow.closed) {
+        if (
+            !printWindow ||
+            printWindow.closed
+        ) {
+
             return;
         }
 
-        // Wait for images
-        const images = printWindow.document.images;
 
-        let remainingImages = images.length;
+        const images =
+            printWindow
+                .document
+                .images;
 
-        if (remainingImages === 0) {
 
-            doPrint(printWindow);
+        let remainingImages =
+            images.length;
+
+
+        if (
+            remainingImages === 0
+        ) {
+
+            doPrint(
+                printWindow
+            );
 
             return;
         }
@@ -2249,155 +3852,269 @@ function setPayrollTypeReadonly(isReadonly) {
 
             remainingImages--;
 
-            if (remainingImages <= 0) {
 
-                doPrint(printWindow);
+            if (
+                remainingImages <= 0
+            ) {
 
+                doPrint(
+                    printWindow
+                );
             }
         }
 
 
-        for (let i = 0; i < images.length; i++) {
+        for (
+            let i = 0;
+            i < images.length;
+            i++
+        ) {
 
-            if (images[i].complete) {
+            if (
+                images[i].complete
+            ) {
 
                 imageFinished();
 
             }
             else {
 
-                images[i].addEventListener(
-                    "load",
-                    imageFinished
-                );
+                images[i]
+                    .addEventListener(
+                        "load",
+                        imageFinished
+                    );
 
-                images[i].addEventListener(
-                    "error",
-                    imageFinished
-                );
+
+                images[i]
+                    .addEventListener(
+                        "error",
+                        imageFinished
+                    );
             }
         }
 
 
-        // Fallback
-        setTimeout(function () {
+        setTimeout(
+            function () {
 
-            if (!printWindow.closed) {
+                if (
+                    !printWindow.closed
+                ) {
 
-                doPrint(printWindow);
+                    doPrint(
+                        printWindow
+                    );
+                }
 
-            }
-
-        }, 3000);
+            },
+            3000
+        );
     }
 
 
-    function doPrint(printWindow) {
+    function doPrint(
+        printWindow
+    ) {
 
-        if (!printWindow || printWindow.closed) {
+        if (
+            !printWindow ||
+            printWindow.closed
+        ) {
+
             return;
         }
+
 
         printWindow.focus();
 
-        setTimeout(function () {
 
-            printWindow.print();
+        setTimeout(
+            function () {
 
-        }, 500);
+                printWindow.print();
+
+            },
+            500
+        );
     }
-</script>
-<script>
-    function emailSalarySlip() {
 
-        const employeeId = $("#empTypeDropdown").val();
-        const salaryMonth = $("#MonthDropdown").val();
-        const salaryYear = $("#YearDropdown").val();
 
-        if (!employeeId || employeeId === "0") {
+    // =========================================================
+    // EMAIL / SHARE SALARY SLIP
+    // =========================================================
+
+    function emailSalarySlip(event) {
+
+        const employeeId =
+            $("#empTypeDropdown").val();
+
+
+        const salaryMonth =
+            $("#MonthDropdown").val();
+
+
+        const salaryYear =
+            $("#YearDropdown").val();
+
+
+        if (
+            !employeeId ||
+            employeeId === "0"
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select an employee.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select an employee.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        if (!salaryMonth || salaryMonth === "0") {
+
+        if (
+            !salaryMonth ||
+            salaryMonth === "0"
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select salary month.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select salary month.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        if (!salaryYear || salaryYear === "0") {
+
+        if (
+            !salaryYear ||
+            salaryYear === "0"
+        ) {
 
             $.toast({
-                heading: "Warning",
-                text: "Please select salary year.",
-                icon: "warning",
-                position: "top-right"
+
+                heading:
+                    "Warning",
+
+                text:
+                    "Please select salary year.",
+
+                icon:
+                    "warning",
+
+                position:
+                    "top-right"
             });
 
             return;
         }
 
-        const button = event.currentTarget;
 
-        const originalHtml = button.innerHTML;
+        const button =
+            event.currentTarget;
 
-        button.disabled = true;
+
+        const originalHtml =
+            button.innerHTML;
+
+
+        button.disabled =
+            true;
+
 
         button.innerHTML = `
+
             <span class="spinner-border spinner-border-sm"></span>
             Sending...
+
         `;
+
 
         $.ajax({
 
-            url: "/Admin/Payroll/EmailSalarySlip",
+            url:
+                "/Admin/Payroll/EmailSalarySlip",
 
-            type: "POST",
+            type:
+                "POST",
 
-            dataType: "json",
+            dataType:
+                "json",
 
             data: {
-                EmployeeID: employeeId,
-                SalaryMonth: salaryMonth,
-                SalaryYear: salaryYear
+
+                EmployeeID:
+                    employeeId,
+
+                SalaryMonth:
+                    salaryMonth,
+
+                SalaryYear:
+                    salaryYear
             },
 
             success: function (response) {
 
-                if (response.success) {
+                if (
+                    response.success
+                ) {
 
                     $.toast({
-                        heading: "Success",
-                        text: response.message ||
+
+                        heading:
+                            "Success",
+
+                        text:
+                            response.message ||
                             "Salary slip sent successfully.",
-                        icon: "success",
-                        position: "top-right"
+
+                        icon:
+                            "success",
+
+                        position:
+                            "top-right"
                     });
 
                 }
                 else {
 
                     $.toast({
-                        heading: "Error",
-                        text: response.message ||
+
+                        heading:
+                            "Error",
+
+                        text:
+                            response.message ||
                             "Unable to send salary slip.",
-                        icon: "error",
-                        position: "top-right"
+
+                        icon:
+                            "error",
+
+                        position:
+                            "top-right"
                     });
                 }
+
             },
 
             error: function (xhr) {
@@ -2407,19 +4124,73 @@ function setPayrollTypeReadonly(isReadonly) {
                     xhr.responseText
                 );
 
+
                 $.toast({
-                    heading: "Error",
-                    text: "Unable to send salary slip.",
-                    icon: "error",
-                    position: "top-right"
+
+                    heading:
+                        "Error",
+
+                    text:
+                        "Unable to send salary slip.",
+
+                    icon:
+                        "error",
+
+                    position:
+                        "top-right"
                 });
+
             },
 
             complete: function () {
 
-                button.disabled = false;
+                button.disabled =
+                    false;
 
-                button.innerHTML = originalHtml;
+
+                button.innerHTML =
+                    originalHtml;
             }
+
         });
-    }</script>
+    }
+          function setGrossSalaryMode() {
+
+        const payrollTypeId =
+            parseInt($("#PayrollTypeID").val()) || 0;
+
+        const employeeId =
+            parseInt($("#empTypeDropdown").val()) || 0;
+
+        // -------------------------------------------------
+        // Employee selected
+        // -------------------------------------------------
+        if (employeeId > 0) {
+
+            $("#RevisedGross")
+                .prop("disabled", false)
+                .prop("readonly", true);
+
+            return;
+        }
+
+        // -------------------------------------------------
+        // No employee, but Payroll Type selected
+        // -------------------------------------------------
+        if (payrollTypeId > 0) {
+
+            $("#RevisedGross")
+                .prop("disabled", false)
+                .prop("readonly", false);
+
+            return;
+        }
+
+        // -------------------------------------------------
+        // Nothing selected
+        // -------------------------------------------------
+        $("#RevisedGross")
+            .prop("disabled", true)
+            .prop("readonly", true);
+    }
+</script>

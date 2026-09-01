@@ -2085,7 +2085,11 @@ namespace HRMS.Web.Areas.Admin.Controllers
         "HD/HPL",
                 "HD/HCOL",
                 "HD/HLWP",
-            "LEFT"// if your business supports it
+            "LEFT",
+            "H",
+            "HECO",
+            "ECO",
+            "-"// if your business supports it
     };
 
             foreach (DataRow row in dt.Rows)
@@ -2122,10 +2126,15 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         );
                     }
 
-                    if (status == "LEFT")
+                    if (status == "LEFT" ||
+                        status == "H" ||
+                        status == "HECO" ||
+                        status == "ECO" ||
+                        status == "-")
                     {
                         continue;
                     }
+
 
                     list.Add(new AttendanceUploadModel
                     {
@@ -2500,12 +2509,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return dt;
         }
-        private List<BulkEmployeeSalaryRequestModel>
-    ConvertBulkSalaryExcel(DataTable dt)
+        private List<BulkEmployeeSalaryRequestModel> ConvertBulkSalaryExcel(DataTable dt)
         {
-            var list =
-                new List<BulkEmployeeSalaryRequestModel>();
-
+            var list = new List<BulkEmployeeSalaryRequestModel>();
 
             // ------------------------------------------------------------
             // REQUIRED COLUMNS
@@ -2520,7 +2526,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
         "GrossSalary"
     };
 
-
             foreach (string column in requiredColumns)
             {
                 if (!dt.Columns.Contains(column))
@@ -2531,7 +2536,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
             }
 
-
             // ------------------------------------------------------------
             // PROCESS ROWS
             // ------------------------------------------------------------
@@ -2541,7 +2545,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
             foreach (DataRow row in dt.Rows)
             {
                 rowNumber++;
-
 
                 // --------------------------------------------------------
                 // EMPLOYEE NUMBER
@@ -2557,7 +2560,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     );
                 }
 
-
                 // --------------------------------------------------------
                 // PAYROLL TYPE
                 // --------------------------------------------------------
@@ -2572,7 +2574,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     );
                 }
 
-
                 // --------------------------------------------------------
                 // YEAR
                 // --------------------------------------------------------
@@ -2586,11 +2587,19 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     );
                 }
 
+                if (year < 2000 || year > 2100)
+                {
+                    throw new Exception(
+                        $"Invalid Year '{year}' for Employee '{employeeNumber}'."
+                    );
+                }
 
                 // --------------------------------------------------------
                 // MONTH
                 // --------------------------------------------------------
-                string monthValue = row["Month"]?.ToString()?.Trim();
+
+                string monthValue =
+                    row["Month"]?.ToString()?.Trim();
 
                 if (string.IsNullOrWhiteSpace(monthValue))
                 {
@@ -2601,23 +2610,23 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 int month;
 
+                // Excel contains numeric month: 1-12
                 if (int.TryParse(monthValue, out int numericMonth))
                 {
-                    // Excel contains 1-12
                     month = numericMonth;
                 }
+                // Excel contains month name: Jan / January / Jul / July
                 else if (DateTime.TryParseExact(
                             monthValue,
                             new[]
                             {
-                "MMM",
-                "MMMM"
+                        "MMM",
+                        "MMMM"
                             },
                             System.Globalization.CultureInfo.InvariantCulture,
                             System.Globalization.DateTimeStyles.None,
                             out DateTime parsedMonth))
                 {
-                    // Excel contains Jan / January / Jul / July etc.
                     month = parsedMonth.Month;
                 }
                 else
@@ -2634,7 +2643,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     );
                 }
 
-
                 // --------------------------------------------------------
                 // GROSS SALARY
                 // --------------------------------------------------------
@@ -2648,84 +2656,154 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     );
                 }
 
+                if (grossSalary < 0)
+                {
+                    throw new Exception(
+                        $"Gross Salary cannot be negative for Employee '{employeeNumber}'."
+                    );
+                }
 
                 // --------------------------------------------------------
                 // CREATE MODEL
                 // --------------------------------------------------------
 
-                var model =
-                    new BulkEmployeeSalaryRequestModel
-                    {
-                        RowNumber = rowNumber,
+                var model = new BulkEmployeeSalaryRequestModel
+                {
+                    // ----------------------------------------------------
+                    // BASIC INFORMATION
+                    // ----------------------------------------------------
 
-                        EmployeeNumber = employeeNumber,
+                    RowNumber = rowNumber,
 
-                        PayrollType = payrollType,
+                    EmployeeNumber = employeeNumber,
 
-                        Year = year,
+                    PayrollType = payrollType,
 
-                        Month = month,
+                    Year = year,
 
-                        GrossSalary = grossSalary,
+                    Month = month,
 
-                        MonthDays = GetNullableDecimal(
+                    GrossSalary = grossSalary,
+
+                    // ----------------------------------------------------
+                    // ATTENDANCE
+                    // ----------------------------------------------------
+
+                    MonthDays = GetNullableDecimal(
+                        row,
+                        "MonthDays"
+                    ),
+
+                    PayableDays = GetNullableDecimal(
+                        row,
+                        "PayableDays"
+                    ),
+
+                    // ----------------------------------------------------
+                    // EARNINGS
+                    // ----------------------------------------------------
+
+                    ClientIncentive =
+                        GetDecimal(
                             row,
-                            "MonthDays"
+                            "ClientIncentive"
                         ),
 
-                        PayableDays = GetNullableDecimal(
+                    PLI =
+                        GetDecimal(
                             row,
-                            "PayableDays"
+                            "PLI"
                         ),
 
-                        // Earnings
+                    FloorIncentive =
+                        GetDecimal(
+                            row,
+                            "FloorIncentive"
+                        ),
 
-                        ClientIncentive =
-                            GetDecimal(row, "ClientIncentive"),
+                    EmployeeReferral =
+                        GetDecimal(
+                            row,
+                            "EmployeeReferral"
+                        ),
 
-                        PLI =
-                            GetDecimal(row, "PLI"),
+                    TrainingFee =
+                        GetDecimal(
+                            row,
+                            "TrainingFee"
+                        ),
 
-                        FloorIncentive =
-                            GetDecimal(row, "FloorIncentive"),
+                    GWR =
+                        GetDecimal(
+                            row,
+                            "GWR"
+                        ),
 
-                        EmployeeReferral =
-                            GetDecimal(row, "EmployeeReferral"),
+                    // IMPORTANT:
+                    // Excel header is "OtherAddition/Arrear"
+                    // Model property is "OtherAdditionArrear"
 
-                        TrainingFee =
-                            GetDecimal(row, "TrainingFee"),
+                    OtherAdditionArrear =
+                        GetDecimal(
+                            row,
+                            "OtherAddition/Arrear"
+                        ),
 
-                        GWR =
-                            GetDecimal(row, "GWR"),
+                    // ----------------------------------------------------
+                    // DEDUCTIONS
+                    // ----------------------------------------------------
 
-                        OtherAdditionArrear =
-                            GetDecimal(row, "OtherAdditionArrear"),
+                    EMPLWF =
+                        GetDecimal(
+                            row,
+                            "EMPLWF"
+                        ),
 
-                        // Deductions
+                    TDS =
+                        GetDecimal(
+                            row,
+                            "TDS"
+                        ),
 
-                        EMPLWF =
-                            GetDecimal(row, "EMPLWF"),
+                    DBTDeduction =
+                        GetDecimal(
+                            row,
+                            "DBTDeduction"
+                        ),
 
-                        TDS =
-                            GetDecimal(row, "TDS"),
+                    // IMPORTANT:
+                    // Excel header is "AdvanceDED"
+                    // Model property is "AdvanceDeduction"
 
-                        DBTDeduction =
-                            GetDecimal(row, "DBTDeduction"),
+                    AdvanceDeduction =
+                        GetDecimal(
+                            row,
+                            "AdvanceDED"
+                        ),
 
-                        AdvanceDeduction =
-                            GetDecimal(row, "AdvanceDeduction"),
+                    InsuranceDeduction =
+                        GetDecimal(
+                            row,
+                            "InsuranceDeduction"
+                        ),
 
-                        InsuranceDeduction =
-                            GetDecimal(row, "InsuranceDeduction"),
+                    OtherDeduction =
+                        GetDecimal(
+                            row,
+                            "OtherDeduction"
+                        )
+                };
 
-                        OtherDeduction =
-                            GetDecimal(row, "OtherDeduction")
-                    };
-
+                // --------------------------------------------------------
+                // ADD MODEL TO LIST
+                // --------------------------------------------------------
 
                 list.Add(model);
             }
 
+            // ------------------------------------------------------------
+            // RETURN
+            // ------------------------------------------------------------
 
             return list;
         }

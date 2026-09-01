@@ -78,11 +78,20 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public JsonResult MonthlySalary(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch, string sortCol, string sortDir,
-    int year,
-    int month)
+        public JsonResult MonthlySalary(
+            string sEcho,
+            int iDisplayStart,
+            int iDisplayLength,
+            string sSearch,
+            string sortCol,
+            string sortDir,
+            int year,
+            int month)
         {
-            var companyId = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
+            var companyId = Convert.ToInt64(
+                HttpContext.Session.GetString(Constants.CompanyID)
+            );
+
             SalaryInputParams salaryInputParams = new SalaryInputParams
             {
                 Month = month,
@@ -95,26 +104,41 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 CompanyID = companyId,
                 EmployeeID = 0
             };
+
             var data = _businessLayer.SendPostAPIRequest(
                 salaryInputParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Payroll, APIApiActionConstants.GetEmployeesMonthlySalary),
+                _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.Payroll,
+                    APIApiActionConstants.GetEmployeesMonthlySalary
+                ),
                 HttpContext.Session.GetString(Constants.SessionBearerToken),
                 true
             ).Result.ToString();
+
             var model = JsonConvert.DeserializeObject<List<SalaryDetails>>(data);
+
             if (model.Any())
             {
-                model.ForEach(x => { x.EncryptedSalaryID = _businessLayer.EncodeStringBase64(x.SalaryID.ToString()); });
-
+                model.ForEach(x =>
+                {
+                    x.EncryptedSalaryID =
+                        _businessLayer.EncodeStringBase64(x.SalaryID.ToString());
+                });
             }
+
+            // Get total counts from stored procedure
+            var totalRecords = model.FirstOrDefault()?.TotalRecords ?? 0;
+            var filteredRecords = model.FirstOrDefault()?.FilteredRecords ?? 0;
+
             return Json(new
             {
                 draw = sEcho,
-                recordsTotal = model.Count,
-                recordsFiltered = model.Count,
+                recordsTotal = totalRecords,
+                recordsFiltered = filteredRecords,
                 data = model
             });
         }
+
 
 
         [HttpGet]
@@ -2245,5 +2269,289 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 });
             }
         }
+        [HttpGet]
+        public IActionResult DownloadSlarySlip()
+        {
+            return View();
+        }
+   
+    [HttpGet]
+        public JsonResult GetMySalaryMonths()
+        {
+            var employeeId =
+                Convert.ToInt64(
+                    HttpContext.Session.GetString(
+                        Constants.EmployeeID
+                    )
+                );
+
+            if (employeeId <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Employee session not found."
+                });
+            }
+
+
+            var request =
+                new EmployeeSalaryMonthRequestModel
+                {
+                    EmployeeID = employeeId
+                };
+
+
+            var apiResponse =
+                _businessLayer.SendPostAPIRequest(
+                    request,
+
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Payroll,
+                        APIApiActionConstants.GetEmployeeSalaryMonths
+                    ),
+
+                    HttpContext.Session.GetString(
+                        Constants.SessionBearerToken
+                    ),
+
+                    true
+
+                ).Result?.ToString();
+
+
+            if (string.IsNullOrEmpty(apiResponse))
+            {
+                return Json(new List<EmployeeSalaryMonth>());
+            }
+
+
+            var salaryMonths =
+                JsonConvert.DeserializeObject<
+                    List<EmployeeSalaryMonth>
+                >(apiResponse);
+
+
+            return Json(salaryMonths);
+        }
+        [HttpPost]
+        public async Task<IActionResult> DownloadMultipleSalarySlips(
+    [FromBody] List<SalarySlipDownloadMonthModel> months)
+        {
+            try
+            {
+                if (months == null || months.Count == 0)
+                {
+                    return BadRequest(
+                        "Please select at least one salary month."
+                    );
+                }
+
+
+                // IMPORTANT:
+                // Use the same method/session/claim that
+                // GetMySalaryMonths() uses to get logged-in employee.
+
+                var employeeIdString =
+                    HttpContext.Session.GetString(
+                        Constants.EmployeeID
+                    );
+
+
+                if (!long.TryParse(
+                        employeeIdString,
+                        out long employeeId))
+                {
+                    return Unauthorized(
+                        "Employee not found."
+                    );
+                }
+
+
+                using var zipStream =
+                    new MemoryStream();
+
+
+                using (
+                    var archive =
+                        new System.IO.Compression.ZipArchive(
+                            zipStream,
+                            System.IO.Compression.ZipArchiveMode.Create,
+                            true
+                        ))
+                {
+
+                    foreach (var selected in months)
+                    {
+
+                        var request =
+                            new EmployeeSalaryGetRequestModel
+                            {
+                                EmployeeID = employeeId,
+
+                                SalaryMonth = selected.Month,
+
+                                SalaryYear = selected.Year
+                            };
+
+
+                        var model =
+                            await GetSalarySlipModel(request);
+
+
+                        if (model == null ||
+                            model.EmployeeID <= 0)
+                        {
+                            continue;
+                        }
+
+
+                        var pdf =
+                            await GenerateSalarySlipPdf(model);
+
+
+                        if (pdf == null ||
+                            pdf.Length == 0)
+                        {
+                            continue;
+                        }
+
+
+                        var fileName =
+                            $"SalarySlip_{model.EmployeeName}_{model.MonthName}_{model.Year}.pdf";
+
+
+                        foreach (
+                            var invalidChar
+                            in Path.GetInvalidFileNameChars())
+                        {
+                            fileName =
+                                fileName.Replace(
+                                    invalidChar.ToString(),
+                                    "_"
+                                );
+                        }
+
+
+                        var entry =
+                            archive.CreateEntry(
+                                fileName,
+                                System.IO.Compression.CompressionLevel.Fastest
+                            );
+
+
+                        await using var entryStream =
+                            entry.Open();
+
+
+                        await entryStream.WriteAsync(
+                            pdf,
+                            0,
+                            pdf.Length
+                        );
+                    }
+                }
+
+
+                zipStream.Position = 0;
+
+
+                if (zipStream.Length == 0)
+                {
+                    return BadRequest(
+                        "No salary slips were found."
+                    );
+                }
+
+
+                return File(
+                    zipStream.ToArray(),
+                    "application/zip",
+                    $"SalarySlips_{DateTime.Now:yyyyMMddHHmmss}.zip"
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    "Unable to download salary slips."
+                );
+            }
+        }
+        [HttpPost]
+        public JsonResult GetMonthlySalaryEmployeeIDs(
+     [FromBody] SalaryInputParams request)
+        {
+            try
+            {
+                var companyId = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.CompanyID)
+                );
+
+                request.CompanyID = companyId;
+
+                // IMPORTANT:
+                // Override DataTable pagination for Select All
+                request.DisplayStart = 0;
+                request.DisplayLength = int.MaxValue;
+
+                var apiResponse = _businessLayer.SendPostAPIRequest(
+                    request,
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Payroll,
+                        APIApiActionConstants.GetEmployeesMonthlySalary
+                    ),
+                    HttpContext.Session.GetString(
+                        Constants.SessionBearerToken
+                    ),
+                    true
+                ).Result?.ToString();
+
+                if (string.IsNullOrWhiteSpace(apiResponse))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No salary records found.",
+                        employeeIDs = new List<long>()
+                    });
+                }
+
+                var salaryList =
+                    JsonConvert.DeserializeObject<List<SalaryDetails>>(
+                        apiResponse
+                    );
+
+                if (salaryList == null || !salaryList.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No salary records found for the selected month.",
+                        employeeIDs = new List<long>()
+                    });
+                }
+
+                var employeeIDs = salaryList
+                    .Where(x => x.EmployeeID > 0)
+                    .Select(x => x.EmployeeID)
+                    .Distinct()
+                    .ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    employeeIDs = employeeIDs
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message,
+                    employeeIDs = new List<long>()
+                });
+            }
+        }
     }
-}
+    }
