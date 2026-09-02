@@ -91,7 +91,17 @@ namespace HRMS.Web.BusinessLayer
 
                             break;
 
+                        case "SalaryCalculationCutoffDate":
 
+                            if (DateTime.TryParse(
+                                item.SettingValue,
+                                out var salaryCalculationCutoffDate))
+                            {
+                                model.SalaryCalculationCutoffDate =
+                                    salaryCalculationCutoffDate;
+                            }
+
+                            break;
                         case "AllowSuperAdminEdit":
 
                             model.AllowSuperAdminEdit =

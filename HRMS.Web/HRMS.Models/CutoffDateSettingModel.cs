@@ -27,7 +27,7 @@ namespace HRMS.Models
         public DateTime? AttendanceCutoffDate { get; set; }
 
         public DateTime? AdminEditCutoffDate { get; set; }
-
+        public DateTime? SalaryCalculationCutoffDate { get; set; }
         public bool AllowSuperAdminEdit { get; set; }
         public bool ShowImportAttendanceExcel { get; set; }
         public bool ShowAutoCalculateMonthSalary { get; set; }

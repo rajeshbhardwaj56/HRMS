@@ -2137,7 +2137,12 @@ namespace HRMS.Web.Areas.HR.Controllers
                                 model.AdminEditCutoffDate = adminEditDate;
                             }
                             break;
-
+                        case "SalaryCalculationCutoffDate":
+                            if (DateTime.TryParse(item.SettingValue, out var salaryCalculationDate))
+                            {
+                                model.SalaryCalculationCutoffDate = salaryCalculationDate;
+                            }
+                            break;
                         case "AllowSuperAdminEdit":
                             model.AllowSuperAdminEdit =
                                 item.SettingValue == "1" ||
@@ -2214,7 +2219,13 @@ namespace HRMS.Web.Areas.HR.Controllers
                 .ToString("yyyy-MM-dd"),
             UpdatedBy = employeeId
         },
-
+        new CutoffDateSettingModel
+        {
+            SettingKey = "SalaryCalculationCutoffDate",
+            SettingValue = model.SalaryCalculationCutoffDate?
+                .ToString("yyyy-MM-dd"),
+            UpdatedBy = employeeId
+        },
         new CutoffDateSettingModel
         {
             SettingKey = "AllowSuperAdminEdit",

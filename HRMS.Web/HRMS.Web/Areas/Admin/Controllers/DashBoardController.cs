@@ -2253,8 +2253,14 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 // CONVERT EXCEL TO MODEL LIST
                 // ------------------------------------------------------------
 
+                var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(token);
+
+                DateTime? salaryCalculationCutoffDate =
+                    cutoffSettings.SalaryCalculationCutoffDate;
+
                 List<BulkEmployeeSalaryRequestModel> salaryList =
-                    ConvertBulkSalaryExcel(dataTable);
+                    ConvertBulkSalaryExcel(dataTable, salaryCalculationCutoffDate);
+
 
 
                 if (salaryList == null || salaryList.Count == 0)
@@ -2509,7 +2515,9 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
             return dt;
         }
-        private List<BulkEmployeeSalaryRequestModel> ConvertBulkSalaryExcel(DataTable dt)
+        private List<BulkEmployeeSalaryRequestModel> ConvertBulkSalaryExcel(
+       DataTable dt,
+       DateTime? salaryCalculationCutoffDate)
         {
             var list = new List<BulkEmployeeSalaryRequestModel>();
 
@@ -2534,6 +2542,19 @@ namespace HRMS.Web.Areas.Admin.Controllers
                         $"'{column}' column missing in Excel."
                     );
                 }
+            }
+
+            // ------------------------------------------------------------
+            // CUTOFF YEAR / MONTH
+            // ------------------------------------------------------------
+
+            int? cutoffYear = null;
+            int? cutoffMonth = null;
+
+            if (salaryCalculationCutoffDate.HasValue)
+            {
+                cutoffYear = salaryCalculationCutoffDate.Value.Year;
+                cutoffMonth = salaryCalculationCutoffDate.Value.Month;
             }
 
             // ------------------------------------------------------------
@@ -2644,6 +2665,37 @@ namespace HRMS.Web.Areas.Admin.Controllers
                 }
 
                 // --------------------------------------------------------
+                // SALARY CUTOFF VALIDATION
+                // --------------------------------------------------------
+
+                if (cutoffYear.HasValue && cutoffMonth.HasValue)
+                {
+                    bool isBeforeCutoff =
+                        year < cutoffYear.Value ||
+                        (year == cutoffYear.Value &&
+                         month < cutoffMonth.Value);
+
+                    if (isBeforeCutoff)
+                    {
+                        string salaryMonth =
+                            new DateTime(year, month, 1).ToString("MMMM yyyy");
+
+                        string allowedFrom =
+                            new DateTime(
+                                cutoffYear.Value,
+                                cutoffMonth.Value,
+                                1
+                            ).ToString("MMMM yyyy");
+
+                        throw new Exception(
+                            $"Salary calculation for Employee '{employeeNumber}' " +
+                            $"at Excel row {rowNumber} for {salaryMonth} is locked. " +
+                            $"Salary calculation is allowed from {allowedFrom} onward."
+                        );
+                    }
+                }
+
+                // --------------------------------------------------------
                 // GROSS SALARY
                 // --------------------------------------------------------
 
@@ -2669,10 +2721,6 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
                 var model = new BulkEmployeeSalaryRequestModel
                 {
-                    // ----------------------------------------------------
-                    // BASIC INFORMATION
-                    // ----------------------------------------------------
-
                     RowNumber = rowNumber,
 
                     EmployeeNumber = employeeNumber,
@@ -2704,109 +2752,55 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     // ----------------------------------------------------
 
                     ClientIncentive =
-                        GetDecimal(
-                            row,
-                            "ClientIncentive"
-                        ),
+                        GetDecimal(row, "ClientIncentive"),
 
                     PLI =
-                        GetDecimal(
-                            row,
-                            "PLI"
-                        ),
+                        GetDecimal(row, "PLI"),
 
                     FloorIncentive =
-                        GetDecimal(
-                            row,
-                            "FloorIncentive"
-                        ),
+                        GetDecimal(row, "FloorIncentive"),
 
                     EmployeeReferral =
-                        GetDecimal(
-                            row,
-                            "EmployeeReferral"
-                        ),
+                        GetDecimal(row, "EmployeeReferral"),
 
                     TrainingFee =
-                        GetDecimal(
-                            row,
-                            "TrainingFee"
-                        ),
+                        GetDecimal(row, "TrainingFee"),
 
                     GWR =
-                        GetDecimal(
-                            row,
-                            "GWR"
-                        ),
-
-                    // IMPORTANT:
-                    // Excel header is "OtherAddition/Arrear"
-                    // Model property is "OtherAdditionArrear"
+                        GetDecimal(row, "GWR"),
 
                     OtherAdditionArrear =
-                        GetDecimal(
-                            row,
-                            "OtherAddition/Arrear"
-                        ),
+                        GetDecimal(row, "OtherAddition/Arrear"),
 
                     // ----------------------------------------------------
                     // DEDUCTIONS
                     // ----------------------------------------------------
 
                     EMPLWF =
-                        GetDecimal(
-                            row,
-                            "EMPLWF"
-                        ),
+                        GetDecimal(row, "EMPLWF"),
 
                     TDS =
-                        GetDecimal(
-                            row,
-                            "TDS"
-                        ),
+                        GetDecimal(row, "TDS"),
 
                     DBTDeduction =
-                        GetDecimal(
-                            row,
-                            "DBTDeduction"
-                        ),
-
-                    // IMPORTANT:
-                    // Excel header is "AdvanceDED"
-                    // Model property is "AdvanceDeduction"
+                        GetDecimal(row, "DBTDeduction"),
 
                     AdvanceDeduction =
-                        GetDecimal(
-                            row,
-                            "AdvanceDED"
-                        ),
+                        GetDecimal(row, "AdvanceDED"),
 
                     InsuranceDeduction =
-                        GetDecimal(
-                            row,
-                            "InsuranceDeduction"
-                        ),
+                        GetDecimal(row, "InsuranceDeduction"),
 
                     OtherDeduction =
-                        GetDecimal(
-                            row,
-                            "OtherDeduction"
-                        )
+                        GetDecimal(row, "OtherDeduction")
                 };
-
-                // --------------------------------------------------------
-                // ADD MODEL TO LIST
-                // --------------------------------------------------------
 
                 list.Add(model);
             }
 
-            // ------------------------------------------------------------
-            // RETURN
-            // ------------------------------------------------------------
-
             return list;
         }
+
         private decimal GetDecimal(
     DataRow row,
     string columnName)

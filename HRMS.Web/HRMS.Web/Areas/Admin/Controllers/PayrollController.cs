@@ -423,6 +423,42 @@ namespace HRMS.Web.Areas.Admin.Controllers
         [HttpPost]
         public JsonResult CalculateSalary(EmployeeSalaryRequestModel model)
         {
+            // =========================================
+            // CHECK SALARY CALCULATION CUTOFF
+            // =========================================
+
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+                HttpContext.Session.GetString(Constants.SessionBearerToken));
+
+            DateTime? salaryCalculationCutoffDate =
+                cutoffSettings.SalaryCalculationCutoffDate;
+
+            if (salaryCalculationCutoffDate.HasValue)
+            {
+                // Convert cutoff date to Year + Month
+                int cutoffYear = salaryCalculationCutoffDate.Value.Year;
+                int cutoffMonth = salaryCalculationCutoffDate.Value.Month;
+
+                // Compare selected Salary Year + Month
+                // First compare Year, then Month
+                bool isBeforeCutoff =
+                    model.Year < cutoffYear ||
+                    (model.Year == cutoffYear &&
+                     model.Month < cutoffMonth);
+
+                if (isBeforeCutoff)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            $"Salary calculation for " +
+                            $"{new DateTime(model.Year, model.Month, 1):MMMM yyyy} " +
+                            $"is locked. Salary calculation is allowed from " +
+                            $"{new DateTime(cutoffYear, cutoffMonth, 1):MMMM yyyy} onward."
+                    });
+                }
+            }
             model.InsertedByUserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
 
             var apiResponse = _businessLayer.SendPostAPIRequest(
@@ -505,6 +541,39 @@ namespace HRMS.Web.Areas.Admin.Controllers
 
         public JsonResult SaveSalary([FromBody] EmployeeSalaryRequestModel model)
         {
+            // Get cutoff settings
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+                HttpContext.Session.GetString(Constants.SessionBearerToken));
+
+            DateTime? salaryCalculationCutoffDate =
+                cutoffSettings.SalaryCalculationCutoffDate;
+
+            // Check salary calculation cutoff
+            if (salaryCalculationCutoffDate.HasValue)
+            {
+                int cutoffYear = salaryCalculationCutoffDate.Value.Year;
+                int cutoffMonth = salaryCalculationCutoffDate.Value.Month;
+
+                // Check whether selected salary Year + Month is before cutoff
+                bool isBeforeCutoff =
+                    model.Year < cutoffYear ||
+                    (model.Year == cutoffYear &&
+                     model.Month < cutoffMonth);
+
+                if (isBeforeCutoff)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            $"Salary calculation for " +
+                            $"{new DateTime(model.Year, model.Month, 1):MMMM yyyy} " +
+                            $"is locked. Salary calculation is allowed from " +
+                            $"{new DateTime(cutoffYear, cutoffMonth, 1):MMMM yyyy} onward."
+                    });
+                }
+            }
+
             model.InsertedByUserID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             var apiResponse = _businessLayer.SendPostAPIRequest(
         model,
@@ -2136,10 +2205,71 @@ namespace HRMS.Web.Areas.Admin.Controllers
         }
         [HttpPost]
         public JsonResult AutoCalculateEmployeeSalary(
-    [FromBody] AutoCalculateSalaryRequestModel request)
+            [FromBody] AutoCalculateSalaryRequestModel request)
         {
+            // ------------------------------------------------------------
+            // GET CUTOFF SETTINGS
+            // ------------------------------------------------------------
+
+            var token =
+                HttpContext.Session.GetString(Constants.SessionBearerToken);
+
+            var cutoffSettings =
+                _cutoffSettingsService.GetCutoffSettings(token);
+
+            DateTime? salaryCalculationCutoffDate =
+                cutoffSettings.SalaryCalculationCutoffDate;
+
+
+            // ------------------------------------------------------------
+            // SALARY CUTOFF VALIDATION
+            // ------------------------------------------------------------
+
+            if (salaryCalculationCutoffDate.HasValue)
+            {
+                int cutoffYear = salaryCalculationCutoffDate.Value.Year;
+                int cutoffMonth = salaryCalculationCutoffDate.Value.Month;
+
+                bool isBeforeCutoff =
+                    request.Year.Value < cutoffYear ||
+                    (request.Year.Value == cutoffYear &&
+                     request.Month.Value < cutoffMonth);
+
+                if (isBeforeCutoff)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            $"Salary calculation for " +
+                            $"{new DateTime(
+                                request.Year.Value,
+                                request.Month.Value,
+                                1
+                            ):MMMM yyyy} " +
+                            $"is locked. Salary calculation is allowed from " +
+                            $"{new DateTime(
+                                cutoffYear,
+                                cutoffMonth,
+                                1
+                            ):MMMM yyyy} onward."
+                    });
+                }
+            }
+
+
+
+            // ------------------------------------------------------------
+            // SET USER ID
+            // ------------------------------------------------------------
+
             request.UserID = Convert.ToInt64(
                 HttpContext.Session.GetString(Constants.EmployeeID));
+
+
+            // ------------------------------------------------------------
+            // CALL API
+            // ------------------------------------------------------------
 
             var apiResponse = _businessLayer.SendPostAPIRequest(
                 request,
@@ -2147,19 +2277,24 @@ namespace HRMS.Web.Areas.Admin.Controllers
                     APIControllarsConstants.Payroll,
                     APIApiActionConstants.AutoCalculateEmployeeSalary
                 ),
-                HttpContext.Session.GetString(Constants.SessionBearerToken),
+                token,
                 true
             ).Result?.ToString();
+
+
+            // ------------------------------------------------------------
+            // API RESPONSE
+            // ------------------------------------------------------------
 
             if (string.IsNullOrEmpty(apiResponse))
             {
                 return Json(null);
             }
 
-            // IMPORTANT:
-            // Deserialize the complete Results object,
-            // not AutoSalaryCalculationModel.
-            var result = JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(apiResponse);
+            // Deserialize the complete Results object
+            var result =
+                JsonConvert.DeserializeObject<HRMS.Models.Common.Results>(
+                    apiResponse);
 
             return Json(result);
         }

@@ -206,7 +206,15 @@
                     <label>Gross Salary</label>
                     @Html.TextBoxFor(a => a.GrossSalary, new { @class = "form-control", @type = "number", @step = "0.01", @min = "0" })
                 </div>
-
+                    <div class="col-md-4 form-group">
+                        <label>PF Applicable</label>
+                        <div class="form-check mt-2">
+                            @Html.CheckBoxFor(a => a.IsPFApplicable, new { @class = "form-check-input" })
+                            <label class="form-check-label" for="IsPFApplicable">
+                                PF Deduction Applicable
+                            </label>
+                        </div>
+                    </div>
                 <div class="row">
                     <div class="col-md-12">
                         <input type="submit" value="Submit" class="btn btn-success" />

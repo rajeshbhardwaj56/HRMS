@@ -2213,15 +2213,18 @@
         $(document).on(
             'click',
             '#btnAutoCalculateSalary',
-            function () {
+            function() {
 
                 var year =
                     $('#yearDropdown').val();
 
-
                 var month =
                     $('#monthDropdown').val();
 
+
+                // =================================================
+                // VALIDATE YEAR
+                // =================================================
 
                 if (!year) {
 
@@ -2242,9 +2245,12 @@
                     });
 
                     return;
-
                 }
 
+
+                // =================================================
+                // VALIDATE MONTH
+                // =================================================
 
                 if (!month) {
 
@@ -2265,7 +2271,6 @@
                     });
 
                     return;
-
                 }
 
 
@@ -2281,11 +2286,11 @@
 
                 button.html(`
 
-                    <i class="bi bi-hourglass-split"></i>
+                <i class="bi bi-hourglass-split"></i>
 
-                    Calculating...
+                Calculating...
 
-                `);
+            `);
 
 
                 $.ajax({
@@ -2311,14 +2316,22 @@
                         }),
 
 
+                    // =================================================
+                    // SUCCESS
+                    // =================================================
+
                     success:
-                        function (response) {
+                        function(response) {
 
                             console.log(
                                 "Auto Salary Response:",
                                 response
                             );
 
+
+                            // =================================================
+                            // NO RESPONSE
+                            // =================================================
 
                             if (!response) {
 
@@ -2334,12 +2347,52 @@
                                         "error",
 
                                     position:
-                                        "top-right"
+                                        "top-right",
+
+                                    hideAfter:
+                                        false,
+
+                                    stack:
+                                        false
 
                                 });
 
                                 return;
+                            }
 
+
+                            // =================================================
+                            // CUTOFF / VALIDATION ERROR
+                            // =================================================
+
+                            if (response.success === false) {
+
+                                $.toast({
+
+                                    heading:
+                                        "Error",
+
+                                    text:
+                                        response.message ||
+                                        "Salary calculation is not allowed.",
+
+                                    icon:
+                                        "error",
+
+                                    position:
+                                        "top-right",
+
+                                    // Keep toast visible
+                                    // until user closes it
+                                    hideAfter:
+                                        10000,
+
+                                    stack:
+                                        false
+
+                                });
+
+                                return;
                             }
 
 
@@ -2362,6 +2415,10 @@
                             }
 
 
+                            // =================================================
+                            // SUMMARY NOT FOUND
+                            // =================================================
+
                             if (!summary) {
 
                                 $.toast({
@@ -2376,12 +2433,17 @@
                                         "error",
 
                                     position:
-                                        "top-right"
+                                        "top-right",
+
+                                    hideAfter:
+                                        false,
+
+                                    stack:
+                                        false
 
                                 });
 
                                 return;
-
                             }
 
 
@@ -2396,7 +2458,7 @@
 
 
                             // =================================================
-                            // TOAST
+                            // CREATE SUMMARY MESSAGE
                             // =================================================
 
                             var message =
@@ -2415,6 +2477,10 @@
                                 " | Failed: " +
                                 (summary.failedRecords ?? 0);
 
+
+                            // =================================================
+                            // SHOW RESULT TOAST
+                            // =================================================
 
                             if (
                                 (summary.failedRecords ?? 0) > 0
@@ -2486,8 +2552,18 @@
                         },
 
 
+                    // =================================================
+                    // AJAX ERROR
+                    // =================================================
+
                     error:
-                        function (xhr) {
+                        function(xhr) {
+
+                            console.log(
+                                "Auto Calculate Salary Error:",
+                                xhr.responseText
+                            );
+
 
                             var message =
                                 "Unable to calculate employee salaries.";
@@ -2516,15 +2592,27 @@
                                     "error",
 
                                 position:
-                                    "top-right"
+                                    "top-right",
+
+                                // Keep error visible
+                                // until user closes it
+                                hideAfter:
+                                    false,
+
+                                stack:
+                                    false
 
                             });
 
                         },
 
 
+                    // =================================================
+                    // COMPLETE
+                    // =================================================
+
                     complete:
-                        function () {
+                        function() {
 
                             button.prop(
                                 'disabled',
@@ -2534,11 +2622,11 @@
 
                             button.html(`
 
-                                <i class="bi bi-calculator"></i>
+                            <i class="bi bi-calculator"></i>
 
-                                Calculate All Month Salary
+                            Calculate All Month Salary
 
-                            `);
+                        `);
 
                         }
 

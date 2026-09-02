@@ -2253,28 +2253,58 @@
             data:
                 model,
 
-            success: function (data) {
+            success: function(data) {
 
-                if (!data) {
+                console.log(
+                    "Salary Calculation Response:",
+                    data
+                );
+
+                // -----------------------------------------
+                // CUTOFF / VALIDATION ERROR
+                // -----------------------------------------
+
+                if (data && data.success === false) {
 
                     $.toast({
 
-                        heading:
-                            'Error',
+                        heading: 'Error',
 
-                        text:
-                            'Salary calculation failed.',
+                        text: data.message || 'Salary calculation is not allowed.',
 
-                        icon:
-                            'error',
+                        icon: 'error',
 
-                        position:
-                            'top-right'
+                        position: 'top-right'
                     });
 
                     return;
                 }
 
+
+                // -----------------------------------------
+                // NO RESPONSE
+                // -----------------------------------------
+
+                if (!data) {
+
+                    $.toast({
+
+                        heading: 'Error',
+
+                        text: 'Salary calculation failed.',
+
+                        icon: 'error',
+
+                        position: 'top-right'
+                    });
+
+                    return;
+                }
+
+
+                // -----------------------------------------
+                // SUCCESS RESPONSE
+                // -----------------------------------------
 
                 const salaryData =
                     data.data ??
@@ -2283,7 +2313,7 @@
 
 
                 console.log(
-                    "Salary Calculation Response:",
+                    "Salary Data:",
                     salaryData
                 );
 
@@ -2295,45 +2325,50 @@
 
                 $.toast({
 
-                    heading:
-                        'Success',
+                    heading: 'Success',
 
-                    text:
-                        'Salary calculated successfully.',
+                    text: 'Salary calculated successfully.',
 
-                    icon:
-                        'success',
+                    icon: 'success',
 
-                    position:
-                        'top-right'
+                    position: 'top-right'
                 });
 
             },
 
-            error: function (xhr) {
+            error: function(xhr) {
 
                 console.log(
                     "Calculate Salary Error:",
                     xhr.responseText
                 );
 
+                let message = 'Unable to calculate salary.';
+
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
 
                 $.toast({
 
-                    heading:
-                        'Error',
+                    heading: 'Error',
 
-                    text:
-                        'Unable to calculate salary.',
+                    text: message,
 
-                    icon:
-                        'error',
+                    icon: 'error',
 
-                    position:
-                        'top-right'
+                    position: 'top-right',
+
+                    // Keep toast visible for 10 seconds
+                    hideAfter: 20000,
+
+                    // Allow user to close it manually
+                    hideAfter: false,
+
+                    stack: false
                 });
-
             }
+
 
         });
     }

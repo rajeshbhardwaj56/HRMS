@@ -60,6 +60,7 @@ namespace HRMS.Models.Employee
         public int RoleId { get; set; }
         public string EmployeNumber { get; set; } = string.Empty;
         public decimal? GrossSalary { get; set; } = 0m;
+        public bool IsPFApplicable { get; set; } = true;
         public string CompanyAbbr { get; set; } = string.Empty;
         public long CompanyID { get; set; } = 0;
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();

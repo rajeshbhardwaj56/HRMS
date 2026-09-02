@@ -966,6 +966,7 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@ESINumber", employmentDetails.ESINumber));
             sqlParameter.Add(new SqlParameter("@LOB", employmentDetails.LOB));
             sqlParameter.Add(new SqlParameter("@GrossSalary", employmentDetails.GrossSalary));
+            sqlParameter.Add(new SqlParameter("@IsPFApplicable", employmentDetails.IsPFApplicable));
             sqlParameter.Add(new SqlParameter("@ESIRegistrationDate", employmentDetails.ESIRegistrationDate));
 
             sqlParameter.Add(new SqlParameter("@RoleID", employmentDetails.RoleId));
@@ -1191,6 +1192,7 @@ namespace HRMS.API.BusinessLayer
                                 DateOfJoiningFloor = dataRow.Field<DateTime?>("DateOfJoiningFloor"),
                                 DateOfJoiningOJT = dataRow.Field<DateTime?>("DateOfJoiningOJT"),
                                 GrossSalary = dataRow.Field<decimal?>("GrossSalary"),
+                                IsPFApplicable = dataRow.Field<bool?>("IsPFApplicable") ?? true,
                             }).ToList().FirstOrDefault();
             if (employmentDetail == null)
             {
