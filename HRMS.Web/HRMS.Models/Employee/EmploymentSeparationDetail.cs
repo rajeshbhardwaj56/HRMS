@@ -20,6 +20,8 @@ namespace HRMS.Models.Employee
         public int? AgeOnNetwork { get; set; }
         public string? PreviousExperience { get; set; }
         public DateTime? DateOfJoiningTraining { get; set; }
+        public bool IsTrainingDateAttendanceEnabled { get; set; } = false;
+
         public DateTime? DateOfJoiningFloor { get; set; }
         public DateTime? DateOfJoiningOJT { get; set; }
         public DateTime? DateOfJoiningOnroll { get; set; }

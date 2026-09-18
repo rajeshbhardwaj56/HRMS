@@ -1,0 +1,5535 @@
+﻿@using HRMS.Models.EmployeeOnboarding
+@using System.Reflection
+@model EmployeeOnboardingPageViewModel
+
+@{
+    Layout = null;
+
+    // =========================================================
+    // MAIN DATA
+    // =========================================================
+
+    var employee = Model?.EmployeeDetails
+                   ?? new EmployeeDetailsOnboardingModel();
+
+    var familyList = Model?.FamilyList
+                     ?? new List<EmployeeOnboardingFamilyModel>();
+
+    var educationList = Model?.EducationList
+                        ?? new List<EmployeeOnboardingEducationModel>();
+
+    var employmentList = Model?.EmploymentList
+                         ?? new List<EmployeeOnboardingEmploymentModel>();
+
+    var bankList = Model?.BankDetailsList
+                   ?? new List<EmployeeOnboardingBankDetailsModel>();
+
+    // NOTE:
+    // Your existing ViewModel uses "DocumnetList".
+    // Keep this spelling if that is the actual property name.
+    var documentList = Model?.DocumnetList
+                       ?? new List<EmployeeOnboardingDocumentsModel>();
+
+    var epfNominees = Model?.EPFNomineeList
+                       ?? new List<EmployeeOnboardingNomineeModel>();
+
+    var epsNominees = Model?.EPSNomineeList
+                       ?? new List<EmployeeOnboardingNomineeModel>();
+
+    var gratuityNominees = Model?.GratuityNomineeList
+                           ?? new List<EmployeeOnboardingNomineeModel>();
+
+    var interviewList = Model?.InterviewEvaluationList
+                        ?? new List<EmployeeOnboardingInterviewEvaluationModel>();
+
+    var interview = interviewList.FirstOrDefault();
+    var interviewEvaluation =
+        Model.InterviewEvaluationList?
+            .FirstOrDefault()
+        ?? new EmployeeOnboardingInterviewEvaluationModel();
+
+    /*
+     * Existing uploaded documents
+     */
+    var hrInterviewerSignature =
+        Model.DocumnetList?
+            .FirstOrDefault(x => x.DocumentType == "HRInterviewerSignature");
+
+    var operationsInterviewerSignature =
+        Model.DocumnetList?
+            .FirstOrDefault(x => x.DocumentType == "OperationsInterviewerSignature");
+
+    var processOwnerInterviewerSignature =
+        Model.DocumnetList?
+            .FirstOrDefault(x => x.DocumentType == "ProcessOwnerInterviewerSignature");
+
+    var interviewerSignature =
+        Model.DocumnetList?
+            .FirstOrDefault(x => x.DocumentType == "InterviewerSignature");
+
+    var signatureDocument =
+        Model.DocumnetList?
+            .FirstOrDefault(x => x.DocumentType == "Signature");
+
+    var functionalHeadApproval =
+        Model.DocumnetList?
+            .FirstOrDefault(x => x.DocumentType == "FunctionalHeadApproval");
+
+    var spocHumanResourcesApproval =
+        Model.DocumnetList?
+            .FirstOrDefault(x => x.DocumentType == "SPOCHumanResourcesApproval");
+
+    var headHumanResourcesApproval =
+        Model.DocumnetList?
+            .FirstOrDefault(x => x.DocumentType == "HeadHumanResourcesApproval");
+
+    // =========================================================
+    // HELPER METHODS
+    // =========================================================
+
+    string FormatDate(DateTime? date)
+    {
+        return date.HasValue
+            ? date.Value.ToString("dd-MM-yyyy")
+            : "";
+    }
+
+    string FormatDateTime(DateTime? date)
+    {
+        return date.HasValue
+            ? date.Value.ToString("dd-MM-yyyy HH:mm")
+            : "";
+    }
+
+    string YesNo(bool? value)
+    {
+        if (!value.HasValue)
+            return "";
+
+        return value.Value ? "Yes" : "No";
+    }
+
+    string Safe(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? ""
+            : value;
+    }
+
+    string SafeObject(object? value)
+    {
+        return value == null
+            ? ""
+            : value.ToString() ?? "";
+    }
+
+    // =========================================================
+    // DOCUMENT HELPER
+    // Handles different possible property names safely.
+    // =========================================================
+
+    string GetDocumentValue(object? document, params string[] propertyNames)
+    {
+        if (document == null)
+            return "";
+
+        foreach (var propertyName in propertyNames)
+        {
+            try
+            {
+                var property = document.GetType()
+                    .GetProperty(
+                        propertyName,
+                        BindingFlags.Public |
+                        BindingFlags.Instance |
+                        BindingFlags.IgnoreCase);
+
+                if (property != null)
+                {
+                    var value = property.GetValue(document);
+
+                    if (value != null &&
+                        !string.IsNullOrWhiteSpace(value.ToString()))
+                    {
+                        return value.ToString() ?? "";
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore and continue with next possible property.
+            }
+        }
+
+        return "";
+    }
+
+    string GetDocumentDate(object? document)
+    {
+        if (document == null)
+            return "";
+
+        string[] properties =
+        {
+            "UploadedDate",
+            "UploadDate",
+            "CreatedDate",
+            "CreatedOn",
+            "AddedDate"
+        };
+
+        foreach (var propertyName in properties)
+        {
+            try
+            {
+                var property = document.GetType()
+                    .GetProperty(
+                        propertyName,
+                        BindingFlags.Public |
+                        BindingFlags.Instance |
+                        BindingFlags.IgnoreCase);
+
+                if (property == null)
+                    continue;
+
+                var value = property.GetValue(document);
+
+                if (value is DateTime date)
+                    return date.ToString("dd-MM-yyyy");
+
+                if (value is DateTime?)
+                {
+                    var nullableDate = (DateTime?)value;
+
+                    if (nullableDate.HasValue)
+                        return nullableDate.Value.ToString("dd-MM-yyyy");
+                }
+
+                if (value != null &&
+                    DateTime.TryParse(value.ToString(), out var parsedDate))
+                {
+                    return parsedDate.ToString("dd-MM-yyyy");
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        return "";
+    }
+
+    string GetDocumentStatus(object? document)
+    {
+        if (document == null)
+            return "";
+
+        var status = GetDocumentValue(
+            document,
+            "Status",
+            "DocumentStatus",
+            "UploadStatus"
+        );
+
+        if (!string.IsNullOrWhiteSpace(status))
+            return status;
+
+        var uploaded = GetDocumentValue(
+            document,
+            "IsUploaded",
+            "Uploaded"
+        );
+
+        if (bool.TryParse(uploaded, out var isUploaded))
+            return isUploaded ? "Uploaded" : "Not Uploaded";
+
+        return "Uploaded";
+    }
+
+    string GetDocumentFilePath(object? document)
+    {
+        return GetDocumentValue(
+            document,
+            "DocumentPath",
+            "FilePath",
+            "FileUrl",
+            "DocumentUrl",
+            "UploadedFilePath",
+            "AttachmentPath"
+        );
+    }
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        Employment Form - @employee.FullName
+    </title>
+
+
+    <style>
+
+        /* =========================================================
+           BASIC
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e8e8e8;
+            color: #111;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9.5px;
+        }
+
+
+        /* =========================================================
+           A4 PAGE
+        ========================================================= */
+
+        .a4-page {
+
+            width: 210mm;
+            min-height: 297mm;
+
+            margin: 15px auto;
+
+            background: #fff;
+
+            padding: 9mm 10mm 9mm 10mm;
+
+            box-shadow: 0 0 7px rgba(0,0,0,.30);
+
+            position: relative;
+
+        }
+
+
+        /* =========================================================
+           PRINT
+        ========================================================= */
+
+        @@media print {
+
+            html,
+            body {
+                background: #fff;
+                margin: 0;
+                padding: 0;
+            }
+
+            .a4-page {
+
+                width: 210mm;
+                min-height: 297mm;
+
+                margin: 0;
+
+                padding: 9mm 10mm 9mm 10mm;
+
+                box-shadow: none;
+
+                page-break-after: always;
+
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            @@page {
+
+                size: A4 portrait;
+
+                margin: 0;
+
+            }
+
+        }
+
+
+        /* =========================================================
+           PRINT TOOLBAR
+        ========================================================= */
+
+        .print-toolbar {
+
+            position: fixed;
+
+            top: 15px;
+
+            right: 20px;
+
+            z-index: 9999;
+
+        }
+
+        .print-btn {
+
+            border: none;
+
+            background: #1c6dd0;
+
+            color: #fff;
+
+            padding: 9px 18px;
+
+            border-radius: 4px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+        }
+
+        .back-btn {
+
+            border: none;
+
+            background: #555;
+
+            color: #fff;
+
+            padding: 9px 18px;
+
+            border-radius: 4px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+            margin-right: 5px;
+
+        }
+
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .document-header {
+
+            display: grid;
+
+            grid-template-columns: 28% 44% 28%;
+
+            align-items: start;
+
+            min-height: 42px;
+
+        }
+
+        .header-left {
+
+            text-align: left;
+
+        }
+
+        .company-logo {
+
+            max-width: 62px;
+
+            max-height: 45px;
+
+            object-fit: contain;
+
+        }
+
+        .header-center {
+
+            text-align: center;
+
+            padding-top: 2px;
+
+        }
+
+        .header-center-title {
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            margin-bottom: 2px;
+
+        }
+
+        .header-center-subtitle {
+
+            font-size: 8px;
+
+            font-weight: 600;
+
+        }
+
+        .header-right {
+
+            text-align: right;
+
+            font-size: 7.5px;
+
+            line-height: 1.3;
+
+        }
+
+        .header-right strong {
+
+            font-size: 9px;
+
+        }
+
+
+        /* =========================================================
+           MAIN TITLE
+        ========================================================= */
+
+        .form-title {
+
+            text-align: center;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            margin-top: 3px;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        /* =========================================================
+           TOP DETAILS
+        ========================================================= */
+
+        .top-info {
+
+            display: grid;
+
+            grid-template-columns: 1.35fr 1fr .85fr;
+
+            gap: 9px;
+
+            margin-bottom: 5px;
+
+        }
+
+        .top-field {
+
+            display: flex;
+
+            align-items: center;
+
+            min-height: 23px;
+
+        }
+
+        .top-label {
+
+            font-weight: bold;
+
+            white-space: nowrap;
+
+            margin-right: 4px;
+
+        }
+
+        .top-value {
+
+            flex: 1;
+
+            border: 1px solid #333;
+
+            min-height: 22px;
+
+            padding: 3px 5px;
+
+        }
+
+
+        /* =========================================================
+           GENERAL FIELD
+        ========================================================= */
+
+        .field-row {
+
+            display: flex;
+
+            width: 100%;
+
+            min-height: 21px;
+
+            align-items: center;
+
+            margin-bottom: 2px;
+
+        }
+
+        .field-label {
+
+            font-weight: bold;
+
+            white-space: nowrap;
+
+            margin-right: 4px;
+
+        }
+
+        .field-value {
+
+            flex: 1;
+
+            min-height: 18px;
+
+            border-bottom: 1px solid #222;
+
+            padding: 2px 4px;
+
+        }
+
+        .field-value.no-border {
+
+            border-bottom: none;
+
+        }
+
+        .field-value-box {
+
+            border: 1px solid #333;
+
+            min-height: 21px;
+
+            padding: 3px 5px;
+
+        }
+
+
+        /* =========================================================
+           EMPLOYEE BASIC SECTION
+        ========================================================= */
+
+        .employee-main {
+
+            display: grid;
+
+            grid-template-columns: 1fr 82px;
+
+            gap: 8px;
+
+        }
+
+        .employee-details {
+
+            width: 100%;
+
+        }
+
+
+        /* =========================================================
+           PHOTO
+        ========================================================= */
+
+        .photo-container {
+
+            width: 77px;
+
+            height: 95px;
+
+            border: 1px solid #222;
+
+            padding: 3px;
+
+            margin-top: 2px;
+
+        }
+
+        .photo-container img {
+
+            width: 100%;
+
+            height: 100%;
+
+            object-fit: cover;
+
+        }
+
+        .photo-placeholder {
+
+            width: 100%;
+
+            height: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+            color: #777;
+
+            font-size: 8px;
+
+        }
+
+
+        /* =========================================================
+           SECTION
+        ========================================================= */
+
+        .section-title {
+
+            font-weight: bold;
+
+            font-size: 10px;
+
+            margin-top: 5px;
+
+            margin-bottom: 3px;
+
+        }
+
+        .mandatory::before {
+
+            content: "*";
+
+        }
+
+
+        /* =========================================================
+           ADDRESS
+        ========================================================= */
+
+        .address-line {
+
+            border-bottom: 1px solid #222;
+
+            min-height: 20px;
+
+            padding: 2px 4px;
+
+            margin-bottom: 2px;
+
+        }
+
+        .address-meta {
+
+            display: grid;
+
+            grid-template-columns: 1.2fr 1fr 1fr;
+
+            gap: 7px;
+
+        }
+
+
+        /* =========================================================
+           CONTACT
+        ========================================================= */
+
+        .contact-grid {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1.25fr 1fr;
+
+            gap: 7px;
+
+        }
+
+
+        /* =========================================================
+           EMERGENCY
+        ========================================================= */
+
+        .emergency-grid {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr 1.3fr;
+
+            gap: 7px;
+
+        }
+
+
+        /* =========================================================
+           TABLE
+        ========================================================= */
+
+        .form-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            table-layout: fixed;
+
+            margin-top: 2px;
+
+        }
+
+        .form-table th,
+        .form-table td {
+
+            border: 1px solid #333;
+
+            padding: 3px 4px;
+
+            vertical-align: middle;
+
+            word-wrap: break-word;
+
+        }
+
+        .form-table th {
+
+            text-align: center;
+
+            font-weight: bold;
+
+            font-size: 8px;
+
+            line-height: 1.15;
+
+        }
+
+        .form-table td {
+
+            font-size: 8.5px;
+
+            min-height: 22px;
+
+            height: 22px;
+
+        }
+
+
+        /* =========================================================
+           FAMILY TABLE
+        ========================================================= */
+
+        .family-table th:nth-child(1) {
+            width: 14%;
+        }
+
+        .family-table th:nth-child(2) {
+            width: 23%;
+        }
+
+        .family-table th:nth-child(3) {
+            width: 12%;
+        }
+
+        .family-table th:nth-child(4) {
+            width: 17%;
+        }
+
+        .family-table th:nth-child(5) {
+            width: 20%;
+        }
+
+        .family-table th:nth-child(6) {
+            width: 14%;
+        }
+
+
+        /* =========================================================
+           EDUCATION TABLE
+        ========================================================= */
+
+        .education-table th:nth-child(1) {
+            width: 11%;
+        }
+
+        .education-table th:nth-child(2) {
+            width: 13%;
+        }
+
+        .education-table th:nth-child(3) {
+            width: 28%;
+        }
+
+        .education-table th:nth-child(4) {
+            width: 14%;
+        }
+
+        .education-table th:nth-child(5) {
+            width: 13%;
+        }
+
+        .education-table th:nth-child(6) {
+            width: 21%;
+        }
+
+
+        /* =========================================================
+           PREVIOUS EMPLOYMENT
+        ========================================================= */
+
+        .employment-table th:nth-child(1) {
+            width: 10%;
+        }
+
+        .employment-table th:nth-child(2) {
+            width: 16%;
+        }
+
+        .employment-table th:nth-child(3) {
+            width: 17%;
+        }
+
+        .employment-table th:nth-child(4) {
+            width: 20%;
+        }
+
+        .employment-table th:nth-child(5) {
+            width: 15%;
+        }
+
+        .employment-table th:nth-child(6) {
+            width: 12%;
+        }
+
+        .employment-table th:nth-child(7) {
+            width: 10%;
+        }
+
+
+        /* =========================================================
+           NOMINEE
+        ========================================================= */
+
+        .nominee-table th:nth-child(1) {
+            width: 20%;
+        }
+
+        .nominee-table th:nth-child(2) {
+            width: 22%;
+        }
+
+        .nominee-table th:nth-child(3) {
+            width: 16%;
+        }
+
+        .nominee-table th:nth-child(4) {
+            width: 12%;
+        }
+
+        .nominee-table th:nth-child(5) {
+            width: 12%;
+        }
+
+        .nominee-table th:nth-child(6) {
+            width: 18%;
+        }
+
+
+        /* =========================================================
+           DOCUMENT TABLE
+        ========================================================= */
+
+        .document-table th:nth-child(1) {
+            width: 8%;
+        }
+
+        .document-table th:nth-child(2) {
+            width: 27%;
+        }
+
+        .document-table th:nth-child(3) {
+            width: 22%;
+        }
+
+        .document-table th:nth-child(4) {
+            width: 17%;
+        }
+
+        .document-table th:nth-child(5) {
+            width: 13%;
+        }
+
+        .document-table th:nth-child(6) {
+            width: 13%;
+        }
+
+
+        /* =========================================================
+           TWO COLUMN
+        ========================================================= */
+
+        .two-column {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 10px;
+
+        }
+
+
+        /* =========================================================
+           BOX
+        ========================================================= */
+
+        .box {
+
+            border: 1px solid #333;
+
+            padding: 5px;
+
+            margin-top: 5px;
+
+        }
+
+        .box-title {
+
+            font-weight: bold;
+
+            font-size: 9px;
+
+            margin-bottom: 4px;
+
+        }
+
+
+        /* =========================================================
+           CHECKBOX
+        ========================================================= */
+
+        .check {
+
+            display: inline-block;
+
+            width: 11px;
+
+            height: 11px;
+
+            border: 1px solid #333;
+
+            margin-right: 3px;
+
+            vertical-align: middle;
+
+            text-align: center;
+
+            line-height: 9px;
+
+            font-size: 8px;
+
+        }
+
+        .checked::after {
+
+            content: "✓";
+
+            font-weight: bold;
+
+        }
+
+
+        /* =========================================================
+           SIGNATURE
+        ========================================================= */
+
+        .signature-box {
+
+            height: 45px;
+
+            border-bottom: 1px solid #222;
+
+            padding: 3px;
+
+        }
+
+        .signature-box img {
+
+            max-width: 120px;
+
+            max-height: 38px;
+
+            object-fit: contain;
+
+        }
+
+
+        /* =========================================================
+           DOCUMENT STATUS
+        ========================================================= */
+
+        .document-uploaded {
+
+            font-weight: bold;
+
+        }
+
+
+        /* =========================================================
+           SMALL
+        ========================================================= */
+
+        .small {
+
+            font-size: 7.5px;
+
+        }
+
+        .tiny {
+
+            font-size: 7px;
+
+        }
+
+        .handwritten {
+
+            font-family: "Segoe Print",
+                         "Bradley Hand",
+                         "Comic Sans MS",
+                         cursive;
+
+            font-size: 10px;
+
+        }
+
+        .text-center {
+
+            text-align: center;
+
+        }
+
+        .text-right {
+
+            text-align: right;
+
+        }
+
+        .mt-5 {
+
+            margin-top: 5px;
+
+        }
+
+        .mb-5 {
+
+            margin-bottom: 5px;
+
+        }
+
+
+        /* =========================================================
+           PAGE FOOTER
+        ========================================================= */
+
+        .page-footer {
+
+            position: absolute;
+
+            bottom: 5mm;
+
+            left: 10mm;
+
+            right: 10mm;
+
+            text-align: center;
+
+            font-size: 7px;
+
+            color: #555;
+
+        }
+
+
+        /* =========================================================
+           PAGE BREAK
+        ========================================================= */
+
+        .avoid-break {
+
+            page-break-inside: avoid;
+
+        }
+        .approval-signature {
+min-height: 70px;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 5px;
+}
+
+.approval-signature-image {
+max-width: 150px;
+max-height: 60px;
+object-fit: contain;
+display: block;
+}
+
+.approval-file-link {
+font-size: 11px;
+color: #034aa1;
+text-decoration: underline;
+}
+
+.approval-label {
+text-align: center;
+font-weight: 600;
+font-size: 12px;
+padding-top: 5px;
+}
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =============================================================
+     PRINT TOOLBAR
+============================================================= -->
+
+<div class="print-toolbar no-print">
+
+    <button type="button"
+            class="back-btn"
+            onclick="history.back()">
+
+        Back
+
+    </button>
+
+    <button type="button"
+            class="print-btn"
+            onclick="window.print()">
+
+        Print Form
+
+    </button>
+
+</div>
+
+
+<!-- =============================================================
+     PAGE 1
+     EMPLOYEE / FAMILY / EDUCATION
+============================================================= -->
+
+<div class="a4-page">
+
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <div class="document-header">
+
+        <div class="header-left">
+
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="company-logo"
+                 alt="Company Logo"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+
+        <div class="header-center">
+
+            <div class="header-center-title">
+                Employment Form
+            </div>
+
+            <div class="header-center-subtitle">
+                (PSPL/HRD/SOP/Frm)
+            </div>
+
+            <div class="tiny">
+                Release No: 04 Date: 20-04-2026
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            <strong>
+                Employment Form
+            </strong>
+
+            <br />
+
+            (PSPL/HRD/SOP/Frm)
+
+            <br />
+
+            Release No: 04 Date: 20-04-2026
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         TITLE
+    ========================================================== -->
+
+    <div class="form-title">
+
+        Employment Form
+
+    </div>
+
+
+    <!-- =========================================================
+         DESIGNATION / EMPLOYEE CODE / DATE
+    ========================================================== -->
+
+    <div class="top-info">
+
+
+        <div class="top-field">
+
+            <span class="top-label">
+                Designation:
+            </span>
+
+            <div class="top-value handwritten">
+
+                @Safe(employee.Designation)
+
+            </div>
+
+        </div>
+
+
+        <div class="top-field">
+
+            <span class="top-label">
+                Employee Code:
+            </span>
+
+            <div class="top-value handwritten">
+
+                @Safe(employee.EmployeeCode)
+
+            </div>
+
+        </div>
+
+
+        <div class="top-field">
+
+            <span class="top-label">
+                Date:
+            </span>
+
+            <div class="top-value handwritten">
+
+                @FormatDate(employee.DateOfJoining)
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================================================
+         EMPLOYEE DETAILS + PHOTO
+    ========================================================== -->
+
+    <div class="employee-main">
+
+
+        <div class="employee-details">
+
+
+            <div class="field-row">
+
+                <span class="field-label mandatory">
+                    Employee Name:
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(employee.FullName)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+                    Father's/Husband's Name:
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(employee.FatherHusbandName)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+                    Date of Birth:
+                </span>
+
+                <div class="field-value handwritten"
+                     style="max-width:115px;">
+
+                    @FormatDate(employee.DateOfBirth)
+
+                </div>
+
+
+                <span class="field-label"
+                      style="margin-left:10px;">
+
+                    Gender:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(employee.Gender)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+                    Marital Status:
+                </span>
+
+                <div class="field-value handwritten"
+                     style="max-width:125px;">
+
+                    @Safe(employee.MaritalStatus)
+
+                </div>
+
+
+                <span class="field-label"
+                      style="margin-left:10px;">
+
+                    Blood Group:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(employee.BloodGroup)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label mandatory">
+                    Personal Email:
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(employee.Email)
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- EMPLOYEE PHOTO -->
+
+        <div>
+
+            <div class="photo-container">
+
+                @if (!string.IsNullOrWhiteSpace(employee.EmployeePhoto))
+                {
+                    <img src="@employee.EmployeePhoto"
+                         alt="Employee Photo"
+                         onerror="this.style.display='none';" />
+                }
+                else
+                {
+                    <div class="photo-placeholder">
+
+                        Employee
+                        <br />
+                        Photograph
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================================================
+         PERMANENT ADDRESS
+    ========================================================== -->
+
+    <div class="section-title mandatory">
+
+        Permanent Address:
+
+    </div>
+
+
+    <div class="address-line handwritten">
+
+        @Safe(employee.PermanentAddress)
+
+    </div>
+
+
+    <div class="address-meta">
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                City
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.PermanentCity)
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                State
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.PermanentState)
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                PIN Code
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.PermanentPINCode)
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================================================
+         CONTACT
+    ========================================================== -->
+
+    <div class="contact-grid">
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                Mobile No.:
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.Mobile)
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                Personal Email:
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.Email)
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                Land Line No.:
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.LandlineNo)
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================================================
+         PRESENT ADDRESS
+    ========================================================== -->
+
+    <div class="section-title">
+
+        *Present Address:
+
+    </div>
+
+
+    <div class="address-line handwritten">
+
+        @Safe(employee.PresentAddress)
+
+    </div>
+
+
+    <div class="address-meta">
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                City
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.PresentCity)
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                State
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.PresentState)
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                PIN Code
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.PresentPINCode)
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================================================
+         EMERGENCY CONTACT
+    ========================================================== -->
+
+    <div class="section-title">
+
+        *Emergency Contact Details
+        (Name of Person, Address and Phone/Mobile Number):
+
+    </div>
+
+
+    <div class="emergency-grid">
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                Name:
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.EmergencyContactName)
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                Phone/Mobile No.:
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.EmergencyContactMobile)
+
+            </div>
+
+        </div>
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+                Relation:
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.EmergencyContactRelation)
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="field-row">
+
+        <span class="field-label">
+            Address:
+        </span>
+
+        <div class="field-value handwritten">
+
+            @Safe(employee.EmergencyContactAddress)
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         FAMILY DETAILS
+    ========================================================== -->
+
+    <div class="section-title">
+
+        Family Details:
+
+    </div>
+
+
+    <table class="form-table family-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Relation
+                </th>
+
+                <th>
+                    Name
+                </th>
+
+                <th>
+                    Gender/Age
+                </th>
+
+                <th>
+                    Date of Birth
+                </th>
+
+                <th>
+                    Occupation
+                </th>
+
+                <th>
+                    Dependent
+                    <br />
+                    (Yes/No)
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            @if (familyList.Any())
+            {
+
+                foreach (var family in familyList)
+                {
+
+                    <tr>
+
+                        <td class="handwritten">
+                            @Safe(family.Relation)
+                        </td>
+
+                        <td class="handwritten">
+                            @Safe(family.Name)
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @Safe(family.Gender)
+
+                            @if (!string.IsNullOrWhiteSpace(family.Age))
+                            {
+                                <text>
+                                    / @family.Age
+                                </text>
+                            }
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @FormatDate(family.DateOfBirth)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(family.Occupation)
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @YesNo(family.IsDependent)
+
+                        </td>
+
+                    </tr>
+
+                }
+
+            }
+            else
+            {
+
+                for (int i = 0; i < 5; i++)
+                {
+
+                    <tr>
+
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+
+                    </tr>
+
+                }
+
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- =========================================================
+         EDUCATION
+    ========================================================== -->
+
+    <div class="section-title">
+
+        *Education Details (Matriculation onwards)
+
+    </div>
+
+
+    <table class="form-table education-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Stream
+                </th>
+
+                <th>
+                    Year of
+                    <br />
+                    Passing
+                </th>
+
+                <th>
+                    Name of School/
+                    <br />
+                    Institution/College
+                </th>
+
+                <th>
+                    Board/
+                    <br />
+                    University
+                </th>
+
+                <th>
+                    % Marks
+                    <br />
+                    Obtained
+                </th>
+
+                <th>
+                    Major Subjects
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            @if (educationList.Any())
+            {
+
+                foreach (var education in educationList.OrderBy(x => x.RowNo))
+                {
+
+                    <tr>
+
+                        <td class="handwritten">
+                            @Safe(education.Stream)
+                        </td>
+
+                        <td class="handwritten text-center">
+                            @(education.PassingYear?.ToString() ?? "")
+                        </td>
+
+                        <td class="handwritten">
+                            @Safe(education.InstitutionName)
+                        </td>
+
+                        <td class="handwritten">
+                            @Safe(education.BoardUniversity)
+                        </td>
+
+                        <td class="handwritten text-center">
+                            @Safe(education.MarksObtained)
+                        </td>
+
+                        <td class="handwritten">
+                            @Safe(education.MajorSubjects)
+                        </td>
+
+                    </tr>
+
+                }
+
+            }
+            else
+            {
+
+                <tr>
+
+                    <td>10th</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+
+                <tr>
+
+                    <td>12th</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Graduation</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Others</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <div class="page-footer">
+
+        Employment Form - Page 1
+
+    </div>
+
+
+</div>
+
+
+<!-- =============================================================
+     PAGE 2
+     OTHER PERSONAL INFORMATION
+============================================================= -->
+
+<div class="a4-page">
+
+
+    <div class="document-header">
+
+        <div class="header-left">
+
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="company-logo"
+                 alt="Company Logo"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+
+        <div class="header-center">
+
+            <div class="header-center-title">
+                Employment Form
+            </div>
+
+            <div class="header-center-subtitle">
+                Personal & Other Information
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            Employee Code:
+
+            <strong>
+                @Safe(employee.EmployeeCode)
+            </strong>
+
+            <br />
+
+            Employee:
+
+            <strong>
+                @Safe(employee.FullName)
+            </strong>
+
+        </div>
+
+    </div>
+     <!-- =========================================================
+         PREVIOUS EMPLOYMENT
+    ========================================================== -->
+
+    <div class="section-title">
+
+        Previous Employment Details
+
+    </div>
+
+
+    <table class="form-table employment-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    From
+                </th>
+
+                <th>
+                    To
+                </th>
+
+                <th>
+                    Employer /Address
+                </th>
+
+
+                <th>
+                    Designation /
+                    Job Title
+                </th>
+
+                <th>
+                    Annual CTC
+                </th>
+
+                <th>
+                    Reason
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            @if (employmentList.Any())
+            {
+
+                foreach (var employment in employmentList)
+                {
+
+                    <tr>
+
+                        <td class="handwritten text-center">
+
+                            @FormatDate(employment.FromDate)
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @FormatDate(employment.ToDate)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(employment.EmployerName) / @Safe(employment.EmployerAddress)
+
+                        </td>
+
+
+
+                        <td class="handwritten">
+
+                            @(string.IsNullOrWhiteSpace(employment.Designation)
+                                ? Safe(employment.JobTitle)
+                                : Safe(employment.Designation))
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @(employment.AnnualCTC.HasValue
+                                ? employment.AnnualCTC.Value.ToString("0.00")
+                                : "")
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(employment.ReasonOfLiving)
+
+                        </td>
+
+                    </tr>
+
+                }
+
+            }
+            else
+            {
+
+                <tr>
+
+                    <td colspan="7"
+                        class="text-center">
+
+                        No previous employment details available.
+
+                    </td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- SOURCE OF HIRING -->
+
+   <div class="section-title">
+    Source of Hiring
+</div>
+
+<div class="field-row source-hiring-box">
+
+    <span class="field-label">
+        Source of Hiring:
+    </span>
+
+    <div class="field-value">
+        <div class="hiring-options">
+
+            <label>
+                <span class="checkbox">
+                    @(employee.SourceOfHiring == "Placement Consultant" ? "✓" : "")
+                </span>
+                Placement Consultant
+            </label>
+
+            <label>
+                <span class="checkbox">
+                    @(employee.SourceOfHiring == "Employee Reference" ? "✓" : "")
+                </span>
+                Employee Reference
+            </label>
+
+            <label>
+                <span class="checkbox">
+                    @(employee.SourceOfHiring == "Office Walk-in" ? "✓" : "")
+                </span>
+                Office Walk-in
+            </label>
+
+            <label>
+                <span class="checkbox">
+                    @(employee.SourceOfHiring == "Employment Exchange" ? "✓" : "")
+                </span>
+                Employment Exchange
+            </label>
+
+        </div>
+    </div>
+
+</div>
+<style>
+.source-hiring-box {
+    border: 1px solid #555;
+    padding: 8px 10px;
+    margin-top: 5px;
+    min-height: 35px;
+    box-sizing: border-box;
+}
+
+.hiring-options {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 12px;
+}
+
+.hiring-options label {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #555;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 5px;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+/* =========================================================
+   REFERENCE SECTION
+========================================================= */
+
+.reference-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #555;
+    margin-bottom: 12px;
+    table-layout: fixed;
+    font-size: 11px;
+}
+
+.reference-table td {
+    border: 1px solid #555;
+    padding: 2px 5px;
+    height: 21px;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+/* First column - Reference number */
+.ref-number {
+    width: 5%;
+    text-align: center;
+    vertical-align: middle !important;
+    font-weight: normal;
+}
+
+/* Second column - Labels */
+.ref-label {
+    width: 32%;
+    font-weight: 600;
+    padding-left: 5px !important;
+}
+
+/* Third column - Values */
+.ref-value {
+    width: 63%;
+    padding-left: 10px !important;
+    font-weight: normal;
+}
+
+/* Handwritten value */
+.reference-table .handwritten {
+    min-height: 20px;
+}
+
+
+/* =========================================================
+   OTHER INFORMATION
+========================================================= */
+
+.other-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #555;
+    margin-bottom: 14px;
+    table-layout: fixed;
+    font-size: 11px;
+}
+
+.other-info-table td {
+    border: 1px solid #555;
+    height: 22px;
+    padding: 2px 5px;
+    box-sizing: border-box;
+}
+
+.other-label {
+    width: 28%;
+    font-weight: 600;
+}
+
+.other-value {
+    width: 72%;
+    padding-left: 10px !important;
+}
+
+
+/* =========================================================
+   DECLARATION
+========================================================= */
+
+.declaration-title {
+    margin-top: 8px;
+}
+
+.declaration-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #555;
+    table-layout: fixed;
+    font-size: 11px;
+}
+
+.declaration-table td {
+    border: 1px solid #555;
+    height: 25px;
+    padding: 2px 5px;
+    box-sizing: border-box;
+}
+
+.question-cell {
+    width: 55%;
+    font-weight: 600;
+}
+
+.yes-no-cell {
+    width: 22.5%;
+    text-align: center;
+    position: relative;
+}
+
+.yes-no-text {
+    margin-right: 10px;
+}
+
+.declaration-checkbox {
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+
+/* =========================================================
+   DETAILS / UNDERLINE FIELDS
+========================================================= */
+
+.details-label {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+.inline-fields {
+    display: flex;
+    width: 100%;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 11px;
+}
+
+.inline-field {
+    display: flex;
+    align-items: baseline;
+    flex: 1;
+    white-space: nowrap;
+}
+
+.line-value {
+    display: inline-block;
+    min-width: 80px;
+    flex: 1;
+    border-bottom: 1px solid #555;
+    min-height: 15px;
+    margin-left: 4px;
+    padding-left: 3px;
+}
+
+.work-details {
+    margin-bottom: 5px;
+}
+
+.worked-table {
+    margin-top: 4px;
+}
+
+
+</style>
+<!-- =========================================================
+     REFERENCES
+========================================================== -->
+
+<div class="section-title">
+    *REFERENCE
+</div>
+
+<table class="reference-table">
+
+    <tbody>
+
+        <!-- ================= REFERENCE 1 ================= -->
+
+        <tr>
+
+            <td class="ref-number" rowspan="3">
+                1
+            </td>
+
+            <td class="ref-label">
+                Name &amp; Designation
+            </td>
+
+            <td class="ref-value handwritten">
+
+                @Safe(employee.Reference1Name)
+
+                @if (!string.IsNullOrWhiteSpace(employee.Reference1Designation))
+                {
+                    <span>
+                        &nbsp;&nbsp;@Safe(employee.Reference1Designation)
+                    </span>
+                }
+
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td class="ref-label">
+                Company
+            </td>
+
+            <td class="ref-value handwritten">
+                @Safe(employee.Reference1Company)
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td class="ref-label">
+                Phone/Mobile No &amp; Email Id
+            </td>
+
+            <td class="ref-value handwritten">
+
+                @Safe(employee.Reference1Mobile)
+
+                @if (!string.IsNullOrWhiteSpace(employee.Reference1Email))
+                {
+                    <span>
+                        &nbsp;&nbsp;@Safe(employee.Reference1Email)
+                    </span>
+                }
+
+            </td>
+
+        </tr>
+
+
+        <!-- ================= REFERENCE 2 ================= -->
+
+        <tr>
+
+            <td class="ref-number" rowspan="3">
+                2
+            </td>
+
+            <td class="ref-label">
+                Name &amp; Designation
+            </td>
+
+            <td class="ref-value handwritten">
+
+                @Safe(employee.Reference2Name)
+
+                @if (!string.IsNullOrWhiteSpace(employee.Reference2Designation))
+                {
+                    <span>
+                        &nbsp;&nbsp;@Safe(employee.Reference2Designation)
+                    </span>
+                }
+
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td class="ref-label">
+                Company
+            </td>
+
+            <td class="ref-value handwritten">
+                @Safe(employee.Reference2Company)
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td class="ref-label">
+                Phone/Mobile No &amp; Email Id
+            </td>
+
+            <td class="ref-value handwritten">
+
+                @Safe(employee.Reference2Mobile)
+
+                @if (!string.IsNullOrWhiteSpace(employee.Reference2Email))
+                {
+                    <span>
+                        &nbsp;&nbsp;@Safe(employee.Reference2Email)
+                    </span>
+                }
+
+            </td>
+
+        </tr>
+
+    </tbody>
+
+</table>
+<!-- =========================================================
+     OTHER INFORMATION
+========================================================== -->
+
+<div class="section-title">
+    * OTHER INFORMATION
+</div>
+
+<table class="other-info-table">
+
+    <tbody>
+
+        <tr>
+            <td class="other-label">
+                Passport Number
+            </td>
+
+            <td class="other-value handwritten">
+                @Safe(employee.PassportNumber)
+            </td>
+        </tr>
+
+        <tr>
+            <td class="other-label">
+                PAN Card Number
+            </td>
+
+            <td class="other-value handwritten">
+                @Safe(employee.PANNumber)
+            </td>
+        </tr>
+
+        <tr>
+            <td class="other-label">
+                Adhar Card Number
+            </td>
+
+            <td class="other-value handwritten">
+                @Safe(employee.AadhaarNumber)
+            </td>
+        </tr>
+
+    </tbody>
+
+</table>
+<!-- =========================================================
+     DECLARATION BY EMPLOYEE
+========================================================== -->
+
+<div class="section-title declaration-title">
+    DECLARATION BY EMPLOYEE:
+</div>
+
+<table class="declaration-table">
+
+    <tr>
+        <td class="question-cell">
+            Have you ever been interviewed by us before
+        </td>
+
+        <td class="yes-no-cell">
+            <span class="yes-no-text">Yes</span>
+            <span class="declaration-checkbox">
+                @(employee.PreviouslyInterviewed == true ? "✓" : "")
+            </span>
+        </td>
+
+        <td class="yes-no-cell">
+            <span class="yes-no-text">No</span>
+            <span class="declaration-checkbox">
+                @(employee.PreviouslyInterviewed != true ? "✓" : "")
+            </span>
+        </td>
+    </tr>
+
+</table>
+
+<div class="details-label">
+    If yes, please give details:
+</div>
+
+<div class="inline-fields">
+
+    <div class="inline-field">
+        <span>Date of Interview:</span>
+        <span class="line-value handwritten">
+            @FormatDate(employee.PreviousInterviewDate)
+        </span>
+    </div>
+
+    <div class="inline-field">
+        <span>Place of Interview:</span>
+        <span class="line-value handwritten">
+            @Safe(employee.PreviousInterviewPlace)
+        </span>
+    </div>
+
+    <div class="inline-field">
+        <span>Position applied for:</span>
+        <span class="line-value handwritten">
+            @Safe(employee.PreviousPositionApplied)
+        </span>
+    </div>
+
+</div>
+
+
+<!-- PREVIOUSLY WORKED -->
+
+<table class="declaration-table worked-table">
+
+    <tr>
+        <td class="question-cell">
+            Have you ever worked with us before
+        </td>
+
+        <td class="yes-no-cell">
+            <span class="yes-no-text">Yes</span>
+            <span class="declaration-checkbox">
+                @(employee.PreviouslyWorked == true ? "✓" : "")
+            </span>
+        </td>
+
+        <td class="yes-no-cell">
+            <span class="yes-no-text">No</span>
+            <span class="declaration-checkbox">
+                @(employee.PreviouslyWorked != true ? "✓" : "")
+            </span>
+        </td>
+    </tr>
+
+</table>
+
+<div class="details-label">
+    If yes, please give details:
+</div>
+
+<div class="inline-fields work-details">
+
+    <div class="inline-field">
+        <span>From Date From:</span>
+        <span class="line-value handwritten">
+            @FormatDate(employee.PreviousWorkFromDate)
+        </span>
+    </div>
+
+    <div class="inline-field">
+        <span>to Date:</span>
+        <span class="line-value handwritten">
+            @FormatDate(employee.PreviousWorkToDate)
+        </span>
+    </div>
+
+    <div class="inline-field">
+        <span>Location:</span>
+        <span class="line-value handwritten">
+            @Safe(employee.PreviousWorkLocation)
+        </span>
+    </div>
+
+</div>
+
+
+
+   
+
+
+    <div class="page-footer">
+
+        Employment Form - Page 2
+
+    </div>
+
+
+</div>
+
+
+<!-- =============================================================
+     PAGE 3
+     PREVIOUS EMPLOYMENT
+============================================================= -->
+
+<div class="a4-page">
+
+
+    <div class="document-header">
+
+        <div class="header-left">
+
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="company-logo"
+                 alt="Company Logo"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+
+        <div class="header-center">
+
+            <div class="header-center-title">
+
+                Employment Form
+
+            </div>
+
+            <div class="header-center-subtitle">
+
+                Previous Employment Details
+
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            Employee Code:
+
+            <strong>
+
+                @Safe(employee.EmployeeCode)
+
+            </strong>
+
+        </div>
+
+    </div>
+
+
+  <style>
+    .form-section {
+        width: 100%;
+        border: 1px solid #333;
+        margin-bottom: 12px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        color: #111;
+        border-collapse: collapse;
+    }
+
+    .form-section td {
+        border: 1px solid #333;
+        padding: 6px 8px;
+        vertical-align: middle;
+    }
+
+    .section-heading {
+        font-weight: bold;
+        font-size: 13px;
+        background: #f2f2f2;
+        padding: 7px 8px !important;
+    }
+
+    .label {
+        font-weight: bold;
+        width: 32%;
+    }
+
+    .value {
+        min-height: 18px;
+        font-family: "Segoe Print", "Comic Sans MS", cursive;
+        font-size: 13px;
+    }
+
+    .handwritten {
+        font-family: "Segoe Print", "Comic Sans MS", cursive;
+        font-size: 13px;
+    }
+
+    .yes-no-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+    .yes-no {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .checkbox {
+        width: 14px;
+        height: 14px;
+        border: 1px solid #222;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .checked {
+        font-size: 13px;
+    }
+
+    .line-field {
+        height: 28px;
+        border-bottom: 1px solid #555;
+        padding: 4px 2px;
+    }
+
+    .details-area {
+        min-height: 55px;
+        padding: 5px 2px;
+        line-height: 22px;
+        background-image: repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 21px,
+            #999 22px,
+            transparent 23px
+        );
+    }
+
+    .other-info-area {
+        min-height: 65px;
+        padding: 5px 2px;
+        line-height: 22px;
+        background-image: repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 21px,
+            #999 22px,
+            transparent 23px
+        );
+    }
+
+    /* Declaration */
+    .declaration {
+        width: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 1.5;
+        margin-top: 10px;
+    }
+
+    .declaration-title {
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .declaration-box {
+        border: 1px solid #333;
+        padding: 10px;
+    }
+
+    .declaration-text {
+        text-align: justify;
+        margin-bottom: 18px;
+    }
+
+    .declaration-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .declaration-table td {
+        vertical-align: bottom;
+        padding: 4px 12px 4px 0;
+    }
+
+    .signature-area {
+        height: 45px;
+        width: 180px;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .signature-area img {
+        max-width: 170px;
+        max-height: 42px;
+        object-fit: contain;
+    }
+
+    .signature-line {
+        width: 180px;
+        border-bottom: 1px solid #333;
+        height: 35px;
+    }
+
+    .date-place {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .date-place-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .date-place-label {
+        font-weight: bold;
+        width: 45px;
+    }
+
+    .date-place-value {
+        border-bottom: 1px solid #333;
+        min-width: 130px;
+        min-height: 20px;
+        font-family: "Segoe Print", "Comic Sans MS", cursive;
+        font-size: 13px;
+    }
+
+    /* Office section */
+    .office-title {
+        font-weight: bold;
+        font-size: 10px;
+        margin-top: 2px;
+        margin-bottom: 3px;
+    }
+
+    .office-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+
+    .office-table td {
+        border: 1px solid #333;
+        padding: 5px;
+    }
+
+    .office-label {
+        font-weight: bold;
+        width: 15%;
+    }
+
+    .office-value {
+        font-family: "Segoe Print", "Comic Sans MS", cursive;
+        font-size: 11px;
+    }
+
+    .approval-row {
+        height: 55px;
+    }
+
+    .approval-box {
+        text-align: center;
+        vertical-align: bottom !important;
+    }
+
+    .approval-signature {
+        height: 30px;
+        font-family: "Segoe Print", "Comic Sans MS", cursive;
+        font-size: 12px;
+    }
+
+    .approval-label {
+        border-top: 1px solid #333;
+        padding-top: 3px;
+        font-size: 9px;
+    }
+
+    @@media print {
+        .form-section,
+        .declaration-box {
+            break-inside: avoid;
+        }
+    }
+</style>
+
+
+<!-- =========================================================
+     CRIMINAL / CIVIL PROCEEDINGS
+========================================================= -->
+
+<table class="form-section">
+
+    <tr>
+    <td colspan="2" class="section-heading">
+        Have you ever been convicted of any offence in civil / criminal proceedings?
+    </td>
+
+
+<!-- YES -->
+<td style="width:100px; text-align:center;">
+    <div class="yes-no">
+        <span class="checkbox">
+            @(employee.HaveCriminalCivilProceedings == true ? "✓" : "")
+        </span>
+        <span>Yes</span>
+    </div>
+</td>
+
+<!-- NO -->
+<td style="width:100px; text-align:center;">
+    <div class="yes-no">
+        <span class="checkbox">
+            @(employee.HaveCriminalCivilProceedings == false ? "✓" : "")
+        </span>
+        <span>No</span>
+    </div>
+</td>
+
+
+</tr>
+
+    <tr>
+        <td class="label">
+            If yes, please give details
+        </td>
+
+        <td colspan="3">
+            <div class="details-area handwritten">
+                @Safe(employee.CriminalCivilProceedingsDetails)
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+
+<!-- =========================================================
+     OTHER INFORMATION
+========================================================= -->
+
+<table class="form-section">
+
+    <tr>
+        <td class="section-heading">
+            Any other information that you would like to share:
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <div class="other-info-area handwritten">
+                @Safe(employee.OtherInformation)
+            </div>
+        </td>
+    </tr>
+
+</table>
+
+
+<!-- =========================================================
+     EMPLOYEE DECLARATION
+========================================================= -->
+
+<div class="declaration">
+
+    <div class="declaration-box">
+
+        <div class="declaration-text">
+
+            I hereby certify that the information provided by me is true to the
+            best of my knowledge and belief. Any changes in the particulars
+            provided above will be intimated to HR immediately. If any other
+            information provided above is found to be false, at any future date,
+            the company will have the right to initiate appropriate action.
+            It is further declared that there is no police case registered or
+            pending against me in any police station and nor are any
+            criminal/legal proceedings going on against me in any court.
+
+        </div>
+
+
+        <!-- Signature / Date / Place -->
+
+        <table class="declaration-table">
+
+            <tr>
+
+                <!-- Employee Name -->
+                <td style="width:40%;">
+
+                    <strong>
+                        Name of the Employee:
+                    </strong>
+
+                    <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @Safe(employee.FullName)
+
+                    </div>
+
+                </td>
+
+
+                <!-- Signature -->
+         <td style="width:30%;">
+
+    <strong>
+        Signature:
+    </strong>
+
+    <div class="signature-area">
+
+        @if (!string.IsNullOrWhiteSpace(employee.EmployeeSignature))
+        {
+            <img src="@employee.EmployeeSignature"
+                 alt="Employee Signature"
+                 style="max-width:220px;
+                        max-height:100px;
+                        object-fit:contain;" />
+        }
+        else if (signatureDocument != null &&
+                 !string.IsNullOrWhiteSpace(signatureDocument.FilePath))
+        {
+            var signatureExt = System.IO.Path
+                .GetExtension(signatureDocument.FilePath)
+                ?.ToLowerInvariant();
+
+            @if (signatureExt == ".jpg" ||
+                 signatureExt == ".jpeg" ||
+                 signatureExt == ".png")
+            {
+                <img src="@Url.Content(signatureDocument.FilePath)"
+                     alt="Previous Employee Signature"
+                     style="max-width:220px;
+                            max-height:64px;
+                            object-fit:contain;" />
+            }
+            else
+            {
+                <div class="signature-line"></div>
+            }
+        }
+        else
+        {
+            <div class="signature-line"></div>
+        }
+
+    </div>
+
+</td>
+
+
+
+                <!-- Date -->
+                <td style="width:30%;">
+
+                    <strong>
+                        Date:
+                    </strong>
+
+                    <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @FormatDate(employee.DeclarationDate)
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td></td>
+
+                <td></td>
+
+                <td>
+
+                    <strong>
+                        Place:
+                    </strong>
+
+                    <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @Safe(employee.DeclarationPlace)
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     FOR OFFICE USE ONLY
+========================================================= -->
+
+
+@if (interview != null)
+{
+    <div class="office-title">
+        *FOR OFFICE USE ONLY
+    </div>
+
+    <table class="office-table">
+
+        <tr>
+            <td class="office-label">
+                Name of Interviewer
+            </td>
+            <td class="office-value">
+                @Safe(interview.NameOfInterviewer)
+            </td>
+
+            <td class="office-label">
+                Date of Joining
+            </td>
+            <td class="office-value">
+                @FormatDate(interview.DateOfJoining)
+            </td>
+
+            <td class="office-label">
+                interview Code
+            </td>
+            <td class="office-value">
+                @Safe(interview.EmployeeCode)
+            </td>
+        </tr>
+
+        <tr>
+            <td class="office-label">
+                Department
+            </td>
+            <td class="office-value">
+                @Safe(interview.Department)
+            </td>
+
+            <td class="office-label">
+                Designation
+            </td>
+            <td class="office-value">
+                @Safe(interview.Designation)
+            </td>
+
+            <td class="office-label">
+                Salary Offered
+            </td>
+            <td class="office-value">
+                @(interview.SalaryGross.HasValue
+                    ? interview.SalaryGross.Value.ToString("0.##")
+                    : "")
+            </td>
+        </tr>
+
+        <tr>
+            <td class="office-label">
+                Location
+            </td>
+            <td class="office-value">
+                @Safe(interview.Location)
+            </td>
+
+            <td class="office-label">
+                Employee Status
+            </td>
+            <td class="office-value">
+                @Safe(interview.EmploymentStatus)
+            </td>
+
+            <td class="office-label">
+                Ref Check Report
+            </td>
+            <td class="office-value">
+                @Safe(interview.RefCheckReport)
+            </td>
+        </tr>
+
+       <tr>
+    <td class="office-label">
+        Documents Checked by
+    </td>
+
+
+<td class="office-value">
+    @Safe(interview.DocumentsCheckedBy)
+</td>
+
+<td class="office-label">
+    Signature
+</td>
+
+<td colspan="3" class="office-value">
+
+    @if (interviewerSignature != null &&
+         !string.IsNullOrWhiteSpace(interviewerSignature.FilePath))
+    {
+        var signaturePath = interviewerSignature.FilePath.ToLower();
+
+        if (signaturePath.EndsWith(".jpg") ||
+            signaturePath.EndsWith(".jpeg") ||
+            signaturePath.EndsWith(".png"))
+        {
+            <img src="@interviewerSignature.FilePath"
+                 alt="Interviewer Signature"
+                 class="approval-signature-image" />
+        }
+        else
+        {
+            <a href="@interviewerSignature.FilePath"
+               target="_blank"
+               class="approval-file-link">
+                View Interviewer Signature
+            </a>
+        }
+    }
+    else
+    {
+        <span>-</span>
+    }
+
+</td>
+
+
+</tr>
+
+<tr class="approval-row">
+
+
+<!-- Functional Head -->
+
+<td colspan="2" class="approval-box">
+
+    <div class="approval-signature">
+
+        @if (functionalHeadApproval != null &&
+             !string.IsNullOrWhiteSpace(functionalHeadApproval.FilePath))
+        {
+            var filePath = functionalHeadApproval.FilePath.ToLower();
+
+            if (filePath.EndsWith(".jpg") ||
+                filePath.EndsWith(".jpeg") ||
+                filePath.EndsWith(".png"))
+            {
+                <img src="@functionalHeadApproval.FilePath"
+                     alt="Functional Head Approval"
+                     class="approval-signature-image" />
+            }
+            else
+            {
+                <a href="@functionalHeadApproval.FilePath"
+                   target="_blank"
+                   class="approval-file-link">
+                    View Approval
+                </a>
+            }
+        }
+        else
+        {
+            <span>-</span>
+        }
+
+    </div>
+
+    <div class="approval-label">
+        Functional Head
+    </div>
+
+</td>
+
+
+<!-- SPOC HR -->
+
+<td colspan="2" class="approval-box">
+
+    <div class="approval-signature">
+
+        @if (spocHumanResourcesApproval != null &&
+             !string.IsNullOrWhiteSpace(spocHumanResourcesApproval.FilePath))
+        {
+            var filePath = spocHumanResourcesApproval.FilePath.ToLower();
+
+            if (filePath.EndsWith(".jpg") ||
+                filePath.EndsWith(".jpeg") ||
+                filePath.EndsWith(".png"))
+            {
+                <img src="@spocHumanResourcesApproval.FilePath"
+                     alt="SPOC Human Resources Approval"
+                     class="approval-signature-image" />
+            }
+            else
+            {
+                <a href="@spocHumanResourcesApproval.FilePath"
+                   target="_blank"
+                   class="approval-file-link">
+                    View Approval
+                </a>
+            }
+        }
+        else
+        {
+            <span>-</span>
+        }
+
+    </div>
+
+    <div class="approval-label">
+        SPOC Human Resources
+    </div>
+
+</td>
+
+
+<!-- Head HR -->
+
+<td colspan="2" class="approval-box">
+
+    <div class="approval-signature">
+
+        @if (headHumanResourcesApproval != null &&
+             !string.IsNullOrWhiteSpace(headHumanResourcesApproval.FilePath))
+        {
+            var filePath = headHumanResourcesApproval.FilePath.ToLower();
+
+            if (filePath.EndsWith(".jpg") ||
+                filePath.EndsWith(".jpeg") ||
+                filePath.EndsWith(".png"))
+            {
+                <img src="@headHumanResourcesApproval.FilePath"
+                     alt="Head Human Resources Approval"
+                     class="approval-signature-image" />
+            }
+            else
+            {
+                <a href="@headHumanResourcesApproval.FilePath"
+                   target="_blank"
+                   class="approval-file-link">
+                    View Approval
+                </a>
+            }
+        }
+        else
+        {
+            <span>-</span>
+        }
+
+    </div>
+
+    <div class="approval-label">
+        Head - Human Resources
+    </div>
+
+</td>
+
+
+</tr>
+
+
+    </table>
+}
+
+
+
+
+
+    <div class="page-footer">
+
+        Employment Form - Page 3
+
+    </div>
+
+
+</div>
+
+
+<!-- =============================================================
+     PAGE 4
+     BANK / EPF / EPS / GRATUITY
+============================================================= -->
+
+<div class="a4-page">
+
+
+    <div class="document-header">
+
+        <div class="header-left">
+
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="company-logo"
+                 alt="Company Logo"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+
+        <div class="header-center">
+
+            <div class="header-center-title">
+
+                Employment Form
+
+            </div>
+
+            <div class="header-center-subtitle">
+
+                Bank & Nominee Details
+
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            Employee Code:
+
+            <strong>
+
+                @Safe(employee.EmployeeCode)
+
+            </strong>
+
+        </div>
+
+    </div>
+
+    
+    <!-- =========================================================
+         EMPLOYER CONTACT
+    ========================================================== -->
+
+    @if (employmentList.Any())
+    {
+
+        <div class="section-title">
+
+            Previous Employer Contact Details
+
+        </div>
+
+
+        @foreach (var employment in employmentList)
+        {
+
+            <div class="box avoid-break">
+
+                <div class="two-column">
+
+
+                    <div class="field-row">
+
+                        <span class="field-label">
+
+                            Employer:
+
+                        </span>
+
+                        <div class="field-value handwritten">
+
+                            @Safe(employment.EmployerName)
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-row">
+
+                        <span class="field-label">
+
+                            Contact No:
+
+                        </span>
+
+                        <div class="field-value handwritten">
+
+                            @Safe(employment.EmployerContactNo)
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-row">
+
+                        <span class="field-label">
+
+                            Reporting To:
+
+                        </span>
+
+                        <div class="field-value handwritten">
+
+                            @Safe(employment.ReportingTo)
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-row">
+
+                        <span class="field-label">
+
+                            HR Manager:
+
+                        </span>
+
+                        <div class="field-value handwritten">
+
+                            @Safe(employment.HRManagerName)
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-row">
+
+                        <span class="field-label">
+
+                            HR Email:
+
+                        </span>
+
+                        <div class="field-value handwritten">
+
+                            @Safe(employment.HRManagerEmailID)
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field-row">
+
+                        <span class="field-label">
+
+                            Employee ID:
+
+                        </span>
+
+                        <div class="field-value handwritten">
+
+                            @Safe(employment.PreviousEmployeeID)
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        }
+
+    }
+
+    <!-- =========================================================
+         BANK DETAILS
+    ========================================================== -->
+
+    <div class="section-title">
+
+        Bank Details
+
+    </div>
+
+
+    <table class="form-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Account Holder
+                </th>
+
+                <th>
+                    Bank Name
+                </th>
+
+                <th>
+                    Branch
+                </th>
+
+                <th>
+                    Account Number
+                </th>
+
+                <th>
+                    IFSC
+                </th>
+
+                <th>
+                    Account Type
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            @if (bankList.Any())
+            {
+
+                foreach (var bank in bankList)
+                {
+
+                    <tr>
+
+                        <td class="handwritten">
+
+                            @Safe(bank.AccountHolderName)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(bank.BankName)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(bank.BranchName)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(bank.AccountNumber)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(bank.IFSCCode)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(bank.AccountType)
+
+                        </td>
+
+                    </tr>
+
+                }
+
+            }
+            else
+            {
+
+                <tr>
+
+                    <td colspan="6"
+                        class="text-center">
+
+                        No bank details available.
+
+                    </td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+
+    @if (bankList.Any())
+    {
+
+        var bank = bankList.First();
+
+        <div class="two-column mt-5">
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    Previous Employment ESI No:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(bank.ESINoPreviousEmployment)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    Previous Employer PF UAN:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(bank.PFUANPreviousEmployer)
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    }
+
+
+    <!-- =========================================================
+         EPF NOMINEE
+    ========================================================== -->
+
+    <div class="section-title">
+
+        EPF Nominee Details
+
+    </div>
+
+
+    <table class="form-table nominee-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Nominee Name
+                </th>
+
+                <th>
+                    Address
+                </th>
+
+                <th>
+                    Relationship
+                </th>
+
+                <th>
+                    DOB / Age
+                </th>
+
+                <th>
+                    Share %
+                </th>
+
+                <th>
+                    Mobile
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            @if (epfNominees.Any())
+            {
+
+                foreach (var nominee in epfNominees)
+                {
+
+                    <tr>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.NomineeName)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @(string.IsNullOrWhiteSpace(nominee.Address)
+                                ? Safe(nominee.NomineeAddress)
+                                : Safe(nominee.Address))
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.Relationship)
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @FormatDate(nominee.DateOfBirth)
+
+                            @if (nominee.Age.HasValue)
+                            {
+                                <text>
+                                    / @nominee.Age
+                                </text>
+                            }
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @(nominee.Percentage.HasValue
+                                ? nominee.Percentage.Value.ToString("0.##")
+                                : nominee.SharePercentage?.ToString("0.##"))
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.Mobile)
+
+                        </td>
+
+                    </tr>
+
+                }
+
+            }
+            else
+            {
+
+                <tr>
+
+                    <td colspan="6"
+                        class="text-center">
+
+                        No EPF nominee details available.
+
+                    </td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- =========================================================
+         EPS NOMINEE
+    ========================================================== -->
+
+    <div class="section-title">
+
+        EPS Nominee Details
+
+    </div>
+
+
+    <table class="form-table nominee-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Nominee Name
+                </th>
+
+                <th>
+                    Address
+                </th>
+
+                <th>
+                    Relationship
+                </th>
+
+                <th>
+                    DOB / Age
+                </th>
+
+                <th>
+                    Share %
+                </th>
+
+                <th>
+                    Mobile
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            @if (epsNominees.Any())
+            {
+
+                foreach (var nominee in epsNominees)
+                {
+
+                    <tr>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.NomineeName)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @(string.IsNullOrWhiteSpace(nominee.Address)
+                                ? Safe(nominee.NomineeAddress)
+                                : Safe(nominee.Address))
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.Relationship)
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @FormatDate(nominee.DateOfBirth)
+
+                            @if (nominee.Age.HasValue)
+                            {
+                                <text>
+                                    / @nominee.Age
+                                </text>
+                            }
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @(nominee.Percentage?.ToString("0.##")
+                              ?? nominee.SharePercentage?.ToString("0.##"))
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.Mobile)
+
+                        </td>
+
+                    </tr>
+
+                }
+
+            }
+            else
+            {
+
+                <tr>
+
+                    <td colspan="6"
+                        class="text-center">
+
+                        No EPS nominee details available.
+
+                    </td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- =========================================================
+         GRATUITY NOMINEE
+    ========================================================== -->
+
+    <div class="section-title">
+
+        Gratuity Nominee Details
+
+    </div>
+
+
+    <table class="form-table nominee-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Nominee Name
+                </th>
+
+                <th>
+                    Address
+                </th>
+
+                <th>
+                    Relationship
+                </th>
+
+                <th>
+                    DOB / Age
+                </th>
+
+                <th>
+                    Share %
+                </th>
+
+                <th>
+                    Mobile
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            @if (gratuityNominees.Any())
+            {
+
+                foreach (var nominee in gratuityNominees)
+                {
+
+                    <tr>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.NomineeName)
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @(string.IsNullOrWhiteSpace(nominee.Address)
+                                ? Safe(nominee.NomineeAddress)
+                                : Safe(nominee.Address))
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.Relationship)
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @FormatDate(nominee.DateOfBirth)
+
+                            @if (nominee.Age.HasValue)
+                            {
+                                <text>
+                                    / @nominee.Age
+                                </text>
+                            }
+
+                        </td>
+
+                        <td class="handwritten text-center">
+
+                            @(nominee.Percentage?.ToString("0.##")
+                              ?? nominee.SharePercentage?.ToString("0.##"))
+
+                        </td>
+
+                        <td class="handwritten">
+
+                            @Safe(nominee.Mobile)
+
+                        </td>
+
+                    </tr>
+
+                }
+
+            }
+            else
+            {
+
+                <tr>
+
+                    <td colspan="6"
+                        class="text-center">
+
+                        No Gratuity nominee details available.
+
+                    </td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <div class="page-footer">
+
+        Employment Form - Page 4
+
+    </div>
+
+
+</div>
+
+
+<!-- =============================================================
+     PAGE 5
+     INTERVIEW / OFFICE USE / APPROVAL
+============================================================= -->
+
+<div class="a4-page">
+
+
+    <div class="document-header">
+
+        <div class="header-left">
+
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="company-logo"
+                 alt="Company Logo"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+
+        <div class="header-center">
+
+            <div class="header-center-title">
+
+                Employment Form
+
+            </div>
+
+            <div class="header-center-subtitle">
+
+                Interview & Office Use
+
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            Employee Code:
+
+            <strong>
+
+                @Safe(employee.EmployeeCode)
+
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         INTERVIEW EVALUATION
+    ========================================================== -->
+
+    <div class="section-title">
+
+        Interview Evaluation
+
+    </div>
+
+
+    @if (interview != null)
+    {
+
+        <table class="form-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Evaluation Parameter
+                    </th>
+
+                    <th>
+                        HR
+                    </th>
+
+                    <th>
+                        Operations
+                    </th>
+
+                    <th>
+                        Client / Process Owner
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                <tr>
+
+                    <td>
+                        Job Knowledge / Skill
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.JobKnowledgeSkill_HR)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.JobKnowledgeSkill_Ops)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.JobKnowledgeSkill_Client)
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Communication Skill
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.CommunicationSkill_HR)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.CommunicationSkill_Ops)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.CommunicationSkill_Client)
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Interpersonal Skills
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.InterpersonalSkills_HR)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.InterpersonalSkills_Ops)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.InterpersonalSkills_Client)
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Relevant Experience
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.RelevantExperience_HR)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.RelevantExperience_Ops)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.RelevantExperience_Client)
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Required Skill
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.RequiredSkill_HR)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.RequiredSkill_Ops)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.RequiredSkill_Client)
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Training Specific Role
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.TrainingSpecificRole_HR)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.TrainingSpecificRole_Ops)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.TrainingSpecificRole_Client)
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Team Management
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.TeamManagement_HR)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.TeamManagement_Ops)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.TeamManagement_Client)
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Suitability / Sustainability
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.SuitabilitySustainability_HR)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.SuitabilitySustainability_Ops)
+                    </td>
+
+                    <td class="handwritten">
+                        @Safe(interview.SuitabilitySustainability_Client)
+                    </td>
+
+                </tr>
+
+
+            </tbody>
+
+        </table>
+
+
+        <!-- =====================================================
+             INTERVIEW COMMENTS
+        ====================================================== -->
+
+        <div class="section-title">
+
+            Interview Comments
+
+        </div>
+
+
+        <div class="box">
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    HR Comments:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(interview.HRComments)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    Operations Comments:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(interview.OperationsComments)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    Process Owner Comments:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(interview.ProcessOwnerComments)
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =====================================================
+             COMPENSATION
+        ====================================================== -->
+
+        <div class="section-title">
+
+            Compensation & Final Decision
+
+        </div>
+
+
+        <table class="form-table">
+
+            <tbody>
+
+
+                <tr>
+
+                    <th>
+                        Current CTC
+                    </th>
+
+                    <td class="handwritten">
+
+                        @(interview.CurrentCompensationCTC.HasValue
+                            ? interview.CurrentCompensationCTC.Value.ToString("0.00")
+                            : "")
+
+                    </td>
+
+
+                    <th>
+                        Expected CTC
+                    </th>
+
+                    <td class="handwritten">
+
+                        @(interview.ExpectedCompensationCTC.HasValue
+                            ? interview.ExpectedCompensationCTC.Value.ToString("0.00")
+                            : "")
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <th>
+                        Overall Rating
+                    </th>
+
+                    <td class="handwritten">
+
+                        @Safe(interview.OverallRating)
+
+                    </td>
+
+
+                    <th>
+                        Selected / Hold / Reject
+                    </th>
+
+                    <td class="handwritten">
+
+                        @Safe(interview.SelectedHoldReject)
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <th>
+                        Position Offered
+                    </th>
+
+                    <td class="handwritten">
+
+                        @Safe(interview.PositionToBeOffered)
+
+                    </td>
+
+
+                    <th>
+                        Location
+                    </th>
+
+                    <td class="handwritten">
+
+                        @Safe(interview.Location)
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <th>
+                        Salary Gross
+                    </th>
+
+                    <td class="handwritten">
+
+                        @(interview.SalaryGross.HasValue
+                            ? interview.SalaryGross.Value.ToString("0.00")
+                            : "")
+
+                    </td>
+
+
+                    <th>
+                        PLI
+                    </th>
+
+                    <td class="handwritten">
+
+                        @(interview.PLI.HasValue
+                            ? interview.PLI.Value.ToString("0.00")
+                            : "")
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <th>
+                        Variable
+                    </th>
+
+                    <td class="handwritten">
+
+                        @(interview.Variable.HasValue
+                            ? interview.Variable.Value.ToString("0.00")
+                            : "")
+
+                    </td>
+
+
+                    <th>
+                        Final Date
+                    </th>
+
+                    <td class="handwritten">
+
+                        @FormatDate(interview.FinalDate)
+
+                    </td>
+
+                </tr>
+
+
+            </tbody>
+
+        </table>
+
+    }
+
+
+    <!-- =========================================================
+         OFFICE USE
+    ========================================================== -->
+
+    <div class="section-title">
+
+        Office Use
+
+    </div>
+
+
+    <table class="form-table">
+
+        <tbody>
+
+
+            <tr>
+
+                <th>
+                    Interviewer Name
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.InterviewerName)
+
+                </td>
+
+                <th>
+                    Date of Joining
+                </th>
+
+                <td class="handwritten">
+
+                    @FormatDate(employee.DateOfJoining)
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <th>
+                    Department
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.Department)
+
+                </td>
+
+                <th>
+                    Location
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.Location)
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <th>
+                    Employment Status
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.EmploymentStatus)
+
+                </td>
+
+                <th>
+                    Ref Check Report
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.RefCheckReport)
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <th>
+                    Documents Checked By
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.DocumentsCheckedBy)
+
+                </td>
+
+                <th>
+                    Functional Head
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.FunctionalHead)
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <th>
+                    SPOC Human Resources
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.SPOCHumanResources)
+
+                </td>
+
+                <th>
+                    Head Human Resources
+                </th>
+
+                <td class="handwritten">
+
+                    @Safe(employee.HeadHumanResources)
+
+                </td>
+
+            </tr>
+
+
+        </tbody>
+
+    </table>
+
+
+    <!-- =========================================================
+         APPROVALS
+    ========================================================== -->
+
+    <div class="section-title">
+
+        Approvals / Remarks
+
+    </div>
+
+
+    <div class="box">
+
+
+        <div class="field-row">
+
+            <span class="field-label">
+
+                Remarks:
+
+            </span>
+
+            <div class="field-value handwritten">
+
+                @Safe(employee.ApprovalsRemarks)
+
+            </div>
+
+        </div>
+
+
+        <div class="two-column">
+
+
+            <div>
+
+                <strong>
+
+                    Functional Head Approval
+
+                </strong>
+
+                <div class="signature-box">
+
+                    @if (!string.IsNullOrWhiteSpace(employee.FunctionalHead))
+                    {
+                        <div class="handwritten">
+
+                            @employee.FunctionalHead
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+
+                    SPOC Human Resources
+
+                </strong>
+
+                <div class="signature-box">
+
+                    @if (!string.IsNullOrWhiteSpace(employee.SPOCHumanResources))
+                    {
+                        <div class="handwritten">
+
+                            @employee.SPOCHumanResources
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+
+                    Head Human Resources
+
+                </strong>
+
+                <div class="signature-box">
+
+                    @if (!string.IsNullOrWhiteSpace(employee.HeadHumanResources))
+                    {
+                        <div class="handwritten">
+
+                            @employee.HeadHumanResources
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+
+                    Office Use Signature
+
+                </strong>
+
+                <div class="signature-box">
+
+                    @if (!string.IsNullOrWhiteSpace(employee.OfficeUseSignature))
+                    {
+                        <div class="handwritten">
+
+                            @employee.OfficeUseSignature
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <div class="page-footer">
+
+        Employment Form - Page 5
+
+    </div>
+
+
+</div>
+
+
+<!-- =============================================================
+     PAGE 6
+     UPLOADED DOCUMENTS
+============================================================= -->
+
+@if (documentList.Any())
+{
+
+    <div class="a4-page">
+
+
+        <div class="document-header">
+
+            <div class="header-left">
+
+                <img src="~/assets/img/logo/PROTALKLOGO.png"
+                     class="company-logo"
+                     alt="Company Logo"
+                     onerror="this.style.display='none';" />
+
+            </div>
+
+
+            <div class="header-center">
+
+                <div class="header-center-title">
+
+                    Employment Form
+
+                </div>
+
+                <div class="header-center-subtitle">
+
+                    Documents & Attachments
+
+                </div>
+
+            </div>
+
+
+            <div class="header-right">
+
+                Employee Code:
+
+                <strong>
+
+                    @Safe(employee.EmployeeCode)
+
+                </strong>
+
+                <br />
+
+                Employee:
+
+                <strong>
+
+                    @Safe(employee.FullName)
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             DOCUMENTS
+        ====================================================== -->
+
+        <div class="section-title">
+
+            Uploaded Documents
+
+        </div>
+
+
+        <table class="form-table document-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        #
+                    </th>
+
+                    <th>
+                        Document Name
+                    </th>
+
+                    <th>
+                        Document Type
+                    </th>
+
+                    <th>
+                        File Name
+                    </th>
+
+                    <th>
+                        Uploaded Date
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                @{
+                    int documentIndex = 1;
+                }
+
+
+                @foreach (var document in documentList)
+                {
+
+                    var documentName =
+                        GetDocumentValue(
+                            document,
+                            "DocumentName",
+                            "Name",
+                            "DocumentTitle",
+                            "Title"
+                        );
+
+                    var documentType =
+                        GetDocumentValue(
+                            document,
+                            "DocumentType",
+                            "Type",
+                            "DocumentCategory",
+                            "Category"
+                        );
+
+                    var fileName =
+                        GetDocumentValue(
+                            document,
+                            "FileName",
+                            "OriginalFileName",
+                            "UploadedFileName"
+                        );
+
+                    var filePath =
+                        GetDocumentFilePath(document);
+
+                    var uploadedDate =
+                        GetDocumentDate(document);
+
+                    var documentStatus =
+                        GetDocumentStatus(document);
+
+
+                    <tr>
+
+                        <td class="text-center">
+
+                            @documentIndex
+
+                        </td>
+
+
+                        <td class="handwritten">
+
+                            @Safe(documentName)
+
+                        </td>
+
+
+                        <td class="handwritten">
+
+                            @Safe(documentType)
+
+                        </td>
+
+
+                        <td class="handwritten">
+
+                            @Safe(fileName)
+
+                        </td>
+
+
+                        <td class="handwritten text-center">
+
+                            @Safe(uploadedDate)
+
+                        </td>
+
+
+                        <td class="handwritten text-center">
+
+                            @Safe(documentStatus)
+
+                        </td>
+
+                    </tr>
+
+
+                    documentIndex++;
+
+                }
+
+            </tbody>
+
+        </table>
+
+
+        <!-- =====================================================
+             DOCUMENT SUMMARY
+        ====================================================== -->
+
+        <div class="section-title">
+
+            Document Summary
+
+        </div>
+
+
+        <div class="box">
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    Total Documents:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @documentList.Count
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    Employee:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(employee.FullName)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    Employee Code:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @Safe(employee.EmployeeCode)
+
+                </div>
+
+            </div>
+
+
+            <div class="field-row">
+
+                <span class="field-label">
+
+                    Date of Joining:
+
+                </span>
+
+                <div class="field-value handwritten">
+
+                    @FormatDate(employee.DateOfJoining)
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="section-title">
+
+            Uploaded File References
+
+        </div>
+
+
+        @foreach (var document in documentList)
+        {
+
+            var fileName =
+                GetDocumentValue(
+                    document,
+                    "FileName",
+                    "OriginalFileName",
+                    "UploadedFileName"
+                );
+
+            var filePath =
+                GetDocumentFilePath(document);
+
+            <div class="box avoid-break">
+
+                <div class="field-row">
+
+                    <span class="field-label">
+
+                        File:
+
+                    </span>
+
+                    <div class="field-value handwritten">
+
+                        @Safe(fileName)
+
+                    </div>
+
+                </div>
+
+
+                @if (!string.IsNullOrWhiteSpace(filePath))
+                {
+
+                    <div class="field-row">
+
+                        <span class="field-label">
+
+                            File Reference:
+
+                        </span>
+
+                        <div class="field-value small">
+
+                            @Safe(filePath)
+
+                        </div>
+
+                    </div>
+
+                }
+
+            </div>
+
+        }
+
+
+        <div class="page-footer">
+
+            Employment Form - Documents
+
+        </div>
+
+
+    </div>
+
+}
+
+
+<!-- =============================================================
+     JAVASCRIPT
+============================================================= -->
+
+<script>
+
+    window.addEventListener("beforeprint", function () {
+
+        document.title =
+            "Employment Form - @Safe(employee.FullName)";
+
+    });
+
+
+    // =========================================================
+    // PRINT
+    // =========================================================
+
+    function printEmploymentForm() {
+
+        window.print();
+
+    }
+
+</script>
+
+
+</body>
+
+</html>

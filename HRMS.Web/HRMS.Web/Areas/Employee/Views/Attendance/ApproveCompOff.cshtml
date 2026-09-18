@@ -12,8 +12,28 @@
 	.fade:not(.show) {
 		opacity: 1;
 	}
-</style>
 
+	.multi-select-wrapper {
+		position: relative;
+	}
+
+		.multi-select-wrapper select {
+			padding-right: 35px;
+		}
+
+		.multi-select-wrapper .dropdown-icon {
+			position: absolute;
+			right: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			pointer-events: none;
+			color: #6c757d;
+			font-size: 12px;
+		}
+
+
+
+</style>
 <section class="lower-section">
 	<div class="container-fluid">
 		<div class="row">
@@ -22,48 +42,118 @@
 					<div class="tabsInfo" id="">
 						<h3>CompOff Info</h3>
 						<div class="row mb-3 align-items-end">
+							@if (Convert.ToInt32(Context.Session.GetString(Constants.RoleID)) == (int)Roles.Admin ||
+								 Convert.ToInt32(Context.Session.GetString(Constants.RoleID)) == (int)Roles.SuperAdmin)
+							{
+								<div class="col-md-3">
+									<label class="form-label">Location</label>
 
-							<div class="col-md-3">
-								<label class="form-label">Location</label>
-								<select id="ddlLocation" class="form-select">
-									<option value="0">All Locations</option>
-									@if (Model?.JobLocations != null)
-									{
-										foreach (var item in Model.JobLocations)
+									<div class="multi-select-wrapper">
+										<select id="ddlLocation"
+												class="form-select"
+												multiple>
+
+											@foreach (var item in Model.JobLocations)
+											{
+												<option value="@item.JobLocationID">
+													@item.JobLocationName
+												</option>
+											}
+
+										</select>
+
+										<span class="dropdown-icon">▼</span>
+									</div>
+								</div>
+
+								<div class="col-md-3">
+									<label class="form-label">Process</label>
+
+									<div class="multi-select-wrapper">
+										<select id="ddlSubDepartment"
+												class="form-select"
+												multiple>
+
+											@foreach (var item in Model.SubDepartments)
+											{
+												<option value="@item.SubDepartmentID">
+													@item.SubDepartmentName
+												</option>
+											}
+
+										</select>
+
+										<span class="dropdown-icon">▼</span>
+									</div>
+								</div>
+
+								<div class="col-md-3">
+									<label class="form-label">Hierarchy Level</label>
+
+									<div class="multi-select-wrapper">
+										<select id="ddlHierarchyLevel"
+												class="form-select"
+												multiple>
+
+											<option value="1">Level 1</option>
+											<option value="2">Level 2</option>
+											<option value="3">Level 3+</option>
+
+										</select>
+
+										<span class="dropdown-icon">▼</span>
+									</div>
+								</div>
+							}
+							else
+							{
+								<div class="col-md-3">
+									<label class="form-label">Location</label>
+									<select id="ddlLocation" class="form-select">
+										<option value="0">All Locations</option>
+
+										@if (Model?.JobLocations != null)
 										{
-											<option value="@item.JobLocationID">
-												@item.JobLocationName
-											</option>
+											foreach (var item in Model.JobLocations)
+											{
+												<option value="@item.JobLocationID">
+													@item.JobLocationName
+												</option>
+											}
 										}
-									}
-								</select>
-							</div>
+									</select>
+								</div>
 
-							<div class="col-md-3">
-								<label class="form-label">Process</label>
-								<select id="ddlSubDepartment" class="form-select">
-									<option value="0">All Process</option>
-									@if (Model?.SubDepartments != null)
-									{
-										foreach (var item in Model.SubDepartments)
+								<div class="col-md-3">
+									<label class="form-label">Process</label>
+									<select id="ddlSubDepartment" class="form-select">
+										<option value="0">All Process</option>
+
+										@if (Model?.SubDepartments != null)
 										{
-											<option value="@item.SubDepartmentID">
-												@item.SubDepartmentName
-											</option>
+											foreach (var item in Model.SubDepartments)
+											{
+												<option value="@item.SubDepartmentID">
+													@item.SubDepartmentName
+												</option>
+											}
 										}
-									}
-								</select>
-							</div>
-							<div class="col-md-3">
-								<label class="form-label">Level</label>
-								<select id="ddlHierarchyLevel" class="form-select">
-									<option value="0">All Level</option>
-									<option value="1">Level 1</option>
-									<option value="2">Level 2</option>
-								</select>
-							</div>
+									</select>
+								</div>
 
+								<div class="col-md-3">
+									<label class="form-label">Level</label>
+									<select id="ddlHierarchyLevel" class="form-select">
+										<option value="0">All Level</option>
+										<option value="1">Level 1</option>
+										<option value="2">Level 2</option>
+									</select>
+								</div>
+							}
 						</div>
+
+
+						
 						<nav>
 							<div class="nav nav-tabs mb-3" id="myTab-timeoff" role="tablist">
 								<button class="nav-link active" id="applied-compOff-tab1" data-bs-toggle="tab" data-bs-target="#applied-compOff-tab" type="button" role="tab" aria-controls="applied-compOff-tab" aria-selected="true" href="#pendingTab">CompOff For Approval </button>
@@ -648,9 +738,11 @@
 
 		const request = {
 			compOffStatus: parseInt(status),
-			jobLocationID: parseInt($("#ddlLocation").val() || 0),
-			subDepartmentID: parseInt($("#ddlSubDepartment").val() || 0),
-			hierarchyLevel: parseInt($("#ddlHierarchyLevel").val() || 0)
+			jobLocationIDs: $("#ddlLocation").val() || [],
+
+			subDepartmentIDs: $("#ddlSubDepartment").val() || [],
+
+			hierarchyLevels: $("#ddlHierarchyLevel").val() || []
 		};
 
 		$.ajax({
@@ -1031,6 +1123,35 @@
 	});
 
 	});
+	$(document).ready(function() {
 
+		var roleId = '@Context.Session.GetString(Constants.RoleID)';
+		const ROLE_ADMIN = @((int)Roles.Admin);
+		const ROLE_SUPERADMIN = @((int)Roles.SuperAdmin);
+		if (roleId == ROLE_ADMIN || roleId == ROLE_SUPERADMIN) {
+
+			$('#ddlLocation').select2({
+				placeholder: 'Select Location',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+
+			$('#ddlSubDepartment').select2({
+				placeholder: 'Select Process',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+
+			$('#ddlHierarchyLevel').select2({
+				placeholder: 'Select Level',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+		}
+
+	});
 </script>
 

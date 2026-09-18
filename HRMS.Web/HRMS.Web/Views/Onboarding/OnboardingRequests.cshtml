@@ -1,0 +1,955 @@
+﻿@using HRMS.Models.Common;
+@using HRMS.Models.EmployeeOnboarding;
+
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Employee Onboarding Requests";
+
+    var success = TempData["Success"];
+    var Err = TempData["Error"];
+}
+
+<div class="main-header anim" style="--delay: 0s">
+    Employee Onboarding Requests
+</div>
+
+
+<!-- =========================================================
+     BULK ACTION BUTTONS
+     ========================================================= -->
+
+
+<div class="mb-3 align-items-center"
+     id="onboardingBulkActions"
+     style="display:none;">
+
+    <button type="button"
+            id="btnApproveOnboarding"
+            class="btn btn-primary btn-sm">
+        <i class="fa fa-check"></i> Approve
+    </button>
+
+    <button type="button"
+            id="btnRejectOnboarding"
+            class="btn btn-danger btn-sm ms-2">
+        <i class="fa fa-times"></i> Reject
+    </button>
+
+</div>
+
+
+
+
+<!-- =========================================================
+     DATATABLE
+     ========================================================= -->
+
+<div class="table-responsive py-3">
+
+    <table id="tblEmployeeOnboardingRequests"
+           class="table table-striped body-text"
+           style="width:100%">
+
+        <thead>
+
+            <tr>
+
+                <!-- =================================================
+                     SELECT ALL
+                     ================================================= -->
+
+                <th style="width:40px; text-align:center;">
+
+                    <input type="checkbox"
+                           id="selectAllOnboarding"
+                           class="onboarding-checkbox" />
+
+                </th>
+
+
+                <!-- =================================================
+                     ID
+                     ================================================= -->
+
+                <th style="display:none;">
+                    ID
+                </th>
+
+
+                <!-- =================================================
+                     EMPLOYEE NUMBER
+                     ================================================= -->
+
+                <th>
+                    Employee No.
+                </th>
+
+
+                <!-- =================================================
+                     EMPLOYEE NAME
+                     ================================================= -->
+
+                <th>
+                    Employee Name
+                </th>
+
+
+                <!-- =================================================
+                     EMAIL
+                     ================================================= -->
+
+                <th>
+                    Email
+                </th>
+
+
+                <!-- =================================================
+                     MOBILE
+                     ================================================= -->
+
+                <th>
+                    Mobile
+                </th>
+
+
+                <!-- =================================================
+                     SUBMITTED DATE
+                     ================================================= -->
+
+                <th>
+                    Submitted Date
+                </th>
+
+
+                <!-- =================================================
+                     STATUS
+                     ================================================= -->
+
+                <th>
+                    Status
+                </th>
+
+
+                <!-- =================================================
+                     ACTION
+                     ================================================= -->
+
+                <th>
+                    Action
+                </th>
+
+            </tr>
+
+        </thead>
+
+    </table>
+
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        // =========================================================
+        // INITIALIZE DATATABLE
+        // =========================================================
+
+        var table = $('#tblEmployeeOnboardingRequests').DataTable({
+
+            // =====================================================
+            // AJAX
+            // =====================================================
+
+            "ajax": {
+
+                "url": "@Url.Action("GetEmployeeOnboardingRequestList", "Onboarding")",
+
+                "type": "POST",
+
+                "datatype": "json",
+
+                "dataSrc": "data",
+
+                "data": function (d) {
+
+                    // =================================================
+                    // DEFAULT SORTING
+                    // =================================================
+
+                    var sortColumn = "submittedDate";
+
+                    var sortDirection = "desc";
+
+
+                    // =================================================
+                    // CHECK ORDER INFORMATION
+                    // =================================================
+
+                    if (
+                        d.order &&
+                        d.order.length > 0 &&
+                        d.order[0] &&
+                        d.order[0].column !== undefined
+                    ) {
+
+                        var columnIndex = d.order[0].column;
+
+
+                        // =================================================
+                        // GET SORT COLUMN
+                        // =================================================
+
+                        if (
+                            d.columns &&
+                            d.columns.length > columnIndex &&
+                            d.columns[columnIndex]
+                        ) {
+
+                            sortColumn =
+                                d.columns[columnIndex].data;
+
+                        }
+
+
+                        // =================================================
+                        // GET SORT DIRECTION
+                        // =================================================
+
+                        if (d.order[0].dir) {
+
+                            sortDirection =
+                                d.order[0].dir;
+
+                        }
+
+                    }
+
+
+                    // =================================================
+                    // RETURN PARAMETERS
+                    // =================================================
+
+                    return {
+
+                        sEcho: d.draw,
+
+                        iDisplayStart: d.start,
+
+                        iDisplayLength: d.length,
+
+                        sSearch:
+                            d.search
+                                ? d.search.value
+                                : "",
+
+                        sortCol: sortColumn,
+
+                        sortDir: sortDirection
+
+                    };
+
+                }
+
+            },
+
+
+            // =========================================================
+            // DATATABLE OPTIONS
+            // =========================================================
+
+            "ordering": true,
+
+            "order": [
+                [6, "desc"]
+            ],
+
+            "paging": true,
+
+            "searching": true,
+
+            "info": true,
+
+            "responsive": true,
+
+
+            // =========================================================
+            // COLUMNS
+            // =========================================================
+
+            "columns": [
+
+
+                // =====================================================
+                // SELECT CHECKBOX
+                // =====================================================
+
+                {
+                    "data": null,
+
+                    "orderable": false,
+
+                    "searchable": false,
+
+                    "className": "text-center",
+
+                    "width": "40px",
+
+                    "render": function (data, type, row) {
+
+                        return (
+
+                            '<input type="checkbox" ' +
+
+                            'class="onboarding-row-checkbox" ' +
+
+                            'value="' +
+                            row.privateKey +
+                            '" ' +
+
+                            'data-key="' +
+                            row.privateKey +
+                            '" />'
+
+                        );
+
+                    }
+
+                },
+
+
+                // =====================================================
+                // ONBOARDING ID - HIDDEN
+                // =====================================================
+
+                {
+                    "data": "onboardingID",
+
+                    "visible": false
+                },
+
+
+                // =====================================================
+                // EMPLOYEE NUMBER
+                // =====================================================
+
+                {
+                    "data": "empCode",
+
+                    "autoWidth": true
+                },
+
+
+                // =====================================================
+                // EMPLOYEE NAME
+                // =====================================================
+
+                {
+                    "data": "employeeName",
+
+                    "autoWidth": true
+                },
+
+
+                // =====================================================
+                // EMAIL
+                // =====================================================
+
+                {
+                    "data": "email",
+
+                    "autoWidth": true
+                },
+
+
+                // =====================================================
+                // MOBILE
+                // =====================================================
+
+                {
+                    "data": "mobile",
+
+                    "autoWidth": true
+                },
+
+
+                // =====================================================
+                // SUBMITTED DATE
+                // =====================================================
+
+                {
+                    "data": "submittedDate",
+
+                    "autoWidth": true,
+
+                    "render": function (data) {
+
+                        if (!data) {
+
+                            return "";
+
+                        }
+
+
+                        var date = new Date(data);
+
+
+                        if (isNaN(date.getTime())) {
+
+                            return data;
+
+                        }
+
+
+                        return date.toLocaleDateString("en-GB");
+
+                    }
+
+                },
+
+
+                // =====================================================
+                // STATUS
+                // =====================================================
+
+                {
+                    "data": "statusName",
+
+                    "autoWidth": true,
+
+                    "render": function (data, type, row) {
+
+
+                        // =============================================
+                        // STATUS NAME FROM API
+                        // =============================================
+
+                        if (data) {
+
+                            return data;
+
+                        }
+
+
+                        // =============================================
+                        // FALLBACK STATUS
+                        // =============================================
+
+                        switch (row.status) {
+
+                            case 1:
+
+                                return "In Progress";
+
+
+                            case 2:
+
+                                return "Submitted";
+
+
+                            case 3:
+
+                                return "Under HR Review";
+
+
+                            case 4:
+
+                                return "HR Completed";
+
+
+                            case 5:
+
+                                return "Employee Created";
+
+
+                            case 6:
+
+                                return "Approved";
+
+
+                            case 7:
+
+                                return "Rejected";
+
+
+                            default:
+
+                                return "";
+
+                        }
+
+                    }
+
+                },
+
+
+                // =====================================================
+                // ACTION
+                // =====================================================
+
+                {
+                    "data": null,
+
+                    "orderable": false,
+
+                    "searchable": false,
+
+                    "autoWidth": true,
+
+                    "className": "text-center",
+
+                    "render": function (data, type, row) {
+
+
+                        // =============================================
+                        // VIEW FORM URL
+                        // =============================================
+
+                        var viewUrl =
+                            '@Url.Action("ViewEmploymentForm", "Onboarding")'
+                            + '?key='
+                            + encodeURIComponent(row.privateKey)
+                            + '&step=1';
+
+
+                        // =============================================
+                        // INTERVIEW URL
+                        // =============================================
+
+                        var interviewUrl =
+                            '@Url.Action("EmploymentForm", "Onboarding")'
+                            + '?key='
+                            + encodeURIComponent(row.privateKey)
+                            + '&step=7';
+
+
+                        // =============================================
+                        // ACTION CONTAINER
+                        // =============================================
+
+                        var html =
+                            '<div class="table-data-feature">';
+
+
+                        // =============================================
+                        // VIEW FORM
+                        // =============================================
+
+                        html +=
+
+                            '<a class="item" ' +
+
+                            'href="' + viewUrl + '" ' +
+
+                            'title="View Form" ' +
+
+                            'data-bs-toggle="tooltip" ' +
+
+                            'data-bs-placement="top">' +
+
+                            '<i class="fa fa-eye"></i>' +
+
+                            '</a>';
+
+
+                        // =============================================
+                        // ADD INTERVIEW DETAILS
+                        // =============================================
+
+                        html +=
+
+                            '<a class="item ms-2" ' +
+
+                            'href="' + interviewUrl + '" ' +
+
+                            'title="Add Interview Details" ' +
+
+                            'data-bs-toggle="tooltip" ' +
+
+                            'data-bs-placement="top">' +
+
+                            '<i class="fa fa-user-plus"></i>' +
+
+                            '</a>';
+
+
+                        // =============================================
+                        // CLOSE ACTION CONTAINER
+                        // =============================================
+
+                        html += '</div>';
+
+
+                        return html;
+
+                    }
+
+                }
+
+            ]
+
+        });
+
+
+        // =========================================================
+        // GET SELECTED ONBOARDING KEYS
+        // =========================================================
+
+        function getSelectedOnboardingKeys() {
+
+            var keys = [];
+
+
+            $('#tblEmployeeOnboardingRequests')
+                .find('.onboarding-row-checkbox:checked')
+                .each(function () {
+
+                    var key = $(this).attr('data-key');
+
+                    if (key) {
+
+                        keys.push(key);
+
+                    }
+
+                });
+
+
+            return keys;
+
+        }
+
+
+        // =========================================================
+        // UPDATE BULK ACTION BUTTONS
+        // =========================================================
+
+        function updateOnboardingBulkActions() {
+
+            var selectedCount =
+                $('#tblEmployeeOnboardingRequests')
+                    .find('.onboarding-row-checkbox:checked')
+                    .length;
+
+
+            if (selectedCount > 0) {
+
+                $('#onboardingBulkActions').show();
+
+            }
+            else {
+
+                $('#onboardingBulkActions').hide();
+
+            }
+
+        }
+
+
+        // =========================================================
+        // SELECT ALL CHECKBOX
+        // =========================================================
+
+        $(document).on(
+            'change',
+            '#selectAllOnboarding',
+            function () {
+
+                var checked =
+                    $(this).is(':checked');
+
+
+                $('#tblEmployeeOnboardingRequests')
+                    .find('.onboarding-row-checkbox')
+                    .prop('checked', checked);
+
+
+                updateOnboardingBulkActions();
+
+            }
+        );
+
+
+        // =========================================================
+        // INDIVIDUAL CHECKBOX
+        // =========================================================
+
+        $(document).on(
+            'change',
+            '.onboarding-row-checkbox',
+            function () {
+
+                var total =
+                    $('#tblEmployeeOnboardingRequests')
+                        .find('.onboarding-row-checkbox')
+                        .length;
+
+
+                var selected =
+                    $('#tblEmployeeOnboardingRequests')
+                        .find('.onboarding-row-checkbox:checked')
+                        .length;
+
+
+                $('#selectAllOnboarding').prop(
+                    'checked',
+                    total > 0 &&
+                    total === selected
+                );
+
+
+                updateOnboardingBulkActions();
+
+            }
+        );
+
+
+        // =========================================================
+        // RESET SELECT ALL AFTER DATATABLE DRAW
+        // =========================================================
+
+        $('#tblEmployeeOnboardingRequests').on(
+            'draw.dt',
+            function () {
+
+                $('#selectAllOnboarding')
+                    .prop('checked', false);
+
+
+                $('#onboardingBulkActions')
+                    .hide();
+
+            }
+        );
+
+
+        // =========================================================
+        // APPROVE SELECTED
+        // =========================================================
+
+        $('#btnApproveOnboarding').on(
+            'click',
+            function () {
+
+                var keys =
+                    getSelectedOnboardingKeys();
+
+
+                // =============================================
+                // CHECK SELECTION
+                // =============================================
+
+                if (keys.length === 0) {
+
+                    alert(
+                        'Please select at least one employee.'
+                    );
+
+                    return;
+
+                }
+
+
+                // =============================================
+                // CONFIRM
+                // =============================================
+
+                var confirmed =
+                    confirm(
+                        'Are you sure you want to approve ' +
+                        keys.length +
+                        ' selected employee(s)?'
+                    );
+
+
+                if (!confirmed) {
+
+                    return;
+
+                }
+
+
+                // =============================================
+                // AJAX
+                // =============================================
+
+                $.ajax({
+
+                    url:
+                        '@Url.Action("ApproveEmployeeOnboarding", "Onboarding")',
+
+                    type: 'POST',
+
+                    contentType:
+                        'application/json; charset=utf-8',
+
+                    data:
+                        JSON.stringify(keys),
+
+                    success: function (response) {
+
+                        alert(
+                            response.message ||
+                            'Selected employee(s) approved successfully.'
+                        );
+
+
+                        // =====================================
+                        // RELOAD DATATABLE
+                        // =====================================
+
+                        table.ajax.reload(
+                            null,
+                            false
+                        );
+
+
+                        // =====================================
+                        // RESET SELECTION
+                        // =====================================
+
+                        $('#selectAllOnboarding')
+                            .prop('checked', false);
+
+                        $('#onboardingBulkActions')
+                            .hide();
+
+                    },
+
+                    error: function (xhr) {
+
+                        console.error(xhr);
+
+                        alert(
+                            'An error occurred while approving the selected employee(s).'
+                        );
+
+                    }
+
+                });
+
+            }
+        );
+
+
+        // =========================================================
+        // REJECT SELECTED
+        // =========================================================
+
+        $('#btnRejectOnboarding').on(
+            'click',
+            function () {
+
+                var keys =
+                    getSelectedOnboardingKeys();
+
+
+                // =============================================
+                // CHECK SELECTION
+                // =============================================
+
+                if (keys.length === 0) {
+
+                    alert(
+                        'Please select at least one employee.'
+                    );
+
+                    return;
+
+                }
+
+
+                // =============================================
+                // CONFIRM
+                // =============================================
+
+                var confirmed =
+                    confirm(
+                        'Are you sure you want to reject ' +
+                        keys.length +
+                        ' selected employee(s)?'
+                    );
+
+
+                if (!confirmed) {
+
+                    return;
+
+                }
+
+
+                // =============================================
+                // AJAX
+                // =============================================
+
+                $.ajax({
+
+                    url:
+                        '@Url.Action("RejectEmployeeOnboarding", "Onboarding")',
+
+                    type: 'POST',
+
+                    contentType:
+                        'application/json; charset=utf-8',
+
+                    data:
+                        JSON.stringify(keys),
+
+                    success: function (response) {
+
+                        alert(
+                            response.message ||
+                            'Selected employee(s) rejected successfully.'
+                        );
+
+
+                        // =====================================
+                        // RELOAD DATATABLE
+                        // =====================================
+
+                        table.ajax.reload(
+                            null,
+                            false
+                        );
+
+
+                        // =====================================
+                        // RESET SELECTION
+                        // =====================================
+
+                        $('#selectAllOnboarding')
+                            .prop('checked', false);
+
+                        $('#onboardingBulkActions')
+                            .hide();
+
+                    },
+
+                    error: function (xhr) {
+
+                        console.error(xhr);
+
+                        alert(
+                            'An error occurred while rejecting the selected employee(s).'
+                        );
+
+                    }
+
+                });
+
+            }
+        );
+
+
+        // =========================================================
+        // INITIALIZE TOOLTIP
+        // =========================================================
+
+        $('[data-bs-toggle="tooltip"]').tooltip();
+
+    });
+
+</script>

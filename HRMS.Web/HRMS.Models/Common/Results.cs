@@ -1,6 +1,7 @@
 using HRMS.Models.AttendenceList;
 using HRMS.Models.Company;
 using HRMS.Models.Employee;
+using HRMS.Models.EmployeeOnboarding;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.PayRoll;
 using HRMS.Models.ShiftType;
@@ -68,7 +69,19 @@ namespace HRMS.Models.Common
         public AutoSalaryCalculationModel autoSalaryCalculationModelModel { get; set; } = new();
         public List<AutoSalaryCalculationErrorModel> AutoSalaryCalculationErrors { get; set; } = new();
         public AutoSalaryCalculationErrorModel autoSalaryCalculationErrorsModel { get; set; } = new();
+        public List<EmployeeDetailsOnboardingModel> EmployeeDetailsOnboardingList { get; set; } = new();
 
+        public List<EmployeeOnboardingFamilyModel> EmployeeOnboardingFamilyList { get; set; } = new();
+
+        public List<EmployeeOnboardingEducationModel> EmployeeOnboardingEducationList { get; set; } = new();
+
+        public List<EmployeeOnboardingEmploymentModel> EmployeeOnboardingEmploymentList { get; set; } = new();
+        public List<EmployeeOnboardingBankDetailsModel> EmployeeOnboardingBankDetailsList { get; set; } = new();
+        public List<EmployeeOnboardingDocumentsModel> EmployeeOnboardingDocumentsList { get; set; } = new();
+        public List<EmployeeOnboardingNomineeModel> EmployeeOnboardingNomineeList { get; set; }= new List<EmployeeOnboardingNomineeModel>();
+
+        public List<EmployeeOnboardingInterviewEvaluationModel> EmployeeOnboardingInterviewEvaluationList { get; set; }= new List<EmployeeOnboardingInterviewEvaluationModel>();
+        public int LastSavedStep { get; set; } = 1;
     }
 
     public class Result

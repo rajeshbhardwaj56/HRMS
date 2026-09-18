@@ -109,6 +109,23 @@
 		opacity: 0;
 		display: none !important;
 	}
+    	.multi-select-wrapper {
+		position: relative;
+	}
+
+		.multi-select-wrapper select {
+			padding-right: 35px;
+		}
+
+		.multi-select-wrapper .dropdown-icon {
+			position: absolute;
+			right: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			pointer-events: none;
+			color: #6c757d;
+			font-size: 12px;
+		}
 </style>
 
 
@@ -129,50 +146,115 @@
 										<div class="tabsInfo" id="">
 											<h3>Leave Approval Info</h3>
                                             <div class="row mb-3 align-items-end">
+                                                @if (Convert.ToInt32(Context.Session.GetString(Constants.RoleID)) == (int)Roles.Admin ||
+                                                     Convert.ToInt32(Context.Session.GetString(Constants.RoleID)) == (int)Roles.SuperAdmin)
+                                                {
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Location</label>
 
-		<div class="col-md-3">
-			<label class="form-label">Location</label>
-			<select id="ddlLocation" class="form-select">
-				<option value="0">All Locations</option>
-				@if (Model?.JobLocations != null)
-				{
-					foreach (var item in Model.JobLocations)
-					{
-						<option value="@item.JobLocationID">
-							@item.JobLocationName
-						</option>
-					}
-				}
-			</select>
-		</div>
+                                                        <div class="multi-select-wrapper">
+                                                            <select id="ddlLocation"
+                                                                    class="form-select"
+                                                                    multiple>
 
-		<div class="col-md-3">
-			<label class="form-label">Process</label>
-			<select id="ddlSubDepartment" class="form-select">
-				<option value="0">All Process</option>
-				@if (Model?.SubDepartments != null)
-				{
-					foreach (var item in Model.SubDepartments)
-					{
-						<option value="@item.SubDepartmentID">
-							@item.SubDepartmentName
-						</option>
-					}
-				}
-			</select>
-		</div>
-<div class="col-md-3">
-    <label class="form-label">Level</label>
-<select id="ddlHierarchyLevel" class="form-select">
-    <option value="0">All Level</option>
-    <option value="1">Level 1</option>
-    <option value="2">Level 2</option>
-    <option value="3">Level 3+</option>
-</select>
-</div>
-				
+                                                                @foreach (var item in Model.JobLocations)
+                                                                {
+                                                                    <option value="@item.JobLocationID">
+                                                                        @item.JobLocationName
+                                                                    </option>
+                                                                }
 
-	</div>
+                                                            </select>
+
+                                                            <span class="dropdown-icon">▼</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Process</label>
+
+                                                        <div class="multi-select-wrapper">
+                                                            <select id="ddlSubDepartment"
+                                                                    class="form-select"
+                                                                    multiple>
+
+                                                                @foreach (var item in Model.SubDepartments)
+                                                                {
+                                                                    <option value="@item.SubDepartmentID">
+                                                                        @item.SubDepartmentName
+                                                                    </option>
+                                                                }
+
+                                                            </select>
+
+                                                            <span class="dropdown-icon">▼</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Hierarchy Level</label>
+
+                                                        <div class="multi-select-wrapper">
+                                                            <select id="ddlHierarchyLevel"
+                                                                    class="form-select"
+                                                                    multiple>
+
+                                                                <option value="1">Level 1</option>
+                                                                <option value="2">Level 2</option>
+                                                                <option value="3">Level 3+</option>
+
+                                                            </select>
+
+                                                            <span class="dropdown-icon">▼</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Location</label>
+                                                        <select id="ddlLocation" class="form-select">
+                                                            <option value="0">All Locations</option>
+
+                                                            @if (Model?.JobLocations != null)
+                                                            {
+                                                                foreach (var item in Model.JobLocations)
+                                                                {
+                                                                    <option value="@item.JobLocationID">
+                                                                        @item.JobLocationName
+                                                                    </option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Process</label>
+                                                        <select id="ddlSubDepartment" class="form-select">
+                                                            <option value="0">All Process</option>
+
+                                                            @if (Model?.SubDepartments != null)
+                                                            {
+                                                                foreach (var item in Model.SubDepartments)
+                                                                {
+                                                                    <option value="@item.SubDepartmentID">
+                                                                        @item.SubDepartmentName
+                                                                    </option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Level</label>
+                                                        <select id="ddlHierarchyLevel" class="form-select">
+                                                            <option value="0">All Level</option>
+                                                            <option value="1">Level 1</option>
+                                                            <option value="2">Level 2</option>
+                                                        </select>
+                                                    </div>
+                                                }
+                                            </div>
 											<nav>
                                                 <div class="nav nav-tabs mb-3" id="myTabs-timeoff" role="tablist">
                                                     <button class="nav-link active" id="applied-leave-tab1" data-bs-toggle="tab" data-bs-target="#applied-leave-tab" type="button" role="tab" aria-controls="applied-leave-tab" aria-selected="true">
@@ -739,6 +821,8 @@
 </div>
 
 <input type="hidden" id="leaveSummaryID" value="" />
+<input type="hidden" id="adminCancelEncryptedIdentity" value="" />
+<input type="hidden" id="adminCancelEncryptedEmployee" value="" />
 <input type="hidden" id="leaveTypeID" value="" />
 <input name="__RequestVerificationToken" type="hidden" value="" />
 
@@ -847,14 +931,99 @@
 				$("#adminleaveTypeDropdown").css("display", "none");
 				$("#adminChildDOBDateContainer").css("display", "none");
 				$("#adminexpectedDeliveryDateContainer").css("display", "none");
-				if (Array.isArray(leavesSummary)) {
-					let leaveSummary = leavesSummary.find(summary => summary.leaveSummaryID === leaveSummaryID);
-					   $("#leaveTypeID").val(leaveSummary.leaveTypeID);
-					if (leaveSummary) {
+                if (Array.isArray(leavesSummary)) {
+
+                    let leaveSummary = leavesSummary.find(
+                        summary => summary.leaveSummaryID == leaveSummaryID
+                    );
+
+                    if (!leaveSummary) {
+                        console.error("Leave summary not found:", leaveSummaryID);
+                        $("#btnAdminCancelLeave").hide();
+                        return;
+                    }
+
+                    $("#leaveTypeID").val(leaveSummary.leaveTypeID);
+
+                    if (leaveSummary) {
 						$("#showalert").text('');
 						$("#showDocumentalert").text('');
 						$('#adminleaveTypeDropdown1').text(leaveSummary.leaveTypeName);
 
+
+                    // =========================================================
+                    // ADMIN / SUPER ADMIN - CANCEL TODAY'S APPROVED LEAVE
+                    // =========================================================
+
+                    const currentRole = @RoleName;
+
+                    const isAdmin =
+                        currentRole == @((int)Roles.Admin) ||
+                        currentRole == @((int)Roles.SuperAdmin);
+
+                    const leaveStatusID = parseInt(leaveSummary.leaveStatusID);
+
+                    const approvedStatusID = @((int)LeaveStatus.Approved);
+
+                    // ---------------------------------------------------------
+                    // Save encrypted IDs required by UpdateAgentLeaveStatus
+                    // ---------------------------------------------------------
+
+                    if (leaveSummary.encryptedIdentity) {
+                        $("#adminCancelEncryptedIdentity")
+                            .val(leaveSummary.encryptedIdentity);
+                    }
+
+                    if (leaveSummary.encrypted) {
+                        $("#adminCancelEncryptedEmployee")
+                            .val(leaveSummary.encrypted);
+                    }
+
+                    // ---------------------------------------------------------
+                    // Check Request Date
+                    // ---------------------------------------------------------
+
+                    let requestDate = leaveSummary.requestDate
+                        ? new Date(leaveSummary.requestDate)
+                        : null;
+
+                    let isAppliedToday = false;
+
+                    if (requestDate && !isNaN(requestDate.getTime())) {
+
+                        const today = new Date();
+
+                        isAppliedToday =
+                            requestDate.getFullYear() === today.getFullYear() &&
+                            requestDate.getMonth() === today.getMonth() &&
+                            requestDate.getDate() === today.getDate();
+                    }
+
+                    // ---------------------------------------------------------
+                    // Show / Hide Admin Cancel Button
+                    // ---------------------------------------------------------
+
+                    console.log("ADMIN CANCEL CHECK", {
+                        role: currentRole,
+                        isAdmin: isAdmin,
+                        leaveStatusID: leaveStatusID,
+                        approvedStatusID: approvedStatusID,
+                        requestDate: leaveSummary.requestDate,
+                        isAppliedToday: isAppliedToday,
+                        encryptedIdentity: leaveSummary.encryptedIdentity,
+                        encryptedEmployee: leaveSummary.encrypted
+                    });
+
+                    if (
+                        isAdmin &&
+                        leaveStatusID === approvedStatusID &&
+                        isAppliedToday
+                    ) {
+                        $("#btnAdminCancelLeave").show();
+                    }
+                    else {
+                        $("#btnAdminCancelLeave").hide();
+                    }
 					let startDate = new Date(leaveSummary.startDate);
 	let formattedstartDate =
 		("0" + startDate.getDate()).slice(-2) + "/" +
@@ -1169,9 +1338,23 @@ function InitOverviewDataTable() {
             type: 'POST',
 
             data: function (d) {
-                d.jobLocationID = $('#ddlLocation').val() || 0;
-                d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
-                d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+                let location = $('#ddlLocation').val();
+                let process = $('#ddlSubDepartment').val();
+                let hierarchy = $('#ddlHierarchyLevel').val();
+
+                // Always send arrays
+                d.jobLocationIDs = Array.isArray(location)
+                    ? location
+                    : (location && location !== "0" ? [location] : []);
+
+                d.subDepartmentIDs = Array.isArray(process)
+                    ? process
+                    : (process && process !== "0" ? [process] : []);
+
+                d.hierarchyLevels = Array.isArray(hierarchy)
+                    ? hierarchy
+                    : (hierarchy && hierarchy !== "0" ? [hierarchy] : []);
+
             },
 
             dataSrc: function (json) {
@@ -1312,9 +1495,23 @@ ajax: {
     type: 'POST',
 
     data: function (d) {
-        d.jobLocationID = $('#ddlLocation').val() || 0;
-        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
-        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    let location = $('#ddlLocation').val();
+    let process = $('#ddlSubDepartment').val();
+    let hierarchy = $('#ddlHierarchyLevel').val();
+
+    // Always send arrays
+    d.jobLocationIDs = Array.isArray(location)
+        ? location
+        : (location && location !== "0" ? [location] : []);
+
+    d.subDepartmentIDs = Array.isArray(process)
+        ? process
+        : (process && process !== "0" ? [process] : []);
+
+    d.hierarchyLevels = Array.isArray(hierarchy)
+        ? hierarchy
+        : (hierarchy && hierarchy !== "0" ? [hierarchy] : []);
+
     },
 
     dataSrc: function (json) {
@@ -1450,9 +1647,23 @@ $('td:eq(8)', row).find('button')
     url: '/Employee/MyInfo/GetLeaveForApproved',
     type: 'POST',
     data: function (d) {
-        d.jobLocationID = $('#ddlLocation').val() || 0;
-        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
-        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    let location = $('#ddlLocation').val();
+    let process = $('#ddlSubDepartment').val();
+    let hierarchy = $('#ddlHierarchyLevel').val();
+
+    // Always send arrays
+    d.jobLocationIDs = Array.isArray(location)
+        ? location
+        : (location && location !== "0" ? [location] : []);
+
+    d.subDepartmentIDs = Array.isArray(process)
+        ? process
+        : (process && process !== "0" ? [process] : []);
+
+    d.hierarchyLevels = Array.isArray(hierarchy)
+        ? hierarchy
+        : (hierarchy && hierarchy !== "0" ? [hierarchy] : []);
+
     },
     dataSrc: function (json) {
         return json.data;
@@ -1509,7 +1720,56 @@ $('td:eq(8)', row).find('button')
                     }
                 },
 				{ "data": "leaveStatusName", "autoWidth": true },
-				{ "data": "reason", "autoWidth": true }
+				{
+    data: "reason",
+    autoWidth: true,
+    render: function (data, type, row) {
+
+        let html = data || "";
+
+        const currentRole = @RoleName;
+
+        const isAdmin =
+            currentRole === @((int)Roles.Admin) ||
+            currentRole === @((int)Roles.SuperAdmin);
+
+        const approvedStatusID = @((int)LeaveStatus.Approved);
+
+        const leaveStatusID = Number(row.leaveStatusID);
+
+        let isRequestToday = false;
+
+        if (row.requestDate) {
+
+            const requestDate = new Date(row.requestDate);
+            const today = new Date();
+
+            isRequestToday =
+                requestDate.getFullYear() === today.getFullYear() &&
+                requestDate.getMonth() === today.getMonth() &&
+                requestDate.getDate() === today.getDate();
+        }
+
+        if (
+            isAdmin &&
+            leaveStatusID === Number(approvedStatusID) &&
+            isRequestToday
+        ) {
+
+            html += `
+                <button type="button"
+                        class="btn btn-sm btn-danger"
+                        style="margin:0; padding:2px 6px; vertical-align:middle;"
+                        title="Cancel Leave"
+                        onclick="AdminCancelLeave('${row.encryptedIdentity}', '${row.encrypted}')">
+                    <i class="fa fa-close"></i>
+                </button>
+            `;
+        }
+
+        return html;
+    }
+}
 			],
 			"columnDefs": [
 				{
@@ -1568,9 +1828,23 @@ $('td:eq(8)', row).find('button')
     url: '/Employee/MyInfo/GetLeaveForReject',
     type: 'POST',
     data: function (d) {
-        d.jobLocationID = $('#ddlLocation').val() || 0;
-        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
-        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    let location = $('#ddlLocation').val();
+    let process = $('#ddlSubDepartment').val();
+    let hierarchy = $('#ddlHierarchyLevel').val();
+
+    // Always send arrays
+    d.jobLocationIDs = Array.isArray(location)
+        ? location
+        : (location && location !== "0" ? [location] : []);
+
+    d.subDepartmentIDs = Array.isArray(process)
+        ? process
+        : (process && process !== "0" ? [process] : []);
+
+    d.hierarchyLevels = Array.isArray(hierarchy)
+        ? hierarchy
+        : (hierarchy && hierarchy !== "0" ? [hierarchy] : []);
+
     },
     dataSrc: function (json) {
         return json.data;
@@ -1686,9 +1960,23 @@ $('td:eq(8)', row).find('button')
     url: '/Employee/MyInfo/GetLeaveForFuture',
     type: 'POST',
     data: function (d) {
-        d.jobLocationID = $('#ddlLocation').val() || 0;
-        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
-        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+    let location = $('#ddlLocation').val();
+    let process = $('#ddlSubDepartment').val();
+    let hierarchy = $('#ddlHierarchyLevel').val();
+
+    // Always send arrays
+    d.jobLocationIDs = Array.isArray(location)
+        ? location
+        : (location && location !== "0" ? [location] : []);
+
+    d.subDepartmentIDs = Array.isArray(process)
+        ? process
+        : (process && process !== "0" ? [process] : []);
+
+    d.hierarchyLevels = Array.isArray(hierarchy)
+        ? hierarchy
+        : (hierarchy && hierarchy !== "0" ? [hierarchy] : []);
+
     },
     dataSrc: function (json) {
         return json.data;
@@ -1807,9 +2095,23 @@ $('td:eq(8)', row).find('button')
     url: '/Employee/MyInfo/GetLeaveForUserCancelled',
     type: 'POST',
     data: function (d) {
-        d.jobLocationID = $('#ddlLocation').val() || 0;
-        d.subDepartmentID = $('#ddlSubDepartment').val() || 0;
-        d.hierarchyLevel = $('#ddlHierarchyLevel').val() || 0;
+                    let location = $('#ddlLocation').val();
+                    let process = $('#ddlSubDepartment').val();
+                    let hierarchy = $('#ddlHierarchyLevel').val();
+
+                    // Always send arrays
+                    d.jobLocationIDs = Array.isArray(location)
+                        ? location
+                        : (location && location !== "0" ? [location] : []);
+
+                    d.subDepartmentIDs = Array.isArray(process)
+                        ? process
+                        : (process && process !== "0" ? [process] : []);
+
+                    d.hierarchyLevels = Array.isArray(hierarchy)
+                        ? hierarchy
+                        : (hierarchy && hierarchy !== "0" ? [hierarchy] : []);
+
     },
     dataSrc: function (json) {
         return json.data;
@@ -2481,8 +2783,112 @@ function reloadTables() {
     });
 }
 });
-</script>
+$(document).ready(function() {
 
+		var roleId = '@Context.Session.GetString(Constants.RoleID)';
+		const ROLE_ADMIN = @((int)Roles.Admin);
+		const ROLE_SUPERADMIN = @((int)Roles.SuperAdmin);
+		if (roleId == ROLE_ADMIN || roleId == ROLE_SUPERADMIN) {
+
+			$('#ddlLocation').select2({
+				placeholder: 'Select Location',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+
+			$('#ddlSubDepartment').select2({
+				placeholder: 'Select Process',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+
+			$('#ddlHierarchyLevel').select2({
+				placeholder: 'Select Level',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+		}
+
+	});
+</script>
+<script>
+function AdminCancelLeave(encryptedIdentity, encryptedEmployee) {
+
+    console.log("========== ADMIN CANCEL ==========");
+    console.log("encryptedIdentity:", encryptedIdentity);
+    console.log("encryptedEmployee:", encryptedEmployee);
+
+    if (!encryptedIdentity) {
+        alert("encryptedIdentity is missing from Approved Leave data.");
+        return;
+    }
+
+    if (!encryptedEmployee) {
+        alert("encrypted employee ID is missing from Approved Leave data.");
+        return;
+    }
+
+    if (!confirm("Are you sure you want to cancel this approved leave?")) {
+        return;
+    }
+
+    $.ajax({
+        url: '/Employee/MyInfo/UpdateAgentLeaveStatus',
+        type: 'POST',
+
+        headers: {
+            'RequestVerificationToken':
+                $('input[name="__RequestVerificationToken"]').val()
+        },
+
+        data: {
+            id: encryptedIdentity,
+            empId: encryptedEmployee
+        },
+
+        success: function (response) {
+
+            console.log("CANCEL RESPONSE:", response);
+
+            if (response && response.isValid === false) {
+
+                toastEMessage(
+                    'Error',
+                    response.message || 'Unable to cancel leave.'
+                );
+
+                return;
+            }
+
+            toastMessage(
+                'Success',
+                response.message || 'Leave cancelled successfully.'
+            );
+
+            $('#tblLeavesForApproved')
+                .DataTable()
+                .ajax.reload(null, false);
+        },
+
+        error: function (xhr) {
+
+            console.error(
+                "CANCEL ERROR:",
+                xhr.status,
+                xhr.responseText
+            );
+
+            toastEMessage(
+                'Error',
+                'Something went wrong while cancelling the leave.'
+            );
+        }
+    });
+}
+</script>
 
 
 

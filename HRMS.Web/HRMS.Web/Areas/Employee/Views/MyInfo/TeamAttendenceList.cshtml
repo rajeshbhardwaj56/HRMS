@@ -1156,159 +1156,242 @@ oldStatus: $("#oldStatus").val();
 
                         /* ---------------- STATUS EDITOR ---------------- */
 
-                        const renderStatusEditor = (fullDate, data) => {
+                    const renderStatusEditor = (fullDate, data) => {
 
-    if (!data) {
-        return "";
-    }
+                        if (!data) {
+                            return "";
+                        }
 
-    const employeeTypeID = parseInt(
-        document.getElementById('hdnEmployeeTypeID').value
-    );
+                        const employeeTypeID = parseInt(
+                            document.getElementById('hdnEmployeeTypeID').value
+                        );
 
-    // Only Employee Type 3 can edit attendance
-    if (employeeTypeID !== 3) {
-        return "";
-    }
+                        // Only Employee Type 3 can edit attendance
+                        if (employeeTypeID !== 3) {
+                            return "";
+                        }
 
-    // Check cutoff date
-    if (!canEditStatus(fullDate)) {
-        return "";
-    }
+                        // Check cutoff date
+                        if (!canEditStatus(fullDate)) {
+                            return "";
+                        }
 
-    const oldStatus = data.attendance?.attendanceStatus || "";
+                        /*
+                         * Get current attendance status.
+                         *
+                         * Depending on your API, attendanceStatus may be:
+                         *
+                         * P
+                         * Present
+                         * A
+                         * Absent
+                         * HD
+                         * Half Day
+                         *
+                         * So normalize it.
+                         */
+                        let oldStatus = (
+                            data.attendance?.attendanceStatus || ""
+                        ).trim().toUpperCase();
 
-    /*
-     * NO BIOMETRIC RECORD = ABSENT
-     *
-     * If there is no firstLogDate / lastLogDate,
-     * employee has no biometric punch.
-     */
-    const hasBiometricRecord =
-        data.attendance &&
-        data.attendance.firstLogDate &&
-        data.attendance.lastLogDate;
+                        /*
+                         * Convert descriptive status names to codes.
+                         */
+                        if (oldStatus === "PRESENT") {
+                            oldStatus = "P";
+                        }
+                        else if (oldStatus === "ABSENT") {
+                            oldStatus = "A";
+                        }
+                        else if (oldStatus === "HALF DAY" || oldStatus === "HALFDAY") {
+                            oldStatus = "HD";
+                        }
+                        else if (oldStatus === "WEEK OFF" || oldStatus === "WEEKOFF") {
+                            oldStatus = "WO";
+                        }
 
-    /*
-     * Admin / SuperAdmin can override an absent employee
-     * and mark P or HD.
-     */
-    const isAdminOrSuperAdmin =
-        roleId === ROLE_ADMIN ||
-        roleId === ROLE_SUPERADMIN;
+                        const isAdminOrSuperAdmin =
+                            roleId === ROLE_ADMIN ||
+                            roleId === ROLE_SUPERADMIN;
 
-    let statusOptions = "";
+                        let statusOptions = `
+            <option value="">Select status</option>
+        `;
 
-    if (!hasBiometricRecord) {
+                        /*
+                         * ADMIN / SUPER ADMIN
+                         *
+                         * Can change everything.
+                         */
+                        if (isAdminOrSuperAdmin) {
 
-        // No biometric record = Absent
-
-        if (isAdminOrSuperAdmin) {
-
-            // Admin/SuperAdmin
-            statusOptions = `
-                <option value="">Select status</option>
+                            statusOptions += `
                 <option value="P">Present</option>
                 <option value="A">Absent</option>
                 <option value="HD">Half Day</option>
                 <option value="WO">Week Off</option>
             `;
+                        }
 
-        } else {
+                        /*
+                         * NORMAL USER
+                         */
+                        else {
 
-            // Normal user
-            statusOptions = `
-                <option value="">Select status</option>
-                <option value="A">Absent</option>
-                <option value="WO">Week Off</option>
-            `;
-        }
+                            switch (oldStatus) {
 
-    } else {
+                                /*
+                                 * Biometric Present
+                                 *
+                                 * Allow:
+                                 * P -> P
+                                 * P -> HD
+                                 * P -> A
+                                 * P -> WO
+                                 */
+                                case "P":
 
-        // Biometric record exists
-        // Everyone gets all options
+                                    statusOptions += `
+                        <option value="P">Present</option>
+                        <option value="HD">Half Day</option>
+                        <option value="A">Absent</option>
+                        <option value="WO">Week Off</option>
+                    `;
 
-        statusOptions = `
-            <option value="">Select status</option>
-            <option value="P">Present</option>
-            <option value="A">Absent</option>
-            <option value="HD">Half Day</option>
-            <option value="WO">Week Off</option>
-        `;
-    }
+                                    break;
 
-    return `
-        <form id="statusForm">
 
-            <input type="hidden"
-                   id="oldStatus"
-                   value="${oldStatus}" />
+                                /*
+                                 * Absent
+                                 *
+                                 * Do NOT allow:
+                                 * A -> P
+                                 * A -> HD
+                                 */
+                                case "A":
 
-            <div class="row mb-2">
+                                    statusOptions += `
+                        <option value="A">Absent</option>
+                        <option value="WO">Week Off</option>
+                    `;
 
-                <div class="col-md-6">
+                                    break;
 
-                    <label>
-                        <strong>Change Status:</strong>
-                    </label>
 
-                    <div class="position-relative w-100">
+                                /*
+                                 * Half Day
+                                 *
+                                 * Do NOT allow:
+                                 * HD -> P
+                                 */
+                                case "HD":
 
-                        <select class="form-control"
-                                id="statusSelect"
-                                required>
+                                    statusOptions += `
+                        <option value="HD">Half Day</option>
+                        <option value="A">Absent</option>
+                        <option value="WO">Week Off</option>
+                    `;
 
-                            ${statusOptions}
+                                    break;
 
-                        </select>
 
-                        <i class="fa fa-chevron-down position-absolute"
-                           style="
-                               font-size:10px;
-                               color:gray;
-                               right:10px;
-                               top:50%;
-                               transform:translateY(-50%);
-                               pointer-events:none;
-                           ">
-                        </i>
+                                /*
+                                 * Week Off
+                                 */
+                                case "WO":
+
+                                    statusOptions += `
+                        <option value="WO">Week Off</option>
+                    `;
+
+                                    break;
+
+
+                                /*
+                                 * No status
+                                 */
+                                default:
+
+                                    statusOptions += `
+                        <option value="A">Absent</option>
+                        <option value="WO">Week Off</option>
+                    `;
+
+                                    break;
+                            }
+                        }
+
+                        return `
+            <form id="statusForm">
+
+                <input type="hidden"
+                       id="oldStatus"
+                       value="${oldStatus}" />
+
+                <div class="row mb-2">
+
+                    <div class="col-md-6">
+
+                        <label>
+                            <strong>Change Status:</strong>
+                        </label>
+
+                        <div class="position-relative w-100">
+
+                            <select class="form-control"
+                                    id="statusSelect"
+                                    required>
+
+                                ${statusOptions}
+
+                            </select>
+
+                            <i class="fa fa-chevron-down position-absolute"
+                               style="
+                                   font-size:10px;
+                                   color:gray;
+                                   right:10px;
+                                   top:50%;
+                                   transform:translateY(-50%);
+                                   pointer-events:none;
+                               ">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label>
+                            <strong>Comment:</strong>
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            id="statusComment"
+                            placeholder="Write comment..."
+                            required></textarea>
 
                     </div>
 
                 </div>
 
-                <div class="col-md-6">
+                <div class="text-end mt-2">
 
-                    <label>
-                        <strong>Comment:</strong>
-                    </label>
+                    <button type="submit"
+                            class="btn btn-primary"
+                            id="saveStatusChange">
 
-                    <textarea
-                        class="form-control"
-                        id="statusComment"
-                        placeholder="Write comment..."
-                        required></textarea>
+                        💾 Save Status
+
+                    </button>
 
                 </div>
 
-            </div>
-
-            <div class="text-end mt-2">
-
-                <button class="btn btn-primary"
-                        id="saveStatusChange">
-
-                    💾 Save Status
-
-                </button>
-
-            </div>
-
-        </form>
-    `;
-};
-
+            </form>
+        `;
+                    };
                         /* ---------------- STATUS CHANGE TABLE ---------------- */
 
                         function renderStatusChanges(changes) {

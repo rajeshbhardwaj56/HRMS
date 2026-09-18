@@ -1,0 +1,3908 @@
+﻿@using HRMS.Models.EmployeeOnboarding
+@model EmployeeOnboardingPageViewModel
+
+@{
+    Layout = null;
+
+    var employee = Model.EmployeeDetails
+                   ?? new EmployeeDetailsOnboardingModel();
+
+    var familyList = Model.FamilyList
+                     ?? new List<EmployeeOnboardingFamilyModel>();
+
+    var educationList = Model.EducationList
+                        ?? new List<EmployeeOnboardingEducationModel>();
+
+    var employmentList = Model.EmploymentList
+                         ?? new List<EmployeeOnboardingEmploymentModel>();
+
+    var profilePhoto = !string.IsNullOrEmpty(employee.EmployeePhoto)
+        ? employee.EmployeePhoto
+        : HRMS.Models.Common.Constants.NoImagePath;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>Employee Onboarding</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <style>
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                background: #f4f7fb;
+                font-family: Arial, Helvetica, sans-serif;
+                color: #263238;
+            }
+
+            .onboarding-wrapper {
+                width: 100%;
+                padding: 30px 15px 50px;
+            }
+
+            .onboarding-container {
+                max-width: 1500px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 14px;
+                box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+                overflow: hidden;
+            }
+
+            /* =====================================================
+                       PROGRESS
+                    ====================================================== */
+
+            .progress-container {
+                width: 100%;
+                padding: 25px 25px 15px;
+                background: #ffffff;
+                border-bottom: 1px solid #e9edf3;
+                overflow-x: auto;
+            }
+
+            .progress-steps {
+                min-width: 950px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                position: relative;
+            }
+
+            .progress-line {
+                position: absolute;
+                top: 20px;
+                left: 5%;
+                right: 5%;
+                height: 3px;
+                background: #05397b;
+                z-index: 1;
+            }
+
+            .step {
+                position: relative;
+                z-index: 2;
+                width: 12.5%;
+                text-align: center;
+            }
+
+            .step-circle {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                margin: 0 auto 8px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #e9ecef;
+                color: #6c757d;
+                font-weight: 700;
+                border: 3px solid #ffffff;
+                box-shadow: 0 0 0 1px #dee2e6;
+            }
+
+            .step.active .step-circle {
+                background: #05397b;
+                color: #ffffff;
+                box-shadow: 0 0 0 1px #05397b;
+            }
+
+            .step-label {
+                font-size: 11px;
+                line-height: 1.3;
+                color: #555;
+                font-weight: 600;
+                padding: 0 5px;
+            }
+
+            .step.active .step-label {
+                color: #05397b;
+            }
+
+            /* =====================================================
+                       FORM CONTENT
+                    ====================================================== */
+
+            .form-content {
+                padding: 35px 40px 45px;
+            }
+
+            .form-title {
+                margin: 0;
+                font-size: 28px;
+                font-weight: 700;
+                color: #172b4d;
+            }
+
+            .form-subtitle {
+                margin: 8px 0 18px;
+                color: #6c757d;
+                font-size: 14px;
+            }
+
+            .required {
+                color: #dc3545;
+                font-weight: bold;
+            }
+
+            .info-box {
+                padding: 14px 18px;
+                background: #eef6ff;
+                border: 1px solid #cfe2ff;
+                border-radius: 8px;
+                color: #084298;
+                font-size: 13px;
+                margin-bottom: 25px;
+            }
+
+            /* =====================================================
+                       SECTION
+                    ====================================================== */
+
+            .section-title {
+                margin-top: 30px;
+                margin-bottom: 18px;
+                padding: 12px 15px;
+                border-left: 4px solid #05397b;
+                background: #f7f9fc;
+                color: #172b4d;
+                font-size: 17px;
+                font-weight: 700;
+                border-radius: 5px;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .form-label {
+                display: block;
+                margin-bottom: 7px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #394867;
+            }
+
+            .form-control,
+            .form-select {
+                min-height: 42px;
+                border-radius: 6px;
+                border: 1px solid #d6dce5;
+                font-size: 13px;
+            }
+
+                .form-control:focus,
+                .form-select:focus {
+                    border-color: #05397b;
+                    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, .12);
+                }
+
+            textarea.form-control {
+                min-height: 90px;
+                resize: vertical;
+            }
+
+            .readonly-field {
+                background: #f1f3f5 !important;
+                cursor: not-allowed;
+            }
+
+            /* =====================================================
+                       PHOTO
+                    ====================================================== */
+
+            .photo-preview {
+                width: 95px;
+                height: 110px;
+                object-fit: cover;
+                border-radius: 8px;
+                border: 1px solid #d8dee8;
+                background: #f8f9fa;
+            }
+
+            .photo-upload-container {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            /* =====================================================
+                       DYNAMIC CARD
+                    ====================================================== */
+
+            .dynamic-card {
+                background: #ffffff;
+                border: 1px solid #dee2e6;
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 18px;
+                box-shadow: 0 2px 7px rgba(0, 0, 0, .03);
+            }
+
+            .dynamic-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 18px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #edf0f3;
+            }
+
+            .dynamic-card-title {
+                font-weight: 700;
+                color: #172b4d;
+                font-size: 14px;
+            }
+
+            .btn-add {
+                border: 0;
+                background: #e7f1ff;
+                color: #05397b;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 7px 13px;
+                border-radius: 6px;
+            }
+
+                .btn-add:hover {
+                    background: #d7e8ff;
+                }
+
+            .btn-remove {
+                border: 0;
+                background: #fff0f0;
+                color: #dc3545;
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 5px;
+            }
+
+                .btn-remove:hover {
+                    background: #ffe0e0;
+                }
+
+            /* =====================================================
+                       DOCUMENT
+                    ====================================================== */
+
+            .document-card {
+                border: 1px solid #e0e5eb;
+                padding: 15px;
+                border-radius: 8px;
+                background: #fafbfd;
+            }
+
+            /* =====================================================
+                       DECLARATION
+                    ====================================================== */
+
+            .declaration-box {
+                padding: 20px;
+                border: 1px solid #dce3eb;
+                border-radius: 10px;
+                background: #fafbfd;
+            }
+
+            /* =====================================================
+                       FOOTER
+                    ====================================================== */
+
+            .form-footer {
+                margin-top: 35px;
+                padding-top: 25px;
+                border-top: 1px solid #e8ecf1;
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+            }
+
+            .btn-primary-custom,
+            .btn-secondary-custom {
+                border: 0;
+                min-width: 180px;
+                padding: 11px 20px;
+                border-radius: 7px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            .btn-primary-custom {
+                background: #05397b;
+                color: #ffffff;
+            }
+
+                .btn-primary-custom:hover {
+                    background: #0b5ed7;
+                }
+
+            .btn-secondary-custom {
+                background: #6c757d;
+                color: #ffffff;
+            }
+
+                .btn-secondary-custom:hover {
+                    background: #5c636a;
+                }
+
+                .btn-primary-custom:disabled,
+                .btn-secondary-custom:disabled {
+                    opacity: .65;
+                    cursor: not-allowed;
+                }
+
+            /* =====================================================
+                       ALERT
+                    ====================================================== */
+
+            #formMessage {
+                display: none;
+                margin-bottom: 20px;
+            }
+
+            /* =====================================================
+                       RESPONSIVE
+                    ====================================================== */
+
+            @@media (max-width: 768px) {
+
+                .onboarding-wrapper {
+                    padding: 0;
+                }
+
+                .onboarding-container {
+                    border-radius: 0;
+                }
+
+                .form-content {
+                    padding: 25px 18px;
+                }
+
+                .form-title {
+                    font-size: 22px;
+                }
+
+                .photo-upload-container {
+                    align-items: flex-start;
+                    flex-direction: column;
+                }
+
+                .form-footer {
+                    flex-direction: column;
+                }
+
+                .btn-primary-custom,
+                .btn-secondary-custom {
+                    width: 100%;
+                }
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="onboarding-wrapper">
+
+        <div class="onboarding-container">
+
+            <!-- =====================================================
+             PROGRESS
+        ====================================================== -->
+
+            <div class="progress-container">
+
+                <div class="progress-steps">
+
+                    <div class="progress-line"></div>
+
+                    <div class="step active">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Personal</div>
+                    </div>
+
+                    <div class="step active">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">
+                            Employee Undertaking
+                        </div>
+                    </div>
+
+                    <div class="step active">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">
+                            Non-Disclosure Agreement
+                        </div>
+                    </div>
+
+                    <div class="step active">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">
+                            IT Compliance Agreement
+                        </div>
+                    </div>
+
+                    <div class="step active">
+                        <div class="step-circle">5</div>
+                        <div class="step-label">
+                            Employee Background Verification
+                        </div>
+                    </div>
+
+                    <div class="step active">
+                        <div class="step-circle">6</div>
+                        <div class="step-label">
+                            Nomination
+                        </div>
+                    </div>
+
+                    <div class="step active">
+                        <div class="step-circle">7</div>
+                        <div class="step-label">
+                            Form 2 Revised
+                        </div>
+                    </div>
+
+                    <div class="step active">
+                        <div class="step-circle">8</div>
+                        <div class="step-label">
+                            Declaration Form
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+             FORM CONTENT
+        ====================================================== -->
+
+            <div class="form-content">
+
+                <h1 class="form-title">
+                    Employee Onboarding Form
+                </h1>
+
+                <p class="form-subtitle">
+                    Please provide your complete employment and personal
+                    information. Fields marked with
+                    <span class="required">*</span>
+                    are mandatory.
+                </p>
+
+                <div class="info-box">
+
+                    Please ensure that all information provided is correct.
+                    You can save the form and continue later.
+
+                </div>
+
+                <div id="formMessage"></div>
+
+
+                <!-- =================================================
+                 FORM
+            ================================================== -->
+
+                <form id="employeeOnboardingForm"
+                      method="post"
+                      enctype="multipart/form-data"
+                      novalidate>
+
+                    <input type="hidden"
+                           id="OnboardingID"
+                           name="OnboardingID"
+                           value="@Model.OnboardingID" />
+
+                    <input type="hidden"
+                           id="EmployeeDetailsOnboardingID"
+                           name="EmployeeDetailsOnboardingID"
+                           value="@employee.EmployeeDetailsOnboardingID" />
+
+                    <input type="hidden"
+                           name="Key"
+                           value="@Model.Key" />
+
+
+                    <!-- =================================================
+                     EMPLOYMENT DETAILS
+                ================================================== -->
+
+                    <div class="section-title">
+                        Employment Details
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Date of Joining
+                                </label>
+
+                                <input type="date"
+                                       class="form-control"
+                                       name="DateOfJoining"
+                                       value="@(employee.DateOfJoining.HasValue
+                                                                       ? employee.DateOfJoining.Value.ToString("yyyy-MM-dd")
+                                                                   : DateTime.Today.ToString("yyyy-MM-dd"))" />
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Designation
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="Designation"
+                                       value="@employee.Designation" />
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Employee Code
+                                </label>
+
+                                <input type="text"
+                                       class="form-control readonly-field"
+                                       value="@employee.EmployeeCode"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+
+                                Employee Photo
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <div class="photo-upload-container">
+
+                                <img id="employeePhotoPreview"
+                                     src="@profilePhoto"
+                                     class="photo-preview"
+                                     alt="Employee Photo"
+                                     onerror="this.onerror=null;this.src='@HRMS.Models.Common.Constants.NoImagePath'" />
+
+                                <div style="flex:1;">
+
+                                    <input type="file"
+                                           class="form-control"
+                                           id="EmployeePhotoFile"
+                                           name="EmployeePhotoFile"
+                                           accept="image/jpeg,image/png,image/jpg"
+                                           onchange="showPreview(event)"
+                                    @(string.IsNullOrEmpty(employee.EmployeePhoto)
+                                        ? "required"
+                                        : "") />
+
+                                    <small class="text-muted">
+
+                                        JPG or PNG only.
+                                        Maximum size: 2 MB.
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     PERSONAL DETAILS
+                ================================================== -->
+
+                    <div class="section-title">
+                        Personal Details
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Employee Name
+                            </label>
+
+                            <input type="text"
+                                   class="form-control readonly-field"
+                                   value="@employee.FullName"
+                                   readonly />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Father's / Husband's Name
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="FatherHusbandName"
+                                   value="@employee.FatherHusbandName"
+                                   required />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Date of Birth
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <input type="date"
+                                   class="form-control"
+                                   name="DateOfBirth"
+                                   value="@(employee.DateOfBirth.HasValue
+                                                               ? employee.DateOfBirth.Value.ToString("yyyy-MM-dd")
+                                                           : "")"
+                                   required />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Gender
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <select class="form-select"
+                                    name="Gender"
+                                    required>
+
+                                <option value="">
+                                    Select Gender
+                                </option>
+
+                                <option value="Male"
+                                        selected="@(employee.Gender == "Male")">
+                                    Male
+                                </option>
+
+                                <option value="Female"
+                                        selected="@(employee.Gender == "Female")">
+                                    Female
+                                </option>
+
+                                <option value="Other"
+                                        selected="@(employee.Gender == "Other")">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Marital Status
+                            </label>
+
+                            <select class="form-select"
+                                    name="MaritalStatus">
+
+                                <option value="">
+                                    Select Status
+                                </option>
+
+                                <option value="Married"
+                                        selected="@(employee.MaritalStatus == "Married")">
+                                    Married
+                                </option>
+
+                                <option value="Unmarried"
+                                        selected="@(employee.MaritalStatus == "Unmarried")">
+                                    Unmarried
+                                </option>
+
+                                <option value="Divorced"
+                                        selected="@(employee.MaritalStatus == "Divorced")">
+                                    Divorced
+                                </option>
+
+                                <option value="Widowed"
+                                        selected="@(employee.MaritalStatus == "Widowed")">
+                                    Widowed
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Blood Group
+                            </label>
+
+                            <select class="form-select"
+                                    name="BloodGroup">
+
+                                <option value="">
+                                    Select Blood Group
+                                </option>
+
+                                @foreach (var bloodGroup in new[]
+                                {
+                                "A+", "A-", "B+", "B-",
+                                "O+", "O-", "AB+", "AB-"
+                            })
+                                {
+                                    <option value="@bloodGroup"
+                                            selected="@(employee.BloodGroup == bloodGroup)">
+                                        @bloodGroup
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     PERMANENT ADDRESS
+                ================================================== -->
+
+                    <div class="section-title">
+                        Permanent Address
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+
+                            Address
+
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <textarea class="form-control"
+                                  name="PermanentAddress"
+                                  required>@employee.PermanentAddress</textarea>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                City
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="PermanentCity"
+                                   value="@employee.PermanentCity" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                State
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="PermanentState"
+                                   value="@employee.PermanentState" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                PIN Code
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="PermanentPINCode"
+                                   value="@employee.PermanentPINCode"
+                                   maxlength="6"
+                                   inputmode="numeric" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     PRESENT ADDRESS
+                ================================================== -->
+
+                    <div class="section-title">
+
+                        Present Address
+
+                        <div class="form-check float-end"
+                             style="font-size:12px;">
+
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="sameAddress" />
+
+                            <label class="form-check-label"
+                                   for="sameAddress">
+
+                                Same as permanent address
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Address
+                        </label>
+
+                        <textarea class="form-control"
+                                  id="PresentAddress"
+                                  name="PresentAddress">@employee.PresentAddress</textarea>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                City
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="PresentCity"
+                                   name="PresentCity"
+                                   value="@employee.PresentCity" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                State
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="PresentState"
+                                   name="PresentState"
+                                   value="@employee.PresentState" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                PIN Code
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="PresentPINCode"
+                                   name="PresentPINCode"
+                                   value="@employee.PresentPINCode"
+                                   maxlength="6"
+                                   inputmode="numeric" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     CONTACT
+                ================================================== -->
+
+                    <div class="section-title">
+                        Contact Information
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Mobile Number
+                            </label>
+
+                            <input type="text"
+                                   class="form-control readonly-field"
+                                   value="@employee.Mobile"
+                                   readonly />
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Email
+                            </label>
+
+                            <input type="email"
+                                   class="form-control readonly-field"
+                                   value="@employee.Email"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Landline Number
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="LandlineNo"
+                                   value="@employee.LandlineNo" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     EMERGENCY CONTACT
+                ================================================== -->
+
+                    <div class="section-title">
+                        Emergency Contact Details
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Contact Name
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EmergencyContactName"
+                                   value="@employee.EmergencyContactName"
+                                   required />
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Relation
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EmergencyContactRelation"
+                                   value="@employee.EmergencyContactRelation"
+                                   required />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Mobile Number
+
+                                <span class="required">*</span>
+
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EmergencyContactMobile"
+                                   value="@employee.EmergencyContactMobile"
+                                   maxlength="10"
+                                   inputmode="numeric"
+                                   required />
+
+                        </div>
+
+
+                        <div class="col-md-8">
+
+                            <label class="form-label">
+                                Address
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EmergencyContactAddress"
+                                   value="@employee.EmergencyContactAddress" />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                City
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EmergencyContactCity"
+                                   value="@employee.EmergencyContactCity" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     SOURCE OF HIRING
+                ================================================== -->
+
+                    <div class="section-title">
+                        Source of Hiring
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-12">
+
+                            @foreach (var source in new[]
+                            {
+                            "Placement Consultant",
+                            "Employee Reference",
+                            "Office Walk-in",
+                            "Employment Exchange"
+                        })
+                            {
+                                var radioId = "source_" +
+                                              source.Replace(" ", "")
+                                                    .Replace("-", "");
+
+                                <div class="form-check form-check-inline">
+
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           name="SourceOfHiring"
+                                           id="@radioId"
+                                           value="@source"
+                                           checked="@(employee.SourceOfHiring == source)" />
+
+                                    <label class="form-check-label"
+                                           for="@radioId">
+
+                                        @source
+
+                                    </label>
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     REFERENCES
+                ================================================== -->
+
+                    <div class="section-title">
+                        References
+                    </div>
+
+
+                    <h6>
+                        Reference 1
+                    </h6>
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Name
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Reference1Name"
+                                   value="@employee.Reference1Name" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Designation
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Reference1Designation"
+                                   value="@employee.Reference1Designation" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Company
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Reference1Company"
+                                   value="@employee.Reference1Company" />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Mobile Number
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Reference1Mobile"
+                                   maxlength="10"
+                                   inputmode="numeric"
+                                   value="@employee.Reference1Mobile" />
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Email
+                            </label>
+
+                            <input type="email"
+                                   class="form-control"
+                                   name="Reference1Email"
+                                   value="@employee.Reference1Email" />
+
+                        </div>
+
+                    </div>
+
+
+                    <h6 class="mt-4">
+                        Reference 2
+                    </h6>
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Name
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Reference2Name"
+                                   value="@employee.Reference2Name" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Designation
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Reference2Designation"
+                                   value="@employee.Reference2Designation" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Company
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Reference2Company"
+                                   value="@employee.Reference2Company" />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Mobile Number
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Reference2Mobile"
+                                   maxlength="10"
+                                   inputmode="numeric"
+                                   value="@employee.Reference2Mobile" />
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Email
+                            </label>
+
+                            <input type="email"
+                                   class="form-control"
+                                   name="Reference2Email"
+                                   value="@employee.Reference2Email" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                     FAMILY DETAILS
+                ================================================== -->
+
+                    <div class="section-title">
+
+                        <span>
+                            Family Details
+                        </span>
+
+                        <button type="button"
+                                class="btn-add float-end"
+                                onclick="addFamily()">
+
+                            + Add Family Member
+
+                        </button>
+
+                    </div>
+
+
+                    <div id="familyContainer">
+
+                        @if (familyList.Any())
+                        {
+                            for (int i = 0; i < familyList.Count; i++)
+                            {
+                                var family = familyList[i];
+
+                                <div class="dynamic-card family-row">
+
+                                    <div class="dynamic-card-header">
+
+                                        <div class="dynamic-card-title">
+                                            Family Member @(i + 1)
+                                        </div>
+
+                                        <button type="button"
+                                                class="btn-remove"
+                                                onclick="removeRow(this)">
+
+                                            Remove
+
+                                        </button>
+
+                                    </div>
+
+
+                                    <input type="hidden"
+                                           name="FamilyList[@i].FamilyID"
+                                           value="@family.FamilyID" />
+
+                                    <input type="hidden"
+                                           name="FamilyList[@i].OnboardingID"
+                                           value="@Model.OnboardingID" />
+
+
+                                    <div class="row">
+
+                                        <div class="col-md-3">
+
+                                            <label class="form-label">
+                                                Relation
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="FamilyList[@i].Relation"
+                                                   value="@family.Relation" />
+
+                                        </div>
+
+
+                                        <div class="col-md-3">
+
+                                            <label class="form-label">
+                                                Name
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="FamilyList[@i].Name"
+                                                   value="@family.Name" />
+
+                                        </div>
+
+
+                                        <div class="col-md-2">
+
+                                            <label class="form-label">
+                                                Gender
+                                            </label>
+
+                                            <select class="form-select"
+                                                    name="FamilyList[@i].Gender">
+
+                                                <option value="">
+                                                    Select
+                                                </option>
+
+                                                <option value="Male"
+                                                        selected="@(family.Gender == "Male")">
+                                                    Male
+                                                </option>
+
+                                                <option value="Female"
+                                                        selected="@(family.Gender == "Female")">
+                                                    Female
+                                                </option>
+
+                                                <option value="Other"
+                                                        selected="@(family.Gender == "Other")">
+                                                    Other
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <div class="col-md-2">
+
+                                            <label class="form-label">
+                                                Age
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="FamilyList[@i].Age"
+                                                   value="@family.Age" />
+
+                                        </div>
+
+
+                                        <div class="col-md-2">
+
+                                            <label class="form-label">
+                                                Occupation
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="FamilyList[@i].Occupation"
+                                                   value="@family.Occupation" />
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="row mt-3">
+
+                                        <div class="col-md-3">
+
+                                            <label class="form-label">
+                                                Date of Birth
+                                            </label>
+
+                                            <input type="date"
+                                                   class="form-control"
+                                                   name="FamilyList[@i].DateOfBirth"
+                                                   value="@(family.DateOfBirth.HasValue
+                                                                                               ? family.DateOfBirth.Value.ToString("yyyy-MM-dd")
+                                                                                           : "")" />
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Dependent
+                            </label>
+
+                            <select class="form-select"
+                                    name="FamilyList[@i].IsDependent">
+
+                                <option value="true"
+                                        selected="@(family.IsDependent == true)">
+                                    Yes
+                                </option>
+
+                                <option value="false"
+                                        selected="@(family.IsDependent != true)">
+                                    No
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+        }
+                    else
+        {
+            <div class="dynamic-card family-row">
+
+                <div class="dynamic-card-header">
+
+                    <div class="dynamic-card-title">
+                        Family Member 1
+                    </div>
+
+                    <button type="button"
+                            class="btn-remove"
+                            onclick="removeRow(this)">
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+
+                <input type="hidden"
+                       name="FamilyList[0].FamilyID"
+                       value="0" />
+
+                <input type="hidden"
+                       name="FamilyList[0].OnboardingID"
+                       value="@Model.OnboardingID" />
+
+
+                <div class="row">
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Relation
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="FamilyList[0].Relation" />
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Name
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="FamilyList[0].Name" />
+
+                    </div>
+
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Gender
+                        </label>
+
+                        <select class="form-select"
+                                name="FamilyList[0].Gender">
+
+                            <option value="">
+                                Select
+                            </option>
+
+                            <option value="Male">
+                                Male
+                            </option>
+
+                            <option value="Female">
+                                Female
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Age
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="FamilyList[0].Age" />
+
+                    </div>
+
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Occupation
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="FamilyList[0].Occupation" />
+
+                    </div>
+
+                </div>
+
+
+                <div class="row mt-3">
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Date of Birth
+                        </label>
+
+                        <input type="date"
+                               class="form-control"
+                               name="FamilyList[0].DateOfBirth" />
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Dependent
+                        </label>
+
+                        <select class="form-select"
+                                name="FamilyList[0].IsDependent">
+
+                            <option value="true">
+                                Yes
+                            </option>
+
+                            <option value="false">
+                                No
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+
+    <!-- =================================================
+                     EDUCATION
+                ================================================== -->
+
+    <div class="section-title">
+
+        <span>
+            Education Details
+        </span>
+
+        <button type="button"
+                class="btn-add float-end"
+                onclick="addEducation()">
+
+            + Add Education
+
+        </button>
+
+    </div>
+
+
+    <div id="educationContainer">
+
+        @if (educationList.Any())
+        {
+            for (int i = 0; i < educationList.Count; i++)
+            {
+                var education = educationList[i];
+
+                <div class="dynamic-card education-row">
+
+                    <div class="dynamic-card-header">
+
+                        <div class="dynamic-card-title">
+                            Education @(i + 1)
+                        </div>
+
+                        <button type="button"
+                                class="btn-remove"
+                                onclick="removeRow(this)">
+
+                            Remove
+
+                        </button>
+
+                    </div>
+
+
+                    <input type="hidden"
+                           name="EducationList[@i].EducationID"
+                           value="@education.EducationID" />
+
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Education Level
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EducationList[@i].EducationLevel"
+                                   value="@education.EducationLevel" />
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Stream
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EducationList[@i].Stream"
+                                   value="@education.Stream" />
+
+                        </div>
+
+
+                        <div class="col-md-2">
+
+                            <label class="form-label">
+                                Passing Year
+                            </label>
+
+                            <input type="number"
+                                   class="form-control"
+                                   name="EducationList[@i].PassingYear"
+                                   value="@education.PassingYear" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Institution
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EducationList[@i].InstitutionName"
+                                   value="@education.InstitutionName" />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Board / University
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EducationList[@i].BoardUniversity"
+                                   value="@education.BoardUniversity" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Marks Obtained
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EducationList[@i].MarksObtained"
+                                   value="@education.MarksObtained" />
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Major Subjects
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EducationList[@i].MajorSubjects"
+                                   value="@education.MajorSubjects" />
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+        }
+        else
+        {
+            <div class="dynamic-card education-row">
+
+                <div class="dynamic-card-header">
+
+                    <div class="dynamic-card-title">
+                        Education 1
+                    </div>
+
+                    <button type="button"
+                            class="btn-remove"
+                            onclick="removeRow(this)">
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+
+                <input type="hidden"
+                       name="EducationList[0].EducationID"
+                       value="0" />
+
+
+                <div class="row">
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Education Level
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="EducationList[0].EducationLevel" />
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">
+                            Stream
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="EducationList[0].Stream" />
+
+                    </div>
+
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Passing Year
+                        </label>
+
+                        <input type="number"
+                               class="form-control"
+                               name="EducationList[0].PassingYear" />
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Institution
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="EducationList[0].InstitutionName" />
+
+                    </div>
+
+                </div>
+
+
+                <div class="row mt-3">
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Board / University
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="EducationList[0].BoardUniversity" />
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Marks Obtained
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="EducationList[0].MarksObtained" />
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Major Subjects
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               name="EducationList[0].MajorSubjects" />
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+
+    <!-- =================================================
+                     PREVIOUS EMPLOYMENT
+                ================================================== -->
+
+    <div class="section-title">
+
+        <span>
+            Previous Employment Details
+        </span>
+
+        <button type="button"
+                class="btn-add float-end"
+                onclick="addEmployment()">
+
+            + Add Employment
+
+        </button>
+
+    </div>
+
+
+    <div id="employmentContainer">
+
+        @if (employmentList.Any())
+        {
+            for (int i = 0; i < employmentList.Count; i++)
+            {
+                var employment = employmentList[i];
+
+                <div class="dynamic-card employment-row">
+
+                    <div class="dynamic-card-header">
+
+                        <div class="dynamic-card-title">
+                            Employment @(i + 1)
+                        </div>
+
+                        <button type="button"
+                                class="btn-remove"
+                                onclick="removeRow(this)">
+
+                            Remove
+
+                        </button>
+
+                    </div>
+
+
+                    <input type="hidden"
+                           name="EmploymentList[@i].EmploymentID"
+                           value="@employment.EmploymentID" />
+
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Employer Name
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EmploymentList[@i].EmployerName"
+                                   value="@employment.EmployerName" />
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Designation
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EmploymentList[@i].Designation"
+                                   value="@employment.Designation" />
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Reporting To
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="EmploymentList[@i].ReportingTo"
+                                   value="@employment.ReportingTo" />
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                Annual CTC
+                            </label>
+
+                            <input type="number"
+                                   step="0.01"
+                                   class="form-control"
+                                   name="EmploymentList[@i].AnnualCTC"
+                                   value="@employment.AnnualCTC" />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-3">
+
+                            <label class="form-label">
+                                From Date
+                            </label>
+
+                            <input type="date"
+                                   class="form-control"
+                                   name="EmploymentList[@i].FromDate"
+                                   value="@(employment.FromDate.HasValue
+                                                                               ? employment.FromDate.Value.ToString("yyyy-MM-dd")
+                                                                           : "")" />
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <label class="form-label">
+                To Date
+            </label>
+
+            <input type="date"
+                   class="form-control"
+                   name="EmploymentList[@i].ToDate"
+                   value="@(employment.ToDate.HasValue
+                                                               ? employment.ToDate.Value.ToString("yyyy-MM-dd")
+                                                           : "")" />
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <label class="form-label">
+                Employer Address
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   name="EmploymentList[@i].EmployerAddress"
+                   value="@employment.EmployerAddress" />
+
+        </div>
+
+    </div>
+
+</div>
+                        }
+                    }
+                    else
+{
+    <div class="dynamic-card employment-row">
+
+        <div class="dynamic-card-header">
+
+            <div class="dynamic-card-title">
+                Employment 1
+            </div>
+
+            <button type="button"
+                    class="btn-remove"
+                    onclick="removeRow(this)">
+
+                Remove
+
+            </button>
+
+        </div>
+
+
+        <input type="hidden"
+               name="EmploymentList[0].EmploymentID"
+               value="0" />
+
+
+        <div class="row">
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Employer Name
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       name="EmploymentList[0].EmployerName" />
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Designation
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       name="EmploymentList[0].Designation" />
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Reporting To
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       name="EmploymentList[0].ReportingTo" />
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    Annual CTC
+                </label>
+
+                <input type="number"
+                       step="0.01"
+                       class="form-control"
+                       name="EmploymentList[0].AnnualCTC" />
+
+            </div>
+
+        </div>
+
+
+        <div class="row mt-3">
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    From Date
+                </label>
+
+                <input type="date"
+                       class="form-control"
+                       name="EmploymentList[0].FromDate" />
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label class="form-label">
+                    To Date
+                </label>
+
+                <input type="date"
+                       class="form-control"
+                       name="EmploymentList[0].ToDate" />
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Employer Address
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       name="EmploymentList[0].EmployerAddress" />
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+</div>
+
+
+<!-- =================================================
+                     DOCUMENTS
+                ================================================== -->
+
+<div class="section-title">
+    Documents
+</div>
+
+<div class="row">
+
+    <div class="col-md-4">
+
+        <div class="document-card">
+
+            <label class="form-label">
+                Passport
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   name="PassportNumber"
+                   value="@employee.PassportNumber" />
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="document-card">
+
+            <label class="form-label">
+                PAN Number
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   name="PANNumber"
+                   value="@employee.PANNumber" />
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="document-card">
+
+            <label class="form-label">
+                Aadhaar Number
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   name="AadhaarNumber"
+                   value="@employee.AadhaarNumber" />
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+                     PREVIOUS INTERVIEW
+                ================================================== -->
+
+<div class="section-title">
+    Previous Interview Details
+</div>
+
+<div class="row">
+
+    <div class="col-md-3">
+
+        <label class="form-label">
+            Previously Interviewed?
+        </label>
+
+        <select class="form-select"
+                name="PreviouslyInterviewed">
+
+            <option value="">
+                Select
+            </option>
+
+            <option value="true"
+                    selected="@(employee.PreviouslyInterviewed == true)">
+                Yes
+            </option>
+
+            <option value="false"
+                    selected="@(employee.PreviouslyInterviewed == false)">
+                No
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <label class="form-label">
+            Interview Date
+        </label>
+
+        <input type="date"
+               class="form-control"
+               name="PreviousInterviewDate"
+               value="@(employee.PreviousInterviewDate.HasValue
+                                           ? employee.PreviousInterviewDate.Value.ToString("yyyy-MM-dd")
+                                       : "")" />
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <label class="form-label">
+            Interview Place
+        </label>
+
+        <input type="text"
+               class="form-control"
+               name="PreviousInterviewPlace"
+               value="@employee.PreviousInterviewPlace" />
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <label class="form-label">
+            Position Applied
+        </label>
+
+        <input type="text"
+               class="form-control"
+               name="PreviousPositionApplied"
+               value="@employee.PreviousPositionApplied" />
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+                     PREVIOUS WORK
+                ================================================== -->
+
+<div class="section-title">
+    Previous Work Information
+</div>
+
+<div class="row">
+
+    <div class="col-md-3">
+
+        <label class="form-label">
+            Previously Worked?
+        </label>
+
+        <select class="form-select"
+                name="PreviouslyWorked">
+
+            <option value="">
+                Select
+            </option>
+
+            <option value="true"
+                    selected="@(employee.PreviouslyWorked == true)">
+                Yes
+            </option>
+
+            <option value="false"
+                    selected="@(employee.PreviouslyWorked == false)">
+                No
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <label class="form-label">
+            From Date
+        </label>
+
+        <input type="date"
+               class="form-control"
+               name="PreviousWorkFromDate"
+               value="@(employee.PreviousWorkFromDate.HasValue
+                                           ? employee.PreviousWorkFromDate.Value.ToString("yyyy-MM-dd")
+                                       : "")" />
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <label class="form-label">
+            To Date
+        </label>
+
+        <input type="date"
+               class="form-control"
+               name="PreviousWorkToDate"
+               value="@(employee.PreviousWorkToDate.HasValue
+                                           ? employee.PreviousWorkToDate.Value.ToString("yyyy-MM-dd")
+                                       : "")" />
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <label class="form-label">
+            Work Location
+        </label>
+
+        <input type="text"
+               class="form-control"
+               name="PreviousWorkLocation"
+               value="@employee.PreviousWorkLocation" />
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+                     CRIMINAL / CIVIL
+                ================================================== -->
+
+<div class="section-title">
+    Criminal / Civil Proceedings
+</div>
+
+<div class="row">
+
+    <div class="col-md-4">
+
+        <label class="form-label">
+            Any Criminal / Civil Proceedings?
+        </label>
+
+        <select class="form-select"
+                name="HaveCriminalCivilProceedings">
+
+            <option value="">
+                Select
+            </option>
+
+            <option value="true"
+                    selected="@(employee.HaveCriminalCivilProceedings == true)">
+                Yes
+            </option>
+
+            <option value="false"
+                    selected="@(employee.HaveCriminalCivilProceedings == false)">
+                No
+            </option>
+
+        </select>
+
+    </div>
+
+</div>
+
+
+<div class="row mt-3">
+
+    <div class="col-md-12">
+
+        <label class="form-label">
+            Details
+        </label>
+
+        <textarea class="form-control"
+                  name="CriminalCivilProceedingsDetails">@employee.CriminalCivilProceedingsDetails</textarea>
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+                     OTHER INFORMATION
+                ================================================== -->
+
+<div class="section-title">
+    Other Information
+</div>
+
+<textarea class="form-control"
+          name="OtherInformation">@employee.OtherInformation</textarea>
+
+
+<!-- =================================================
+                     DECLARATION
+                ================================================== -->
+
+<div class="section-title">
+    Declaration
+</div>
+
+<div class="declaration-box">
+
+    <p style="font-size:13px; line-height:1.7;">
+
+        I hereby declare that the information provided by me
+        in this employee onboarding form is true and correct
+        to the best of my knowledge and belief. I understand
+        that any incorrect or misleading information may
+        result in appropriate action.
+
+    </p>
+
+
+    <div class="form-check mb-3">
+
+        <input class="form-check-input"
+               type="checkbox"
+               id="declarationAccepted"
+               required />
+
+        <label class="form-check-label"
+               for="declarationAccepted">
+
+            I confirm that the above information is correct.
+
+            <span class="required">*</span>
+
+        </label>
+
+    </div>
+
+
+    <div class="row">
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Declaration Date
+            </label>
+
+            <input type="date"
+                   class="form-control"
+                   name="DeclarationDate"
+                   value="@(employee.DeclarationDate.HasValue
+                                                   ? employee.DeclarationDate.Value.ToString("yyyy-MM-dd")
+                                               : DateTime.Today.ToString("yyyy-MM-dd"))" />
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Declaration Place
+            </label>
+
+            <input type="text"
+                   class="form-control"
+                   name="DeclarationPlace"
+                   value="@employee.DeclarationPlace" />
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <label class="form-label">
+                Employee Signature
+            </label>
+
+            <input type="file"
+                   class="form-control"
+                   id="EmployeeSignature"
+                   name="EmployeeSignature"
+                   accept="image/jpeg,image/png,image/jpg" />
+
+            <small class="text-muted">
+                JPG or PNG only. Maximum size: 2 MB.
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+                     FOOTER
+                ================================================== -->
+
+<div class="form-footer">
+
+    <button type="button"
+            id="btnSaveLater"
+            class="btn-secondary-custom"
+            onclick="saveForm(false)">
+
+        Save & Continue Later
+
+    </button>
+
+
+    <button type="button"
+            id="btnSubmit"
+            class="btn-primary-custom"
+            onclick="saveForm(true)">
+
+        Save & Submit
+
+    </button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+        /* =========================================================
+           GLOBAL COUNTERS
+        ========================================================= */
+
+        let familyIndex =
+            document.querySelectorAll("#familyContainer .family-row").length;
+
+        let educationIndex =
+            document.querySelectorAll("#educationContainer .education-row").length;
+
+        let employmentIndex =
+            document.querySelectorAll("#employmentContainer .employment-row").length;
+
+
+        /* =========================================================
+           PHOTO PREVIEW
+        ========================================================= */
+
+        function showPreview(event) {
+
+            const input = event.target;
+
+            if (!input.files || input.files.length === 0) {
+                return;
+            }
+
+            const file = input.files[0];
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/jpg",
+                "image/png"
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+
+                alert("Only JPG and PNG images are allowed.");
+
+                input.value = "";
+
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+
+                alert("Employee photo must not exceed 2 MB.");
+
+                input.value = "";
+
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+
+                document.getElementById(
+                    "employeePhotoPreview"
+                ).src = e.target.result;
+
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+
+        /* =========================================================
+           SAME ADDRESS
+        ========================================================= */
+
+        document.getElementById("sameAddress")
+            .addEventListener("change", function() {
+
+                const checked = this.checked;
+
+                if (checked) {
+
+                    document.getElementById("PresentAddress").value =
+                        document.querySelector(
+                            '[name="PermanentAddress"]'
+                        ).value;
+
+                    document.getElementById("PresentCity").value =
+                        document.querySelector(
+                            '[name="PermanentCity"]'
+                        ).value;
+
+                    document.getElementById("PresentState").value =
+                        document.querySelector(
+                            '[name="PermanentState"]'
+                        ).value;
+
+                    document.getElementById("PresentPINCode").value =
+                        document.querySelector(
+                            '[name="PermanentPINCode"]'
+                        ).value;
+
+                }
+
+            });
+
+
+        /* =========================================================
+           FAMILY
+        ========================================================= */
+
+        function addFamily() {
+
+            const container =
+                document.getElementById("familyContainer");
+
+            const index = familyIndex++;
+
+            const html = `
+
+                    <div class="dynamic-card family-row">
+
+                        <div class="dynamic-card-header">
+
+                            <div class="dynamic-card-title">
+                                Family Member ${index + 1}
+                            </div>
+
+                            <button type="button"
+                                    class="btn-remove"
+                                    onclick="removeRow(this)">
+
+                                Remove
+
+                            </button>
+
+                        </div>
+
+                        <input type="hidden"
+                               name="FamilyList[${index}].FamilyID"
+                               value="0" />
+
+                        <input type="hidden"
+                               name="FamilyList[${index}].OnboardingID"
+                               value="${document.getElementById("OnboardingID").value}" />
+
+                        <div class="row">
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Relation
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="FamilyList[${index}].Relation" />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Name
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="FamilyList[${index}].Name" />
+
+                            </div>
+
+                            <div class="col-md-2">
+
+                                <label class="form-label">
+                                    Gender
+                                </label>
+
+                                <select class="form-select"
+                                        name="FamilyList[${index}].Gender">
+
+                                    <option value="">
+                                        Select
+                                    </option>
+
+                                    <option value="Male">
+                                        Male
+                                    </option>
+
+                                    <option value="Female">
+                                        Female
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-2">
+
+                                <label class="form-label">
+                                    Age
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="FamilyList[${index}].Age" />
+
+                            </div>
+
+                            <div class="col-md-2">
+
+                                <label class="form-label">
+                                    Occupation
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="FamilyList[${index}].Occupation" />
+
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-3">
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Date of Birth
+                                </label>
+
+                                <input type="date"
+                                       class="form-control"
+                                       name="FamilyList[${index}].DateOfBirth" />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Dependent
+                                </label>
+
+                                <select class="form-select"
+                                        name="FamilyList[${index}].IsDependent">
+
+                                    <option value="true">
+                                        Yes
+                                    </option>
+
+                                    <option value="false">
+                                        No
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+
+            container.insertAdjacentHTML("beforeend", html);
+        }
+
+
+        /* =========================================================
+           EDUCATION
+        ========================================================= */
+
+        function addEducation() {
+
+            const container =
+                document.getElementById("educationContainer");
+
+            const index = educationIndex++;
+
+            const html = `
+
+                    <div class="dynamic-card education-row">
+
+                        <div class="dynamic-card-header">
+
+                            <div class="dynamic-card-title">
+                                Education ${index + 1}
+                            </div>
+
+                            <button type="button"
+                                    class="btn-remove"
+                                    onclick="removeRow(this)">
+
+                                Remove
+
+                            </button>
+
+                        </div>
+
+                        <input type="hidden"
+                               name="EducationList[${index}].EducationID"
+                               value="0" />
+
+                        <div class="row">
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Education Level
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EducationList[${index}].EducationLevel" />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Stream
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EducationList[${index}].Stream" />
+
+                            </div>
+
+                            <div class="col-md-2">
+
+                                <label class="form-label">
+                                    Passing Year
+                                </label>
+
+                                <input type="number"
+                                       class="form-control"
+                                       name="EducationList[${index}].PassingYear" />
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label">
+                                    Institution
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EducationList[${index}].InstitutionName" />
+
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-3">
+
+                            <div class="col-md-4">
+
+                                <label class="form-label">
+                                    Board / University
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EducationList[${index}].BoardUniversity" />
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label">
+                                    Marks Obtained
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EducationList[${index}].MarksObtained" />
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label">
+                                    Major Subjects
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EducationList[${index}].MajorSubjects" />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+
+            container.insertAdjacentHTML("beforeend", html);
+        }
+
+
+        /* =========================================================
+           EMPLOYMENT
+        ========================================================= */
+
+        function addEmployment() {
+
+            const container =
+                document.getElementById("employmentContainer");
+
+            const index = employmentIndex++;
+
+            const html = `
+
+                    <div class="dynamic-card employment-row">
+
+                        <div class="dynamic-card-header">
+
+                            <div class="dynamic-card-title">
+                                Employment ${index + 1}
+                            </div>
+
+                            <button type="button"
+                                    class="btn-remove"
+                                    onclick="removeRow(this)">
+
+                                Remove
+
+                            </button>
+
+                        </div>
+
+                        <input type="hidden"
+                               name="EmploymentList[${index}].EmploymentID"
+                               value="0" />
+
+                        <div class="row">
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Employer Name
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EmploymentList[${index}].EmployerName" />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Designation
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EmploymentList[${index}].Designation" />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Reporting To
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EmploymentList[${index}].ReportingTo" />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Annual CTC
+                                </label>
+
+                                <input type="number"
+                                       step="0.01"
+                                       class="form-control"
+                                       name="EmploymentList[${index}].AnnualCTC" />
+
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-3">
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    From Date
+                                </label>
+
+                                <input type="date"
+                                       class="form-control"
+                                       name="EmploymentList[${index}].FromDate" />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    To Date
+                                </label>
+
+                                <input type="date"
+                                       class="form-control"
+                                       name="EmploymentList[${index}].ToDate" />
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Employer Address
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="EmploymentList[${index}].EmployerAddress" />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+
+            container.insertAdjacentHTML("beforeend", html);
+        }
+
+
+        /* =========================================================
+           REMOVE ROW
+        ========================================================= */
+
+        function removeRow(button) {
+
+            const card = button.closest(".dynamic-card");
+
+            if (!card) {
+                return;
+            }
+
+            const container = card.parentElement;
+
+            const rows =
+                container.querySelectorAll(".dynamic-card");
+
+            if (rows.length <= 1) {
+
+                card.querySelectorAll(
+                    "input:not([type='hidden']), textarea"
+                ).forEach(function(input) {
+
+                    input.value = "";
+
+                });
+
+                card.querySelectorAll(
+                    "select"
+                ).forEach(function(select) {
+
+                    select.selectedIndex = 0;
+
+                });
+
+                return;
+            }
+
+            card.remove();
+
+            reindexDynamicRows();
+        }
+
+
+        /* =========================================================
+           REINDEX DYNAMIC LISTS
+           IMPORTANT FOR ASP.NET CORE MODEL BINDING
+        ========================================================= */
+
+        function reindexDynamicRows() {
+
+            reindexFamily();
+
+            reindexEducation();
+
+            reindexEmployment();
+        }
+
+
+        function reindexFamily() {
+
+            const rows =
+                document.querySelectorAll(
+                    "#familyContainer .family-row"
+                );
+
+            rows.forEach(function(row, index) {
+
+                const title =
+                    row.querySelector(".dynamic-card-title");
+
+                if (title) {
+                    title.textContent =
+                        "Family Member " + (index + 1);
+                }
+
+                row.querySelectorAll("[name]").forEach(function(element) {
+
+                    element.name =
+                        element.name.replace(
+                            /FamilyList\[\d+\]/,
+                            "FamilyList[" + index + "]"
+                        );
+
+                });
+
+            });
+
+            familyIndex = rows.length;
+        }
+
+
+        function reindexEducation() {
+
+            const rows =
+                document.querySelectorAll(
+                    "#educationContainer .education-row"
+                );
+
+            rows.forEach(function(row, index) {
+
+                const title =
+                    row.querySelector(".dynamic-card-title");
+
+                if (title) {
+                    title.textContent =
+                        "Education " + (index + 1);
+                }
+
+                row.querySelectorAll("[name]").forEach(function(element) {
+
+                    element.name =
+                        element.name.replace(
+                            /EducationList\[\d+\]/,
+                            "EducationList[" + index + "]"
+                        );
+
+                });
+
+            });
+
+            educationIndex = rows.length;
+        }
+
+
+        function reindexEmployment() {
+
+            const rows =
+                document.querySelectorAll(
+                    "#employmentContainer .employment-row"
+                );
+
+            rows.forEach(function(row, index) {
+
+                const title =
+                    row.querySelector(".dynamic-card-title");
+
+                if (title) {
+                    title.textContent =
+                        "Employment " + (index + 1);
+                }
+
+                row.querySelectorAll("[name]").forEach(function(element) {
+
+                    element.name =
+                        element.name.replace(
+                            /EmploymentList\[\d+\]/,
+                            "EmploymentList[" + index + "]"
+                        );
+
+                });
+
+            });
+
+            employmentIndex = rows.length;
+        }
+
+
+        /* =========================================================
+           FILE VALIDATION
+        ========================================================= */
+
+        function validateFile(input, required) {
+
+            if (!input.files || input.files.length === 0) {
+
+                if (required) {
+
+                    return {
+                        valid: false,
+                        message: "Employee photo is required."
+                    };
+
+                }
+
+                return {
+                    valid: true
+                };
+            }
+
+            const file = input.files[0];
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/jpg",
+                "image/png"
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+
+                return {
+                    valid: false,
+                    message: "Only JPG and PNG images are allowed."
+                };
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+
+                return {
+                    valid: false,
+                    message: "Image size must not exceed 2 MB."
+                };
+            }
+
+            return {
+                valid: true
+            };
+        }
+
+
+        /* =========================================================
+           FORM VALIDATION
+        ========================================================= */
+
+        function validateForm(isSubmit) {
+
+            const form =
+                document.getElementById(
+                    "employeeOnboardingForm"
+                );
+
+            if (!form.checkValidity()) {
+
+                form.classList.add("was-validated");
+
+                const firstInvalid =
+                    form.querySelector(":invalid");
+
+                if (firstInvalid) {
+
+                    firstInvalid.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    firstInvalid.focus();
+                }
+
+                return false;
+            }
+
+
+            const photo =
+                document.getElementById(
+                    "EmployeePhotoFile"
+                );
+
+            const photoResult =
+                validateFile(
+                    photo,
+                    photo.hasAttribute("required")
+                );
+
+            if (!photoResult.valid) {
+
+                showMessage(
+                    photoResult.message,
+                    "danger"
+                );
+
+                photo.focus();
+
+                return false;
+            }
+
+
+            const signature =
+                document.getElementById(
+                    "EmployeeSignature"
+                );
+
+            if (signature.files.length > 0) {
+
+                const signatureResult =
+                    validateFile(
+                        signature,
+                        false
+                    );
+
+                if (!signatureResult.valid) {
+
+                    showMessage(
+                        signatureResult.message,
+                        "danger"
+                    );
+
+                    signature.focus();
+
+                    return false;
+                }
+            }
+
+
+            if (isSubmit) {
+
+                const declaration =
+                    document.getElementById(
+                        "declarationAccepted"
+                    );
+
+                if (!declaration.checked) {
+
+                    showMessage(
+                        "Please accept the declaration before submitting.",
+                        "danger"
+                    );
+
+                    declaration.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    return false;
+                }
+
+            }
+
+            return true;
+        }
+
+
+        /* =========================================================
+           SAVE FORM
+        ========================================================= */
+
+        function saveForm(isSubmit) {
+
+            if (!validateForm(isSubmit)) {
+                return;
+            }
+
+            const form =
+                document.getElementById(
+                    "employeeOnboardingForm"
+                );
+
+            const formData =
+                new FormData(form);
+
+            /*
+             * Add explicit submission status.
+             *
+             * Your controller can receive:
+             *
+             * IsSubmit = true / false
+             *
+             */
+
+            formData.set(
+                "IsSubmit",
+                isSubmit ? "true" : "false"
+            );
+
+
+            const btnSave =
+                document.getElementById(
+                    "btnSaveLater"
+                );
+
+            const btnSubmit =
+                document.getElementById(
+                    "btnSubmit"
+                );
+
+
+            btnSave.disabled = true;
+
+            btnSubmit.disabled = true;
+
+
+            const originalSaveText =
+                btnSave.innerHTML;
+
+            const originalSubmitText =
+                btnSubmit.innerHTML;
+
+
+            if (isSubmit) {
+
+                btnSubmit.innerHTML =
+                    "Saving...";
+
+            }
+            else {
+
+                btnSave.innerHTML =
+                    "Saving...";
+
+            }
+
+
+            /*
+             * IMPORTANT:
+             *
+             * Change this URL if your POST action has
+             * a different route.
+             *
+             */
+
+            fetch(
+                '@Url.Action("SaveEmployeeDetailsOnboarding", "EmployeeOnboarding")',
+                {
+                    method: "POST",
+                    body: formData
+                }
+            )
+                .then(function(response) {
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Server returned HTTP " +
+                            response.status
+                        );
+                    }
+
+                    return response.json();
+
+                })
+                .then(function(result) {
+
+                    if (result.success) {
+
+                        showMessage(
+                            result.message ||
+                            (
+                                isSubmit
+                                    ? "Employee onboarding submitted successfully."
+                                    : "Employee onboarding saved successfully."
+                            ),
+                            "success"
+                        );
+
+
+                        /*
+                         * Update IDs if the server creates them
+                         * during the first save.
+                         */
+
+                        if (result.onboardingID) {
+
+                            document.getElementById(
+                                "OnboardingID"
+                            ).value =
+                                result.onboardingID;
+                        }
+
+
+                        if (result.employeeDetailsOnboardingID) {
+
+                            document.getElementById(
+                                "EmployeeDetailsOnboardingID"
+                            ).value =
+                                result.employeeDetailsOnboardingID;
+                        }
+
+
+                        /*
+                         * If submit is completed and the server
+                         * provides next URL, navigate to next form.
+                         */
+
+                        if (isSubmit && result.redirectUrl) {
+
+                            setTimeout(function() {
+
+                                window.location.href =
+                                    result.redirectUrl;
+
+                            }, 1000);
+
+                        }
+
+                    }
+                    else {
+
+                        showMessage(
+                            result.message ||
+                            "Unable to save employee onboarding.",
+                            "danger"
+                        );
+
+                    }
+
+                })
+                .catch(function(error) {
+
+                    console.error(error);
+
+                    showMessage(
+                        "An error occurred while saving the form. Please try again.",
+                        "danger"
+                    );
+
+                })
+                .finally(function() {
+
+                    btnSave.disabled = false;
+
+                    btnSubmit.disabled = false;
+
+                    btnSave.innerHTML =
+                        originalSaveText;
+
+                    btnSubmit.innerHTML =
+                        originalSubmitText;
+
+                });
+        }
+
+
+        /* =========================================================
+           MESSAGE
+        ========================================================= */
+
+        function showMessage(message, type) {
+
+            const messageBox =
+                document.getElementById(
+                    "formMessage"
+                );
+
+            messageBox.className =
+                "alert alert-" + type;
+
+            messageBox.innerHTML =
+                message;
+
+            messageBox.style.display =
+                "block";
+
+
+            messageBox.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+
+            if (type === "success") {
+
+                setTimeout(function() {
+
+                    messageBox.style.display =
+                        "none";
+
+                }, 5000);
+            }
+        }
+
+
+        /* =========================================================
+           NUMERIC INPUT RESTRICTION
+        ========================================================= */
+
+        document.addEventListener(
+            "input",
+            function(event) {
+
+                const element =
+                    event.target;
+
+                if (
+                    element.name ===
+                    "EmergencyContactMobile" ||
+
+                    element.name ===
+                    "Reference1Mobile" ||
+
+                    element.name ===
+                    "Reference2Mobile" ||
+
+                    element.name ===
+                    "PermanentPINCode" ||
+
+                    element.name ===
+                    "PresentPINCode"
+                ) {
+
+                    element.value =
+                        element.value
+                            .replace(/\D/g, "");
+
+                }
+
+            }
+        );
+
+
+        /* =========================================================
+           INITIALIZATION
+        ========================================================= */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                reindexDynamicRows();
+
+            }
+        );
+
+</script>
+
+</body>
+
+</html>

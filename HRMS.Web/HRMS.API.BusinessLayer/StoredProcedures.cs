@@ -219,7 +219,26 @@ namespace HRMS.API.BusinessLayer
         #endregion Payroll
         public const string usp_CheckWeekOffLimit = "usp_CheckWeekOffLimit";
         public const string usp_CheckWeekOffLimit_Bulk = "usp_CheckWeekOffLimit_Bulk";
+        #region  EmployeeOnboarding
+        public const string usp_StartEmployeeOnboarding = "usp_StartEmployeeOnboarding";
+        public const string usp_GetEmployeeDetailsOnboarding ="usp_GetEmployeeDetailsOnboarding";
 
+        public const string usp_AddUpdateEmployeeDetailsOnboarding ="usp_AddUpdateEmployeeDetailsOnboarding";
+
+        public const string usp_GetEmployeeOnboardingFamily ="usp_GetEmployeeOnboardingFamily";
+
+        public const string usp_AddUpdateEmployeeOnboardingFamily ="usp_AddUpdateEmployeeOnboardingFamily";
+
+        public const string usp_GetEmployeeOnboardingEducation ="usp_GetEmployeeOnboardingEducation";
+
+        public const string usp_AddUpdateEmployeeOnboardingEducation ="usp_AddUpdateEmployeeOnboardingEducation";
+
+        public const string usp_GetEmployeeOnboardingEmployment ="usp_GetEmployeeOnboardingEmployment";
+
+        public const string usp_AddUpdateEmployeeOnboardingEmployment ="usp_AddUpdateEmployeeOnboardingEmployment";
+        public const string usp_GetEmployeeOnboardingRequests = "usp_GetEmployeeOnboardingRequests";
+
+        #endregion EmployeeOnboarding
         #region Logs
         public const string usp_InsertAuditLog = "usp_InsertAuditLog";
         public const string usp_GetLeaveSummaryByID = "usp_GetLeaveSummaryByID";

@@ -1,10 +1,4 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Reflection;
-using System.Xml;
-using System.Xml.Serialization;
-using HRMS.API.BusinessLayer.ITF;
+﻿using HRMS.API.BusinessLayer.ITF;
 using HRMS.API.DataLayer.ITF;
 using HRMS.Models;
 using HRMS.Models.AttendenceList;
@@ -12,6 +6,7 @@ using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
+using HRMS.Models.EmployeeOnboarding;
 using HRMS.Models.ExportEmployeeExcel;
 using HRMS.Models.FormPermission;
 using HRMS.Models.ImportFromExcel;
@@ -30,6 +25,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Serilog.Core;
+using System.Data;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Reflection;
+using System.Xml;
+using System.Xml.Serialization;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HRMS.API.BusinessLayer
 {
@@ -46,7 +48,7 @@ namespace HRMS.API.BusinessLayer
             AttandanceDataLayer = attandanceDataLayer;
             DataLayer._configuration = configuration;
             _configuration = configurations;
-        }   
+        }
         public LoginUser LoginUser(LoginUser loginUser)
         {
             List<SqlParameter> sqlParameter = new List<SqlParameter>();
@@ -1018,7 +1020,7 @@ namespace HRMS.API.BusinessLayer
                 oldData,
                 newData,
                 editMode,
-                employmentDetails.UserID ,
+                employmentDetails.UserID,
                 "EmploymentDetails",
                 "tbl_EmploymentDetails",
                  newId,
@@ -1402,6 +1404,8 @@ namespace HRMS.API.BusinessLayer
             sqlParameter.Add(new SqlParameter("@LeavingType", employmentSeparationDetails.LeavingType));
             sqlParameter.Add(new SqlParameter("@NoticeServed", employmentSeparationDetails.NoticeServed));
             sqlParameter.Add(new SqlParameter("@UserID", employmentSeparationDetails.UserID));
+            sqlParameter.Add(new SqlParameter("@IsTrainingDateAttendanceEnabled", employmentSeparationDetails.IsTrainingDateAttendanceEnabled));
+
             SqlParameterCollection pOutputParams = null;
 
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_AddUpdate_EmployeeSeparation, sqlParameter, ref pOutputParams);
@@ -1448,6 +1452,7 @@ namespace HRMS.API.BusinessLayer
                                 LeavingType = dataRow.Field<string>("LeavingType"),
                                 NoticeServed = dataRow.Field<int?>("NoticeServed"),
                                 DateOfJoiningOnroll = dataRow.Field<DateTime?>("DateOfJoiningOnroll"),
+                                IsTrainingDateAttendanceEnabled = dataRow.Field<bool?>("IsTrainingDateAttendanceEnabled") ?? false,
 
                             }).ToList().FirstOrDefault();
             if (employmentSeparationDetail == null)
@@ -1765,9 +1770,28 @@ namespace HRMS.API.BusinessLayer
                 sqlParameter.Add(new SqlParameter("@ReportingToEmployeeID", model.EmployeeID));
                 sqlParameter.Add(new SqlParameter("@RoleId", model.RoleId));
                 sqlParameter.Add(new SqlParameter("@StatusID", model.StatusID));
-                sqlParameter.Add(new SqlParameter("@JobLocationID", model.JobLocationID));
-                sqlParameter.Add(new SqlParameter("@SubDepartmentID", model.SubDepartmentID));
-                sqlParameter.Add(new SqlParameter("@HierarchyLevel", model.HierarchyLevel));
+
+                sqlParameter.Add(new SqlParameter(
+                    "@JobLocationIDs",
+                    model.JobLocationIDs != null && model.JobLocationIDs.Any()
+                        ? string.Join(",", model.JobLocationIDs)
+                        : (object)DBNull.Value
+                ));
+               
+                sqlParameter.Add(new SqlParameter(
+                    "@SubDepartmentIDs",
+                    model.SubDepartmentIDs != null && model.SubDepartmentIDs.Any()
+                        ? string.Join(",", model.SubDepartmentIDs)
+                        : (object)DBNull.Value
+                ));
+
+                sqlParameter.Add(new SqlParameter(
+                    "@HierarchyLevels",
+                    model.HierarchyLevels != null && model.HierarchyLevels.Any()
+                        ? string.Join(",", model.HierarchyLevels)
+                        : (object)DBNull.Value
+                ));
+
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_Get_AgentLeavesSummaryForApproval, sqlParameter);
                 result.leavesSummary = dataSet.Tables[0].AsEnumerable()
                                   .Select(dataRow => new LeaveSummaryModel
@@ -1817,7 +1841,7 @@ namespace HRMS.API.BusinessLayer
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -2468,7 +2492,7 @@ namespace HRMS.API.BusinessLayer
                                   .Select(dataRow => new DashBoardLoginModel
                                   {
                                       EmployeeID = dataRow.Field<long>("EmployeeID"),
-                                      
+
                                       ProfilePhoto = dataRow.Field<string>("ProfilePhoto"),
                                       FirstName = dataRow.Field<string>("FirstName"),
                                       MiddleName = dataRow.Field<string>("MiddleName"),
@@ -2484,21 +2508,21 @@ namespace HRMS.API.BusinessLayer
                                       DesignationName = dataRow.Field<string>("DesignationName"),
                                       JobLocationID = dataRow.Field<long>("JobLocationID"),
                                       ReportingToIDL1 = dataRow.Field<long>("ReportingToIDL1"),
-                                      OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),                                 
+                                      OfficialEmailID = dataRow.Field<string>("OfficialEmailID"),
                                       JoiningDate = dataRow.Field<DateTime?>("JoiningDate")
-                                      
+
 
                                   }).ToList().FirstOrDefault();
 
-                
-              
+
+
 
                 if (dashBoardModel == null)
                 {
                     dashBoardModel = new DashBoardLoginModel();
                 }
 
-            
+
             }
             catch (Exception ex)
             {
@@ -2506,7 +2530,7 @@ namespace HRMS.API.BusinessLayer
             }
 
 
-         
+
             return dashBoardModel;
         }
 
@@ -3499,24 +3523,50 @@ namespace HRMS.API.BusinessLayer
         new SqlParameter("@UserId", model.UserId)
     };
             var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetAttendanceDeviceLog, sqlParameters);
+            DateTime? payrollStartDate = null;
+            DateTime? payrollEndDate = null;
             var dailyStatuses = new List<DailyAttendanceStatus>();
-            if (dataSet.Tables.Count > 0)
+            // ==========================================
+            // TABLE 0 = PAYROLL PERIOD
+            // ==========================================
+
+            if (dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0].Rows.Count > 0)
             {
-                var table = dataSet.Tables[0];
+                var payrollTable = dataSet.Tables[0];
+
+                payrollStartDate =
+                    payrollTable.Rows[0].Field<DateTime?>("PayrollStartDate");
+
+                payrollEndDate =
+                    payrollTable.Rows[0].Field<DateTime?>("PayrollEndDate");
+            }
+            // ==========================================
+            // TABLE 1 = DAILY ATTENDANCE
+            // ==========================================
+
+            if (dataSet.Tables.Count > 1)
+            {
+                var table = dataSet.Tables[1];
 
                 dailyStatuses = table.AsEnumerable()
                     .Select(row => new DailyAttendanceStatus
                     {
-                        DayLabel = row.Field<string>(0),
-                        Date = row.Field<DateTime>(1),
-                        FirstLogDate = row.Field<DateTime?>(2),
-                        LastLogDate = row.Field<DateTime?>(3),
-                        Status = row.IsNull(4) ? null : row.Field<string>(4)
-                    }).ToList();
+                        DayLabel = row.Field<string>("DayLabel"),
+                        Date = row.Field<DateTime>("WorkDate"),
+                        FirstLogDate = row.Field<DateTime?>("FirstLogDate"),
+                        LastLogDate = row.Field<DateTime?>("LastLogDate"),
+                        Status = row.IsNull("AttendanceStatus")
+                            ? null
+                            : row.Field<string>("AttendanceStatus")
+                    })
+                    .ToList();
             }
 
             return new MonthlyViewAttendance
             {
+                PayrollStartDate = payrollStartDate,
+                PayrollEndDate = payrollEndDate,
                 DailyStatuses = dailyStatuses
             };
         }
@@ -3642,6 +3692,8 @@ namespace HRMS.API.BusinessLayer
                             EmployeeNumberWithoutAbbr = dataRow.Field<string>("EmployeeNumberWithoutAbbr"),
                             EmployeeName = dataRow.Field<string>("EmployeeName"),
                             TotalWorkingDays = Convert.ToInt32(dataRow["TotalWorkingDays"]),
+
+
                             PresentDays = Convert.ToDecimal(dataRow["PresentDays"]),
                             WeekOffDays = Convert.ToDecimal(dataRow["WeekOffDays"]),
                             HalfDays = Convert.ToDecimal(dataRow["HalfDays"]),
@@ -3691,17 +3743,47 @@ namespace HRMS.API.BusinessLayer
                             DOR = dataRow.Table.Columns.Contains("DOR")
     ? dataRow.Field<DateTime?>("DOR")
     : null,
-                            AttendanceByDay = new Dictionary<string, string>()
+                            Eligibility = dataRow.Table.Columns.Contains("Eligibility")
+                            ? dataRow["Eligibility"]?.ToString()
+                            : null,
+                            AttendanceByDay = new Dictionary<string, string>(),
+                            CheckInByDay = new Dictionary<string, string>(),
+                            CheckOutByDay = new Dictionary<string, string>(),
+                            WorkingHoursByDay = new Dictionary<string, string>()
+
                         };
 
                         foreach (DataColumn column in dataSet.Tables[0].Columns)
                         {
                             string columnName = column.ColumnName;
-                            if (columnName.Contains("-"))
+                            string value = dataRow[column] == DBNull.Value
+                                ? ""
+                                : dataRow[column].ToString();
+
+                            if (columnName.EndsWith(" Check-In"))
                             {
-                                attendance.AttendanceByDay[columnName] = dataRow[columnName]?.ToString() ?? "N/A";
+                                string dateKey = columnName.Replace(" Check-In", "");
+
+                                attendance.CheckInByDay[dateKey] = value;
+                            }
+                            else if (columnName.EndsWith(" Check-Out"))
+                            {
+                                string dateKey = columnName.Replace(" Check-Out", "");
+
+                                attendance.CheckOutByDay[dateKey] = value;
+                            }
+                            else if (columnName.EndsWith(" Working-Hours"))
+                            {
+                                string dateKey = columnName.Replace(" Working-Hours", "");
+
+                                attendance.WorkingHoursByDay[dateKey] = value;
+                            }
+                            else if (columnName.Contains("-"))
+                            {
+                                attendance.AttendanceByDay[columnName] = value;
                             }
                         }
+
 
                         return attendance;
                     }).ToList();
@@ -3777,7 +3859,7 @@ namespace HRMS.API.BusinessLayer
                     continue;
                 }
 
-           
+
                 if (table.Columns.Contains("AnnualLeaveAccrued"))
                 {
                     var row = table.Rows[0];
@@ -5117,7 +5199,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     IsEligible = Convert.ToInt32(row["IsEligible"]),
                     Message = row["Message"].ToString(),
-            
+
                 };
             }
 
@@ -5685,7 +5767,7 @@ namespace HRMS.API.BusinessLayer
                 {
                     var row = managerCountsTable.Rows[0];
                     model[0].PendingLeaveCount = row["PendingLeaveCount"] != DBNull.Value ? Convert.ToInt32(row["PendingLeaveCount"]) : 0;
-                    
+
                 }
             }
             return model;
@@ -5783,6 +5865,23 @@ namespace HRMS.API.BusinessLayer
             var result = new List<CompOffAttendanceRequestModel>();
 
             int attStatus = Convert.ToInt32(model.AttendanceStatusId);
+            string jobLocationIDs =
+            model.JobLocationIDs != null &&
+            model.JobLocationIDs.Any()
+                ? string.Join(",", model.JobLocationIDs)
+                : null;
+
+                    string subDepartmentIDs =
+                        model.SubDepartmentIDs != null &&
+                        model.SubDepartmentIDs.Any()
+                            ? string.Join(",", model.SubDepartmentIDs)
+                            : null;
+
+                    string hierarchyLevels =
+                        model.HierarchyLevels != null &&
+                        model.HierarchyLevels.Any()
+                            ? string.Join(",", model.HierarchyLevels)
+                            : null;
             try
             {
                 List<SqlParameter> sqlParameters = new List<SqlParameter>
@@ -5790,9 +5889,23 @@ namespace HRMS.API.BusinessLayer
             new SqlParameter("@ReportingUserID", model.UserId),
             new SqlParameter("@AttendanceStatusId",attStatus),
             new SqlParameter("@RoleId",model.RoleId),
-             new SqlParameter("@JobLocationID", model.JobLocationID),
-            new SqlParameter("@SubDepartmentID", model.SubDepartmentID),
-            new SqlParameter("@HierarchyLevel", model.HierarchyLevel),
+           new SqlParameter(
+                "@JobLocationIDs",
+                string.IsNullOrEmpty(jobLocationIDs)
+                    ? (object)DBNull.Value
+                    : jobLocationIDs),
+
+            new SqlParameter(
+                "@SubDepartmentIDs",
+                string.IsNullOrEmpty(subDepartmentIDs)
+                    ? (object)DBNull.Value
+                    : subDepartmentIDs),
+
+            new SqlParameter(
+                "@HierarchyLevels",
+                string.IsNullOrEmpty(hierarchyLevels)
+                    ? (object)DBNull.Value
+                    : hierarchyLevels)
         };
 
                 var dataSet = DataLayer.GetDataSetByStoredProcedure(StoredProcedures.usp_GetCompOffLeaveRequestsForManagers, sqlParameters);
@@ -6290,62 +6403,225 @@ new SqlParameter("@SortDir", model.SortDir ?? "DESC")
                 }
 
             }
-                return model;
+            return model;
         }
 
 
         #region Attendance Approval
         public AttendanceWithHolidaysVM GetTeamAttendanceForApproval(AttendanceInputParams model)
         {
-            var attendanceList = new List<AttendanceViewModel>();
-            int totalRecords = 0;
+            try {
+                var attendanceList = new List<AttendanceViewModel>();
+                int totalRecords = 0;
 
-            var sqlParameters = new List<SqlParameter>
+                // ============================================================
+                // NORMALIZE FILTER LISTS
+                // ============================================================
+
+                var jobLocationIDs = model.JobLocationIDs?
+                    .Where(x => x > 0)
+                    .Distinct()
+                    .ToList()
+                    ?? new List<long>();
+
+                var subDepartmentIDs = model.SubDepartmentIDs?
+                    .Where(x => x > 0)
+                    .Distinct()
+                    .ToList()
+                    ?? new List<long>();
+
+                var hierarchyLevels = model.HierarchyLevels?
+                    .Where(x => x > 0)
+                    .Distinct()
+                    .ToList()
+                    ?? new List<int>();
+
+
+                // ============================================================
+                // CONVERT LISTS TO CSV
+                // ============================================================
+
+                string jobLocationIDsCsv = jobLocationIDs.Any()
+                    ? string.Join(",", jobLocationIDs)
+                    : null;
+
+                string subDepartmentIDsCsv = subDepartmentIDs.Any()
+                    ? string.Join(",", subDepartmentIDs)
+                    : null;
+
+                string hierarchyLevelsCsv = hierarchyLevels.Any()
+                    ? string.Join(",", hierarchyLevels)
+                    : null;
+
+
+                // ============================================================
+                // SQL PARAMETERS
+                // ============================================================
+
+                var sqlParameters = new List<SqlParameter>
     {
-       new SqlParameter("@ReportingToID", model.UserId),
-new SqlParameter("@RoleID", model.RoleId),
-new SqlParameter("@SortCol", model.SortCol ?? "WorkDate"),
-new SqlParameter("@SortDir", model.SortDir ?? "DESC"),
-new SqlParameter("@Searching", model.SearchTerm ?? (object)DBNull.Value),
-new SqlParameter("@DisplayStart", model.DisplayStart),
-new SqlParameter("@DisplayLength", model.DisplayLength),
-        new SqlParameter("@JobLocationID", model.JobLocationID),
-        new SqlParameter("@SubDepartmentID", model.SubDepartmentID),
+        new SqlParameter(
+            "@ReportingToID",
+            SqlDbType.BigInt
+        )
+        {
+            Value = model.UserId
+        },
+
+        new SqlParameter(
+            "@RoleID",
+            SqlDbType.BigInt
+        )
+        {
+            Value = model.RoleId
+        },
+
+        new SqlParameter(
+            "@SortCol",
+            SqlDbType.NVarChar, 100
+        )
+        {
+            Value = string.IsNullOrWhiteSpace(model.SortCol)
+                ? "WorkDate"
+                : model.SortCol
+        },
+
+        new SqlParameter(
+            "@SortDir",
+            SqlDbType.NVarChar, 10
+        )
+        {
+            Value = string.IsNullOrWhiteSpace(model.SortDir)
+                ? "DESC"
+                : model.SortDir.ToUpper()
+        },
+
+        new SqlParameter(
+            "@Searching",
+            SqlDbType.NVarChar, 500
+        )
+        {
+            Value = string.IsNullOrWhiteSpace(model.SearchTerm)
+                ? DBNull.Value
+                : model.SearchTerm.Trim()
+        },
+
+        new SqlParameter(
+            "@DisplayStart",
+            SqlDbType.Int
+        )
+        {
+            Value = model.DisplayStart
+        },
+
+        new SqlParameter(
+            "@DisplayLength",
+            SqlDbType.Int
+        )
+        {
+            Value = model.DisplayLength
+        },
+
+        new SqlParameter(
+            "@JobLocationIDs",
+            SqlDbType.NVarChar, -1
+        )
+        {
+            Value = string.IsNullOrWhiteSpace(jobLocationIDsCsv)
+                ? DBNull.Value
+                : jobLocationIDsCsv
+        },
+
+        new SqlParameter(
+            "@SubDepartmentIDs",
+            SqlDbType.NVarChar, -1
+        )
+        {
+            Value = string.IsNullOrWhiteSpace(subDepartmentIDsCsv)
+                ? DBNull.Value
+                : subDepartmentIDsCsv
+        },
+
+        new SqlParameter(
+            "@HierarchyLevels",
+            SqlDbType.NVarChar, -1
+        )
+        {
+            Value = string.IsNullOrWhiteSpace(hierarchyLevelsCsv)
+                ? DBNull.Value
+                : hierarchyLevelsCsv
+        }
     };
 
-            var dataSet = DataLayer.GetDataSetByStoredProcedure(
-                StoredProcedures.usp_GetAttendanceForApprovalImmediateApprove,
-                sqlParameters
-            );
 
-            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
-            {
-                attendanceList = dataSet.Tables[0].AsEnumerable()
-                    .Select(row => new AttendanceViewModel
+                // ============================================================
+                // EXECUTE STORED PROCEDURE
+                // ============================================================
+
+                var dataSet = DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetAttendanceForApprovalImmediateApprove,
+                    sqlParameters
+                );
+
+
+                // ============================================================
+                // RESULT
+                // ============================================================
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    var table = dataSet.Tables[0];
+
+                    attendanceList = table.AsEnumerable()
+                        .Select(row => new AttendanceViewModel
+                        {
+                            EmployeeId = row.Field<long?>("EmployeeID"),
+
+                            ID = row.Field<long?>("ID"),
+
+                            EmployeNumber = row.Field<string>("EmployeNumber"),
+
+                            EmployeeName = row.Field<string>("EmployeeName"),
+
+                            WorkDate = row.Field<DateTime?>("WorkDate"),
+
+                            Status = row.Field<string>("AttendanceStatus"),
+
+                            OldAttendanceStatus =
+                                row.Field<string>("OldAttendanceStatus"),
+
+                            Remarks = row.Field<string>("Remarks")
+                        })
+                        .ToList();
+
+
+                    // ========================================================
+                    // TOTAL RECORDS
+                    // ========================================================
+
+                    if (table.Columns.Contains("TotalRecords"))
                     {
-                        EmployeeId = row.Field<long?>("EmployeeID"),
-                        ID = row.Field<long?>("ID"),
-                        EmployeNumber = row.Field<string>("EmployeNumber"),
-                        EmployeeName = row.Field<string>("EmployeeName"),
-                        WorkDate = row.Field<DateTime>("WorkDate"),
-                        Status = row.Field<string>("AttendanceStatus"),
-                        OldAttendanceStatus = row.Field<string>("OldAttendanceStatus"),
-                        Remarks = row.Field<string>("Remarks")
-                    })
-                    .ToList();
-            }
+                        int.TryParse(
+                            table.Rows[0]["TotalRecords"]?.ToString(),
+                            out totalRecords
+                        );
+                    }
+                }
 
-            if (dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
-            {
-                int.TryParse(dataSet.Tables[0].Rows[0]["TotalRecords"]?.ToString(), out totalRecords);
-            }
 
-            return new AttendanceWithHolidaysVM
+                return new AttendanceWithHolidaysVM
+                {
+                    Attendances = attendanceList,
+
+                    TotalRecords = totalRecords
+                };
+            }catch(Exception ex)
             {
-                Attendances = attendanceList,
-                TotalRecords = totalRecords
-            };
-        }
+                return null;
+            }
+            }
 
         public AttendanceWithHolidaysVM ExportAttendanceChangeApproval(AttendanceInputParams model)
         {
@@ -6423,7 +6699,7 @@ new SqlParameter("@DisplayLength", model.DisplayLength),
         public Result SaveOrUpdateAttendanceStatus(SaveTeamAttendanceStatus att)
         {
             Result model = new Result();
-             
+
             var oldData = GetAttendanceStatusChangesByID(att.StatusChangeID);
             List<SqlParameter> sqlParameters = new List<SqlParameter>
       {
@@ -8270,7 +8546,7 @@ row["OfficialEmail"]?.ToString();
                 string newVal = newRow[colName] == DBNull.Value ? null : Convert.ToString(newRow[colName]);
                 string oldVal = oldRow == null ? null : (oldRow[colName] == DBNull.Value ? null : Convert.ToString(oldRow[colName]));
 
-                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID" || colName == "ModifiedBy" || colName == "UpdatedBy" || colName =="UpdatedByUserID")
+                if (editMode == "Add" || oldVal != newVal || colName == "ModifiedByName" || colName == "ModifiedByID" || colName == "UpdatedByUserID" || colName == "ModifiedBy" || colName == "UpdatedBy" || colName == "UpdatedByUserID")
                 {
                     changeLog.Add(new Dictionary<string, object>
             {
@@ -8735,13 +9011,13 @@ row["OfficialEmail"]?.ToString();
            );
             if (dataSet != null && dataSet.Tables.Count > 0)
             {
-                result=dataSet.Tables[0].AsEnumerable()
+                result = dataSet.Tables[0].AsEnumerable()
                     .Select(row => new LeavesCount
                     {
-                       
+
                         EmployeeNumber = row.Field<string>("EmployeeNumber"),
                         EmployeeName = row.Field<string>("EmployeeName"),
-                        PrivilegeLeaveConsumed=row.Field<decimal?>("PrivilegeLeaveConsumed"),
+                        PrivilegeLeaveConsumed = row.Field<decimal?>("PrivilegeLeaveConsumed"),
                         FinalLeaveBalance = row.Field<double?>("FinalLeaveBalance"),
                         AvailableCompOffDays = row.Field<decimal?>("AvailableCompOffDays"),
                     })
@@ -9431,7 +9707,7 @@ row["OfficialEmail"]?.ToString();
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -9495,7 +9771,7 @@ row["OfficialEmail"]?.ToString();
 
                 return model;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -9509,8 +9785,8 @@ row["OfficialEmail"]?.ToString();
             return await UploadAttendance(data, model.UserID);
         }
 
-public DataTable CreateAttendanceDataTable(
-    List<AttendanceUploadModel> models)
+        public DataTable CreateAttendanceDataTable(
+            List<AttendanceUploadModel> models)
         {
             var dt = new DataTable();
 
@@ -9554,7 +9830,7 @@ public DataTable CreateAttendanceDataTable(
 
 
 
-public async Task<string> UploadAttendance(DataTable dt, long userId)
+        public async Task<string> UploadAttendance(DataTable dt, long userId)
         {
             try
             {
@@ -10622,6 +10898,3272 @@ public async Task<string> UploadAttendance(DataTable dt, long userId)
                 return model;
             }
         }
+
+
+        #region EmployeeOnboarding 
+
+        public Result StartOnboarding(EmployeeOnboardingViewModel modelData)
+        {
+            Result model = new Result();
+
+            try
+            {
+                if (modelData == null)
+                {
+                    model.Message = "Onboarding details are required.";
+                    model.PKNo = 0;
+
+                    return model;
+                }
+
+                List<SqlParameter> sqlParameter = new List<SqlParameter>
+        {
+            new SqlParameter(
+                "@FullName",
+                SqlDbType.NVarChar,
+                200
+            )
+            {
+                Value = (object?)modelData.FullName ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@Email",
+                SqlDbType.NVarChar,
+                200
+            )
+            {
+                Value = (object?)modelData.Email ?? DBNull.Value
+            },
+
+            new SqlParameter(
+                "@Mobile",
+                SqlDbType.NVarChar,
+                50
+            )
+            {
+                Value = (object?)modelData.Mobile ?? DBNull.Value
+            }
+        };
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures.usp_StartEmployeeOnboarding,
+                        sqlParameter
+                    );
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row = dataSet.Tables[0].Rows[0];
+
+                    // ---------------------------------------------
+                    // Message
+                    // ---------------------------------------------
+
+                    if (dataSet.Tables[0].Columns.Contains("Message"))
+                    {
+                        model.Message =
+                            row["Message"] != DBNull.Value
+                                ? row["Message"].ToString()
+                                : "";
+                    }
+
+                    // ---------------------------------------------
+                    // Onboarding ID
+                    // ---------------------------------------------
+
+                    if (dataSet.Tables[0].Columns.Contains("OnboardingID"))
+                    {
+                        if (row["OnboardingID"] != DBNull.Value)
+                        {
+                            model.PKNo =
+                                Convert.ToInt64(row["OnboardingID"]);
+                        }
+                    }
+
+                    // ---------------------------------------------
+                    // Success
+                    // ---------------------------------------------
+
+                    if (dataSet.Tables[0].Columns.Contains("Success"))
+                    {
+                        int success =
+                            row["Success"] != DBNull.Value
+                                ? Convert.ToInt32(row["Success"])
+                                : 0;
+
+                        // Do not clear PKNo when an existing
+                        // onboarding record has been returned.
+                        if (success == 0 && model.PKNo == 0)
+                        {
+                            model.PKNo = 0;
+                        }
+                    }
+                }
+                else
+                {
+                    model.Message =
+                        "Stored procedure did not return any data.";
+
+                    model.PKNo = 0;
+                }
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.Message = ex.Message;
+                model.PKNo = 0;
+
+                return model;
+            }
+        }
+        public Results GetEmployeeDetailsOnboarding(long onboardingID)
+        {
+            Results result = new Results();
+
+            try
+            {
+                List<SqlParameter> sqlParameter =
+                [
+                    new SqlParameter("@OnboardingID", onboardingID)
+                ];
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures.usp_GetEmployeeDetailsOnboarding,
+                        sqlParameter
+                    );
+
+                if (dataSet == null || dataSet.Tables.Count == 0)
+                {
+                    return result;
+                }
+
+                // =========================================================
+                // TABLE 0 : EMPLOYEE DETAILS
+                // =========================================================
+
+                if (dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    result.EmployeeDetailsOnboardingList =
+                        dataSet.Tables[0]
+                            .AsEnumerable()
+                            .Select(row => new EmployeeDetailsOnboardingModel
+                            {
+                                EmployeeDetailsOnboardingID =
+                                    row.Field<long?>("EmployeeDetailsOnboardingID") ?? 0,
+
+                                OnboardingID =
+                                    row.Field<long?>("OnboardingID") ?? 0,
+
+                                FullName =
+                                    row["EmployeeName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployeeName"]),
+
+                                Email =
+                                    row["Email"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Email"]),
+
+                                Mobile =
+                                    row["Mobile"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Mobile"]),
+
+                                CurrentStep =
+                                    row.Field<int?>("CurrentStep") ?? 1,
+
+                                LastSavedStep =
+                                    row.Field<int?>("LastSavedStep") ?? 1,
+
+                                Status =
+                                    row["Status"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Status"]),
+
+                                IsSubmitted =
+                                    row.Field<bool?>("IsSubmitted") ?? false,
+
+                                Designation =
+                                    row["Designation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Designation"]),
+
+                                EmployeeCode =
+                                    row["EmployeeNumber"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployeeNumber"]),
+
+                                EmployeePhoto =
+                                    row["EmployeePhoto"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployeePhoto"]),
+
+                                FatherHusbandName =
+                                    row["FatherHusbandName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FatherHusbandName"]),
+
+                                DateOfBirth =
+                                    row.Field<DateTime?>("DateOfBirth"),
+
+                                Gender =
+                                    row["Gender"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Gender"]),
+
+                                MaritalStatus =
+                                    row["MaritalStatus"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["MaritalStatus"]),
+
+                                BloodGroup =
+                                    row["BloodGroup"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["BloodGroup"]),
+
+                                PermanentAddress =
+                                    row["PermanentAddress"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PermanentAddress"]),
+
+                                PermanentCity =
+                                    row["PermanentCity"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PermanentCity"]),
+
+                                PermanentState =
+                                    row["PermanentState"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PermanentState"]),
+
+                                PermanentPINCode =
+                                    row["PermanentPINCode"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PermanentPINCode"]),
+
+                                PresentAddress =
+                                    row["PresentAddress"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PresentAddress"]),
+
+                                PresentCity =
+                                    row["PresentCity"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PresentCity"]),
+
+                                PresentState =
+                                    row["PresentState"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PresentState"]),
+
+                                PresentPINCode =
+                                    row["PresentPINCode"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PresentPINCode"]),
+
+                                LandlineNo =
+                                    row["LandlineNo"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["LandlineNo"]),
+
+                                EmergencyContactName =
+                                    row["EmergencyContactName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmergencyContactName"]),
+
+                                EmergencyContactRelation =
+                                    row["EmergencyContactRelation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmergencyContactRelation"]),
+
+                                EmergencyContactMobile =
+                                    row["EmergencyContactMobile"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmergencyContactMobile"]),
+
+                                EmergencyContactAddress =
+                                    row["EmergencyContactAddress"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmergencyContactAddress"]),
+
+                                EmergencyContactCity =
+                                    row["EmergencyContactCity"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmergencyContactCity"]),
+
+                                SourceOfHiring =
+                                    row["SourceOfHiring"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["SourceOfHiring"]),
+
+                                Reference1Name =
+                                    row["Reference1Name"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference1Name"]),
+
+                                Reference1Designation =
+                                    row["Reference1Designation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference1Designation"]),
+
+                                Reference1Company =
+                                    row["Reference1Company"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference1Company"]),
+
+                                Reference1Mobile =
+                                    row["Reference1Mobile"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference1Mobile"]),
+
+                                Reference1Email =
+                                    row["Reference1Email"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference1Email"]),
+
+                                Reference2Name =
+                                    row["Reference2Name"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference2Name"]),
+
+                                Reference2Designation =
+                                    row["Reference2Designation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference2Designation"]),
+
+                                Reference2Company =
+                                    row["Reference2Company"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference2Company"]),
+
+                                Reference2Mobile =
+                                    row["Reference2Mobile"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference2Mobile"]),
+
+                                Reference2Email =
+                                    row["Reference2Email"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Reference2Email"]),
+
+                                PassportNumber =
+                                    row["PassportNumber"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PassportNumber"]),
+
+                                PANNumber =
+                                    row["PANNumber"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PANNumber"]),
+
+                                AadhaarNumber =
+                                    row["AadhaarNumber"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["AadhaarNumber"]),
+
+                                Religion =
+                                    row["Religion"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Religion"]),
+
+                                PreviouslyInterviewed =
+                                    row.Field<bool?>("PreviouslyInterviewed"),
+
+                                PreviousInterviewDate =
+                                    row.Field<DateTime?>("PreviousInterviewDate"),
+
+                                PreviousInterviewPlace =
+                                    row["PreviousInterviewPlace"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PreviousInterviewPlace"]),
+
+                                PreviousPositionApplied =
+                                    row["PreviousPositionApplied"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PreviousPositionApplied"]),
+
+                                PreviouslyWorked =
+                                    row.Field<bool?>("PreviouslyWorked"),
+
+                                PreviousWorkFromDate =
+                                    row.Field<DateTime?>("PreviousWorkFromDate"),
+
+                                PreviousWorkToDate =
+                                    row.Field<DateTime?>("PreviousWorkToDate"),
+
+                                PreviousWorkLocation =
+                                    row["PreviousWorkLocation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PreviousWorkLocation"]),
+
+                                HaveCriminalCivilProceedings =
+                                    row.Field<bool?>("HaveCriminalCivilProceedings"),
+
+                                CriminalCivilProceedingsDetails =
+                                    row["CriminalCivilProceedingsDetails"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["CriminalCivilProceedingsDetails"]),
+
+                                OtherInformation =
+                                    row["OtherInformation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["OtherInformation"]),
+
+                                EmployeeSignature =
+                                    row["EmployeeSignature"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployeeSignature"]),
+
+                                DeclarationDate =
+                                    row.Field<DateTime?>("DeclarationDate"),
+
+                                DeclarationPlace =
+                                    row["DeclarationPlace"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["DeclarationPlace"]),
+
+                                ApprovalsRemarks =
+                                    row["ApprovalsRemarks"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["ApprovalsRemarks"])
+                            })
+                            .ToList();
+                }
+
+
+                // =========================================================
+                // TABLE 1 : FAMILY DETAILS
+                // =========================================================
+
+                if (dataSet.Tables.Count > 1 &&
+                    dataSet.Tables[1].Rows.Count > 0)
+                {
+                    result.EmployeeOnboardingFamilyList =
+                        dataSet.Tables[1]
+                            .AsEnumerable()
+                            .Select(row => new EmployeeOnboardingFamilyModel
+                            {
+                                FamilyID =
+                                    row.Field<long?>("FamilyID") ?? 0,
+
+                                OnboardingID =
+                                    row.Field<long?>("OnboardingID") ?? 0,
+
+                                Relation =
+                                    row["Relation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Relation"]),
+
+                                Name =
+                                    row["Name"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Name"]),
+
+                                Gender =
+                                    row["Gender"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Gender"]),
+
+                                // IMPORTANT:
+                                // Age may be INT in SQL but STRING in model.
+                                Age =
+                                    row["Age"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Age"]),
+
+                                DateOfBirth =
+                                    row.Field<DateTime?>("DateOfBirth"),
+
+                                Occupation =
+                                    row["Occupation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Occupation"]),
+
+                                IsDependent =
+                                    row.Field<bool?>("IsDependent"),
+
+                                CreatedBy =
+                                    row.Field<long?>("CreatedBy"),
+
+                                ModifiedBy =
+                                    row.Field<long?>("ModifiedBy"),
+
+                                ResidingWithEmployee =
+                                    row.Field<bool?>("ResidingWithEmployee") ?? true,
+
+                                Address =
+                                    row["Address"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Address"]),
+
+                                Town =
+                                    row["Town"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Town"]),
+
+                                State =
+                                    row["State"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["State"]),
+
+                                Mobile =
+                                    row["Mobile"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Mobile"])
+                            })
+                            .ToList();
+                }
+
+
+                // =========================================================
+                // TABLE 2 : EDUCATION DETAILS
+                // =========================================================
+
+                if (dataSet.Tables.Count > 2 &&
+                    dataSet.Tables[2].Rows.Count > 0)
+                {
+                    result.EmployeeOnboardingEducationList =
+                        dataSet.Tables[2]
+                            .AsEnumerable()
+                            .Select(row => new EmployeeOnboardingEducationModel
+                            {
+                                EducationID =
+                                    row.Field<long?>("EducationID") ?? 0,
+
+                                OnboardingID =
+                                    row.Field<long?>("OnboardingID") ?? 0,
+
+                                EducationLevel =
+                                    row["EducationLevel"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EducationLevel"]),
+
+                                Stream =
+                                    row["Stream"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Stream"]),
+
+                                PassingYear =
+                                    row.Field<int?>("PassingYear"),
+
+                                InstitutionName =
+                                    row["InstitutionName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["InstitutionName"]),
+
+                                BoardUniversity =
+                                    row["BoardUniversity"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["BoardUniversity"]),
+
+                                MarksObtained =
+                                    row["MarksObtained"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["MarksObtained"]),
+
+                                MajorSubjects =
+                                    row["MajorSubjects"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["MajorSubjects"])
+                            })
+                            .ToList();
+                }
+
+
+                // =========================================================
+                // TABLE 3 : EMPLOYMENT DETAILS
+                // =========================================================
+
+                if (dataSet.Tables.Count > 3 &&
+                    dataSet.Tables[3].Rows.Count > 0)
+                {
+                    result.EmployeeOnboardingEmploymentList =
+                        dataSet.Tables[3]
+                            .AsEnumerable()
+                            .Select(row => new EmployeeOnboardingEmploymentModel
+                            {
+                                EmploymentID =
+                                    row.Field<long?>("EmploymentID") ?? 0,
+
+                                OnboardingID =
+                                    row.Field<long?>("OnboardingID") ?? 0,
+
+                                FromDate =
+                                    row.Field<DateTime?>("FromDate"),
+
+                                ToDate =
+                                    row.Field<DateTime?>("ToDate"),
+
+                                EmployerName =
+                                    row["EmployerName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployerName"]),
+
+                                EmployerAddress =
+                                    row["EmployerAddress"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployerAddress"]),
+
+                                EmployerContactNo =
+                                    row["EmployerContactNo"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployerContactNo"]),
+
+                                ReportingTo =
+                                    row["ReportingTo"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["ReportingTo"]),
+
+                                AnnualCTC =
+                                    row.Field<decimal?>("AnnualCTC"),
+
+                                Designation =
+                                    row["Designation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Designation"]),
+
+                                EmployerNumber =
+                                    row["EmployerNumber"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployerNumber"]),
+
+                                PreviousEmployeeID =
+                                    row["PreviousEmployeeID"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PreviousEmployeeID"]),
+
+                                JobTitle =
+                                    row["JobTitle"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["JobTitle"]),
+
+                                HRManagerName =
+                                    row["HRManagerName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["HRManagerName"]),
+
+                                HRManagerEmailID =
+                                    row["HRManagerEmailID"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["HRManagerEmailID"]),
+
+                                ReasonOfLiving =
+                                    row["ReasonOfLiving"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["ReasonOfLiving"]),
+
+                                CreatedBy =
+                                    row.Field<long?>("CreatedBy"),
+
+                                ModifiedBy =
+                                    row.Field<long?>("ModifiedBy")
+                            })
+                            .ToList();
+                }
+
+
+                // =========================================================
+                // TABLE 4 : DOCUMENT DETAILS
+                // =========================================================
+
+                if (dataSet.Tables.Count > 4 &&
+                    dataSet.Tables[4].Rows.Count > 0)
+                {
+                    result.EmployeeOnboardingDocumentsList =
+                        dataSet.Tables[4]
+                            .AsEnumerable()
+                            .Select(row => new EmployeeOnboardingDocumentsModel
+                            {
+                                DocumentID =
+                                    row.Field<long?>("DocumentID") ?? 0,
+
+                                OnboardingID =
+                                    row.Field<long?>("OnboardingID") ?? 0,
+
+                                DocumentType =
+                                    row["DocumentType"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["DocumentType"]),
+
+                                FileName =
+                                    row["FileName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FileName"]),
+
+                                FilePath =
+                                    row["FilePath"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FilePath"]),
+
+                                DocumentReferenceID =
+                                    row.Field<long?>("DocumentReferenceID")
+                            })
+                            .ToList();
+                }
+
+
+                // =========================================================
+                // TABLE 5 : BANK DETAILS
+                // =========================================================
+
+                if (dataSet.Tables.Count > 5 &&
+                    dataSet.Tables[5].Rows.Count > 0)
+                {
+                    result.EmployeeOnboardingBankDetailsList =
+                        dataSet.Tables[5]
+                            .AsEnumerable()
+                            .Select(row => new EmployeeOnboardingBankDetailsModel
+                            {
+                                BankDetailID =
+                                    row.Field<long?>("BankDetailID") ?? 0,
+
+                                OnboardingID =
+                                    row.Field<long?>("OnboardingID") ?? 0,
+
+                                AccountHolderName =
+                                    row["AccountHolderName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["AccountHolderName"]),
+
+                                BankName =
+                                    row["BankName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["BankName"]),
+
+                                BranchName =
+                                    row["BranchName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["BranchName"]),
+
+                                AccountNumber =
+                                    row["AccountNumber"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["AccountNumber"]),
+
+                                IFSCCode =
+                                    row["IFSCCode"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["IFSCCode"]),
+
+                                AccountType =
+                                    row["AccountType"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["AccountType"]),
+
+                                BankCopyFile =
+                                    row["BankCopyFile"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["BankCopyFile"]),
+
+                                ESINoPreviousEmployment =
+                                    row["ESINoPreviousEmployment"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["ESINoPreviousEmployment"]),
+
+                                PFUANPreviousEmployer =
+                                    row["PFUANPreviousEmployer"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PFUANPreviousEmployer"])
+                            })
+                            .ToList();
+                }
+
+
+                // =========================================================
+                // TABLE 6 : NOMINEE DETAILS
+                // =========================================================
+
+                if (dataSet.Tables.Count > 6 &&
+                    dataSet.Tables[6].Rows.Count > 0)
+                {
+                    result.EmployeeOnboardingNomineeList =
+                        dataSet.Tables[6]
+                            .AsEnumerable()
+                            .Select(row => new EmployeeOnboardingNomineeModel
+                            {
+                                NomineeID =
+                                    row.Field<long?>("NomineeID") ?? 0,
+
+                                OnboardingID =
+                                    row.Field<long?>("OnboardingID") ?? 0,
+
+                                FamilyID =
+                                    row.Field<long?>("FamilyID"),
+
+                                NomineeName =
+                                    row["NomineeName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["NomineeName"]),
+
+                                NomineeAddress =
+                                    row["NomineeAddress"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["NomineeAddress"]),
+
+                                Relationship =
+                                    row["Relationship"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Relationship"]),
+
+                                DateOfBirth =
+                                    row.Field<DateTime?>("DateOfBirth"),
+
+                                Age =
+                                    row.Field<int?>("Age"),
+
+                                NomineeType =
+                                    row["NomineeType"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["NomineeType"]),
+
+                                SharePercentage =
+                                    row.Field<decimal?>("SharePercentage"),
+
+                                FamilyMemberName =
+                                    row["FamilyMemberName"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberName"]),
+
+                                FamilyMemberRelation =
+                                    row["FamilyMemberRelation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberRelation"]),
+
+                                FamilyMemberGender =
+                                    row["FamilyMemberGender"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberGender"]),
+
+                                // IMPORTANT: SQL can return INT while model is STRING
+                                FamilyMemberAge =
+                                    row["FamilyMemberAge"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberAge"]),
+
+                                FamilyMemberDateOfBirth =
+                                    row.Field<DateTime?>("FamilyMemberDateOfBirth"),
+
+                                FamilyMemberOccupation =
+                                    row["FamilyMemberOccupation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberOccupation"]),
+
+                                FamilyMemberAddress =
+                                    row["FamilyMemberAddress"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberAddress"]),
+
+                                FamilyMemberTown =
+                                    row["FamilyMemberTown"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberTown"]),
+
+                                FamilyMemberState =
+                                    row["FamilyMemberState"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberState"]),
+
+                                FamilyMemberMobile =
+                                    row["FamilyMemberMobile"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FamilyMemberMobile"])
+                            })
+                            .ToList();
+                }
+
+
+                // =========================================================
+                // TABLE 7 : INTERVIEW EVALUATION DETAILS
+                // =========================================================
+
+                if (dataSet.Tables.Count > 7 &&
+                    dataSet.Tables[7].Rows.Count > 0)
+                {
+                    result.EmployeeOnboardingInterviewEvaluationList =
+                        dataSet.Tables[7]
+                            .AsEnumerable()
+                            .Select(row => new EmployeeOnboardingInterviewEvaluationModel
+                            {
+                                InterviewEvaluationID =
+                                    row.Field<long?>("InterviewEvaluationID") ?? 0,
+
+                                OnboardingID =
+                                    row.Field<long?>("OnboardingID") ?? 0,
+
+                                InterviewPanel =
+                                    row["InterviewPanel"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["InterviewPanel"]),
+
+                                InterviewDate =
+                                    row.Field<DateTime?>("InterviewDate"),
+
+                                JobKnowledgeSkill_HR =
+                                    row["JobKnowledgeSkill_HR"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["JobKnowledgeSkill_HR"]),
+
+                                JobKnowledgeSkill_Ops =
+                                    row["JobKnowledgeSkill_Ops"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["JobKnowledgeSkill_Ops"]),
+
+                                JobKnowledgeSkill_Client =
+                                    row["JobKnowledgeSkill_Client"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["JobKnowledgeSkill_Client"]),
+
+                                CommunicationSkill_HR =
+                                    row["CommunicationSkill_HR"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["CommunicationSkill_HR"]),
+
+                                CommunicationSkill_Ops =
+                                    row["CommunicationSkill_Ops"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["CommunicationSkill_Ops"]),
+
+                                CommunicationSkill_Client =
+                                    row["CommunicationSkill_Client"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["CommunicationSkill_Client"]),
+
+                                InterpersonalSkills_HR =
+                                    row["InterpersonalSkills_HR"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["InterpersonalSkills_HR"]),
+
+                                InterpersonalSkills_Ops =
+                                    row["InterpersonalSkills_Ops"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["InterpersonalSkills_Ops"]),
+
+                                InterpersonalSkills_Client =
+                                    row["InterpersonalSkills_Client"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["InterpersonalSkills_Client"]),
+
+                                RelevantExperience_HR =
+                                    row["RelevantExperience_HR"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["RelevantExperience_HR"]),
+
+                                RelevantExperience_Ops =
+                                    row["RelevantExperience_Ops"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["RelevantExperience_Ops"]),
+
+                                RelevantExperience_Client =
+                                    row["RelevantExperience_Client"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["RelevantExperience_Client"]),
+
+                                RequiredSkill_HR =
+                                    row["RequiredSkill_HR"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["RequiredSkill_HR"]),
+
+                                RequiredSkill_Ops =
+                                    row["RequiredSkill_Ops"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["RequiredSkill_Ops"]),
+
+                                RequiredSkill_Client =
+                                    row["RequiredSkill_Client"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["RequiredSkill_Client"]),
+
+                                TrainingSpecificRole_HR =
+                                    row["TrainingSpecificRole_HR"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["TrainingSpecificRole_HR"]),
+
+                                TrainingSpecificRole_Ops =
+                                    row["TrainingSpecificRole_Ops"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["TrainingSpecificRole_Ops"]),
+
+                                TrainingSpecificRole_Client =
+                                    row["TrainingSpecificRole_Client"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["TrainingSpecificRole_Client"]),
+
+                                TeamManagement_HR =
+                                    row["TeamManagement_HR"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["TeamManagement_HR"]),
+
+                                TeamManagement_Ops =
+                                    row["TeamManagement_Ops"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["TeamManagement_Ops"]),
+
+                                TeamManagement_Client =
+                                    row["TeamManagement_Client"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["TeamManagement_Client"]),
+
+                                SuitabilitySustainability_HR =
+                                    row["SuitabilitySustainability_HR"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["SuitabilitySustainability_HR"]),
+
+                                SuitabilitySustainability_Ops =
+                                    row["SuitabilitySustainability_Ops"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["SuitabilitySustainability_Ops"]),
+
+                                SuitabilitySustainability_Client =
+                                    row["SuitabilitySustainability_Client"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["SuitabilitySustainability_Client"]),
+
+                                HRComments =
+                                    row["HRComments"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["HRComments"]),
+
+                                TypingAptitudeScore =
+                                    row["TypingAptitudeScore"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["TypingAptitudeScore"]),
+
+                                CurrentCompensationCTC =
+                                    row.Field<decimal?>("CurrentCompensationCTC"),
+
+                                ExpectedCompensationCTC =
+                                    row.Field<decimal?>("ExpectedCompensationCTC"),
+
+                                OverallRating =
+                                    row["OverallRating"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["OverallRating"]),
+
+                                OperationsComments =
+                                    row["OperationsComments"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["OperationsComments"]),
+
+                                ProcessOwnerComments =
+                                    row["ProcessOwnerComments"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["ProcessOwnerComments"]),
+
+                                SelectedHoldReject =
+                                    row["SelectedHoldReject"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["SelectedHoldReject"]),
+
+                                PositionToBeOffered =
+                                    row["PositionToBeOffered"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["PositionToBeOffered"]),
+
+                                SalaryGross =
+                                    row.Field<decimal?>("SalaryGross"),
+
+                                PLI =
+                                    row.Field<decimal?>("PLI"),
+
+                                Variable =
+                                    row.Field<decimal?>("Variable"),
+
+
+                                Location =
+                                    row["Location"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Location"]),
+
+                                InterviewerSignature =
+                                    row["InterviewerSignature"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["InterviewerSignature"]),
+
+                                FinalDate =
+                                    row.Field<DateTime?>("FinalDate"),
+                                HRInterviewerName =
+                                row["HRInterviewerName"] == DBNull.Value
+                                    ? null
+                                    : Convert.ToString(row["HRInterviewerName"]),
+
+                                                            OperationsInterviewerName =
+                                row["OperationsInterviewerName"] == DBNull.Value
+                                    ? null
+                                    : Convert.ToString(row["OperationsInterviewerName"]),
+
+                                                            ProcessOwnerInterviewerName =
+                                row["ProcessOwnerInterviewerName"] == DBNull.Value
+                                    ? null
+                                    : Convert.ToString(row["ProcessOwnerInterviewerName"]),
+                                NameOfInterviewer =
+                                    row["NameOfInterviewer"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["NameOfInterviewer"]),
+
+                                DateOfJoining =
+                                    row.Field<DateTime?>("DateOfJoining"),
+
+                                EmployeeCode =
+                                    row["EmployeeCode"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmployeeCode"]),
+
+                                Department =
+                                    row["Department"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Department"]),
+
+                                Designation =
+                                    row["Designation"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Designation"]),
+
+
+                                EmploymentStatus =
+                                    row["EmploymentStatus"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["EmploymentStatus"]),
+
+                                RefCheckReport =
+                                    row["RefCheckReport"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["RefCheckReport"]),
+
+                                DocumentsCheckedBy =
+                                    row["DocumentsCheckedBy"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["DocumentsCheckedBy"]),
+
+                                Signature =
+                                    row["Signature"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["Signature"]),
+
+                                FunctionalHeadApproval =
+                                    row["FunctionalHeadApproval"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["FunctionalHeadApproval"]),
+
+                                SPOCHumanResourcesApproval =
+                                    row["SPOCHumanResourcesApproval"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["SPOCHumanResourcesApproval"]),
+
+                                HeadHumanResourcesApproval =
+                                    row["HeadHumanResourcesApproval"] == DBNull.Value
+                                        ? null
+                                        : Convert.ToString(row["HeadHumanResourcesApproval"])
+                            })
+                            .ToList();
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // IMPORTANT: Do not silently swallow the exception while debugging.
+                // Log ex.ToString() here.
+                throw;
+            }
+        }
+
+
+
+        public Result AddUpdateEmployeeDetailsOnboarding(
+            EmployeeDetailsOnboardingModel modelData)
+        {
+            Result model = new Result();
+
+            try
+            {
+                // =========================================================
+                // VALIDATION
+                // =========================================================
+
+                if (modelData == null)
+                {
+                    model.Message = "Employee onboarding details are required.";
+                    model.PKNo = 0;
+                    return model;
+                }
+
+                long onboardingID = modelData.OnboardingID;
+
+                if (onboardingID <= 0)
+                {
+                    model.Message = "Invalid Onboarding ID.";
+                    model.PKNo = 0;
+                    return model;
+                }
+
+                if (modelData.CurrentStep < 1 ||
+                    modelData.CurrentStep > 8)
+                {
+                    model.Message = "Invalid onboarding step.";
+                    model.PKNo = 0;
+                    return model;
+                }
+
+
+                // =========================================================
+                // EMPLOYEE MODEL
+                // =========================================================
+
+                var employee =
+                    modelData.EmployeeDetails
+                    ?? new EmployeeDetailsOnboardingModel
+                    {
+                        OnboardingID = onboardingID
+                    };
+
+                employee.OnboardingID = onboardingID;
+
+
+                // =========================================================
+                // FAMILY TVP
+                // =========================================================
+
+                DataTable familyTable = new DataTable();
+
+                familyTable.Columns.Add("FamilyID", typeof(long));
+                familyTable.Columns.Add("OnboardingID", typeof(long));
+                familyTable.Columns.Add("Relation", typeof(string));
+                familyTable.Columns.Add("Name", typeof(string));
+                familyTable.Columns.Add("Gender", typeof(string));
+                familyTable.Columns.Add("Age", typeof(string));
+                familyTable.Columns.Add("DateOfBirth", typeof(DateTime));
+                familyTable.Columns.Add("Occupation", typeof(string));
+                familyTable.Columns.Add("IsDependent", typeof(bool));
+                familyTable.Columns.Add("ResidingWithEmployee", typeof(bool));
+                familyTable.Columns.Add("Address", typeof(string));
+                familyTable.Columns.Add("Town", typeof(string));
+                familyTable.Columns.Add("State", typeof(string));
+                familyTable.Columns.Add("Mobile", typeof(string));
+
+                if (modelData.FamilyList != null)
+                {
+                    foreach (var item in modelData.FamilyList)
+                    {
+                        DataRow row = familyTable.NewRow();
+
+                        row["FamilyID"] = item.FamilyID;
+                        row["OnboardingID"] = onboardingID;
+
+                        row["Relation"] =
+                            (object?)item.Relation ?? DBNull.Value;
+
+                        row["Name"] =
+                            (object?)item.Name ?? DBNull.Value;
+
+                        row["Gender"] =
+                            (object?)item.Gender ?? DBNull.Value;
+
+                        row["Age"] =
+                            (object?)item.Age ?? DBNull.Value;
+
+                        row["DateOfBirth"] =
+                            item.DateOfBirth.HasValue
+                                ? item.DateOfBirth.Value
+                                : DBNull.Value;
+
+                        row["Occupation"] =
+                            (object?)item.Occupation ?? DBNull.Value;
+
+                        row["IsDependent"] =
+                            item.IsDependent.HasValue
+                                ? item.IsDependent.Value
+                                : DBNull.Value;
+
+                        row["ResidingWithEmployee"] =
+                            item.ResidingWithEmployee.HasValue
+                                ? item.ResidingWithEmployee.Value
+                                : DBNull.Value;
+
+                        row["Address"] =
+                            (object?)item.Address ?? DBNull.Value;
+
+                        row["Town"] =
+                            (object?)item.Town ?? DBNull.Value;
+
+                        row["State"] =
+                            (object?)item.State ?? DBNull.Value;
+
+                        row["Mobile"] =
+                            (object?)item.Mobile ?? DBNull.Value;
+
+                        familyTable.Rows.Add(row);
+                    }
+                }
+
+
+                // =========================================================
+                // EDUCATION TVP
+                // =========================================================
+
+                DataTable educationTable = new DataTable();
+
+                educationTable.Columns.Add("EducationID", typeof(long));
+                educationTable.Columns.Add("OnboardingID", typeof(long));
+                educationTable.Columns.Add("EducationLevel", typeof(string));
+                educationTable.Columns.Add("Stream", typeof(string));
+                educationTable.Columns.Add("PassingYear", typeof(int));
+                educationTable.Columns.Add("InstitutionName", typeof(string));
+                educationTable.Columns.Add("BoardUniversity", typeof(string));
+                educationTable.Columns.Add("MarksObtained", typeof(string));
+                educationTable.Columns.Add("MajorSubjects", typeof(string));
+                educationTable.Columns.Add("RowNo", typeof(int));
+
+                int rowNo = 1;
+
+                if (modelData.EducationList != null)
+                {
+                    foreach (var item in modelData.EducationList)
+                    {
+                        DataRow row = educationTable.NewRow();
+
+                        row["EducationID"] = item.EducationID;
+                        row["OnboardingID"] = onboardingID;
+
+                        row["EducationLevel"] =
+                            (object?)item.EducationLevel ?? DBNull.Value;
+
+                        row["Stream"] =
+                            (object?)item.Stream ?? DBNull.Value;
+
+                        row["PassingYear"] =
+                            item.PassingYear.HasValue
+                                ? item.PassingYear.Value
+                                : DBNull.Value;
+
+                        row["InstitutionName"] =
+                            (object?)item.InstitutionName ?? DBNull.Value;
+
+                        row["BoardUniversity"] =
+                            (object?)item.BoardUniversity ?? DBNull.Value;
+
+                        row["MarksObtained"] =
+                            (object?)item.MarksObtained ?? DBNull.Value;
+
+                        row["MajorSubjects"] =
+                            (object?)item.MajorSubjects ?? DBNull.Value;
+
+                        row["RowNo"] = rowNo++;
+
+                        educationTable.Rows.Add(row);
+                    }
+                }
+
+
+                // =========================================================
+                // EMPLOYMENT TVP
+                // =========================================================
+
+                DataTable employmentTable = new DataTable();
+
+                employmentTable.Columns.Add("EmploymentID", typeof(long));
+                employmentTable.Columns.Add("OnboardingID", typeof(long));
+                employmentTable.Columns.Add("FromDate", typeof(DateTime));
+                employmentTable.Columns.Add("ToDate", typeof(DateTime));
+                employmentTable.Columns.Add("EmployerName", typeof(string));
+                employmentTable.Columns.Add("EmployerAddress", typeof(string));
+                employmentTable.Columns.Add("EmployerContactNo", typeof(string));
+                employmentTable.Columns.Add("ReportingTo", typeof(string));
+                employmentTable.Columns.Add("AnnualCTC", typeof(decimal));
+                employmentTable.Columns.Add("Designation", typeof(string));
+                employmentTable.Columns.Add("EmployerNumber", typeof(string));
+                employmentTable.Columns.Add("PreviousEmployeeID", typeof(string));
+                employmentTable.Columns.Add("JobTitle", typeof(string));
+                employmentTable.Columns.Add("HRManagerName", typeof(string));
+                employmentTable.Columns.Add("HRManagerEmailID", typeof(string));
+                employmentTable.Columns.Add("ReasonOfLiving", typeof(string));
+
+                if (modelData.EmploymentList != null)
+                {
+                    foreach (var item in modelData.EmploymentList)
+                    {
+                        DataRow row = employmentTable.NewRow();
+
+                        row["EmploymentID"] = item.EmploymentID;
+                        row["OnboardingID"] = onboardingID;
+
+                        row["FromDate"] =
+                            item.FromDate.HasValue
+                                ? item.FromDate.Value
+                                : DBNull.Value;
+
+                        row["ToDate"] =
+                            item.ToDate.HasValue
+                                ? item.ToDate.Value
+                                : DBNull.Value;
+
+                        row["EmployerName"] =
+                            (object?)item.EmployerName ?? DBNull.Value;
+
+                        row["EmployerAddress"] =
+                            (object?)item.EmployerAddress ?? DBNull.Value;
+
+                        row["EmployerContactNo"] =
+                            (object?)item.EmployerContactNo ?? DBNull.Value;
+
+                        row["ReportingTo"] =
+                            (object?)item.ReportingTo ?? DBNull.Value;
+
+                        row["AnnualCTC"] =
+                            item.AnnualCTC.HasValue
+                                ? item.AnnualCTC.Value
+                                : DBNull.Value;
+
+                        row["Designation"] =
+                            (object?)item.Designation ?? DBNull.Value;
+
+                        row["EmployerNumber"] =
+                            (object?)item.EmployerNumber ?? DBNull.Value;
+
+                        row["PreviousEmployeeID"] =
+                            (object?)item.PreviousEmployeeID ?? DBNull.Value;
+
+                        row["JobTitle"] =
+                            (object?)item.JobTitle ?? DBNull.Value;
+
+                        row["HRManagerName"] =
+                            (object?)item.HRManagerName ?? DBNull.Value;
+
+                        row["HRManagerEmailID"] =
+                            (object?)item.HRManagerEmailID ?? DBNull.Value;
+
+                        row["ReasonOfLiving"] =
+                            (object?)item.ReasonOfLiving ?? DBNull.Value;
+
+                        employmentTable.Rows.Add(row);
+                    }
+                }
+
+
+                // =========================================================
+                // DOCUMENTS TVP
+                // =========================================================
+
+                DataTable documentsTable = new DataTable();
+
+                documentsTable.Columns.Add("DocumentID", typeof(long));
+                documentsTable.Columns.Add("OnboardingID", typeof(long));
+                documentsTable.Columns.Add("DocumentType", typeof(string));
+                documentsTable.Columns.Add("FileName", typeof(string));
+                documentsTable.Columns.Add("FilePath", typeof(string));
+                documentsTable.Columns.Add("DocumentReferenceID", typeof(long));
+
+                if (modelData.DocumentsList != null)
+                {
+                    foreach (var item in modelData.DocumentsList)
+                    {
+                        DataRow row = documentsTable.NewRow();
+
+                        row["DocumentID"] = item.DocumentID;
+                        row["OnboardingID"] = onboardingID;
+
+                        row["DocumentType"] =
+                            (object?)item.DocumentType ?? DBNull.Value;
+
+                        row["FileName"] =
+                            (object?)item.FileName ?? DBNull.Value;
+
+                        row["FilePath"] =
+                            (object?)item.FilePath ?? DBNull.Value;
+
+                        row["DocumentReferenceID"] =
+                            item.DocumentReferenceID.HasValue
+                                ? item.DocumentReferenceID.Value
+                                : DBNull.Value;
+
+                        documentsTable.Rows.Add(row);
+                    }
+                }
+
+
+                // =========================================================
+                // BANK DETAILS TVP
+                // =========================================================
+
+                DataTable bankTable = new DataTable();
+
+                bankTable.Columns.Add("BankDetailID", typeof(long));
+                bankTable.Columns.Add("OnboardingID", typeof(long));
+                bankTable.Columns.Add("AccountHolderName", typeof(string));
+                bankTable.Columns.Add("BankName", typeof(string));
+                bankTable.Columns.Add("BranchName", typeof(string));
+                bankTable.Columns.Add("AccountNumber", typeof(string));
+                bankTable.Columns.Add("IFSCCode", typeof(string));
+                bankTable.Columns.Add("AccountType", typeof(string));
+                bankTable.Columns.Add("BankCopyFile", typeof(string));
+                bankTable.Columns.Add("ESINoPreviousEmployment", typeof(string));
+                bankTable.Columns.Add("PFUANPreviousEmployer", typeof(string));
+
+                if (modelData.BankDetailsList != null)
+                {
+                    foreach (var item in modelData.BankDetailsList)
+                    {
+                        DataRow row = bankTable.NewRow();
+
+                        row["BankDetailID"] = item.BankDetailID;
+                        row["OnboardingID"] = onboardingID;
+
+                        row["AccountHolderName"] =
+                            (object?)item.AccountHolderName ?? DBNull.Value;
+
+                        row["BankName"] =
+                            (object?)item.BankName ?? DBNull.Value;
+
+                        row["BranchName"] =
+                            (object?)item.BranchName ?? DBNull.Value;
+
+                        row["AccountNumber"] =
+                            (object?)item.AccountNumber ?? DBNull.Value;
+
+                        row["IFSCCode"] =
+                            (object?)item.IFSCCode ?? DBNull.Value;
+
+                        row["AccountType"] =
+                            (object?)item.AccountType ?? DBNull.Value;
+
+                        row["BankCopyFile"] =
+                            (object?)item.BankCopyFile ?? DBNull.Value;
+
+                        row["ESINoPreviousEmployment"] =
+                            (object?)item.ESINoPreviousEmployment ?? DBNull.Value;
+
+                        row["PFUANPreviousEmployer"] =
+                            (object?)item.PFUANPreviousEmployer ?? DBNull.Value;
+
+                        bankTable.Rows.Add(row);
+                    }
+                }
+
+
+                // =========================================================
+                // NOMINEE TVP
+                // EPF + EPS + GRATUITY
+                // =========================================================
+
+                DataTable nomineeTable = new DataTable();
+
+                nomineeTable.Columns.Add("NomineeID", typeof(long));
+                nomineeTable.Columns.Add("OnboardingID", typeof(long));
+                nomineeTable.Columns.Add("FamilyID", typeof(long));
+                nomineeTable.Columns.Add("NomineeName", typeof(string));
+                nomineeTable.Columns.Add("NomineeAddress", typeof(string));
+                nomineeTable.Columns.Add("Relationship", typeof(string));
+                nomineeTable.Columns.Add("DateOfBirth", typeof(DateTime));
+                nomineeTable.Columns.Add("Age", typeof(int));
+                nomineeTable.Columns.Add("NomineeType", typeof(string));
+                nomineeTable.Columns.Add("SharePercentage", typeof(decimal));
+
+
+                // =========================================================
+                // HELPER METHOD - ADD ONLY VALID NOMINEES
+                // =========================================================
+
+                void AddNominee(
+                    EmployeeOnboardingNomineeModel item,
+                    string nomineeType)
+                {
+                    // IMPORTANT:
+                    // Empty nominee rows should NOT be sent to SQL.
+                    if (item == null ||
+                        string.IsNullOrWhiteSpace(item.NomineeName))
+                    {
+                        return;
+                    }
+
+                    DataRow row = nomineeTable.NewRow();
+
+                    row["NomineeID"] =
+                        item.NomineeID;
+
+                    row["OnboardingID"] =
+                        onboardingID;
+
+                    row["FamilyID"] =
+                        item.FamilyID.HasValue
+                            ? item.FamilyID.Value
+                            : DBNull.Value;
+
+                    row["NomineeName"] =
+                        item.NomineeName.Trim();
+
+                    row["NomineeAddress"] =
+                        string.IsNullOrWhiteSpace(item.Address)
+                            ? DBNull.Value
+                            : item.Address.Trim();
+
+                    row["Relationship"] =
+                        string.IsNullOrWhiteSpace(item.Relationship)
+                            ? DBNull.Value
+                            : item.Relationship.Trim();
+
+                    row["DateOfBirth"] =
+                        item.DateOfBirth.HasValue
+                            ? item.DateOfBirth.Value
+                            : DBNull.Value;
+
+                    row["Age"] =
+                        item.Age.HasValue
+                            ? item.Age.Value
+                            : DBNull.Value;
+
+                    row["NomineeType"] =
+                        nomineeType;
+
+                    row["SharePercentage"] =
+                        item.Percentage.HasValue
+                            ? item.Percentage.Value
+                            : DBNull.Value;
+
+                    nomineeTable.Rows.Add(row);
+                }
+
+
+                // =========================================================
+                // EPF NOMINEES
+                // =========================================================
+
+                if (modelData.EPFNomineeList != null)
+                {
+                    foreach (var item in modelData.EPFNomineeList)
+                    {
+                        AddNominee(item, "EPF");
+                    }
+                }
+
+
+                // =========================================================
+                // EPS NOMINEES
+                // =========================================================
+
+                if (modelData.EPSNomineeList != null)
+                {
+                    foreach (var item in modelData.EPSNomineeList)
+                    {
+                        AddNominee(item, "EPS");
+                    }
+                }
+
+
+                // =========================================================
+                // GRATUITY NOMINEES
+                // =========================================================
+
+                if (modelData.GratuityNomineeList != null)
+                {
+                    foreach (var item in modelData.GratuityNomineeList)
+                    {
+                        AddNominee(item, "Gratuity");
+                    }
+                }
+
+
+                // =========================================================
+                // DEBUG
+                // =========================================================
+
+                System.Diagnostics.Debug.WriteLine(
+                    "================================================");
+
+                System.Diagnostics.Debug.WriteLine(
+                    "ONBOARDING NOMINEE SAVE");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"OnboardingID : {onboardingID}");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"CurrentStep  : {modelData.CurrentStep}");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"EPF Posted Rows      : {modelData.EPFNomineeList?.Count ?? 0}");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"EPS Posted Rows      : {modelData.EPSNomineeList?.Count ?? 0}");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"Gratuity Posted Rows : {modelData.GratuityNomineeList?.Count ?? 0}");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"Actual TVP Rows      : {nomineeTable.Rows.Count}");
+
+                foreach (DataRow nominee in nomineeTable.Rows)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"NomineeID={nominee["NomineeID"]}, " +
+                        $"Name={nominee["NomineeName"]}, " +
+                        $"Type={nominee["NomineeType"]}, " +
+                        $"FamilyID={nominee["FamilyID"]}, " +
+                        $"Relationship={nominee["Relationship"]}, " +
+                        $"DOB={nominee["DateOfBirth"]}, " +
+                        $"Age={nominee["Age"]}, " +
+                        $"Share={nominee["SharePercentage"]}");
+                }
+
+                System.Diagnostics.Debug.WriteLine(
+                    "================================================");
+
+                // =========================================================
+                // INTERVIEW EVALUATION TVP
+                // =========================================================
+
+                // =========================================================
+                // INTERVIEW EVALUATION TVP
+                // IMPORTANT:
+                // The column order below MUST exactly match
+                // dbo.EmployeeOnboardingInterviewEvaluationTVP
+                // =========================================================
+
+                // =========================================================
+                // INTERVIEW EVALUATION TVP
+                // =========================================================
+
+                DataTable interviewEvaluationTable = new DataTable();
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterviewEvaluationID", typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "OnboardingID", typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterviewPanel", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterviewDate", typeof(DateTime));
+
+
+                // =========================================================
+                // SKILLS
+                // =========================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "JobKnowledgeSkill_HR", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "JobKnowledgeSkill_Ops", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "JobKnowledgeSkill_Client", typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "CommunicationSkill_HR", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "CommunicationSkill_Ops", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "CommunicationSkill_Client", typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterpersonalSkills_HR", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterpersonalSkills_Ops", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterpersonalSkills_Client", typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "RelevantExperience_HR", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RelevantExperience_Ops", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RelevantExperience_Client", typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "RequiredSkill_HR", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RequiredSkill_Ops", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RequiredSkill_Client", typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "TrainingSpecificRole_HR", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TrainingSpecificRole_Ops", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TrainingSpecificRole_Client", typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "TeamManagement_HR", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TeamManagement_Ops", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TeamManagement_Client", typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "SuitabilitySustainability_HR", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SuitabilitySustainability_Ops", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SuitabilitySustainability_Client", typeof(string));
+
+
+                // =========================================================
+                // COMMENTS / SCORES
+                // =========================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "HRComments", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TypingAptitudeScore", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "CurrentCompensationCTC", typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ExpectedCompensationCTC", typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "OverallRating", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "OperationsComments", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ProcessOwnerComments", typeof(string));
+
+
+                // =========================================================
+                // FINAL DECISION
+                // =========================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "SelectedHoldReject", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "PositionToBeOffered", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SalaryGross", typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "PLI", typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "Variable", typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "Location", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterviewerSignature", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "FinalDate", typeof(DateTime));
+
+
+                // =========================================================
+                // CANDIDATE / EMPLOYMENT DETAILS
+                // =========================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "EmployeeCode", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "Department", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "Designation", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "EmploymentStatus", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RefCheckReport", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "DocumentsCheckedBy", typeof(string));
+
+
+                // =========================================================
+                // SIGNATURE / APPROVAL
+                // =========================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "Signature", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "FunctionalHeadApproval", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SPOCHumanResourcesApproval", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "HeadHumanResourcesApproval", typeof(string));
+
+
+                // =========================================================
+                // INTERVIEWER / JOINING
+                // =========================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "NameOfInterviewer", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "DateOfJoining", typeof(DateTime));
+
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "HRInterviewerName", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "OperationsInterviewerName", typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ProcessOwnerInterviewerName", typeof(string));
+
+                // =========================================================
+                // ADD DATA
+                // =========================================================
+
+                if (modelData.InterviewEvaluationList != null)
+                {
+                    foreach (var item in modelData.InterviewEvaluationList)
+                    {
+                        interviewEvaluationTable.Rows.Add(
+                            item.InterviewEvaluationID > 0
+                                ? item.InterviewEvaluationID
+                                : DBNull.Value,
+
+                            item.OnboardingID > 0
+                                ? item.OnboardingID
+                                : DBNull.Value,
+
+                            string.IsNullOrWhiteSpace(item.InterviewPanel)
+                                ? DBNull.Value
+                                : item.InterviewPanel,
+
+                            item.InterviewDate.HasValue
+                                ? item.InterviewDate.Value
+                                : DBNull.Value,
+
+
+                            // =================================================
+                            // SKILLS
+                            // =================================================
+
+                            string.IsNullOrWhiteSpace(item.JobKnowledgeSkill_HR)
+                                ? DBNull.Value
+                                : item.JobKnowledgeSkill_HR,
+
+                            string.IsNullOrWhiteSpace(item.JobKnowledgeSkill_Ops)
+                                ? DBNull.Value
+                                : item.JobKnowledgeSkill_Ops,
+
+                            string.IsNullOrWhiteSpace(item.JobKnowledgeSkill_Client)
+                                ? DBNull.Value
+                                : item.JobKnowledgeSkill_Client,
+
+
+                            string.IsNullOrWhiteSpace(item.CommunicationSkill_HR)
+                                ? DBNull.Value
+                                : item.CommunicationSkill_HR,
+
+                            string.IsNullOrWhiteSpace(item.CommunicationSkill_Ops)
+                                ? DBNull.Value
+                                : item.CommunicationSkill_Ops,
+
+                            string.IsNullOrWhiteSpace(item.CommunicationSkill_Client)
+                                ? DBNull.Value
+                                : item.CommunicationSkill_Client,
+
+
+                            string.IsNullOrWhiteSpace(item.InterpersonalSkills_HR)
+                                ? DBNull.Value
+                                : item.InterpersonalSkills_HR,
+
+                            string.IsNullOrWhiteSpace(item.InterpersonalSkills_Ops)
+                                ? DBNull.Value
+                                : item.InterpersonalSkills_Ops,
+
+                            string.IsNullOrWhiteSpace(item.InterpersonalSkills_Client)
+                                ? DBNull.Value
+                                : item.InterpersonalSkills_Client,
+
+
+                            string.IsNullOrWhiteSpace(item.RelevantExperience_HR)
+                                ? DBNull.Value
+                                : item.RelevantExperience_HR,
+
+                            string.IsNullOrWhiteSpace(item.RelevantExperience_Ops)
+                                ? DBNull.Value
+                                : item.RelevantExperience_Ops,
+
+                            string.IsNullOrWhiteSpace(item.RelevantExperience_Client)
+                                ? DBNull.Value
+                                : item.RelevantExperience_Client,
+
+
+                            string.IsNullOrWhiteSpace(item.RequiredSkill_HR)
+                                ? DBNull.Value
+                                : item.RequiredSkill_HR,
+
+                            string.IsNullOrWhiteSpace(item.RequiredSkill_Ops)
+                                ? DBNull.Value
+                                : item.RequiredSkill_Ops,
+
+                            string.IsNullOrWhiteSpace(item.RequiredSkill_Client)
+                                ? DBNull.Value
+                                : item.RequiredSkill_Client,
+
+
+                            string.IsNullOrWhiteSpace(item.TrainingSpecificRole_HR)
+                                ? DBNull.Value
+                                : item.TrainingSpecificRole_HR,
+
+                            string.IsNullOrWhiteSpace(item.TrainingSpecificRole_Ops)
+                                ? DBNull.Value
+                                : item.TrainingSpecificRole_Ops,
+
+                            string.IsNullOrWhiteSpace(item.TrainingSpecificRole_Client)
+                                ? DBNull.Value
+                                : item.TrainingSpecificRole_Client,
+
+
+                            string.IsNullOrWhiteSpace(item.TeamManagement_HR)
+                                ? DBNull.Value
+                                : item.TeamManagement_HR,
+
+                            string.IsNullOrWhiteSpace(item.TeamManagement_Ops)
+                                ? DBNull.Value
+                                : item.TeamManagement_Ops,
+
+                            string.IsNullOrWhiteSpace(item.TeamManagement_Client)
+                                ? DBNull.Value
+                                : item.TeamManagement_Client,
+
+
+                            string.IsNullOrWhiteSpace(item.SuitabilitySustainability_HR)
+                                ? DBNull.Value
+                                : item.SuitabilitySustainability_HR,
+
+                            string.IsNullOrWhiteSpace(item.SuitabilitySustainability_Ops)
+                                ? DBNull.Value
+                                : item.SuitabilitySustainability_Ops,
+
+                            string.IsNullOrWhiteSpace(item.SuitabilitySustainability_Client)
+                                ? DBNull.Value
+                                : item.SuitabilitySustainability_Client,
+
+
+                            // =================================================
+                            // COMMENTS / SCORES
+                            // =================================================
+
+                            string.IsNullOrWhiteSpace(item.HRComments)
+                                ? DBNull.Value
+                                : item.HRComments,
+
+                            string.IsNullOrWhiteSpace(item.TypingAptitudeScore)
+                                ? DBNull.Value
+                                : item.TypingAptitudeScore,
+
+                            item.CurrentCompensationCTC.HasValue
+                                ? item.CurrentCompensationCTC.Value
+                                : DBNull.Value,
+
+                            item.ExpectedCompensationCTC.HasValue
+                                ? item.ExpectedCompensationCTC.Value
+                                : DBNull.Value,
+
+                            string.IsNullOrWhiteSpace(item.OverallRating)
+                                ? DBNull.Value
+                                : item.OverallRating,
+
+                            string.IsNullOrWhiteSpace(item.OperationsComments)
+                                ? DBNull.Value
+                                : item.OperationsComments,
+
+                            string.IsNullOrWhiteSpace(item.ProcessOwnerComments)
+                                ? DBNull.Value
+                                : item.ProcessOwnerComments,
+
+
+                            // =================================================
+                            // FINAL DECISION
+                            // =================================================
+
+                            string.IsNullOrWhiteSpace(item.SelectedHoldReject)
+                                ? DBNull.Value
+                                : item.SelectedHoldReject,
+
+                            string.IsNullOrWhiteSpace(item.PositionToBeOffered)
+                                ? DBNull.Value
+                                : item.PositionToBeOffered,
+
+                            item.SalaryGross.HasValue
+                                ? item.SalaryGross.Value
+                                : DBNull.Value,
+
+                            item.PLI.HasValue
+                                ? item.PLI.Value
+                                : DBNull.Value,
+
+                            item.Variable.HasValue
+                                ? item.Variable.Value
+                                : DBNull.Value,
+
+                            string.IsNullOrWhiteSpace(item.Location)
+                                ? DBNull.Value
+                                : item.Location,
+
+                            string.IsNullOrWhiteSpace(item.InterviewerSignature)
+                                ? DBNull.Value
+                                : item.InterviewerSignature,
+
+                            item.FinalDate.HasValue
+                                ? item.FinalDate.Value
+                                : DBNull.Value,
+
+
+                            // =================================================
+                            // CANDIDATE / EMPLOYMENT
+                            // =================================================
+
+                            string.IsNullOrWhiteSpace(item.EmployeeCode)
+                                ? DBNull.Value
+                                : item.EmployeeCode,
+
+                            string.IsNullOrWhiteSpace(item.Department)
+                                ? DBNull.Value
+                                : item.Department,
+
+                            string.IsNullOrWhiteSpace(item.Designation)
+                                ? DBNull.Value
+                                : item.Designation,
+
+                            string.IsNullOrWhiteSpace(item.EmploymentStatus)
+                                ? DBNull.Value
+                                : item.EmploymentStatus,
+
+                            string.IsNullOrWhiteSpace(item.RefCheckReport)
+                                ? DBNull.Value
+                                : item.RefCheckReport,
+
+                            string.IsNullOrWhiteSpace(item.DocumentsCheckedBy)
+                                ? DBNull.Value
+                                : item.DocumentsCheckedBy,
+
+
+                            // =================================================
+                            // SIGNATURE / APPROVAL
+                            // =================================================
+
+                            string.IsNullOrWhiteSpace(item.Signature)
+                                ? DBNull.Value
+                                : item.Signature,
+
+                            string.IsNullOrWhiteSpace(item.FunctionalHeadApproval)
+                                ? DBNull.Value
+                                : item.FunctionalHeadApproval,
+
+                            string.IsNullOrWhiteSpace(item.SPOCHumanResourcesApproval)
+                                ? DBNull.Value
+                                : item.SPOCHumanResourcesApproval,
+
+                            string.IsNullOrWhiteSpace(item.HeadHumanResourcesApproval)
+                                ? DBNull.Value
+                                : item.HeadHumanResourcesApproval,
+
+
+                            // =================================================
+                            // INTERVIEWER / JOINING
+                            // =================================================
+
+                            string.IsNullOrWhiteSpace(item.NameOfInterviewer)
+                                ? DBNull.Value
+                                : item.NameOfInterviewer,
+
+                            item.DateOfJoining.HasValue
+                                ? item.DateOfJoining.Value
+                                : DBNull.Value,
+
+                            string.IsNullOrWhiteSpace(item.HRInterviewerName)
+                                ? DBNull.Value
+                                : item.HRInterviewerName,
+
+                            string.IsNullOrWhiteSpace(item.OperationsInterviewerName)
+                                ? DBNull.Value
+                                : item.OperationsInterviewerName,
+
+                            string.IsNullOrWhiteSpace(item.ProcessOwnerInterviewerName)
+                                ? DBNull.Value
+                                : item.ProcessOwnerInterviewerName
+                        );
+                    }
+                }
+                // =========================================================
+                // OPTIONAL DEBUG
+                // This will help verify the TVP before sending to SQL.
+                // =========================================================
+
+                System.Diagnostics.Debug.WriteLine(
+                    "Interview Evaluation TVP Columns: " +
+                    interviewEvaluationTable.Columns.Count);
+
+                System.Diagnostics.Debug.WriteLine(
+                    "Interview Evaluation TVP Rows: " +
+                    interviewEvaluationTable.Rows.Count);
+
+                foreach (DataColumn column in interviewEvaluationTable.Columns)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"{column.Ordinal + 1}. {column.ColumnName} - {column.DataType.Name}");
+                }
+
+
+                // =========================================================
+                // MAIN EMPLOYEE PARAMETERS
+                // =========================================================
+
+                List<SqlParameter> sqlParameter =
+                [
+                    new SqlParameter(
+                "@EmployeeDetailsOnboardingID",
+                employee.EmployeeDetailsOnboardingID
+            ),
+
+            new SqlParameter(
+                "@OnboardingID",
+                onboardingID
+            ),
+
+            new SqlParameter(
+                "@CurrentStep",
+                modelData.CurrentStep
+            ),
+
+            new SqlParameter(
+                "@Designation",
+                (object?)modelData.Designation ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@EmployeeNumber",
+                (object?)modelData.EmployeeCode ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@EmployeePhoto",
+                (object?)modelData.EmployeePhoto ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@FatherHusbandName",
+                (object?)modelData.FatherHusbandName ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@DateOfBirth",
+                (object?)modelData.DateOfBirth ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Gender",
+                (object?)modelData.Gender ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@MaritalStatus",
+                (object?)modelData.MaritalStatus ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@BloodGroup",
+                (object?)modelData.BloodGroup ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PermanentAddress",
+                (object?)modelData.PermanentAddress ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PermanentCity",
+                (object?)modelData.PermanentCity ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PermanentState",
+                (object?)modelData.PermanentState ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PermanentPINCode",
+                (object?)modelData.PermanentPINCode ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PresentAddress",
+                (object?)modelData.PresentAddress ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PresentCity",
+                (object?)modelData.PresentCity ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PresentState",
+                (object?)modelData.PresentState ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PresentPINCode",
+                (object?)modelData.PresentPINCode ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@LandlineNo",
+                (object?)modelData.LandlineNo ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@EmergencyContactName",
+                (object?)modelData.EmergencyContactName ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@EmergencyContactRelation",
+                (object?)modelData.EmergencyContactRelation ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@EmergencyContactMobile",
+                (object?)modelData.EmergencyContactMobile ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@EmergencyContactAddress",
+                (object?)modelData.EmergencyContactAddress ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@EmergencyContactCity",
+                (object?)modelData.EmergencyContactCity ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@SourceOfHiring",
+                (object?)modelData.SourceOfHiring ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference1Name",
+                (object?)modelData.Reference1Name ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference1Designation",
+                (object?)modelData.Reference1Designation ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference1Company",
+                (object?)modelData.Reference1Company ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference1Mobile",
+                (object?)modelData.Reference1Mobile ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference1Email",
+                (object?)modelData.Reference1Email ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference2Name",
+                (object?)modelData.Reference2Name ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference2Designation",
+                (object?)modelData.Reference2Designation ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference2Company",
+                (object?)modelData.Reference2Company ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference2Mobile",
+                (object?)modelData.Reference2Mobile ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Reference2Email",
+                (object?)modelData.Reference2Email ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PassportNumber",
+                (object?)modelData.PassportNumber ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PANNumber",
+                (object?)modelData.PANNumber ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@AadhaarNumber",
+                (object?)modelData.AadhaarNumber ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@Religion",
+                (object?)modelData.Religion ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PreviouslyInterviewed",
+                (object?)modelData.PreviouslyInterviewed ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PreviousInterviewDate",
+                (object?)modelData.PreviousInterviewDate ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PreviousInterviewPlace",
+                (object?)modelData.PreviousInterviewPlace ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PreviousPositionApplied",
+                (object?)modelData.PreviousPositionApplied ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PreviouslyWorked",
+                (object?)modelData.PreviouslyWorked ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PreviousWorkFromDate",
+                (object?)modelData.PreviousWorkFromDate ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PreviousWorkToDate",
+                (object?)modelData.PreviousWorkToDate ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@PreviousWorkLocation",
+                (object?)modelData.PreviousWorkLocation ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@HaveCriminalCivilProceedings",
+                (object?)modelData.HaveCriminalCivilProceedings ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@CriminalCivilProceedingsDetails",
+                (object?)modelData.CriminalCivilProceedingsDetails ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@OtherInformation",
+                (object?)modelData.OtherInformation ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@EmployeeSignature",
+                (object?)modelData.EmployeeSignature ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@DeclarationDate",
+                (object?)modelData.DeclarationDate ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@DeclarationPlace",
+                (object?)modelData.DeclarationPlace ?? DBNull.Value
+            ),
+
+            new SqlParameter(
+                "@ApprovalsRemarks",
+                (object?)modelData.ApprovalsRemarks ?? DBNull.Value
+            )
+                ];
+
+
+                // =========================================================
+                // FAMILY TVP
+                // =========================================================
+
+                sqlParameter.Add(
+                    new SqlParameter(
+                        "@FamilyList",
+                        SqlDbType.Structured)
+                    {
+                        TypeName =
+                            "dbo.EmployeeOnboardingFamilyTVP",
+
+                        Value =
+                            familyTable
+                    });
+
+
+                // =========================================================
+                // EDUCATION TVP
+                // =========================================================
+
+                sqlParameter.Add(
+                    new SqlParameter(
+                        "@EducationList",
+                        SqlDbType.Structured)
+                    {
+                        TypeName =
+                            "dbo.EmployeeOnboardingEducationTVP",
+
+                        Value =
+                            educationTable
+                    });
+
+
+                // =========================================================
+                // EMPLOYMENT TVP
+                // =========================================================
+
+                sqlParameter.Add(
+                    new SqlParameter(
+                        "@EmploymentList",
+                        SqlDbType.Structured)
+                    {
+                        TypeName =
+                            "dbo.EmployeeOnboardingEmploymentTVP",
+
+                        Value =
+                            employmentTable
+                    });
+
+
+                // =========================================================
+                // DOCUMENTS TVP
+                // =========================================================
+
+                sqlParameter.Add(
+                    new SqlParameter(
+                        "@DocumentsList",
+                        SqlDbType.Structured)
+                    {
+                        TypeName =
+                            "dbo.EmployeeOnboardingDocumentsTVP",
+
+                        Value =
+                            documentsTable
+                    });
+
+
+                // =========================================================
+                // BANK DETAILS TVP
+                // =========================================================
+
+                sqlParameter.Add(
+                    new SqlParameter(
+                        "@BankDetailsList",
+                        SqlDbType.Structured)
+                    {
+                        TypeName =
+                            "dbo.EmployeeOnboardingBankDetailsTVP",
+
+                        Value =
+                            bankTable
+                    });
+
+
+                // =========================================================
+                // NOMINEE TVP
+                // =========================================================
+
+                sqlParameter.Add(
+                    new SqlParameter(
+                        "@NomineeList",
+                        SqlDbType.Structured)
+                    {
+                        TypeName =
+                            "dbo.EmployeeOnboardingNomineeTVP",
+
+                        Value =
+                            nomineeTable
+                    });
+
+
+                // =========================================================
+                // INTERVIEW EVALUATION TVP
+                // =========================================================
+
+                sqlParameter.Add(
+                    new SqlParameter(
+                        "@InterviewEvaluationList",
+                        SqlDbType.Structured)
+                    {
+                        TypeName =
+                            "dbo.EmployeeOnboardingInterviewEvaluationTVP",
+
+                        Value =
+                            interviewEvaluationTable
+                    });
+
+
+                // =========================================================
+                // EXECUTE STORED PROCEDURE
+                // =========================================================
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures
+                            .usp_AddUpdateEmployeeDetailsOnboarding,
+                        sqlParameter
+                    );
+
+
+                // =========================================================
+                // RESULT
+                // =========================================================
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row =
+                        dataSet.Tables[0].Rows[0];
+
+                    model.Message =
+                        row.Table.Columns.Contains("Message") &&
+                        row["Message"] != DBNull.Value
+                            ? row["Message"].ToString()
+                            : "";
+
+                    model.PKNo =
+                        row.Table.Columns.Contains(
+                            "EmployeeDetailsOnboardingID")
+                        &&
+                        row["EmployeeDetailsOnboardingID"]
+                            != DBNull.Value
+                            ? Convert.ToInt64(
+                                row["EmployeeDetailsOnboardingID"])
+                            : employee.EmployeeDetailsOnboardingID;
+                }
+                else
+                {
+                    model.Message =
+                        "Unable to save employee onboarding details.";
+
+                    model.PKNo = 0;
+                }
+
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.Message = ex.Message;
+                model.PKNo = 0;
+
+                return model;
+            }
+        }
+
+
+
+        public List<EmployeeOnboardingFamilyModel>GetEmployeeOnboardingFamily(long onboardingID)
+        {
+            List<EmployeeOnboardingFamilyModel> result =
+                new List<EmployeeOnboardingFamilyModel>();
+
+            List<SqlParameter> sqlParameter =
+            [
+                new SqlParameter("@OnboardingID", onboardingID)
+            ];
+
+            DataSet dataSet =
+                DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetEmployeeOnboardingFamily,
+                    sqlParameter
+                );
+
+            if (dataSet != null &&
+                dataSet.Tables.Count > 0)
+            {
+                result =
+                    dataSet.Tables[0]
+                    .AsEnumerable()
+                    .Select(row => new EmployeeOnboardingFamilyModel
+                    {
+                        FamilyID =
+                            row.Field<long?>("FamilyID") ?? 0,
+
+                        OnboardingID =
+                            row.Field<long?>("OnboardingID") ?? 0,
+
+                        Relation =
+                            row.Field<string>("Relation"),
+
+                        Name =
+                            row.Field<string>("Name"),
+
+                        Gender =
+                            row.Field<string>("Gender"),
+
+                        Age =
+                            row.Field<string>("Age"),
+
+                        DateOfBirth =
+                            row.Field<DateTime?>("DateOfBirth"),
+
+                        Occupation =
+                            row.Field<string>("Occupation"),
+
+                        IsDependent =
+                            row.Field<bool?>("IsDependent")
+                    })
+                    .ToList();
+            }
+
+            return result;
+        }
+        public Result AddUpdateEmployeeOnboardingFamily(EmployeeOnboardingFamilyModel modelData)
+        {
+            Result model = new Result();
+
+            try
+            {
+                List<SqlParameter> sqlParameter =
+                [
+                    new SqlParameter("@FamilyID",
+                modelData.FamilyID),
+
+            new SqlParameter("@OnboardingID",
+                modelData.OnboardingID),
+
+            new SqlParameter("@Relation",
+                (object?)modelData.Relation ?? DBNull.Value),
+
+            new SqlParameter("@Name",
+                (object?)modelData.Name ?? DBNull.Value),
+
+            new SqlParameter("@Gender",
+                (object?)modelData.Gender ?? DBNull.Value),
+
+            new SqlParameter("@Age",
+                (object?)modelData.Age ?? DBNull.Value),
+
+            new SqlParameter("@DateOfBirth",
+                (object?)modelData.DateOfBirth ?? DBNull.Value),
+
+            new SqlParameter("@Occupation",
+                (object?)modelData.Occupation ?? DBNull.Value),
+
+            new SqlParameter("@IsDependent",
+                (object?)modelData.IsDependent ?? DBNull.Value)
+                ];
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures.usp_AddUpdateEmployeeOnboardingFamily,
+                        sqlParameter
+                    );
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row = dataSet.Tables[0].Rows[0];
+
+                    model.Message =
+                        row["Message"] != DBNull.Value
+                            ? row["Message"].ToString()
+                            : "";
+
+                    model.PKNo =
+                        row["FamilyID"] != DBNull.Value
+                            ? Convert.ToInt64(row["FamilyID"])
+                            : 0;
+                }
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.Message = ex.Message;
+                model.PKNo = 0;
+
+                return model;
+            }
+        }
+        public List<EmployeeOnboardingEducationModel>GetEmployeeOnboardingEducation(long onboardingID)
+        {
+            List<EmployeeOnboardingEducationModel> result =
+                new List<EmployeeOnboardingEducationModel>();
+
+            List<SqlParameter> sqlParameter =
+            [
+                new SqlParameter("@OnboardingID", onboardingID)
+            ];
+
+            DataSet dataSet =
+                DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetEmployeeOnboardingEducation,
+                    sqlParameter
+                );
+
+            if (dataSet != null &&
+                dataSet.Tables.Count > 0)
+            {
+                result =
+                    dataSet.Tables[0]
+                    .AsEnumerable()
+                    .Select(row => new EmployeeOnboardingEducationModel
+                    {
+                        EducationID =
+                            row.Field<long?>("EducationID") ?? 0,
+
+                        OnboardingID =
+                            row.Field<long?>("OnboardingID") ?? 0,
+
+                        EducationLevel =
+                            row.Field<string>("EducationLevel"),
+
+                        Stream =
+                            row.Field<string>("Stream"),
+
+                        PassingYear =
+                            row.Field<int?>("PassingYear"),
+
+                        InstitutionName =
+                            row.Field<string>("InstitutionName"),
+
+                        BoardUniversity =
+                            row.Field<string>("BoardUniversity"),
+
+                        MarksObtained =
+                            row.Field<string>("MarksObtained"),
+
+                        MajorSubjects =
+                            row.Field<string>("MajorSubjects")
+                    })
+                    .ToList();
+            }
+
+            return result;
+        }
+        public Result AddUpdateEmployeeOnboardingEducation(EmployeeOnboardingEducationModel modelData)
+        {
+            Result model = new Result();
+
+            try
+            {
+                List<SqlParameter> sqlParameter =
+                [
+                    new SqlParameter("@EducationID",
+                modelData.EducationID),
+
+            new SqlParameter("@OnboardingID",
+                modelData.OnboardingID),
+
+            new SqlParameter("@EducationLevel",
+                (object?)modelData.EducationLevel ?? DBNull.Value),
+
+            new SqlParameter("@Stream",
+                (object?)modelData.Stream ?? DBNull.Value),
+
+            new SqlParameter("@PassingYear",
+                (object?)modelData.PassingYear ?? DBNull.Value),
+
+            new SqlParameter("@InstitutionName",
+                (object?)modelData.InstitutionName ?? DBNull.Value),
+
+            new SqlParameter("@BoardUniversity",
+                (object?)modelData.BoardUniversity ?? DBNull.Value),
+
+            new SqlParameter("@MarksObtained",
+                (object?)modelData.MarksObtained ?? DBNull.Value),
+
+            new SqlParameter("@MajorSubjects",
+                (object?)modelData.MajorSubjects ?? DBNull.Value)
+                ];
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures.usp_AddUpdateEmployeeOnboardingEducation,
+                        sqlParameter
+                    );
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row = dataSet.Tables[0].Rows[0];
+
+                    model.Message =
+                        row["Message"] != DBNull.Value
+                            ? row["Message"].ToString()
+                            : "";
+
+                    model.PKNo =
+                        row["EducationID"] != DBNull.Value
+                            ? Convert.ToInt64(row["EducationID"])
+                            : 0;
+                }
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.Message = ex.Message;
+                model.PKNo = 0;
+
+                return model;
+            }
+        }
+        public List<EmployeeOnboardingEmploymentModel>GetEmployeeOnboardingEmployment(long onboardingID)
+        {
+            List<EmployeeOnboardingEmploymentModel> result =
+                new List<EmployeeOnboardingEmploymentModel>();
+
+            List<SqlParameter> sqlParameter =
+            [
+                new SqlParameter("@OnboardingID", onboardingID)
+            ];
+
+            DataSet dataSet =
+                DataLayer.GetDataSetByStoredProcedure(
+                    StoredProcedures.usp_GetEmployeeOnboardingEmployment,
+                    sqlParameter
+                );
+
+            if (dataSet != null &&
+                dataSet.Tables.Count > 0)
+            {
+                result =
+                    dataSet.Tables[0]
+                    .AsEnumerable()
+                    .Select(row => new EmployeeOnboardingEmploymentModel
+                    {
+                        EmploymentID =
+                            row.Field<long?>("EmploymentID") ?? 0,
+
+                        OnboardingID =
+                            row.Field<long?>("OnboardingID") ?? 0,
+
+                        FromDate =
+                            row.Field<DateTime?>("FromDate"),
+
+                        ToDate =
+                            row.Field<DateTime?>("ToDate"),
+
+                        EmployerName =
+                            row.Field<string>("EmployerName"),
+
+                        EmployerAddress =
+                            row.Field<string>("EmployerAddress"),
+
+                        ReportingTo =
+                            row.Field<string>("ReportingTo"),
+
+                        AnnualCTC =
+                            row.Field<decimal?>("AnnualCTC"),
+
+                        Designation =
+                            row.Field<string>("Designation")
+                    })
+                    .ToList();
+            }
+
+            return result;
+        }
+        public Result AddUpdateEmployeeOnboardingEmployment(EmployeeOnboardingEmploymentModel modelData)
+        {
+            Result model = new Result();
+
+            try
+            {
+                List<SqlParameter> sqlParameter =
+                [
+                    new SqlParameter("@EmploymentID",
+                modelData.EmploymentID),
+
+            new SqlParameter("@OnboardingID",
+                modelData.OnboardingID),
+
+            new SqlParameter("@FromDate",
+                (object?)modelData.FromDate ?? DBNull.Value),
+
+            new SqlParameter("@ToDate",
+                (object?)modelData.ToDate ?? DBNull.Value),
+
+            new SqlParameter("@EmployerName",
+                (object?)modelData.EmployerName ?? DBNull.Value),
+
+            new SqlParameter("@EmployerAddress",
+                (object?)modelData.EmployerAddress ?? DBNull.Value),
+
+            new SqlParameter("@ReportingTo",
+                (object?)modelData.ReportingTo ?? DBNull.Value),
+
+            new SqlParameter("@AnnualCTC",
+                (object?)modelData.AnnualCTC ?? DBNull.Value),
+
+            new SqlParameter("@Designation",
+                (object?)modelData.Designation ?? DBNull.Value)
+                ];
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures.usp_AddUpdateEmployeeOnboardingEmployment,
+                        sqlParameter
+                    );
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row = dataSet.Tables[0].Rows[0];
+
+                    model.Message =
+                        row["Message"] != DBNull.Value
+                            ? row["Message"].ToString()
+                            : "";
+
+                    model.PKNo =
+                        row["EmploymentID"] != DBNull.Value
+                            ? Convert.ToInt64(row["EmploymentID"])
+                            : 0;
+                }
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.Message = ex.Message;
+                model.PKNo = 0;
+
+                return model;
+            }
+        }
+        public EmployeeOnboardingRequestResults GetEmployeeOnboardingRequests(
+            EmployeeOnboardingRequestInputParams model)
+        {
+            try
+            {
+                var onboardingList =
+                    new List<EmployeeOnboardingRequestModel>();
+
+                int totalRecords = 0;
+
+                var sqlParameters = new List<SqlParameter>();
+
+                // Search
+                sqlParameters.Add(new SqlParameter(
+                    "@Search",
+                    SqlDbType.NVarChar, 500)
+                {
+                    Value = string.IsNullOrWhiteSpace(model.Search)
+                        ? DBNull.Value
+                        : model.Search.Trim()
+                });
+
+                // Status
+                sqlParameters.Add(new SqlParameter(
+                    "@Status",
+                    SqlDbType.NVarChar, 50)
+                {
+                    Value = string.IsNullOrWhiteSpace(model.Status)
+                        ? DBNull.Value
+                        : model.Status.Trim()
+                });
+
+                // Page number
+                sqlParameters.Add(new SqlParameter(
+                    "@PageNumber",
+                    SqlDbType.Int)
+                {
+                    Value = model.PageNumber <= 0
+                        ? 1
+                        : model.PageNumber
+                });
+
+                // Page size
+                sqlParameters.Add(new SqlParameter(
+                    "@PageSize",
+                    SqlDbType.Int)
+                {
+                    Value = model.PageSize <= 0
+                        ? 10
+                        : model.PageSize
+                });
+
+                // Sort column
+                sqlParameters.Add(new SqlParameter(
+                    "@SortColumn",
+                    SqlDbType.NVarChar, 100)
+                {
+                    Value = string.IsNullOrWhiteSpace(model.SortColumn)
+                        ? "CreatedDate"
+                        : model.SortColumn
+                });
+
+                // Sort direction
+                sqlParameters.Add(new SqlParameter(
+                    "@SortDirection",
+                    SqlDbType.NVarChar, 10)
+                {
+                    Value = string.IsNullOrWhiteSpace(model.SortDirection)
+                        ? "DESC"
+                        : model.SortDirection.ToUpper()
+                });
+
+                // Execute SP
+                var dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures.usp_GetEmployeeOnboardingRequests,
+                        sqlParameters);
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0)
+                {
+                    // Total
+                    if (dataSet.Tables[0].Rows.Count > 0 &&
+                        dataSet.Tables[0].Columns.Contains("TotalRecords"))
+                    {
+                        int.TryParse(
+                            dataSet.Tables[0]
+                                .Rows[0]["TotalRecords"]
+                                ?.ToString(),
+                            out totalRecords);
+                    }
+
+                    // Data
+                    if (dataSet.Tables.Count > 1 &&
+                        dataSet.Tables[1].Rows.Count > 0)
+                    {
+                        var table = dataSet.Tables[1];
+
+                        onboardingList =
+                            table.AsEnumerable()
+                                .Select(dataRow =>
+                                    new EmployeeOnboardingRequestModel
+                                    {
+                                        OnboardingID =
+                                            dataRow.Field<long>(
+                                                "OnboardingID"),
+
+                                        EmpCode =
+                                            dataRow.Field<string>(
+                                                "EmpCode"),
+
+                                        EmployeeName =
+                                            dataRow.Field<string>(
+                                                "EmployeeName"),
+
+                                        Email =
+                                            dataRow.Field<string>(
+                                                "Email"),
+
+                                        Mobile =
+                                            dataRow.Field<string>(
+                                                "Mobile"),
+
+                                        EmployeeID =
+                                            dataRow.Field<long?>(
+                                                "EmployeeID"),
+
+                                        CurrentStep =
+                                            dataRow.Field<int?>(
+                                                "CurrentStep"),
+
+                                        LastSavedStep =
+                                            dataRow.Field<int?>(
+                                                "LastSavedStep"),
+
+                                        // IMPORTANT
+                                        Status =
+                                            dataRow.Field<string>(
+                                                "Status"),
+
+                                        StatusName =
+                                            dataRow.Field<string>(
+                                                "StatusName"),
+
+                                        IsSubmitted =
+                                            dataRow.Field<bool>(
+                                                "IsSubmitted"),
+
+                                        CreatedDate =
+                                            dataRow.Field<DateTime?>(
+                                                "CreatedDate"),
+
+                                        ModifiedDate =
+                                            dataRow.Field<DateTime?>(
+                                                "ModifiedDate"),
+
+                                        SubmittedDate =
+                                            dataRow.Field<DateTime?>(
+                                                "SubmittedDate"),
+
+                                        PublicKey =
+                                            dataRow.Field<string>(
+                                                "PublicKey")
+                                    })
+                                .ToList();
+                    }
+                }
+
+                return new EmployeeOnboardingRequestResults
+                {
+                    EmployeeOnboardingRequests =
+                        onboardingList,
+
+                    TotalRecords =
+                        totalRecords
+                };
+            }
+            catch (Exception ex)
+            {
+                // IMPORTANT: don't hide the error
+                throw;
+            }
+        }
+
+        #endregion EmployeeOnboarding
     }
 
 

@@ -87,6 +87,10 @@ namespace HRMS.Models.AttendenceList
         public long SubDepartmentID { get; set; }
         public long JobLocationID { get; set; }
         public int? HierarchyLevel { get; set; }
+        // NEW - Admin/SuperAdmin multi-select
+        public List<long> JobLocationIDs { get; set; } = new List<long>();
+        public List<long> SubDepartmentIDs { get; set; } = new List<long>();
+        public List<int> HierarchyLevels { get; set; } = new List<int>();
 
     }
 

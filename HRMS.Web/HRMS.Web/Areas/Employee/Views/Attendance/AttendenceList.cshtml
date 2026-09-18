@@ -789,20 +789,20 @@
         });
 
 
-        $(function () {
+                $(function() {
 
-            const today = moment();
-            const payroll = getPayrollMonthForToday(today);
+                    const today = moment();
 
-            populateYearDropdown(payroll.year);
-            populateMonthDropdown(payroll.month);
+                    populateYearDropdown(today.year());
+                    populateMonthDropdown(today.month());
 
-            renderPayrollCalendar();
+                    loadAttendanceData();
 
-            $('#yearDropdown, #monthDropdown').on('change', function () {
-                renderPayrollCalendar();
-            });
-        });
+                    $('#yearDropdown, #monthDropdown').on('change', function() {
+                        loadAttendanceData();
+                    });
+                });
+
         function updatePayrollRangeText(year, month) {
             const payroll = getPayrollRange(year, month);
             
@@ -812,39 +812,8 @@
                 payroll.end.format('DD MMM YYYY')
             );
         }
-        function getPayrollMonthForToday(today) {
-
-            const year = today.year();
-            const month = today.month(); // 0-based
-            const day = today.date();
-            const leap = today.isLeapYear();
-
-            // JANUARY
-            if (month === 0) {
-                return day >= 21
-                    ? { year, month: 1 }  // Feb payroll
-                    : { year, month: 0 }; // Jan payroll
-            }
-
-            // FEBRUARY
-            if (month === 1) {
-                const febEnd = leap ? 19 : 18;
-                return day <= febEnd
-                    ? { year, month: 1 } // Feb payroll
-                    : { year, month: 2 }; // March payroll
-            }
-
-          
 
 
-            // ALL OTHER MONTHS
-            return day >= 21
-                ? { year, month: month + 1 }
-                : { year, month };
-        }
-        function isLeapYear(year) {
-            return moment([year]).isLeapYear();
-        }
         function populateYearDropdown(selectedYear) {
 
             const yearDropdown = $('#yearDropdown');
@@ -870,106 +839,78 @@
             // selectedMonth is 0-based
             monthDropdown.val(selectedMonth + 1);
         }
-        function getPayrollRange(year, month) {
-            const leap = moment([year]).isLeapYear();
-            if (month === 0) {
-                return {
-                    start: moment([year - 1, 11, 21]), 
-                    end: moment([year, 0, 20])         
-                };
-            }
-       
-            if (month === 1) {
-                return {
-                    start: moment([year, 0, 21]),
-                    end: moment([year, 1, leap ? 18 : 17])
-                };
-            }
-            if (month === 2) {
-                return {
-                    start: moment([year, 1, leap ? 19 : 18]),
-                    end: moment([year, 2, 20])
-                };
-            }
-            if (month === 3) {
-                return {
-                    start: moment([year, 2, 21]),
-                    end: moment([year, 3, 19])
-                };
-            }
-            if (month === 4) {
-                return {
-                    start: moment([year, 3, 20]),
-                    end: moment([year, 4, 20])
-                };
-            }
-            if (month === 5) {
-                return {
-                    start: moment([year, 4, 21]),
-                    end: moment([year, 5, 19])
-                };
-            } if (month === 6) {
-                return {
-                    start: moment([year,5, 20]),
-                    end: moment([year, 6, 20])
-                };
-            }
-            return {
-                start: moment([year, month - 1, 21]),
-                end: moment([year, month, 20])
-            };
-        }
 
 
-        function renderPayrollCalendar() {
 
-            const year = parseInt($('#yearDropdown').val());
-            const month = parseInt($('#monthDropdown').val()) - 1;
+                function renderPayrollCalendar(payrollStartDate, payrollEndDate) {
 
-            const payroll = getPayrollRange(year, month);
-            updatePayrollRangeText(year, month);
-            const gridStart = payroll.start.clone().startOf('week');
-            const gridEnd = payroll.end.clone().endOf('week');  
+                    if (!payrollStartDate || !payrollEndDate) {
 
-            $('#calendarBody').empty();
+                        $('#payrollRangeText').text(
+                            'Payroll period not found'
+                        );
 
-            let row = $('<tr></tr>');
-            let day = gridStart.clone();
+                        $('#calendarBody').empty();
 
-            while (day.isSameOrBefore(gridEnd)) {
+                        return;
+                    }
 
-                const isOutside =
-                    day.isBefore(payroll.start, 'day') ||
-                    day.isAfter(payroll.end, 'day');
+                    const payrollStart = moment(payrollStartDate);
+                    const payrollEnd = moment(payrollEndDate);
 
-                const td = $('<td></td>')
-                    .toggleClass('disabled', isOutside)
-                    .attr('data-date', day.format('YYYY-MM-DD'))
-                    .append(`<span class="day-number">${day.date()}</span>`);
+                    const gridStart = payrollStart.clone().startOf('week');
+                    const gridEnd = payrollEnd.clone().endOf('week');
 
-                if (!isOutside) {
-                    td.on('click', function () {
-                        showAttendanceDetails($(this).data('date'));
-                    });
+                    $('#calendarBody').empty();
+
+                    let row = $('<tr></tr>');
+                    let day = gridStart.clone();
+
+                    while (day.isSameOrBefore(gridEnd, 'day')) {
+
+                        const isOutside =
+                            day.isBefore(payrollStart, 'day') ||
+                            day.isAfter(payrollEnd, 'day');
+
+                        const td = $('<td></td>')
+                            .toggleClass('disabled', isOutside)
+                            .attr('data-date', day.format('YYYY-MM-DD'))
+                            .append(
+                                `<span class="day-number">${day.date()}</span>`
+                            );
+
+                        if (!isOutside) {
+
+                            td.on('click', function() {
+                                showAttendanceDetails(
+                                    $(this).data('date')
+                                );
+                            });
+
+                        }
+
+                        row.append(td);
+
+                        if (row.children().length === 7) {
+
+                            $('#calendarBody').append(row);
+
+                            row = $('<tr></tr>');
+                        }
+
+                        day.add(1, 'day');
+                    }
+
+                    if (row.children().length > 0) {
+
+                        while (row.children().length < 7) {
+                            row.append('<td class="disabled"></td>');
+                        }
+
+                        $('#calendarBody').append(row);
+                    }
                 }
 
-                row.append(td);
-
-                if (row.children().length === 7) {
-                    $('#calendarBody').append(row);
-                    row = $('<tr></tr>');
-                }
-
-                day.add(1, 'day');
-            }
-            if (row.children().length > 0) {
-                while (row.children().length < 7) {
-                    row.append('<td class="disabled"></td>');
-                }
-                $('#calendarBody').append(row);
-            }
-            loadAttendanceData()
-        }
         function loadAttendanceData() {
             const year = parseInt($('#yearDropdown').val());
             const month = parseInt($('#monthDropdown').val()); 
@@ -981,12 +922,36 @@
                     Month: month
                 },
                 success: function (response) {
+                            if (!response || !response.data) {
+                                return;
+                            }
 
-                    $("#employeeFullName").text(response.employeeFullName);
+                            $("#employeeFullName").text(
+                                response.employeeFullName || ''
+                            );
 
-                    if (!response || !response.data || !Array.isArray(response.data.dailyStatuses)) {
-                        return;
-                    }
+                            const payrollStartDate =
+                                response.data.payrollStartDate;
+
+                            const payrollEndDate =
+                                response.data.payrollEndDate;
+
+                            // Display payroll period from SQL
+                            $('#payrollRangeText').text(
+                                moment(payrollStartDate).format('DD MMM YYYY') +
+                                ' – ' +
+                                moment(payrollEndDate).format('DD MMM YYYY')
+                            );
+
+                            // Render calendar from SQL dates
+                            renderPayrollCalendar(
+                                payrollStartDate,
+                                payrollEndDate
+                            );
+
+                            if (!Array.isArray(response.data.dailyStatuses)) {
+                                return;
+                            }
 
                     response.data.dailyStatuses.forEach(item => {
 
@@ -1486,105 +1451,286 @@ ${renderStatusEditor(selectedDate, data)}
         }
 
 
-        const renderStatusEditor = (fullDate, data) => {
-            if (!data)
-                return "";
-            const empTypeID = Number(data.leaveSummary.employeeTypeID);
-            if (empTypeID !== 3) return "";
-            
-            if (!canEditStatus(fullDate)) return "";
-            const oldStatus = data.attendance?.attendanceStatus || "";
-                /*
-     * CHECK BIOMETRIC RECORD
-     *
-     * Biometric record exists only when
-     * firstLogDate and lastLogDate are available.
-     */
-    const hasBiometricRecord =
-        data.attendance &&
-        data.attendance.firstLogDate &&
-        data.attendance.lastLogDate;
+                const renderStatusEditor = (fullDate, data) => {
 
-    let statusOptions = "";
+                    if (!data)
+                        return "";
 
-    if (hasBiometricRecord) {
+                    const empTypeID = Number(data.leaveSummary?.employeeTypeID);
 
-        /*
-         * BIOMETRIC RECORD EXISTS
-         *
-         * Everyone can select:
-         * P / A / HD / WO
-         */
-        statusOptions = `
-            <option value="">Select status</option>
-            <option value="P">Present</option>
-            <option value="A">Absent</option>
-            <option value="HD">Half Day</option>
-            <option value="WO">Week Off</option>
-        `;
+                    // Only Employee Type 3 can edit attendance
+                    if (empTypeID !== 3)
+                        return "";
 
-    } else {
+                    // Check cutoff date
+                    if (!canEditStatus(fullDate))
+                        return "";
 
-        /*
-         * NO BIOMETRIC RECORD
-         *
-         * Employee is considered ABSENT.
-         *
-         * Same logic for:
-         * Normal User
-         * Admin
-         * SuperAdmin
-         *
-         * Only A / WO are allowed.
-         */
-        statusOptions = `
-            <option value="">Select status</option>
-            <option value="A">Absent</option>
-            <option value="WO">Week Off</option>
-        `;
-    }
-            return `
+                    /*
+                     * Get current attendance status
+                     * and normalize it.
+                     */
+                    let oldStatus = (
+                        data.attendance?.attendanceStatus || ""
+                    ).trim().toUpperCase();
 
-         <form id="statusForm">
-          <input type="hidden" id="oldStatus" value="${oldStatus}" />
-        <div class="row g-3 align-items-end">
+                    // Convert descriptive status names to codes
+                    if (oldStatus === "PRESENT") {
+                        oldStatus = "P";
+                    }
+                    else if (oldStatus === "ABSENT") {
+                        oldStatus = "A";
+                    }
+                    else if (oldStatus === "HALF DAY" || oldStatus === "HALFDAY") {
+                        oldStatus = "HD";
+                    }
+                    else if (oldStatus === "WEEK OFF" || oldStatus === "WEEKOFF") {
+                        oldStatus = "WO";
+                    }
 
-            <!-- STATUS -->
-            <div class="col-md-4">
-                <label for="statusSelect" class="form-label fw-semibold">
-                    Change Status
-                </label>
-                <select class="form-select" id="statusSelect" required>
-                  ${statusOptions}
-                </select>
-            </div>
+                    /*
+                     * Check biometric record.
+                     *
+                     * Biometric record exists only when
+                     * firstLogDate and lastLogDate are available.
+                     */
+                    const hasBiometricRecord =
+                        data.attendance &&
+                        data.attendance.firstLogDate &&
+                        data.attendance.lastLogDate;
 
-            <!-- COMMENT -->
-            <div class="col-md-8">
-                <label for="statusComment" class="form-label fw-semibold">
-                    Comment
-                </label>
-                 <div class="comment-wrapper">
-                <textarea
+                    /*
+                     * Check Admin / SuperAdmin
+                     */
+                    const isAdminOrSuperAdmin =
+                        roleId === ROLE_ADMIN ||
+                        roleId === ROLE_SUPERADMIN;
 
-                    id="statusComment"
-                    rows="2"
-                    placeholder="Write comment..."
-                    required></textarea>
-            </div>
-            </div>
-        </div>
+                    let statusOptions = `
+                        <option value="">Select status</option>
+                    `;
 
-        <!-- BUTTON -->
-        <div class="text-end mt-3">
-            <button type="submit" class="btn btn-primary">
-                💾 Save Status
-            </button>
-        </div>
+                    /*
+                     * =========================================================
+                     * ADMIN / SUPER ADMIN
+                     * =========================================================
+                     *
+                     * If biometric exists:
+                     * P / A / HD / WO
+                     *
+                     * If biometric does not exist:
+                     * A / WO
+                     */
+                    if (isAdminOrSuperAdmin) {
 
-</form>
-            `;
-        };
+                        if (hasBiometricRecord) {
+
+                            statusOptions += `
+                                <option value="P">Present</option>
+                                <option value="A">Absent</option>
+                                <option value="HD">Half Day</option>
+                                <option value="WO">Week Off</option>
+                            `;
+
+                        } else {
+
+                            statusOptions += `
+                                <option value="A">Absent</option>
+                                <option value="WO">Week Off</option>
+                            `;
+                        }
+                    }
+
+                    /*
+                     * =========================================================
+                     * NORMAL USER
+                     * =========================================================
+                     */
+                    else {
+
+                        /*
+                         * NO BIOMETRIC RECORD
+                         *
+                         * Only:
+                         * A -> Absent
+                         * WO -> Week Off
+                         */
+                        if (!hasBiometricRecord) {
+
+                            statusOptions += `
+                                <option value="A">Absent</option>
+                                <option value="WO">Week Off</option>
+                            `;
+
+                        }
+
+                        /*
+                         * BIOMETRIC RECORD EXISTS
+                         *
+                         * Apply old-status rules.
+                         */
+                        else {
+
+                            switch (oldStatus) {
+
+                                /*
+                                 * Present
+                                 *
+                                 * P -> P
+                                 * P -> HD
+                                 * P -> A
+                                 * P -> WO
+                                 */
+                                case "P":
+
+                                    statusOptions += `
+                                        <option value="P">Present</option>
+                                        <option value="HD">Half Day</option>
+                                        <option value="A">Absent</option>
+                                        <option value="WO">Week Off</option>
+                                    `;
+
+                                    break;
+
+
+                                /*
+                                 * Absent
+                                 *
+                                 * A -> A
+                                 * A -> WO
+                                 *
+                                 * Cannot change back to Present / Half Day
+                                 */
+                                case "A":
+
+                                    statusOptions += `
+                                        <option value="A">Absent</option>
+                                        <option value="WO">Week Off</option>
+                                    `;
+
+                                    break;
+
+
+                                /*
+                                 * Half Day
+                                 *
+                                 * HD -> HD
+                                 * HD -> A
+                                 * HD -> WO
+                                 *
+                                 * Cannot change back to Present
+                                 */
+                                case "HD":
+
+                                    statusOptions += `
+                                        <option value="HD">Half Day</option>
+                                        <option value="A">Absent</option>
+                                        <option value="WO">Week Off</option>
+                                    `;
+
+                                    break;
+
+
+                                /*
+                                 * Week Off
+                                 *
+                                 * WO -> WO only
+                                 */
+                                case "WO":
+
+                                    statusOptions += `
+                                        <option value="WO">Week Off</option>
+                                    `;
+
+                                    break;
+
+
+                                /*
+                                 * No / unknown status
+                                 *
+                                 * Allow:
+                                 * A
+                                 * WO
+                                 */
+                                default:
+
+                                    statusOptions += `
+                                        <option value="A">Absent</option>
+                                        <option value="WO">Week Off</option>
+                                    `;
+
+                                    break;
+                            }
+                        }
+                    }
+
+                    return `
+                        <form id="statusForm">
+
+                            <input type="hidden"
+                                   id="oldStatus"
+                                   value="${oldStatus}" />
+
+                            <div class="row g-3 align-items-end">
+
+                                <!-- STATUS -->
+                                <div class="col-md-4">
+
+                                    <label for="statusSelect"
+                                           class="form-label fw-semibold">
+                                        Change Status
+                                    </label>
+
+                                    <select class="form-select"
+                                            id="statusSelect"
+                                            required>
+
+                                        ${statusOptions}
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- COMMENT -->
+                                <div class="col-md-8">
+
+                                    <label for="statusComment"
+                                           class="form-label fw-semibold">
+                                        Comment
+                                    </label>
+
+                                    <div class="comment-wrapper">
+
+                                        <textarea
+                                            id="statusComment"
+                                            rows="2"
+                                            placeholder="Write comment..."
+                                            required></textarea>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- BUTTON -->
+                            <div class="text-end mt-3">
+
+                                <button type="submit"
+                                        class="btn btn-primary">
+
+                                    💾 Save Status
+
+                                </button>
+
+                            </div>
+
+                        </form>
+                    `;
+                };
+
         function canEditStatus(workDateStr) {
 
             const tempWorkDateCheck = parseISTDate(workDateStr);

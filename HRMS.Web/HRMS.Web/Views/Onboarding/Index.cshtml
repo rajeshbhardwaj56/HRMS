@@ -1,0 +1,1011 @@
+﻿@model HRMS.Models.EmployeeOnboarding.EmployeeOnboardingViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Employee Onboarding - Protalk HRMS</title>
+
+    <link type="image/x-icon"
+          href="/assets/img/favicon/Protalkfavicon.ico"
+          rel="shortcut icon">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+          rel="stylesheet">
+
+    <style>
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: 'Public Sans', sans-serif;
+                background: #f5f6f8;
+                min-height: 100vh;
+            }
+
+            .onboarding-wrapper {
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 30px 15px;
+            }
+
+            .onboarding-container {
+                width: 100%;
+                max-width: 1050px;
+                min-height: 600px;
+                background: #ffffff;
+                border-radius: 18px;
+                overflow: hidden;
+                box-shadow: 0 8px 35px rgba(0, 0, 0, 0.08);
+                display: flex;
+            }
+
+            /* =========================================================
+                       LEFT SIDE
+                    ========================================================= */
+
+            .onboarding-left {
+                width: 42%;
+                background: linear-gradient(135deg, #05397b, #07529f);
+                color: #ffffff;
+                padding: 55px 45px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .logo-container {
+                margin-bottom: 45px;
+            }
+
+                .logo-container img {
+                    max-width: 180px;
+                    max-height: 65px;
+                    object-fit: contain;
+                }
+
+            .onboarding-left h1 {
+                font-size: 32px;
+                font-weight: 600;
+                line-height: 1.3;
+                margin-bottom: 18px;
+            }
+
+            .onboarding-left p {
+                font-size: 15px;
+                line-height: 1.7;
+                opacity: 0.9;
+                margin-bottom: 35px;
+            }
+
+            .process-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 18px;
+            }
+
+            .process-number {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.18);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                font-weight: 600;
+                margin-right: 12px;
+                flex-shrink: 0;
+            }
+
+            .process-item span:last-child {
+                font-size: 14px;
+            }
+
+            /* =========================================================
+                       RIGHT SIDE
+                    ========================================================= */
+
+            .onboarding-right {
+                width: 58%;
+                padding: 55px 60px;
+                display: flex;
+                align-items: center;
+            }
+
+            .form-content {
+                width: 100%;
+                max-width: 500px;
+                margin: auto;
+            }
+
+                .form-content h2 {
+                    font-size: 26px;
+                    font-weight: 600;
+                    color: #05397b;
+                    margin-bottom: 8px;
+                }
+
+            .form-subtitle {
+                color: #6f6b7d;
+                font-size: 14px;
+                margin-bottom: 30px;
+            }
+
+            .form-label {
+                font-size: 13px;
+                font-weight: 500;
+                color: #444050;
+                margin-bottom: 7px;
+            }
+
+            .form-control {
+                height: 46px;
+                border-radius: 7px;
+                border: 1px solid #d8d6de;
+                font-size: 14px;
+                padding: 10px 14px;
+            }
+
+                .form-control:focus {
+                    border-color: #05397b;
+                    box-shadow: 0 0 0 2px rgba(5, 57, 123, 0.12);
+                }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .start-btn {
+                width: 100%;
+                height: 46px;
+                border: none;
+                border-radius: 7px;
+                background: #05397b;
+                color: #ffffff;
+                font-size: 14px;
+                font-weight: 500;
+                transition: 0.2s;
+            }
+
+                .start-btn:hover {
+                    background: #042e65;
+                }
+
+                .start-btn:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+
+            .bottom-note {
+                text-align: center;
+                margin-top: 22px;
+                font-size: 12px;
+                color: #8c8a94;
+            }
+
+            .required {
+                color: #ea5455;
+            }
+
+            .validation-message {
+                font-size: 12px;
+                display: block;
+                margin-top: 5px;
+            }
+
+            /* =========================================================
+                       ERROR MESSAGE
+                    ========================================================= */
+
+            .server-message {
+                display: none;
+                margin-bottom: 20px;
+                padding: 12px 14px;
+                border-radius: 7px;
+                font-size: 13px;
+            }
+
+                .server-message.error {
+                    display: block;
+                    color: #842029;
+                    background: #f8d7da;
+                    border: 1px solid #f5c2c7;
+                }
+
+                .server-message.success {
+                    display: block;
+                    color: #0f5132;
+                    background: #d1e7dd;
+                    border: 1px solid #badbcc;
+                }
+
+            /* =========================================================
+                       MOBILE
+                    ========================================================= */
+
+            @@media (max-width: 768px) {
+
+                .onboarding-container {
+                    flex-direction: column;
+                }
+
+                .onboarding-left {
+                    width: 100%;
+                    padding: 35px 30px;
+                }
+
+                    .onboarding-left h1 {
+                        font-size: 25px;
+                    }
+
+                .process-list {
+                    display: none;
+                }
+
+                .onboarding-right {
+                    width: 100%;
+                    padding: 40px 25px;
+                }
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="onboarding-wrapper">
+
+        <div class="onboarding-container">
+
+            <!-- =====================================================
+                 LEFT PANEL
+            ====================================================== -->
+
+            <div class="onboarding-left">
+
+                <div class="logo-container">
+
+                    @if (Model != null &&
+                         !string.IsNullOrWhiteSpace(Model.CompanyLogo))
+                    {
+                        <img src="@Model.CompanyLogo"
+                             alt="Company Logo" />
+                    }
+                    else
+                    {
+                        <img src="~/assets/img/logo/PROTALKLOGO.png"
+                             alt="Protalk HRMS" />
+                    }
+
+                </div>
+
+                <h1>
+                    Welcome to
+                    <br />
+                    Protalk HRMS!
+                </h1>
+
+                <p>
+                    We are excited to have you join us.
+                    Please complete your employee onboarding
+                    process by providing the required information.
+                </p>
+
+                <div class="process-list">
+
+                    <div class="process-item">
+
+                        <div class="process-number">
+                            1
+                        </div>
+
+                        <span>
+                            Enter your basic information
+                        </span>
+
+                    </div>
+
+                    <div class="process-item">
+
+                        <div class="process-number">
+                            2
+                        </div>
+
+                        <span>
+                            Complete the onboarding forms
+                        </span>
+
+                    </div>
+
+                    <div class="process-item">
+
+                        <div class="process-number">
+                            3
+                        </div>
+
+                        <span>
+                            Upload required documents
+                        </span>
+
+                    </div>
+
+                    <div class="process-item">
+
+                        <div class="process-number">
+                            4
+                        </div>
+
+                        <span>
+                            Review and submit
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 RIGHT PANEL
+            ====================================================== -->
+
+            <div class="onboarding-right">
+
+                <div class="form-content">
+
+                    <h2>
+                        Employee Onboarding
+                    </h2>
+
+                    <p class="form-subtitle">
+                        Please enter your details to begin your
+                        onboarding process.
+                    </p>
+
+
+                    <!-- SERVER MESSAGE -->
+
+                    <div id="serverMessage"
+                         class="server-message">
+                    </div>
+
+
+                    <!-- =================================================
+                         START ONBOARDING FORM
+                    ================================================== -->
+
+                    <form id="startOnboardingForm"
+                          asp-controller="Onboarding"
+                          asp-action="StartOnboarding"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+
+                        <!-- =================================================
+                             FULL NAME
+                        ================================================== -->
+
+                        <div class="form-group">
+
+                            <label asp-for="FullName"
+                                   class="form-label">
+
+                                Full Name
+
+                                <span class="required">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <input asp-for="FullName"
+                                   id="FullName"
+                                   type="text"
+                                   class="form-control"
+                                   placeholder="Enter your full name" value="itika walia"
+                                   autocomplete="name"
+                                   maxlength="200"
+                                   required />
+
+                            <span asp-validation-for="FullName"
+                                  class="text-danger validation-message">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             EMAIL
+                        ================================================== -->
+
+                        <div class="form-group">
+
+                            <label asp-for="Email"
+                                   class="form-label">
+
+                                Email Address
+
+                                <span class="required">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <input asp-for="Email"
+                                   id="Email"
+                                   type="email"
+                                   class="form-control"
+                                   placeholder="Enter your email address" value="itikawali@gmail.com"
+                                   autocomplete="email"
+                                   maxlength="200"
+                                   required />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger validation-message">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             MOBILE
+                        ================================================== -->
+
+                        <div class="form-group">
+
+                            <label asp-for="Mobile"
+                                   class="form-label">
+
+                                Mobile Number
+
+                                <span class="required">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <input asp-for="Mobile"
+                                   id="Mobile"
+                                   type="tel"
+                                   class="form-control"
+                                   placeholder="Enter 10-digit mobile number" value="8580582016"
+                                   autocomplete="tel"
+                                   maxlength="10"
+                                   inputmode="numeric"
+                                   pattern="[6-9][0-9]{9}"
+                                   required />
+
+                            <span asp-validation-for="Mobile"
+                                  class="text-danger validation-message">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             SUBMIT BUTTON
+                        ================================================== -->
+
+                        <button type="submit"
+                                id="startOnboardingBtn"
+                                class="start-btn">
+
+                            Start Onboarding
+
+                        </button>
+
+                    </form>
+
+
+                    <div class="bottom-note">
+
+                        You can save your progress and continue
+                        the onboarding later.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =============================================================
+         SCRIPTS
+    ============================================================= -->
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <script>
+
+            $(document).ready(function() {
+
+                // =========================================================
+                // MOBILE - ONLY NUMBERS
+                // =========================================================
+
+                $('#Mobile').on('input', function() {
+
+                    this.value = this.value
+                        .replace(/\D/g, '')
+                        .substring(0, 10);
+
+                });
+
+
+                // =========================================================
+                // CLEAR SERVER MESSAGE
+                // =========================================================
+
+                function clearMessage() {
+
+                    $('#serverMessage')
+                        .removeClass('error success')
+                        .hide()
+                        .text('');
+
+                }
+
+
+                // =========================================================
+                // SHOW ERROR
+                // =========================================================
+
+                function showError(message) {
+
+                    $('#serverMessage')
+                        .removeClass('success')
+                        .addClass('error')
+                        .text(message)
+                        .show();
+
+                }
+
+
+                // =========================================================
+                // SHOW SUCCESS
+                // =========================================================
+
+                function showSuccess(message) {
+
+                    $('#serverMessage')
+                        .removeClass('error')
+                        .addClass('success')
+                        .text(message)
+                        .show();
+
+                }
+
+
+                // =========================================================
+                // FORM SUBMIT
+                // =========================================================
+
+                $('#startOnboardingForm').on('submit', function(e) {
+
+                    e.preventDefault();
+
+                    clearMessage();
+
+
+                    var form = this;
+
+                    var button = $('#startOnboardingBtn');
+
+
+                    // =====================================================
+                    // BROWSER VALIDATION
+                    // =====================================================
+
+                    if (!form.checkValidity()) {
+
+                        form.reportValidity();
+
+                        return;
+
+                    }
+
+
+                    // =====================================================
+                    // GET VALUES
+                    // =====================================================
+
+                    var fullName =
+                        $('#FullName').val().trim();
+
+                    var email =
+                        $('#Email').val().trim();
+
+                    var mobile =
+                        $('#Mobile').val().trim();
+
+
+                    // =====================================================
+                    // EXTRA VALIDATION
+                    // =====================================================
+
+                    if (fullName.length === 0) {
+
+                        showError('Please enter your full name.');
+
+                        $('#FullName').focus();
+
+                        return;
+
+                    }
+
+
+                    if (email.length === 0) {
+
+                        showError('Please enter your email address.');
+
+                        $('#Email').focus();
+
+                        return;
+
+                    }
+
+
+                    if (mobile.length !== 10) {
+
+                        showError(
+                            'Please enter a valid 10-digit mobile number.'
+                        );
+
+                        $('#Mobile').focus();
+
+                        return;
+
+                    }
+
+
+                    if (!/^[6-9][0-9]{9}$/.test(mobile)) {
+
+                        showError(
+                            'Please enter a valid Indian mobile number.'
+                        );
+
+                        $('#Mobile').focus();
+
+                        return;
+
+                    }
+
+
+                    // =====================================================
+                    // PREVENT MULTIPLE SUBMISSIONS
+                    // =====================================================
+
+                    button
+                        .prop('disabled', true)
+                        .text('Starting...');
+
+
+                    // =====================================================
+                    // FORM DATA
+                    // =====================================================
+
+                    var formData =
+                        new FormData(form);
+
+
+                    // =====================================================
+                    // AJAX
+                    // =====================================================
+
+                    $.ajax({
+
+                        url: form.action,
+
+                        type: 'POST',
+
+                        data: formData,
+
+                        processData: false,
+
+                        contentType: false,
+
+                        dataType: 'json',
+
+
+                        // =================================================
+                        // SUCCESS
+                        // =================================================
+
+                        success: function(result) {
+
+                            console.log(
+                                'StartOnboarding Response:',
+                                result
+                            );
+
+
+                            // =============================================
+                            // SUCCESS
+                            // =============================================
+
+                            if (
+                                result &&
+                                (
+                                    result.success === true ||
+                                    result.success === 1 ||
+                                    result.success === "true"
+                                )
+                            ) {
+
+                                showSuccess(
+                                    result.message ||
+                                    'Onboarding started successfully.'
+                                );
+
+
+                                // =========================================
+                                // CHECK PRIVATE KEY
+                                // =========================================
+
+                                if (!result.privateKey) {
+
+                                    showError(
+                                        'Onboarding was created, but no onboarding key was returned by the server.'
+                                    );
+
+                                    button
+                                        .prop('disabled', false)
+                                        .text('Start Onboarding');
+
+                                    return;
+
+                                }
+
+
+                                // =========================================
+                                // BUILD EMPLOYMENT FORM URL
+                                // =========================================
+
+                                var employmentFormUrl =
+                                    '@Url.Action("EmploymentForm", "Onboarding")'
+                                    + '?key='
+                                    + encodeURIComponent(
+                                        result.privateKey
+                                    );
+
+
+                                console.log(
+                                    'Employment Form URL:',
+                                    employmentFormUrl
+                                );
+
+
+                                // =========================================
+                                // REDIRECT
+                                // =========================================
+
+                                setTimeout(function() {
+
+                                    window.location.href =
+                                        employmentFormUrl;
+
+                                }, 300);
+
+
+                                return;
+
+                            }
+
+
+                            // =============================================
+                            // SERVER/API FAILURE
+                            // =============================================
+
+                            var message =
+                                'Unable to start onboarding.';
+
+
+                            if (
+                                result &&
+                                result.message
+                            ) {
+
+                                message =
+                                    result.message;
+
+                            }
+
+
+                            console.error(
+                                'StartOnboarding failed:',
+                                result
+                            );
+
+
+                            showError(message);
+
+
+                            button
+                                .prop('disabled', false)
+                                .text('Start Onboarding');
+
+                        },
+
+
+                        // =================================================
+                        // AJAX ERROR
+                        // =================================================
+
+                        error: function(
+                            xhr,
+                            status,
+                            error
+                        ) {
+
+                            console.error(
+                                'StartOnboarding AJAX Error:',
+                                xhr,
+                                status,
+                                error
+                            );
+
+
+                            var message =
+                                'Something went wrong while starting onboarding.';
+
+
+                            // =============================================
+                            // JSON RESPONSE
+                            // =============================================
+
+                            if (
+                                xhr.responseJSON &&
+                                xhr.responseJSON.message
+                            ) {
+
+                                message =
+                                    xhr.responseJSON.message;
+
+                            }
+
+
+                            // =============================================
+                            // RAW RESPONSE
+                            // =============================================
+
+                            else if (
+                                xhr.responseText
+                            ) {
+
+                                try {
+
+                                    var response =
+                                        JSON.parse(
+                                            xhr.responseText
+                                        );
+
+
+                                    if (
+                                        response &&
+                                        response.message
+                                    ) {
+
+                                        message =
+                                            response.message;
+
+                                    }
+
+                                }
+                                catch (parseError) {
+
+                                    console.error(
+                                        'Response is not valid JSON:',
+                                        parseError
+                                    );
+
+
+                                    // =====================================
+                                    // SHOW SERVER RESPONSE IN CONSOLE
+                                    // =====================================
+
+                                    console.error(
+                                        'Raw server response:',
+                                        xhr.responseText
+                                    );
+
+                                }
+
+                            }
+
+
+                            // =============================================
+                            // STATUS CODE MESSAGE
+                            // =============================================
+
+                            if (
+                                xhr.status === 400 &&
+                                !xhr.responseJSON
+                            ) {
+
+                                message =
+                                    'Invalid onboarding request.';
+
+                            }
+                            else if (
+                                xhr.status === 401
+                            ) {
+
+                                message =
+                                    'You are not authorized to start onboarding.';
+
+                            }
+                            else if (
+                                xhr.status === 403
+                            ) {
+
+                                message =
+                                    'You are not allowed to start onboarding.';
+
+                            }
+                            else if (
+                                xhr.status === 404
+                            ) {
+
+                                message =
+                                    'Start onboarding service was not found.';
+
+                            }
+                            else if (
+                                xhr.status >= 500
+                            ) {
+
+                                message =
+                                    'Server error while starting onboarding. Please check the server logs.';
+
+                            }
+
+
+                            showError(message);
+
+
+                            button
+                                .prop('disabled', false)
+                                .text('Start Onboarding');
+
+                        }
+
+                    });
+
+                });
+
+            });
+
+    </script>
+
+</body>
+
+</html>

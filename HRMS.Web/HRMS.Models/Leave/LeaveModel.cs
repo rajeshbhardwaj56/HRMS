@@ -30,6 +30,11 @@ namespace HRMS.Models.Leave
         public long JobLocationID { get; set; }
         public int? HierarchyLevel { get; set; }
         public int? StatusID { get; set; }
+        public List<long> JobLocationIDs { get; set; } = new List<long>();
+
+        public List<long> SubDepartmentIDs { get; set; } = new List<long>();
+
+        public List<int> HierarchyLevels { get; set; } = new List<int>();
     }
     public class LeaveSummaryModel
     {

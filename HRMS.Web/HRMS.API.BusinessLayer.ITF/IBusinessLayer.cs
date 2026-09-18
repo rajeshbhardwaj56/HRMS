@@ -1,22 +1,23 @@
 ﻿using HRMS.Models;
+using HRMS.Models.AttendenceList;
 using HRMS.Models.Common;
 using HRMS.Models.Company;
 using HRMS.Models.DashBoard;
 using HRMS.Models.Employee;
+using HRMS.Models.EmployeeOnboarding;
+using HRMS.Models.ExportEmployeeExcel;
+using HRMS.Models.FormPermission;
+using HRMS.Models.ImportFromExcel;
 using HRMS.Models.Leave;
 using HRMS.Models.LeavePolicy;
 using HRMS.Models.MyInfo;
-using HRMS.Models.Template;
-using HRMS.Models.AttendenceList;
-using HRMS.Models.ShiftType;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using HRMS.Models.ImportFromExcel;
-using HRMS.Models.WhatsHappeningModel;
-using HRMS.Models.ExportEmployeeExcel;
-using Microsoft.AspNetCore.Mvc;
-using HRMS.Models.FormPermission;
 using HRMS.Models.PayRoll;
+using HRMS.Models.ShiftType;
 using HRMS.Models.TeamAlignment;
+using HRMS.Models.Template;
+using HRMS.Models.WhatsHappeningModel;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HRMS.API.BusinessLayer.ITF
 {
@@ -254,5 +255,25 @@ namespace HRMS.API.BusinessLayer.ITF
             int year,
             long verifiedByUserID
             );
+        #region EmployeeOnboarding 
+        public Result StartOnboarding(EmployeeOnboardingViewModel modelData);
+        public Results GetEmployeeDetailsOnboarding(long onboardingID);
+
+        public Result AddUpdateEmployeeDetailsOnboarding(EmployeeDetailsOnboardingModel model);
+
+        public List<EmployeeOnboardingFamilyModel>GetEmployeeOnboardingFamily(long onboardingID);
+
+        public Result AddUpdateEmployeeOnboardingFamily(EmployeeOnboardingFamilyModel model);
+
+        public List<EmployeeOnboardingEducationModel>GetEmployeeOnboardingEducation(long onboardingID);
+
+        public Result AddUpdateEmployeeOnboardingEducation(EmployeeOnboardingEducationModel model);
+
+        public List<EmployeeOnboardingEmploymentModel>GetEmployeeOnboardingEmployment(long onboardingID);
+
+        public Result AddUpdateEmployeeOnboardingEmployment(EmployeeOnboardingEmploymentModel model);
+        public EmployeeOnboardingRequestResults GetEmployeeOnboardingRequests(
+EmployeeOnboardingRequestInputParams model);
+        #endregion EmployeeOnboarding
     }
 }

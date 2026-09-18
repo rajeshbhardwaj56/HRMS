@@ -1,10 +1,33 @@
-﻿@using HRMS.Models.Common
-<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@using HRMS.Models.Common
 
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
+<link href="~/assets/pages/gridlist.css" rel="stylesheet" />
 @{
 	Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 	ViewData["Title"] = "Attendance Approval List";
 }
+<style>
+	.multi-select-wrapper {
+		position: relative;
+	}
+
+		.multi-select-wrapper select {
+			padding-right: 35px;
+		}
+
+		.multi-select-wrapper .dropdown-icon {
+			position: absolute;
+			right: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			pointer-events: none;
+			color: #6c757d;
+			font-size: 12px;
+		}
+</style>
 <div class="group-box anim">
     <div class="card shadow-sm border-0">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -26,37 +49,117 @@
     </div>
 	<div class="row mb-3 align-items-end">
 
-		<div class="col-md-3">
-			<label class="form-label">Location</label>
-			<select id="ddlLocation" class="form-select">
-				<option value="0">All Locations</option>
-				@if (Model?.JobLocations != null)
-				{
-					foreach (var item in Model.JobLocations)
-					{
-						<option value="@item.JobLocationID">
-							@item.JobLocationName
-						</option>
-					}
-				}
-			</select>
-		</div>
+		@if (Convert.ToInt32(Context.Session.GetString(Constants.RoleID)) == (int)Roles.Admin ||
+								 Convert.ToInt32(Context.Session.GetString(Constants.RoleID)) == (int)Roles.SuperAdmin)
+							{
+								<div class="col-md-3">
+									<label class="form-label">Location</label>
 
-		<div class="col-md-3">
-			<label class="form-label">Process</label>
-			<select id="ddlSubDepartment" class="form-select">
-				<option value="0">All Process</option>
-				@if (Model?.SubDepartments != null)
-				{
-					foreach (var item in Model.SubDepartments)
-					{
-						<option value="@item.SubDepartmentID">
-							@item.SubDepartmentName
-						</option>
-					}
-				}
-			</select>
-		</div>
+									<div class="multi-select-wrapper">
+										<select id="ddlLocation"
+												class="form-select"
+												multiple>
+
+											@foreach (var item in Model.JobLocations)
+											{
+												<option value="@item.JobLocationID">
+													@item.JobLocationName
+												</option>
+											}
+
+										</select>
+
+										<span class="dropdown-icon">▼</span>
+									</div>
+								</div>
+
+								<div class="col-md-3">
+									<label class="form-label">Process</label>
+
+									<div class="multi-select-wrapper">
+										<select id="ddlSubDepartment"
+												class="form-select"
+												multiple>
+
+											@foreach (var item in Model.SubDepartments)
+											{
+												<option value="@item.SubDepartmentID">
+													@item.SubDepartmentName
+												</option>
+											}
+
+										</select>
+
+										<span class="dropdown-icon">▼</span>
+									</div>
+								</div>
+
+								<div class="col-md-3">
+									<label class="form-label">Hierarchy Level</label>
+
+									<div class="multi-select-wrapper">
+										<select id="ddlHierarchyLevel"
+												class="form-select"
+												multiple>
+
+											<option value="1">Level 1</option>
+											<option value="2">Level 2</option>
+											<option value="3">Level 3+</option>
+
+										</select>
+
+										<span class="dropdown-icon">▼</span>
+									</div>
+								</div>
+							}
+							else
+							{
+								<div class="col-md-3">
+									<label class="form-label">Location</label>
+									<select id="ddlLocation" class="form-select">
+										<option value="0">All Locations</option>
+
+										@if (Model?.JobLocations != null)
+										{
+											foreach (var item in Model.JobLocations)
+											{
+												<option value="@item.JobLocationID">
+													@item.JobLocationName
+												</option>
+											}
+										}
+									</select>
+								</div>
+
+								<div class="col-md-3">
+									<label class="form-label">Process</label>
+									<select id="ddlSubDepartment" class="form-select">
+										<option value="0">All Process</option>
+
+										@if (Model?.SubDepartments != null)
+										{
+											foreach (var item in Model.SubDepartments)
+											{
+												<option value="@item.SubDepartmentID">
+													@item.SubDepartmentName
+												</option>
+											}
+										}
+									</select>
+								</div>
+
+								<div class="col-md-3">
+									<label class="form-label">Level</label>
+									<select id="ddlHierarchyLevel" class="form-select">
+										<option value="0">All Level</option>
+										<option value="1">Level 1</option>
+										<option value="2">Level 2</option>
+									</select>
+								</div>
+							}
+						</div>
+
+
 
 				
 
@@ -120,8 +223,11 @@
 								sortCol: sortColumn,
 								sortDir: sortDirection,
 
-								jobLocationID: $('#ddlLocation').val(),
-								subDepartmentID: $('#ddlSubDepartment').val()
+								jobLocationIDs: $("#ddlLocation").val() || [],
+
+								subDepartmentIDs: $("#ddlSubDepartment").val() || [],
+
+								hierarchyLevels: $("#ddlHierarchyLevel").val() || []
 							};
 						}
 			    },
@@ -255,5 +361,34 @@
 					position: 'top-right',
 				});
 		 }
-			
+				$(document).ready(function() {
+
+		var roleId = '@Context.Session.GetString(Constants.RoleID)';
+		const ROLE_ADMIN = @((int)Roles.Admin);
+		const ROLE_SUPERADMIN = @((int)Roles.SuperAdmin);
+		if (roleId == ROLE_ADMIN || roleId == ROLE_SUPERADMIN) {
+
+			$('#ddlLocation').select2({
+				placeholder: 'Select Location',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+
+			$('#ddlSubDepartment').select2({
+				placeholder: 'Select Process',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+
+			$('#ddlHierarchyLevel').select2({
+				placeholder: 'Select Level',
+				allowClear: true,
+				closeOnSelect: false,
+				width: '100%'
+			});
+		}
+
+	});
     </script>

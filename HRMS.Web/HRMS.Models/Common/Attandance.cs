@@ -25,6 +25,10 @@ namespace HRMS.Models.Common
         public long? RoleId { get; set; }
         public long? JobLocationID { get; set; }
         public long? SubDepartmentID { get; set; }
+        public int? HierarchyLevel { get; set; }
+        public List<long> JobLocationIDs { get; set; } = new List<long>();
+        public List<long> SubDepartmentIDs { get; set; } = new List<long>();
+        public List<int> HierarchyLevels { get; set; } = new List<int>();
         public long? ManagerID { get; set; }
         public string? conStr { get; set; }
         public string? SearchTerm { get; set; } = string.Empty;
@@ -131,6 +135,15 @@ namespace HRMS.Models.Common
 
         public bool? AllowSuperAdminEdit { get; set; }
         public bool? ShowImportAttendanceExcel { get; set; }
+        public string? Eligibility { get; set; }
+
+
+        public Dictionary<string, string> CheckInByDay { get; set; } = new();
+
+        public Dictionary<string, string> CheckOutByDay { get; set; } = new();
+
+        public Dictionary<string, string> WorkingHoursByDay { get; set; } = new();
+
     }
 
 
@@ -143,6 +156,8 @@ namespace HRMS.Models.Common
 
     public class MonthlyViewAttendance
     {
+        public DateTime? PayrollStartDate { get; set; }
+        public DateTime? PayrollEndDate { get; set; }
         public List<DailyAttendanceStatus> DailyStatuses { get; set; } = new List<DailyAttendanceStatus>();
     }
 
@@ -183,6 +198,11 @@ namespace HRMS.Models.Common
         public long SubDepartmentID { get; set; }
         public long JobLocationID { get; set; }
         public int? HierarchyLevel { get; set; }
+
+        // NEW - Admin/SuperAdmin multi-select
+        public List<long> JobLocationIDs { get; set; } = new List<long>();
+        public List<long> SubDepartmentIDs { get; set; } = new List<long>();
+        public List<int> HierarchyLevels { get; set; } = new List<int>();
     }
 
 

@@ -182,7 +182,7 @@ namespace HRMS.Models.Common
         public const string Common = "Common";
         public const string ShiftType = "ShiftType";
         public const string Payroll = "Payroll";
-        
+        public const string Onboarding = "EmployeeOnboarding";
 
     }
 
@@ -424,7 +424,15 @@ namespace HRMS.Models.Common
         public const string AutoCalculateEmployeeSalary = "AutoCalculateEmployeeSalary";
         public const string VerifyEmployeeSalary = "VerifyEmployeeSalary";
         public const string GetPayrollPeriodsForDropdown = "GetPayrollPeriodsForDropdown";
+        public const string StartOnboarding = "StartOnboarding";
+        public const string GetEmployeeDetailsOnboarding = "GetEmployeeDetailsOnboarding";
+        public const string AddUpdateEmployeeDetailsOnboarding = "AddUpdateEmployeeDetailsOnboarding";
 
+        public const string GetEmployeeOnboardingFamily = "GetEmployeeOnboardingFamily";
+        public const string AddUpdateEmployeeOnboardingFamily = "AddUpdateEmployeeOnboardingFamily";
+        public const string GetEmployeeOnboardingEducation = "GetEmployeeOnboardingEducation";
+        public const string AddUpdateEmployeeOnboardingEducation = "AddUpdateEmployeeOnboardingEducation";
+        public const string GetEmployeeOnboardingRequests = "GetEmployeeOnboardingRequests";
     }
 
     public class MyInfoTabs

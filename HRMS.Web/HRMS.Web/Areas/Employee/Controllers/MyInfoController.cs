@@ -1,5 +1,6 @@
 ﻿
 using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HRMS.Models;
 using HRMS.Models.Common;
 using HRMS.Models.DashBoard;
@@ -127,18 +128,43 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpPost]
         public async Task<JsonResult> GetLeaveForFuture(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch,
-                long jobLocationID = 0,
-    long subDepartmentID = 0,
-    int hierarchyLevel = 0)
+    List<long> jobLocationIDs = null,
+    List<long> subDepartmentIDs = null,
+    List<int> hierarchyLevels = null)
         {
             MyInfoInputParams employee = new MyInfoInputParams();
+            // ============================================================
+            // NORMALIZE FILTERS
+            // ============================================================
+
+            jobLocationIDs = jobLocationIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            subDepartmentIDs = subDepartmentIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            hierarchyLevels = hierarchyLevels?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<int>();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
 
-            employee.JobLocationID = jobLocationID;
-            employee.SubDepartmentID = subDepartmentID;
-            employee.HierarchyLevel = hierarchyLevel;
+            employee.JobLocationIDs = jobLocationIDs;
+
+            employee.SubDepartmentIDs = subDepartmentIDs;
+
+            employee.HierarchyLevels = hierarchyLevels;
             var data = await _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
             var results = JsonConvert.DeserializeObject<LeaveResults>(data?.ToString());
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Approved && x.StartDate.Date > DateTime.Today).ToList();
@@ -193,19 +219,46 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpPost]
         public async Task<JsonResult> GetLeaveForApprovals(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch,
-                long jobLocationID = 0, long subDepartmentID = 0, int hierarchyLevel = 0)
+                List<long> jobLocationIDs = null,
+List<long> subDepartmentIDs = null,
+List<int> hierarchyLevels = null)
         {
             try
             {
                 MyInfoInputParams employee = new MyInfoInputParams();
                 var Approvals = new List<LeaveSummaryModel>();
+                // ============================================================
+                // NORMALIZE FILTERS
+                // ============================================================
+
+                jobLocationIDs = jobLocationIDs?
+                    .Where(x => x > 0)
+                    .Distinct()
+                    .ToList()
+                    ?? new List<long>();
+
+
+                subDepartmentIDs = subDepartmentIDs?
+                    .Where(x => x > 0)
+                    .Distinct()
+                    .ToList()
+                    ?? new List<long>();
+
+
+                hierarchyLevels = hierarchyLevels?
+                    .Where(x => x > 0)
+                    .Distinct()
+                    .ToList()
+                    ?? new List<int>();
                 employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
                 employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
                 employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
                 employee.StatusID = (int)LeaveStatus.PendingApproval;
-                employee.JobLocationID = jobLocationID;
-                employee.SubDepartmentID = subDepartmentID;
-                employee.HierarchyLevel = hierarchyLevel;
+                employee.JobLocationIDs = jobLocationIDs;
+
+                employee.SubDepartmentIDs = subDepartmentIDs;
+
+                employee.HierarchyLevels = hierarchyLevels;
                 var data = await _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
                 var results = JsonConvert.DeserializeObject<LeaveResults>(data?.ToString());
                 var employeeDetails = GetEmployeeDetails(employee.CompanyID, employee.EmployeeID);
@@ -238,16 +291,43 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpPost]
         public async Task<JsonResult> GetLeaveForApproved(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch,
-            long jobLocationID = 0, long subDepartmentID = 0, int hierarchyLevel = 0)
+List<long> jobLocationIDs = null,
+List<long> subDepartmentIDs = null,
+List<int> hierarchyLevels = null)
         {
             MyInfoInputParams employee = new MyInfoInputParams();
+            // ============================================================
+            // NORMALIZE FILTERS
+            // ============================================================
+
+            jobLocationIDs = jobLocationIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            subDepartmentIDs = subDepartmentIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            hierarchyLevels = hierarchyLevels?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<int>();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
             employee.StatusID  = (int)LeaveStatus.Approved;
-            employee.JobLocationID = jobLocationID;
-            employee.SubDepartmentID = subDepartmentID;
-            employee.HierarchyLevel = hierarchyLevel;
+            employee.JobLocationIDs = jobLocationIDs;
+
+            employee.SubDepartmentIDs = subDepartmentIDs;
+
+            employee.HierarchyLevels = hierarchyLevels;
             var data = await _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
             var results = JsonConvert.DeserializeObject<LeaveResults>(data?.ToString());
             var Approvals = results.leavesSummary.ToList();
@@ -273,18 +353,41 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
         [HttpPost]
         public async Task<JsonResult> GetLeaveForUserCancelled(string sEcho, int iDisplayStart, int iDisplayLength, string sSearch,
-                long jobLocationID = 0,
-    long subDepartmentID = 0,
-    int hierarchyLevel = 0)
+List<long> jobLocationIDs = null,
+List<long> subDepartmentIDs = null,
+List<int> hierarchyLevels = null)
         {
             MyInfoInputParams employee = new MyInfoInputParams();
+            // ============================================================
+            // NORMALIZE FILTERS
+            // ============================================================
+
+            jobLocationIDs = jobLocationIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            subDepartmentIDs = subDepartmentIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            hierarchyLevels = hierarchyLevels?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<int>();
             employee.CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID));
             employee.EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             employee.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
 
-            employee.JobLocationID = jobLocationID;
-            employee.SubDepartmentID = subDepartmentID;
-            employee.HierarchyLevel = hierarchyLevel;
+            employee.JobLocationIDs = jobLocationIDs;
+            employee.SubDepartmentIDs = subDepartmentIDs;
+            employee.HierarchyLevels = hierarchyLevels;
             var data = await _businessLayer.SendPostAPIRequest(employee, _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.Employee, APIApiActionConstants.GetLeaveForApprovals), HttpContext.Session.GetString(Constants.SessionBearerToken), true);
             var results = JsonConvert.DeserializeObject<LeaveResults>(data?.ToString());
             var Approvals = results.leavesSummary.Where(x => x.LeaveStatusID == (int)LeaveStatus.Cancelled).ToList();
@@ -311,18 +414,43 @@ namespace HRMS.Web.Areas.Employee.Controllers
             int iDisplayStart,
             int iDisplayLength,
             string sSearch,
-            long jobLocationID = 0,
-            long subDepartmentID = 0,
-            int hierarchyLevel = 0)
+List<long> jobLocationIDs = null,
+List<long> subDepartmentIDs = null,
+List<int> hierarchyLevels = null)
         {
+            // ============================================================
+            // NORMALIZE FILTERS
+            // ============================================================
+
+            jobLocationIDs = jobLocationIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            subDepartmentIDs = subDepartmentIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            hierarchyLevels = hierarchyLevels?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<int>();
             MyInfoInputParams employee = new MyInfoInputParams
             {
                 CompanyID = Convert.ToInt64(HttpContext.Session.GetString(Constants.CompanyID)),
                 EmployeeID = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID)),
                 RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID)),
-                JobLocationID = jobLocationID,
-                SubDepartmentID = subDepartmentID,
-                HierarchyLevel = hierarchyLevel
+                JobLocationIDs = jobLocationIDs,
+
+                SubDepartmentIDs = subDepartmentIDs,
+
+                HierarchyLevels = hierarchyLevels
             };
 
             var json = await _businessLayer.SendPostAPIRequest(
@@ -1085,12 +1213,20 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
 
         [HttpGet]
-        public IActionResult ExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId, long? ManagerId, long? SubDepartmentId)
+        public IActionResult ExportAttendance(
+            DateTime FromDate,
+            DateTime ToDate,
+            int jobLocationId,
+            long? ManagerId,
+            long? SubDepartmentId)
         {
             try
             {
-                var employeeId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-                var roleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
+                var employeeId = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.EmployeeID));
+
+                var roleId = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.RoleID));
 
                 var models = new AttendanceInputParams
                 {
@@ -1107,29 +1243,79 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 var response = _businessLayer.SendPostAPIRequest(
                     models,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetExportAttendanceForCalendar),
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.AttendenceList,
+                        APIApiActionConstants.GetExportAttendanceForCalendar),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true).Result.ToString();
+                    true
+                ).Result.ToString();
 
                 var model = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(response);
-                if (model == null || model.Attendances == null || model.Attendances.Count == 0)
+
+                if (model == null ||
+                    model.Attendances == null ||
+                    model.Attendances.Count == 0)
                 {
                     return NotFound("No attendance data found.");
                 }
-                // Prepare day keys (e.g. "01_Thu")
+
+                // ---------------------------------------------------------
+                // Prepare day keys
+                // Example:
+                // 01-04-2026
+                // 02-04-2026
+                // ---------------------------------------------------------
+
                 var dayKeys = new List<string>();
-                for (DateTime date = FromDate; date <= ToDate; date = date.AddDays(1))
+
+                for (DateTime date = FromDate.Date;
+                     date <= ToDate.Date;
+                     date = date.AddDays(1))
                 {
                     dayKeys.Add(date.ToString("dd-MM-yyyy"));
                 }
+
+                // ---------------------------------------------------------
+                // Role 2 and 5 can see:
+                // Check-In
+                // Check-Out
+                // Working-Hours
+                // ---------------------------------------------------------
+
+                bool showTimeColumns = roleId == 2 || roleId == 5;
 
                 using (var package = new ExcelPackage())
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Attendance");
 
-                    // Build header row
-                    var headers = new List<string> { "EmployeNumber", "EmployeeName" };
-                    headers.AddRange(dayKeys.Select(k => k.Replace("_", " ")));
+                    // =====================================================
+                    // BUILD HEADER
+                    // =====================================================
+
+                    var headers = new List<string>
+            {
+                "EmployeNumber",
+                "EmployeeName"
+            };
+
+                    foreach (var day in dayKeys)
+                    {
+                        // Attendance status
+                        headers.Add(day);
+
+                        // Only Role 2 and Role 5
+                        if (showTimeColumns)
+                        {
+                            headers.Add($"{day} Check-In");
+                            headers.Add($"{day} Check-Out");
+                            headers.Add($"{day} Working-Hours");
+                        }
+                    }
+
+                    // -----------------------------------------------------
+                    // Summary columns
+                    // -----------------------------------------------------
+
                     headers.Add("TotalWorkingDays");
                     headers.Add("PresentDays");
                     headers.Add("HolidayDays");
@@ -1141,8 +1327,6 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.Add("COLDays");
                     headers.Add("MLDays");
                     headers.Add("LWPDays");
-
-
                     headers.Add("TotalLeaves");
                     headers.Add("PayableDays");
                     headers.Add("ManagerLevel1");
@@ -1158,80 +1342,280 @@ namespace HRMS.Web.Areas.Employee.Controllers
                     headers.Add("DOR");
                     headers.Add("LeavingType");
                     headers.Add("NoticeServedStatus");
-
+                    // ONLY Role 2 and Role 5
+                    if (roleId == 2 || roleId == 5)
+                    {
+                        headers.Add("Eligibility");
+                    }
+                    // =====================================================
+                    // WRITE HEADER
+                    // =====================================================
 
                     for (int i = 0; i < headers.Count; i++)
                     {
-                        worksheet.Cells[1, i + 1].Value = headers[i];
-                        worksheet.Cells[1, i + 1].Style.Font.Bold = true;
-                        worksheet.Column(i + 1).AutoFit();
+                        var cell = worksheet.Cells[1, i + 1];
+
+                        cell.Value = headers[i];
+                        cell.Style.Font.Bold = true;
+                        cell.Style.Fill.PatternType =
+                            OfficeOpenXml.Style.ExcelFillStyle.Solid;
+
+                        cell.Style.Fill.BackgroundColor.SetColor(
+                            System.Drawing.Color.LightBlue);
+
+                        cell.Style.HorizontalAlignment =
+                            OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                     }
 
-                    // Build data rows
+                    // =====================================================
+                    // WRITE DATA
+                    // =====================================================
+
                     int rowIndex = 2;
+
                     foreach (var record in model.Attendances)
                     {
-                        worksheet.Cells[rowIndex, 1].Value = record.EmployeNumber;
-                        worksheet.Cells[rowIndex, 2].Value = record.EmployeeName;
+                        // -------------------------------------------------
+                        // First two columns
+                        // -------------------------------------------------
 
-                        for (int colIndex = 0; colIndex < dayKeys.Count; colIndex++)
+                        worksheet.Cells[rowIndex, 1].Value =
+                            record.EmployeNumber ?? "-";
+
+                        worksheet.Cells[rowIndex, 2].Value =
+                            record.EmployeeName ?? "-";
+
+                        // Start from column 3
+                        int currentColumn = 3;
+
+                        // =================================================
+                        // DAILY ATTENDANCE
+                        // =================================================
+
+                        foreach (var day in dayKeys)
                         {
-                            var key = dayKeys[colIndex];
-                            string val = record.AttendanceByDay != null && record.AttendanceByDay.ContainsKey(key)
-                                ? record.AttendanceByDay[key]
-                                : "";
-                            worksheet.Cells[rowIndex, 3 + colIndex].Value = val;
+                            // -------------------------------------------------
+                            // Attendance Status
+                            // -------------------------------------------------
+
+                            string attendanceStatus = "";
+
+                            if (record.AttendanceByDay != null &&
+                                record.AttendanceByDay.TryGetValue(
+                                    day,
+                                    out var status))
+                            {
+                                attendanceStatus = status;
+                            }
+
+                            worksheet.Cells[rowIndex, currentColumn].Value =
+                                attendanceStatus;
+
+                            currentColumn++;
+
+                            // -------------------------------------------------
+                            // Check-In / Check-Out / Working-Hours
+                            // Only Role 2 and Role 5
+                            // -------------------------------------------------
+
+                            if (showTimeColumns)
+                            {
+                                string checkIn = "";
+
+                                if (record.CheckInByDay != null &&
+                                    record.CheckInByDay.TryGetValue(
+                                        day,
+                                        out var ci))
+                                {
+                                    checkIn = ci;
+                                }
+
+                                worksheet.Cells[rowIndex, currentColumn].Value =
+                                    checkIn;
+
+                                currentColumn++;
+
+                                // ---------------------------------------------
+                                // Check-Out
+                                // ---------------------------------------------
+
+                                string checkOut = "";
+
+                                if (record.CheckOutByDay != null &&
+                                    record.CheckOutByDay.TryGetValue(
+                                        day,
+                                        out var co))
+                                {
+                                    checkOut = co;
+                                }
+
+                                worksheet.Cells[rowIndex, currentColumn].Value =
+                                    checkOut;
+
+                                currentColumn++;
+
+                                // ---------------------------------------------
+                                // Working Hours
+                                // ---------------------------------------------
+
+                                string workingHours = "";
+
+                                if (record.WorkingHoursByDay != null &&
+                                    record.WorkingHoursByDay.TryGetValue(
+                                        day,
+                                        out var wh))
+                                {
+                                    workingHours = wh;
+                                }
+
+                                worksheet.Cells[rowIndex, currentColumn].Value =
+                                    workingHours;
+
+                                currentColumn++;
+                            }
                         }
-                        worksheet.Cells[rowIndex, 3 + dayKeys.Count].Value = record.TotalWorkingDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 4 + dayKeys.Count].Value = record.PresentDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.HolidayDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.WeekOffDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.HalfDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 8 + dayKeys.Count].Value = record.ECO.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 9 + dayKeys.Count].Value = record.HECO.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 10 + dayKeys.Count].Value = record.PLDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 11 + dayKeys.Count].Value = record.COLDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 12+ dayKeys.Count].Value = record.MLDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 13 + dayKeys.Count].Value = record.LWPDays.ToString() ?? "-";
 
-                        worksheet.Cells[rowIndex, 14 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 15 + dayKeys.Count].Value = record.PayableDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 16 + dayKeys.Count].Value = record.ManagerName ?? "-";
-                        worksheet.Cells[rowIndex, 17 + dayKeys.Count].Value = record.ManagerManagerName ?? "-";
+                        // =================================================
+                        // SUMMARY COLUMNS
+                        // =================================================
 
-                        worksheet.Cells[rowIndex, 18 + dayKeys.Count].Value = record.AnnualLeaveConsumed.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 19 + dayKeys.Count].Value = record.AnnualLeaveBalance.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 20 + dayKeys.Count].Value = record.AvailableCompOffDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.TotalWorkingDays;
 
-                        worksheet.Cells[rowIndex, 21 + dayKeys.Count].Value = record.ProcessName ?? "-";
-                        worksheet.Cells[rowIndex, 22 + dayKeys.Count].Value = record.Location ?? "-";
-                        worksheet.Cells[rowIndex, 23 + dayKeys.Count].Value = record.PayrollType ?? "-";
-                        worksheet.Cells[rowIndex, 24 + dayKeys.Count].Value = record.DOJ?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 25 + dayKeys.Count].Value = record.DOL?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 26 + dayKeys.Count].Value = record.DOR?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 27 + dayKeys.Count].Value = record.LeavingType ?? "-";
-                        worksheet.Cells[rowIndex, 28 + dayKeys.Count].Value = record.NoticeServedStatus?.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.PresentDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.HolidayDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.WeekOffDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.HalfDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.ECO;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.HECO;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.PLDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.COLDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.MLDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.LWPDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.TotalLeaves;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.PayableDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.ManagerName ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.ManagerManagerName ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.AnnualLeaveConsumed;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.AnnualLeaveBalance;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.AvailableCompOffDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.ProcessName ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.Location ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.PayrollType ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.DOJ?.ToString("dd-MM-yyyy") ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.DOL?.ToString("dd-MM-yyyy") ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.DOR?.ToString("dd-MM-yyyy") ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.LeavingType ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.NoticeServedStatus?.ToString() ?? "-";
+                        // ONLY Role 2 and Role 5
+                        if (roleId == 2 || roleId == 5)
+                        {
+                            worksheet.Cells[rowIndex, currentColumn++].Value =
+                                record.Eligibility ?? "-";
+                        }
+
                         rowIndex++;
                     }
 
-                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+                    // =====================================================
+                    // FORMAT EXCEL
+                    // =====================================================
+
+                    if (worksheet.Dimension != null)
+                    {
+                        worksheet.Cells[
+                            worksheet.Dimension.Address
+                        ].AutoFitColumns();
+
+                        // Header filter
+                        worksheet.Cells[
+                            1,
+                            1,
+                            1,
+                            headers.Count
+                        ].AutoFilter = true;
+
+                        // Freeze first row
+                        worksheet.View.FreezePanes(2, 1);
+                    }
+
+                    // =====================================================
+                    // RETURN FILE
+                    // =====================================================
 
                     var excelBytes = package.GetAsByteArray();
-                    string fileName = $"Attendance_{FromDate:yyyyMMdd}_to_{ToDate:yyyyMMdd}.xlsx";
+
+                    string fileName =
+                        $"Attendance_{FromDate:yyyyMMdd}_to_{ToDate:yyyyMMdd}.xlsx";
+
                     return File(
                         excelBytes,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         fileName
                     );
                 }
-
             }
             catch (Exception ex)
             {
-                // Optionally log ex.Message
-                return StatusCode(500, "An error occurred while exporting attendance.");
+                // Log exception here if logging is available
+                // _logger.LogError(ex, "Error while exporting attendance.");
+
+                return StatusCode(
+                    500,
+                    "An error occurred while exporting attendance."
+                );
             }
         }
+
 
         public IActionResult Whatshappening()
         {
@@ -3117,12 +3501,26 @@ namespace HRMS.Web.Areas.Employee.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult GetExportAttendance(DateTime FromDate, DateTime ToDate, int jobLocationId, long? ManagerId, long subDepartmentID = 0)
+        public IActionResult GetExportAttendance(
+            DateTime FromDate,
+            DateTime ToDate,
+            int jobLocationId,
+            long? ManagerId,
+            long subDepartmentID = 0)
         {
             try
             {
+                // Get employee and role from session
+                // Replace these test values with session values in production.
                 var employeeId = 1;
                 var roleId = 2;
+
+                // If you want actual logged-in values, use:
+                // var employeeId = Convert.ToInt64(
+                //     HttpContext.Session.GetString(Constants.EmployeeID));
+                //
+                // var roleId = Convert.ToInt64(
+                //     HttpContext.Session.GetString(Constants.RoleID));
 
                 var models = new AttendanceInputParams
                 {
@@ -3139,134 +3537,406 @@ namespace HRMS.Web.Areas.Employee.Controllers
 
                 var response = _businessLayer.SendPostAPIRequest(
                     models,
-                    _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetExportAttendanceForCalendar),
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.AttendenceList,
+                        APIApiActionConstants.GetExportAttendanceForCalendar),
                     HttpContext.Session.GetString(Constants.SessionBearerToken),
-                    true).Result.ToString();
+                    true
+                ).Result?.ToString();
 
-                var model = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(response);
-                if (model == null || model.Attendances == null || model.Attendances.Count == 0)
+                if (string.IsNullOrWhiteSpace(response))
                 {
                     return NotFound("No attendance data found.");
                 }
-                // Prepare day keys (e.g. "01_Thu")
+
+                var model = JsonConvert.DeserializeObject<AttendanceWithHolidaysVM>(response);
+
+                if (model == null ||
+                    model.Attendances == null ||
+                    model.Attendances.Count == 0)
+                {
+                    return NotFound("No attendance data found.");
+                }
+
+                // ---------------------------------------------------------
+                // Generate dates
+                // ---------------------------------------------------------
+
                 var dayKeys = new List<string>();
-                for (DateTime date = FromDate; date <= ToDate; date = date.AddDays(1))
+
+                for (DateTime date = FromDate.Date;
+                     date <= ToDate.Date;
+                     date = date.AddDays(1))
                 {
                     dayKeys.Add(date.ToString("dd-MM-yyyy"));
                 }
+
+                // ---------------------------------------------------------
+                // Role 2 and 5 can see Check-In / Check-Out / Hours
+                // ---------------------------------------------------------
+
+                bool showDeviceDetails = roleId == 2 || roleId == 5;
 
                 using (var package = new ExcelPackage())
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Attendance");
 
-                    // Build header row
-                    var headers = new List<string> { "EmployeNumber", "EmployeeName" };
-                    headers.AddRange(dayKeys.Select(k => k.Replace("_", " ")));
-                    headers.Add("TotalWorkingDays");
-                    headers.Add("PresentDays");
-                    headers.Add("HolidayDays");
-                    headers.Add("WeekOffDays");
-                    headers.Add("HalfDays");
-                    headers.Add("ECO");
-                    headers.Add("HECO");
-                    headers.Add("PLDays");
-                    headers.Add("COLDays");
-                    headers.Add("MLDays");
-                    headers.Add("LWPDays");
+                    // =====================================================
+                    // HEADER
+                    // =====================================================
 
+                    int currentColumn = 1;
 
-                    headers.Add("TotalLeaves");
-                    headers.Add("PayableDays");
-                    headers.Add("ManagerLevel1");
-                    headers.Add("ManagerLevel2");
-                    headers.Add("Privilege Leave Consumed");
-                    headers.Add("Final Leave Balance");
-                    headers.Add("Available Comp-Off Days");
-                    headers.Add("ProcessName");
-                    headers.Add("Location");
-                    headers.Add("PayrollType");
-                    headers.Add("DOJ");
-                    headers.Add("DOL");
-                    headers.Add("DOR");
-                    headers.Add("LeavingType");
-                    headers.Add("NoticeServedStatus");
+                    // Fixed employee columns
+                    worksheet.Cells[1, currentColumn++].Value = "EmployeNumber";
+                    worksheet.Cells[1, currentColumn++].Value = "EmployeeName";
 
+                    // -----------------------------------------------------
+                    // Daily columns
+                    //
+                    // Normal role:
+                    // 01-09-2026
+                    // 02-09-2026
+                    //
+                    // Role 2 / 5:
+                    // 01-09-2026
+                    // 01-09-2026 Check-In
+                    // 01-09-2026 Check-Out
+                    // 01-09-2026 Working-Hours
+                    // -----------------------------------------------------
 
-
-                    for (int i = 0; i < headers.Count; i++)
+                    foreach (var day in dayKeys)
                     {
-                        worksheet.Cells[1, i + 1].Value = headers[i];
-                        worksheet.Cells[1, i + 1].Style.Font.Bold = true;
-                        worksheet.Column(i + 1).AutoFit();
+                        // Attendance Status
+                        worksheet.Cells[1, currentColumn++].Value = day;
+
+                        if (showDeviceDetails)
+                        {
+                            worksheet.Cells[1, currentColumn++].Value =
+                                $"{day} Check-In";
+
+                            worksheet.Cells[1, currentColumn++].Value =
+                                $"{day} Check-Out";
+
+                            worksheet.Cells[1, currentColumn++].Value =
+                                $"{day} Working-Hours";
+                        }
                     }
 
-                    // Build data rows
+                    // =====================================================
+                    // SUMMARY COLUMNS
+                    // =====================================================
+
+                    var summaryHeaders = new List<string>
+            {
+                "TotalWorkingDays",
+                "PresentDays",
+                "HolidayDays",
+                "WeekOffDays",
+                "HalfDays",
+                "ECO",
+                "HECO",
+                "PLDays",
+                "COLDays",
+                "MLDays",
+                "LWPDays",
+                "TotalLeaves",
+                "PayableDays",
+                "ManagerLevel1",
+                "ManagerLevel2",
+                "Privilege Leave Consumed",
+                "Final Leave Balance",
+                "Available Comp-Off Days",
+                "ProcessName",
+                "Location",
+                "PayrollType",
+                "DOJ",
+                "DOL",
+                "DOR",
+                "LeavingType",
+                "NoticeServedStatus"
+            };
+                    if (showDeviceDetails)
+                    {
+                        summaryHeaders.Add("Eligibility");
+                    }
+
+                    foreach (var header in summaryHeaders)
+                    {
+                        worksheet.Cells[1, currentColumn++].Value = header;
+                    }
+
+                    // =====================================================
+                    // STYLE HEADER
+                    // =====================================================
+
+                    int totalColumns = currentColumn - 1;
+
+                    using (var headerRange = worksheet.Cells[1, 1, 1, totalColumns])
+                    {
+                        headerRange.Style.Font.Bold = true;
+                        headerRange.Style.Fill.PatternType =
+                            OfficeOpenXml.Style.ExcelFillStyle.Solid;
+
+                        headerRange.Style.Fill.BackgroundColor.SetColor(
+                            System.Drawing.Color.LightBlue);
+
+                        headerRange.Style.HorizontalAlignment =
+                            OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                        headerRange.Style.VerticalAlignment =
+                            OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    }
+
+                    // =====================================================
+                    // DATA ROWS
+                    // =====================================================
+
                     int rowIndex = 2;
+
                     foreach (var record in model.Attendances)
                     {
-                        worksheet.Cells[rowIndex, 1].Value = record.EmployeNumber;
-                        worksheet.Cells[rowIndex, 2].Value = record.EmployeeName;
+                        currentColumn = 1;
 
-                        for (int colIndex = 0; colIndex < dayKeys.Count; colIndex++)
+                        // -------------------------------------------------
+                        // Employee Number
+                        // -------------------------------------------------
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.EmployeNumber ?? "";
+
+                        // -------------------------------------------------
+                        // Employee Name
+                        // -------------------------------------------------
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.EmployeeName ?? "";
+
+                        // -------------------------------------------------
+                        // Daily Attendance
+                        // -------------------------------------------------
+
+                        foreach (var day in dayKeys)
                         {
-                            var key = dayKeys[colIndex];
-                            string val = record.AttendanceByDay != null && record.AttendanceByDay.ContainsKey(key)
-                                ? record.AttendanceByDay[key]
-                                : "";
-                            worksheet.Cells[rowIndex, 3 + colIndex].Value = val;
+                            // ---------------------------------------------
+                            // Attendance Status
+                            // ---------------------------------------------
+
+                            string attendanceStatus = "";
+
+                            if (record.AttendanceByDay != null &&
+                                record.AttendanceByDay.TryGetValue(
+                                    day,
+                                    out var status))
+                            {
+                                attendanceStatus = status ?? "";
+                            }
+
+                            worksheet.Cells[rowIndex, currentColumn++].Value =
+                                attendanceStatus;
+
+                            // ---------------------------------------------
+                            // Check-In / Check-Out / Working Hours
+                            // Only Role 2 and Role 5
+                            // ---------------------------------------------
+
+                            if (showDeviceDetails)
+                            {
+                                string checkIn = "";
+
+                                if (record.CheckInByDay != null &&
+                                    record.CheckInByDay.TryGetValue(
+                                        day,
+                                        out var ci))
+                                {
+                                    checkIn = ci ?? "";
+                                }
+
+                                worksheet.Cells[rowIndex, currentColumn++].Value =
+                                    checkIn;
+
+
+                                string checkOut = "";
+
+                                if (record.CheckOutByDay != null &&
+                                    record.CheckOutByDay.TryGetValue(
+                                        day,
+                                        out var co))
+                                {
+                                    checkOut = co ?? "";
+                                }
+
+                                worksheet.Cells[rowIndex, currentColumn++].Value =
+                                    checkOut;
+
+
+                                string workingHours = "";
+
+                                if (record.WorkingHoursByDay != null &&
+                                    record.WorkingHoursByDay.TryGetValue(
+                                        day,
+                                        out var wh))
+                                {
+                                    workingHours = wh ?? "";
+                                }
+
+                                worksheet.Cells[rowIndex, currentColumn++].Value =
+                                    workingHours;
+                            }
                         }
 
-                        worksheet.Cells[rowIndex, 3 + dayKeys.Count].Value = record.TotalWorkingDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 4 + dayKeys.Count].Value = record.PresentDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 5 + dayKeys.Count].Value = record.HolidayDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 6 + dayKeys.Count].Value = record.WeekOffDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 7 + dayKeys.Count].Value = record.HalfDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 8 + dayKeys.Count].Value = record.ECO.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 9 + dayKeys.Count].Value = record.HECO.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 10 + dayKeys.Count].Value = record.PLDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 11 + dayKeys.Count].Value = record.COLDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 12 + dayKeys.Count].Value = record.MLDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 13 + dayKeys.Count].Value = record.LWPDays.ToString() ?? "-";
+                        // =================================================
+                        // SUMMARY DATA
+                        // =================================================
 
-                        worksheet.Cells[rowIndex, 14 + dayKeys.Count].Value = record.TotalLeaves.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 15 + dayKeys.Count].Value = record.PayableDays.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 16 + dayKeys.Count].Value = record.ManagerName ?? "-";
-                        worksheet.Cells[rowIndex, 17 + dayKeys.Count].Value = record.ManagerManagerName ?? "-";
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.TotalWorkingDays;
 
-                        worksheet.Cells[rowIndex, 18 + dayKeys.Count].Value = record.AnnualLeaveConsumed.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 19 + dayKeys.Count].Value = record.AnnualLeaveBalance.ToString() ?? "-";
-                        worksheet.Cells[rowIndex, 20 + dayKeys.Count].Value = record.AvailableCompOffDays.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.PresentDays;
 
-                        worksheet.Cells[rowIndex, 21 + dayKeys.Count].Value = record.ProcessName ?? "-";
-                        worksheet.Cells[rowIndex, 22 + dayKeys.Count].Value = record.Location ?? "-";
-                        worksheet.Cells[rowIndex, 23 + dayKeys.Count].Value = record.PayrollType ?? "-";
-                        worksheet.Cells[rowIndex, 24 + dayKeys.Count].Value = record.DOJ?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 25 + dayKeys.Count].Value = record.DOL?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 26 + dayKeys.Count].Value = record.DOR?.ToString("dd-MM-yyyy") ?? "-";
-                        worksheet.Cells[rowIndex, 27 + dayKeys.Count].Value = record.LeavingType ?? "-";
-                        worksheet.Cells[rowIndex, 28 + dayKeys.Count].Value = record.NoticeServedStatus?.ToString() ?? "-";
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.HolidayDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.WeekOffDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.HalfDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.ECO;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.HECO;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.PLDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.COLDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.MLDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.LWPDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.TotalLeaves;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.PayableDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.ManagerName ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.ManagerManagerName ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.AnnualLeaveConsumed;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.AnnualLeaveBalance;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.AvailableCompOffDays;
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.ProcessName ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.Location ?? "-";
+
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.PayrollType ?? "-";
+
+                        // DOJ
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.DOJ?.ToString("dd-MM-yyyy") ?? "-";
+
+                        // DOL
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.DOL?.ToString("dd-MM-yyyy") ?? "-";
+
+                        // DOR
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.DOR?.ToString("dd-MM-yyyy") ?? "-";
+
+                        // Leaving Type
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.LeavingType ?? "-";
+
+                        // Notice Served
+                        worksheet.Cells[rowIndex, currentColumn++].Value =
+                            record.NoticeServedStatus?.ToString() ?? "-";
+                        // =================================================
+                        // ELIGIBILITY
+                        // ONLY ROLE 2 AND ROLE 5
+                        // =================================================
+
+                        if (showDeviceDetails)
+                        {
+                            worksheet.Cells[rowIndex, currentColumn++].Value =
+                                record.Eligibility ?? "-";
+                        }
 
                         rowIndex++;
                     }
 
-                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+                    // =====================================================
+                    // FORMAT COLUMNS
+                    // =====================================================
+
+                    if (worksheet.Dimension != null)
+                    {
+                        // This is the correct EPPlus way.
+                        worksheet.Cells[
+                            worksheet.Dimension.Address
+                        ].AutoFitColumns();
+
+                        // Optional: put a maximum width so very long names
+                        // don't make the Excel sheet extremely wide.
+                        for (int col = 1;
+                             col <= worksheet.Dimension.End.Column;
+                             col++)
+                        {
+                            if (worksheet.Column(col).Width > 35)
+                            {
+                                worksheet.Column(col).Width = 35;
+                            }
+                        }
+                    }
+
+                    // Freeze header row
+                    worksheet.View.FreezePanes(2, 1);
+
+                    // =====================================================
+                    // DOWNLOAD
+                    // =====================================================
 
                     var excelBytes = package.GetAsByteArray();
-                    string fileName = $"Attendance_{FromDate:yyyyMMdd}_to_{ToDate:yyyyMMdd}.xlsx";
+
+                    string fileName =
+                        $"Attendance_{FromDate:yyyyMMdd}_to_{ToDate:yyyyMMdd}.xlsx";
+
                     return File(
                         excelBytes,
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         fileName
                     );
                 }
-
             }
             catch (Exception ex)
             {
-                // Optionally log ex.Message
-                return StatusCode(500, "An error occurred while exporting attendance.");
+                // Log ex here if required
+                return StatusCode(
+                    500,
+                    $"An error occurred while exporting attendance: {ex.Message}");
             }
         }
+
 
 
 

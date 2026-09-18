@@ -937,13 +937,22 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         [HttpPost]
         public JsonResult GetApprovedCompOff([FromBody] AttendanceStatusRequest request)
         {
-            CompOffInputParams attendenceListParams = new CompOffInputParams();
-            attendenceListParams.AttendanceStatusId = request.CompOffStatus;
-            attendenceListParams.RoleId = Convert.ToInt64(HttpContext.Session.GetString(Constants.RoleID));
-            attendenceListParams.UserId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
-            attendenceListParams.JobLocationID = request.JobLocationID;
-            attendenceListParams.SubDepartmentID = request.SubDepartmentID;
-            attendenceListParams.HierarchyLevel = request.HierarchyLevel;
+            var attendenceListParams = new CompOffInputParams
+            {
+                AttendanceStatusId = request.CompOffStatus,
+
+                RoleId = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.RoleID)),
+
+                UserId = Convert.ToInt64(
+                    HttpContext.Session.GetString(Constants.EmployeeID)),
+
+                JobLocationIDs = request.JobLocationIDs ?? new List<long>(),
+
+                SubDepartmentIDs = request.SubDepartmentIDs ?? new List<long>(),
+
+                HierarchyLevels = request.HierarchyLevels ?? new List<int>()
+            };
 
             var data = _businessLayer.SendPostAPIRequest(
                 attendenceListParams,
@@ -1392,12 +1401,35 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
     string sSearch,
     string sortCol,
     string sortDir,
-        long jobLocationID = 0,
-    long subDepartmentID = 0)
+        List<long> jobLocationIDs = null,
+List<long> subDepartmentIDs = null,
+List<int> hierarchyLevels = null)
         {
             long reportingToId = Convert.ToInt64(HttpContext.Session.GetString(Constants.EmployeeID));
             int roleId = Convert.ToInt32(HttpContext.Session.GetString(Constants.RoleID));
+            // ============================================================
+            // NORMALIZE FILTERS
+            // ============================================================
 
+            jobLocationIDs = jobLocationIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            subDepartmentIDs = subDepartmentIDs?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<long>();
+
+
+            hierarchyLevels = hierarchyLevels?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList()
+                ?? new List<int>();
             var columnMapping = new Dictionary<string, string>
     {
         {"employeeID", "EmployeeID"},
@@ -1420,8 +1452,11 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
                 DisplayLength = iDisplayLength,
                 SearchTerm = string.IsNullOrEmpty(sSearch) ? null : sSearch,
 
-                JobLocationID = jobLocationID,
-                SubDepartmentID = subDepartmentID,
+                JobLocationIDs = jobLocationIDs,
+
+                SubDepartmentIDs = subDepartmentIDs,
+
+                HierarchyLevels = hierarchyLevels
             };
 
             var apiResponse = _businessLayer.SendPostAPIRequest(

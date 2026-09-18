@@ -34,6 +34,18 @@
             </div>
 
             <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Training Date Attendance</label>
+                    <div class="form-check mt-2">
+                        @Html.CheckBoxFor(
+                            a => a.IsTrainingDateAttendanceEnabled,
+                            new { @class = "form-check-input" }
+                        )
+                        <label class="form-check-label" for="IsTrainingDateAttendanceEnabled">
+                            Calculate Attendance From Training Date
+                        </label>
+                    </div>
+                </div>
               @*   <div class="col-md-4 form-group">
                     <label>Date of Joining Floor</label>
                     @Html.TextBoxFor(a => a.DateOfJoiningFloor, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
@@ -46,14 +58,15 @@
                     <label>Date of Resignation</label>
                     @Html.TextBoxFor(a => a.DateOfResignation, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
                 </div>
-                   <div class="col-md-4 form-group">
-                    <label>Date of Joining Onroll</label>
-                    @Html.TextBoxFor(a => a.DateOfJoiningOnroll, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
-                </div> 
+
 
             </div>
 
             <div class="row">
+                <div class="col-md-4 form-group">
+                    <label>Date of Joining Onroll</label>
+                    @Html.TextBoxFor(a => a.DateOfJoiningOnroll, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
+                </div>
                 <div class="col-md-4 form-group">
                     <label>Date of Leaving</label>
                     @Html.TextBoxFor(a => a.DateOfLeaving, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
@@ -62,12 +75,13 @@
                     <label>Back on Floor Date</label>
                     @Html.TextBoxFor(a => a.BackOnFloorDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
                 </div>
+
+            </div>           
+            <div class="row">
                 <div class="col-md-4 form-group">
                     <label>Email Sent to IT Date</label>
                     @Html.TextBoxFor(a => a.EmailSentToITDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @type = "date" })
                 </div>
-            </div>           
-            <div class="row">
                 <div class="col-md-4 form-group">
                     <label>Leaving Type</label>
                     @Html.TextBoxFor(a => a.LeavingType, new { @class = "form-control", @type = "text" })
@@ -82,12 +96,13 @@
                     }, new { @class = "form-control" })
                 </div>
 
+
+            </div>
+            <div class="row">
                 <div class="col-md-4 form-group">
                     <label>Mail Received From and Date</label>
                     @Html.TextBoxFor(a => a.MailReceivedFromAndDate, new { @class = "form-control", @type = "text" })
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-6 form-group">
                     <label>Leaving Remarks</label>
                     @Html.TextAreaFor(a => a.LeavingRemarks, new { @class = "form-control", rows = "3" })
