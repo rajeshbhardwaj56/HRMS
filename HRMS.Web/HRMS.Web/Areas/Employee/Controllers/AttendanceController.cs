@@ -937,31 +937,126 @@ Hi, {employeeResult.EmployeeName}, your attendance has been  {actions} by your {
         [HttpPost]
         public JsonResult GetApprovedCompOff([FromBody] AttendanceStatusRequest request)
         {
-            var attendenceListParams = new CompOffInputParams
+            try
             {
-                AttendanceStatusId = request.CompOffStatus,
+                // =========================================================
+                // 1. Validate request
+                // =========================================================
+                if (request == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Request is null. Please check the AJAX request payload."
+                    });
+                }
 
-                RoleId = Convert.ToInt64(
-                    HttpContext.Session.GetString(Constants.RoleID)),
+                // =========================================================
+                // 2. Get session values safely
+                // =========================================================
+                var roleIdString = HttpContext.Session.GetString(Constants.RoleID);
+                var employeeIdString = HttpContext.Session.GetString(Constants.EmployeeID);
+                var sessionBearerToken = HttpContext.Session.GetString(Constants.SessionBearerToken);
 
-                UserId = Convert.ToInt64(
-                    HttpContext.Session.GetString(Constants.EmployeeID)),
+                long roleId = 0;
+                long employeeId = 0;
 
-                JobLocationIDs = request.JobLocationIDs ?? new List<long>(),
+                long.TryParse(roleIdString, out roleId);
+                long.TryParse(employeeIdString, out employeeId);
 
-                SubDepartmentIDs = request.SubDepartmentIDs ?? new List<long>(),
+                // =========================================================
+                // 3. Create input model
+                // =========================================================
+                var attendenceListParams = new CompOffInputParams
+                {
+                    AttendanceStatusId = request.CompOffStatus,
 
-                HierarchyLevels = request.HierarchyLevels ?? new List<int>()
-            };
+                    RoleId = roleId,
 
-            var data = _businessLayer.SendPostAPIRequest(
-                attendenceListParams,
-                _businessLayer.GetFormattedAPIUrl(APIControllarsConstants.AttendenceList, APIApiActionConstants.GetApprovedCompOff), HttpContext.Session.GetString(Constants.SessionBearerToken),
-                true
-            ).Result.ToString();
-            var model = JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data).ToList();
+                    UserId = employeeId,
 
-            return Json(new { data = model });
+                    JobLocationIDs = request.JobLocationIDs ?? new List<long>(),
+
+                    SubDepartmentIDs = request.SubDepartmentIDs ?? new List<long>(),
+
+                    HierarchyLevels = request.HierarchyLevels ?? new List<int>()
+                };
+
+                // =========================================================
+                // 4. Generate API URL
+                // =========================================================
+                var apiUrl = _businessLayer.GetFormattedAPIUrl(
+                    APIControllarsConstants.AttendenceList,
+                    APIApiActionConstants.GetApprovedCompOff
+                );
+
+                if (string.IsNullOrWhiteSpace(apiUrl))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "API URL is null or empty."
+                    });
+                }
+
+                // =========================================================
+                // 5. Call API
+                // =========================================================
+                var apiResponse = _businessLayer.SendPostAPIRequest(
+                    attendenceListParams,
+                    apiUrl,
+                    sessionBearerToken,
+                    true
+                ).Result;
+
+                // =========================================================
+                // 6. Check API response before ToString()
+                // =========================================================
+                if (apiResponse == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "API returned a null response."
+                    });
+                }
+
+                var data = apiResponse.ToString();
+
+                if (string.IsNullOrWhiteSpace(data))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "API returned an empty response."
+                    });
+                }
+
+                // =========================================================
+                // 7. Deserialize safely
+                // =========================================================
+                var model =
+                    JsonConvert.DeserializeObject<List<CompOffAttendanceRequestModel>>(data)
+                    ?? new List<CompOffAttendanceRequestModel>();
+
+                // =========================================================
+                // 8. Return
+                // =========================================================
+                return Json(new
+                {
+                    success = true,
+                    data = model
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message,
+                    innerMessage = ex.InnerException?.Message
+                });
+            }
         }
         [HttpPost]
         public IActionResult ExportApprovedCompOffExcel([FromBody] AttendanceStatusRequest request)

@@ -789,19 +789,47 @@
         });
 
 
-                $(function() {
+$(function () {
 
-                    const today = moment();
+    const today = moment();
 
-                    populateYearDropdown(today.year());
-                    populateMonthDropdown(today.month());
+    // =========================================================
+    // CURRENT PAYROLL YEAR / MONTH
+    // Payroll Cycle = 21st to 20th
+    // =========================================================
 
-                    loadAttendanceData();
+    let payrollYear = today.year();
+    let payrollMonth = today.month() + 1; // SQL/API = 1-12
 
-                    $('#yearDropdown, #monthDropdown').on('change', function() {
-                        loadAttendanceData();
-                    });
-                });
+    // If today is 21st or later,
+    // we are in the next payroll month.
+    if (today.date() >= 21) {
+
+        payrollMonth++;
+
+        // December -> January of next year
+        if (payrollMonth > 12) {
+            payrollMonth = 1;
+            payrollYear++;
+        }
+    }
+
+    console.log("Today:", today.format("DD-MM-YYYY"));
+    console.log("Payroll Year:", payrollYear);
+    console.log("Payroll Month:", payrollMonth);
+
+    // Populate dropdowns
+    populateYearDropdown(payrollYear);
+    populateMonthDropdown(payrollMonth);
+
+    // Load attendance
+    loadAttendanceData();
+
+    // Reload when user changes year/month
+    $('#yearDropdown, #monthDropdown').on('change', function () {
+        loadAttendanceData();
+    });
+});
 
         function updatePayrollRangeText(year, month) {
             const payroll = getPayrollRange(year, month);
@@ -814,31 +842,38 @@
         }
 
 
-        function populateYearDropdown(selectedYear) {
+function populateYearDropdown(selectedYear) {
 
-            const yearDropdown = $('#yearDropdown');
-            yearDropdown.empty();
+    const yearDropdown = $('#yearDropdown');
 
-            for (let y = selectedYear - 1; y <= selectedYear + 1; y++) {
-                yearDropdown.append(`<option value="${y}">${y}</option>`);
-            }
+    yearDropdown.empty();
 
-            yearDropdown.val(selectedYear);
-        }
-        function populateMonthDropdown(selectedMonth) {
+    for (let y = selectedYear - 1; y <= selectedYear + 1; y++) {
 
-            const monthDropdown = $('#monthDropdown');
-            monthDropdown.empty();
+        yearDropdown.append(
+            `<option value="${y}">${y}</option>`
+        );
+    }
 
-            for (let m = 0; m < 12; m++) {
-                monthDropdown.append(
-                    `<option value="${m + 1}">${moment().month(m).format('MMMM')}</option>`
-                );
-            }
+    yearDropdown.val(selectedYear);
+}
+function populateMonthDropdown(selectedMonth) {
 
-            // selectedMonth is 0-based
-            monthDropdown.val(selectedMonth + 1);
-        }
+    const monthDropdown = $('#monthDropdown');
+
+    monthDropdown.empty();
+
+    for (let m = 1; m <= 12; m++) {
+
+        monthDropdown.append(
+            `<option value="${m}">
+                ${moment().month(m - 1).format('MMMM')}
+            </option>`
+        );
+    }
+
+    monthDropdown.val(selectedMonth);
+}
 
 
 
@@ -911,194 +946,161 @@
                     }
                 }
 
-        function loadAttendanceData() {
-            const year = parseInt($('#yearDropdown').val());
-            const month = parseInt($('#monthDropdown').val()); 
-            $.ajax({
-                url: '/employee/Attendance/AttendenceCalendarList',
-                type: 'POST',
-                data: {
-                    Year: year,
-                    Month: month
-                },
-                success: function (response) {
-                            if (!response || !response.data) {
-                                return;
-                            }
+    function loadAttendanceData() {
 
-                            $("#employeeFullName").text(
-                                response.employeeFullName || ''
-                            );
+    const year = parseInt($('#yearDropdown').val());
+    const month = parseInt($('#monthDropdown').val());
 
-                            const payrollStartDate =
-                                response.data.payrollStartDate;
+    console.log("Sending to API:", {
+        Year: year,
+        Month: month
+    });
 
-                            const payrollEndDate =
-                                response.data.payrollEndDate;
+    $.ajax({
+        url: '/employee/Attendance/AttendenceCalendarList',
+        type: 'POST',
 
-                            // Display payroll period from SQL
-                            $('#payrollRangeText').text(
-                                moment(payrollStartDate).format('DD MMM YYYY') +
-                                ' – ' +
-                                moment(payrollEndDate).format('DD MMM YYYY')
-                            );
+        data: {
+            Year: year,
+            Month: month
+        },
 
-                            // Render calendar from SQL dates
-                            renderPayrollCalendar(
-                                payrollStartDate,
-                                payrollEndDate
-                            );
+        success: function (response) {
 
-                            if (!Array.isArray(response.data.dailyStatuses)) {
-                                return;
-                            }
+            if (!response || !response.data) {
+                console.log("No attendance data returned.");
+                return;
+            }
 
-                    response.data.dailyStatuses.forEach(item => {
+            $("#employeeFullName").text(
+                response.employeeFullName || ''
+            );
 
-                  
-                        const normalizedDate = moment(item.date).format('YYYY-MM-DD');
-                        const cell = $(`td[data-date="${normalizedDate}"]`);
-                        if (!cell.length) return;
+            const payrollStartDate =
+                response.data.payrollStartDate;
 
-                        let statusText = '';
-                        let statusClass = '';
+            const payrollEndDate =
+                response.data.payrollEndDate;
 
-                        switch (item.status) {
-                            case 'Present':
-                                statusText = 'Present';
-                                statusClass = 'status-present';
-                                break;
+            // Display actual payroll period returned by SQL
+            if (payrollStartDate && payrollEndDate) {
 
-                            case 'Pending':
-                                statusText = 'Pending';
-                                statusClass = 'status-pending';
-                                break;
+                $('#payrollRangeText').text(
+                    moment(payrollStartDate).format('DD MMM YYYY') +
+                    ' – ' +
+                    moment(payrollEndDate).format('DD MMM YYYY')
+                );
+            }
 
-                            case 'Absent':
-                                statusText = 'Absent';
-                                statusClass = 'status-absent';
-                                break;
+            // Render calendar
+            renderPayrollCalendar(
+                payrollStartDate,
+                payrollEndDate
+            );
 
-                            case 'PrivilegeLeave':
-                                statusText = 'PrivilegeLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'LeaveWithoutPay':
-                                statusText = 'LeaveWithoutPay';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'CompOffLeave':
-                                statusText = 'CompOffLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'MaternityLeave':
-                                statusText = 'MaternityLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfCompOffLeave/HalfPrivilegeLeave':
-                                statusText = 'HalfCompOffLeave/HalfPrivilegeLeave';
-                                statusClass = 'status-leave';
-                                break;
+            if (!Array.isArray(response.data.dailyStatuses)) {
+                return;
+            }
 
-                            case 'HalfDay/HalfPrivilegeLeave':
-                                statusText = 'HalfDay/HalfPrivilegeLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfDay/HalfLeaveWithoutPay':
-                                statusText = 'HalfDay/HalfLeaveWithoutPay';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfDay/HalfCompOffLeave':
-                                statusText = 'HalfDay/HalfCompOffLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfDay/HalfMaternityLeave':
-                                statusText = 'HalfDay/HalfMaternityLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfDay/HalfLeave':
-                                statusText = 'HalfDay/HalfLeave';
-                                statusClass = 'status-leave';
-                                break;
+            response.data.dailyStatuses.forEach(item => {
 
+                const normalizedDate =
+                    moment(item.date).format('YYYY-MM-DD');
 
-                            case 'HalfPrivilegeLeave':
-                                statusText = 'HalfPrivilegeLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfLeaveWithoutPay':
-                                statusText = 'HalfLeaveWithoutPay';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfDay/HalfCompOffLeave':
-                                statusText = 'HalfDay/HalfCompOffLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfCompOffLeave':
-                                statusText = 'HalfCompOffLeave';
-                                statusClass = 'status-leave';
-                                break;
-                            case 'HalfMaternityLeave':
-                                statusText = 'HalfMaternityLeave';
-                                statusClass = 'status-leave';
-                                break;
+                const cell =
+                    $(`td[data-date="${normalizedDate}"]`);
 
-                            case 'HalfLeave':
-                                statusText = 'HalfLeave';
-                                statusClass = 'status-leave';
-                                break;
+                if (!cell.length)
+                    return;
 
+                let statusText = '';
+                let statusClass = '';
 
-                            case 'Holiday':
-                                statusText = 'Holiday';
-                                statusClass = 'status-holiday';
-                                break;
+                switch (item.status) {
 
-                            case 'Week Off':
-                                statusText = 'Week Off';
-                                statusClass = 'status-weekoff';
-                                break;
+                    case 'Present':
+                        statusText = 'Present';
+                        statusClass = 'status-present';
+                        break;
 
-                            case 'EarnedCompOff':
-                                statusText = 'Comp Off';
-                                statusClass = 'status-compoff';
-                                break;
-                            case 'HalfLeave/HalfAbsent':
-                                statusText = 'HalfLeave/HalfAbsent';
-                                statusClass = 'status-halfday';
-                                break;
+                    case 'Pending':
+                        statusText = 'Pending';
+                        statusClass = 'status-pending';
+                        break;
 
-                            case 'HalfDay/HalfLeave':
-                                statusText = 'HalfDay/HalfLeave';
-                                statusClass = 'status-halfday';
-                                break;
-                            case 'Half Day':
-                                statusText = 'Half Day';
-                                statusClass = 'status-halfday';
-                                break;
+                    case 'Absent':
+                        statusText = 'Absent';
+                        statusClass = 'status-absent';
+                        break;
 
-                            default:
-                                return;
-                        }
+                    case 'PrivilegeLeave':
+                    case 'LeaveWithoutPay':
+                    case 'CompOffLeave':
+                    case 'MaternityLeave':
+                    case 'HalfCompOffLeave/HalfPrivilegeLeave':
+                    case 'HalfDay/HalfPrivilegeLeave':
+                    case 'HalfDay/HalfLeaveWithoutPay':
+                    case 'HalfDay/HalfCompOffLeave':
+                    case 'HalfDay/HalfMaternityLeave':
+                    case 'HalfDay/HalfLeave':
+                    case 'HalfPrivilegeLeave':
+                    case 'HalfLeaveWithoutPay':
+                    case 'HalfCompOffLeave':
+                    case 'HalfMaternityLeave':
+                    case 'HalfLeave':
 
-                        // prevent duplicate badge
-                        cell.find('.attendance-cell-badge').remove();
+                        statusText = item.status;
+                        statusClass = 'status-leave';
+                        break;
 
-                        // append centered badge
-                        cell.append(`
-       <div class="attendance-cell-wrapper">
-        <span class="attendance-cell-badge ${statusClass}">
-            ${statusText}
-        </span>
-    </div>
-`);
-                    });
-                },
-                error: function () {
-                    alert('Failed to load attendance data.');
+                    case 'Holiday':
+                        statusText = 'Holiday';
+                        statusClass = 'status-holiday';
+                        break;
+
+                    case 'Week Off':
+                        statusText = 'Week Off';
+                        statusClass = 'status-weekoff';
+                        break;
+
+                    case 'EarnedCompOff':
+                        statusText = 'Comp Off';
+                        statusClass = 'status-compoff';
+                        break;
+
+                    case 'HalfLeave/HalfAbsent':
+                    case 'HalfDay/HalfLeave':
+                    case 'Half Day':
+                        statusText = item.status;
+                        statusClass = 'status-halfday';
+                        break;
+
+                    default:
+                        return;
                 }
+
+                // Remove previous badge
+                cell.find('.attendance-cell-badge').remove();
+
+                // Add new badge
+                cell.append(`
+                    <div class="attendance-cell-wrapper">
+                        <span class="attendance-cell-badge ${statusClass}">
+                            ${statusText}
+                        </span>
+                    </div>
+                `);
             });
+        },
+
+        error: function (xhr) {
+
+            console.log("Attendance API Error:", xhr);
+
+            alert('Failed to load attendance data.');
         }
+    });
+}
 
 
 

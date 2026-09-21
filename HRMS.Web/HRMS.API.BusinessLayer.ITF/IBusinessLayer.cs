@@ -274,6 +274,10 @@ namespace HRMS.API.BusinessLayer.ITF
         public Result AddUpdateEmployeeOnboardingEmployment(EmployeeOnboardingEmploymentModel model);
         public EmployeeOnboardingRequestResults GetEmployeeOnboardingRequests(
 EmployeeOnboardingRequestInputParams model);
+        public Result ApproveEmployeeOnboarding(
+    List<string> keys);
+        public Result RejectEmployeeOnboarding(
+    List<string> keys);
         #endregion EmployeeOnboarding
     }
 }

@@ -703,7 +703,7 @@
 
         }
 
-        .mandatory::before {
+        .maundertakingtory::before {
 
             content: "*";
 
@@ -1190,7 +1190,659 @@ font-weight: 600;
 font-size: 12px;
 padding-top: 5px;
 }
+/* =============================================================
+   PAGE 4 - EMPLOYEE UNDERTAKING
+============================================================= */
 
+.undertaking-page {
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+
+    padding: 10mm 13mm 8mm 13mm;
+
+    box-sizing: border-box;
+
+    background: #fff;
+
+    color: #111;
+
+    font-family: "Times New Roman", Times, serif;
+
+    font-size: 9.2pt;
+
+    line-height: 1.17;
+
+    position: relative;
+
+    page-break-after: always;
+}
+
+
+/* =============================================================
+   HEADER
+============================================================= */
+
+.undertaking-header {
+    display: flex;
+
+    width: 100%;
+
+    align-items: flex-start;
+
+    margin-bottom: 5px;
+}
+
+
+.undertaking-logo {
+    width: 38%;
+}
+
+
+.undertaking-logo-img {
+    width: 43px;
+
+    height: auto;
+
+    object-fit: contain;
+}
+
+
+.undertaking-heading {
+    width: 62%;
+
+    text-align: right;
+
+    padding-top: 1px;
+}
+
+
+.undertaking-title {
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+.undertaking-form-no {
+    font-size: 8px;
+
+    font-weight: 700;
+
+    margin-top: 1px;
+}
+
+
+.undertaking-release {
+    font-size: 7px;
+
+    margin-top: 2px;
+}
+
+
+/* =============================================================
+   INTRODUCTION
+============================================================= */
+
+.undertaking-intro {
+    text-align: justify;
+
+    margin-top: 4px;
+
+    margin-bottom: 5px;
+}
+
+
+.u-line {
+    display: inline-block;
+
+    border-bottom: 1px solid #222;
+
+    min-height: 14px;
+
+    padding: 0 3px;
+
+    vertical-align: bottom;
+
+    font-family:
+        "Segoe Print",
+        "Comic Sans MS",
+        cursive;
+
+    font-size: 9px;
+}
+
+
+.u-name {
+    min-width: 90px;
+}
+
+
+.u-father {
+    min-width: 100px;
+}
+
+
+.u-code {
+    min-width: 48px;
+}
+
+
+.u-designation {
+    min-width: 65px;
+}
+
+
+.u-address {
+    min-width: 180px;
+}
+
+
+.u-mobile {
+    min-width: 75px;
+}
+
+
+/* =============================================================
+   DETAILS
+============================================================= */
+
+.undertaking-details {
+    margin-bottom: 4px;
+}
+
+
+.undertaking-detail-row {
+    display: flex;
+
+    align-items: baseline;
+
+    flex-wrap: wrap;
+
+    text-align: justify;
+
+    margin-bottom: 2px;
+
+    gap: 2px;
+}
+
+
+.undertaking-number {
+    width: 17px;
+
+    min-width: 17px;
+}
+
+
+/* =============================================================
+   UNDERTAKING CONTENT
+============================================================= */
+
+.undertaking-content {
+    width: 100%;
+}
+
+
+.undertaking-item {
+    display: flex;
+
+    align-items: flex-start;
+
+    text-align: justify;
+
+    margin-bottom: 3px;
+
+    break-inside: avoid;
+
+    page-break-inside: avoid;
+}
+
+
+.item-no {
+    width: 19px;
+
+    min-width: 19px;
+}
+
+
+.item-text {
+    flex: 1;
+}
+
+
+/* =============================================================
+   SIGNATURE AREA
+============================================================= */
+
+.undertaking-signatures {
+    display: grid;
+
+    grid-template-columns:
+        2.2fr
+        .8fr
+        2.2fr
+        .8fr;
+
+    column-gap: 8px;
+
+    align-items: end;
+
+    margin-top: 8px;
+
+    break-inside: avoid;
+
+    page-break-inside: avoid;
+}
+
+
+.signature-title {
+    font-size: 8.5pt;
+
+    font-weight: 700;
+
+    margin-bottom: 3px;
+}
+
+
+.signature-space {
+    height: 25px;
+
+    position: relative;
+
+    border-bottom: 1px solid #222;
+}
+
+
+.undertaking-signature-image {
+    max-width: 105px;
+
+    max-height: 25px;
+
+    object-fit: contain;
+
+    display: block;
+
+    margin: 0 auto;
+}
+
+
+.signature-name {
+    font-size: 7.5pt;
+
+    text-align: center;
+
+    margin-top: 2px;
+}
+
+
+.date-line {
+    min-height: 25px;
+
+    border-bottom: 1px solid #222;
+
+    font-family:
+        "Segoe Print",
+        "Comic Sans MS",
+        cursive;
+
+    font-size: 9px;
+
+    padding-left: 3px;
+}
+
+
+/* =============================================================
+   PRINT
+============================================================= */
+
+@@media print {
+
+    @@page {
+        size: A4 portrait;
+        margin: 0;
+    }
+
+
+    html,
+    body {
+        margin: 0 !important;
+
+        padding: 0 !important;
+
+        background: #fff !important;
+    }
+
+
+    .undertaking-page {
+        width: 210mm;
+
+        height: 297mm;
+
+        min-height: 297mm;
+
+        margin: 0;
+
+        padding: 10mm 13mm 8mm 13mm;
+
+        box-shadow: none;
+
+        page-break-after: always;
+    }
+
+
+    .undertaking-item {
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+    }
+
+
+    .undertaking-signatures {
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+    }
+
+}
+
+
+/* =============================================================
+   SCREEN PREVIEW
+============================================================= */
+
+@@media screen {
+
+    .undertaking-page {
+        margin: 20px auto;
+
+        box-shadow:
+            0 0 8px rgba(0,0,0,.18);
+
+        border: 1px solid #ddd;
+    }
+
+}
+/* =============================================================
+   UNDERTAKING EXECUTION SECTION
+============================================================= */
+
+.undertaking-execution {
+
+    width: 100%;
+
+    margin-top: 12px;
+
+    padding-top: 7px;
+
+    border-top: 1px solid #222;
+
+    font-family:
+        "Times New Roman",
+        Times,
+        serif;
+
+    color: #111;
+
+}
+
+
+/* =============================================================
+   HEADING
+============================================================= */
+
+.undertaking-execution-heading {
+
+    font-size: 9.5pt;
+
+    font-weight: 700;
+
+    margin-bottom: 8px;
+
+}
+
+
+/* =============================================================
+   EMPLOYEE SUB HEADING
+============================================================= */
+
+.undertaking-execution-subheading {
+
+    font-size: 9.5pt;
+
+    font-weight: 700;
+
+    margin-top: 11px;
+
+    margin-bottom: 6px;
+
+}
+
+
+/* =============================================================
+   COMPANY / EMPLOYEE SIGNATURE ROW
+============================================================= */
+
+.undertaking-signature-row {
+
+    display: grid;
+
+    grid-template-columns:
+        1.7fr
+        1.5fr
+        1.4fr
+        .9fr;
+
+    gap: 8px;
+
+    width: 100%;
+
+    align-items: end;
+
+    margin-bottom: 6px;
+
+}
+
+
+/* =============================================================
+   FIELD GROUP
+============================================================= */
+
+.undertaking-field-group {
+
+    min-width: 0;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: 4px;
+
+}
+
+
+.undertaking-field-label {
+
+    font-size: 8.5pt;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+}
+
+
+/* =============================================================
+   UNDERLINE FIELD
+============================================================= */
+
+.undertaking-signature-line {
+
+    flex: 1;
+
+    min-width: 25px;
+
+    height: 20px;
+
+    border-bottom: 1px solid #222;
+
+    display: inline-flex;
+
+    align-items: flex-end;
+
+    padding: 0 3px 2px 3px;
+
+    font-size: 8.5pt;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+
+}
+
+
+/* =============================================================
+   SIGNATURE BOX
+============================================================= */
+
+.undertaking-signature-box {
+
+    flex: 1;
+
+    height: 32px;
+
+    min-width: 65px;
+
+    border-bottom: 1px solid #222;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+}
+
+
+.undertaking-execution-signature {
+
+    max-width: 95px;
+
+    max-height: 29px;
+
+    width: auto;
+
+    height: auto;
+
+    object-fit: contain;
+
+    display: block;
+
+}
+
+
+/* =============================================================
+   WITNESS SECTION
+============================================================= */
+
+.undertaking-witness-section {
+
+    margin-top: 9px;
+
+}
+
+
+.undertaking-witness-title {
+
+    font-size: 8.8pt;
+
+    font-weight: 700;
+
+    margin-bottom: 4px;
+
+}
+
+
+.undertaking-witness-row {
+
+    display: grid;
+
+    grid-template-columns:
+        1.3fr
+        2.2fr
+        1.2fr;
+
+    gap: 10px;
+
+    width: 100%;
+
+    align-items: end;
+
+}
+
+
+.undertaking-witness-field {
+
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: 4px;
+
+    min-width: 0;
+
+}
+
+
+.undertaking-witness-line {
+
+    flex: 1;
+
+    height: 20px;
+
+    border-bottom: 1px solid #222;
+
+    min-width: 30px;
+
+}
+
+
+/* =============================================================
+   PRINT
+============================================================= */
+
+@@media print {
+
+    .undertaking-execution {
+
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+
+    }
+
+
+    .undertaking-signature-row {
+
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+
+    }
+
+
+    .undertaking-witness-section {
+
+        break-inside: avoid;
+
+        page-break-inside: avoid;
+
+    }
+
+}
     </style>
 
 </head>
@@ -3593,10 +4245,1500 @@ padding-top: 5px;
 
 
 </div>
-
-
 <!-- =============================================================
      PAGE 4
+     EMPLOYEE UNDERTAKING
+============================================================= -->
+
+<div class="a4-page undertaking-page">
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <div class="undertaking-header">
+
+        <div class="undertaking-logo">
+
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="undertaking-logo-img"
+                 alt="Protalk Solutions"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+
+        <div class="undertaking-heading">
+
+            <div class="undertaking-title">
+                Employee Undertaking
+            </div>
+
+            <div class="undertaking-form-no">
+                (PSL/HR/FORM/04)
+            </div>
+
+            <div class="undertaking-release">
+                Release: 14 &nbsp;&nbsp; Release Date: 01.06.2024
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         EMPLOYEE INTRODUCTION
+    ========================================================== -->
+<div class="undertaking-intro">
+
+    I,
+    <span class="u-line u-name">
+        @Safe(employee.FullName)
+    </span>
+
+    son/daughter/wife of Mr.
+
+    <span class="u-line u-father">
+        @Safe(employee.FatherHusbandName)
+    </span>
+    permanent  resident of  
+        <span class="u-line u-code">
+        @Safe(employee.PermanentAddress)
+    </span>
+    Employee Code
+
+    <span class="u-line u-code">
+        @Safe(employee.EmployeeCode)
+    </span>
+
+    designated as
+
+    <span class="u-line u-designation">
+        @Safe(employee.Designation)
+    </span>
+
+    do hereby declare the following facts as true and also undertake /
+    promise to follow the below mentioned guidelines at all times during
+    my training and employment at <strong>Protalk Solutions Pvt. Ltd.</strong>
+
+</div>
+
+
+<!-- =========================================================
+     EMPLOYEE DETAILS AS SHOWN ON PAPER FORM
+========================================================== -->
+
+<div class="undertaking-details">
+
+    <div class="undertaking-detail-row">
+
+        <span class="undertaking-number">
+            1.
+        </span>
+
+        <span>
+            That I am a bonafide Indian National and I am presently
+            residing at
+        </span>
+
+        <span class="u-line u-address">
+            @Safe(employee.PresentAddress)
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-detail-row">
+
+        <span class="undertaking-number"></span>
+
+        <span>
+            My contact number is
+        </span>
+
+        <span class="u-line u-mobile">
+            @Safe(employee.Mobile)
+        </span>
+
+        <span>
+            and this number is registered in the name of Mr./Mrs.
+        </span>
+
+        <span class="u-line u-contact-name">
+           @*  @Safe(employee.ContactRegisteredName) *@
+        </span>
+
+        <span>
+            son/daughter/husband/wife of
+        </span>
+
+        <span class="u-line u-contact-relation">
+           @*  @Safe(employee.ContactRelationName) *@
+        </span>
+          <span>
+            resident of
+        </span>
+                <span class="u-line u-contact-address">
+           @Safe(employee.PermanentAddress) 
+        </span>
+    </div>
+
+
+    <div class="undertaking-detail-row">
+
+        <span class="undertaking-number"> 2.</span>
+
+        <span>
+          I further declare that my permanent address is
+        </span>
+
+        <span class="u-line u-permanent-address">
+            @Safe(employee.PermanentAddress)
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-detail-row">
+
+        <span class="undertaking-number"></span>
+
+        <span>
+            Contact No.
+        </span>
+
+        <span class="u-line u-contact">
+            @Safe(employee.Mobile)
+        </span>
+
+        <span>
+            My father's contact number is
+        </span>
+
+        <span class="u-line u-father-mobile">
+            @* @Safe(employee.FatherContactNumber) *@
+        </span>
+
+        <span>
+            and my mother/brother/sister's contact number is
+        </span>
+
+        <span class="u-line u-family-mobile">
+           @*  @Safe(employee.FamilyContactNumber) *@
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     UNDERTAKING POINTS
+========================================================== -->
+
+<div class="undertaking-content">
+
+    <div class="undertaking-item">
+
+        <span class="item-no">1.</span>
+
+        <span class="item-text">
+            That during the course of my employment if there is any change
+            in the Permanent / Present address I’ll intimate the same to
+            the company in writing within 3 days from the date of such change.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">2.</span>
+
+        <span class="item-text">
+            I do hereby declare that there is no police case registered
+            against me in any police station and nor are any criminal /
+            legal proceedings going on against me in any court. In case
+            this statement is found to be incorrect my services may be
+            terminated and I may be handed over to the concerned
+            authorities and action can be taken against me as deemed fit.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">3.</span>
+
+        <span class="item-text">
+            That not to indulge in any act which may lead to getting
+            involved in any criminal / legal proceedings or may lead to
+            damage to the company’s image / reputation. I will be
+            responsible for any damage caused to the PSL’s assets /
+            facility due to any act of mine and company has a right
+            to take appropriate actions as required under ZTP / Code of
+            Conduct Policy.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">4.</span>
+
+        <span class="item-text">
+            That I would never report to office or board the office under
+            the influence of alcohol, intoxicants or illegal drugs.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">5.</span>
+
+        <span class="item-text">
+            That, not to misuse the customer details which I may have
+            access and/or will not accept the customer in my personal
+            capacity for any reason.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">6.</span>
+
+        <span class="item-text">
+            I have been provided access for “Read only” rights, his
+            “Safe rights” are to be accessed then prior approval of
+            the client will be sought.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">7.</span>
+
+        <span class="item-text">
+            I will in no sort of any soft of illegal misuse of the
+            facilities provided by the client for any of my acquaintances,
+            whether it involves provisioning of packs, recharging coupons,
+            bill discounting, providing waivers, special promotional
+            schemes, misuse of software, ID’s etc.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">8.</span>
+
+        <span class="item-text">
+            That during the training period and my employment with company,
+            I will abide by the Company’s rules and regulations
+            (policies / procedures) as laid down from time to time.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">9.</span>
+
+        <span class="item-text">
+            I will not take my personal cell phone or use it on the floor.
+            I am aware that in the event of my being found carrying my
+            personal cell phone on the floor the same will be confiscated
+            by the management and I may be subjected to disciplinary action.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">10.</span>
+
+        <span class="item-text">
+            I will abide by PSL’s ZTP / Code of Conduct Policy and User
+            Acceptable Policy, which have been shared by HR during
+            induction and have been understood by me.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">11.</span>
+
+        <span class="item-text">
+            That the training fee, if payable to me, will be released only
+            in the subsequent month of the completion of training and
+            successful certification as per the training fee payout cycle.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">12.</span>
+
+        <span class="item-text">
+            I further declare that the above undertakings have been made
+            by me of my own free will and under no duress of any kind
+            from my quarter.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">13.</span>
+
+        <span class="item-text">
+            In the event of my being found to be delinquent on account of
+            any of the above undertakings or any of my acts of omission /
+            commission, by virtue of which the company’s reputation is at
+            stake or the company suffers any kind of loss, the company
+            shall be at liberty to resort to any type of disciplinary /
+            legal action against me.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">14.</span>
+
+        <span class="item-text">
+            That, during my employment with Protalk Solutions Pvt. Ltd.,
+            the company may capture and use my name, image, likeness,
+            voice, photographs, and video recordings created during work
+            or during company-related activities. Such materials may be
+            used for internal communication, recruiting, branding,
+            marketing, and other business-related purposes on company
+            platforms. This consent will remain effective during my
+            employment and may continue after my employment ends.
+            No additional approval or compensation will be required for
+            such use.
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-item">
+
+        <span class="item-no">15.</span>
+
+        <span class="item-text">
+            For any grievance / complaint related to PSL, I will follow
+            the hierarchy matrix of PSL only. I will not use social media
+            for any complaint related to PSL.
+        </span>
+
+    </div>
+
+</div>
+
+
+
+    <!-- =========================================================
+         SIGNATURE SECTION
+    ========================================================== -->
+
+    <div class="undertaking-signatures">
+
+        <div class="signature-block">
+
+            <div class="signature-title">
+                Employee Name &amp; Signature
+            </div>
+
+            <div class="signature-space">
+
+                @if (signatureDocument != null)
+                {
+                    var signaturePath = GetDocumentFilePath(signatureDocument);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+
+            </div>
+
+            <div class="signature-name">
+                @Safe(employee.FullName)
+            </div>
+
+        </div>
+
+
+        <div class="signature-date">
+
+            <div class="signature-title">
+                Date
+            </div>
+
+            <div class="date-line">
+    @FormatDate(Model?.EmployeeDetails?.DeclarationDate) 
+            </div>
+
+        </div>
+
+
+        <div class="signature-block hr-signature">
+
+            <div class="signature-title">
+                HR Name &amp; Signature
+            </div>
+
+            <div class="signature-space">
+
+                @if (hrInterviewerSignature != null)
+                {
+                    var hrSignaturePath =
+                        GetDocumentFilePath(hrInterviewerSignature);
+
+                    if (!string.IsNullOrWhiteSpace(hrSignaturePath))
+                    {
+                        <img src="@hrSignaturePath"
+                             class="undertaking-signature-image"
+                             alt="HR Signature" />
+                    }
+                }
+
+            </div>
+               <div class="signature-name">
+                @Safe(interviewEvaluation.HRInterviewerName)
+            </div>
+        </div>
+
+
+        <div class="signature-date">
+
+            <div class="signature-title">
+                Date
+            </div>
+
+            <div class="date-line">
+              @FormatDate(interview.FinalDate)
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <div class="page-footer">
+
+        Employment Form - Page 4
+
+    </div>
+
+</div>
+<!-- =============================================================
+     PAGE 5
+     EMPLOYEE NON-DISCLOSURE AGREEMENT
+============================================================= -->
+
+<div class="a4-page nda-page">
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+   <div class="undertaking-header">
+
+        <div class="undertaking-logo">
+
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="undertaking-logo-img"
+                 alt="Protalk Solutions"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+        <div class="undertaking-heading">
+
+            <div class="undertaking-title">
+                Non-Disclosure Agreement
+            </div>
+
+            <div class="undertaking-form-no">
+                (PSPL/HRD/SOP/FRM/5)
+            </div>
+
+            <div class="undertaking-release">
+                Release: 14 &nbsp;&nbsp; Release Date: 20-04-2026
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         DOCUMENT TITLE
+    ========================================================== -->
+
+    <div class="undertaking-document-title">
+        EMPLOYEE NON-DISCLOSURE AGREEMENT
+    </div>
+
+
+    <!-- =========================================================
+         INTRODUCTION
+    ========================================================== -->
+
+    <div class="undertaking-introduction">
+
+        <p>
+            This Employee Non-Disclosure and Confidentiality Agreement
+            (the “Agreement”) is made and entered into on this
+            <span class="u-line">
+                @FormatDate(Model?.EmployeeDetails?.DeclarationDate)
+            </span>
+            (the “Effective Date”),
+        </p>
+
+    </div>
+
+
+    <!-- =========================================================
+         PARTIES
+    ========================================================== -->
+
+    <div class="undertaking-section-title">
+        BY AND BETWEEN:
+    </div>
+
+
+    <div class="undertaking-paragraph">
+
+        <strong>Protalk Solutions Private Limited</strong>
+        (or insert full company name), a company incorporated under the
+        Companies Act, 2013, having its office at C-126, Industrial Area,
+        Phase VIII, Sector 73, Sahibzada Ajit Singh Nagar, Mohali, India
+        (hereinafter referred to as the “Company”), which expression shall,
+        unless repugnant to the context or meaning thereof, include its
+        successors and permitted assigns) of the <strong>ONE PART;</strong>
+
+    </div>
+
+
+    <div class="undertaking-section-title">
+        AND
+    </div>
+
+
+    <div class="undertaking-paragraph">
+
+        Mr./Ms.
+        <span class="u-line undertaking-inline-field">
+            @Safe(employee.FullName)
+        </span>,
+        son/daughter of
+        <span class="u-line undertaking-inline-field">
+            @Safe(employee.FatherHusbandName)
+        </span>,
+        aged about
+        <span class="u-line undertaking-small-field">
+            @* @Safe(employee.Age) *@
+        </span>
+        years, residing at
+        <span class="u-line undertaking-address-field">
+            @Safe(employee.PresentAddress)
+        </span>,
+        India, holding Employee ID
+        <span class="u-line undertaking-inline-field">
+            @Safe(employee.EmployeeCode)
+        </span>,
+        hereinafter referred to as the “Employee”), which expression shall,
+        unless repugnant to the context or meaning thereof, include his/her
+        heirs, executors, administrators and legal representatives) of the
+        <strong>OTHER PART.</strong>
+
+    </div>
+
+
+    <div class="undertaking-paragraph">
+
+        The Company and the Employee are hereinafter collectively referred
+        to as the “Parties” and individually as a “Party”.
+
+    </div>
+
+
+    <!-- =========================================================
+         WHEREAS
+    ========================================================== -->
+
+    <div class="undertaking-section-title">
+        WHEREAS:
+    </div>
+
+
+    <div class="undertaking-clause">
+
+        <span class="undertaking-clause-label">A.</span>
+
+        <span class="undertaking-clause-text">
+            The Company is engaged in the business of providing Business
+            Process Outsourcing (BPO), IT-enabled Services (ITeS), customer
+            support, back-office operations, data processing, and related
+            services to its clients (the “Business”).
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-clause">
+
+        <span class="undertaking-clause-label">B.</span>
+
+        <span class="undertaking-clause-text">
+
+            The Employee has been offered employment / is employed by the
+            Company in the capacity of
+            <span class="u-line undertaking-inline-field">
+                @Safe(employee.Designation)
+            </span>
+            and, in the course of such employment, will have access to
+            Confidential Information (as defined below) belonging to the
+            Company and/or its clients.
+
+        </span>
+
+    </div>
+
+
+    <div class="undertaking-clause">
+
+        <span class="undertaking-clause-label">C.</span>
+
+        <span class="undertaking-clause-text">
+
+            The Company desires to protect its Confidential Information
+            from unauthorized disclosure or use, and the Employee agrees
+            to maintain the confidentiality of such information during
+            and after the term of employment.
+
+        </span>
+
+    </div>
+
+
+    <!-- =========================================================
+         NOW THEREFORE
+    ========================================================== -->
+
+    <div class="undertaking-paragraph undertaking-now-therefore">
+
+        <strong>NOW, THEREFORE,</strong> in consideration of the Employee’s
+        employment with the Company and the mutual covenants and promises
+        contained herein, the Parties agree as follows:
+
+    </div>
+
+
+    <!-- =========================================================
+         1. DEFINITION OF CONFIDENTIAL INFORMATION
+    ========================================================== -->
+
+    <div class="undertaking-main-section">
+
+        <div class="undertaking-main-title">
+            1. Definition of Confidential Information
+        </div>
+
+
+        <div class="undertaking-paragraph">
+
+            “<strong>Confidential Information</strong>” means any and all
+            information, data, or material (whether oral, written, electronic,
+            or in any other form) disclosed or made available by the Company
+            or its clients to the Employee, or which the Employee learns,
+            develops, or has access to during the course of employment.
+
+        </div>
+
+
+        <div class="undertaking-paragraph">
+
+            This includes, without limitation:
+
+        </div>
+
+
+        <ul class="undertaking-list">
+
+            <li>
+                Client lists, customer data, call recordings, scripts,
+                transaction details, personal data of customers, and any
+                information protected under the Information Technology Act,
+                2000 (including rules on sensitive personal data).
+            </li>
+
+            <li>
+                Business processes, Staundertakingrd Operating Procedures (SOPs),
+                training materials, workflows, software tools, databases,
+                and proprietary methodologies.
+            </li>
+
+            <li>
+                Trade secrets, know-how, technical data, financial
+                information, marketing strategies, pricing models, vendor
+                details, and intellectual property.
+            </li>
+
+            <li>
+                Any information marked “confidential” or which a reasonable
+                person would understand to be confidential in the BPO context.
+            </li>
+
+            <li>
+                Information relating to the Company’s or its clients’
+                business plans, strategies, or operations.
+            </li>
+
+        </ul>
+
+
+        <!-- =====================================================
+             EXCLUSIONS
+        ====================================================== -->
+
+        <div class="undertaking-paragraph undertaking-sub-heading">
+
+            Confidential Information shall not include information that:
+
+        </div>
+
+
+        <ul class="undertaking-list undertaking-exclusion-list">
+
+            <li>
+                Is or becomes publicly available through no fault of the
+                Employee.
+            </li>
+
+            <li>
+                Was lawfully known to the Employee prior to disclosure by
+                the Company (with documentary proof).
+            </li>
+
+            <li>
+                Is independently developed by the Employee without use of
+                or reference to the Company’s Confidential Information.
+            </li>
+
+            <li>
+                Is required to be disclosed by law (provided the Employee
+                gives prompt written notice to the Company to seek protective
+                measures).
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- =========================================================
+         2. OBLIGATIONS OF THE EMPLOYEE
+    ========================================================== -->
+
+    <div class="undertaking-main-section">
+
+        <div class="undertaking-main-title">
+            2. Obligations of the Employee
+        </div>
+
+
+        <div class="undertaking-paragraph">
+
+            The Employee agrees and undertakes that he/she shall:
+
+        </div>
+
+
+        <div class="undertaking-obligation">
+
+            <span class="undertaking-obligation-label">a.</span>
+
+            <span class="undertaking-obligation-text">
+                Hold all Confidential Information in strict confidence and
+                use the highest degree of care.
+            </span>
+
+        </div>
+
+
+        <div class="undertaking-obligation">
+
+            <span class="undertaking-obligation-label">b.</span>
+
+            <span class="undertaking-obligation-text">
+                Use the Confidential Information solely for the purpose of
+                performing his/her duties for the Company and not for any
+                personal benefit or for any other purpose.
+            </span>
+
+        </div>
+
+
+        <div class="undertaking-obligation">
+
+            <span class="undertaking-obligation-label">c.</span>
+
+            <span class="undertaking-obligation-text">
+                Not disclose, copy, reproduce, transmit, or make available
+                any Confidential Information to any third party (including
+                family members, friends, or future employers) without the
+                prior written consent of the Company.
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <div class="page-footer">
+        Employment Form - Page 5
+    </div>
+
+</div>
+<!-- =============================================================
+     PAGE 6
+     EMPLOYEE NON-DISCLOSURE AGREEMENT - CONTINUATION
+============================================================= -->
+
+<div class="a4-page undertaking-page undertaking-continuation-page">
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <div class="undertaking-header">
+
+        <div class="undertaking-logo">
+
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="undertaking-logo-img"
+                 alt="Protalk Solutions"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+        <div class="undertaking-heading">
+
+            <div class="undertaking-title">
+                Non-Disclosure Agreement
+            </div>
+
+            <div class="undertaking-form-no">
+                (PSPL/HRD/SOP/FRM/5)
+            </div>
+
+            <div class="undertaking-release">
+                Release: 14 &nbsp;&nbsp; Release Date: 20-04-2026
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         2. OBLIGATIONS OF THE EMPLOYEE - CONTINUATION
+    ========================================================== -->
+
+    <div class="undertaking-obligations-continuation">
+
+        <div class="undertaking-obligation">
+
+            <span class="undertaking-obligation-label">d.</span>
+
+            <span class="undertaking-obligation-text">
+                Restrict access to Confidential Information only to those
+                persons within the Company who have a legitimate “need to
+                know” for the performance of their duties.
+            </span>
+
+        </div>
+
+
+        <div class="undertaking-obligation">
+
+            <span class="undertaking-obligation-label">e.</span>
+
+            <span class="undertaking-obligation-text">
+                Immediately notify the Company in writing of any actual or
+                suspected unauthorized disclosure, loss, or misuse of
+                Confidential Information.
+            </span>
+
+        </div>
+
+
+        <div class="undertaking-obligation">
+
+            <span class="undertaking-obligation-label">f.</span>
+
+            <span class="undertaking-obligation-text">
+                Upon termination of employment (for any reason) or at the
+                Company’s request, immediately return or destroy (with
+                certification) all documents, files, recordings, devices,
+                or other materials containing Confidential Information,
+                including electronic copies.
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         3. DURATION OF OBLIGATIONS
+    ========================================================== -->
+
+    <div class="undertaking-main-section">
+
+        <div class="undertaking-main-title">
+            3. Duration of Obligations
+        </div>
+
+        <div class="undertaking-paragraph">
+            The obligations under this Agreement shall survive the
+            termination of the Employee’s employment with the Company
+            and shall continue to bind the Employee indefinitely with
+            respect to trade secrets and for a period of at least
+            <strong>three (3) years</strong> from the date of termination
+            for all other Confidential Information, or for as long as the
+            information remains confidential, whichever is longer.
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         4. INTELLECTUAL PROPERTY
+    ========================================================== -->
+
+    <div class="undertaking-main-section">
+
+        <div class="undertaking-main-title">
+            4. Intellectual Property
+        </div>
+
+        <div class="undertaking-paragraph">
+            Any work, invention, process, or material created or developed
+            by the Employee during the course of employment using the
+            Company’s resources or Confidential Information shall be the
+            sole property of the Company. The Employee hereby assigns all
+            rights, title, and interest therein to the Company.
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         5. REMEDIES FOR BREACH
+    ========================================================== -->
+
+    <div class="undertaking-main-section">
+
+        <div class="undertaking-main-title">
+            5. Remedies for Breach
+        </div>
+
+        <div class="undertaking-paragraph">
+            In the event of any breach or threatened breach of this
+            Agreement by the Employee, the Company shall be entitled to:
+        </div>
+
+
+        <div class="undertaking-remedy-list">
+
+            <div class="undertaking-remedy-item">
+                <span class="undertaking-remedy-label">•</span>
+
+                <span class="undertaking-remedy-text">
+                    Immediate injunctive relief (without the need to post a
+                    bond) from a competent court.
+                </span>
+            </div>
+
+
+            <div class="undertaking-remedy-item">
+                <span class="undertaking-remedy-label">•</span>
+
+                <span class="undertaking-remedy-text">
+                    Recovery of all damages, including actual, consequential,
+                    and punitive damages, legal fees, and costs.
+                </span>
+            </div>
+
+
+            <div class="undertaking-remedy-item">
+                <span class="undertaking-remedy-label">•</span>
+
+                <span class="undertaking-remedy-text">
+                    Termination of employment with immediate effect,
+                    forfeiture of any unpaid dues/benefits (to the extent
+                    permissible under law), and other disciplinary action.
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="undertaking-paragraph">
+            The Employee acknowledges that monetary damages alone may not
+            be adequate compensation for breach and agrees not to raise
+            any objection to the grant of injunctive relief.
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         6. NO EMPLOYMENT RIGHTS CREATED
+    ========================================================== -->
+
+    <div class="undertaking-main-section">
+
+        <div class="undertaking-main-title">
+            6. No Employment Rights Created
+        </div>
+
+        <div class="undertaking-paragraph">
+            This Agreement does not create any right of continued
+            employment. The Employee’s employment remains at-will or as
+            per the terms of the separate employment contract/letter of
+            appointment.
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         7. GOVERNING LAW AND DISPUTE RESOLUTION
+    ========================================================== -->
+
+    <div class="undertaking-main-section">
+
+        <div class="undertaking-main-title">
+            7. Governing Law and Dispute Resolution
+        </div>
+
+        <div class="undertaking-paragraph">
+            This Agreement shall be governed by and construed in
+            accordance with the laws of India. Any dispute arising out
+            of or in connection with this Agreement shall be subject to
+            the exclusive jurisdiction of the courts located in
+            <strong>SAS Nagar, Mohali, Punjab.</strong>
+        </div>
+
+        <div class="undertaking-paragraph">
+            The Parties may first attempt amicable resolution; failing
+            which, disputes may be referred to arbitration under the
+            Arbitration and Conciliation Act, 1996, with a sole arbitrator
+            appointed by the Company, seated in the above city.
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         8. MISCELLANEOUS
+    ========================================================== -->
+
+    <div class="undertaking-main-section">
+
+        <div class="undertaking-main-title">
+            8. Miscellaneous
+        </div>
+
+        <div class="undertaking-misc-list">
+
+            <div class="undertaking-misc-item">
+                <span class="undertaking-misc-label">•</span>
+
+                <span class="undertaking-misc-text">
+                    This Agreement constitutes the entire understanding
+                    between the Parties regarding confidentiality and
+                    supersedes all prior agreements.
+                </span>
+            </div>
+
+
+            <div class="undertaking-misc-item">
+                <span class="undertaking-misc-label">•</span>
+
+                <span class="undertaking-misc-text">
+                    Any amendment must be in writing and signed by both
+                    Parties.
+                </span>
+            </div>
+
+
+            <div class="undertaking-misc-item">
+                <span class="undertaking-misc-label">•</span>
+
+                <span class="undertaking-misc-text">
+                    If any provision is held invalid, the remainder shall
+                    continue in full force.
+                </span>
+            </div>
+
+
+            <div class="undertaking-misc-item">
+                <span class="undertaking-misc-label">•</span>
+
+                <span class="undertaking-misc-text">
+                    This Agreement may be executed in counterparts,
+                    including electronic (e.g., via DocuSign or Adobe Sign,
+                    which are recognized under the IT Act).
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         WITNESS / EXECUTION
+    ========================================================== -->
+
+    <div class="undertaking-witness-intro">
+
+        <strong>IN WITNESS WHEREOF,</strong> the Parties have executed this
+        Agreement on the date first above written.
+
+    </div>
+
+
+    <!-- =============================================================
+     UNDERTAKING EXECUTION / SIGNATURE SECTION
+============================================================= -->
+
+<div class="undertaking-execution">
+
+    <!-- =========================================================
+         COMPANY REPRESENTATIVE
+    ========================================================== -->
+
+    <div class="undertaking-execution-heading">
+        For and on behalf of Protalk Solutions Private Limited:
+    </div>
+
+
+    <div class="undertaking-signature-row">
+
+        <!-- NAME -->
+
+        <div class="undertaking-field-group undertaking-name-field">
+
+            <span class="undertaking-field-label">
+                Name:
+            </span>
+
+            <span class="undertaking-signature-line">
+                @Safe(interviewEvaluation.HRInterviewerName)
+            </span>
+
+        </div>
+
+
+        <!-- DESIGNATION -->
+
+        <div class="undertaking-field-group undertaking-designation-field">
+
+            <span class="undertaking-field-label">
+                Designation:
+            </span>
+
+            <span class="undertaking-signature-line">
+                @Safe(employee.Designation)
+            </span>
+
+        </div>
+
+
+        <!-- SIGNATURE -->
+
+        <div class="undertaking-field-group undertaking-signature-field">
+
+            <span class="undertaking-field-label">
+                Signature:
+            </span>
+
+            <span class="undertaking-signature-box">
+
+                @if (hrInterviewerSignature != null)
+                {
+                    var hrSignaturePath =
+                        GetDocumentFilePath(hrInterviewerSignature);
+
+                    if (!string.IsNullOrWhiteSpace(hrSignaturePath))
+                    {
+                        <img src="@hrSignaturePath"
+                             class="undertaking-execution-signature"
+                             alt="HR Signature" />
+                    }
+                }
+
+            </span>
+
+        </div>
+
+
+        <!-- DATE -->
+
+        <div class="undertaking-field-group undertaking-date-field">
+
+            <span class="undertaking-field-label">
+                Date:
+            </span>
+
+            <span class="undertaking-signature-line">
+                @FormatDate(interview.FinalDate)
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         EMPLOYEE
+    ========================================================== -->
+
+    <div class="undertaking-execution-subheading">
+        Employee
+    </div>
+
+
+    <div class="undertaking-signature-row">
+
+        <!-- EMPLOYEE NAME -->
+
+        <div class="undertaking-field-group undertaking-name-field">
+
+            <span class="undertaking-field-label">
+                Name:
+            </span>
+
+            <span class="undertaking-signature-line">
+                @Safe(employee.FullName)
+            </span>
+
+        </div>
+
+
+        <!-- EMPLOYEE DESIGNATION -->
+
+        <div class="undertaking-field-group undertaking-designation-field">
+
+            <span class="undertaking-field-label">
+                Designation:
+            </span>
+
+            <span class="undertaking-signature-line">
+                @Safe(employee.Designation)
+            </span>
+
+        </div>
+
+
+        <!-- EMPLOYEE SIGNATURE -->
+
+        <div class="undertaking-field-group undertaking-signature-field">
+
+            <span class="undertaking-field-label">
+                Signature:
+            </span>
+
+            <span class="undertaking-signature-box">
+
+                @if (signatureDocument != null)
+                {
+                    var signaturePath =
+                        GetDocumentFilePath(signatureDocument);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-execution-signature"
+                             alt="Employee Signature" />
+                    }
+                }
+
+            </span>
+
+        </div>
+
+
+        <!-- DATE -->
+
+        <div class="undertaking-field-group undertaking-date-field">
+
+            <span class="undertaking-field-label">
+                Date:
+            </span>
+
+            <span class="undertaking-signature-line">
+                 @FormatDate(employee.DeclarationDate)
+                @* Add your actual employee undertaking date property here *@
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         WITNESS 1
+    ========================================================== -->
+
+    <div class="undertaking-witness-section">
+
+        <div class="undertaking-witness-title">
+            Witness 1
+        </div>
+
+
+        <div class="undertaking-witness-row">
+
+            <div class="undertaking-witness-field witness-name">
+
+                <span class="undertaking-field-label">
+                    Name:
+                </span>
+
+                <span class="undertaking-witness-line"></span>
+
+            </div>
+
+
+            <div class="undertaking-witness-field witness-address">
+
+                <span class="undertaking-field-label">
+                    Address:
+                </span>
+
+                <span class="undertaking-witness-line"></span>
+
+            </div>
+
+
+            <div class="undertaking-witness-field witness-signature">
+
+                <span class="undertaking-field-label">
+                    Signature:
+                </span>
+
+                <span class="undertaking-witness-line"></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         WITNESS 2
+    ========================================================== -->
+
+    <div class="undertaking-witness-section">
+
+        <div class="undertaking-witness-title">
+            Witness 2
+        </div>
+
+
+        <div class="undertaking-witness-row">
+
+            <div class="undertaking-witness-field witness-name">
+
+                <span class="undertaking-field-label">
+                    Name:
+                </span>
+
+                <span class="undertaking-witness-line"></span>
+
+            </div>
+
+
+            <div class="undertaking-witness-field witness-address">
+
+                <span class="undertaking-field-label">
+                    Address:
+                </span>
+
+                <span class="undertaking-witness-line"></span>
+
+            </div>
+
+
+            <div class="undertaking-witness-field witness-signature">
+
+                <span class="undertaking-field-label">
+                    Signature:
+                </span>
+
+                <span class="undertaking-witness-line"></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <div class="page-footer">
+        Employment Form - Page 6
+    </div>
+
+</div>
+
+<!-- =============================================================
+     PAGE 5
      BANK / EPF / EPS / GRATUITY
 ============================================================= -->
 
@@ -4331,7 +6473,7 @@ padding-top: 5px;
 
     <div class="page-footer">
 
-        Employment Form - Page 4
+        Employment Form - Page 5
 
     </div>
 

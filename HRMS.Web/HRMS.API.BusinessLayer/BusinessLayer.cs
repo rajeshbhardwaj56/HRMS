@@ -14163,6 +14163,432 @@ row["OfficialEmail"]?.ToString();
             }
         }
 
+// =========================================================
+// APPROVE MULTIPLE EMPLOYEE ONBOARDING REQUESTS
+// =========================================================
+
+public Result ApproveEmployeeOnboarding(
+    List<string> keys)
+        {
+            Result model = new Result();
+
+            try
+            {
+                // =========================================================
+                // VALIDATION
+                // =========================================================
+
+                if (keys == null || keys.Count == 0)
+                {
+                    model.Message =
+                        "Please select at least one employee.";
+
+                    model.PKNo = 0;
+
+                    return model;
+                }
+
+
+                // =========================================================
+                // REMOVE NULL / EMPTY / DUPLICATE KEYS
+                // =========================================================
+
+                keys = keys
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+
+                // =========================================================
+                // VALIDATE CLEANED LIST
+                // =========================================================
+
+                if (keys.Count == 0)
+                {
+                    model.Message =
+                        "No valid onboarding records were selected.";
+
+                    model.PKNo = 0;
+
+                    return model;
+                }
+
+
+                // =========================================================
+                // PRIVATE KEY TVP
+                // =========================================================
+
+                DataTable keyTable = new DataTable();
+
+                keyTable.Columns.Add(
+                    "PrivateKey",
+                    typeof(string));
+
+
+                // =========================================================
+                // ADD SELECTED KEYS
+                // =========================================================
+
+                foreach (var key in keys)
+                {
+                    DataRow row =
+                        keyTable.NewRow();
+
+                    row["PrivateKey"] =
+                        key;
+
+                    keyTable.Rows.Add(row);
+                }
+
+
+                // =========================================================
+                // DEBUG
+                // =========================================================
+
+                System.Diagnostics.Debug.WriteLine(
+                    "================================================");
+
+                System.Diagnostics.Debug.WriteLine(
+                    "APPROVE EMPLOYEE ONBOARDING");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"Selected Records : {keys.Count}");
+
+                foreach (var key in keys)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"PrivateKey : {key}");
+                }
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"TVP Rows : {keyTable.Rows.Count}");
+
+                System.Diagnostics.Debug.WriteLine(
+                    "================================================");
+
+
+                // =========================================================
+                // SQL PARAMETERS
+                // =========================================================
+
+                List<SqlParameter> sqlParameter =
+                [
+                    // =====================================================
+                    // PRIVATE KEYS TVP
+                    // =====================================================
+
+                    new SqlParameter(
+                "@PrivateKeys",
+                SqlDbType.Structured)
+            {
+                TypeName =
+                    "dbo.EmployeeOnboardingPrivateKeyTVP",
+
+                Value =
+                    keyTable
+            },
+
+
+            // =====================================================
+            // APPROVE STATUS
+            // =====================================================
+
+            new SqlParameter(
+                "@Status",
+                SqlDbType.Int)
+            {
+                Value = 6
+            }
+                ];
+
+
+                // =========================================================
+                // EXECUTE STORED PROCEDURE
+                // =========================================================
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures
+                            .usp_BulkUpdateEmployeeOnboardingStatus,
+                        sqlParameter
+                    );
+
+
+                // =========================================================
+                // RESULT
+                // =========================================================
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row =
+                        dataSet.Tables[0].Rows[0];
+
+
+                    // =====================================================
+                    // MESSAGE
+                    // =====================================================
+
+                    model.Message =
+                        row.Table.Columns.Contains("Message") &&
+                        row["Message"] != DBNull.Value
+                            ? row["Message"].ToString()
+                            : "Selected employee(s) approved successfully.";
+
+
+                    // =====================================================
+                    // UPDATED COUNT
+                    // =====================================================
+
+                    model.PKNo =
+                        row.Table.Columns.Contains("UpdatedCount") &&
+                        row["UpdatedCount"] != DBNull.Value
+                            ? Convert.ToInt64(
+                                row["UpdatedCount"])
+                            : 0;
+                }
+                else
+                {
+                    model.Message =
+                        "Unable to approve the selected onboarding records.";
+
+                    model.PKNo = 0;
+                }
+
+
+                // =========================================================
+                // RETURN
+                // =========================================================
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.Message =
+                    ex.Message;
+
+                model.PKNo = 0;
+
+                return model;
+            }
+        }
+
+
+// =========================================================
+// REJECT MULTIPLE EMPLOYEE ONBOARDING REQUESTS
+// =========================================================
+
+public Result RejectEmployeeOnboarding(
+    List<string> keys)
+        {
+            Result model = new Result();
+
+            try
+            {
+                // =========================================================
+                // VALIDATION
+                // =========================================================
+
+                if (keys == null || keys.Count == 0)
+                {
+                    model.Message =
+                        "Please select at least one employee.";
+
+                    model.PKNo = 0;
+
+                    return model;
+                }
+
+
+                // =========================================================
+                // REMOVE NULL / EMPTY / DUPLICATE KEYS
+                // =========================================================
+
+                keys = keys
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+
+                // =========================================================
+                // VALIDATE CLEANED LIST
+                // =========================================================
+
+                if (keys.Count == 0)
+                {
+                    model.Message =
+                        "No valid onboarding records were selected.";
+
+                    model.PKNo = 0;
+
+                    return model;
+                }
+
+
+                // =========================================================
+                // PRIVATE KEY TVP
+                // =========================================================
+
+                DataTable keyTable = new DataTable();
+
+                keyTable.Columns.Add(
+                    "PrivateKey",
+                    typeof(string));
+
+
+                // =========================================================
+                // ADD SELECTED KEYS
+                // =========================================================
+
+                foreach (var key in keys)
+                {
+                    DataRow row =
+                        keyTable.NewRow();
+
+                    row["PrivateKey"] =
+                        key;
+
+                    keyTable.Rows.Add(row);
+                }
+
+
+                // =========================================================
+                // DEBUG
+                // =========================================================
+
+                System.Diagnostics.Debug.WriteLine(
+                    "================================================");
+
+                System.Diagnostics.Debug.WriteLine(
+                    "REJECT EMPLOYEE ONBOARDING");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"Selected Records : {keys.Count}");
+
+                foreach (var key in keys)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"PrivateKey : {key}");
+                }
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"TVP Rows : {keyTable.Rows.Count}");
+
+                System.Diagnostics.Debug.WriteLine(
+                    "================================================");
+
+
+                // =========================================================
+                // SQL PARAMETERS
+                // =========================================================
+
+                List<SqlParameter> sqlParameter =
+                [
+                    // =====================================================
+                    // PRIVATE KEYS TVP
+                    // =====================================================
+
+                    new SqlParameter(
+                "@PrivateKeys",
+                SqlDbType.Structured)
+            {
+                TypeName =
+                    "dbo.EmployeeOnboardingPrivateKeyTVP",
+
+                Value =
+                    keyTable
+            },
+
+
+            // =====================================================
+            // REJECT STATUS
+            // =====================================================
+
+            new SqlParameter(
+                "@Status",
+                SqlDbType.Int)
+            {
+                Value = 7
+            }
+                ];
+
+
+                // =========================================================
+                // EXECUTE STORED PROCEDURE
+                // =========================================================
+
+                DataSet dataSet =
+                    DataLayer.GetDataSetByStoredProcedure(
+                        StoredProcedures
+                            .usp_BulkUpdateEmployeeOnboardingStatus,
+                        sqlParameter
+                    );
+
+
+                // =========================================================
+                // RESULT
+                // =========================================================
+
+                if (dataSet != null &&
+                    dataSet.Tables.Count > 0 &&
+                    dataSet.Tables[0].Rows.Count > 0)
+                {
+                    DataRow row =
+                        dataSet.Tables[0].Rows[0];
+
+
+                    // =====================================================
+                    // MESSAGE
+                    // =====================================================
+
+                    model.Message =
+                        row.Table.Columns.Contains("Message") &&
+                        row["Message"] != DBNull.Value
+                            ? row["Message"].ToString()
+                            : "Selected employee(s) rejected successfully.";
+
+
+                    // =====================================================
+                    // UPDATED COUNT
+                    // =====================================================
+
+                    model.PKNo =
+                        row.Table.Columns.Contains("UpdatedCount") &&
+                        row["UpdatedCount"] != DBNull.Value
+                            ? Convert.ToInt64(
+                                row["UpdatedCount"])
+                            : 0;
+                }
+                else
+                {
+                    model.Message =
+                        "Unable to reject the selected onboarding records.";
+
+                    model.PKNo = 0;
+                }
+
+
+                // =========================================================
+                // RETURN
+                // =========================================================
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                model.Message =
+                    ex.Message;
+
+                model.PKNo = 0;
+
+                return model;
+            }
+        }
+
+
         #endregion EmployeeOnboarding
     }
 

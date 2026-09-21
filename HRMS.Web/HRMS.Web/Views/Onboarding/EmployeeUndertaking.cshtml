@@ -1,24 +1,8 @@
 ﻿@using HRMS.Models.EmployeeOnboarding
-@model EmployeeOnboardingPageViewModel
+@model EmployeeUndertakingModel
 
 @{
     Layout = null;
-
-    var employee = Model.EmployeeDetails
-                   ?? new EmployeeDetailsOnboardingModel();
-
-    var familyList = Model.FamilyList
-                     ?? new List<EmployeeOnboardingFamilyModel>();
-
-    var educationList = Model.EducationList
-                        ?? new List<EmployeeOnboardingEducationModel>();
-
-    var employmentList = Model.EmploymentList
-                         ?? new List<EmployeeOnboardingEmploymentModel>();
-
-    var profilePhoto = !string.IsNullOrEmpty(employee.EmployeePhoto)
-        ? employee.EmployeePhoto
-        : HRMS.Models.Common.Constants.NoImagePath;
 }
 
 <!DOCTYPE html>
@@ -29,386 +13,660 @@
     <meta charset="utf-8" />
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1" />
+          content="width=device-width, initial-scale=1.0" />
 
-    <title>Employee Onboarding</title>
+    <title>Employee Undertaking</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet" />
 
     <style>
+
+            /* =========================================================
+                       RESET
+                    ========================================================= */
 
             * {
                 box-sizing: border-box;
             }
 
+            html,
             body {
                 margin: 0;
                 padding: 0;
-                background: #f4f7fb;
-                font-family: Arial, Helvetica, sans-serif;
-                color: #263238;
             }
 
-            .onboarding-wrapper {
+            body {
+                background: #e5e5e5;
+                color: #000;
+                font-family: "Times New Roman", Times, serif;
+                font-size: 11px;
+            }
+
+
+            /* =========================================================
+                       PAGE WRAPPER
+                    ========================================================= */
+
+            .page-wrapper {
                 width: 100%;
-                padding: 30px 15px 50px;
+                padding: 25px 0;
             }
 
-            .onboarding-container {
-                max-width: 1500px;
+
+            /* =========================================================
+                       A4 DOCUMENT
+                    ========================================================= */
+
+            .undertaking-page {
+                width: 210mm;
+                min-height: 297mm;
                 margin: 0 auto;
-                background: #ffffff;
-                border-radius: 14px;
-                box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
-                overflow: hidden;
+                padding: 9mm 12mm 7mm 12mm;
+                background: #fff;
+                border: 1px solid #999;
+                box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
             }
 
-            /* =====================================================
-                       PROGRESS
-                    ====================================================== */
 
-            .progress-container {
-                width: 100%;
-                padding: 25px 25px 15px;
-                background: #ffffff;
-                border-bottom: 1px solid #e9edf3;
-                overflow-x: auto;
+            /* =========================================================
+                       HEADER
+                    ========================================================= */
+
+            .document-header {
+                display: grid;
+                grid-template-columns: 85px 1fr 150px;
+                align-items: center;
+                min-height: 58px;
+                padding-bottom: 7px;
+                border-bottom: 1px solid #000;
+                margin-bottom: 7px;
             }
 
-            .progress-steps {
-                min-width: 950px;
+
+            .logo-section {
                 display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                position: relative;
+                align-items: center;
+                justify-content: flex-start;
             }
 
-            .progress-line {
-                position: absolute;
-                top: 20px;
-                left: 5%;
-                right: 5%;
-                height: 3px;
-                background: #05397b;
-                z-index: 1;
+
+            .company-logo {
+                max-width: 70px;
+                max-height: 50px;
+                object-fit: contain;
             }
 
-            .step {
-                position: relative;
-                z-index: 2;
-                width: 12.5%;
+
+            .document-heading {
                 text-align: center;
             }
 
-            .step-circle {
-                width: 42px;
-                height: 42px;
-                border-radius: 50%;
-                margin: 0 auto 8px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background: #e9ecef;
-                color: #6c757d;
-                font-weight: 700;
-                border: 3px solid #ffffff;
-                box-shadow: 0 0 0 1px #dee2e6;
-            }
 
-            .step.active .step-circle {
-                background: #05397b;
-                color: #ffffff;
-                box-shadow: 0 0 0 1px #05397b;
-            }
-
-            .step-label {
-                font-size: 11px;
-                line-height: 1.3;
-                color: #555;
-                font-weight: 600;
-                padding: 0 5px;
-            }
-
-            .step.active .step-label {
-                color: #05397b;
-            }
-
-            /* =====================================================
-                       FORM CONTENT
-                    ====================================================== */
-
-            .form-content {
-                padding: 35px 40px 45px;
-            }
-
-            .form-title {
-                margin: 0;
-                font-size: 28px;
-                font-weight: 700;
-                color: #172b4d;
-            }
-
-            .form-subtitle {
-                margin: 8px 0 18px;
-                color: #6c757d;
-                font-size: 14px;
-            }
-
-            .required {
-                color: #dc3545;
-                font-weight: bold;
-            }
-
-            .info-box {
-                padding: 14px 18px;
-                background: #eef6ff;
-                border: 1px solid #cfe2ff;
-                border-radius: 8px;
-                color: #084298;
-                font-size: 13px;
-                margin-bottom: 25px;
-            }
-
-            /* =====================================================
-                       SECTION
-                    ====================================================== */
-
-            .section-title {
-                margin-top: 30px;
-                margin-bottom: 18px;
-                padding: 12px 15px;
-                border-left: 4px solid #05397b;
-                background: #f7f9fc;
-                color: #172b4d;
-                font-size: 17px;
-                font-weight: 700;
-                border-radius: 5px;
-            }
-
-            .form-group {
-                margin-bottom: 18px;
-            }
-
-            .form-label {
-                display: block;
-                margin-bottom: 7px;
-                font-size: 13px;
-                font-weight: 600;
-                color: #394867;
-            }
-
-            .form-control,
-            .form-select {
-                min-height: 42px;
-                border-radius: 6px;
-                border: 1px solid #d6dce5;
-                font-size: 13px;
-            }
-
-                .form-control:focus,
-                .form-select:focus {
-                    border-color: #05397b;
-                    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, .12);
+                .document-heading h2 {
+                    margin: 0;
+                    font-size: 16px;
+                    line-height: 19px;
+                    font-weight: bold;
+                    text-transform: uppercase;
                 }
 
-            textarea.form-control {
-                min-height: 90px;
-                resize: vertical;
+
+                .document-heading p {
+                    margin: 2px 0 0;
+                    font-size: 9px;
+                    line-height: 11px;
+                }
+
+
+            .document-info {
+                text-align: right;
+                font-size: 8.5px;
+                line-height: 13px;
             }
 
-            .readonly-field {
-                background: #f1f3f5 !important;
-                cursor: not-allowed;
+
+                .document-info strong {
+                    font-weight: bold;
+                }
+
+
+            /* =========================================================
+                       TITLE
+                    ========================================================= */
+
+            .document-title {
+                text-align: center;
+                font-size: 12px;
+                font-weight: bold;
+                text-decoration: underline;
+                margin: 4px 0 7px;
             }
 
-            /* =====================================================
-                       PHOTO
-                    ====================================================== */
 
-            .photo-preview {
-                width: 95px;
-                height: 110px;
-                object-fit: cover;
-                border-radius: 8px;
-                border: 1px solid #d8dee8;
-                background: #f8f9fa;
+            /* =========================================================
+                       EMPLOYEE DETAILS
+                    ========================================================= */
+
+            .employee-information {
+                width: 100%;
+                margin-bottom: 7px;
             }
 
-            .photo-upload-container {
+
+            .info-row {
                 display: flex;
-                align-items: center;
-                gap: 15px;
+                align-items: baseline;
+                width: 100%;
+                margin-bottom: 4px;
             }
 
-            /* =====================================================
-                       DYNAMIC CARD
-                    ====================================================== */
 
-            .dynamic-card {
-                background: #ffffff;
-                border: 1px solid #dee2e6;
-                border-radius: 10px;
-                padding: 20px;
-                margin-bottom: 18px;
-                box-shadow: 0 2px 7px rgba(0, 0, 0, .03);
+            .info-label {
+                white-space: nowrap;
+                font-weight: bold;
+                margin-right: 4px;
             }
 
-            .dynamic-card-header {
+
+            .info-input {
+                flex: 1;
+                min-width: 0;
+                height: 20px;
+                padding: 0 3px;
+                border: none;
+                border-bottom: 1px solid #000;
+                outline: none;
+                background: transparent;
+                color: #000;
+                font-family: "Times New Roman", Times, serif;
+                font-size: 11px;
+            }
+
+
+                .info-input:focus {
+                    border-bottom: 1px solid #000;
+                    outline: none;
+                    box-shadow: none;
+                }
+
+
+            .info-row-two {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                column-gap: 20px;
+            }
+
+
+                .info-row-two .info-row {
+                    margin-bottom: 4px;
+                }
+
+
+            /* =========================================================
+                       ADDRESS
+                    ========================================================= */
+
+            .address-row {
+                display: flex;
+                align-items: flex-start;
+                width: 100%;
+                margin-bottom: 4px;
+            }
+
+
+            .address-label {
+                width: 125px;
+                min-width: 125px;
+                font-weight: bold;
+                padding-top: 2px;
+            }
+
+
+            .document-textarea {
+                flex: 1;
+                min-width: 0;
+                min-height: 32px;
+                padding: 1px 3px;
+                resize: none;
+                outline: none;
+                border: none;
+                border-bottom: 1px solid #000;
+                background: transparent;
+                color: #000;
+                font-family: "Times New Roman", Times, serif;
+                font-size: 11px;
+                line-height: 14px;
+            }
+
+
+                .document-textarea:focus {
+                    border-bottom: 1px solid #000;
+                    outline: none;
+                    box-shadow: none;
+                }
+
+
+            /* =========================================================
+                       CONTACT
+                    ========================================================= */
+
+            .contact-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1.25fr;
+                gap: 12px;
+                margin-top: 2px;
+                margin-bottom: 7px;
+            }
+
+
+            .contact-item {
+                display: flex;
+                align-items: baseline;
+                min-width: 0;
+            }
+
+
+                .contact-item label {
+                    white-space: nowrap;
+                    font-weight: bold;
+                    font-size: 9.5px;
+                    margin-right: 3px;
+                }
+
+
+            .contact-input {
+                width: 100%;
+                min-width: 0;
+                height: 19px;
+                padding: 0 2px;
+                border: none;
+                border-bottom: 1px solid #000;
+                outline: none;
+                background: transparent;
+                color: #000;
+                font-family: "Times New Roman", Times, serif;
+                font-size: 10px;
+            }
+
+
+            /* =========================================================
+                       INTRODUCTION
+                    ========================================================= */
+
+            .intro-text {
+                margin-top: 4px;
+                margin-bottom: 6px;
+                font-size: 10.5px;
+                line-height: 14px;
+                text-align: justify;
+            }
+
+
+            /* =========================================================
+                       DOCUMENT INLINE VALUES
+                    ========================================================= */
+
+            .document-value {
+                display: inline;
+                min-width: 50px;
+                padding: 0 2px;
+                border-bottom: 1px solid #000;
+                font-weight: normal;
+                word-break: break-word;
+            }
+
+
+                .document-value:empty::after {
+                    content: "________________";
+                }
+
+
+            .document-value-address {
+                display: inline;
+                padding: 0 2px;
+                border-bottom: 1px solid #000;
+                word-break: break-word;
+            }
+
+
+                .document-value-address:empty::after {
+                    content: "____________________________";
+                }
+
+
+            /* =========================================================
+                       UNDERTAKING HEADING
+                    ========================================================= */
+
+            .undertaking-heading {
+                text-align: center;
+                font-size: 12px;
+                font-weight: bold;
+                text-decoration: underline;
+                margin: 5px 0 6px;
+            }
+
+
+            /* =========================================================
+                       UNDERTAKING LIST
+                    ========================================================= */
+
+            .undertaking-list {
+                margin: 0;
+                padding-left: 21px;
+            }
+
+
+                .undertaking-list li {
+                    padding-left: 3px;
+                    margin-bottom: 4px;
+                    font-size: 9.5px;
+                    line-height: 13.2px;
+                    text-align: justify;
+                }
+
+
+            /* =========================================================
+                       DECLARATION
+                    ========================================================= */
+
+            .declaration-box {
+                margin-top: 7px;
+                margin-bottom: 7px;
+            }
+
+
+            .declaration-line {
+                display: flex;
+                align-items: flex-start;
+                gap: 5px;
+                font-size: 9.5px;
+                line-height: 13px;
+                text-align: justify;
+            }
+
+
+            .declaration-checkbox {
+                width: 13px;
+                height: 13px;
+                flex: 0 0 13px;
+                margin-top: 0;
+            }
+
+
+            /* =========================================================
+                       SIGNATURE SECTION
+                    ========================================================= */
+
+            .signature-section {
+                margin-top: 9px;
+                padding-top: 4px;
+            }
+
+
+            .signature-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+
+
+                .signature-table td {
+                    vertical-align: bottom;
+                    padding: 4px 3px;
+                    font-size: 10px;
+                }
+
+
+            .signature-label {
+                width: 180px;
+                font-weight: bold;
+                white-space: nowrap;
+            }
+
+
+            .signature-value {
+                width: 230px;
+                height: 30px;
+                border-bottom: 1px solid #000;
+            }
+
+
+            .signature-date-label {
+                width: 40px;
+                padding-left: 15px !important;
+                font-weight: bold;
+                white-space: nowrap;
+            }
+
+
+            .signature-date {
+                width: 105px;
+                height: 30px;
+                border-bottom: 1px solid #000;
+            }
+
+
+            /* =========================================================
+                       SIGNATURE IMAGE
+                    ========================================================= */
+
+            .signature-image {
+                display: block;
+                max-width: 150px;
+                max-height: 35px;
+                object-fit: contain;
+                margin-bottom: -3px;
+            }
+
+
+            /* =========================================================
+                       SIGNATURE UPLOAD
+                    ========================================================= */
+
+            .signature-upload {
+                margin-top: 2px;
+            }
+
+
+            .signature-upload-label {
+                display: block;
+                margin-bottom: 2px;
+                font-family: Arial, sans-serif;
+                font-size: 8.5px;
+            }
+
+
+            .signature-upload input[type="file"] {
+                width: 100%;
+                font-family: Arial, sans-serif;
+                font-size: 8px;
+            }
+
+
+            /* =========================================================
+                       FOOTER
+                    ========================================================= */
+
+            .document-footer {
+                margin-top: 6px;
+                padding-top: 4px;
+                border-top: 1px solid #000;
+                text-align: center;
+                font-size: 7.5px;
+            }
+
+
+            /* =========================================================
+                       ACTION BUTTONS
+                    ========================================================= */
+
+            .action-bar {
+                width: 210mm;
+                margin: 15px auto 0;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 18px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #edf0f3;
+                font-family: Arial, sans-serif;
             }
 
-            .dynamic-card-title {
-                font-weight: 700;
-                color: #172b4d;
-                font-size: 14px;
-            }
 
-            .btn-add {
-                border: 0;
-                background: #e7f1ff;
-                color: #05397b;
-                font-size: 12px;
-                font-weight: 600;
-                padding: 7px 13px;
-                border-radius: 6px;
-            }
-
-                .btn-add:hover {
-                    background: #d7e8ff;
-                }
-
-            .btn-remove {
-                border: 0;
-                background: #fff0f0;
-                color: #dc3545;
-                font-size: 12px;
-                padding: 6px 12px;
-                border-radius: 5px;
-            }
-
-                .btn-remove:hover {
-                    background: #ffe0e0;
-                }
-
-            /* =====================================================
-                       DOCUMENT
-                    ====================================================== */
-
-            .document-card {
-                border: 1px solid #e0e5eb;
-                padding: 15px;
-                border-radius: 8px;
-                background: #fafbfd;
-            }
-
-            /* =====================================================
-                       DECLARATION
-                    ====================================================== */
-
-            .declaration-box {
-                padding: 20px;
-                border: 1px solid #dce3eb;
-                border-radius: 10px;
-                background: #fafbfd;
-            }
-
-            /* =====================================================
-                       FOOTER
-                    ====================================================== */
-
-            .form-footer {
-                margin-top: 35px;
-                padding-top: 25px;
-                border-top: 1px solid #e8ecf1;
+            .action-left,
+            .action-right {
                 display: flex;
-                justify-content: flex-end;
-                gap: 12px;
+                gap: 8px;
             }
 
-            .btn-primary-custom,
-            .btn-secondary-custom {
-                border: 0;
-                min-width: 180px;
-                padding: 11px 20px;
-                border-radius: 7px;
-                font-size: 13px;
-                font-weight: 600;
+
+            .action-button {
+                min-width: 100px;
+                border: none;
+                border-radius: 4px;
+                padding: 9px 15px;
                 cursor: pointer;
+                font-family: Arial, sans-serif;
+                font-size: 12px;
             }
 
-            .btn-primary-custom {
-                background: #05397b;
-                color: #ffffff;
-            }
 
-                .btn-primary-custom:hover {
-                    background: #0b5ed7;
-                }
-
-            .btn-secondary-custom {
+            .btn-back {
                 background: #6c757d;
-                color: #ffffff;
+                color: #fff;
             }
 
-                .btn-secondary-custom:hover {
-                    background: #5c636a;
-                }
 
-                .btn-primary-custom:disabled,
-                .btn-secondary-custom:disabled {
-                    opacity: .65;
-                    cursor: not-allowed;
-                }
-
-            /* =====================================================
-                       ALERT
-                    ====================================================== */
-
-            #formMessage {
-                display: none;
-                margin-bottom: 20px;
+            .btn-save {
+                background: #198754;
+                color: #fff;
             }
 
-            /* =====================================================
-                       RESPONSIVE
-                    ====================================================== */
 
-            @@media (max-width: 768px) {
+            .btn-continue {
+                background: #0d6efd;
+                color: #fff;
+            }
 
-                .onboarding-wrapper {
+
+            .btn-print {
+                background: #212529;
+                color: #fff;
+            }
+
+
+            .action-button:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+
+            /* =========================================================
+                       MOBILE
+                    ========================================================= */
+
+            @@media (max-width: 900px) {
+
+                body {
+                    background: #fff;
+                }
+
+                .page-wrapper {
                     padding: 0;
                 }
 
-                .onboarding-container {
-                    border-radius: 0;
-                }
-
-                .form-content {
-                    padding: 25px 18px;
-                }
-
-                .form-title {
-                    font-size: 22px;
-                }
-
-                .photo-upload-container {
-                    align-items: flex-start;
-                    flex-direction: column;
-                }
-
-                .form-footer {
-                    flex-direction: column;
-                }
-
-                .btn-primary-custom,
-                .btn-secondary-custom {
+                .undertaking-page {
                     width: 100%;
+                    min-height: auto;
+                    margin: 0;
+                    padding: 15px;
+                    border: none;
+                    box-shadow: none;
+                }
+
+                .document-header {
+                    grid-template-columns: 65px 1fr 100px;
+                }
+
+                .info-row-two {
+                    grid-template-columns: 1fr;
+                }
+
+                .contact-grid {
+                    grid-template-columns: 1fr;
+                    gap: 5px;
+                }
+
+                .action-bar {
+                    width: 100%;
+                    padding: 10px 15px;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+
+                .action-left,
+                .action-right {
+                    width: 100%;
+                }
+
+                .action-button {
+                    flex: 1;
+                }
+            }
+
+
+            /* =========================================================
+                       PRINT
+                    ========================================================= */
+
+            @@media print {
+
+                @@page {
+                    size: A4 portrait;
+                    margin: 7mm;
+                }
+
+                html,
+                body {
+                    width: 210mm;
+                    min-height: 297mm;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    background: #fff !important;
+                }
+
+                .page-wrapper {
+                    width: 100%;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .undertaking-page {
+                    width: 100%;
+                    min-height: 0;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                    box-shadow: none;
+                }
+
+                .action-bar,
+                .no-print,
+                .signature-upload {
+                    display: none !important;
+                }
+
+                input,
+                textarea {
+                    color: #000 !important;
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                }
+
+                .undertaking-list li {
+                    break-inside: avoid;
+                }
+
+                .signature-section {
+                    break-inside: avoid;
                 }
             }
 
@@ -416,3492 +674,1518 @@
 
 </head>
 
+
 <body>
 
-    <div class="onboarding-wrapper">
 
-        <div class="onboarding-container">
+    <div class="page-wrapper">
+
+
+        <!-- =========================================================
+         A4 DOCUMENT
+    ========================================================= -->
+
+        <div class="undertaking-page"
+             id="undertakingDocument">
+
 
             <!-- =====================================================
-             PROGRESS
-        ====================================================== -->
+             HEADER
+        ===================================================== -->
 
-            <div class="progress-container">
+            <div class="document-header">
 
-                <div class="progress-steps">
 
-                    <div class="progress-line"></div>
+                <!-- LOGO -->
 
-                    <div class="step active">
-                        <div class="step-circle">1</div>
-                        <div class="step-label">Personal</div>
+                <div class="logo-section">
+
+                    <img src="~/assets/img/logo/PROTALKLOGO.png"
+                         class="company-logo"
+                         alt="ProTalk Logo" />
+
+                </div>
+
+
+                <!-- TITLE -->
+
+                <div class="document-heading">
+
+                    <h2>
+                        Employee Undertaking
+                    </h2>
+
+                    <p>
+                        Employee Undertaking Form
+                    </p>
+
+                </div>
+
+
+                <!-- RELEASE -->
+
+                <div class="document-info">
+
+                    <div>
+                        <strong>Release:</strong> 1.4
                     </div>
 
-                    <div class="step active">
-                        <div class="step-circle">2</div>
-                        <div class="step-label">
-                            Employee Undertaking
-                        </div>
-                    </div>
-
-                    <div class="step active">
-                        <div class="step-circle">3</div>
-                        <div class="step-label">
-                            Non-Disclosure Agreement
-                        </div>
-                    </div>
-
-                    <div class="step active">
-                        <div class="step-circle">4</div>
-                        <div class="step-label">
-                            IT Compliance Agreement
-                        </div>
-                    </div>
-
-                    <div class="step active">
-                        <div class="step-circle">5</div>
-                        <div class="step-label">
-                            Employee Background Verification
-                        </div>
-                    </div>
-
-                    <div class="step active">
-                        <div class="step-circle">6</div>
-                        <div class="step-label">
-                            Nomination
-                        </div>
-                    </div>
-
-                    <div class="step active">
-                        <div class="step-circle">7</div>
-                        <div class="step-label">
-                            Form 2 Revised
-                        </div>
-                    </div>
-
-                    <div class="step active">
-                        <div class="step-circle">8</div>
-                        <div class="step-label">
-                            Declaration Form
-                        </div>
+                    <div>
+                        <strong>Release Date:</strong> 20.04.2026
                     </div>
 
                 </div>
+
 
             </div>
 
 
             <!-- =====================================================
-             FORM CONTENT
-        ====================================================== -->
+             FORM
+        ===================================================== -->
 
-            <div class="form-content">
-
-                <h1 class="form-title">
-                    Employee Onboarding Form
-                </h1>
-
-                <p class="form-subtitle">
-                    Please provide your complete employment and personal
-                    information. Fields marked with
-                    <span class="required">*</span>
-                    are mandatory.
-                </p>
-
-                <div class="info-box">
-
-                    Please ensure that all information provided is correct.
-                    You can save the form and continue later.
-
-                </div>
-
-                <div id="formMessage"></div>
+            <form id="employeeUndertakingForm"
+                  method="post"
+                  enctype="multipart/form-data">
 
 
                 <!-- =================================================
-                 FORM
-            ================================================== -->
-
-                <form id="employeeOnboardingForm"
-                      method="post"
-                      enctype="multipart/form-data"
-                      novalidate>
-
-                    <input type="hidden"
-                           id="OnboardingID"
-                           name="OnboardingID"
-                           value="@Model.OnboardingID" />
-
-                    <input type="hidden"
-                           id="EmployeeDetailsOnboardingID"
-                           name="EmployeeDetailsOnboardingID"
-                           value="@employee.EmployeeDetailsOnboardingID" />
-
-                    <input type="hidden"
-                           name="Key"
-                           value="@Model.Key" />
-
-
-                    <!-- =================================================
-                     EMPLOYMENT DETAILS
-                ================================================== -->
-
-                    <div class="section-title">
-                        Employment Details
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-3">
-
-                            <div class="form-group">
-
-                                <label class="form-label">
-                                    Date of Joining
-                                </label>
-
-                                <input type="date"
-                                       class="form-control"
-                                       name="DateOfJoining"
-                                       value="@(employee.DateOfJoining.HasValue
-                                                                       ? employee.DateOfJoining.Value.ToString("yyyy-MM-dd")
-                                                                   : DateTime.Today.ToString("yyyy-MM-dd"))" />
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <div class="form-group">
-
-                                <label class="form-label">
-                                    Designation
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="Designation"
-                                       value="@employee.Designation" />
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <div class="form-group">
-
-                                <label class="form-label">
-                                    Employee Code
-                                </label>
-
-                                <input type="text"
-                                       class="form-control readonly-field"
-                                       value="@employee.EmployeeCode"
-                                       readonly />
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-
-                                Employee Photo
-
-                                <span class="required">*</span>
-
-                            </label>
-
-                            <div class="photo-upload-container">
-
-                                <img id="employeePhotoPreview"
-                                     src="@profilePhoto"
-                                     class="photo-preview"
-                                     alt="Employee Photo"
-                                     onerror="this.onerror=null;this.src='@HRMS.Models.Common.Constants.NoImagePath'" />
-
-                                <div style="flex:1;">
-
-                                    <input type="file"
-                                           class="form-control"
-                                           id="EmployeePhotoFile"
-                                           name="EmployeePhotoFile"
-                                           accept="image/jpeg,image/png,image/jpg"
-                                           onchange="showPreview(event)"
-                                    @(string.IsNullOrEmpty(employee.EmployeePhoto)
-                                        ? "required"
-                                        : "") />
-
-                                    <small class="text-muted">
-
-                                        JPG or PNG only.
-                                        Maximum size: 2 MB.
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                     PERSONAL DETAILS
-                ================================================== -->
-
-                    <div class="section-title">
-                        Personal Details
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Employee Name
-                            </label>
-
-                            <input type="text"
-                                   class="form-control readonly-field"
-                                   value="@employee.FullName"
-                                   readonly />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-
-                                Father's / Husband's Name
-
-                                <span class="required">*</span>
-
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="FatherHusbandName"
-                                   value="@employee.FatherHusbandName"
-                                   required />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-
-                                Date of Birth
-
-                                <span class="required">*</span>
-
-                            </label>
-
-                            <input type="date"
-                                   class="form-control"
-                                   name="DateOfBirth"
-                                   value="@(employee.DateOfBirth.HasValue
-                                                               ? employee.DateOfBirth.Value.ToString("yyyy-MM-dd")
-                                                           : "")"
-                                   required />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-
-                                Gender
-
-                                <span class="required">*</span>
-
-                            </label>
-
-                            <select class="form-select"
-                                    name="Gender"
-                                    required>
-
-                                <option value="">
-                                    Select Gender
-                                </option>
-
-                                <option value="Male"
-                                        selected="@(employee.Gender == "Male")">
-                                    Male
-                                </option>
-
-                                <option value="Female"
-                                        selected="@(employee.Gender == "Female")">
-                                    Female
-                                </option>
-
-                                <option value="Other"
-                                        selected="@(employee.Gender == "Other")">
-                                    Other
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Marital Status
-                            </label>
-
-                            <select class="form-select"
-                                    name="MaritalStatus">
-
-                                <option value="">
-                                    Select Status
-                                </option>
-
-                                <option value="Married"
-                                        selected="@(employee.MaritalStatus == "Married")">
-                                    Married
-                                </option>
-
-                                <option value="Unmarried"
-                                        selected="@(employee.MaritalStatus == "Unmarried")">
-                                    Unmarried
-                                </option>
-
-                                <option value="Divorced"
-                                        selected="@(employee.MaritalStatus == "Divorced")">
-                                    Divorced
-                                </option>
-
-                                <option value="Widowed"
-                                        selected="@(employee.MaritalStatus == "Widowed")">
-                                    Widowed
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Blood Group
-                            </label>
-
-                            <select class="form-select"
-                                    name="BloodGroup">
-
-                                <option value="">
-                                    Select Blood Group
-                                </option>
-
-                                @foreach (var bloodGroup in new[]
-                                {
-                                "A+", "A-", "B+", "B-",
-                                "O+", "O-", "AB+", "AB-"
-                            })
-                                {
-                                    <option value="@bloodGroup"
-                                            selected="@(employee.BloodGroup == bloodGroup)">
-                                        @bloodGroup
-                                    </option>
-                                }
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                     PERMANENT ADDRESS
-                ================================================== -->
-
-                    <div class="section-title">
-                        Permanent Address
-                    </div>
-
-                    <div class="form-group">
-
-                        <label class="form-label">
-
-                            Address
-
-                            <span class="required">*</span>
-
-                        </label>
-
-                        <textarea class="form-control"
-                                  name="PermanentAddress"
-                                  required>@employee.PermanentAddress</textarea>
-
-                    </div>
-
-
-                    <div class="row">
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                City
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="PermanentCity"
-                                   value="@employee.PermanentCity" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                State
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="PermanentState"
-                                   value="@employee.PermanentState" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                PIN Code
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="PermanentPINCode"
-                                   value="@employee.PermanentPINCode"
-                                   maxlength="6"
-                                   inputmode="numeric" />
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                     PRESENT ADDRESS
-                ================================================== -->
-
-                    <div class="section-title">
-
-                        Present Address
-
-                        <div class="form-check float-end"
-                             style="font-size:12px;">
-
-                            <input class="form-check-input"
-                                   type="checkbox"
-                                   id="sameAddress" />
-
-                            <label class="form-check-label"
-                                   for="sameAddress">
-
-                                Same as permanent address
-
-                            </label>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label class="form-label">
-                            Address
-                        </label>
-
-                        <textarea class="form-control"
-                                  id="PresentAddress"
-                                  name="PresentAddress">@employee.PresentAddress</textarea>
-
-                    </div>
-
-
-                    <div class="row">
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                City
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   id="PresentCity"
-                                   name="PresentCity"
-                                   value="@employee.PresentCity" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                State
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   id="PresentState"
-                                   name="PresentState"
-                                   value="@employee.PresentState" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                PIN Code
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   id="PresentPINCode"
-                                   name="PresentPINCode"
-                                   value="@employee.PresentPINCode"
-                                   maxlength="6"
-                                   inputmode="numeric" />
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                     CONTACT
-                ================================================== -->
-
-                    <div class="section-title">
-                        Contact Information
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Mobile Number
-                            </label>
-
-                            <input type="text"
-                                   class="form-control readonly-field"
-                                   value="@employee.Mobile"
-                                   readonly />
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Email
-                            </label>
-
-                            <input type="email"
-                                   class="form-control readonly-field"
-                                   value="@employee.Email"
-                                   readonly />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Landline Number
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="LandlineNo"
-                                   value="@employee.LandlineNo" />
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                     EMERGENCY CONTACT
-                ================================================== -->
-
-                    <div class="section-title">
-                        Emergency Contact Details
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-
-                                Contact Name
-
-                                <span class="required">*</span>
-
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EmergencyContactName"
-                                   value="@employee.EmergencyContactName"
-                                   required />
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-
-                                Relation
-
-                                <span class="required">*</span>
-
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EmergencyContactRelation"
-                                   value="@employee.EmergencyContactRelation"
-                                   required />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-
-                                Mobile Number
-
-                                <span class="required">*</span>
-
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EmergencyContactMobile"
-                                   value="@employee.EmergencyContactMobile"
-                                   maxlength="10"
-                                   inputmode="numeric"
-                                   required />
-
-                        </div>
-
-
-                        <div class="col-md-8">
-
-                            <label class="form-label">
-                                Address
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EmergencyContactAddress"
-                                   value="@employee.EmergencyContactAddress" />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                City
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EmergencyContactCity"
-                                   value="@employee.EmergencyContactCity" />
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                     SOURCE OF HIRING
-                ================================================== -->
-
-                    <div class="section-title">
-                        Source of Hiring
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-12">
-
-                            @foreach (var source in new[]
-                            {
-                            "Placement Consultant",
-                            "Employee Reference",
-                            "Office Walk-in",
-                            "Employment Exchange"
-                        })
-                            {
-                                var radioId = "source_" +
-                                              source.Replace(" ", "")
-                                                    .Replace("-", "");
-
-                                <div class="form-check form-check-inline">
-
-                                    <input class="form-check-input"
-                                           type="radio"
-                                           name="SourceOfHiring"
-                                           id="@radioId"
-                                           value="@source"
-                                           checked="@(employee.SourceOfHiring == source)" />
-
-                                    <label class="form-check-label"
-                                           for="@radioId">
-
-                                        @source
-
-                                    </label>
-
-                                </div>
-                            }
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                     REFERENCES
-                ================================================== -->
-
-                    <div class="section-title">
-                        References
-                    </div>
-
-
-                    <h6>
-                        Reference 1
-                    </h6>
-
-                    <div class="row">
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Name
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="Reference1Name"
-                                   value="@employee.Reference1Name" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Designation
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="Reference1Designation"
-                                   value="@employee.Reference1Designation" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Company
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="Reference1Company"
-                                   value="@employee.Reference1Company" />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Mobile Number
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="Reference1Mobile"
-                                   maxlength="10"
-                                   inputmode="numeric"
-                                   value="@employee.Reference1Mobile" />
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Email
-                            </label>
-
-                            <input type="email"
-                                   class="form-control"
-                                   name="Reference1Email"
-                                   value="@employee.Reference1Email" />
-
-                        </div>
-
-                    </div>
-
-
-                    <h6 class="mt-4">
-                        Reference 2
-                    </h6>
-
-                    <div class="row">
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Name
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="Reference2Name"
-                                   value="@employee.Reference2Name" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Designation
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="Reference2Designation"
-                                   value="@employee.Reference2Designation" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Company
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="Reference2Company"
-                                   value="@employee.Reference2Company" />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Mobile Number
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="Reference2Mobile"
-                                   maxlength="10"
-                                   inputmode="numeric"
-                                   value="@employee.Reference2Mobile" />
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Email
-                            </label>
-
-                            <input type="email"
-                                   class="form-control"
-                                   name="Reference2Email"
-                                   value="@employee.Reference2Email" />
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                     FAMILY DETAILS
-                ================================================== -->
-
-                    <div class="section-title">
-
-                        <span>
-                            Family Details
-                        </span>
-
-                        <button type="button"
-                                class="btn-add float-end"
-                                onclick="addFamily()">
-
-                            + Add Family Member
-
-                        </button>
-
-                    </div>
-
-
-                    <div id="familyContainer">
-
-                        @if (familyList.Any())
-                        {
-                            for (int i = 0; i < familyList.Count; i++)
-                            {
-                                var family = familyList[i];
-
-                                <div class="dynamic-card family-row">
-
-                                    <div class="dynamic-card-header">
-
-                                        <div class="dynamic-card-title">
-                                            Family Member @(i + 1)
-                                        </div>
-
-                                        <button type="button"
-                                                class="btn-remove"
-                                                onclick="removeRow(this)">
-
-                                            Remove
-
-                                        </button>
-
-                                    </div>
-
-
-                                    <input type="hidden"
-                                           name="FamilyList[@i].FamilyID"
-                                           value="@family.FamilyID" />
-
-                                    <input type="hidden"
-                                           name="FamilyList[@i].OnboardingID"
-                                           value="@Model.OnboardingID" />
-
-
-                                    <div class="row">
-
-                                        <div class="col-md-3">
-
-                                            <label class="form-label">
-                                                Relation
-                                            </label>
-
-                                            <input type="text"
-                                                   class="form-control"
-                                                   name="FamilyList[@i].Relation"
-                                                   value="@family.Relation" />
-
-                                        </div>
-
-
-                                        <div class="col-md-3">
-
-                                            <label class="form-label">
-                                                Name
-                                            </label>
-
-                                            <input type="text"
-                                                   class="form-control"
-                                                   name="FamilyList[@i].Name"
-                                                   value="@family.Name" />
-
-                                        </div>
-
-
-                                        <div class="col-md-2">
-
-                                            <label class="form-label">
-                                                Gender
-                                            </label>
-
-                                            <select class="form-select"
-                                                    name="FamilyList[@i].Gender">
-
-                                                <option value="">
-                                                    Select
-                                                </option>
-
-                                                <option value="Male"
-                                                        selected="@(family.Gender == "Male")">
-                                                    Male
-                                                </option>
-
-                                                <option value="Female"
-                                                        selected="@(family.Gender == "Female")">
-                                                    Female
-                                                </option>
-
-                                                <option value="Other"
-                                                        selected="@(family.Gender == "Other")">
-                                                    Other
-                                                </option>
-
-                                            </select>
-
-                                        </div>
-
-
-                                        <div class="col-md-2">
-
-                                            <label class="form-label">
-                                                Age
-                                            </label>
-
-                                            <input type="text"
-                                                   class="form-control"
-                                                   name="FamilyList[@i].Age"
-                                                   value="@family.Age" />
-
-                                        </div>
-
-
-                                        <div class="col-md-2">
-
-                                            <label class="form-label">
-                                                Occupation
-                                            </label>
-
-                                            <input type="text"
-                                                   class="form-control"
-                                                   name="FamilyList[@i].Occupation"
-                                                   value="@family.Occupation" />
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="row mt-3">
-
-                                        <div class="col-md-3">
-
-                                            <label class="form-label">
-                                                Date of Birth
-                                            </label>
-
-                                            <input type="date"
-                                                   class="form-control"
-                                                   name="FamilyList[@i].DateOfBirth"
-                                                   value="@(family.DateOfBirth.HasValue
-                                                                                               ? family.DateOfBirth.Value.ToString("yyyy-MM-dd")
-                                                                                           : "")" />
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-                                Dependent
-                            </label>
-
-                            <select class="form-select"
-                                    name="FamilyList[@i].IsDependent">
-
-                                <option value="true"
-                                        selected="@(family.IsDependent == true)">
-                                    Yes
-                                </option>
-
-                                <option value="false"
-                                        selected="@(family.IsDependent != true)">
-                                    No
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-                </div>
-            }
-        }
-                    else
-        {
-            <div class="dynamic-card family-row">
-
-                <div class="dynamic-card-header">
-
-                    <div class="dynamic-card-title">
-                        Family Member 1
-                    </div>
-
-                    <button type="button"
-                            class="btn-remove"
-                            onclick="removeRow(this)">
-
-                        Remove
-
-                    </button>
-
-                </div>
-
+                 HIDDEN IDs
+            ================================================= -->
 
                 <input type="hidden"
-                       name="FamilyList[0].FamilyID"
-                       value="0" />
-
-                <input type="hidden"
-                       name="FamilyList[0].OnboardingID"
+                       name="OnboardingID"
                        value="@Model.OnboardingID" />
 
-
-                <div class="row">
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Relation
-                        </label>
-
-                        <input type="text"
-                               class="form-control"
-                               name="FamilyList[0].Relation" />
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Name
-                        </label>
-
-                        <input type="text"
-                               class="form-control"
-                               name="FamilyList[0].Name" />
-
-                    </div>
-
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            Gender
-                        </label>
-
-                        <select class="form-select"
-                                name="FamilyList[0].Gender">
-
-                            <option value="">
-                                Select
-                            </option>
-
-                            <option value="Male">
-                                Male
-                            </option>
-
-                            <option value="Female">
-                                Female
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            Age
-                        </label>
-
-                        <input type="text"
-                               class="form-control"
-                               name="FamilyList[0].Age" />
-
-                    </div>
-
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            Occupation
-                        </label>
-
-                        <input type="text"
-                               class="form-control"
-                               name="FamilyList[0].Occupation" />
-
-                    </div>
-
-                </div>
-
-
-                <div class="row mt-3">
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Date of Birth
-                        </label>
-
-                        <input type="date"
-                               class="form-control"
-                               name="FamilyList[0].DateOfBirth" />
-
-                    </div>
-
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Dependent
-                        </label>
-
-                        <select class="form-select"
-                                name="FamilyList[0].IsDependent">
-
-                            <option value="true">
-                                Yes
-                            </option>
-
-                            <option value="false">
-                                No
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-            </div>
-        }
-
-    </div>
-
-
-    <!-- =================================================
-                     EDUCATION
-                ================================================== -->
-
-    <div class="section-title">
-
-        <span>
-            Education Details
-        </span>
-
-        <button type="button"
-                class="btn-add float-end"
-                onclick="addEducation()">
-
-            + Add Education
-
-        </button>
-
-    </div>
-
-
-    <div id="educationContainer">
-
-        @if (educationList.Any())
-        {
-            for (int i = 0; i < educationList.Count; i++)
-            {
-                var education = educationList[i];
-
-                <div class="dynamic-card education-row">
-
-                    <div class="dynamic-card-header">
-
-                        <div class="dynamic-card-title">
-                            Education @(i + 1)
-                        </div>
-
-                        <button type="button"
-                                class="btn-remove"
-                                onclick="removeRow(this)">
-
-                            Remove
-
-                        </button>
-
-                    </div>
-
-
-                    <input type="hidden"
-                           name="EducationList[@i].EducationID"
-                           value="@education.EducationID" />
-
-
-                    <div class="row">
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-                                Education Level
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EducationList[@i].EducationLevel"
-                                   value="@education.EducationLevel" />
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-                                Stream
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EducationList[@i].Stream"
-                                   value="@education.Stream" />
-
-                        </div>
-
-
-                        <div class="col-md-2">
-
-                            <label class="form-label">
-                                Passing Year
-                            </label>
-
-                            <input type="number"
-                                   class="form-control"
-                                   name="EducationList[@i].PassingYear"
-                                   value="@education.PassingYear" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Institution
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EducationList[@i].InstitutionName"
-                                   value="@education.InstitutionName" />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Board / University
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EducationList[@i].BoardUniversity"
-                                   value="@education.BoardUniversity" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Marks Obtained
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EducationList[@i].MarksObtained"
-                                   value="@education.MarksObtained" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Major Subjects
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EducationList[@i].MajorSubjects"
-                                   value="@education.MajorSubjects" />
-
-                        </div>
-
-                    </div>
-
-                </div>
-            }
-        }
-        else
-        {
-            <div class="dynamic-card education-row">
-
-                <div class="dynamic-card-header">
-
-                    <div class="dynamic-card-title">
-                        Education 1
-                    </div>
-
-                    <button type="button"
-                            class="btn-remove"
-                            onclick="removeRow(this)">
-
-                        Remove
-
-                    </button>
-
-                </div>
-
-
                 <input type="hidden"
-                       name="EducationList[0].EducationID"
-                       value="0" />
+                       name="EmployeeUndertakingID"
+                       value="@Model.EmployeeUndertakingID" />
 
 
-                <div class="row">
+                <!-- =================================================
+                 DOCUMENT TITLE
+            ================================================= -->
 
-                    <div class="col-md-3">
+                <div class="document-title">
 
-                        <label class="form-label">
-                            Education Level
-                        </label>
+                    EMPLOYEE UNDERTAKING / DECLARATION
+
+                </div>
+
+
+                <!-- =================================================
+                 EMPLOYEE DETAILS
+            ================================================= -->
+
+                <div class="employee-information">
+
+
+                    <!-- EMPLOYEE NAME -->
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Employee Name:
+                        </span>
 
                         <input type="text"
-                               class="form-control"
-                               name="EducationList[0].EducationLevel" />
+                               id="EmployeeName"
+                               class="info-input"
+                               name="EmployeeName"
+                               value="@Model.EmployeeName"
+                               required />
 
                     </div>
 
 
-                    <div class="col-md-3">
+                    <!-- FATHER / HUSBAND -->
 
-                        <label class="form-label">
-                            Stream
-                        </label>
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Father / Husband Name:
+                        </span>
 
                         <input type="text"
-                               class="form-control"
-                               name="EducationList[0].Stream" />
+                               id="FatherHusbandName"
+                               class="info-input"
+                               name="FatherHusbandName"
+                               value="@Model.FatherHusbandName" />
 
                     </div>
 
 
-                    <div class="col-md-2">
+                    <!-- EMPLOYEE CODE / DESIGNATION -->
 
-                        <label class="form-label">
-                            Passing Year
-                        </label>
+                    <div class="info-row-two">
 
-                        <input type="number"
-                               class="form-control"
-                               name="EducationList[0].PassingYear" />
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Employee Code:
+                            </span>
+
+                            <input type="text"
+                                   id="EmployeeCode"
+                                   class="info-input"
+                                   name="EmployeeCode"
+                                   value="@Model.EmployeeCode" />
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Designation:
+                            </span>
+
+                            <input type="text"
+                                   id="Designation"
+                                   class="info-input"
+                                   name="Designation"
+                                   value="@Model.Designation" />
+
+                        </div>
+
 
                     </div>
 
 
-                    <div class="col-md-4">
+                    <!-- PERMANENT ADDRESS -->
 
-                        <label class="form-label">
-                            Institution
+                    <div class="address-row">
+
+                        <div class="address-label">
+                            Permanent Address:
+                        </div>
+
+                        <textarea id="PermanentAddress"
+                                  class="document-textarea"
+                                  name="PermanentAddress"
+                                  rows="2">@Model.PermanentAddress</textarea>
+
+                    </div>
+
+
+                    <!-- PRESENT ADDRESS -->
+
+                    <div class="address-row">
+
+                        <div class="address-label">
+                            Present / Residential Address:
+                        </div>
+
+                        <textarea id="PresentAddress"
+                                  class="document-textarea"
+                                  name="PresentAddress"
+                                  rows="2">@Model.PresentAddress</textarea>
+
+                    </div>
+
+
+                    <!-- CONTACT NUMBERS -->
+
+                    <div class="contact-grid">
+
+
+                        <!-- EMPLOYEE -->
+
+                        <div class="contact-item">
+
+                            <label>
+                                Contact No.:
+                            </label>
+
+                            <input type="text"
+                                   id="EmployeeContactNo"
+                                   class="contact-input"
+                                   name="EmployeeContactNo"
+                                   value="@Model.EmployeeContactNo"
+                                   maxlength="15" />
+
+                        </div>
+
+
+                        <!-- FATHER -->
+
+                        <div class="contact-item">
+
+                            <label>
+                                Father's Contact:
+                            </label>
+
+                            <input type="text"
+                                   id="FatherContactNo"
+                                   class="contact-input"
+                                   name="FatherContactNo"
+                                   value="@Model.FatherContactNo"
+                                   maxlength="15" />
+
+                        </div>
+
+
+                        <!-- OTHER -->
+
+                        <div class="contact-item">
+
+                            <label>
+                                Alternate Contact:
+                            </label>
+
+                            <input type="text"
+                                   id="MotherBrotherSisterContactNo"
+                                   class="contact-input"
+                                   name="MotherBrotherSisterContactNo"
+                                   value="@Model.MotherBrotherSisterContactNo"
+                                   maxlength="15" />
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================================
+                 INTRODUCTION
+            ================================================= -->
+
+                <div class="intro-text">
+
+                    I,
+                    <span id="displayEmployeeName"
+                          class="document-value">@Model.EmployeeName</span>,
+
+                    resident of
+
+                    <span id="displayPresentAddress"
+                          class="document-value-address">@Model.PresentAddress</span>
+
+                    do hereby solemnly declare and undertake / promise to
+                    follow the following terms and conditions during the
+                    course of my training and employment at ProTalk Solutions
+                    Pvt. Ltd.
+
+                </div>
+
+
+                <!-- =================================================
+                 UNDERTAKING HEADING
+            ================================================= -->
+
+                <div class="undertaking-heading">
+
+                    EMPLOYEE UNDERTAKING
+
+                </div>
+
+
+                <!-- =================================================
+                 UNDERTAKING CLAUSES
+            ================================================= -->
+
+                <ol class="undertaking-list">
+
+
+                    <!-- =================================================
+                     1
+                ================================================= -->
+
+                    <li>
+
+                        That I am a citizen/resident of India and I am presently
+                        residing at
+
+                        <span id="displayPresentAddressClause1"
+                              class="document-value-address">@Model.PresentAddress</span>
+
+                        and I am presently undergoing training and/or employment
+                        with ProTalk Solutions Pvt. Ltd.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     2
+                ================================================= -->
+
+                    <li>
+
+                        I further declare that my permanent address is
+
+                        <span id="displayPermanentAddressClause2"
+                              class="document-value-address">@Model.PermanentAddress</span>
+
+                        and my contact number is
+
+                        <span id="displayEmployeeContactClause2"
+                              class="document-value">@Model.EmployeeContactNo</span>.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     3
+                ================================================= -->
+
+                    <li>
+
+                        That during the course of my employment if there is any
+                        change in the Permanent / Present address I will intimate
+                        the same to the company in writing within 3 days of such change.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     4
+                ================================================= -->
+
+                    <li>
+
+                        I do hereby declare that there is no police case registered
+                        or pending against me in any police station and nor are any
+                        criminal/legal proceedings going on against me in any court.
+                        In case this statement is found to be incorrect my services
+                        may be terminated and I may be blacklisted by the Company.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     5
+                ================================================= -->
+
+                    <li>
+
+                        That I do not indulge in any activity which may lead to
+                        getting involved in any criminal / legal proceedings or may
+                        lead to damage to the image / reputation of the Company.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     6
+                ================================================= -->
+
+                    <li>
+
+                        That I would neither report to office nor board the office
+                        cab under the influence of alcohol, intoxicants or illegal drugs.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     7
+                ================================================= -->
+
+                    <li>
+
+                        That, not to misuse the customer's / Company's property
+                        or resources and I will not touch the customer in my personal
+                        capacity for any reason.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     8
+                ================================================= -->
+
+                    <li>
+
+                        I have been provided access to various systems /
+                        applications / resources of the Company. I agree to use
+                        such access only for authorized business purposes and to
+                        protect all confidential information.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     9
+                ================================================= -->
+
+                    <li>
+
+                        That I will not indulge in any sort of illegal misuse of
+                        the facilities provided by the client for myself or any of
+                        my acquaintances, whether it involves provisioning of
+                        packs, recharging coupons, billing, discounting, providing
+                        vouchers, special promotional schemes, misuse of software,
+                        ID's etc.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     10
+                ================================================= -->
+
+                    <li>
+
+                        That during the training period and my employment with
+                        the Company, I will abide by the Company's rules and
+                        regulations including all applicable policies and procedures.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     11
+                ================================================= -->
+
+                    <li>
+
+                        I will not take my personal cell phone or use it on the
+                        floor. I agree that no personal cell phone shall be carried
+                        during the working hours unless specifically permitted
+                        by management.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     12
+                ================================================= -->
+
+                    <li>
+
+                        I will abide by the Company's Code of Conduct Policy and
+                        User Acceptable Policy, which have been shared by HR during
+                        induction and have been understood by me.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     13
+                ================================================= -->
+
+                    <li>
+
+                        That the training, if payable to me, will be released only
+                        in the subsequent month of the completion of training and
+                        successful certification as per the training fee payout cycle.
+
+                    </li>
+
+
+                    <!-- =================================================
+                     14
+                ================================================= -->
+
+                    <li>
+
+                        I further declare that the above undertakings have been
+                        made by me of my own free will and under no pressure or
+                        coercion from any quarter. In the event of my being found
+                        to be delinquent on account of any of the above undertakings
+                        or any of my acts of omission/commission, by virtue of which
+                        the Company's reputation is at stake or the Company suffers
+                        any kind of loss, the Company shall be at liberty to resort
+                        to any type of disciplinary/legal action against me.
+
+                    </li>
+
+
+                </ol>
+
+
+                <!-- =================================================
+                 DECLARATION
+            ================================================= -->
+
+                <div class="declaration-box">
+
+                    <div class="declaration-line">
+
+
+                        <input type="checkbox"
+                               class="declaration-checkbox"
+                               id="undertakingAccepted"
+                               name="IsSubmitted"
+                               value="true"
+                               required />
+
+
+                        <label for="undertakingAccepted">
+
+                            I have read and understood the above undertaking
+                            and agree to comply with the terms and conditions
+                            stated above. I confirm that the information furnished
+                            by me is true and correct to the best of my knowledge.
+
                         </label>
 
-                        <input type="text"
-                               class="form-control"
-                               name="EducationList[0].InstitutionName" />
 
                     </div>
 
                 </div>
 
 
-                <div class="row mt-3">
+                <!-- =================================================
+                 SIGNATURE SECTION
+            ================================================= -->
 
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Board / University
-                        </label>
-
-                        <input type="text"
-                               class="form-control"
-                               name="EducationList[0].BoardUniversity" />
-
-                    </div>
+                <div class="signature-section">
 
 
-                    <div class="col-md-4">
-
-                        <label class="form-label">
-                            Marks Obtained
-                        </label>
-
-                        <input type="text"
-                               class="form-control"
-                               name="EducationList[0].MarksObtained" />
-
-                    </div>
+                    <table class="signature-table">
 
 
-                    <div class="col-md-4">
+                        <!-- =================================================
+                         EMPLOYEE SIGNATURE DISPLAY
+                    ================================================= -->
 
-                        <label class="form-label">
-                            Major Subjects
-                        </label>
+                        <tr>
 
-                        <input type="text"
-                               class="form-control"
-                               name="EducationList[0].MajorSubjects" />
 
-                    </div>
+                            <td class="signature-label">
+
+                                Employee Name &amp; Signature:
+
+                            </td>
+
+
+                            <td class="signature-value"
+                                id="employeeSignatureDisplay">
+
+
+                                @if (!string.IsNullOrEmpty(Model.EmployeeSignaturePath))
+                                {
+                                    <img src="@Model.EmployeeSignaturePath"
+                                         class="signature-image"
+                                         alt="Employee Signature" />
+                                }
+
+
+                            </td>
+
+
+                            <td class="signature-date-label">
+
+                                Date:
+
+                            </td>
+
+
+                            <td class="signature-date">
+
+
+                                @if (Model.EmployeeSignatureDate.HasValue)
+                                {
+                                    @Model.EmployeeSignatureDate.Value.ToString("dd-MM-yyyy")
+                                }
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                        <!-- =================================================
+                         EMPLOYEE SIGNATURE INPUT
+                    ================================================= -->
+
+                        <tr class="no-print">
+
+
+                            <td colspan="2">
+
+
+                                <div class="signature-upload">
+
+
+                                    <span class="signature-upload-label">
+
+                                        Upload Employee Signature
+
+                                    </span>
+
+
+                                    <input type="file"
+                                           name="EmployeeSignatureFile"
+                                           id="EmployeeSignatureFile"
+                                           accept=".jpg,.jpeg,.png" />
+
+
+                                </div>
+
+
+                            </td>
+
+
+                            <td colspan="2">
+
+
+                                <div class="signature-upload">
+
+
+                                    <span class="signature-upload-label">
+
+                                        Employee Signature Date
+
+                                    </span>
+
+
+                                    <input type="date"
+                                           class="info-input"
+                                           style="width:100%;"
+                                           name="EmployeeSignatureDate"
+                                           value="@(Model.EmployeeSignatureDate?.ToString("yyyy-MM-dd"))" />
+
+
+                                </div>
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                        <!-- =================================================
+                         HR SIGNATURE DISPLAY
+                    ================================================= -->
+
+                        <tr>
+
+
+                            <td class="signature-label">
+
+                                HR Name &amp; Signature:
+
+                            </td>
+
+
+                            <td class="signature-value"
+                                id="hrSignatureDisplay">
+
+
+                                @if (!string.IsNullOrEmpty(Model.HRSignaturePath))
+                                {
+                                    <img src="@Model.HRSignaturePath"
+                                         class="signature-image"
+                                         alt="HR Signature" />
+                                }
+
+
+                            </td>
+
+
+                            <td class="signature-date-label">
+
+                                Date:
+
+                            </td>
+
+
+                            <td class="signature-date">
+
+
+                                @if (Model.HRSignatureDate.HasValue)
+                                {
+                                    @Model.HRSignatureDate.Value.ToString("dd-MM-yyyy")
+                                }
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                        <!-- =================================================
+                         HR INPUTS
+                    ================================================= -->
+
+                        <tr class="no-print">
+
+
+                            <td colspan="2">
+
+
+                                <div class="signature-upload">
+
+
+                                    <span class="signature-upload-label">
+
+                                        HR Name
+
+                                    </span>
+
+
+                                    <input type="text"
+                                           id="HRName"
+                                           class="info-input"
+                                           style="width:100%;"
+                                           name="HRName"
+                                           value="@Model.HRName"
+                                           placeholder="Enter HR Name" />
+
+
+                                </div>
+
+
+                            </td>
+
+
+                            <td colspan="2">
+
+
+                                <div class="signature-upload">
+
+
+                                    <span class="signature-upload-label">
+
+                                        Upload HR Signature
+
+                                    </span>
+
+
+                                    <input type="file"
+                                           name="HRSignatureFile"
+                                           id="HRSignatureFile"
+                                           accept=".jpg,.jpeg,.png" />
+
+
+                                </div>
+
+
+                                <div class="signature-upload">
+
+
+                                    <span class="signature-upload-label">
+
+                                        HR Signature Date
+
+                                    </span>
+
+
+                                    <input type="date"
+                                           class="info-input"
+                                           style="width:100%;"
+                                           name="HRSignatureDate"
+                                           value="@(Model.HRSignatureDate?.ToString("yyyy-MM-dd"))" />
+
+
+                                </div>
+
+
+                            </td>
+
+
+                        </tr>
+
+
+                    </table>
+
 
                 </div>
 
-            </div>
-        }
 
-    </div>
+                <!-- =================================================
+                 FOOTER
+            ================================================= -->
 
+                <div class="document-footer">
 
-    <!-- =================================================
-                     PREVIOUS EMPLOYMENT
-                ================================================== -->
+                    ProTalk Solutions Pvt. Ltd.
+                    &nbsp; | &nbsp;
+                    Employee Undertaking
+                    &nbsp; | &nbsp;
+                    Release 1.4
 
-    <div class="section-title">
-
-        <span>
-            Previous Employment Details
-        </span>
-
-        <button type="button"
-                class="btn-add float-end"
-                onclick="addEmployment()">
-
-            + Add Employment
-
-        </button>
-
-    </div>
+                </div>
 
 
-    <div id="employmentContainer">
+            </form>
 
-        @if (employmentList.Any())
-        {
-            for (int i = 0; i < employmentList.Count; i++)
-            {
-                var employment = employmentList[i];
-
-                <div class="dynamic-card employment-row">
-
-                    <div class="dynamic-card-header">
-
-                        <div class="dynamic-card-title">
-                            Employment @(i + 1)
-                        </div>
-
-                        <button type="button"
-                                class="btn-remove"
-                                onclick="removeRow(this)">
-
-                            Remove
-
-                        </button>
-
-                    </div>
-
-
-                    <input type="hidden"
-                           name="EmploymentList[@i].EmploymentID"
-                           value="@employment.EmploymentID" />
-
-
-                    <div class="row">
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-                                Employer Name
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EmploymentList[@i].EmployerName"
-                                   value="@employment.EmployerName" />
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-                                Designation
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EmploymentList[@i].Designation"
-                                   value="@employment.Designation" />
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-                                Reporting To
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   name="EmploymentList[@i].ReportingTo"
-                                   value="@employment.ReportingTo" />
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-                                Annual CTC
-                            </label>
-
-                            <input type="number"
-                                   step="0.01"
-                                   class="form-control"
-                                   name="EmploymentList[@i].AnnualCTC"
-                                   value="@employment.AnnualCTC" />
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-
-                        <div class="col-md-3">
-
-                            <label class="form-label">
-                                From Date
-                            </label>
-
-                            <input type="date"
-                                   class="form-control"
-                                   name="EmploymentList[@i].FromDate"
-                                   value="@(employment.FromDate.HasValue
-                                                                               ? employment.FromDate.Value.ToString("yyyy-MM-dd")
-                                                                           : "")" />
 
         </div>
 
 
-        <div class="col-md-3">
+        <!-- =========================================================
+         ACTION BUTTONS
+    ========================================================= -->
 
-            <label class="form-label">
-                To Date
-            </label>
-
-            <input type="date"
-                   class="form-control"
-                   name="EmploymentList[@i].ToDate"
-                   value="@(employment.ToDate.HasValue
-                                                               ? employment.ToDate.Value.ToString("yyyy-MM-dd")
-                                                           : "")" />
-
-        </div>
+        <div class="action-bar no-print">
 
 
-        <div class="col-md-6">
+            <!-- BACK -->
 
-            <label class="form-label">
-                Employer Address
-            </label>
+            <div class="action-left">
 
-            <input type="text"
-                   class="form-control"
-                   name="EmploymentList[@i].EmployerAddress"
-                   value="@employment.EmployerAddress" />
+                <button type="button"
+                        class="action-button btn-back"
+                        onclick="goBack()">
 
-        </div>
+                    ← Back
 
-    </div>
-
-</div>
-                        }
-                    }
-                    else
-{
-    <div class="dynamic-card employment-row">
-
-        <div class="dynamic-card-header">
-
-            <div class="dynamic-card-title">
-                Employment 1
-            </div>
-
-            <button type="button"
-                    class="btn-remove"
-                    onclick="removeRow(this)">
-
-                Remove
-
-            </button>
-
-        </div>
-
-
-        <input type="hidden"
-               name="EmploymentList[0].EmploymentID"
-               value="0" />
-
-
-        <div class="row">
-
-            <div class="col-md-3">
-
-                <label class="form-label">
-                    Employer Name
-                </label>
-
-                <input type="text"
-                       class="form-control"
-                       name="EmploymentList[0].EmployerName" />
+                </button>
 
             </div>
 
 
-            <div class="col-md-3">
+            <!-- RIGHT -->
 
-                <label class="form-label">
-                    Designation
-                </label>
+            <div class="action-right">
 
-                <input type="text"
-                       class="form-control"
-                       name="EmploymentList[0].Designation" />
+
+                <button type="button"
+                        class="action-button btn-print"
+                        onclick="printDocument()">
+
+                    🖨 Print
+
+                </button>
+
+
+                <button type="button"
+                        class="action-button btn-save"
+                        onclick="saveForm(false)">
+
+                    Save
+
+                </button>
+
+
+                <button type="button"
+                        class="action-button btn-continue"
+                        onclick="saveForm(true)">
+
+                    Save &amp; Continue →
+
+                </button>
+
 
             </div>
 
 
-            <div class="col-md-3">
-
-                <label class="form-label">
-                    Reporting To
-                </label>
-
-                <input type="text"
-                       class="form-control"
-                       name="EmploymentList[0].ReportingTo" />
-
-            </div>
-
-
-            <div class="col-md-3">
-
-                <label class="form-label">
-                    Annual CTC
-                </label>
-
-                <input type="number"
-                       step="0.01"
-                       class="form-control"
-                       name="EmploymentList[0].AnnualCTC" />
-
-            </div>
-
         </div>
 
 
-        <div class="row mt-3">
-
-            <div class="col-md-3">
-
-                <label class="form-label">
-                    From Date
-                </label>
-
-                <input type="date"
-                       class="form-control"
-                       name="EmploymentList[0].FromDate" />
-
-            </div>
-
-
-            <div class="col-md-3">
-
-                <label class="form-label">
-                    To Date
-                </label>
-
-                <input type="date"
-                       class="form-control"
-                       name="EmploymentList[0].ToDate" />
-
-            </div>
-
-
-            <div class="col-md-6">
-
-                <label class="form-label">
-                    Employer Address
-                </label>
-
-                <input type="text"
-                       class="form-control"
-                       name="EmploymentList[0].EmployerAddress" />
-
-            </div>
-
-        </div>
-
-    </div>
-}
-
-</div>
-
-
-<!-- =================================================
-                     DOCUMENTS
-                ================================================== -->
-
-<div class="section-title">
-    Documents
-</div>
-
-<div class="row">
-
-    <div class="col-md-4">
-
-        <div class="document-card">
-
-            <label class="form-label">
-                Passport
-            </label>
-
-            <input type="text"
-                   class="form-control"
-                   name="PassportNumber"
-                   value="@employee.PassportNumber" />
-
-        </div>
-
     </div>
 
 
-    <div class="col-md-4">
+    <script>
 
-        <div class="document-card">
 
-            <label class="form-label">
-                PAN Number
-            </label>
+            /* =========================================================
+               HELPER - SET DISPLAY VALUE
+            ========================================================= */
 
-            <input type="text"
-                   class="form-control"
-                   name="PANNumber"
-                   value="@employee.PANNumber" />
+            function setDisplayValue(elementId, value) {
 
-        </div>
+                const element =
+                    document.getElementById(elementId);
 
-    </div>
 
+                if (!element) {
 
-    <div class="col-md-4">
-
-        <div class="document-card">
-
-            <label class="form-label">
-                Aadhaar Number
-            </label>
-
-            <input type="text"
-                   class="form-control"
-                   name="AadhaarNumber"
-                   value="@employee.AadhaarNumber" />
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =================================================
-                     PREVIOUS INTERVIEW
-                ================================================== -->
-
-<div class="section-title">
-    Previous Interview Details
-</div>
-
-<div class="row">
-
-    <div class="col-md-3">
-
-        <label class="form-label">
-            Previously Interviewed?
-        </label>
-
-        <select class="form-select"
-                name="PreviouslyInterviewed">
-
-            <option value="">
-                Select
-            </option>
-
-            <option value="true"
-                    selected="@(employee.PreviouslyInterviewed == true)">
-                Yes
-            </option>
-
-            <option value="false"
-                    selected="@(employee.PreviouslyInterviewed == false)">
-                No
-            </option>
-
-        </select>
-
-    </div>
-
-
-    <div class="col-md-3">
-
-        <label class="form-label">
-            Interview Date
-        </label>
-
-        <input type="date"
-               class="form-control"
-               name="PreviousInterviewDate"
-               value="@(employee.PreviousInterviewDate.HasValue
-                                           ? employee.PreviousInterviewDate.Value.ToString("yyyy-MM-dd")
-                                       : "")" />
-
-    </div>
-
-
-    <div class="col-md-3">
-
-        <label class="form-label">
-            Interview Place
-        </label>
-
-        <input type="text"
-               class="form-control"
-               name="PreviousInterviewPlace"
-               value="@employee.PreviousInterviewPlace" />
-
-    </div>
-
-
-    <div class="col-md-3">
-
-        <label class="form-label">
-            Position Applied
-        </label>
-
-        <input type="text"
-               class="form-control"
-               name="PreviousPositionApplied"
-               value="@employee.PreviousPositionApplied" />
-
-    </div>
-
-</div>
-
-
-<!-- =================================================
-                     PREVIOUS WORK
-                ================================================== -->
-
-<div class="section-title">
-    Previous Work Information
-</div>
-
-<div class="row">
-
-    <div class="col-md-3">
-
-        <label class="form-label">
-            Previously Worked?
-        </label>
-
-        <select class="form-select"
-                name="PreviouslyWorked">
-
-            <option value="">
-                Select
-            </option>
-
-            <option value="true"
-                    selected="@(employee.PreviouslyWorked == true)">
-                Yes
-            </option>
-
-            <option value="false"
-                    selected="@(employee.PreviouslyWorked == false)">
-                No
-            </option>
-
-        </select>
-
-    </div>
-
-
-    <div class="col-md-3">
-
-        <label class="form-label">
-            From Date
-        </label>
-
-        <input type="date"
-               class="form-control"
-               name="PreviousWorkFromDate"
-               value="@(employee.PreviousWorkFromDate.HasValue
-                                           ? employee.PreviousWorkFromDate.Value.ToString("yyyy-MM-dd")
-                                       : "")" />
-
-    </div>
-
-
-    <div class="col-md-3">
-
-        <label class="form-label">
-            To Date
-        </label>
-
-        <input type="date"
-               class="form-control"
-               name="PreviousWorkToDate"
-               value="@(employee.PreviousWorkToDate.HasValue
-                                           ? employee.PreviousWorkToDate.Value.ToString("yyyy-MM-dd")
-                                       : "")" />
-
-    </div>
-
-
-    <div class="col-md-3">
-
-        <label class="form-label">
-            Work Location
-        </label>
-
-        <input type="text"
-               class="form-control"
-               name="PreviousWorkLocation"
-               value="@employee.PreviousWorkLocation" />
-
-    </div>
-
-</div>
-
-
-<!-- =================================================
-                     CRIMINAL / CIVIL
-                ================================================== -->
-
-<div class="section-title">
-    Criminal / Civil Proceedings
-</div>
-
-<div class="row">
-
-    <div class="col-md-4">
-
-        <label class="form-label">
-            Any Criminal / Civil Proceedings?
-        </label>
-
-        <select class="form-select"
-                name="HaveCriminalCivilProceedings">
-
-            <option value="">
-                Select
-            </option>
-
-            <option value="true"
-                    selected="@(employee.HaveCriminalCivilProceedings == true)">
-                Yes
-            </option>
-
-            <option value="false"
-                    selected="@(employee.HaveCriminalCivilProceedings == false)">
-                No
-            </option>
-
-        </select>
-
-    </div>
-
-</div>
-
-
-<div class="row mt-3">
-
-    <div class="col-md-12">
-
-        <label class="form-label">
-            Details
-        </label>
-
-        <textarea class="form-control"
-                  name="CriminalCivilProceedingsDetails">@employee.CriminalCivilProceedingsDetails</textarea>
-
-    </div>
-
-</div>
-
-
-<!-- =================================================
-                     OTHER INFORMATION
-                ================================================== -->
-
-<div class="section-title">
-    Other Information
-</div>
-
-<textarea class="form-control"
-          name="OtherInformation">@employee.OtherInformation</textarea>
-
-
-<!-- =================================================
-                     DECLARATION
-                ================================================== -->
-
-<div class="section-title">
-    Declaration
-</div>
-
-<div class="declaration-box">
-
-    <p style="font-size:13px; line-height:1.7;">
-
-        I hereby declare that the information provided by me
-        in this employee onboarding form is true and correct
-        to the best of my knowledge and belief. I understand
-        that any incorrect or misleading information may
-        result in appropriate action.
-
-    </p>
-
-
-    <div class="form-check mb-3">
-
-        <input class="form-check-input"
-               type="checkbox"
-               id="declarationAccepted"
-               required />
-
-        <label class="form-check-label"
-               for="declarationAccepted">
-
-            I confirm that the above information is correct.
-
-            <span class="required">*</span>
-
-        </label>
-
-    </div>
-
-
-    <div class="row">
-
-        <div class="col-md-4">
-
-            <label class="form-label">
-                Declaration Date
-            </label>
-
-            <input type="date"
-                   class="form-control"
-                   name="DeclarationDate"
-                   value="@(employee.DeclarationDate.HasValue
-                                                   ? employee.DeclarationDate.Value.ToString("yyyy-MM-dd")
-                                               : DateTime.Today.ToString("yyyy-MM-dd"))" />
-
-        </div>
-
-
-        <div class="col-md-4">
-
-            <label class="form-label">
-                Declaration Place
-            </label>
-
-            <input type="text"
-                   class="form-control"
-                   name="DeclarationPlace"
-                   value="@employee.DeclarationPlace" />
-
-        </div>
-
-
-        <div class="col-md-4">
-
-            <label class="form-label">
-                Employee Signature
-            </label>
-
-            <input type="file"
-                   class="form-control"
-                   id="EmployeeSignature"
-                   name="EmployeeSignature"
-                   accept="image/jpeg,image/png,image/jpg" />
-
-            <small class="text-muted">
-                JPG or PNG only. Maximum size: 2 MB.
-            </small>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =================================================
-                     FOOTER
-                ================================================== -->
-
-<div class="form-footer">
-
-    <button type="button"
-            id="btnSaveLater"
-            class="btn-secondary-custom"
-            onclick="saveForm(false)">
-
-        Save & Continue Later
-
-    </button>
-
-
-    <button type="button"
-            id="btnSubmit"
-            class="btn-primary-custom"
-            onclick="saveForm(true)">
-
-        Save & Submit
-
-    </button>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-
-<script>
-
-        /* =========================================================
-           GLOBAL COUNTERS
-        ========================================================= */
-
-        let familyIndex =
-            document.querySelectorAll("#familyContainer .family-row").length;
-
-        let educationIndex =
-            document.querySelectorAll("#educationContainer .education-row").length;
-
-        let employmentIndex =
-            document.querySelectorAll("#employmentContainer .employment-row").length;
-
-
-        /* =========================================================
-           PHOTO PREVIEW
-        ========================================================= */
-
-        function showPreview(event) {
-
-            const input = event.target;
-
-            if (!input.files || input.files.length === 0) {
-                return;
-            }
-
-            const file = input.files[0];
-
-            const allowedTypes = [
-                "image/jpeg",
-                "image/jpg",
-                "image/png"
-            ];
-
-            if (!allowedTypes.includes(file.type)) {
-
-                alert("Only JPG and PNG images are allowed.");
-
-                input.value = "";
-
-                return;
-            }
-
-            if (file.size > 2 * 1024 * 1024) {
-
-                alert("Employee photo must not exceed 2 MB.");
-
-                input.value = "";
-
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-
-                document.getElementById(
-                    "employeePhotoPreview"
-                ).src = e.target.result;
-
-            };
-
-            reader.readAsDataURL(file);
-        }
-
-
-        /* =========================================================
-           SAME ADDRESS
-        ========================================================= */
-
-        document.getElementById("sameAddress")
-            .addEventListener("change", function() {
-
-                const checked = this.checked;
-
-                if (checked) {
-
-                    document.getElementById("PresentAddress").value =
-                        document.querySelector(
-                            '[name="PermanentAddress"]'
-                        ).value;
-
-                    document.getElementById("PresentCity").value =
-                        document.querySelector(
-                            '[name="PermanentCity"]'
-                        ).value;
-
-                    document.getElementById("PresentState").value =
-                        document.querySelector(
-                            '[name="PermanentState"]'
-                        ).value;
-
-                    document.getElementById("PresentPINCode").value =
-                        document.querySelector(
-                            '[name="PermanentPINCode"]'
-                        ).value;
+                    return;
 
                 }
 
-            });
 
+                element.textContent =
+                    value && value.trim()
+                        ? value
+                        : "";
 
-        /* =========================================================
-           FAMILY
-        ========================================================= */
-
-        function addFamily() {
-
-            const container =
-                document.getElementById("familyContainer");
-
-            const index = familyIndex++;
-
-            const html = `
-
-                    <div class="dynamic-card family-row">
-
-                        <div class="dynamic-card-header">
-
-                            <div class="dynamic-card-title">
-                                Family Member ${index + 1}
-                            </div>
-
-                            <button type="button"
-                                    class="btn-remove"
-                                    onclick="removeRow(this)">
-
-                                Remove
-
-                            </button>
-
-                        </div>
-
-                        <input type="hidden"
-                               name="FamilyList[${index}].FamilyID"
-                               value="0" />
-
-                        <input type="hidden"
-                               name="FamilyList[${index}].OnboardingID"
-                               value="${document.getElementById("OnboardingID").value}" />
-
-                        <div class="row">
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Relation
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="FamilyList[${index}].Relation" />
-
-                            </div>
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Name
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="FamilyList[${index}].Name" />
-
-                            </div>
-
-                            <div class="col-md-2">
-
-                                <label class="form-label">
-                                    Gender
-                                </label>
-
-                                <select class="form-select"
-                                        name="FamilyList[${index}].Gender">
-
-                                    <option value="">
-                                        Select
-                                    </option>
-
-                                    <option value="Male">
-                                        Male
-                                    </option>
-
-                                    <option value="Female">
-                                        Female
-                                    </option>
-
-                                    <option value="Other">
-                                        Other
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            <div class="col-md-2">
-
-                                <label class="form-label">
-                                    Age
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="FamilyList[${index}].Age" />
-
-                            </div>
-
-                            <div class="col-md-2">
-
-                                <label class="form-label">
-                                    Occupation
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="FamilyList[${index}].Occupation" />
-
-                            </div>
-
-                        </div>
-
-                        <div class="row mt-3">
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Date of Birth
-                                </label>
-
-                                <input type="date"
-                                       class="form-control"
-                                       name="FamilyList[${index}].DateOfBirth" />
-
-                            </div>
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Dependent
-                                </label>
-
-                                <select class="form-select"
-                                        name="FamilyList[${index}].IsDependent">
-
-                                    <option value="true">
-                                        Yes
-                                    </option>
-
-                                    <option value="false">
-                                        No
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                `;
-
-            container.insertAdjacentHTML("beforeend", html);
-        }
-
-
-        /* =========================================================
-           EDUCATION
-        ========================================================= */
-
-        function addEducation() {
-
-            const container =
-                document.getElementById("educationContainer");
-
-            const index = educationIndex++;
-
-            const html = `
-
-                    <div class="dynamic-card education-row">
-
-                        <div class="dynamic-card-header">
-
-                            <div class="dynamic-card-title">
-                                Education ${index + 1}
-                            </div>
-
-                            <button type="button"
-                                    class="btn-remove"
-                                    onclick="removeRow(this)">
-
-                                Remove
-
-                            </button>
-
-                        </div>
-
-                        <input type="hidden"
-                               name="EducationList[${index}].EducationID"
-                               value="0" />
-
-                        <div class="row">
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Education Level
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EducationList[${index}].EducationLevel" />
-
-                            </div>
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Stream
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EducationList[${index}].Stream" />
-
-                            </div>
-
-                            <div class="col-md-2">
-
-                                <label class="form-label">
-                                    Passing Year
-                                </label>
-
-                                <input type="number"
-                                       class="form-control"
-                                       name="EducationList[${index}].PassingYear" />
-
-                            </div>
-
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Institution
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EducationList[${index}].InstitutionName" />
-
-                            </div>
-
-                        </div>
-
-                        <div class="row mt-3">
-
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Board / University
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EducationList[${index}].BoardUniversity" />
-
-                            </div>
-
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Marks Obtained
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EducationList[${index}].MarksObtained" />
-
-                            </div>
-
-                            <div class="col-md-4">
-
-                                <label class="form-label">
-                                    Major Subjects
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EducationList[${index}].MajorSubjects" />
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                `;
-
-            container.insertAdjacentHTML("beforeend", html);
-        }
-
-
-        /* =========================================================
-           EMPLOYMENT
-        ========================================================= */
-
-        function addEmployment() {
-
-            const container =
-                document.getElementById("employmentContainer");
-
-            const index = employmentIndex++;
-
-            const html = `
-
-                    <div class="dynamic-card employment-row">
-
-                        <div class="dynamic-card-header">
-
-                            <div class="dynamic-card-title">
-                                Employment ${index + 1}
-                            </div>
-
-                            <button type="button"
-                                    class="btn-remove"
-                                    onclick="removeRow(this)">
-
-                                Remove
-
-                            </button>
-
-                        </div>
-
-                        <input type="hidden"
-                               name="EmploymentList[${index}].EmploymentID"
-                               value="0" />
-
-                        <div class="row">
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Employer Name
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EmploymentList[${index}].EmployerName" />
-
-                            </div>
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Designation
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EmploymentList[${index}].Designation" />
-
-                            </div>
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Reporting To
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EmploymentList[${index}].ReportingTo" />
-
-                            </div>
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Annual CTC
-                                </label>
-
-                                <input type="number"
-                                       step="0.01"
-                                       class="form-control"
-                                       name="EmploymentList[${index}].AnnualCTC" />
-
-                            </div>
-
-                        </div>
-
-                        <div class="row mt-3">
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    From Date
-                                </label>
-
-                                <input type="date"
-                                       class="form-control"
-                                       name="EmploymentList[${index}].FromDate" />
-
-                            </div>
-
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    To Date
-                                </label>
-
-                                <input type="date"
-                                       class="form-control"
-                                       name="EmploymentList[${index}].ToDate" />
-
-                            </div>
-
-                            <div class="col-md-6">
-
-                                <label class="form-label">
-                                    Employer Address
-                                </label>
-
-                                <input type="text"
-                                       class="form-control"
-                                       name="EmploymentList[${index}].EmployerAddress" />
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                `;
-
-            container.insertAdjacentHTML("beforeend", html);
-        }
-
-
-        /* =========================================================
-           REMOVE ROW
-        ========================================================= */
-
-        function removeRow(button) {
-
-            const card = button.closest(".dynamic-card");
-
-            if (!card) {
-                return;
-            }
-
-            const container = card.parentElement;
-
-            const rows =
-                container.querySelectorAll(".dynamic-card");
-
-            if (rows.length <= 1) {
-
-                card.querySelectorAll(
-                    "input:not([type='hidden']), textarea"
-                ).forEach(function(input) {
-
-                    input.value = "";
-
-                });
-
-                card.querySelectorAll(
-                    "select"
-                ).forEach(function(select) {
-
-                    select.selectedIndex = 0;
-
-                });
-
-                return;
-            }
-
-            card.remove();
-
-            reindexDynamicRows();
-        }
-
-
-        /* =========================================================
-           REINDEX DYNAMIC LISTS
-           IMPORTANT FOR ASP.NET CORE MODEL BINDING
-        ========================================================= */
-
-        function reindexDynamicRows() {
-
-            reindexFamily();
-
-            reindexEducation();
-
-            reindexEmployment();
-        }
-
-
-        function reindexFamily() {
-
-            const rows =
-                document.querySelectorAll(
-                    "#familyContainer .family-row"
-                );
-
-            rows.forEach(function(row, index) {
-
-                const title =
-                    row.querySelector(".dynamic-card-title");
-
-                if (title) {
-                    title.textContent =
-                        "Family Member " + (index + 1);
-                }
-
-                row.querySelectorAll("[name]").forEach(function(element) {
-
-                    element.name =
-                        element.name.replace(
-                            /FamilyList\[\d+\]/,
-                            "FamilyList[" + index + "]"
-                        );
-
-                });
-
-            });
-
-            familyIndex = rows.length;
-        }
-
-
-        function reindexEducation() {
-
-            const rows =
-                document.querySelectorAll(
-                    "#educationContainer .education-row"
-                );
-
-            rows.forEach(function(row, index) {
-
-                const title =
-                    row.querySelector(".dynamic-card-title");
-
-                if (title) {
-                    title.textContent =
-                        "Education " + (index + 1);
-                }
-
-                row.querySelectorAll("[name]").forEach(function(element) {
-
-                    element.name =
-                        element.name.replace(
-                            /EducationList\[\d+\]/,
-                            "EducationList[" + index + "]"
-                        );
-
-                });
-
-            });
-
-            educationIndex = rows.length;
-        }
-
-
-        function reindexEmployment() {
-
-            const rows =
-                document.querySelectorAll(
-                    "#employmentContainer .employment-row"
-                );
-
-            rows.forEach(function(row, index) {
-
-                const title =
-                    row.querySelector(".dynamic-card-title");
-
-                if (title) {
-                    title.textContent =
-                        "Employment " + (index + 1);
-                }
-
-                row.querySelectorAll("[name]").forEach(function(element) {
-
-                    element.name =
-                        element.name.replace(
-                            /EmploymentList\[\d+\]/,
-                            "EmploymentList[" + index + "]"
-                        );
-
-                });
-
-            });
-
-            employmentIndex = rows.length;
-        }
-
-
-        /* =========================================================
-           FILE VALIDATION
-        ========================================================= */
-
-        function validateFile(input, required) {
-
-            if (!input.files || input.files.length === 0) {
-
-                if (required) {
-
-                    return {
-                        valid: false,
-                        message: "Employee photo is required."
-                    };
-
-                }
-
-                return {
-                    valid: true
-                };
-            }
-
-            const file = input.files[0];
-
-            const allowedTypes = [
-                "image/jpeg",
-                "image/jpg",
-                "image/png"
-            ];
-
-            if (!allowedTypes.includes(file.type)) {
-
-                return {
-                    valid: false,
-                    message: "Only JPG and PNG images are allowed."
-                };
-            }
-
-            if (file.size > 2 * 1024 * 1024) {
-
-                return {
-                    valid: false,
-                    message: "Image size must not exceed 2 MB."
-                };
-            }
-
-            return {
-                valid: true
-            };
-        }
-
-
-        /* =========================================================
-           FORM VALIDATION
-        ========================================================= */
-
-        function validateForm(isSubmit) {
-
-            const form =
-                document.getElementById(
-                    "employeeOnboardingForm"
-                );
-
-            if (!form.checkValidity()) {
-
-                form.classList.add("was-validated");
-
-                const firstInvalid =
-                    form.querySelector(":invalid");
-
-                if (firstInvalid) {
-
-                    firstInvalid.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center"
-                    });
-
-                    firstInvalid.focus();
-                }
-
-                return false;
             }
 
 
-            const photo =
-                document.getElementById(
-                    "EmployeePhotoFile"
-                );
+            /* =========================================================
+               UPDATE DOCUMENT VALUES
+            ========================================================= */
 
-            const photoResult =
-                validateFile(
-                    photo,
-                    photo.hasAttribute("required")
-                );
-
-            if (!photoResult.valid) {
-
-                showMessage(
-                    photoResult.message,
-                    "danger"
-                );
-
-                photo.focus();
-
-                return false;
-            }
+            function updateDocumentValues() {
 
 
-            const signature =
-                document.getElementById(
-                    "EmployeeSignature"
-                );
+                /* -----------------------------------------------------
+                   EMPLOYEE NAME
+                ----------------------------------------------------- */
 
-            if (signature.files.length > 0) {
-
-                const signatureResult =
-                    validateFile(
-                        signature,
-                        false
-                    );
-
-                if (!signatureResult.valid) {
-
-                    showMessage(
-                        signatureResult.message,
-                        "danger"
-                    );
-
-                    signature.focus();
-
-                    return false;
-                }
-            }
-
-
-            if (isSubmit) {
-
-                const declaration =
+                const employeeName =
                     document.getElementById(
-                        "declarationAccepted"
+                        "EmployeeName"
                     );
 
-                if (!declaration.checked) {
 
-                    showMessage(
-                        "Please accept the declaration before submitting.",
-                        "danger"
+                if (employeeName) {
+
+                    setDisplayValue(
+                        "displayEmployeeName",
+                        employeeName.value
                     );
 
-                    declaration.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center"
-                    });
+                }
 
-                    return false;
+
+                /* -----------------------------------------------------
+                   PRESENT ADDRESS
+                ----------------------------------------------------- */
+
+                const presentAddress =
+                    document.getElementById(
+                        "PresentAddress"
+                    );
+
+
+                if (presentAddress) {
+
+                    setDisplayValue(
+                        "displayPresentAddress",
+                        presentAddress.value
+                    );
+
+
+                    setDisplayValue(
+                        "displayPresentAddressClause1",
+                        presentAddress.value
+                    );
+
+                }
+
+
+                /* -----------------------------------------------------
+                   PERMANENT ADDRESS
+                ----------------------------------------------------- */
+
+                const permanentAddress =
+                    document.getElementById(
+                        "PermanentAddress"
+                    );
+
+
+                if (permanentAddress) {
+
+                    setDisplayValue(
+                        "displayPermanentAddressClause2",
+                        permanentAddress.value
+                    );
+
+                }
+
+
+                /* -----------------------------------------------------
+                   EMPLOYEE CONTACT
+                ----------------------------------------------------- */
+
+                const employeeContact =
+                    document.getElementById(
+                        "EmployeeContactNo"
+                    );
+
+
+                if (employeeContact) {
+
+                    setDisplayValue(
+                        "displayEmployeeContactClause2",
+                        employeeContact.value
+                    );
+
                 }
 
             }
 
-            return true;
-        }
+
+            /* =========================================================
+               INITIALIZE LIVE DOCUMENT UPDATE
+            ========================================================= */
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                function() {
 
 
-        /* =========================================================
-           SAVE FORM
-        ========================================================= */
+                    const fields = [
 
-        function saveForm(isSubmit) {
+                        "EmployeeName",
 
-            if (!validateForm(isSubmit)) {
-                return;
-            }
+                        "FatherHusbandName",
 
-            const form =
-                document.getElementById(
-                    "employeeOnboardingForm"
-                );
+                        "EmployeeCode",
 
-            const formData =
-                new FormData(form);
+                        "Designation",
 
-            /*
-             * Add explicit submission status.
-             *
-             * Your controller can receive:
-             *
-             * IsSubmit = true / false
-             *
-             */
+                        "PermanentAddress",
 
-            formData.set(
-                "IsSubmit",
-                isSubmit ? "true" : "false"
+                        "PresentAddress",
+
+                        "EmployeeContactNo",
+
+                        "FatherContactNo",
+
+                        "MotherBrotherSisterContactNo"
+
+                    ];
+
+
+                    fields.forEach(
+                        function(fieldId) {
+
+
+                            const field =
+                                document.getElementById(
+                                    fieldId
+                                );
+
+
+                            if (!field) {
+
+                                return;
+
+                            }
+
+
+                            field.addEventListener(
+                                "input",
+                                updateDocumentValues
+                            );
+
+
+                            field.addEventListener(
+                                "change",
+                                updateDocumentValues
+                            );
+
+                        }
+                    );
+
+
+                    updateDocumentValues();
+
+                }
             );
 
 
-            const btnSave =
-                document.getElementById(
-                    "btnSaveLater"
-                );
+            /* =========================================================
+               SAVE FORM
+            ========================================================= */
 
-            const btnSubmit =
-                document.getElementById(
-                    "btnSubmit"
-                );
+            function saveForm(continueNext) {
 
 
-            btnSave.disabled = true;
-
-            btnSubmit.disabled = true;
-
-
-            const originalSaveText =
-                btnSave.innerHTML;
-
-            const originalSubmitText =
-                btnSubmit.innerHTML;
-
-
-            if (isSubmit) {
-
-                btnSubmit.innerHTML =
-                    "Saving...";
-
-            }
-            else {
-
-                btnSave.innerHTML =
-                    "Saving...";
-
-            }
-
-
-            /*
-             * IMPORTANT:
-             *
-             * Change this URL if your POST action has
-             * a different route.
-             *
-             */
-
-            fetch(
-                '@Url.Action("SaveEmployeeDetailsOnboarding", "EmployeeOnboarding")',
-                {
-                    method: "POST",
-                    body: formData
-                }
-            )
-                .then(function(response) {
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            "Server returned HTTP " +
-                            response.status
-                        );
-                    }
-
-                    return response.json();
-
-                })
-                .then(function(result) {
-
-                    if (result.success) {
-
-                        showMessage(
-                            result.message ||
-                            (
-                                isSubmit
-                                    ? "Employee onboarding submitted successfully."
-                                    : "Employee onboarding saved successfully."
-                            ),
-                            "success"
-                        );
-
-
-                        /*
-                         * Update IDs if the server creates them
-                         * during the first save.
-                         */
-
-                        if (result.onboardingID) {
-
-                            document.getElementById(
-                                "OnboardingID"
-                            ).value =
-                                result.onboardingID;
-                        }
-
-
-                        if (result.employeeDetailsOnboardingID) {
-
-                            document.getElementById(
-                                "EmployeeDetailsOnboardingID"
-                            ).value =
-                                result.employeeDetailsOnboardingID;
-                        }
-
-
-                        /*
-                         * If submit is completed and the server
-                         * provides next URL, navigate to next form.
-                         */
-
-                        if (isSubmit && result.redirectUrl) {
-
-                            setTimeout(function() {
-
-                                window.location.href =
-                                    result.redirectUrl;
-
-                            }, 1000);
-
-                        }
-
-                    }
-                    else {
-
-                        showMessage(
-                            result.message ||
-                            "Unable to save employee onboarding.",
-                            "danger"
-                        );
-
-                    }
-
-                })
-                .catch(function(error) {
-
-                    console.error(error);
-
-                    showMessage(
-                        "An error occurred while saving the form. Please try again.",
-                        "danger"
+                const form =
+                    document.getElementById(
+                        "employeeUndertakingForm"
                     );
 
-                })
-                .finally(function() {
 
-                    btnSave.disabled = false;
+                /* -----------------------------------------------------
+                   VALIDATION
+                ----------------------------------------------------- */
 
-                    btnSubmit.disabled = false;
+                if (!form.checkValidity()) {
 
-                    btnSave.innerHTML =
-                        originalSaveText;
+                    form.reportValidity();
 
-                    btnSubmit.innerHTML =
-                        originalSubmitText;
-
-                });
-        }
-
-
-        /* =========================================================
-           MESSAGE
-        ========================================================= */
-
-        function showMessage(message, type) {
-
-            const messageBox =
-                document.getElementById(
-                    "formMessage"
-                );
-
-            messageBox.className =
-                "alert alert-" + type;
-
-            messageBox.innerHTML =
-                message;
-
-            messageBox.style.display =
-                "block";
-
-
-            messageBox.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            });
-
-
-            if (type === "success") {
-
-                setTimeout(function() {
-
-                    messageBox.style.display =
-                        "none";
-
-                }, 5000);
-            }
-        }
-
-
-        /* =========================================================
-           NUMERIC INPUT RESTRICTION
-        ========================================================= */
-
-        document.addEventListener(
-            "input",
-            function(event) {
-
-                const element =
-                    event.target;
-
-                if (
-                    element.name ===
-                    "EmergencyContactMobile" ||
-
-                    element.name ===
-                    "Reference1Mobile" ||
-
-                    element.name ===
-                    "Reference2Mobile" ||
-
-                    element.name ===
-                    "PermanentPINCode" ||
-
-                    element.name ===
-                    "PresentPINCode"
-                ) {
-
-                    element.value =
-                        element.value
-                            .replace(/\D/g, "");
+                    return;
 
                 }
 
+
+                /* -----------------------------------------------------
+                   FORM DATA
+                ----------------------------------------------------- */
+
+                const formData =
+                    new FormData(form);
+
+
+                /* -----------------------------------------------------
+                   BUTTONS
+                ----------------------------------------------------- */
+
+                const buttons =
+                    document.querySelectorAll(
+                        ".action-button"
+                    );
+
+
+                buttons.forEach(
+                    function(button) {
+
+                        button.disabled = true;
+
+                    }
+                );
+
+
+                /* -----------------------------------------------------
+                   POST
+                ----------------------------------------------------- */
+
+                fetch(
+                    '@Url.Action(
+                                    "AddUpdateEmployeeUndertaking",
+                                    "Onboarding"
+                                            )',
+                        {
+                        method: "POST",
+
+                        body: formData
+                    }
+                )
+                    .then(
+                        function(response) {
+
+
+                            if (!response.ok) {
+
+                                throw new Error(
+                                    "Server returned an error."
+                                );
+
+                            }
+
+
+                            return response.json();
+
+                        }
+                    )
+                    .then(
+                        function(result) {
+
+
+                            console.log(
+                                "Employee Undertaking Save:",
+                                result
+                            );
+
+
+                            if (result.success) {
+
+
+                                /* =========================================
+                                   SAVE & CONTINUE
+                                ========================================= */
+
+                                if (continueNext) {
+
+
+                                    if (result.redirectUrl) {
+
+                                        window.location.href =
+                                            result.redirectUrl;
+
+                                    }
+                                    else {
+
+
+                                        window.location.href =
+                                            '@Url.Action(
+                                                                            "NonDisclosureAgreement",
+                                                                            "Onboarding"
+                                                                            )'
+                                            + '?onboardingID='
+                                            + encodeURIComponent(
+                                                document.querySelector(
+                                                    '[name="OnboardingID"]'
+                                                ).value
+                                            );
+
+                                    }
+
+                                }
+
+
+                                /* =========================================
+                                   SAVE ONLY
+                                ========================================= */
+
+                                else {
+
+
+                                    alert(
+                                        result.message ||
+                                        "Employee undertaking saved successfully."
+                                    );
+
+                                }
+
+
+                            }
+                            else {
+
+
+                                alert(
+                                    result.message ||
+                                    "Unable to save employee undertaking."
+                                );
+
+                            }
+
+                        }
+                    )
+                    .catch(
+                        function(error) {
+
+
+                            console.error(
+                                "Employee undertaking error:",
+                                error
+                            );
+
+
+                            alert(
+                                "Something went wrong while saving the information."
+                            );
+
+                        }
+                    )
+                    .finally(
+                        function() {
+
+
+                            buttons.forEach(
+                                function(button) {
+
+                                    button.disabled = false;
+
+                                }
+                            );
+
+                        }
+                    );
+
             }
-        );
 
 
-        /* =========================================================
-           INITIALIZATION
-        ========================================================= */
+            /* =========================================================
+               BACK
+            ========================================================= */
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            function() {
+            function goBack() {
 
-                reindexDynamicRows();
+
+                const onboardingID =
+                    document.querySelector(
+                        '[name="OnboardingID"]'
+                    ).value;
+
+
+                window.location.href =
+                    '@Url.Action(
+                                    "Index",
+                                    "Onboarding"
+                            )'
+                    + '?onboardingID='
+                    + encodeURIComponent(
+                        onboardingID
+                    );
 
             }
-        );
 
-</script>
+
+            /* =========================================================
+               PRINT
+            ========================================================= */
+
+            function printDocument() {
+
+                /*
+                 * Make sure latest values are displayed
+                 * before opening print dialog.
+                 */
+
+                updateDocumentValues();
+
+
+                window.print();
+
+            }
+
+
+            /* =========================================================
+               EMPLOYEE SIGNATURE PREVIEW
+            ========================================================= */
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                function() {
+
+
+                    const employeeSignature =
+                        document.getElementById(
+                            "EmployeeSignatureFile"
+                        );
+
+
+                    if (employeeSignature) {
+
+
+                        employeeSignature.addEventListener(
+                            "change",
+                            function(event) {
+
+                                previewSignature(
+                                    event.target,
+                                    "employeeSignatureDisplay"
+                                );
+
+                            }
+                        );
+
+                    }
+
+
+                    const hrSignature =
+                        document.getElementById(
+                            "HRSignatureFile"
+                        );
+
+
+                    if (hrSignature) {
+
+
+                        hrSignature.addEventListener(
+                            "change",
+                            function(event) {
+
+                                previewSignature(
+                                    event.target,
+                                    "hrSignatureDisplay"
+                                );
+
+                            }
+                        );
+
+                    }
+
+                }
+            );
+
+
+            /* =========================================================
+               SIGNATURE PREVIEW
+            ========================================================= */
+
+            function previewSignature(
+                input,
+                targetId
+            ) {
+
+
+                if (!input.files ||
+                    input.files.length === 0) {
+
+                    return;
+
+                }
+
+
+                const file =
+                    input.files[0];
+
+
+                /* -----------------------------------------------------
+                   VALIDATE IMAGE
+                ----------------------------------------------------- */
+
+                if (!file.type.startsWith("image/")) {
+
+
+                    alert(
+                        "Please select a valid image file."
+                    );
+
+
+                    input.value = "";
+
+
+                    return;
+
+                }
+
+
+                /* -----------------------------------------------------
+                   READ FILE
+                ----------------------------------------------------- */
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function(event) {
+
+
+                        const container =
+                            document.getElementById(
+                                targetId
+                            );
+
+
+                        if (!container) {
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * Remove old preview
+                         */
+
+                        const oldImage =
+                            container.querySelector(
+                                ".signature-image-preview"
+                            );
+
+
+                        if (oldImage) {
+
+                            oldImage.remove();
+
+                        }
+
+
+                        /*
+                         * Create new image
+                         */
+
+                        const image =
+                            document.createElement(
+                                "img"
+                            );
+
+
+                        image.src =
+                            event.target.result;
+
+
+                        image.className =
+                            "signature-image signature-image-preview";
+
+
+                        image.alt =
+                            "Signature Preview";
+
+
+                        container.appendChild(
+                            image
+                        );
+
+                    };
+
+
+                reader.readAsDataURL(file);
+
+            }
+
+    </script>
+
 
 </body>
 

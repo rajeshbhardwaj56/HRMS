@@ -152,5 +152,24 @@ namespace HRMS.API.Web.Controllers
 
             return Ok(result);
         }
+        [HttpPost]
+        public IActionResult ApproveEmployeeOnboarding(
+    List<string> keys)
+        {
+            var result =
+                _businessLayer.ApproveEmployeeOnboarding(keys);
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public IActionResult RejectEmployeeOnboarding(
+            List<string> keys)
+        {
+            var result =
+                _businessLayer.RejectEmployeeOnboarding(keys);
+
+            return Ok(result);
+        }
     }
 }

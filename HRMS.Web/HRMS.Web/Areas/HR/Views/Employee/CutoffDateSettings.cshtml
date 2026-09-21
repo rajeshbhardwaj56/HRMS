@@ -1,9 +1,28 @@
 ﻿@using HRMS.Models
 @model CutoffDateSettingViewModel
+@using HRMS.Models.Common
+@using HRMS.Models.EmployeeOnboarding
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
 
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration _configuration
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Cutoff Date Settings";
+    var roleIdString = Context.Session.GetString(Constants.RoleID);
+
+    int roleId = 0;
+
+    int.TryParse(roleIdString, out roleId);
+
+
+    // ============================================================
+    // HR / ADMIN CHECK
+    // ============================================================
+
+    bool isSuperAdmin =
+        roleId == (int)Roles.SuperAdmin;
 }
 
 <div class="main-header anim" style="--delay: 0s">
@@ -75,6 +94,8 @@
         </div>
      
     </div>
+    @if(isSuperAdmin)
+{
     <div class="main-header anim" style="--delay: 0s">
         Attendance & Salary Settings
     </div>
@@ -85,6 +106,7 @@
 
 
             <div class="row">
+
                 <div class="col-md-4 form-group">
                     <label>Salary Calculation Cutoff Date</label>
 
@@ -119,6 +141,7 @@
 
         </div>
     </div>
+}
     <div class="row">
         <div class="col-md-12">
 

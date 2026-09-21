@@ -433,6 +433,9 @@ namespace HRMS.Models.Common
         public const string GetEmployeeOnboardingEducation = "GetEmployeeOnboardingEducation";
         public const string AddUpdateEmployeeOnboardingEducation = "AddUpdateEmployeeOnboardingEducation";
         public const string GetEmployeeOnboardingRequests = "GetEmployeeOnboardingRequests";
+        public const string ApproveEmployeeOnboarding ="ApproveEmployeeOnboarding";
+
+        public const string RejectEmployeeOnboarding ="RejectEmployeeOnboarding";
     }
 
     public class MyInfoTabs

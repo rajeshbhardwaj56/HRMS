@@ -2084,6 +2084,7 @@ namespace HRMS.Web.Areas.HR.Controllers
                 (int)PageName.CutoffDateSettings);
 
             if (formPermission.HasPermission == 0
+                && roleId != (int)Roles.Admin
                 && roleId != (int)Roles.SuperAdmin)
             {
                 HttpContext.Session.Clear();
@@ -2091,6 +2092,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+
 
             var data = await _businessLayer.SendGetAPIRequest(
                 _businessLayer.GetFormattedAPIUrl(

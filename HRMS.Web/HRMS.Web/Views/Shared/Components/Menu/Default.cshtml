@@ -811,8 +811,9 @@
                 } *@
                  @if (Model.FormPermissionList.Any(x => x.FormID == 38 && x.IsFormPermissions && x.FormLevel == 2))
                 {
-                    if (LoginRole == Convert.ToInt64(HRMS.Models.Common.Roles.SuperAdmin))
-                    {
+                        if (LoginRole == (long)HRMS.Models.Common.Roles.SuperAdmin
+                        || LoginRole == (long)HRMS.Models.Common.Roles.Admin) 
+                        {
                         <ul class="hrms-menu-group">
                         <li>
                             <a class="hrms-menu-title d-flex align-items-center  @(currentController == "Employee" && currentAction == "CutoffDateSettings" ? "hrms-active" : "")"

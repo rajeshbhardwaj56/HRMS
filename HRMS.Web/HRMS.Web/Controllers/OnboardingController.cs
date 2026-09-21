@@ -1610,10 +1610,6 @@ namespace HRMS.Web.Controllers
         }
 
 
-
-
-
-
         [AllowAnonymous]
         [HttpGet]
         public IActionResult EmployeeUndertaking(string key)
@@ -1851,7 +1847,376 @@ namespace HRMS.Web.Controllers
             }
 
 
-}
+        }
+
+
+// =========================================================
+// APPROVE MULTIPLE EMPLOYEE ONBOARDING REQUESTS
+// =========================================================
+
+[HttpPost]
+public async Task<IActionResult> ApproveEmployeeOnboarding(
+    [FromBody] List<string> keys)
+        {
+            try
+            {
+                // =========================================================
+                // CHECK REQUEST
+                // =========================================================
+
+                if (keys == null || keys.Count == 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            "Please select at least one employee."
+                    });
+                }
+
+
+                // =========================================================
+                // REMOVE NULL / EMPTY KEYS
+                // =========================================================
+
+                keys = keys
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+
+                // =========================================================
+                // VALIDATE KEYS
+                // =========================================================
+
+                if (keys.Count == 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            "No valid onboarding records were selected."
+                    });
+                }
+
+
+                // =========================================================
+                // CALL ONBOARDING API
+                // =========================================================
+
+                var apiUrl =
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Onboarding,
+                        APIApiActionConstants
+                            .ApproveEmployeeOnboarding
+                    );
+
+
+                // =========================================================
+                // SEND SELECTED PRIVATE KEYS TO API
+                // =========================================================
+
+                var response =
+                    await _businessLayer.SendPostAPIRequest(
+                        keys,
+                        apiUrl,
+                        "",
+                        false
+                    );
+
+
+                // =========================================================
+                // READ API RESPONSE
+                // =========================================================
+
+                var data =
+                    response?.ToString();
+
+
+                if (string.IsNullOrWhiteSpace(data))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            "Unable to approve the selected onboarding records."
+                    });
+                }
+
+
+                // =========================================================
+                // PARSE API RESPONSE
+                // =========================================================
+
+                Newtonsoft.Json.Linq.JObject result;
+
+                try
+                {
+                    result =
+                        Newtonsoft.Json.Linq.JObject.Parse(
+                            data);
+                }
+                catch
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            "Invalid response received from onboarding API."
+                    });
+                }
+
+
+                // =========================================================
+                // CHECK API ERROR
+                // =========================================================
+
+                string? errorCode =
+                    result["errorCode"]?.ToString();
+
+
+                bool success =
+                    string.IsNullOrWhiteSpace(
+                        errorCode);
+
+
+                if (!success)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            result["message"]?.ToString()
+                            ?? "Unable to approve the selected onboarding records."
+                    });
+                }
+
+
+                // =========================================================
+                // GET UPDATED COUNT
+                // =========================================================
+
+                int updatedCount =
+                    result["updatedCount"] != null &&
+                    result["updatedCount"].Type !=
+                        Newtonsoft.Json.Linq.JTokenType.Null
+                        ? result["updatedCount"]!.Value<int>()
+                        : keys.Count;
+
+
+                // =========================================================
+                // SUCCESS
+                // =========================================================
+
+                return Json(new
+                {
+                    success = true,
+
+                    message =
+                        $"{updatedCount} employee(s) approved successfully.",
+
+                    updatedCount = updatedCount
+                });
+            }
+            catch (Exception ex)
+            {
+                // =========================================================
+                // EXCEPTION
+                // =========================================================
+
+                return Json(new
+                {
+                    success = false,
+                    message =
+                        ex.Message
+                });
+            }
+        }
+
+// =========================================================
+// REJECT MULTIPLE EMPLOYEE ONBOARDING REQUESTS
+// =========================================================
+
+[HttpPost]
+public async Task<IActionResult> RejectEmployeeOnboarding(
+    [FromBody] List<string> keys)
+        {
+            try
+            {
+                // =========================================================
+                // CHECK REQUEST
+                // =========================================================
+
+                if (keys == null || keys.Count == 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            "Please select at least one employee."
+                    });
+                }
+
+
+                // =========================================================
+                // REMOVE NULL / EMPTY KEYS
+                // =========================================================
+
+                keys = keys
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+
+                // =========================================================
+                // VALIDATE KEYS
+                // =========================================================
+
+                if (keys.Count == 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            "No valid onboarding records were selected."
+                    });
+                }
+
+
+                // =========================================================
+                // CALL ONBOARDING API
+                // =========================================================
+
+                var apiUrl =
+                    _businessLayer.GetFormattedAPIUrl(
+                        APIControllarsConstants.Onboarding,
+                        APIApiActionConstants
+                            .RejectEmployeeOnboarding
+                    );
+
+
+                // =========================================================
+                // SEND SELECTED PRIVATE KEYS TO API
+                // =========================================================
+
+                var response =
+                    await _businessLayer.SendPostAPIRequest(
+                        keys,
+                        apiUrl,
+                        "",
+                        false
+                    );
+
+
+                // =========================================================
+                // READ API RESPONSE
+                // =========================================================
+
+                var data =
+                    response?.ToString();
+
+
+                if (string.IsNullOrWhiteSpace(data))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            "Unable to reject the selected onboarding records."
+                    });
+                }
+
+
+                // =========================================================
+                // PARSE API RESPONSE
+                // =========================================================
+
+                Newtonsoft.Json.Linq.JObject result;
+
+                try
+                {
+                    result =
+                        Newtonsoft.Json.Linq.JObject.Parse(
+                            data);
+                }
+                catch
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            "Invalid response received from onboarding API."
+                    });
+                }
+
+
+                // =========================================================
+                // CHECK API ERROR
+                // =========================================================
+
+                string? errorCode =
+                    result["errorCode"]?.ToString();
+
+
+                bool success =
+                    string.IsNullOrWhiteSpace(
+                        errorCode);
+
+
+                if (!success)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message =
+                            result["message"]?.ToString()
+                            ?? "Unable to reject the selected onboarding records."
+                    });
+                }
+
+
+                // =========================================================
+                // GET UPDATED COUNT
+                // =========================================================
+
+                int updatedCount =
+                    result["updatedCount"] != null &&
+                    result["updatedCount"].Type !=
+                        Newtonsoft.Json.Linq.JTokenType.Null
+                        ? result["updatedCount"]!.Value<int>()
+                        : keys.Count;
+
+
+                // =========================================================
+                // SUCCESS
+                // =========================================================
+
+                return Json(new
+                {
+                    success = true,
+
+                    message =
+                        $"{updatedCount} employee(s) rejected successfully.",
+
+                    updatedCount = updatedCount
+                });
+            }
+            catch (Exception ex)
+            {
+                // =========================================================
+                // EXCEPTION
+                // =========================================================
+
+                return Json(new
+                {
+                    success = false,
+                    message =
+                        ex.Message
+                });
+            }
+        }
 
 
     }

@@ -21,24 +21,23 @@
      ========================================================= -->
 
 
-<div class="mb-3 align-items-center"
+<div class="mb-3 align-items-center justify-content-end"
      id="onboardingBulkActions"
      style="display:none;">
 
     <button type="button"
             id="btnApproveOnboarding"
-            class="btn btn-primary btn-sm">
-        <i class="fa fa-check"></i> Approve
+            class="btn btn-primary btn-sm mt-2">
+        <i class="fa fa-check me-1"></i> Approve
     </button>
 
     <button type="button"
             id="btnRejectOnboarding"
-            class="btn btn-danger btn-sm ms-2">
-        <i class="fa fa-times"></i> Reject
+            class="btn btn-danger btn-sm ms-2 mt-2">
+        <i class="fa fa-times me-1"></i> Reject
     </button>
 
 </div>
-
 
 
 
@@ -636,14 +635,10 @@
 
 
             if (selectedCount > 0) {
-
-                $('#onboardingBulkActions').show();
-
+                $('#onboardingBulkActions').css('display', 'flex');
             }
             else {
-
                 $('#onboardingBulkActions').hide();
-
             }
 
         }

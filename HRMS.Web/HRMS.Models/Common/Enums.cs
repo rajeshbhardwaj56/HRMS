@@ -85,4 +85,14 @@ namespace HRMS.Models.Common
         WhatsHappening = 4,
         LeaveApproved =5
     }
+    public enum EmployeeOnboardingStatus
+    {
+        InProgress = 1,
+        Submitted = 2,
+        UnderHRReview = 3,
+        HRCompleted = 4,
+        EmployeeCreated = 5,
+        Approved = 6,
+        Rejected = 7
+    }
 }
