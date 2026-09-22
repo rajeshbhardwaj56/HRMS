@@ -1843,6 +1843,1791 @@ padding-top: 5px;
     }
 
 }
+/* ============================================================
+   IT COMPLIANCE AGREEMENT - A4 PAGE
+============================================================ */
+
+.it-compliance-page {
+    width: 210mm;
+    min-height: 297mm;
+    background: #fff;
+    color: #111;
+    padding: 12mm 14mm 10mm 14mm;
+    box-sizing: border-box;
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8.4pt;
+    line-height: 1.18;
+    page-break-after: always;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.it-header {
+    display: flex;
+    align-items: flex-start;
+    min-height: 22mm;
+    position: relative;
+}
+
+.it-logo {
+    width: 35%;
+    display: flex;
+    align-items: flex-start;
+}
+
+.it-logo-img {
+    width: 40mm;
+    max-height: 18mm;
+    object-fit: contain;
+}
+
+.it-header-title {
+    width: 65%;
+    text-align: right;
+    padding-top: 3mm;
+}
+
+.it-main-title {
+    font-size: 13pt;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.it-form-code {
+    font-size: 8pt;
+    font-weight: 600;
+    margin-top: 1mm;
+}
+
+.it-release {
+    font-size: 7pt;
+    margin-top: 1mm;
+}
+
+
+/* ============================================================
+   DOCUMENT TITLE
+============================================================ */
+
+.it-document-title {
+    text-align: center;
+    font-size: 11pt;
+    font-weight: 700;
+    margin: 1mm 0 3mm 0;
+}
+
+
+/* ============================================================
+   SECTIONS
+============================================================ */
+
+.it-section {
+    margin-bottom: 2.5mm;
+}
+
+.it-section-title {
+    font-size: 8.6pt;
+    font-weight: 700;
+    margin-bottom: 1mm;
+}
+
+.it-section p {
+    margin: 0 0 1.5mm 0;
+    text-align: justify;
+}
+
+
+/* ============================================================
+   NUMBERED LIST
+============================================================ */
+
+.it-number-list {
+    margin: 0;
+    padding-left: 6mm;
+}
+
+.it-number-list li {
+    padding-left: 1mm;
+    margin-bottom: 1mm;
+    text-align: justify;
+}
+
+.it-number-list li::marker {
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   AGREEMENT
+============================================================ */
+
+.agreement-section {
+    margin-top: 2mm;
+}
+
+
+/* ============================================================
+   SIGNATURE SECTION
+============================================================ */
+
+.it-signature-section {
+    margin-top: 4mm;
+    padding-top: 2mm;
+}
+
+.it-signature-row {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    column-gap: 8mm;
+    align-items: end;
+    margin-bottom: 4mm;
+}
+
+.second-row {
+    grid-template-columns: 1fr 1fr;
+    max-width: 115mm;
+}
+
+.it-signature-field {
+    display: flex;
+    align-items: flex-end;
+    min-height: 8mm;
+}
+
+.field-label {
+    white-space: nowrap;
+    font-weight: 600;
+    margin-right: 1.5mm;
+}
+
+.field-line {
+    flex: 1;
+    min-height: 5mm;
+    border-bottom: 0.35mm solid #111;
+    display: inline-flex;
+    align-items: flex-end;
+    padding: 0 1mm;
+}
+
+.signature-line {
+    flex: 1;
+    height: 9mm;
+    border-bottom: 0.35mm solid #111;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.it-employee-signature {
+    max-width: 32mm;
+    max-height: 8mm;
+    object-fit: contain;
+}
+
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.it-page-footer {
+    position: absolute;
+    left: 14mm;
+    right: 14mm;
+    bottom: 5mm;
+
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 7pt;
+    border-top: 0.2mm solid #777;
+    padding-top: 1.5mm;
+}
+
+
+/* ============================================================
+   PRINT
+============================================================ */
+
+@@media print {
+
+    .it-compliance-page {
+        width: 210mm;
+        height: 297mm;
+        min-height: 297mm;
+        margin: 0;
+        padding: 12mm 14mm 10mm 14mm;
+        page-break-after: always;
+        overflow: hidden;
+    }
+
+    .it-section,
+    .it-signature-section {
+        page-break-inside: avoid;
+    }
+
+    .it-header {
+        page-break-after: avoid;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+}
+
+
+/* ============================================================
+   SCREEN
+============================================================ */
+
+@@media screen {
+
+    .it-compliance-page {
+        margin: 15px auto;
+        box-shadow: 0 0 8px rgba(0,0,0,.18);
+    }
+}
+/* ============================================================
+   FORM 2 REVISED
+   NOMINATION & DECLARATION
+   A4 PRINT DESIGN
+============================================================ */
+
+.form2-page {
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+
+    margin: 0 auto;
+
+    padding: 10mm 13mm 8mm 13mm;
+
+    box-sizing: border-box;
+
+    position: relative;
+
+    background: #fff;
+    color: #111;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 7.1pt;
+    line-height: 1.12;
+
+    page-break-after: always;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.form2-top-header {
+    display: flex;
+
+    width: 100%;
+
+    height: 8mm;
+}
+
+.form2-left-space {
+    flex: 1;
+}
+
+.form2-header-right {
+    width: 45%;
+
+    text-align: right;
+}
+
+.form2-revised-title {
+    font-size: 8pt;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   MAIN TITLE
+============================================================ */
+
+.form2-main-title {
+    text-align: center;
+
+    font-size: 9.5pt;
+    font-weight: 700;
+
+    margin-top: 1mm;
+    margin-bottom: 1mm;
+}
+
+.form2-subtitle {
+    text-align: center;
+
+    font-size: 7pt;
+
+    line-height: 1.2;
+
+    margin-bottom: 2.5mm;
+}
+
+
+/* ============================================================
+   EMPLOYEE DETAILS TABLE
+============================================================ */
+
+.form2-details-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 6.9pt;
+
+    margin-bottom: 2mm;
+}
+
+.form2-details-table td {
+    border: none;
+
+    padding: .8mm .7mm;
+
+    vertical-align: bottom;
+}
+
+.form2-label {
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.form2-value {
+    min-height: 4mm;
+
+    border-bottom: 0.25mm solid #333;
+
+    padding-left: 1mm;
+}
+
+.small-label {
+    font-size: 6.5pt;
+}
+
+.address-value {
+    min-height: 5mm;
+}
+
+
+/* ============================================================
+   PART TITLES
+============================================================ */
+
+.form2-part-title {
+    text-align: center;
+
+    font-size: 8pt;
+    font-weight: 700;
+
+    margin-top: 2mm;
+    margin-bottom: .5mm;
+}
+
+.form2-part-description {
+    font-size: 6.9pt;
+
+    line-height: 1.15;
+
+    margin: 0 2mm 1.5mm 2mm;
+
+    text-align: justify;
+}
+
+.form2-eps-rule {
+    text-align: center;
+
+    font-size: 7pt;
+
+    margin-bottom: .5mm;
+}
+
+.eps-title {
+    margin-top: 3mm;
+}
+
+.eps-description {
+    margin-bottom: 1.5mm;
+}
+
+
+/* ============================================================
+   EPF NOMINEE TABLE
+============================================================ */
+
+.form2-nominee-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 6.5pt;
+}
+
+.form2-nominee-table th,
+.form2-nominee-table td {
+    border: 0.3mm solid #222;
+
+    padding: .8mm;
+
+    vertical-align: middle;
+}
+
+.form2-nominee-table th {
+    text-align: center;
+
+    font-weight: 700;
+
+    height: 14mm;
+
+    line-height: 1.1;
+}
+
+.form2-nominee-table tbody tr {
+    height: 7.5mm;
+}
+
+.form2-write-line {
+    display: block;
+
+    height: 4mm;
+
+    border-bottom: 0.2mm solid #888;
+}
+
+
+/* ============================================================
+   FOOTNOTES
+============================================================ */
+
+.form2-footnotes {
+    margin-top: 2mm;
+
+    font-size: 6.7pt;
+
+    line-height: 1.2;
+}
+
+.form2-footnote-row {
+    display: flex;
+
+    margin-bottom: 1.2mm;
+
+    text-align: justify;
+}
+
+.footnote-number {
+    width: 5mm;
+
+    flex-shrink: 0;
+}
+
+.form2-strike-note {
+    margin-top: 3mm;
+
+    font-size: 6.7pt;
+}
+
+
+/* ============================================================
+   SUBSCRIBER SIGNATURE
+============================================================ */
+
+.form2-subscriber-signature {
+    width: 50mm;
+
+    margin-left: auto;
+
+    margin-top: -2mm;
+
+    text-align: center;
+
+    font-size: 6.5pt;
+}
+
+.form2-signature-space {
+    height: 8mm;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+}
+
+.form2-signature-image {
+    max-width: 32mm;
+
+    max-height: 8mm;
+
+    object-fit: contain;
+}
+
+
+/* ============================================================
+   EPS TABLE
+============================================================ */
+
+.form2-eps-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 6.8pt;
+}
+
+.form2-eps-table th,
+.form2-eps-table td {
+    border: 0.3mm solid #222;
+
+    padding: .8mm;
+
+    vertical-align: middle;
+}
+
+.form2-eps-table th {
+    text-align: center;
+
+    font-weight: 700;
+
+    height: 9mm;
+}
+
+.form2-eps-table .column-number-row th {
+    height: 4mm;
+
+    padding: .4mm;
+}
+
+.form2-eps-table tbody tr {
+    height: 6.2mm;
+}
+
+.form2-eps-table tbody td:first-child {
+    text-align: center;
+}
+
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.form2-footer {
+    position: absolute;
+
+    left: 13mm;
+    right: 13mm;
+
+    bottom: 4mm;
+
+    border-top: 0.2mm solid #777;
+
+    padding-top: 1mm;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 6.5pt;
+}
+
+
+/* ============================================================
+   PRINT
+============================================================ */
+
+@@media print {
+
+    .form2-page {
+        width: 210mm;
+        height: 297mm;
+        min-height: 297mm;
+
+        margin: 0;
+
+        padding: 10mm 13mm 8mm 13mm;
+
+        page-break-after: always;
+
+        overflow: hidden;
+
+        box-shadow: none;
+    }
+
+    .form2-details-table,
+    .form2-nominee-table,
+    .form2-eps-table {
+        page-break-inside: avoid;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+}
+
+
+/* ============================================================
+   SCREEN PREVIEW
+============================================================ */
+
+@@media screen {
+
+    .form2-page {
+        margin: 15px auto;
+
+        box-shadow: 0 0 8px rgba(0, 0, 0, .18);
+    }
+}
+/* ============================================================
+   FORM 2 REVISED
+   PART B - EPS CONTINUATION
+============================================================ */
+
+.form2-eps-continuation-page {
+
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+
+    margin: 0 auto;
+
+    padding: 16mm 14mm 10mm 14mm;
+
+    box-sizing: border-box;
+
+    position: relative;
+
+    background: #fff;
+    color: #111;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 7.5pt;
+    line-height: 1.25;
+
+    page-break-after: always;
+}
+
+
+/* ============================================================
+   TOP EPS TEXT
+============================================================ */
+
+.form2-eps-continuation-text {
+
+    width: 100%;
+
+    font-size: 7.4pt;
+
+    line-height: 1.35;
+
+    text-align: justify;
+
+    margin-bottom: 4mm;
+}
+
+
+/* ============================================================
+   LARGE EPS NOMINEE TABLE
+============================================================ */
+
+.form2-eps-nominee-table {
+
+    width: 82%;
+
+    margin: 0 auto;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 7.3pt;
+}
+
+.form2-eps-nominee-table th,
+.form2-eps-nominee-table td {
+
+    border: 0.35mm solid #222;
+
+    padding: 1.2mm;
+
+    vertical-align: top;
+}
+
+.form2-eps-nominee-table th {
+
+    height: 9mm;
+
+    text-align: center;
+
+    font-weight: 700;
+
+    line-height: 1.15;
+}
+
+.form2-eps-nominee-table tbody tr {
+
+    height: 45mm;
+}
+
+.eps-large-entry {
+
+    height: 43mm;
+
+    width: 100%;
+
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   DATE
+============================================================ */
+
+.form2-eps-date-row {
+
+    width: 82%;
+
+    margin: 2mm auto 0;
+
+    font-size: 7.3pt;
+}
+
+.form2-simple-line {
+
+    display: inline-block;
+
+    width: 35mm;
+
+    height: 4mm;
+
+    border-bottom: 0.25mm solid #222;
+
+    vertical-align: bottom;
+}
+
+.form2-simple-line.small {
+
+    width: 30mm;
+}
+
+
+/* ============================================================
+   SUBSCRIBER SIGNATURE
+============================================================ */
+
+.form2-eps-subscriber-signature {
+
+    width: 60mm;
+
+    margin-left: auto;
+
+    margin-right: 7mm;
+
+    margin-top: 1mm;
+
+    text-align: center;
+
+    font-size: 6.8pt;
+}
+
+.form2-eps-signature-image {
+
+    height: 9mm;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-end;
+}
+
+.form2-eps-signature-img {
+
+    max-width: 35mm;
+
+    max-height: 8mm;
+
+    object-fit: contain;
+}
+
+
+/* ============================================================
+   CERTIFICATE TITLE
+============================================================ */
+
+.form2-employer-certificate-title {
+
+    margin-top: 10mm;
+
+    padding-top: 2mm;
+
+    border-top: 0.3mm solid #222;
+
+    text-align: center;
+
+    font-size: 8pt;
+
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   CERTIFICATE TEXT
+============================================================ */
+
+.form2-employer-certificate-text {
+
+    margin-top: 2mm;
+
+    padding: 0 10mm;
+
+    font-size: 7.2pt;
+
+    line-height: 1.45;
+
+    text-align: center;
+}
+
+.form2-inline-line {
+
+    display: inline-block;
+
+    min-width: 42mm;
+
+    height: 4mm;
+
+    border-bottom: 0.25mm solid #222;
+
+    vertical-align: bottom;
+}
+
+
+/* ============================================================
+   EMPLOYER SIGNATURE AREA
+============================================================ */
+
+.form2-employer-signature-area {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1.2fr;
+
+    column-gap: 10mm;
+
+    margin-top: 13mm;
+
+    align-items: end;
+}
+
+.form2-employer-left {
+
+    padding-left: 5mm;
+}
+
+.employer-date-row {
+
+    font-size: 7.2pt;
+}
+
+
+.form2-employer-right {
+
+    text-align: center;
+
+    font-size: 6.8pt;
+}
+
+.employer-signature-image {
+
+    height: 10mm;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+}
+
+.employer-signature-label {
+
+    line-height: 1.25;
+
+    margin-top: 1mm;
+}
+
+
+/* ============================================================
+   ESTABLISHMENT DETAILS
+============================================================ */
+
+.form2-establishment-area {
+
+    display: grid;
+
+    grid-template-columns: 1.25fr 1fr;
+
+    column-gap: 18mm;
+
+    margin-top: 15mm;
+
+    padding: 0 5mm;
+}
+
+.form2-establishment-name {
+
+    font-size: 7.2pt;
+}
+
+.establishment-label {
+
+    display: block;
+
+    margin-bottom: 2mm;
+}
+
+.establishment-lines span {
+
+    display: block;
+
+    width: 70mm;
+
+    height: 5mm;
+
+    border-bottom: 0.2mm solid #888;
+}
+
+
+.form2-establishment-place-date {
+
+    font-size: 7.2pt;
+
+    padding-top: 3mm;
+}
+
+.form2-establishment-place-date > div {
+
+    margin-bottom: 7mm;
+}
+
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.form2-eps-footer {
+
+    position: absolute;
+
+    left: 14mm;
+    right: 14mm;
+
+    bottom: 4mm;
+
+    border-top: 0.2mm solid #777;
+
+    padding-top: 1mm;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 6.5pt;
+}
+
+
+/* ============================================================
+   PRINT
+============================================================ */
+
+@@media print {
+
+    .form2-eps-continuation-page {
+
+        width: 210mm;
+        height: 297mm;
+        min-height: 297mm;
+
+        margin: 0;
+
+        padding: 16mm 14mm 10mm 14mm;
+
+        page-break-after: always;
+
+        overflow: hidden;
+
+        box-shadow: none;
+    }
+
+    .form2-eps-nominee-table,
+    .form2-employer-certificate-title,
+    .form2-employer-signature-area,
+    .form2-establishment-area {
+
+        page-break-inside: avoid;
+    }
+
+    body {
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: #fff !important;
+    }
+}
+
+
+/* ============================================================
+   SCREEN PREVIEW
+============================================================ */
+
+@@media screen {
+
+    .form2-eps-continuation-page {
+
+        margin: 15px auto;
+
+        box-shadow: 0 0 8px rgba(0, 0, 0, .18);
+    }
+}
+/* ============================================================
+   ESI FORM 1
+   DECLARATION FORM
+   A4 PRINT DESIGN
+============================================================ */
+
+.esi-form1-page {
+
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+
+    margin: 0 auto;
+
+    padding: 8mm 13mm 7mm 13mm;
+
+    box-sizing: border-box;
+
+    position: relative;
+
+    background: #fff;
+    color: #111;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 6.3pt;
+    line-height: 1.12;
+
+    page-break-after: always;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.esi-header {
+
+    display: grid;
+
+    grid-template-columns: 18mm 1fr 20mm;
+
+    align-items: start;
+
+    margin-bottom: 1mm;
+}
+
+.esi-emblem {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: center;
+}
+
+.esi-logo-circle {
+
+    width: 12mm;
+    height: 12mm;
+
+    border: 0.5mm solid #222;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 6pt;
+
+    font-weight: 700;
+}
+
+.esi-header-center {
+
+    text-align: center;
+}
+
+.esi-declaration-title {
+
+    font-size: 9pt;
+
+    font-weight: 700;
+
+    margin-bottom: 2mm;
+}
+
+.esi-employer-code {
+
+    font-weight: 700;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 2mm;
+}
+
+.esi-header-input {
+
+    display: inline-block;
+
+    width: 55mm;
+
+    height: 5mm;
+
+    border: 0.3mm solid #222;
+}
+
+.esi-form-number {
+
+    text-align: right;
+
+    font-size: 8pt;
+
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   COMMON SECTION HEADING
+============================================================ */
+
+.esi-section-heading {
+
+    font-weight: 700;
+
+    font-size: 6.5pt;
+
+    margin-bottom: .5mm;
+}
+
+.esi-c-heading,
+.esi-d-heading {
+
+    margin-top: 1.5mm;
+
+    margin-bottom: .7mm;
+}
+
+
+/* ============================================================
+   MAIN A + B TABLE
+============================================================ */
+
+.esi-main-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+}
+
+.esi-main-table > tbody > tr > td {
+
+    border: 0.3mm solid #222;
+
+    vertical-align: top;
+
+    padding: 0;
+}
+
+.esi-section-a {
+
+    width: 58%;
+}
+
+.esi-section-b {
+
+    width: 42%;
+}
+
+.esi-inner-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 6.1pt;
+}
+
+.esi-inner-table td {
+
+    border: 0.2mm solid #333;
+
+    padding: .65mm;
+
+    vertical-align: middle;
+}
+
+.esi-no {
+
+    width: 5mm;
+
+    text-align: center;
+
+    font-weight: 700;
+}
+
+.esi-label {
+
+    font-weight: 600;
+
+    line-height: 1.1;
+}
+
+.esi-value {
+
+    min-height: 4mm;
+}
+
+.esi-dob {
+
+    font-size: 5.7pt;
+
+    white-space: nowrap;
+}
+
+.esi-address {
+
+    height: 18mm;
+
+    vertical-align: top !important;
+
+    position: relative;
+
+    line-height: 1.2;
+}
+
+.esi-small-field {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 1mm;
+
+    margin-top: 2mm;
+}
+
+.esi-small-field span {
+
+    display: inline-block;
+
+    width: 22mm;
+
+    border-bottom: 0.2mm solid #555;
+
+    height: 3mm;
+}
+
+.esi-bottom-label {
+
+    font-weight: 600;
+
+    height: 5mm;
+}
+
+.esi-bottom-value {
+
+    height: 5mm;
+}
+
+
+/* ============================================================
+   EMPLOYER SIDE
+============================================================ */
+
+.esi-date-boxes {
+
+    text-align: center;
+}
+
+.esi-date-boxes > span {
+
+    display: inline-block;
+
+    width: 10mm;
+
+    font-size: 5.5pt;
+
+    text-align: center;
+}
+
+.esi-date-boxes div {
+
+    display: flex;
+
+    justify-content: center;
+}
+
+.esi-date-boxes i {
+
+    display: block;
+
+    width: 10mm;
+
+    height: 5mm;
+
+    border: 0.2mm solid #333;
+
+    margin-right: .5mm;
+}
+
+.esi-employer-address {
+
+    height: 27mm;
+
+    vertical-align: top !important;
+
+    line-height: 1.35;
+}
+
+.esi-previous {
+
+    height: 32mm;
+
+    vertical-align: top !important;
+}
+
+.esi-previous > span {
+
+    display: inline-block;
+
+    width: 24mm;
+
+    height: 3mm;
+
+    border-bottom: .2mm solid #555;
+}
+
+.esi-previous-address {
+
+    height: 13mm;
+
+    border-bottom: .2mm solid #555;
+}
+
+
+/* ============================================================
+   NOMINEE TABLE
+============================================================ */
+
+.esi-nominee-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 6pt;
+}
+
+.esi-nominee-table th,
+.esi-nominee-table td {
+
+    border: 0.3mm solid #222;
+
+    padding: .7mm;
+
+    vertical-align: middle;
+}
+
+.esi-nominee-table th {
+
+    text-align: center;
+
+    font-weight: 700;
+
+    height: 7mm;
+}
+
+.esi-nominee-table tbody tr {
+
+    height: 8mm;
+}
+
+.esi-nominee-table td span {
+
+    display: block;
+
+    height: 4mm;
+
+    border-bottom: .2mm solid #888;
+}
+
+
+/* ============================================================
+   DECLARATION
+============================================================ */
+
+.esi-declaration-text {
+
+    margin-top: 1.5mm;
+
+    font-size: 6.1pt;
+
+    line-height: 1.25;
+
+    text-align: justify;
+}
+
+
+/* ============================================================
+   SIGNATURES
+============================================================ */
+
+.esi-signature-row {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    margin-top: 1mm;
+
+    align-items: end;
+}
+
+.esi-employer-sign {
+
+    text-align: left;
+
+    padding-left: 5mm;
+}
+
+.esi-employee-sign {
+
+    text-align: center;
+}
+
+.esi-sign-space {
+
+    height: 7mm;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+}
+
+.esi-signature-image {
+
+    max-width: 35mm;
+
+    max-height: 7mm;
+
+    object-fit: contain;
+}
+
+
+/* ============================================================
+   FAMILY TABLE
+============================================================ */
+
+.esi-family-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 5.9pt;
+}
+
+.esi-family-table th,
+.esi-family-table td {
+
+    border: .3mm solid #222;
+
+    padding: .6mm;
+
+    vertical-align: middle;
+}
+
+.esi-family-table th {
+
+    text-align: center;
+
+    font-weight: 700;
+
+    height: 8mm;
+
+    line-height: 1.1;
+}
+
+.esi-family-table tbody tr {
+
+    height: 5.5mm;
+}
+
+.esi-family-table tbody td:first-child {
+
+    text-align: center;
+}
+
+
+/* ============================================================
+   TEMPORARY ID CARD
+============================================================ */
+
+.esi-card-heading {
+
+    text-align: center;
+
+    font-size: 7pt;
+
+    font-weight: 700;
+
+    margin-top: 2.5mm;
+}
+
+.esi-temporary-card-title {
+
+    text-align: center;
+
+    font-size: 6.5pt;
+
+    font-weight: 700;
+}
+
+.esi-validity {
+
+    text-align: right;
+
+    font-size: 6pt;
+
+    margin-top: -3mm;
+
+    margin-bottom: 1mm;
+}
+
+
+/* ============================================================
+   CARD AREA
+============================================================ */
+
+.esi-card-area {
+
+    display: grid;
+
+    grid-template-columns: 60% 22%;
+
+    column-gap: 17mm;
+
+    align-items: start;
+
+    margin-left: 4mm;
+}
+
+.esi-id-card-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 5.7pt;
+}
+
+.esi-id-card-table td {
+
+    border: .25mm solid #222;
+
+    padding: .6mm;
+
+    height: 5mm;
+
+    vertical-align: middle;
+}
+
+.esi-id-card-table td:first-child {
+
+    width: 30%;
+    font-weight: 600;
+}
+
+.esi-photo-box {
+
+    width: 25mm;
+
+    height: 27mm;
+
+    border: .3mm solid #222;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    font-size: 6pt;
+
+    margin-top: 1mm;
+}
+
+
+/* ============================================================
+   CARD SIGNATURES
+============================================================ */
+
+.esi-card-signatures {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1fr;
+
+    column-gap: 8mm;
+
+    margin-top: 1mm;
+
+    font-size: 5.8pt;
+
+    text-align: center;
+
+    align-items: end;
+}
+
+.esi-card-sign:first-child {
+
+    text-align: left;
+}
+
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.esi-footer {
+
+    position: absolute;
+
+    left: 13mm;
+    right: 13mm;
+
+    bottom: 3mm;
+
+    border-top: .2mm solid #777;
+
+    padding-top: 1mm;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 5.8pt;
+}
+
+
+/* ============================================================
+   PRINT
+============================================================ */
+
+@@media print {
+
+    .esi-form1-page {
+
+        width: 210mm;
+
+        height: 297mm;
+
+        min-height: 297mm;
+
+        margin: 0;
+
+        padding: 8mm 13mm 7mm 13mm;
+
+        page-break-after: always;
+
+        overflow: hidden;
+
+        box-shadow: none;
+    }
+
+    body {
+
+        margin: 0 !important;
+
+        padding: 0 !important;
+
+        background: #fff !important;
+    }
+
+    .esi-main-table,
+    .esi-nominee-table,
+    .esi-family-table,
+    .esi-card-area {
+
+        page-break-inside: avoid;
+    }
+}
+
+
+/* ============================================================
+   SCREEN PREVIEW
+============================================================ */
+
+@@media screen {
+
+    .esi-form1-page {
+
+        margin: 15px auto;
+
+        box-shadow: 0 0 8px rgba(0, 0, 0, .18);
+    }
+}
     </style>
 
 </head>
@@ -3746,6 +5531,897 @@ padding-top: 5px;
             break-inside: avoid;
         }
     }
+    /* ============================================================
+   EMPLOYEE BACKGROUND VERIFICATION
+   A4 PRINT DESIGN
+============================================================ */
+
+.background-verification-page {
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+
+    margin: 0 auto;
+    padding: 11mm 13mm 9mm 13mm;
+
+    box-sizing: border-box;
+
+    background: #fff;
+    color: #111;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8.2pt;
+    line-height: 1.15;
+
+    position: relative;
+
+    page-break-after: always;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.bgv-header {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    min-height: 19mm;
+}
+
+.bgv-logo-section {
+    width: 43%;
+    display: flex;
+    align-items: flex-start;
+}
+
+.bgv-logo {
+    width: 34mm;
+    max-height: 17mm;
+    object-fit: contain;
+}
+
+.bgv-title-section {
+    width: 57%;
+    text-align: right;
+    padding-top: 2mm;
+}
+
+.bgv-title {
+    font-size: 12pt;
+    font-weight: 700;
+    line-height: 1.05;
+}
+
+.bgv-form-number {
+    font-size: 7.8pt;
+    font-weight: 600;
+    margin-top: 1mm;
+}
+
+.bgv-release {
+    font-size: 7pt;
+    margin-top: .5mm;
+}
+
+
+/* ============================================================
+   EMPLOYMENT HISTORY TITLE
+============================================================ */
+
+.bgv-history-title {
+    font-size: 8.5pt;
+    font-weight: 700;
+    margin-top: 1mm;
+    margin-bottom: 1mm;
+}
+
+.bgv-history-title span {
+    font-weight: 400;
+}
+
+
+/* ============================================================
+   INSTRUCTION BOX
+============================================================ */
+
+.bgv-instruction {
+    border: 0.3mm solid #222;
+    padding: 1.5mm 2mm;
+
+    font-size: 7.8pt;
+    line-height: 1.15;
+
+    margin-bottom: 1.5mm;
+}
+
+.bgv-instruction b {
+    font-size: 8pt;
+}
+
+
+/* ============================================================
+   COMMON TABLE
+============================================================ */
+
+.bgv-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    margin-bottom: 2mm;
+
+    font-size: 7.5pt;
+}
+
+.bgv-table td,
+.bgv-table th {
+    border: 0.3mm solid #222;
+    padding: 1.2mm 1.4mm;
+
+    vertical-align: top;
+}
+
+.bgv-table b {
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   EMPLOYMENT TABLE
+============================================================ */
+
+.employment-table {
+    margin-bottom: 2mm;
+}
+
+.employment-table tr:first-child {
+    height: 14mm;
+}
+
+.employment-table tr:nth-child(2) {
+    height: 7mm;
+}
+
+.employment-table tr:nth-child(3) {
+    height: 7mm;
+}
+
+.employment-table tr:nth-child(4) {
+    height: 7mm;
+}
+
+
+/* Column proportions */
+
+.company-cell {
+    width: 42%;
+}
+
+.employee-id-cell {
+    width: 15%;
+}
+
+.date-cell {
+    width: 14%;
+}
+
+
+/* ============================================================
+   FILL LINES
+============================================================ */
+
+.bgv-fill-line {
+    height: 5mm;
+
+    margin-top: 1mm;
+
+    border-bottom: 0.25mm solid #777;
+}
+
+.inline-fill {
+    display: inline-block;
+
+    min-width: 35mm;
+
+    height: 3mm;
+
+    border-bottom: 0.25mm solid #777;
+
+    vertical-align: bottom;
+}
+
+
+/* ============================================================
+   AFFIDAVIT
+============================================================ */
+
+.bgv-affidavit {
+    width: 100%;
+    border: 0.3mm solid #222;
+
+    margin-top: 2mm;
+    margin-bottom: 4mm;
+
+    box-sizing: border-box;
+}
+
+.bgv-affidavit-title {
+    text-align: center;
+
+    font-size: 8.5pt;
+    font-weight: 700;
+
+    padding: 1mm 0;
+
+    border-bottom: 0.3mm solid #222;
+}
+
+.bgv-affidavit-text {
+    padding: 2mm 2.2mm;
+
+    font-size: 7.55pt;
+    line-height: 1.18;
+
+    text-align: justify;
+}
+
+
+/* ============================================================
+   AFFIDAVIT SIGNATURE
+============================================================ */
+
+.bgv-affidavit-signature-row {
+    display: grid;
+
+    grid-template-columns: 2fr 1fr .85fr;
+
+    align-items: end;
+
+    border-top: 0.3mm solid #222;
+
+    min-height: 10mm;
+}
+
+.bgv-name-field,
+.bgv-signature-field,
+.bgv-date-field {
+    min-height: 10mm;
+
+    padding: 1.5mm;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: flex-end;
+
+    gap: 1mm;
+}
+
+.bgv-signature-field {
+    border-left: 0.3mm solid #222;
+    border-right: 0.3mm solid #222;
+}
+
+.bgv-bottom-line {
+    flex: 1;
+
+    min-height: 4mm;
+
+    border-bottom: 0.25mm solid #222;
+
+    display: inline-flex;
+    align-items: flex-end;
+}
+
+.bgv-signature-box {
+    flex: 1;
+
+    height: 7mm;
+
+    border-bottom: 0.25mm solid #222;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+.bgv-employee-signature {
+    max-width: 28mm;
+    max-height: 7mm;
+
+    object-fit: contain;
+}
+
+
+/* ============================================================
+   DOCUMENTS REQUIRED
+============================================================ */
+
+.documents-table {
+    margin-top: 5mm;
+
+    font-size: 7.6pt;
+}
+
+.documents-table th {
+    text-align: left;
+
+    background: #f1f1f1;
+
+    font-size: 7.8pt;
+
+    height: 6mm;
+}
+
+.documents-table td {
+    height: 7mm;
+
+    vertical-align: middle;
+}
+
+.address-proof-cell {
+    vertical-align: top !important;
+
+    line-height: 1.2;
+}
+
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.bgv-footer {
+    position: absolute;
+
+    left: 13mm;
+    right: 13mm;
+    bottom: 4mm;
+
+    border-top: 0.2mm solid #777;
+
+    padding-top: 1mm;
+
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 6.8pt;
+}
+
+
+/* ============================================================
+   PRINT
+============================================================ */
+
+@@media print {
+
+    .background-verification-page {
+        width: 210mm;
+        height: 297mm;
+        min-height: 297mm;
+
+        margin: 0;
+        padding: 11mm 13mm 9mm 13mm;
+
+        page-break-after: always;
+
+        overflow: hidden;
+
+        box-shadow: none;
+    }
+
+    .bgv-table,
+    .bgv-affidavit,
+    .bgv-header {
+        page-break-inside: avoid;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+}
+
+
+/* ============================================================
+   SCREEN PREVIEW
+============================================================ */
+
+@@media screen {
+
+    .background-verification-page {
+        margin: 15px auto;
+
+        box-shadow: 0 0 8px rgba(0, 0, 0, .18);
+    }
+}
+/* ============================================================
+   FORM F - NOMINATION
+   A4 PRINT DESIGN
+============================================================ */
+
+.form-f-page {
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+
+    margin: 0 auto;
+    padding: 10mm 13mm 8mm 13mm;
+
+    box-sizing: border-box;
+
+    background: #fff;
+    color: #111;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 7.4pt;
+    line-height: 1.15;
+
+    position: relative;
+
+    page-break-after: always;
+}
+
+
+/* ============================================================
+   TITLE
+============================================================ */
+
+.form-f-title {
+    text-align: center;
+
+    font-size: 8.5pt;
+    font-weight: 700;
+
+    margin-bottom: 5mm;
+}
+
+
+/* ============================================================
+   ADDRESS
+============================================================ */
+
+.form-f-address {
+    font-size: 7.5pt;
+
+    line-height: 1.25;
+
+    margin-bottom: 3mm;
+}
+
+
+/* ============================================================
+   GENERAL CONTENT
+============================================================ */
+
+.form-f-content {
+    text-align: justify;
+}
+
+.form-f-number-list {
+    margin: 0;
+    padding-left: 6mm;
+}
+
+.form-f-number-list li {
+    padding-left: 1mm;
+    margin-bottom: 1.2mm;
+}
+
+.form-f-number-list li::marker {
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   UNDERLINE / INPUT LINE
+============================================================ */
+
+
+
+.form-f-name-line {
+    min-width: 55mm;
+}
+
+
+/* ============================================================
+   TABLE TITLE
+============================================================ */
+
+.form-f-table-title {
+    text-align: center;
+
+    font-size: 7.5pt;
+    font-weight: 700;
+
+    margin: 2mm 0 .5mm;
+}
+
+
+/* ============================================================
+   COMMON TABLE
+============================================================ */
+
+.form-f-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 7pt;
+}
+
+.form-f-table th,
+.form-f-table td {
+    border: 0.3mm solid #222;
+
+    padding: 1mm;
+
+    vertical-align: top;
+}
+
+.form-f-table th {
+    text-align: center;
+
+    font-weight: 700;
+
+    height: 9mm;
+}
+
+.nominee-table tbody tr {
+    height: 10mm;
+}
+
+
+/* ============================================================
+   NOMINEE ENTRY LINES
+============================================================ */
+
+.form-f-entry {
+    display: block;
+
+    height: 4mm;
+
+    border-bottom: 0.2mm solid #777;
+}
+
+
+/* ============================================================
+   SECTION TITLE
+============================================================ */
+
+.form-f-section-title {
+    text-align: center;
+
+    font-size: 7.5pt;
+    font-weight: 700;
+
+    margin-top: 2.5mm;
+    margin-bottom: 1.2mm;
+}
+
+
+/* ============================================================
+   STATEMENT
+============================================================ */
+
+.form-f-statement-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 7.3pt;
+}
+
+.form-f-statement-table td {
+    padding: .45mm 1mm;
+
+    vertical-align: bottom;
+}
+
+.statement-number {
+    width: 6mm;
+}
+
+.statement-label {
+    width: 55mm;
+}
+
+.statement-colon {
+    width: 5mm;
+}
+
+.statement-value {
+    width: auto;
+}
+
+.statement-line {
+    display: block;
+
+    width: 100%;
+
+    height: 3.2mm;
+
+    border-bottom: 0.25mm solid #555;
+}
+
+
+/* ============================================================
+   SIGNATURE / PLACE / DATE
+============================================================ */
+
+.form-f-signature-row {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1.6fr;
+
+    column-gap: 5mm;
+
+    align-items: end;
+
+    margin-top: 2mm;
+}
+
+.form-f-place,
+.form-f-date {
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: 1.5mm;
+}
+
+.form-f-employee-signature {
+    text-align: center;
+
+    font-size: 6.8pt;
+}
+
+.signature-image-wrapper {
+    height: 8mm;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: center;
+}
+
+.form-f-signature-image {
+    max-width: 32mm;
+    max-height: 8mm;
+
+    object-fit: contain;
+}
+
+
+/* ============================================================
+   WITNESS
+============================================================ */
+
+.witness-title {
+    border-top: 0.25mm dashed #555;
+
+    padding-top: 1.5mm;
+}
+
+.witness-intro {
+    margin-bottom: 1mm;
+}
+
+.witness-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 7.1pt;
+}
+
+.witness-table td {
+    padding: 1mm;
+
+    vertical-align: top;
+}
+
+.witness-number {
+    width: 8mm;
+}
+
+.witness-details {
+    width: auto;
+}
+
+.witness-line {
+    width: 85%;
+
+    height: 4mm;
+
+    border-bottom: 0.25mm solid #555;
+
+    margin-bottom: 1mm;
+}
+
+.witness-line.short {
+    width: 45%;
+}
+
+
+/* ============================================================
+   EMPLOYER CERTIFICATE
+============================================================ */
+
+.employer-certificate {
+    font-size: 7.1pt;
+
+    line-height: 1.3;
+
+    margin-top: 1mm;
+}
+
+.certificate-line {
+    min-width: 55mm;
+}
+
+
+/* ============================================================
+   EMPLOYER SIGNATURE
+============================================================ */
+
+.employer-signature-row {
+    display: grid;
+
+    grid-template-columns: 1fr 1.25fr;
+
+    column-gap: 10mm;
+
+    margin-top: 2mm;
+
+    align-items: end;
+}
+
+.employer-place-date > div {
+    margin-bottom: 3mm;
+}
+
+.employer-signature {
+    text-align: left;
+
+    font-size: 6.8pt;
+}
+
+.employer-signature-space {
+    height: 9mm;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: flex-start;
+}
+
+.employer-designation {
+    margin-top: 2mm;
+    margin-bottom: 1mm;
+}
+
+
+/* ============================================================
+   ACKNOWLEDGEMENT
+============================================================ */
+
+.acknowledgement-title {
+    border-top: 0.25mm dashed #555;
+
+    padding-top: 1.5mm;
+
+    margin-top: 3mm;
+}
+
+.acknowledgement-text {
+    font-size: 7.1pt;
+
+    margin-top: 1mm;
+}
+
+.acknowledgement-row {
+    display: grid;
+
+    grid-template-columns: 1fr 1.25fr;
+
+    column-gap: 10mm;
+
+    margin-top: 2mm;
+
+    align-items: end;
+}
+
+.acknowledgement-signature {
+    text-align: center;
+
+    font-size: 6.8pt;
+}
+
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.form-f-footer {
+    position: absolute;
+
+    left: 13mm;
+    right: 13mm;
+
+    bottom: 4mm;
+
+    border-top: 0.2mm solid #777;
+
+    padding-top: 1mm;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 6.5pt;
+}
+
+
+/* ============================================================
+   PRINT
+============================================================ */
+
+@@media print {
+
+    .form-f-page {
+        width: 210mm;
+        height: 297mm;
+        min-height: 297mm;
+
+        margin: 0;
+
+        padding: 10mm 13mm 8mm 13mm;
+
+        page-break-after: always;
+
+        overflow: hidden;
+
+        box-shadow: none;
+    }
+
+    .form-f-table,
+    .form-f-statement-table,
+    .witness-table,
+    .employer-signature-row,
+    .acknowledgement-row {
+        page-break-inside: avoid;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+}
+
+
+/* ============================================================
+   SCREEN PREVIEW
+============================================================ */
+
+@@media screen {
+
+    .form-f-page {
+        margin: 15px auto;
+
+        box-shadow: 0 0 8px rgba(0, 0, 0, .18);
+    }
+}
 </style>
 
 
@@ -5472,7 +8148,9 @@ padding-top: 5px;
             </span>
 
             <span class="undertaking-signature-line">
+                <div class="handwritten" style="margin-top:8px;">
                 @Safe(interviewEvaluation.HRInterviewerName)
+                </div>
             </span>
 
         </div>
@@ -5487,7 +8165,9 @@ padding-top: 5px;
             </span>
 
             <span class="undertaking-signature-line">
+                <div class="handwritten" style="margin-top:8px;">
                 @Safe(employee.Designation)
+                </div>
             </span>
 
         </div>
@@ -5530,7 +8210,9 @@ padding-top: 5px;
             </span>
 
             <span class="undertaking-signature-line">
+                <div class="handwritten" style="margin-top:8px;">
                 @FormatDate(interview.FinalDate)
+                </div>
             </span>
 
         </div>
@@ -5558,7 +8240,9 @@ padding-top: 5px;
             </span>
 
             <span class="undertaking-signature-line">
+                <div class="handwritten" style="margin-top:8px;">
                 @Safe(employee.FullName)
+                </div>
             </span>
 
         </div>
@@ -5573,7 +8257,9 @@ padding-top: 5px;
             </span>
 
             <span class="undertaking-signature-line">
+                <div class="handwritten" style="margin-top:8px;">
                 @Safe(employee.Designation)
+                </div>
             </span>
 
         </div>
@@ -5616,8 +8302,9 @@ padding-top: 5px;
             </span>
 
             <span class="undertaking-signature-line">
+                <div class="handwritten" style="margin-top:8px;">
                  @FormatDate(employee.DeclarationDate)
-                @* Add your actual employee undertaking date property here *@
+                </div>
             </span>
 
         </div>
@@ -5733,6 +8420,2594 @@ padding-top: 5px;
 
     <div class="page-footer">
         Employment Form - Page 6
+    </div>
+
+</div>
+<!-- ============================================================
+     PAGE 3 : IT COMPLIANCE AGREEMENT
+============================================================ -->
+
+<div class="print-page it-compliance-page">
+
+    <!-- ================= HEADER ================= -->
+
+    <div class="it-header">
+
+        <div class="it-logo">
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 alt="Protalk Solutions"
+                 class="it-logo-img" />
+        </div>
+
+        <div class="it-header-title">
+
+            <div class="it-main-title">
+                IT Compliance Agreement
+            </div>
+
+            <div class="it-form-code">
+                (PSPL/HRD/ SOP/FRM 6)
+            </div>
+
+            <div class="it-release">
+                Release: 14 Release Date: 20.04.26
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= TITLE ================= -->
+
+    <div class="it-document-title">
+        IT Compliance Agreement
+    </div>
+
+
+    <!-- ================= INTRODUCTION ================= -->
+
+    <div class="it-section">
+
+        <div class="it-section-title">
+            Introduction:
+        </div>
+
+        <p>
+            Protalk Solutions Private Limited (PSPL) as an organization has its own IT
+            infrastructure which provides the services to its native companies. As an
+            employee of PSPL, every employee should have to comply or agree with the same.
+            IT provided assets to employee are fully compliant with PSPL (Protalk
+            Information Security Policy).
+        </p>
+
+        <p>
+            You will be the asset owner of your Laptop, Desktop, Server, Data card etc.
+            The asset owners accountable for the comprehensive protection of information
+            assets owned by him/her. Any violation from PSPL, "IT Act 2000" (Later
+            amendments 2006 &amp; 2008) &amp; Copyright Act 1957 (Later amendments 1994
+            &amp; 1999) will be considered as code of conduct. Code of conduct will be
+            leaded to HR, Legal &amp; Disciplinary action against the responsible employee.
+        </p>
+
+    </div>
+
+
+    <!-- ================= EMAIL POLICY CONTROLS ================= -->
+
+    <div class="it-section">
+
+        <div class="it-section-title">
+            Email Policy Controls
+        </div>
+
+        <ol class="it-number-list">
+
+            <li>
+                Company mailing system should not be used for any fraud as per IT Act
+                2000 &amp; 2008 section 66A.
+            </li>
+
+            <li>
+                Acting or receiving or retaining any stolen computer resource or
+                communication device knowing or having reason to believe the same to be
+                stolen computer resource or communication device will be considered under
+                code of conduct as per IT Act 2000 &amp; 2008 section 66B.
+            </li>
+
+            <li>
+                Theft of the electronic signature, password or any other unique
+                identification feature of any other person will be considered under code
+                of conduct as per IT Act 2000 &amp; 2008 section 66C.
+            </li>
+
+            <li>
+                All messages generated by the E-mail System are considered to be the
+                property of PSPL. The E-mail system shall be used for business purposes
+                only. However, the personal use of the email system is allowed to a
+                reasonable extent as long as that does not damage the information and/or
+                reputation of PSPL (IT Act 2000 &amp; 2008 section 66D).
+            </li>
+
+            <li>
+                Charitable fundraising campaigns, political advocacy efforts, private
+                business activities or personal amusement, advertisement or public
+                representation and entertainment of email system are prohibited.
+            </li>
+
+            <li>
+                Email message containing any disruptive or offensive messages, including
+                offensive comments about race, gender, hair color, disabilities, age,
+                sexual orientation or harassment, pornography, religious beliefs and
+                practice, political beliefs or national origin should not be created or
+                distributed (IT Act 2000 &amp; 2008 section 67A, B).
+            </li>
+
+            <li>
+                Forwarding of official E-mail(s) to personal E-mail accounts such as
+                Gmail, Yahoo mail, Hotmail, etc. is prohibited.
+            </li>
+
+            <li>
+                Mass mailing, cheating, credit card frauds, money laundering are counted
+                as offensive acts under IT Act 2000 &amp; 2008 chapter II &amp; strictly
+                prohibited.
+            </li>
+
+        </ol>
+
+    </div>
+
+
+    <!-- ================= SOFTWARE POLICY CONTROLS ================= -->
+
+    <div class="it-section">
+
+        <div class="it-section-title">
+            Software Policy Controls:
+        </div>
+
+        <ol class="it-number-list">
+
+            <li>
+                Software which is not licensed or not approved should not be installed
+                or found during audit on asset owner. Also pirated software,
+                application should not be kept, installed on system.
+            </li>
+
+            <li>
+                Software provided by PSPL is sole property of organization which is not
+                for personal use of any employee.
+            </li>
+
+            <li>
+                According to "Section 13, 14, 16 of copyright Act 1957", it is illegal
+                to make or distribute copies of copyrighted any PSPL software without
+                proper or specific authorization.
+            </li>
+
+        </ol>
+
+    </div>
+
+
+    <!-- ================= PERMITTED USE OF INTERNET ================= -->
+
+    <div class="it-section">
+
+        <div class="it-section-title">
+            Permitted Use of Internet:
+        </div>
+
+        <ol class="it-number-list">
+
+            <li>
+                Without prior written permission from Company, the Company's computer
+                network may not be used to disseminate, view or store commercial or
+                personal advertisements, solicitations, promotions, destructive code
+                (e.g., viruses, self-replicating programs, etc.), political material,
+                pornographic text or images, or any other unauthorized materials.
+            </li>
+
+            <li>
+                To ensure security and avoid the spread of viruses, Users accessing the
+                Internet through a computer attached to Company's network must do so
+                through an approved Internet firewall or other security device.
+                Bypassing Company's computer network security by accessing the Internet
+                directly by modem or other means is strictly prohibited unless the
+                computer you are using is not connected to the Company's network.
+            </li>
+
+            <li>
+                You should abide by all the policies of the company which are in force
+                from time to time and the company shall have the right to vary or modify
+                any or all of the above controls which shall be binding on you.
+            </li>
+
+        </ol>
+
+    </div>
+
+
+    <!-- ================= AGREEMENT ================= -->
+
+    <div class="it-section agreement-section">
+
+        <div class="it-section-title">
+            Agreement:
+        </div>
+
+        <ol class="it-number-list">
+
+            <li>
+                I have read above mentioned CISP controls written under agreement and
+                agree to comply with the provisions of PSPL IT compliance agreement.
+            </li>
+
+            <li>
+                If I found for any such offence listed above, code of conduct should be
+                invoked for termination of my services or regulatory action.
+            </li>
+
+        </ol>
+
+    </div>
+
+
+    <!-- ================= EMPLOYEE ACKNOWLEDGEMENT ================= -->
+
+    <div class="it-signature-section">
+
+        <div class="it-signature-row">
+
+            <div class="it-signature-field employee-name-field">
+                <span class="field-label">Employee Name:</span>
+
+                <span class="field-line">
+                                                        <div class="handwritten"
+                         style="margin-top:8px;">
+                    @Safe(employee?.FullName)
+                    </div>
+                </span>
+            </div>
+
+
+            <div class="it-signature-field">
+                <span class="field-label">Signature:</span>
+
+                <span class="signature-line">
+
+
+                @if (signatureDocument != null)
+                {
+                    var signaturePath = GetDocumentFilePath(signatureDocument);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="it-signature-row second-row">
+
+            <div class="it-signature-field">
+                <span class="field-label">Place:</span>
+
+                <span class="field-line">&nbsp;
+                                    <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @Safe(employee.DeclarationPlace)
+
+                    </div></span>
+            </div>
+
+
+            <div class="it-signature-field">
+                <span class="field-label">Date:</span>
+
+                <span class="field-line">
+                    &nbsp;
+                    <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @FormatDate(employee.DeclarationDate)
+
+                    </div>
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <div class="it-page-footer">
+        <span>IT Compliance Agreement</span>
+        <span>Page 7</span>
+    </div>
+
+</div>
+<!-- ============================================================
+     EMPLOYEE BACKGROUND VERIFICATION
+============================================================ -->
+
+<div class="print-page background-verification-page">
+
+    <!-- ================= HEADER ================= -->
+
+    <div class="bgv-header">
+
+        <div class="bgv-logo-section">
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="bgv-logo"
+                 alt="Protalk Solutions" />
+        </div>
+
+        <div class="bgv-title-section">
+
+            <div class="bgv-title">
+                Employee Background Verification
+            </div>
+
+            <div class="bgv-form-number">
+                (PSPL/HRD/SOP/FRM 7)
+            </div>
+
+            <div class="bgv-release">
+                Release: 1.4 Release Date: 20.04.2016
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         EMPLOYMENT HISTORY
+    ========================================================== -->
+
+    <div class="bgv-history-title">
+        Employment History
+        <span>(Begin with present / last employment in reverse order).</span>
+    </div>
+
+
+    <div class="bgv-instruction">
+        <b>EMPLOYMENT RECORD</b>
+
+        <br />
+
+        <i>
+            If you are still employed in this organization, please fill in the date
+            before which you would not like the verification to be initiated in the
+            "To" column. If you are not sure or would like to intimate this date later,
+            please write "Still Employed".
+        </i>
+    </div>
+
+
+    <!-- ================= EMPLOYMENT RECORD 1 ================= -->
+
+    <table class="bgv-table employment-table">
+
+        <tr>
+            <td class="company-cell">
+                <b>(1) Name, Address &amp; Contact no. of Company:</b>
+
+                <div class="bgv-fill-line">
+                    &nbsp;
+                </div>
+            </td>
+
+            <td class="employee-id-cell">
+                <b>Employee ID</b>
+
+                <div class="bgv-fill-line">
+                    &nbsp;
+                </div>
+            </td>
+
+            <td class="date-cell">
+                <b>From (mm/yy)</b>
+
+                <div class="bgv-fill-line">
+                    &nbsp;
+                </div>
+            </td>
+
+            <td class="date-cell">
+                <b>To (mm/yy)</b>
+
+                <div class="bgv-fill-line">
+                    &nbsp;
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <b>Job Title:</b>
+
+                <span class="inline-fill"></span>
+            </td>
+
+            <td colspan="2">
+                <b>Reason of Leaving:</b>
+
+                <span class="inline-fill"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <b>Designation:</b>
+
+                <span class="inline-fill"></span>
+            </td>
+
+            <td colspan="2">
+                <b>Final Salary (Annual CTC):</b>
+
+                <span class="inline-fill"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <b>HR Manager’s Name</b>
+
+                <span class="inline-fill"></span>
+            </td>
+
+            <td colspan="2">
+                <b>HR Manager’s Email Id and Phone Number</b>
+
+                <span class="inline-fill"></span>
+            </td>
+        </tr>
+
+    </table>
+
+
+    <!-- ================= EMPLOYMENT RECORD 2 ================= -->
+
+    <table class="bgv-table employment-table">
+
+        <tr>
+            <td class="company-cell">
+                <b>(2) Name, Address &amp; Contact no. of Company:</b>
+
+                <div class="bgv-fill-line">
+                    &nbsp;
+                </div>
+            </td>
+
+            <td class="employee-id-cell">
+                <b>Employee ID</b>
+
+                <div class="bgv-fill-line">
+                    &nbsp;
+                </div>
+            </td>
+
+            <td class="date-cell">
+                <b>From (mm/yy)</b>
+
+                <div class="bgv-fill-line">
+                    &nbsp;
+                </div>
+            </td>
+
+            <td class="date-cell">
+                <b>To (mm/yy)</b>
+
+                <div class="bgv-fill-line">
+                    &nbsp;
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <b>Job Title:</b>
+
+                <span class="inline-fill"></span>
+            </td>
+
+            <td colspan="2">
+                <b>Reason of Leaving:</b>
+
+                <span class="inline-fill"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <b>Designation:</b>
+
+                <span class="inline-fill"></span>
+            </td>
+
+            <td colspan="2">
+                <b>Final Salary (Annual CTC):</b>
+
+                <span class="inline-fill"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <b>HR Manager’s Name</b>
+
+                <span class="inline-fill"></span>
+            </td>
+
+            <td colspan="2">
+                <b>HR Manager’s Email Id and Phone Number</b>
+
+                <span class="inline-fill"></span>
+            </td>
+        </tr>
+
+    </table>
+
+
+    <!-- =========================================================
+         AFFIDAVIT
+    ========================================================== -->
+
+    <div class="bgv-affidavit">
+
+        <div class="bgv-affidavit-title">
+            AFFIDAVIT
+        </div>
+
+        <div class="bgv-affidavit-text">
+
+            I certify that the statements made in this application are valid and
+            complete to the best of my knowledge. I understand that
+            <b><i>Protalk Solutions Private Limited</i></b>
+            is an at will employer, false or misleading information may result in
+            termination of employment, with or without notice.
+
+            <br />
+
+            I understand that
+            <b><i>Protalk Solutions Private Limited</i></b>
+            will conduct credit and/or background check. I understand the records
+            will be used for employment purposes only and will not be given to
+            unauthorized persons.
+
+            <br />
+
+            I authorize
+            <b><i>Protalk Solutions Private Limited</i></b>
+            to conduct a reference check so that a hiring decision may be made.
+            In the event that
+            <b><i>Protalk Solutions Private Limited</i></b>
+            is unable to verify any reference stated in this application, it is my
+            responsibility to furnish the necessary documentation.
+
+            <br />
+
+            I understand that this application or subsequent employment does not
+            create a contract of employment or guarantee employment for any definite
+            period of time. I have read, understood, and by my signature consent to
+            these statements.
+
+        </div>
+
+
+        <!-- ================= AFFIDAVIT SIGNATURE ================= -->
+
+        <div class="bgv-affidavit-signature-row">
+
+            <div class="bgv-name-field">
+                <b>NAME (IN BLOCK LETTERS):</b>
+
+                <span class="bgv-bottom-line">
+              <div class="handwritten" style="margin-top:8px;">
+                    @Safe(employee?.FullName) 
+                    </div>
+                </span>
+            </div>
+
+
+            <div class="bgv-signature-field">
+
+                <b>SIGNATURE:</b>
+
+                <span class="bgv-signature-box">
+
+            @if (signatureDocument != null)
+            {
+                var signaturePath = GetDocumentFilePath(signatureDocument);
+
+                if (!string.IsNullOrWhiteSpace(signaturePath))
+                {
+                    <img src="@signaturePath"
+                         class="undertaking-signature-image"
+                         alt="Employee Signature" />
+                }
+            }
+
+                </span>
+
+            </div>
+
+
+            <div class="bgv-date-field">
+
+                <b>DATE:</b>
+
+                <span class="bgv-bottom-line">
+                    &nbsp;
+                    <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @FormatDate(employee.DeclarationDate)
+
+                    </div>
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         DOCUMENTS REQUIRED
+    ========================================================== -->
+
+    <table class="bgv-table documents-table">
+
+        <tr>
+            <th colspan="2">
+                DOCUMENTS REQUIRED (COMPULSORY)
+            </th>
+        </tr>
+
+        <tr>
+
+            <td>
+                Completed &amp; Signed Application Form
+            </td>
+
+            <td>
+                Two Passport Size Photographs
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td>
+                Copy of Relevant Education Certificates
+            </td>
+
+            <td rowspan="2" class="address-proof-cell">
+
+                <b>
+                    Current Address Proof
+                    (if stay at current address &gt; 6 months)
+                    else Longest Stay Address Proof.
+                </b>
+
+                <br /><br />
+
+                <i>
+                    Please note:
+                    Your name should be mentioned on the address proof.
+                </i>
+
+                <br /><br />
+
+                <b>Accepted address proofs:</b>
+                MTNL Bill / Electricity Bill / Copy of Rent Agreement /
+                Passport / Voter ID / Driving License.
+
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td>
+                Copy of all past Employment Relieving Letters / Salary Slips
+            </td>
+
+        </tr>
+
+    </table>
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <div class="bgv-footer">
+
+        <span>
+            Employee Background Verification
+        </span>
+
+        <span>
+            Page 8
+        </span>
+
+    </div>
+
+</div>
+<!-- ============================================================
+     FORM F - NOMINATION
+     See Rule 1 of Rule 6 of Payment of Gratuity Act
+============================================================ -->
+
+<div class="print-page form-f-page">
+
+    <!-- ================= FORM HEADER ================= -->
+
+    <div class="form-f-title">
+        FORM F (NOMINATION) - See Rule 1 of Rule 6 of Payment of Gratuity Act
+    </div>
+
+
+    <div class="form-f-address">
+        To<br />
+
+        M/s <b>Protalk Services Private Limited.</b><br />
+
+        C-12/6, Industrial Area, Phase 8, Nagar, Mohali, Punjab - 160055
+    </div>
+
+
+    <!-- ================= NOMINATION INTRODUCTION ================= -->
+
+    <div class="form-f-content">
+
+        <ol class="form-f-number-list">
+
+            <li>
+                I,
+                <span class="form-f-line form-f-name-line">
+                    @Safe(employee?.FullName)
+                </span>,
+                who particulars are given in the statement below, hereby nominate the
+                persons mentioned below to receive the gratuity payable after my death
+                as also the gratuity standing to my credit in the event of my death
+                before that amount has become payable, or having become payable,
+                has not been paid and direct that the said amount of gratuity shall
+                be paid in proportion indicated against the name(s) of the nominee(s).
+            </li>
+
+            <li>
+                Hereby certify that the persons mentioned is/are a member/s of my
+                family within the meaning of Clause (h) of Section 2 of the Payment
+                of Gratuity Act, 1972.
+            </li>
+
+            <li>
+                I hereby declare that I have no family within the meaning of Clause
+                (h) of Section 2 of the said Act.
+            </li>
+
+            <li>
+                My father/mother/parents are not dependent on me.
+            </li>
+
+            <li>
+                My husband's father/mother/parents are not dependent on my husband.
+            </li>
+
+            <li>
+                I have excluded my husband from my family by a notice, dated
+                <span class="form-f-line"></span>,
+                to the controlling authority in terms of provision to Clause (h)
+                of Section 2 of the said Act.
+            </li>
+
+            <li>
+                Nomination made herein invalidates my previous nomination.
+            </li>
+
+        </ol>
+
+    </div>
+
+
+    <!-- ============================================================
+         NOMINEE TABLE
+    ============================================================= -->
+
+    <div class="form-f-table-title">
+        NOMINEE(S)
+    </div>
+
+    <table class="form-f-table nominee-table">
+
+        <thead>
+            <tr>
+                <th style="width:8%;">
+                    S.No.
+                </th>
+
+                <th style="width:30%;">
+                    Name in full with address of nominee
+                </th>
+
+                <th style="width:22%;">
+                    Relationship with the employee
+                </th>
+
+                <th style="width:15%;">
+                    Age of the nominee
+                </th>
+
+                <th style="width:25%;">
+                    Proportion by which gratuity will be shared
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>1</td>
+
+                <td>
+                    <span class="form-f-entry"></span>
+                    <span class="form-f-entry"></span>
+                </td>
+
+                <td>
+                    <span class="form-f-entry"></span>
+                </td>
+
+                <td>
+                    <span class="form-f-entry"></span>
+                </td>
+
+                <td>
+                    <span class="form-f-entry"></span>
+                </td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+
+                <td>
+                    <span class="form-f-entry"></span>
+                    <span class="form-f-entry"></span>
+                </td>
+
+                <td>
+                    <span class="form-f-entry"></span>
+                </td>
+
+                <td>
+                    <span class="form-f-entry"></span>
+                </td>
+
+                <td>
+                    <span class="form-f-entry"></span>
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+
+    <!-- ============================================================
+         STATEMENT
+    ============================================================= -->
+
+    <div class="form-f-section-title">
+        STATEMENT
+    </div>
+
+    <table class="form-f-statement-table">
+
+        <tr>
+            <td class="statement-number">1.</td>
+
+            <td class="statement-label">
+                Name of the employee
+            </td>
+
+            <td class="statement-colon">:</td>
+
+            <td class="statement-value">
+                 <span class="statement-line">
+                 <div class="handwritten" style="margin-top:8px;">
+        @Safe(employee?.FullName)
+        </div>
+    </span>
+            </td>
+        </tr>
+
+       <tr>
+            <td>2.</td>
+            <td>Sex</td>
+            <td>:</td>
+            <td>
+                <span class="statement-line">
+                    <div class="handwritten" style="margin-top:8px;">
+                        @* @Safe(employee?.Sex) *@
+                    </div>
+                </span>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>3.</td>
+
+            <td>Religion</td>
+
+            <td>:</td>
+
+            <td>
+                  <span class="statement-line">
+                    <div class="handwritten" style="margin-top:8px;">
+                        @Safe(employee?.Religion)
+                    </div>
+                </span>
+            </td>
+        </tr>
+
+        <tr>
+            <td>4.</td>
+
+            <td>Whether unmarried/married/widow</td>
+
+            <td>:</td>
+
+            <td>
+                   <span class="statement-line">
+                    <div class="handwritten" style="margin-top:8px;">
+                        @Safe(employee?.MaritalStatus)
+                    </div>
+                </span>
+            </td>
+        </tr>
+
+        <tr>
+            <td>5.</td>
+
+            <td>Department</td>
+
+            <td>:</td>
+
+            <td>
+                   <span class="statement-line">
+                    <div class="handwritten" style="margin-top:8px;">
+                        @Safe(interview?.Department)
+                    </div>
+                </span>
+            </td>
+        </tr>
+
+        <tr>
+            <td>6.</td>
+
+            <td>Post held &amp; code</td>
+
+            <td>:</td>
+
+            <td>
+                    <span class="statement-line">
+                    <div class="handwritten" style="margin-top:8px;">
+                        @Safe(employee?.Designation)
+                    </div>
+                </span>
+            </td>
+        </tr>
+
+        <tr>
+            <td>7.</td>
+
+            <td>Date of appointment</td>
+
+            <td>:</td>
+
+            <td>
+                <span class="statement-line">
+                  <div class="handwritten" style="margin-top:8px;">
+                     @FormatDate(employee.DeclarationDate)
+                </div>
+                </span>
+            </td>
+        </tr>
+
+        <tr>
+            <td>8.</td>
+
+            <td>Permanent Address</td>
+
+            <td>:</td>
+
+            <td>
+                <span class="statement-line">
+                  <div class="handwritten" style="margin-top:8px;">
+                     @Safe(employee.PermanentAddress)
+                </div>
+                </span>
+            </td>
+        </tr>
+
+    </table>
+
+
+    <!-- ============================================================
+         PLACE / DATE / EMPLOYEE SIGNATURE
+    ============================================================= -->
+
+    <div class="form-f-signature-row">
+
+        <div class="form-f-place">
+            <b>Place:</b>
+
+            <span class="form-f-line">
+                   <div class="handwritten" style="margin-top:8px;">
+                     @Safe(employee.DeclarationPlace)
+                </div>
+            </span>
+        </div>
+
+        <div class="form-f-date">
+            <b>Date:</b>
+
+            <span class="form-f-line">
+                <div class="handwritten" style="margin-top:8px;">
+                     @FormatDate(employee.DeclarationDate)
+                </div>
+            </span>
+        </div>
+
+        <div class="form-f-employee-signature">
+
+            <span class="signature-image-wrapper">
+
+                @if (signatureDocument != null)
+                {
+                    var signaturePath = GetDocumentFilePath(signatureDocument);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+
+            </span>
+
+            <b>Signature/Thumb impression of the employee</b>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         DECLARATION BY WITNESS
+    ============================================================= -->
+
+    <div class="form-f-section-title witness-title">
+        DECLARATION BY WITNESS
+    </div>
+
+    <div class="witness-intro">
+        Nomination signed/thumb impression before me:
+    </div>
+
+    <table class="witness-table">
+
+        <tr>
+
+            <td class="witness-number">
+                1.)
+            </td>
+
+            <td class="witness-details">
+
+                <div>
+                    Name in full &amp; full address/of witnesses
+                </div>
+
+                <div class="witness-line"></div>
+
+                <div>
+                    Signature of Witness
+                </div>
+
+                <div class="witness-line short"></div>
+
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="witness-number">
+                2.)
+            </td>
+
+            <td class="witness-details">
+
+                <div>
+                    Name in full &amp; full address/of witnesses
+                </div>
+
+                <div class="witness-line"></div>
+
+                <div>
+                    Signature of Witness
+                </div>
+
+                <div class="witness-line short"></div>
+
+            </td>
+
+        </tr>
+
+    </table>
+
+
+    <!-- ============================================================
+         CERTIFICATE BY EMPLOYER
+    ============================================================= -->
+
+    <div class="form-f-section-title">
+        CERTIFICATE BY THE EMPLOYER
+    </div>
+
+    <div class="employer-certificate">
+
+        Certified that the particulars of the above nomination have been verified
+        and recorded in the establishment.
+
+        <br />
+
+        Employer's Reference No. if any:
+        <span class="form-f-line certificate-line"></span>
+
+    </div>
+
+
+    <div class="employer-signature-row">
+
+        <div class="employer-place-date">
+
+            <div>
+                <b>Place:</b>
+                <span class="field-line">
+                                        <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @Safe(employee.DeclarationPlace)
+
+                    </div>
+                </span>
+            </div>
+
+            <div>
+                <b>Date:</b>
+                <span class="field-line">
+                      <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @FormatDate(employee.DeclarationDate)
+
+                    </div>
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="employer-signature">
+
+            <div class="employer-signature-space">
+
+           @if (hrInterviewerSignature != null)
+                {
+                    var signaturePath = GetDocumentFilePath(hrInterviewerSignature);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+            </div>
+
+            <b>
+                Signature of the employer/<br />
+                Authorized Signatory
+            </b>
+
+            <div class="employer-designation">
+                Designation
+            </div>
+
+            <div>
+                Name and address of the Establishment or rubber stamp thereof.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         ACKNOWLEDGEMENT BY EMPLOYEE
+    ============================================================= -->
+
+    <div class="form-f-section-title acknowledgement-title">
+        ACKNOWLEDGMENT BY THE EMPLOYEE
+    </div>
+
+    <div class="acknowledgement-text">
+
+        Received the duplicate copy of nomination in Form "F" filled by me and
+        duly certified by the employer.
+
+    </div>
+
+
+    <div class="acknowledgement-row">
+
+        <div>
+            <b>Date:</b>
+            <span class="field-line">
+                    <div class="handwritten"
+                         style="margin-top:8px;">
+
+                        @FormatDate(employee.DeclarationDate)
+
+                    </div>
+            </span>
+        </div>
+
+        <div class="acknowledgement-signature">
+
+            <div class="employer-signature-space">
+
+                @if (signatureDocument != null)
+                {
+                    var signaturePath = GetDocumentFilePath(signatureDocument);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+
+            </div>
+
+            <b>Signature of the employee</b>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <div class="form-f-footer">
+
+        <span>
+            Form F - Nomination
+        </span>
+
+        <span>
+            Page 9
+        </span>
+
+    </div>
+
+</div>
+<!-- ============================================================
+     FORM 2 REVISED
+     NOMINATION AND DECLARATION FORM FOR UNEXEMPTED/EXEMPTED
+     ESTABLISHMENTS
+============================================================ -->
+
+<div class="print-page form2-page">
+
+    <!-- ========================================================
+         HEADER
+    ========================================================= -->
+
+    <div class="form2-top-header">
+
+        <div class="form2-left-space"></div>
+
+        <div class="form2-header-right">
+            <div class="form2-revised-title">
+                (FORM 2 REVISED)
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         MAIN TITLE
+    ========================================================= -->
+
+    <div class="form2-main-title">
+        NOMINATION AND DECLARATION FORM FOR UNEXEMPTED/EXEMPTED ESTABLISHMENTS
+    </div>
+
+    <div class="form2-subtitle">
+        Declaration and Nomination form under the Employees Provident Funds and
+        Employees Pension Schemes
+        <br />
+        (Paragraph 33 and 61 (1) of the Employees Provident Fund Scheme 1952
+        and Paragraph 18 of the Employees Pension Scheme 1995)
+    </div>
+
+
+    <!-- ========================================================
+         EMPLOYEE DETAILS
+    ========================================================= -->
+
+    <table class="form2-details-table">
+
+        <tr>
+
+            <td class="form2-label">
+                1. Name (IN BLOCK LETTERS):
+            </td>
+
+            <td class="form2-value">
+                @Safe(employee?.FullName)
+            </td>
+
+            <td class="form2-label small-label">
+                Name
+            </td>
+
+            <td class="form2-value">
+                @Safe(employee?.FullName)
+            </td>
+
+            <td class="form2-label small-label">
+                Father's / Husband's Name
+            </td>
+
+            <td class="form2-value">
+                @Safe(employee?.FatherHusbandName)
+            </td>
+
+            <td class="form2-label small-label">
+                Surname
+            </td>
+
+            <td class="form2-value">
+                &nbsp;
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="form2-label">
+                2. Date of Birth:
+            </td>
+
+            <td colspan="2" class="form2-value">
+                &nbsp;
+            </td>
+
+            <td class="form2-label">
+                3. Account No.
+            </td>
+
+            <td colspan="4" class="form2-value">
+                &nbsp;
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="form2-label">
+                4. "Sex:
+            </td>
+
+            <td colspan="2" class="form2-value">
+                MALE / FEMALE
+            </td>
+
+            <td class="form2-label">
+                5. Marital Status
+            </td>
+
+            <td colspan="4" class="form2-value">
+                &nbsp;
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td class="form2-label">
+                6. Address Permanent / Temporary
+            </td>
+
+            <td colspan="7" class="form2-value address-value">
+                @Safe(employee?.PresentAddress)
+            </td>
+
+        </tr>
+
+    </table>
+
+
+    <!-- ========================================================
+         PART A - EPF
+    ========================================================= -->
+
+    <div class="form2-part-title">
+        PART – A (EPF)
+    </div>
+
+    <div class="form2-part-description">
+
+        I hereby nominate the person(s)/cancel the nomination made by me previously
+        and nominate the person(s) mentioned below to receive the amount standing to
+        my credit in the Employees Provident Fund, in the event of my death.
+
+    </div>
+
+
+    <!-- ========================================================
+         EPF NOMINEE TABLE
+    ========================================================= -->
+
+    <table class="form2-nominee-table">
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Name of the<br />
+                    Nominee(s)
+                </th>
+
+                <th>
+                    Address
+                </th>
+
+                <th>
+                    Nominee's<br />
+                    relationship with<br />
+                    the member
+                </th>
+
+                <th>
+                    Date of<br />
+                    Birth
+                </th>
+
+                <th>
+                    Total amount or share of<br />
+                    accumulations in<br />
+                    Provident Funds to be<br />
+                    paid to each nominee
+                </th>
+
+                <th>
+                    If the nominee is minor<br />
+                    name and address of the<br />
+                    guardian who may receive<br />
+                    the amount during the<br />
+                    minority of the nominee
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @for (int i = 0; i < 5; i++)
+            {
+                <tr>
+
+                    <td>
+                        <span class="form2-write-line"></span>
+                    </td>
+
+                    <td>
+                        <span class="form2-write-line"></span>
+                    </td>
+
+                    <td>
+                        <span class="form2-write-line"></span>
+                    </td>
+
+                    <td>
+                        <span class="form2-write-line"></span>
+                    </td>
+
+                    <td>
+                        <span class="form2-write-line"></span>
+                    </td>
+
+                    <td>
+                        <span class="form2-write-line"></span>
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- ========================================================
+         EPF DECLARATIONS
+    ========================================================= -->
+
+    <div class="form2-footnotes">
+
+        <div class="form2-footnote-row">
+            <span class="footnote-number">1.</span>
+            <span>
+                *Certified that I have no family as defined in para 2 (g) of the
+                Employees Provident Fund Scheme 1952 and should I acquire a family
+                hereafter the above nomination should be deemed as cancelled.
+            </span>
+        </div>
+
+        <div class="form2-footnote-row">
+            <span class="footnote-number">2.</span>
+            <span>
+                *Certified that my father/mother is/are dependent upon me.
+            </span>
+        </div>
+
+        <div class="form2-strike-note">
+            Strike out whichever is not applicable
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         EPF SIGNATURE
+    ========================================================= -->
+
+    <div class="form2-subscriber-signature">
+
+        <div class="form2-signature-space">
+
+                @if (signatureDocument != null)
+                {
+                    var signaturePath = GetDocumentFilePath(signatureDocument);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+
+        </div>
+
+        <div>
+            Signature/thumb impression<br />
+            of the subscriber
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         PART B - EPS
+    ========================================================= -->
+
+    <div class="form2-part-title eps-title">
+        PART – B (EPS)
+    </div>
+
+    <div class="form2-eps-rule">
+        Para 18
+    </div>
+
+    <div class="form2-part-description eps-description">
+
+        I hereby furnish below particulars of the members of my family who would be
+        eligible to receive Widow/Children Pension in the event of my premature death
+        in service.
+
+    </div>
+
+
+    <!-- ========================================================
+         EPS FAMILY TABLE
+    ========================================================= -->
+
+    <table class="form2-eps-table">
+
+        <thead>
+
+            <tr>
+
+                <th style="width:10%;">
+                    Sr. No
+                </th>
+
+                <th style="width:43%;">
+                    Name &amp; Address of the Family Member
+                </th>
+
+                <th style="width:13%;">
+                    Age
+                </th>
+
+                <th style="width:34%;">
+                    Relationship with the member
+                </th>
+
+            </tr>
+
+            <tr class="column-number-row">
+
+                <th>
+                    (1)
+                </th>
+
+                <th>
+                    (2)
+                </th>
+
+                <th>
+                    (3)
+                </th>
+
+                <th>
+                    (4)
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @for (int i = 1; i <= 7; i++)
+            {
+                <tr>
+
+                    <td>
+                        @i
+                    </td>
+
+                    <td>
+                        &nbsp;
+                    </td>
+
+                    <td>
+                        &nbsp;
+                    </td>
+
+                    <td>
+                        &nbsp;
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- ========================================================
+         FOOTER
+    ========================================================= -->
+
+    <div class="form2-footer">
+
+        <span>
+            Form 2 Revised
+        </span>
+
+        <span>
+            Page 7
+        </span>
+
+    </div>
+
+</div>
+<!-- ============================================================
+     FORM 2 REVISED - PART B (EPS) CONTINUATION
+============================================================ -->
+
+<div class="print-page form2-eps-continuation-page">
+
+    <!-- ========================================================
+         EPS DECLARATION
+    ========================================================= -->
+
+    <div class="form2-eps-continuation-text">
+
+        Certified that I have no family as defined in para 2 (vii) of the
+        Employee's Family Pension Scheme 1995 and should I acquire a family
+        hereafter I shall furnish particulars thereof in the above form.
+
+        <br /><br />
+
+        I hereby nominate the following person for receiving the monthly widow
+        pension (admissible under para 16.2 (a) &amp; (ii)) in the event of my
+        death without leaving any eligible family member for receiving pension.
+
+    </div>
+
+
+    <!-- ========================================================
+         EPS NOMINEE TABLE
+    ========================================================= -->
+
+    <table class="form2-eps-nominee-table">
+
+        <thead>
+            <tr>
+
+                <th style="width:45%;">
+                    Name and Address of<br />
+                    the nominee
+                </th>
+
+                <th style="width:20%;">
+                    Date of Birth
+                </th>
+
+                <th style="width:35%;">
+                    Relationship with member
+                </th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>
+                    <div class="eps-large-entry">
+                        &nbsp;
+                    </div>
+                </td>
+
+                <td>
+                    <div class="eps-large-entry">
+                        &nbsp;
+                    </div>
+                </td>
+
+                <td>
+                    <div class="eps-large-entry">
+                        &nbsp;
+                    </div>
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+
+    <!-- ========================================================
+         DATE
+    ========================================================= -->
+
+    <div class="form2-eps-date-row">
+
+        <div>
+            Date:
+            <span class="field-line">
+          <div class="handwritten" style="margin-top:8px;">
+         @FormatDate(employee.DeclarationDate)
+        </div>
+            </span>
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         SUBSCRIBER SIGNATURE
+    ========================================================= -->
+
+    <div class="form2-eps-subscriber-signature">
+
+        <div class="form2-eps-signature-image">
+
+                @if (signatureDocument != null)
+                {
+                    var signaturePath = GetDocumentFilePath(signatureDocument);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+
+        </div>
+
+        <div>
+            Signature or thumb impression<br />
+            of the subscriber
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         CERTIFICATE BY EMPLOYER
+    ========================================================= -->
+
+    <div class="form2-employer-certificate-title">
+        CERTIFICATE BY EMPLOYER
+    </div>
+
+
+    <div class="form2-employer-certificate-text">
+
+        Certified that the above declaration and nomination has been signed /
+        thumb impressed before me by Shri / Smt./
+
+        <span class="form2-inline-line"></span>
+
+        employed in my establishment after he/she has
+
+        <br />
+
+        read the entries / the entries have been read over to him/her by me and
+        got confirmed by him/her.
+
+    </div>
+
+
+    <!-- ========================================================
+         EMPLOYER SIGNATURE / DATE
+    ========================================================= -->
+
+    <div class="form2-employer-signature-area">
+
+        <!-- LEFT -->
+        <div class="form2-employer-left">
+
+            <div class="employer-date-row">
+                Date:
+                <span class="form2-simple-line small"></span>
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT -->
+        <div class="form2-employer-right">
+
+            <div class="employer-signature-image">
+
+                @if (hrInterviewerSignature != null)
+                {
+                    var hrSignaturePath =
+                        GetDocumentFilePath(hrInterviewerSignature);
+
+                    if (!string.IsNullOrWhiteSpace(hrSignaturePath))
+                    {
+                        <img src="@hrSignaturePath"
+                             class="undertaking-signature-image"
+                             alt="HR Signature" />
+                    }
+                }
+
+            </div>
+
+            <div class="employer-signature-label">
+                Signature of the employer or other authorised officer of the
+                establishment
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         ESTABLISHMENT DETAILS
+    ========================================================= -->
+
+    <div class="form2-establishment-area">
+
+        <div class="form2-establishment-name">
+
+            <span class="establishment-label">
+                Name &amp; address of Factory / Establishment
+            </span>
+
+            <div class="establishment-lines">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+        </div>
+
+
+        <div class="form2-establishment-place-date">
+
+            <div>
+                Place:
+                <span class="form2-simple-line"></span>
+            </div>
+
+            <div>
+                Date:
+                <span class="form2-simple-line"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         FOOTER
+    ========================================================= -->
+
+    <div class="form2-eps-footer">
+
+        <span>
+            Form 2 Revised - Part B (EPS)
+        </span>
+
+        <span>
+            Page 8
+        </span>
+
+    </div>
+
+</div>
+<!-- ============================================================
+     ESI - FORM 1
+     DECLARATION FORM
+============================================================ -->
+
+<div class="print-page esi-form1-page">
+
+    <!-- ========================================================
+         HEADER
+    ========================================================= -->
+
+    <div class="esi-header">
+
+        <div class="esi-emblem">
+            <!-- Keep your existing ESI logo/image here if available -->
+            <div class="esi-logo-circle">
+                ESI
+            </div>
+        </div>
+
+        <div class="esi-header-center">
+
+            <div class="esi-declaration-title">
+                DECLARATION FORM
+            </div>
+
+            <div class="esi-employer-code">
+                Employer's Code No.
+                <span class="esi-header-input"></span>
+            </div>
+
+        </div>
+
+        <div class="esi-form-number">
+            FORM - 1
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         A + B PARTICULARS
+    ========================================================= -->
+
+    <table class="esi-main-table">
+
+        <tr>
+
+            <!-- =================================================
+                 A - INSURED PERSON
+            ================================================== -->
+
+            <td class="esi-section-a">
+
+                <div class="esi-section-heading">
+                    (A) Insured Person's Particulars
+                </div>
+
+                <table class="esi-inner-table">
+
+                    <tr>
+                        <td class="esi-no">1</td>
+                        <td class="esi-label">Insurance No.</td>
+                        <td class="esi-value" colspan="3">
+                            @Safe(employee?.EmployeeCode)
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="esi-no">2</td>
+                        <td class="esi-label">
+                            Name<br />
+                            (in block capitals)
+                        </td>
+                        <td class="esi-value" colspan="3">
+                            @Safe(employee?.FullName)
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="esi-no">3</td>
+                        <td class="esi-label">
+                            Father's /<br />
+                            Husband's Name
+                        </td>
+                        <td class="esi-value" colspan="3">
+                            @Safe(employee?.FatherHusbandName)
+                        </td>
+                    </tr>
+
+                    <tr>
+
+                        <td class="esi-no">4</td>
+
+                        <td class="esi-label">
+                            Date of Birth
+                        </td>
+
+                        <td class="esi-value esi-dob">
+                            DD&nbsp;&nbsp; MM&nbsp;&nbsp; YY
+                        </td>
+
+                        <td class="esi-label">
+                            5. Marital Status
+                        </td>
+
+                        <td class="esi-value">
+                            M / U / W
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td class="esi-no">6</td>
+
+                        <td class="esi-label">
+                            Sex
+                        </td>
+
+                        <td class="esi-value">
+                            M / F
+                        </td>
+
+                        <td colspan="2"></td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td class="esi-no">7</td>
+
+                        <td class="esi-label">
+                            Present Address
+                        </td>
+
+                        <td class="esi-address" colspan="3">
+                            @Safe(employee?.PresentAddress)
+
+                            <div class="esi-small-field">
+                                Pin:
+                                <span></span>
+                            </div>
+
+                            <div class="esi-small-field">
+                                e-mail address:
+                                <span></span>
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td class="esi-no">8</td>
+
+                        <td class="esi-label">
+                            Permanent Address
+                        </td>
+
+                        <td class="esi-address" colspan="3">
+
+                            @Safe(employee?.PresentAddress)
+
+                            <div class="esi-small-field">
+                                Pin:
+                                <span></span>
+                            </div>
+
+                            <div class="esi-small-field">
+                                e-mail address:
+                                <span></span>
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td colspan="2" class="esi-bottom-label">
+                            Branch office:
+                        </td>
+
+                        <td colspan="1" class="esi-bottom-value">
+                        </td>
+
+                        <td class="esi-bottom-label">
+                            Dispensary:
+                        </td>
+
+                        <td class="esi-bottom-value">
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </td>
+
+
+            <!-- =================================================
+                 B - EMPLOYER
+            ================================================== -->
+
+            <td class="esi-section-b">
+
+                <div class="esi-section-heading">
+                    (B) Employer's Particulars
+                </div>
+
+                <table class="esi-inner-table">
+
+                    <tr>
+
+                        <td class="esi-label">
+                            10. Date of<br />
+                            Appointment
+                        </td>
+
+                        <td class="esi-date-boxes">
+
+                            <span>Day</span>
+                            <span>Month</span>
+                            <span>Year</span>
+
+                            <div>
+                                <i></i>
+                                <i></i>
+                                <i></i>
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td class="esi-label">
+                            11. Name &amp; Address of the employer
+                        </td>
+
+                        <td class="esi-employer-address">
+                            Protalk Services Private Limited.
+                            <br />
+                            C-12/6, Industrial Area,
+                            <br />
+                            Phase 8, Nagar, Mohali,
+                            <br />
+                            Punjab - 160055
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td class="esi-label">
+                            12. In case of any previous employment
+                            please fillup the details as under-
+                        </td>
+
+                        <td class="esi-previous">
+
+                            Previous Ins. No.
+                            <span></span>
+
+                            <br />
+
+                            Empls. Code No.
+                            <span></span>
+
+                            <br />
+
+                            11. Name &amp; Address of the employer
+                            <div class="esi-previous-address"></div>
+
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </td>
+
+        </tr>
+
+    </table>
+
+
+    <!-- ========================================================
+         C - NOMINEE
+    ========================================================= -->
+
+    <div class="esi-section-heading esi-c-heading">
+        (C) Details of the nominee u/s 71 of ESI Act1948 / Rule 56(2)
+        of ESI (Central) Rules 1950 for payment of cash benefit in the event of death
+    </div>
+
+
+    <table class="esi-nominee-table">
+
+        <thead>
+
+            <tr>
+
+                <th style="width:8%;">
+                    Sl.<br />No.
+                </th>
+
+                <th style="width:28%;">
+                    Name of the Nominee
+                </th>
+
+                <th style="width:27%;">
+                    Relationship with insured person
+                </th>
+
+                <th style="width:37%;">
+                    Address
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            <tr>
+
+                <td>1</td>
+
+                <td>
+                    <span></span>
+                </td>
+
+                <td>
+                    <span></span>
+                </td>
+
+                <td>
+                    <span></span>
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+
+    <!-- ========================================================
+         DECLARATION
+    ========================================================= -->
+
+    <div class="esi-declaration-text">
+
+        I hereby declare that the above particulars have been given by me and are
+        correct to the best of my knowledge and belief. I also undertake to
+        intimate to the corporation any change in the membership of my family
+        within 15 days of such change occurring.
+
+    </div>
+
+
+    <div class="esi-signature-row">
+
+        <div class="esi-employer-sign">
+
+            <div class="esi-sign-space"></div>
+
+            <div>
+                Counter Signature of the Employer
+            </div>
+
+            <div class="esi-sign-space"></div>
+
+            <div>
+                Signature with Seal
+            </div>
+
+        </div>
+
+
+        <div class="esi-employee-sign">
+
+            <div class="esi-sign-space">
+
+                @if (signatureDocument != null)
+                {
+                    var signaturePath = GetDocumentFilePath(signatureDocument);
+
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+
+            </div>
+
+            <div>
+                Signature / T.I. of I.P
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         D - FAMILY PARTICULARS
+    ========================================================= -->
+
+    <div class="esi-section-heading esi-d-heading">
+        (D) FAMILY PARTICULARS OF INSURED PERSON
+    </div>
+
+
+    <table class="esi-family-table">
+
+        <thead>
+
+            <tr>
+
+                <th style="width:7%;">
+                    Sl.<br />
+                    No.
+                </th>
+
+                <th style="width:26%;">
+                    Name
+                </th>
+
+                <th style="width:15%;">
+                    Date of Birth
+                </th>
+
+                <th style="width:18%;">
+                    Relationship with<br />
+                    insured person
+                </th>
+
+                <th style="width:17%;">
+                    Whether residing with<br />
+                    him/her or not<br />
+                    YES / NO
+                </th>
+
+                <th style="width:17%;">
+                    If No, State place of<br />
+                    Residence
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @for (int i = 1; i <= 7; i++)
+            {
+                <tr>
+
+                    <td>@i</td>
+
+                    <td></td>
+
+                    <td></td>
+
+                    <td></td>
+
+                    <td></td>
+
+                    <td></td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+
+    <!-- ========================================================
+         TEMPORARY ID CARD
+    ========================================================= -->
+
+    <div class="esi-card-heading">
+        ESI CORPORATION
+    </div>
+
+    <div class="esi-temporary-card-title">
+        Temporary Identity Card
+    </div>
+
+    <div class="esi-validity">
+        Valid for 3 months from the date of appointment
+    </div>
+
+
+    <div class="esi-card-area">
+
+        <!-- CARD DETAILS -->
+        <table class="esi-id-card-table">
+
+            <tr>
+                <td>Name</td>
+                <td colspan="2">
+                    @Safe(employee?.FullName)
+                </td>
+            </tr>
+
+            <tr>
+                <td>Ins. No</td>
+                <td colspan="2"></td>
+            </tr>
+
+            <tr>
+                <td>Father's /<br />Husband's Name</td>
+                <td colspan="2">
+                    @Safe(employee?.FatherHusbandName)
+                </td>
+            </tr>
+
+            <tr>
+                <td>Branch Office</td>
+                <td>Date of Entry</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td>Dispensary</td>
+                <td>Date of Birth</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td>Name, Address &amp;<br />
+                    Code No. of the<br />
+                    employer
+                </td>
+
+                <td colspan="2">
+                    Protalk Services Private Limited.
+                </td>
+            </tr>
+
+        </table>
+
+
+        <!-- PHOTO -->
+        <div class="esi-photo-box">
+            Space for photograph
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         CARD SIGNATURE AREA
+    ========================================================= -->
+
+    <div class="esi-card-signatures">
+
+        <div>
+
+            <div>
+                Validity
+            </div>
+
+            <div>
+                Dated
+            </div>
+
+        </div>
+
+
+        <div class="esi-card-sign">
+
+            <div class="esi-sign-space"></div>
+
+            Signature / T.I. of I.P
+
+        </div>
+
+
+        <div class="esi-card-sign">
+
+            <div class="esi-sign-space"></div>
+
+            Signature of B.M. with Seal
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         FOOTER
+    ========================================================= -->
+
+    <div class="esi-footer">
+
+        <span>ESI - Form 1</span>
+
+        <span>Page 9</span>
+
     </div>
 
 </div>

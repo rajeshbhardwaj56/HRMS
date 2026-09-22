@@ -2187,68 +2187,75 @@ namespace HRMS.Web.Areas.HR.Controllers
             }
 
             var employeeId = GetSessionInt(Constants.EmployeeID);
+            var roleId = GetSessionInt(Constants.RoleID);
+
+            bool isSuperAdmin = roleId == (int)Roles.SuperAdmin;
 
             var settings = new List<CutoffDateSettingModel>
     {
         new CutoffDateSettingModel
         {
             SettingKey = "ApplyCutoffDate",
-            SettingValue = model.ApplyCutoffDate?
-                .ToString("yyyy-MM-dd"),
+            SettingValue = model.ApplyCutoffDate?.ToString("yyyy-MM-dd"),
             UpdatedBy = employeeId
         },
 
         new CutoffDateSettingModel
         {
             SettingKey = "ApprovalCutoffDate",
-            SettingValue = model.ApprovalCutoffDate?
-                .ToString("yyyy-MM-dd"),
+            SettingValue = model.ApprovalCutoffDate?.ToString("yyyy-MM-dd"),
             UpdatedBy = employeeId
         },
 
         new CutoffDateSettingModel
         {
             SettingKey = "AttendanceCutoffDate",
-            SettingValue = model.AttendanceCutoffDate?
-                .ToString("yyyy-MM-dd"),
-            UpdatedBy = employeeId
-        },
-
-        new CutoffDateSettingModel
-        {
-            SettingKey = "AdminEditCutoffDate",
-            SettingValue = model.AdminEditCutoffDate?
-                .ToString("yyyy-MM-dd"),
-            UpdatedBy = employeeId
-        },
-        new CutoffDateSettingModel
-        {
-            SettingKey = "SalaryCalculationCutoffDate",
-            SettingValue = model.SalaryCalculationCutoffDate?
-                .ToString("yyyy-MM-dd"),
-            UpdatedBy = employeeId
-        },
-        new CutoffDateSettingModel
-        {
-            SettingKey = "AllowSuperAdminEdit",
-            SettingValue = model.AllowSuperAdminEdit ? "1" : "0",
-            UpdatedBy = employeeId
-        },
-
-        new CutoffDateSettingModel
-        {
-            SettingKey = "ShowImportAttendanceExcel",
-            SettingValue = model.ShowImportAttendanceExcel ? "1" : "0",
-            UpdatedBy = employeeId
-        },
-
-        new CutoffDateSettingModel
-        {
-            SettingKey = "ShowAutoCalculateMonthSalary",
-            SettingValue = model.ShowAutoCalculateMonthSalary ? "1" : "0",
+            SettingValue = model.AttendanceCutoffDate?.ToString("yyyy-MM-dd"),
             UpdatedBy = employeeId
         }
     };
+
+            // ============================================================
+            // SUPER ADMIN ONLY SETTINGS
+            // ============================================================
+
+            if (isSuperAdmin)
+            {
+                settings.Add(new CutoffDateSettingModel
+                {
+                    SettingKey = "AdminEditCutoffDate",
+                    SettingValue = model.AdminEditCutoffDate?.ToString("yyyy-MM-dd"),
+                    UpdatedBy = employeeId
+                });
+
+                settings.Add(new CutoffDateSettingModel
+                {
+                    SettingKey = "SalaryCalculationCutoffDate",
+                    SettingValue = model.SalaryCalculationCutoffDate?.ToString("yyyy-MM-dd"),
+                    UpdatedBy = employeeId
+                });
+
+                settings.Add(new CutoffDateSettingModel
+                {
+                    SettingKey = "AllowSuperAdminEdit",
+                    SettingValue = model.AllowSuperAdminEdit ? "1" : "0",
+                    UpdatedBy = employeeId
+                });
+
+                settings.Add(new CutoffDateSettingModel
+                {
+                    SettingKey = "ShowImportAttendanceExcel",
+                    SettingValue = model.ShowImportAttendanceExcel ? "1" : "0",
+                    UpdatedBy = employeeId
+                });
+
+                settings.Add(new CutoffDateSettingModel
+                {
+                    SettingKey = "ShowAutoCalculateMonthSalary",
+                    SettingValue = model.ShowAutoCalculateMonthSalary ? "1" : "0",
+                    UpdatedBy = employeeId
+                });
+            }
 
             var token = HttpContext.Session.GetString(
                 Constants.SessionBearerToken);
@@ -2266,7 +2273,7 @@ namespace HRMS.Web.Areas.HR.Controllers
 
             SetSuccessToast("Cutoff settings updated successfully.");
 
-            return RedirectToActionPermanent(
+            return RedirectToAction(
                 WebControllarsConstants.CutoffDateSettings,
                 WebControllarsConstants.Employee);
         }

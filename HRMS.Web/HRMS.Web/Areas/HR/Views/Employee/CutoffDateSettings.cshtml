@@ -68,27 +68,28 @@
                             new { @class = "form-control", type = "date" })
                     </div>
                 </div>
+                @if (isSuperAdmin)
+                {
+                    <div class="col-md-4 form-group">
+                        <div class="col-md-12">
+                            Admin Edit Cutoff Date <label class="Mandetory">*</label>
+                        </div>
+                        <div class="col-md-12">
+                            @Html.TextBoxFor(m => m.AdminEditCutoffDate,
+                                                                            "{0:yyyy-MM-dd}",
+                                                                            new { @class = "form-control", type = "date" })
+                        </div>
+                    </div>
 
-                <div class="col-md-4 form-group">
-                    <div class="col-md-12">
-                        Admin Edit Cutoff Date <label class="Mandetory">*</label>
+                    <div class="col-md-4 form-group">
+                        <div class="col-md-12">
+                            Allow Super Admin Edit
+                        </div>
+                        <div class="col-md-12">
+                            @Html.CheckBoxFor(m => m.AllowSuperAdminEdit)
+                        </div>
                     </div>
-                    <div class="col-md-12">
-                        @Html.TextBoxFor(m => m.AdminEditCutoffDate,
-                            "{0:yyyy-MM-dd}",
-                            new { @class = "form-control", type = "date" })
-                    </div>
-                </div>
-
-                <div class="col-md-4 form-group">
-                    <div class="col-md-12">
-                        Allow Super Admin Edit
-                    </div>
-                    <div class="col-md-12">
-                        @Html.CheckBoxFor(m => m.AllowSuperAdminEdit)
-                    </div>
-                </div>
-
+                }
             </div>
 
         </div>

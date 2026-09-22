@@ -1752,6 +1752,7 @@ List<int> hierarchyLevels = null)
                 ViewBag.TotalLeave = approvedLeaves;
                 ViewBag.TotalAnnualLeave = annualLeavesBalance;
                 ViewBag.ConsecutiveAllowedDays = Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
+
             }
 
             return View(results);
@@ -3104,7 +3105,12 @@ List<int> hierarchyLevels = null)
                 ViewBag.ConsecutiveAllowedDays =
                     Convert.ToDecimal(leavePolicy.Annual_MaximumConsecutiveLeavesAllowed);
             }
+            var cutoffSettings = _cutoffSettingsService.GetCutoffSettings(
+HttpContext.Session.GetString(Constants.SessionBearerToken)
+);
 
+            ViewBag.AdminEditCutoffDate =
+                cutoffSettings?.AdminEditCutoffDate;
             // ==============================
             // 4. RETURN VIEW
             // ==============================

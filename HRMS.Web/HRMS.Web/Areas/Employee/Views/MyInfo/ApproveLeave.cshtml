@@ -1734,26 +1734,42 @@ $('td:eq(8)', row).find('button')
             currentRole === @((int)Roles.SuperAdmin);
 
         const approvedStatusID = @((int)LeaveStatus.Approved);
-
         const leaveStatusID = Number(row.leaveStatusID);
 
-        let isRequestToday = false;
+        // =====================================================
+        // ADMIN / SUPERADMIN CUTOFF
+        // =====================================================
 
-        if (row.requestDate) {
+        const cutoffDateString = '@(
+            ViewBag.AdminEditCutoffDate != null
+                ? Convert.ToDateTime(ViewBag.AdminEditCutoffDate).ToString("yyyy-MM-dd")
+                : ""
+        )';
 
+        let canCancelLeave = false;
+
+        if (cutoffDateString && row.requestDate) {
+
+            // Cutoff date
+            const cutoffDate = new Date(cutoffDateString);
+            cutoffDate.setHours(0, 0, 0, 0);
+
+            // Leave request date
             const requestDate = new Date(row.requestDate);
-            const today = new Date();
+            requestDate.setHours(0, 0, 0, 0);
 
-            isRequestToday =
-                requestDate.getFullYear() === today.getFullYear() &&
-                requestDate.getMonth() === today.getMonth() &&
-                requestDate.getDate() === today.getDate();
+            // Request must be AFTER cutoff date
+            canCancelLeave = requestDate > cutoffDate;
         }
+
+        // =====================================================
+        // SHOW CANCEL BUTTON
+        // =====================================================
 
         if (
             isAdmin &&
             leaveStatusID === Number(approvedStatusID) &&
-            isRequestToday
+            canCancelLeave
         ) {
 
             html += `
@@ -1761,7 +1777,10 @@ $('td:eq(8)', row).find('button')
                         class="btn btn-sm btn-danger"
                         style="margin:0; padding:2px 6px; vertical-align:middle;"
                         title="Cancel Leave"
-                        onclick="AdminCancelLeave('${row.encryptedIdentity}', '${row.encrypted}')">
+                        onclick="AdminCancelLeave(
+                            '${row.encryptedIdentity}',
+                            '${row.encrypted}'
+                        )">
                     <i class="fa fa-close"></i>
                 </button>
             `;
