@@ -171,5 +171,25 @@ namespace HRMS.API.Web.Controllers
 
             return Ok(result);
         }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult CompleteEmployeeOnboarding(
+            CompleteEmployeeOnboardingRequest model)
+                {
+                    IActionResult response = Unauthorized();
+
+                    response = Ok(
+                        _businessLayer.CompleteEmployeeOnboarding(
+                            model.OnboardingID,
+                            model.ApprovedBy,
+                            model.ApprovalComments
+                        )
+                    );
+
+                    return response;
+                }
+
+
     }
 }

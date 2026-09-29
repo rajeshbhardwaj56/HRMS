@@ -436,6 +436,8 @@ namespace HRMS.Models.Common
         public const string ApproveEmployeeOnboarding ="ApproveEmployeeOnboarding";
 
         public const string RejectEmployeeOnboarding ="RejectEmployeeOnboarding";
+        public const string CompleteEmployeeOnboarding = "CompleteEmployeeOnboarding";
+
     }
 
     public class MyInfoTabs

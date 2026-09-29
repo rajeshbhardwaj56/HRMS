@@ -14,6 +14,7 @@ namespace HRMS.Models.Common
     public class Results
     {
         public Result Result { get; set; } = new Result();
+
         public List<SelectListItem> Employee { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Countries { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Currencies { get; set; } = new List<SelectListItem>();
@@ -21,37 +22,51 @@ namespace HRMS.Models.Common
         public List<SelectListItem> EmploymentTypes { get; set; } = new List<SelectListItem>();
 
         public List<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
+
         public List<EmployeeModel> Employees { get; set; } = new List<EmployeeModel>();
         public EmployeeModel employeeModel { get; set; } = new EmployeeModel();
+
         public List<TemplateModel> Template { get; set; } = new List<TemplateModel>();
         public TemplateModel templateModel { get; set; } = new TemplateModel();
+
         public CompanyModel companyModel { get; set; } = new CompanyModel();
         public CompanyLoginModel companyLoginModel { get; set; } = new CompanyLoginModel();
         public List<CompanyModel> Companies { get; set; } = new List<CompanyModel>();
+
         public List<SelectListItem> JobLocationList { get; set; } = new List<SelectListItem>();
+
         public List<LeavePolicyModel> LeavePolicy { get; set; } = new List<LeavePolicyModel>();
         public LeavePolicyModel leavePolicyModel { get; set; } = new LeavePolicyModel();
-        // public WhatsHappeningModel leavePolicyModel { get; set; } = new WhatsHappeningModel();
+
         public LeavePolicyDetailsModel LeavePolicyDetailsModel { get; set; } = new LeavePolicyDetailsModel();
 
         public List<HolidayModel> Holiday { get; set; } = new List<HolidayModel>();
         public List<LeavePolicyDetailsModel> LeavePolicyDetailsList { get; set; } = new List<LeavePolicyDetailsModel>();
+
         public List<WhatsHappeningModels> WhatsHappeningList { get; set; } = new List<WhatsHappeningModels>();
         public WhatsHappeningModels WhatsHappeningModel { get; set; } = new WhatsHappeningModels();
 
         public HolidayModel holidayModel { get; set; } = new HolidayModel();
+
         public List<AttendenceListModel> AttendenceList { get; set; } = new List<AttendenceListModel>();
         public AttendenceListModel AttendenceListModel { get; set; } = new AttendenceListModel();
+
         public List<ShiftTypeModel> ShiftType { get; set; } = new List<ShiftTypeModel>();
         public ShiftTypeModel shiftTypeModel { get; set; } = new ShiftTypeModel();
+
         public List<SelectListItem> leaveTypes { get; set; } = new List<SelectListItem>();
+
         public List<PolicyCategoryModel> PolicyCategoryList { get; set; } = new List<PolicyCategoryModel>();
         public PolicyCategoryModel PolicyCategoryModel { get; set; } = new PolicyCategoryModel();
+
         public List<Attendance> AttandanceList { get; set; } = new List<Attendance>();
         public Attendance AttendanceModel { get; set; } = new Attendance();
+
         public List<SelectListItem> FormsPermission { get; set; } = new List<SelectListItem>();
+
         public List<DesignationModel> DesignationList { get; set; } = new();
         public DesignationModel designationModel { get; set; } = new();
+
         public List<SelectListItem> DepartmentList { get; set; } = new();
 
         // Sub Department
@@ -61,14 +76,22 @@ namespace HRMS.Models.Common
         // LOB
         public List<LOBModel> LOBList { get; set; } = new();
         public LOBModel lobModel { get; set; } = new();
-        public List<CutoffDateSettingModel> CutoffDateSettingsList { get; set; } = new();
-        public List<SalarySlipSettingsModel> SalarySlipSettingsList { get; set; } = new();
 
+        public List<CutoffDateSettingModel> CutoffDateSettingsList { get; set; } = new();
+
+        public List<SalarySlipSettingsModel> SalarySlipSettingsList { get; set; } = new();
         public SalarySlipSettingsModel salarySlipSettingsModel { get; set; } = new();
+
         public List<AutoSalaryCalculationModel> AutoSalaryCalculationList { get; set; } = new();
         public AutoSalaryCalculationModel autoSalaryCalculationModelModel { get; set; } = new();
+
         public List<AutoSalaryCalculationErrorModel> AutoSalaryCalculationErrors { get; set; } = new();
         public AutoSalaryCalculationErrorModel autoSalaryCalculationErrorsModel { get; set; } = new();
+
+        // ==============================
+        // Employee Onboarding
+        // ==============================
+
         public List<EmployeeDetailsOnboardingModel> EmployeeDetailsOnboardingList { get; set; } = new();
 
         public List<EmployeeOnboardingFamilyModel> EmployeeOnboardingFamilyList { get; set; } = new();
@@ -76,12 +99,62 @@ namespace HRMS.Models.Common
         public List<EmployeeOnboardingEducationModel> EmployeeOnboardingEducationList { get; set; } = new();
 
         public List<EmployeeOnboardingEmploymentModel> EmployeeOnboardingEmploymentList { get; set; } = new();
-        public List<EmployeeOnboardingBankDetailsModel> EmployeeOnboardingBankDetailsList { get; set; } = new();
-        public List<EmployeeOnboardingDocumentsModel> EmployeeOnboardingDocumentsList { get; set; } = new();
-        public List<EmployeeOnboardingNomineeModel> EmployeeOnboardingNomineeList { get; set; }= new List<EmployeeOnboardingNomineeModel>();
 
-        public List<EmployeeOnboardingInterviewEvaluationModel> EmployeeOnboardingInterviewEvaluationList { get; set; }= new List<EmployeeOnboardingInterviewEvaluationModel>();
+        public List<EmployeeOnboardingBankDetailsModel> EmployeeOnboardingBankDetailsList { get; set; } = new();
+
+        public List<EmployeeOnboardingDocumentsModel> EmployeeOnboardingDocumentsList { get; set; } = new();
+
+        public List<EmployeeOnboardingNomineeModel> EmployeeOnboardingNomineeList { get; set; }
+            = new List<EmployeeOnboardingNomineeModel>();
+
+        public List<EmployeeOnboardingInterviewEvaluationModel> EmployeeOnboardingInterviewEvaluationList { get; set; }
+            = new List<EmployeeOnboardingInterviewEvaluationModel>();
+
+        public List<EmployeeOnboardingWitnessModel> EmployeeOnboardingWitnessList { get; set; }
+            = new List<EmployeeOnboardingWitnessModel>();
+
+        public List<EmployeeOnboardingReportingManagerModel> EmployeeOnboardingReportingManagerList { get; set; }
+            = new List<EmployeeOnboardingReportingManagerModel>();
+
         public int LastSavedStep { get; set; } = 1;
+
+
+        // ==============================
+        // Employee Onboarding Master Lists
+        // ==============================
+
+        public List<SelectListItem> OnboardingJobLocationList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingEmployeeTypeList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingPayrollTypeList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingDepartmentList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingSubDepartmentList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingDesignationList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingShiftTypeList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingReportingManagerList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<LeavePolicyModel> OnboardingLeavePolicyList { get; set; }
+            = new List<LeavePolicyModel>();
+
+        public List<SelectListItem> OnboardingRoleList { get; set; }
+            = new List<SelectListItem>();
+        public List<OnboardingEmploymentDetailsModel> OnboardingEmploymentDetailsList { get; set; }
+    = new List<OnboardingEmploymentDetailsModel>();
+        public string NewEmployeeNumber { get; set; }
     }
 
     public class Result

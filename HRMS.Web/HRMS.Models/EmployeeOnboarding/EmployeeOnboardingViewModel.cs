@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using HRMS.Models.LeavePolicy;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -20,8 +22,9 @@ namespace HRMS.Models.EmployeeOnboarding
         [StringLength(200, MinimumLength = 2,
             ErrorMessage = "Full name must be between 2 and 200 characters.")]
         [RegularExpression(
-            @"^[a-zA-Z\s.'-]+$",
-            ErrorMessage = "Full name can contain only letters, spaces, apostrophes, dots and hyphens.")]
+    @"^[a-zA-Z0-9\s.'-]+$",
+    ErrorMessage = "Full name can contain only letters, numbers, spaces, apostrophes, dots and hyphens.")]
+
         public string? FullName { get; set; }
 
 
@@ -46,7 +49,7 @@ namespace HRMS.Models.EmployeeOnboarding
 
         public int CurrentStep { get; set; } = 1;
 
-        public string Status { get; set; } = "In Progress";
+        public string? Status { get; set; } = "In Progress";
 
         public bool IsSubmitted { get; set; }
 
@@ -204,6 +207,10 @@ namespace HRMS.Models.EmployeeOnboarding
 
         public List<EmployeeOnboardingInterviewEvaluationModel> InterviewEvaluationList { get; set; }
             = new List<EmployeeOnboardingInterviewEvaluationModel>();
+        public List<EmployeeOnboardingWitnessModel> WitnessList { get; set; }
+    = new List<EmployeeOnboardingWitnessModel>();
+        public List<EmployeeOnboardingReportingManagerModel> ReportingManagerList { get; set; }
+    = new List<EmployeeOnboardingReportingManagerModel>();
         // =========================================================
         // DOCUMENT UPLOADS
         // =========================================================
@@ -247,6 +254,54 @@ namespace HRMS.Models.EmployeeOnboarding
         public string? AadhaarDocumentPath { get; set; }
 
         public string? EmployeeSignaturePath { get; set; }
+        public string? HRInterviewerSignatureBase64 { get; set; }
+
+        public string? OperationsInterviewerSignatureBase64 { get; set; }
+
+        public string? ProcessOwnerInterviewerSignatureBase64 { get; set; }
+
+        public string? InterviewerSignatureBase64 { get; set; }
+
+        public string? SignatureBase64 { get; set; }
+
+        public string? FunctionalHeadApprovalBase64 { get; set; }
+
+        public string? SPOCHumanResourcesApprovalBase64 { get; set; }
+
+        public string? HeadHumanResourcesApprovalBase64 { get; set; }
+
+        public string? EmployeeSignatureBase64 { get; set; }
+        public string? HighestQualification { get; set; }
+
+        public int? TotalExperienceYears { get; set; }
+
+        public int? TotalExperienceMonths { get; set; }
+
+        public string? HRApprovalStatus { get; set; }
+
+        public string? HRApprovalComments { get; set; }
+
+        public long? HRApprovedBy { get; set; }
+
+        public DateTime? HRApprovalDate { get; set; }
+        public IFormFile? OfferLetterFile { get; set; }
+
+        public IFormFile? ExperienceCertificateFile { get; set; }
+
+        public IFormFile? SalarySlipFile { get; set; }
+
+        public IFormFile? ResumeFile { get; set; }
+        public string? OfferLetterDocumentPath { get; set; }
+
+        public string? ExperienceCertificateDocumentPath { get; set; }
+
+        public string? SalarySlipDocumentPath { get; set; }
+
+        public string? ResumeDocumentPath { get; set; }
+
+        public string? BatchNo { get; set; }
+        public DateTime? BatchStartDate { get; set; }
+        public DateTime? BatchEndDate { get; set; }
     }
     public class EmployeeOnboardingFamilyModel
     {
@@ -301,6 +356,10 @@ namespace HRMS.Models.EmployeeOnboarding
         public string? DocumentType { get; set; }
 
         public IFormFile? DocumentFile { get; set; }
+
+        public string? ExistingDocumentPath { get; set; }
+
+        public long ExistingDocumentID { get; set; }
 
         public int RowNo { get; set; }
     }
@@ -406,6 +465,40 @@ public class EmployeeOnboardingPageViewModel
 
         public List<EmployeeOnboardingInterviewEvaluationModel> InterviewEvaluationList { get; set; }
             = new List<EmployeeOnboardingInterviewEvaluationModel>();
+        public List<EmployeeOnboardingWitnessModel> WitnessList { get; set; }
+    = new List<EmployeeOnboardingWitnessModel>();
+        public List<EmployeeOnboardingReportingManagerModel> ReportingManagerList { get; set; }
+            = new List<EmployeeOnboardingReportingManagerModel>();
+        public List<SelectListItem> OnboardingJobLocationList { get; set; }
+    = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingEmployeeTypeList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingPayrollTypeList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingDepartmentList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingSubDepartmentList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingDesignationList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingShiftTypeList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<SelectListItem> OnboardingReportingManagerList { get; set; }
+            = new List<SelectListItem>();
+
+        public List<LeavePolicyModel> OnboardingLeavePolicyList { get; set; }
+            = new List<LeavePolicyModel>();
+
+        public List<SelectListItem> OnboardingRoleList { get; set; }
+            = new List<SelectListItem>();
+
     }
     public class EmployeeOnboardingBankDetailsModel
     {
@@ -521,6 +614,7 @@ public class EmployeeOnboardingPageViewModel
         public string? FamilyMemberState { get; set; }
 
         public string? FamilyMemberMobile { get; set; }
+        public bool? IsPrimaryNominee { get; set; } = false;
     }
     public class EmployeeOnboardingInterviewEvaluationModel
     {
@@ -645,7 +739,103 @@ public class EmployeeOnboardingPageViewModel
         public string? OperationsInterviewerName { get; set; }
 
         public string? ProcessOwnerInterviewerName { get; set; }
+        public long? CompanyID { get; set; }
+
+        public long? EmployeeTypeID { get; set; }
+        public string? EmployeeType { get; set; }
+        public long? DesignationID { get; set; }
+
+        public long? DepartmentID { get; set; }
+
+        public long? JobLocationID { get; set; }
+
+        public long? SubDepartmentID { get; set; }
+
+        public long? PayrollTypeID { get; set; }
+
+        public long? ShiftTypeID { get; set; }
+
+        public long? ReportingToIDL1 { get; set; }
+
+        public long? ReportingToIDL2 { get; set; }
+
+        public long? LeavePolicyID { get; set; }
+
+        public string? ClientName { get; set; }
+
+        public string? LOB { get; set; }
+
+        public long? RoleType { get; set; }
     }
+    public class EmployeeOnboardingWitnessModel
+    {
+        public long WitnessID { get; set; }
+        public long OnboardingID { get; set; }
+
+        public string? WitnessName { get; set; }
+        public string? WitnessAddress { get; set; }
+        public string? WitnessMobile { get; set; }
+
+        public string? SignatureMethod { get; set; }
+
+        public string? SignatureBase64 { get; set; }
+
+        public IFormFile? SignatureFile { get; set; }
+
+        public string? SignatureFileName { get; set; }
+
+        public string? SignatureFilePath { get; set; }
+
+
+        public DateTime? CreatedDate { get; set; }
+        public long? CreatedBy { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
+        public long? ModifiedBy { get; set; }
+    }
+
+    public class EmployeeOnboardingReportingManagerModel
+    {
+        public long ReportingManagerID { get; set; }
+        public long OnboardingID { get; set; }
+
+        public string? ReportingLevel { get; set; }
+        public string? AuthorityName { get; set; }
+        public string? AuthorityECode { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+        public long? CreatedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public long? ModifiedBy { get; set; }
+
+    }
+    public class OnboardingEmploymentDetailsModel
+    {
+        public long EmployeeID { get; set; }
+        public string? EmployeNumber { get; set; }
+        public string? DepartmentName { get; set; }
+        public long? ManagerID { get; set; }
+        public string? ManagerName { get; set; }
+        public string? OfficeLocation { get; set; }
+        public string? ManagerEmail { get; set; }
+        public string? EmployeeType { get; set; }
+        public string? PayrollType { get; set; }
+        public string? DesignationName { get; set; }
+        public long? EmployeeRole { get; set; }
+        public decimal? GrossSalary { get; set; }
+        public bool? IsPFApplicable { get; set; }
+    }
+
+    public class CompleteEmployeeOnboardingRequest
+    {
+        public long OnboardingID { get; set; }
+
+        public long ApprovedBy { get; set; }
+
+        public string? ApprovalComments { get; set; }
+    }
+
+
 }
 
 

@@ -278,6 +278,7 @@ EmployeeOnboardingRequestInputParams model);
     List<string> keys);
         public Result RejectEmployeeOnboarding(
     List<string> keys);
+        public Result CompleteEmployeeOnboarding(long onboardingID, long approvedBy, string approvalComments);
         #endregion EmployeeOnboarding
     }
 }

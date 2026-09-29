@@ -186,6 +186,7 @@ namespace HRMS.Web.BusinessLayer.S3
     public interface IS3Service
     {
         string UploadFile(IFormFile file, string bucketFolder);
+        string UploadFileToFolder(IFormFile file,string folder,string fileName);
         bool DeleteFile(string key);
         string GetFileUrl(string key);
         string ExtractKeyFromUrl(string fileUrl);
@@ -274,7 +275,66 @@ namespace HRMS.Web.BusinessLayer.S3
                 return uniqueFileName; // ONLY filename stored
             }
         }
+        public string UploadFileToFolder(
+    IFormFile file,
+    string folder,
+    string fileName)
+        {
+            using (new NetworkConnection(
+                _rootPath,
+                new NetworkCredential(
+                    _username,
+                    _password)))
+            {
+                string extension =
+                    Path.GetExtension(fileName);
 
+                string originalName =
+                    Path.GetFileNameWithoutExtension(fileName)
+                        .Replace(" ", "_")
+                        .Replace("/", "_")
+                        .Replace("\\", "_");
+
+                string uniqueFileName =
+                    $"{Guid.NewGuid()}_{originalName}{extension}";
+
+                // Example:
+                // BaseFolder/employee-onboarding/123
+                string folderPath =
+                    Path.Combine(
+                        _rootPath,
+                        _baseFolder,
+                        folder
+                    );
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                string filePath =
+                    Path.Combine(
+                        folderPath,
+                        uniqueFileName
+                    );
+
+                using (var stream =
+                       new FileStream(
+                           filePath,
+                           FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+
+                // Store relative path in database
+                // Example:
+                // employee-onboarding/123/Guid_Aadhaar.pdf
+                return Path.Combine(
+                        folder,
+                        uniqueFileName)
+                    .Replace("\\", "/");
+            }
+        }
         public bool DeleteFile(string key)
         {
             using (new NetworkConnection(

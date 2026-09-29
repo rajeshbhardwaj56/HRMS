@@ -238,6 +238,7 @@ namespace HRMS.API.BusinessLayer
         public const string usp_AddUpdateEmployeeOnboardingEmployment ="usp_AddUpdateEmployeeOnboardingEmployment";
         public const string usp_GetEmployeeOnboardingRequests = "usp_GetEmployeeOnboardingRequests";
         public const string usp_BulkUpdateEmployeeOnboardingStatus = "usp_BulkUpdateEmployeeOnboardingStatus";
+        public const string usp_CompleteEmployeeOnboarding = "usp_CompleteEmployeeOnboarding";
 
         #endregion EmployeeOnboarding
         #region Logs
