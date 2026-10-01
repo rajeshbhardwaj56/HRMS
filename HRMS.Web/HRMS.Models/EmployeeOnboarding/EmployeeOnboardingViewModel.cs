@@ -834,7 +834,12 @@ public class EmployeeOnboardingPageViewModel
 
         public string? ApprovalComments { get; set; }
     }
+    public class RejectEmployeeOnboardingRequest
+    {
+        public long OnboardingId { get; set; }
 
+        public string Comments { get; set; } = string.Empty;
+    }
 
 }
 

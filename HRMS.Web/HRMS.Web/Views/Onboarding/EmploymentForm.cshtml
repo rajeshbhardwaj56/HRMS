@@ -2303,10 +2303,10 @@ HR / ADMIN  -> STEP 8
                                             <div class="dynamic-card-title">
                                                 Family Member @(i + 1)
                                             </div>
-
                                             <button type="button"
                                                     class="btn-remove"
-                                                    onclick="removeRow(this)">
+                                                    onclick="removeRow(this)"
+                                                    title="Save the page after removing this item.">
                                                 Remove
                                             </button>
 
@@ -12734,7 +12734,7 @@ var employeeSignatureDocument =
 
             <button type="button"
                     class="btn btn-outline-danger"
-                    id="btnHRReject">
+                     onclick="rejectOnboarding()">
                 <i class="fas fa-times me-1"></i>
                 Reject
             </button>
@@ -12880,29 +12880,44 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
 
 
-    <div class="footer-right">
 
-        <button type="button"
-                id="saveButton"
-                class="btn-primary-custom"
-                onclick="saveCurrentStep(false)">
+<div class="footer-right">
 
-            Save
+    <!-- STEP 4 : FRESHER SKIP -->
+    <button type="button"
+            id="skipStep4Button"
+            class="btn-secondary-custom"
+            style="display:none;"
+            onclick="skipPreviousEmployment()">
 
-        </button>
+        Skip
 
-
-        <button type="button"
-                id="nextButton"
-                class="btn-primary-custom"
-                onclick="nextInterviewStep()">
-            Next →
-        </button>
+    </button>
 
 
+    <button type="button"
+            id="saveButton"
+            class="btn-primary-custom"
+            onclick="saveCurrentStep(false)">
+
+        Save
+
+    </button>
 
 
-    </div>
+
+    <button type="button"
+            id="nextButton"
+            class="btn-primary-custom"
+            onclick="nextInterviewStep()">
+
+        Next →
+
+    </button>
+
+</div>
+
+
 </form>
 
 </div>
@@ -13127,46 +13142,91 @@ const isHROrAdmin = @isHROrAdmin.ToString().ToLowerInvariant();
                NAVIGATION BUTTONS
             ============================================================= */
 
-            function updateNavigationButtons(step) {
 
-                const previousButton =
-                    document.getElementById("previousButton");
+function updateNavigationButtons(step) {
 
-                const nextButton =
-                    document.getElementById("nextButton");
+    const previousButton =
+        document.getElementById("previousButton");
 
-                const submitButton =
-                    document.getElementById("submitButton");
+    const nextButton =
+        document.getElementById("nextButton");
 
+    const submitButton =
+        document.getElementById("submitButton");
 
-                if (step === 1) {
-
-                    previousButton.style.display = "none";
-
-                }
-                else {
-
-                    previousButton.style.display = "inline-block";
-
-                }
+    const skipStep4Button =
+        document.getElementById("skipStep4Button");
 
 
-                if (step === totalInterviewSteps) {
+    /* ============================================================
+       PREVIOUS BUTTON
+    ============================================================ */
 
-                    nextButton.style.display = "none";
+    if (step === 1) {
 
-                    submitButton.style.display = "inline-block";
+        previousButton.style.display = "none";
 
-                }
-                else {
+    }
+    else {
 
-                    nextButton.style.display = "inline-block";
+        previousButton.style.display = "inline-block";
 
-                    submitButton.style.display = "none";
+    }
 
-                }
 
-            }
+    /* ============================================================
+       STEP 4 SKIP BUTTON
+       Only normal employee/fresher flow.
+    ============================================================ */
+
+    if (
+        step === 4 &&
+        !isHROrAdmin
+    ) {
+
+        skipStep4Button.style.display =
+            "inline-block";
+
+    }
+    else {
+
+        skipStep4Button.style.display =
+            "none";
+
+    }
+
+
+    /* ============================================================
+       NEXT / SUBMIT
+    ============================================================ */
+
+    if (step === totalInterviewSteps) {
+
+        nextButton.style.display =
+            "none";
+
+        if (submitButton) {
+
+            submitButton.style.display =
+                "inline-block";
+        }
+
+    }
+    else {
+
+        nextButton.style.display =
+            "inline-block";
+
+        if (submitButton) {
+
+            submitButton.style.display =
+                "none";
+        }
+
+    }
+}
+
+
 
 
             /* =============================================================
@@ -13311,6 +13371,73 @@ const isHROrAdmin = @isHROrAdmin.ToString().ToLowerInvariant();
             /* =============================================================
                NEXT
             ============================================================= */
+         
+/* ============================================================
+   STEP 4 : SKIP PREVIOUS EMPLOYMENT
+   FOR FRESHERS
+============================================================ */
+
+function skipPreviousEmployment() {
+
+    console.log("=================================");
+    console.log("SKIP STEP 4 - PREVIOUS EMPLOYMENT");
+    console.log("=================================");
+
+    if (isSavingStep) {
+
+        console.log(
+            "Save already in progress. Ignoring Skip click."
+        );
+
+        return;
+    }
+
+    if (currentInterviewStep !== 4) {
+
+        console.warn(
+            "Skip Previous Employment can only be used on Step 4."
+        );
+
+        return;
+    }
+
+
+    const employmentContainer =
+        document.getElementById("employmentContainer");
+
+
+    if (employmentContainer) {
+
+        /*
+         * IMPORTANT:
+         * Remove every employment row before saving.
+         *
+         * This prevents the default empty
+         * EmploymentList[0] row from being posted.
+         */
+        employmentContainer
+            .querySelectorAll(".employment-row")
+            .forEach(function (row) {
+
+                row.remove();
+
+            });
+
+    }
+
+
+    /*
+     * Save Step 4 with an EMPTY EmploymentList.
+     *
+     * saveCurrentStep(true) will:
+     * 1. POST CurrentStep = 4
+     * 2. Send no EmploymentList fields
+     * 3. Update LastSavedStep = 4
+     * 4. Move to Step 5
+     */
+    saveCurrentStep(true);
+}
+
 
 
         function nextInterviewStep() {
@@ -13529,7 +13656,10 @@ if (!validateCurrentStep()) {
 
 
 
-        let familyIndex = 1;
+let familyIndex =
+    document.querySelectorAll(
+        "#familyContainer .family-row"
+    ).length;
 
         function addFamily() {
 
@@ -14139,7 +14269,10 @@ if (!validateCurrentStep()) {
                EMPLOYMENT
             ============================================================= */
 
-        let employmentIndex = 1;
+let employmentIndex =
+    document.querySelectorAll(
+        "#employmentContainer .employment-row"
+    ).length;
 
 
         function addEmployment() {
@@ -14906,56 +15039,7 @@ if (!validateCurrentStep()) {
         }
 
 
-        /* ================================================================
-           DUPLICATE FAMILY MEMBER CHECK
-        ================================================================ */
-
-        function isFamilyMemberAlreadySelected(
-            rowClass,
-            currentSelect
-        ) {
-
-            const container =
-                currentSelect.closest(
-                    rowClass === "epf-nominee-row"
-                        ? "#epfNomineeContainer"
-                        : rowClass === "eps-nominee-row"
-                            ? "#epsNomineeContainer"
-                            : "#gratuityNomineeContainer"
-                );
-
-            if (!container) {
-                return false;
-            }
-
-            const selectedValue =
-                currentSelect.value;
-
-            if (!selectedValue) {
-                return false;
-            }
-
-            const selects =
-                container.querySelectorAll(
-                    "select.family-member-select"
-                );
-
-            let count = 0;
-
-            selects.forEach(function (select) {
-
-                if (
-                    select !== currentSelect &&
-                    String(select.value) === String(selectedValue)
-                ) {
-
-                    count++;
-                }
-
-            });
-
-            return count > 0;
-        }
+       
 
 
         /* ================================================================
@@ -15681,160 +15765,386 @@ if (!validateCurrentStep()) {
            REMOVE ROW
         ================================================================ */
 
-        /* ================================================================
-           REMOVE DYNAMIC ROW
-           Supports:
-           - Family
-           - Employment
-           - EPF Nominee
-           - EPS Nominee
-           - Gratuity Nominee
-        ================================================================ */
+       /* ================================================================
+   REMOVE DYNAMIC ROW
+   Supports:
+   - Family
+   - Employment
+   - EPF
+   - EPS
+   - Gratuity
+================================================================ */
 
-        function removeRow(button) {
+function removeRow(button) {
 
-            if (!button) {
-                return;
-            }
+    if (!button) {
+        return;
+    }
 
-            // Find the closest dynamic row/card
-            const card = button.closest(
-                ".family-row, " +
-                ".education-card, " +
-                ".employment-row, " +
+    const card =
+        button.closest(
+            ".family-row, " +
+            ".employment-row, " +
+            ".nominee-row"
+        );
+
+    if (!card) {
+        console.warn("Remove: row not found.");
+        return;
+    }
+
+    const container =
+        card.parentElement;
+
+    if (!container) {
+        return;
+    }
+
+
+    /* ============================================================
+       FAMILY
+    ============================================================ */
+
+    if (card.classList.contains("family-row")) {
+
+        card.remove();
+
+        reindexFamilyRows();
+
+        updateDynamicTitles();
+
+        return;
+    }
+
+
+    /* ============================================================
+       EMPLOYMENT
+    ============================================================ */
+
+    if (card.classList.contains("employment-row")) {
+
+        card.remove();
+
+        reindexEmploymentRows();
+
+        updateDynamicTitles();
+
+        return;
+    }
+
+
+    /* ============================================================
+       NOMINEES
+    ============================================================ */
+
+    if (card.classList.contains("nominee-row")) {
+
+        const rows =
+            container.querySelectorAll(
                 ".nominee-row"
             );
 
-            if (!card) {
-                console.warn("Remove: row/card not found.");
-                return;
-            }
+        /*
+           If only one nominee row exists,
+           don't remove the container completely.
 
-            const container = card.parentElement;
+           Clear it instead.
+        */
 
-            if (!container) {
-                return;
-            }
+        if (rows.length <= 1) {
 
-            /* =========================================================
-               NOMINEE ROW
-               Keep existing nominee-specific behavior
-            ========================================================= */
+            const select =
+                card.querySelector(
+                    ".family-member-select"
+                );
 
-            if (card.classList.contains("nominee-row")) {
-
-                const rows = container.querySelectorAll(".nominee-row");
-
-                // Do not remove the last nominee row
-                if (rows.length <= 1) {
-
-                    const select =
-                        card.querySelector(".family-member-select");
-
-                    if (select) {
-                        select.value = "";
-                    }
-
-                    if (typeof clearNomineeFields === "function") {
-                        clearNomineeFields(
-                            card,
-                            card.classList.contains("eps-nominee-row")
-                                ? "EPS"
-                                : "Nominee"
-                        );
-                    }
-
-                    const percentageFields =
-                        card.querySelectorAll(
-                            ".epf-percentage, .gratuity-percentage"
-                        );
-
-                    percentageFields.forEach(function (field) {
-                        field.value = "";
-                    });
-
-                    if (typeof calculateEPFTotal === "function") {
-                        calculateEPFTotal();
-                    }
-
-                    if (typeof calculateGratuityTotal === "function") {
-                        calculateGratuityTotal();
-                    }
-
-                    return;
-                }
-
-                // Remove nominee
-                card.remove();
-
-                // Re-index nominee rows
-                if (container.id === "epfNomineeContainer") {
-
-                    reindexNomineeRows(
-                        container,
-                        "EPFNomineeList",
-                        "EPF"
-                    );
-
-                    updateNomineeTitles(
-                        "epf-nominee-row",
-                        "EPF Nominee"
-                    );
-
-                    if (typeof calculateEPFTotal === "function") {
-                        calculateEPFTotal();
-                    }
-                }
-
-                if (container.id === "epsNomineeContainer") {
-
-                    reindexNomineeRows(
-                        container,
-                        "EPSNomineeList",
-                        "EPS"
-                    );
-
-                    updateNomineeTitles(
-                        "eps-nominee-row",
-                        "EPS Family Member"
-                    );
-                }
-
-                if (container.id === "gratuityNomineeContainer") {
-
-                    reindexNomineeRows(
-                        container,
-                        "GratuityNomineeList",
-                        "Gratuity"
-                    );
-
-                    updateNomineeTitles(
-                        "gratuity-nominee-row",
-                        "Gratuity Nominee"
-                    );
-
-                    if (typeof calculateGratuityTotal === "function") {
-                        calculateGratuityTotal();
-                    }
-                }
-
-                return;
+            if (select) {
+                select.value = "";
             }
 
 
-            /* =========================================================
-               FAMILY / EDUCATION / EMPLOYMENT
-            ========================================================= */
+            /*
+               Clear nominee fields
+            */
 
-            card.remove();
+            if (
+                typeof clearNomineeFields ===
+                "function"
+            ) {
 
-            // Update titles after removing the row
-            if (typeof updateDynamicTitles === "function") {
-                updateDynamicTitles();
+                let nomineeType = "EPF";
+
+                if (
+                    card.classList.contains(
+                        "eps-nominee-row"
+                    )
+                ) {
+                    nomineeType = "EPS";
+                }
+
+                if (
+                    card.classList.contains(
+                        "gratuity-nominee-row"
+                    )
+                ) {
+                    nomineeType = "Gratuity";
+                }
+
+                clearNomineeFields(
+                    card,
+                    nomineeType
+                );
             }
 
+
+            /*
+               Clear percentage
+            */
+
+            card.querySelectorAll(
+                ".epf-percentage, " +
+                ".gratuity-percentage"
+            ).forEach(function (field) {
+
+                field.value = "";
+
+            });
+
+
+            /*
+               Recalculate totals
+            */
+
+            if (
+                card.classList.contains(
+                    "epf-nominee-row"
+                )
+            ) {
+
+                if (
+                    typeof calculateEPFTotal ===
+                    "function"
+                ) {
+                    calculateEPFTotal();
+                }
+            }
+
+
+            if (
+                card.classList.contains(
+                    "gratuity-nominee-row"
+                )
+            ) {
+
+                if (
+                    typeof calculateGratuityTotal ===
+                    "function"
+                ) {
+                    calculateGratuityTotal();
+                }
+            }
+
+            return;
         }
 
+
+        /*
+           More than one nominee row:
+           actually remove the selected row.
+        */
+
+        card.remove();
+
+
+        /*
+           EPF
+        */
+
+        if (
+            container.id ===
+            "epfNomineeContainer"
+        ) {
+
+            reindexNomineeRows(
+                container,
+                "EPFNomineeList",
+                "EPF"
+            );
+
+            updateNomineeTitles(
+                "epf-nominee-row",
+                "EPF Nominee"
+            );
+
+            if (
+                typeof calculateEPFTotal ===
+                "function"
+            ) {
+                calculateEPFTotal();
+            }
+
+            return;
+        }
+
+
+        /*
+           EPS
+        */
+
+        if (
+            container.id ===
+            "epsNomineeContainer"
+        ) {
+
+            reindexNomineeRows(
+                container,
+                "EPSNomineeList",
+                "EPS"
+            );
+
+            updateNomineeTitles(
+                "eps-nominee-row",
+                "EPS Family Member"
+            );
+
+            return;
+        }
+
+
+        /*
+           Gratuity
+        */
+
+        if (
+            container.id ===
+            "gratuityNomineeContainer"
+        ) {
+
+            reindexNomineeRows(
+                container,
+                "GratuityNomineeList",
+                "Gratuity"
+            );
+
+            updateNomineeTitles(
+                "gratuity-nominee-row",
+                "Gratuity Nominee"
+            );
+
+            if (
+                typeof calculateGratuityTotal ===
+                "function"
+            ) {
+                calculateGratuityTotal();
+            }
+
+            return;
+        }
+    }
+}
+/* ================================================================
+   RE-INDEX FAMILY ROWS
+================================================================ */
+
+function reindexFamilyRows() {
+
+    const container =
+        document.getElementById(
+            "familyContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    const rows =
+        container.querySelectorAll(
+            ".family-row"
+        );
+
+    rows.forEach(function (row, index) {
+
+        row.querySelectorAll(
+            "input, select, textarea"
+        ).forEach(function (field) {
+
+            if (!field.name) {
+                return;
+            }
+
+            field.name =
+                field.name.replace(
+                    /FamilyList\[\d+\]/,
+                    "FamilyList[" + index + "]"
+                );
+
+        });
+
+    });
+
+
+    /*
+       Reset JavaScript index
+    */
+
+    familyIndex =
+        rows.length;
+
+}
+/* ================================================================
+   RE-INDEX EMPLOYMENT ROWS
+================================================================ */
+
+function reindexEmploymentRows() {
+
+    const container =
+        document.getElementById(
+            "employmentContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    const rows =
+        container.querySelectorAll(
+            ".employment-row"
+        );
+
+    rows.forEach(function (row, index) {
+
+        row.setAttribute(
+            "data-index",
+            index
+        );
+
+
+        row.querySelectorAll(
+            "input, select, textarea"
+        ).forEach(function (field) {
+
+            if (!field.name) {
+                return;
+            }
+
+            field.name =
+                field.name.replace(
+                    /EmploymentList\[\d+\]/,
+                    "EmploymentList[" + index + "]"
+                );
+
+        });
+
+    });
+
+
+    /*
+       Reset JavaScript index
+    */
+
+    employmentIndex =
+        rows.length;
+}
 
         /* ================================================================
            RE-INDEX NOMINEE ROWS
@@ -18598,68 +18908,70 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // =========================================================
-    // HR REJECT
-    // =========================================================
+</script>
+<script>
+ function rejectOnboarding() {
 
-    const rejectButton =
-        document.getElementById("btnHRReject");
+    const commentsElement =
+        document.getElementById("HRApprovalComments");
 
-    if (rejectButton) {
-
-        rejectButton.addEventListener("click", function () {
-
-            const comments =
-                document.getElementById("HRApprovalComments");
-
-
-            // =====================================================
-            // REQUIRED REJECTION COMMENT
-            // =====================================================
-
-            if (!comments ||
-                comments.value.trim() === "") {
-
-                alert(
-                    "Please enter HR comments/reason for rejection."
-                );
-
-                if (comments) {
-                    comments.focus();
-                }
-
-                return;
-            }
-
-
-            // =====================================================
-            // SET REJECTED STATUS
-            // =====================================================
-
-            const approvalStatus =
-                document.getElementById("HRApprovalStatus");
-
-            if (approvalStatus) {
-
-                approvalStatus.value =
-                    "Rejected";
-            }
-
-
-            // =====================================================
-            // SAVE REJECTION
-            // =====================================================
-
-            submitOnboardingForm();
-
-        });
-
+    if (!commentsElement) {
+        alert("HR comments field was not found.");
+        return;
     }
 
-});
+    const comments =
+        commentsElement.value.trim();
 
+    if (!comments) {
+        alert("Please enter HR comments/reason for rejection.");
+        commentsElement.focus();
+        return;
+    }
+
+    if (!confirm(
+        "Are you sure you want to reject this employee onboarding?"
+    )) {
+        return;
+    }
+
+    $.ajax({
+        url: '@Url.Action("RejectEmployeeOnboarding", "Onboarding")',
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+
+        data: JSON.stringify({
+            onboardingId: @Model.OnboardingID,
+            comments: comments
+        }),
+
+        success: function (response) {
+
+            if (response.success) {
+
+                window.location.href =
+                    '@Url.Action("OnboardingRequests", "Onboarding")';
+
+            } else {
+
+                alert(
+                    response.message ||
+                    "Unable to reject onboarding."
+                );
+            }
+        },
+
+        error: function (xhr) {
+
+            console.error(xhr.responseText);
+
+            alert(
+                "Something went wrong while rejecting onboarding."
+            );
+        }
+    });
+}
 </script>
-
 
 </body>
 

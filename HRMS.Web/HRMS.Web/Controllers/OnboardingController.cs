@@ -2553,89 +2553,68 @@ public async Task<IActionResult> ApproveEmployeeOnboarding(
             }
         }
 
-// =========================================================
-// REJECT MULTIPLE EMPLOYEE ONBOARDING REQUESTS
-// =========================================================
-
-[HttpPost]
-public async Task<IActionResult> RejectEmployeeOnboarding(
-    [FromBody] List<string> keys)
+        // =========================================================
+        // REJECT MULTIPLE EMPLOYEE ONBOARDING REQUESTS
+        // =========================================================
+        [HttpPost]
+        public async Task<IActionResult> RejectEmployeeOnboarding(
+            [FromBody] RejectEmployeeOnboardingRequest request)
         {
             try
             {
-                // =========================================================
-                // CHECK REQUEST
-                // =========================================================
-
-                if (keys == null || keys.Count == 0)
+                if (request == null ||
+                    request.OnboardingId <= 0)
                 {
                     return Json(new
                     {
                         success = false,
-                        message =
-                            "Please select at least one employee."
+                        message = "Invalid onboarding record."
+                    });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.Comments))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Please enter rejection reason."
                     });
                 }
 
 
                 // =========================================================
-                // REMOVE NULL / EMPTY KEYS
-                // =========================================================
-
-                keys = keys
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => x.Trim())
-                    .Distinct()
-                    .ToList();
-
-
-                // =========================================================
-                // VALIDATE KEYS
-                // =========================================================
-
-                if (keys.Count == 0)
-                {
-                    return Json(new
-                    {
-                        success = false,
-                        message =
-                            "No valid onboarding records were selected."
-                    });
-                }
-
-
-                // =========================================================
-                // CALL ONBOARDING API
+                // API URL
                 // =========================================================
 
                 var apiUrl =
                     _businessLayer.GetFormattedAPIUrl(
                         APIControllarsConstants.Onboarding,
-                        APIApiActionConstants
-                            .RejectEmployeeOnboarding
+                        APIApiActionConstants.RejectEmployeeOnboarding
                     );
 
+                // =========================================================
+                // API REQUEST
+                // =========================================================
+
+                var apiRequest = new
+                {
+                    OnboardingId = request.OnboardingId,
+                    Comments = request.Comments.Trim()
+                };
 
                 // =========================================================
-                // SEND SELECTED PRIVATE KEYS TO API
+                // CALL API
                 // =========================================================
 
                 var response =
                     await _businessLayer.SendPostAPIRequest(
-                        keys,
+                        apiRequest,
                         apiUrl,
                         "",
                         false
                     );
 
-
-                // =========================================================
-                // READ API RESPONSE
-                // =========================================================
-
-                var data =
-                    response?.ToString();
-
+                var data = response?.ToString();
 
                 if (string.IsNullOrWhiteSpace(data))
                 {
@@ -2643,10 +2622,9 @@ public async Task<IActionResult> RejectEmployeeOnboarding(
                     {
                         success = false,
                         message =
-                            "Unable to reject the selected onboarding records."
+                            "Unable to reject the onboarding record."
                     });
                 }
-
 
                 // =========================================================
                 // PARSE API RESPONSE
@@ -2657,8 +2635,7 @@ public async Task<IActionResult> RejectEmployeeOnboarding(
                 try
                 {
                     result =
-                        Newtonsoft.Json.Linq.JObject.Parse(
-                            data);
+                        Newtonsoft.Json.Linq.JObject.Parse(data);
                 }
                 catch
                 {
@@ -2670,34 +2647,26 @@ public async Task<IActionResult> RejectEmployeeOnboarding(
                     });
                 }
 
-
                 // =========================================================
-                // CHECK API ERROR
+                // CHECK ERROR
                 // =========================================================
 
                 string? errorCode =
                     result["errorCode"]?.ToString();
 
-
-                bool success =
-                    string.IsNullOrWhiteSpace(
-                        errorCode);
-
-
-                if (!success)
+                if (!string.IsNullOrWhiteSpace(errorCode))
                 {
                     return Json(new
                     {
                         success = false,
                         message =
                             result["message"]?.ToString()
-                            ?? "Unable to reject the selected onboarding records."
+                            ?? "Unable to reject onboarding."
                     });
                 }
 
-
                 // =========================================================
-                // GET UPDATED COUNT
+                // UPDATED COUNT
                 // =========================================================
 
                 int updatedCount =
@@ -2705,12 +2674,7 @@ public async Task<IActionResult> RejectEmployeeOnboarding(
                     result["updatedCount"].Type !=
                         Newtonsoft.Json.Linq.JTokenType.Null
                         ? result["updatedCount"]!.Value<int>()
-                        : keys.Count;
-
-
-                // =========================================================
-                // SUCCESS
-                // =========================================================
+                        : 0;
 
                 return Json(new
                 {
@@ -2719,26 +2683,21 @@ public async Task<IActionResult> RejectEmployeeOnboarding(
                     message =
                         $"{updatedCount} employee(s) rejected successfully.",
 
-                    updatedCount = updatedCount
+                    updatedCount
                 });
             }
             catch (Exception ex)
             {
-                // =========================================================
-                // EXCEPTION
-                // =========================================================
-
                 return Json(new
                 {
                     success = false,
-                    message =
-                        ex.Message
+                    message = ex.Message
                 });
             }
         }
 
 
-[AllowAnonymous]
+        [AllowAnonymous]
 [HttpGet]
 public async Task<IActionResult> Print(string key)
         {

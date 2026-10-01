@@ -164,10 +164,12 @@ namespace HRMS.API.Web.Controllers
 
         [HttpPost]
         public IActionResult RejectEmployeeOnboarding(
-            List<string> keys)
+RejectEmployeeOnboardingRequest request)
         {
             var result =
-                _businessLayer.RejectEmployeeOnboarding(keys);
+                _businessLayer.RejectEmployeeOnboarding(
+                    request.OnboardingId,
+                    request.Comments);
 
             return Ok(result);
         }

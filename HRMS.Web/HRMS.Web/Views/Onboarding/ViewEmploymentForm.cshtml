@@ -110,6 +110,7 @@ var employeeSignatureDocument =
         Model.DocumnetList?
             .FirstOrDefault(x => x.DocumentType == "Signature");
 
+
     var functionalHeadApproval =
         Model.DocumnetList?
             .FirstOrDefault(x => x.DocumentType == "FunctionalHeadApproval");
@@ -5645,20 +5646,12 @@ var item10Checked =
 
         </div>
 
-
+        
         <div class="header-center">
 
-            <div class="header-center-title">
-                Employment Form
-            </div>
 
-            <div class="header-center-subtitle">
-                (PSPL/HRD/SOP/Frm)
-            </div>
 
-            <div class="tiny">
-                Release No: 04 Date: 20-04-2026
-            </div>
+
 
         </div>
 
@@ -5671,11 +5664,11 @@ var item10Checked =
 
             <br />
 
-            (PSPL/HRD/SOP/Frm)
+            (PSPL/HRD/SOP1/Frm3)
 
             <br />
 
-            Release No: 04 Date: 20-04-2026
+            Release 1.4 Release Date: 20-04-2026
 
         </div>
 
@@ -6461,7 +6454,7 @@ var item10Checked =
 <div class="a4-page">
 
 
-    <div class="document-header">
+       <div class="document-header">
 
         <div class="header-left">
 
@@ -6472,35 +6465,29 @@ var item10Checked =
 
         </div>
 
-
+        
         <div class="header-center">
 
-            <div class="header-center-title">
-                Employment Form
-            </div>
 
-            <div class="header-center-subtitle">
-                Personal & Other Information
-            </div>
+
+
 
         </div>
 
 
         <div class="header-right">
 
-            Employee Code:
-
             <strong>
-                @Safe(interview.EmployeeCode)
+                Employment Form
             </strong>
 
             <br />
 
-            Employee:
+            (PSPL/HRD/SOP1/Frm3)
 
-            <strong>
-                @Safe(employee.FullName)
-            </strong>
+            <br />
+
+            Release 1.4 Release Date: 20-04-2026
 
         </div>
 
@@ -7885,7 +7872,7 @@ var item10Checked =
 <div class="a4-page">
 
 
-    <div class="document-header">
+      <div class="document-header">
 
         <div class="header-left">
 
@@ -7896,33 +7883,29 @@ var item10Checked =
 
         </div>
 
-
+        
         <div class="header-center">
 
-            <div class="header-center-title">
 
-                Employment Form
 
-            </div>
 
-            <div class="header-center-subtitle">
-
-                Previous Employment Details
-
-            </div>
 
         </div>
 
 
         <div class="header-right">
 
-            Employee Code:
-
             <strong>
-
-                @Safe(interview.EmployeeCode)
-
+                Employment Form
             </strong>
+
+            <br />
+
+            (PSPL/HRD/SOP1/Frm3)
+
+            <br />
+
+            Release 1.4 Release Date: 20-04-2026
 
         </div>
 
@@ -9212,38 +9195,18 @@ var item10Checked =
 
    <div class="signature-area">
 
-    @if (!string.IsNullOrWhiteSpace(employee.EmployeeSignature))
-    {
-        <img src="@employee.EmployeeSignature"
-             alt="Employee Signature"
-             style="max-width:220px;
-                    max-height:100px;
-                    object-fit:contain;" />
-    }
-    else if (employeeSignatureDocument != null &&
-             !string.IsNullOrWhiteSpace(employeeSignatureDocument.FilePath))
-    {
-        var signatureExt = System.IO.Path
-            .GetExtension(employeeSignatureDocument.FilePath)
-            ?.ToLowerInvariant();
+                @if (employeeSignatureDocument != null)
+                {
+                    var signaturePath = GetDocumentFilePath(employeeSignatureDocument);
 
-        @if (signatureExt == ".jpg" ||
-             signatureExt == ".jpeg" ||
-             signatureExt == ".png" ||
-             signatureExt == ".gif" ||
-             signatureExt == ".webp")
-        {
-            <img src="@Url.Content(employeeSignatureDocument.FilePath)"
-                 alt="Employee Signature"
-                 style="max-width:220px;
-                        max-height:100px;
-                        object-fit:contain;" />
-        }
-        else
-        {
-            <div class="signature-line"></div>
-        }
-    }
+                    if (!string.IsNullOrWhiteSpace(signaturePath))
+                    {
+                        <img src="@signaturePath"
+                             class="undertaking-signature-image"
+                             alt="Employee Signature" />
+                    }
+                }
+
     else
     {
         <div class="signature-line"></div>
@@ -9595,31 +9558,40 @@ var item10Checked =
          HEADER
     ========================================================== -->
 
-    <div class="undertaking-header">
+       <div class="document-header">
 
-        <div class="undertaking-logo">
+        <div class="header-left">
 
             <img src="~/assets/img/logo/PROTALKLOGO.png"
-                 class="undertaking-logo-img"
-                 alt="Protalk Solutions"
+                 class="company-logo"
+                 alt="Company Logo"
                  onerror="this.style.display='none';" />
 
         </div>
 
+        
+        <div class="header-center">
 
-        <div class="undertaking-heading">
 
-            <div class="undertaking-title">
-                Employee Undertaking
-            </div>
 
-            <div class="undertaking-form-no">
-                (PSL/HR/FORM/04)
-            </div>
 
-            <div class="undertaking-release">
-                Release: 14 &nbsp;&nbsp; Release Date: 01.06.2024
-            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            <strong>
+                Employment Form
+            </strong>
+
+            <br />
+
+            (PSPL/HRD/SOP1/Frm3)
+
+            <br />
+
+            Release 1.4 Release Date: 20-04-2026
 
         </div>
 
@@ -11968,12 +11940,31 @@ else
 ============================================================ -->
 
 <div class="print-page form-f-page">
+        <div class="document-header">
 
-    <!-- ================= FORM HEADER ================= -->
+        <div class="header-left">
 
-    <div class="form-f-title">
-        FORM F (NOMINATION) - See Rule 1 of Rule 6 of Payment of Gratuity Act
+            <img src="~/assets/img/logo/PROTALKLOGO.png"
+                 class="company-logo"
+                 alt="Company Logo"
+                 onerror="this.style.display='none';" />
+
+        </div>
+
+        
+        <div class="header-center">
+
+            <strong>
+            FORM F (NOMINATION) - See Rule 1 of Rule 6 of Payment of Gratuity Act
+             </strong>
+
+        </div>
+
+
+
+
     </div>
+
 
 
     <div class="form-f-address">
@@ -14112,7 +14103,7 @@ else
                 </td>
 
                 <td colspan="2">
-                    Protalk Services Private Limited.
+                    
                 </td>
             </tr>
 
@@ -14194,734 +14185,735 @@ else
     </div>
 
 </div>
-<!-- ============================================================
+    <!-- ============================================================
      INTERVIEW EVALUATION FORM
      PSPL/HRD/SOP1/FRM8
 ============================================================ -->
 
-<div class="print-page interview-form-page">
+    <div class="print-page interview-form-page">
 
-    <!-- HEADER -->
-    <div class="iv-header">
+        <!-- HEADER -->
+        <div class="iv-header">
 
-        <div class="iv-logo-section">
-            <img src="~/assets/img/logo/PROTALKLOGO.png"
-                 class="iv-logo"
-                 alt="Protalk" />
+            <div class="iv-logo-section">
+                <img src="~/assets/img/logo/PROTALKLOGO.png"
+                     class="iv-logo"
+                     alt="Protalk" />
 
-            <div class="iv-company">
-                PRO TALK SOLUTIONS PVT LTD
+                <div class="iv-company">
+                    PRO TALK SOLUTIONS PVT LTD
+                </div>
             </div>
+
+            <div class="iv-title-section">
+
+                <div class="iv-title">
+                    Interview Evaluation Form
+                </div>
+
+                <div class="iv-form-code">
+                    (PSPL/HRD/SOP1/FRM8)
+                </div>
+
+                <div class="iv-release">
+                    Release: 1.3&nbsp;&nbsp; Release Date: 30-04-2025
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="iv-title-section">
 
-            <div class="iv-title">
-                Interview Evaluation Form
-            </div>
+        <!-- CANDIDATE DETAILS -->
+        <table class="iv-candidate-table">
 
-            <div class="iv-form-code">
-                (PSPL/HRD/SOP1/FRM8)
-            </div>
-
-            <div class="iv-release">
-                Release: 1.3&nbsp;&nbsp; Release Date: 30-04-2025
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- CANDIDATE DETAILS -->
-    <table class="iv-candidate-table">
-
-        <tr>
-            <td class="iv-detail-label">Candidate Name</td>
-            <td class="iv-detail-value"> 
-                <span class="handwritten bgv-inline-value">
-                @Safe(employee?.FullName)
-                </span>
-            </td>
-
-<td class="iv-detail-label">Age</td>
-<td class="iv-detail-value">
-<span class="handwritten">
-    @{
-        if (employee?.DateOfBirth.HasValue == true)
-        {
-            var dob = employee.DateOfBirth.Value;
-            var today = DateTime.Today;
-
-            var age = today.Year - dob.Year;
-
-            if (dob.Date > today.AddYears(-age))
-            {
-                age--;
-            }
-
-            @age
-        }
-    }
-</span>
-
-</td>
-        </tr>
-
-        <tr>
-            <td class="iv-detail-label">Position Applied for</td>
-            <td class="iv-detail-value">
-                <span class="handwritten bgv-inline-value">
-                @Safe(interview.EmployeeType)
-                <span></span>
-            </td>
-
-            <td class="iv-detail-label">Qualification</td>
-            <td class="iv-detail-value">
-                <span class="handwritten bgv-inline-value"> @Safe(employee.HighestQualification)
+            <tr>
+                <td class="iv-detail-label">Candidate Name</td>
+                <td class="iv-detail-value">
+                    <span class="handwritten bgv-inline-value">
+                        @Safe(employee?.FullName)
                     </span>
-            </td>
-        </tr>
+                </td>
 
-        <tr>
-            <td class="iv-detail-label">Years Of Experience</td>
-<td class="iv-detail-value">
-    <span class="handwritten bgv-inline-value">
-        @if ((employee?.TotalExperienceYears ?? 0) > 0)
-        {
-            @($"{employee.TotalExperienceYears} Year{(employee.TotalExperienceYears == 1 ? "" : "s")}")
-        }
+                <td class="iv-detail-label">Age</td>
+                <td class="iv-detail-value">
+                    <span class="handwritten">
+                        @{
+                            if (employee?.DateOfBirth.HasValue == true)
+                            {
+                                var dob = employee.DateOfBirth.Value;
+                                var today = DateTime.Today;
 
-        @if ((employee?.TotalExperienceMonths ?? 0) > 0)
-        {
-            @($" {employee.TotalExperienceMonths} Month{(employee.TotalExperienceMonths == 1 ? "" : "s")}")
-        }
+                                var age = today.Year - dob.Year;
 
-        @if ((employee?.TotalExperienceYears ?? 0) == 0 &&
-             (employee?.TotalExperienceMonths ?? 0) == 0)
-        {
-            @:0 Months
-        }
-    </span>
-</td>
+                                if (dob.Date > today.AddYears(-age))
+                                {
+                                    age--;
+                                }
 
+                                @age
+                            }
+                        }
+                    </span>
 
-            <td class="iv-detail-label">Referred By</td>
-            <td class="iv-detail-value">
-                <span class="handwritten bgv-inline-value">
-                @Safe(employee?.Reference1Name)
-                </span>
-            </td>
-        </tr>
-
-        <tr>
-            <td class="iv-detail-label">Interview Panel</td>
-            <td class="iv-detail-value">
-                <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.InterviewPanel)
-                </span>
-            </td>
-
-            <td class="iv-detail-label">Interview Date</td>
-            <td class="iv-detail-value">
-                <span class="handwritten bgv-inline-value">
-                @FormatDate(interview?.InterviewDate)
-                </span>
-            </td>
-        </tr>
-
-    </table>
-
-
-    <!-- RATING FACTORS -->
-    <table class="iv-rating-table">
-
-        <thead>
-
-            <tr>
-
-                <th class="iv-rating-factor-title">
-                    RATING FACTORS
-                </th>
-
-                <th colspan="3" class="iv-rating-title">
-                    RATING (Please Tick)
-                </th>
-
-                <th rowspan="2" class="iv-hr-comment-title">
-                    HR comments
-                </th>
-
+                </td>
             </tr>
 
             <tr>
-
-                <th></th>
-
-                <th>
-                    HR<br />
-                    Feedback
-                </th>
-
-                <th>
-                    Ops<br />
-                    Feedback
-                </th>
-
-                <th>
-                    Client<br />
-                    Feedback
-                </th>
-
-            </tr>
-
-        </thead>
-
-       <tbody>
-
-    <tr>
-        <td>Job Knowledge / Skill</td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.JobKnowledgeSkill_HR)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.JobKnowledgeSkill_Ops)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.JobKnowledgeSkill_Client)
-            </span>
-        </td>
-
-        <td rowspan="8" class="iv-comments-area">
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.HRComments)
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Communication Skill</td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.CommunicationSkill_HR)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.CommunicationSkill_Ops)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.CommunicationSkill_Client)
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Interpersonal / Convincing Skills</td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.InterpersonalSkills_HR)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.InterpersonalSkills_Ops)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.InterpersonalSkills_Client)
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Relevant Experience</td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.RelevantExperience_HR)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.RelevantExperience_Ops)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.RelevantExperience_Client)
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>
-            Skill/Competency required for the
-            <br />role
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.RequiredSkill_HR)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.RequiredSkill_Ops)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.RequiredSkill_Client)
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Any Training specific to role</td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.TrainingSpecificRole_HR)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.TrainingSpecificRole_Ops)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.TrainingSpecificRole_Client)
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Team Management</td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.TeamManagement_HR)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.TeamManagement_Ops)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.TeamManagement_Client)
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Suitability / Sustainability for the role</td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.SuitabilitySustainability_HR)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.SuitabilitySustainability_Ops)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.SuitabilitySustainability_Client)
-            </span>
-        </td>
-    </tr>
-
-</tbody>
-
-
-    </table>
-
-
-    <!-- GENERAL -->
-<table class="iv-general-table">
-
-    <tr>
-        <th colspan="2">GENERAL</th>
-    </tr>
-
-    <tr>
-        <td>Typing / Aptitude test score</td>
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.TypingAptitudeScore)
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Current Compensation (CTC)</td>
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.CurrentCompensationCTC?.ToString())
-            </span>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Expected Compensation (CTC)</td>
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.ExpectedCompensationCTC?.ToString())
-            </span>
-        </td>
-    </tr>
-
-</table>
-
-
-
-    <!-- OVERALL RATING -->
-   <!-- OVERALL RATING -->
-<table class="iv-overall-table">
-
-    <tr>
-        <th class="iv-overall-heading">
-            OVERALL RATING
-        </th>
-
-        <th>
-            @if (interviewEvaluation?.OverallRating?.ToString() == "1")
-            {
-                <span class="handwritten bgv-inline-value">☑ 1</span>
-            }
-            else
-            {
-                <span>1</span>
-            }
-        </th>
-
-        <th>
-            @if (interviewEvaluation?.OverallRating?.ToString() == "2")
-            {
-                <span class="handwritten bgv-inline-value">☑ 2</span>
-            }
-            else
-            {
-                <span>2</span>
-            }
-        </th>
-
-        <th>
-            @if (interviewEvaluation?.OverallRating?.ToString() == "3")
-            {
-                <span class="handwritten bgv-inline-value">☑ 3</span>
-            }
-            else
-            {
-                <span>3</span>
-            }
-        </th>
-
-        <th>
-            @if (interviewEvaluation?.OverallRating?.ToString() == "4")
-            {
-                <span class="handwritten bgv-inline-value">☑ 4</span>
-            }
-            else
-            {
-                <span>4</span>
-            }
-        </th>
-
-        <th>
-            @if (interviewEvaluation?.OverallRating?.ToString() == "5")
-            {
-                <span class="handwritten bgv-inline-value">☑ 5</span>
-            }
-            else
-            {
-                <span>5</span>
-            }
-        </th>
-    </tr>
-
-    <tr>
-        <td></td>
-
-        <td>
-            Does Not<br />
-            Meet<br />
-            Expectation
-        </td>
-
-        <td>
-            Partially<br />
-            Meets<br />
-            Expectation
-        </td>
-
-        <td>
-            Just Meets<br />
-            Expectation
-        </td>
-
-        <td>
-            Meets<br />
-            Expectation
-        </td>
-
-        <td>
-            Exceeds<br />
-            Expectation
-        </td>
-    </tr>
-
-</table>
-
-
-
-    <!-- INTERVIEWER COMMENTS -->
-   <table class="iv-interviewer-table">
-
-    <tr>
-        <th colspan="2">
-            Comments by Interviewer(s): Round-1 (Operations)
-        </th>
-
-        <th colspan="2">
-            Comments by Interviewer(s): Round-3 (Process Owner)
-        </th>
-    </tr>
-
-    <tr>
-
-        <td class="iv-interviewer-name">
-
-            <div class="iv-interviewer-sign">
-
-                @if (operationsInterviewerSignature != null)
-                {
-                    var signaturePath = GetDocumentFilePath(operationsInterviewerSignature);
-
-                    if (!string.IsNullOrWhiteSpace(signaturePath))
-                    {
-                        <img src="@signaturePath"
-                             class="undertaking-signature-image"
-                             alt="Operations Interviewer Signature" />
-                    }
-                }
-
+                <td class="iv-detail-label">Position Applied for</td>
+                <td class="iv-detail-value">
+                    <span class="handwritten bgv-inline-value">
+                        @Safe(interview.EmployeeType)
+                        <span></span>
+                    </td>
+
+                    <td class="iv-detail-label">Qualification</td>
+                    <td class="iv-detail-value">
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(employee.HighestQualification)
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="iv-detail-label">Years Of Experience</td>
+                    <td class="iv-detail-value">
+                        <span class="handwritten bgv-inline-value">
+                            @if ((employee?.TotalExperienceYears ?? 0) > 0)
+                            {
+                                @($"{employee.TotalExperienceYears} Year{(employee.TotalExperienceYears == 1 ? "" : "s")}")
+                            }
+
+                            @if ((employee?.TotalExperienceMonths ?? 0) > 0)
+                            {
+                                @($" {employee.TotalExperienceMonths} Month{(employee.TotalExperienceMonths == 1 ? "" : "s")}")
+                            }
+
+                            @if ((employee?.TotalExperienceYears ?? 0) == 0 &&
+                                 (employee?.TotalExperienceMonths ?? 0) == 0)
+                            {
+                                @:0 Months
+                            }
+                        </span>
+                    </td>
+
+
+                    <td class="iv-detail-label">Referred By</td>
+                    <td class="iv-detail-value">
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(employee?.Reference1Name)
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="iv-detail-label">Interview Panel</td>
+                    <td class="iv-detail-value">
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.InterviewPanel)
+                        </span>
+                    </td>
+
+                    <td class="iv-detail-label">Interview Date</td>
+                    <td class="iv-detail-value">
+                        <span class="handwritten bgv-inline-value">
+                            @FormatDate(interview?.InterviewDate)
+                        </span>
+                    </td>
+                </tr>
+
+            </table>
+
+
+            <!-- RATING FACTORS -->
+            <table class="iv-rating-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th class="iv-rating-factor-title">
+                            RATING FACTORS
+                        </th>
+
+                        <th colspan="3" class="iv-rating-title">
+                            RATING (Please Tick)
+                        </th>
+
+                        <th rowspan="2" class="iv-hr-comment-title">
+                            HR comments
+                        </th>
+
+                    </tr>
+
+                    <tr>
+
+                        <th></th>
+
+                        <th>
+                            HR<br />
+                            Feedback
+                        </th>
+
+                        <th>
+                            Ops<br />
+                            Feedback
+                        </th>
+
+                        <th>
+                            Client<br />
+                            Feedback
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Job Knowledge / Skill</td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.JobKnowledgeSkill_HR)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.JobKnowledgeSkill_Ops)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.JobKnowledgeSkill_Client)
+                            </span>
+                        </td>
+
+                        <td rowspan="8" class="iv-comments-area">
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.HRComments)
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Communication Skill</td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.CommunicationSkill_HR)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.CommunicationSkill_Ops)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.CommunicationSkill_Client)
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Interpersonal / Convincing Skills</td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.InterpersonalSkills_HR)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.InterpersonalSkills_Ops)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.InterpersonalSkills_Client)
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Relevant Experience</td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.RelevantExperience_HR)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.RelevantExperience_Ops)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.RelevantExperience_Client)
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            Skill/Competency required for the
+                            <br />role
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.RequiredSkill_HR)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.RequiredSkill_Ops)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.RequiredSkill_Client)
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Any Training specific to role</td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.TrainingSpecificRole_HR)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.TrainingSpecificRole_Ops)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.TrainingSpecificRole_Client)
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Team Management</td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.TeamManagement_HR)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.TeamManagement_Ops)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.TeamManagement_Client)
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Suitability / Sustainability for the role</td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.SuitabilitySustainability_HR)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.SuitabilitySustainability_Ops)
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="handwritten bgv-inline-value">
+                                @Safe(interviewEvaluation?.SuitabilitySustainability_Client)
+                            </span>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+
+            </table>
+
+
+            <!-- GENERAL -->
+            <table class="iv-general-table">
+
+                <tr>
+                    <th colspan="2">GENERAL</th>
+                </tr>
+
+                <tr>
+                    <td>Typing / Aptitude test score</td>
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.TypingAptitudeScore)
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Current Compensation (CTC)</td>
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.CurrentCompensationCTC?.ToString())
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Expected Compensation (CTC)</td>
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.ExpectedCompensationCTC?.ToString())
+                        </span>
+                    </td>
+                </tr>
+
+            </table>
+
+
+
+            <!-- OVERALL RATING -->
+            <!-- OVERALL RATING -->
+            <table class="iv-overall-table">
+
+                <tr>
+                    <th class="iv-overall-heading">
+                        OVERALL RATING
+                    </th>
+
+                    <th>
+                        @if (interviewEvaluation?.OverallRating?.ToString() == "1")
+                        {
+                            <span class="handwritten bgv-inline-value">☑ 1</span>
+                        }
+                        else
+                        {
+                            <span>1</span>
+                        }
+                    </th>
+
+                    <th>
+                        @if (interviewEvaluation?.OverallRating?.ToString() == "2")
+                        {
+                            <span class="handwritten bgv-inline-value">☑ 2</span>
+                        }
+                        else
+                        {
+                            <span>2</span>
+                        }
+                    </th>
+
+                    <th>
+                        @if (interviewEvaluation?.OverallRating?.ToString() == "3")
+                        {
+                            <span class="handwritten bgv-inline-value">☑ 3</span>
+                        }
+                        else
+                        {
+                            <span>3</span>
+                        }
+                    </th>
+
+                    <th>
+                        @if (interviewEvaluation?.OverallRating?.ToString() == "4")
+                        {
+                            <span class="handwritten bgv-inline-value">☑ 4</span>
+                        }
+                        else
+                        {
+                            <span>4</span>
+                        }
+                    </th>
+
+                    <th>
+                        @if (interviewEvaluation?.OverallRating?.ToString() == "5")
+                        {
+                            <span class="handwritten bgv-inline-value">☑ 5</span>
+                        }
+                        else
+                        {
+                            <span>5</span>
+                        }
+                    </th>
+                </tr>
+
+                <tr>
+                    <td></td>
+
+                    <td>
+                        Does Not<br />
+                        Meet<br />
+                        Expectation
+                    </td>
+
+                    <td>
+                        Partially<br />
+                        Meets<br />
+                        Expectation
+                    </td>
+
+                    <td>
+                        Just Meets<br />
+                        Expectation
+                    </td>
+
+                    <td>
+                        Meets<br />
+                        Expectation
+                    </td>
+
+                    <td>
+                        Exceeds<br />
+                        Expectation
+                    </td>
+                </tr>
+
+            </table>
+
+
+
+            <!-- INTERVIEWER COMMENTS -->
+            <table class="iv-interviewer-table">
+
+                <tr>
+                    <th colspan="2">
+                        Comments by Interviewer(s): Round-1 (Operations)
+                    </th>
+
+                    <th colspan="2">
+                        Comments by Interviewer(s): Round-3 (Process Owner)
+                    </th>
+                </tr>
+
+                <tr>
+
+                    <td class="iv-interviewer-name">
+
+                        <div class="iv-interviewer-sign">
+
+                            @if (operationsInterviewerSignature != null)
+                            {
+                                var signaturePath = GetDocumentFilePath(operationsInterviewerSignature);
+
+                                if (!string.IsNullOrWhiteSpace(signaturePath))
+                                {
+                                    <img src="@signaturePath"
+                                         class="undertaking-signature-image"
+                                         alt="Operations Interviewer Signature" />
+                                }
+                            }
+
+                        </div>
+
+                        Name:
+
+                    </td>
+
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.OperationsInterviewerName)
+                        </span>
+                    </td>
+
+                    <td class="iv-interviewer-name">
+
+                        <div class="iv-interviewer-sign">
+
+                            @if (processOwnerInterviewerSignature != null)
+                            {
+                                var signaturePath = GetDocumentFilePath(processOwnerInterviewerSignature);
+
+                                if (!string.IsNullOrWhiteSpace(signaturePath))
+                                {
+                                    <img src="@signaturePath"
+                                         class="undertaking-signature-image"
+                                         alt="Process Owner Interviewer Signature" />
+                                }
+                            }
+
+                        </div>
+
+                        Name:
+
+                    </td>
+
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.ProcessOwnerInterviewerName)
+                        </span>
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+
+            <!-- FINAL OBSERVATIONS -->
+            <div class="iv-final-title">
+                Final Observations
             </div>
 
-            Name:
+            <table class="iv-final-table">
 
-        </td>
+                <tr>
 
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.OperationsInterviewerName)
-            </span>
-        </td>
+                    <th>Selected/Hold/Reject</th>
 
-        <td class="iv-interviewer-name">
+                    <th>Position to be offered</th>
 
-            <div class="iv-interviewer-sign">
+                    <th>Salary Gross</th>
 
-                @if (processOwnerInterviewerSignature != null)
-                {
-                    var signaturePath = GetDocumentFilePath(processOwnerInterviewerSignature);
+                    <th>PLI</th>
 
-                    if (!string.IsNullOrWhiteSpace(signaturePath))
-                    {
-                        <img src="@signaturePath"
-                             class="undertaking-signature-image"
-                             alt="Process Owner Interviewer Signature" />
-                    }
-                }
+                    <th>Variable</th>
 
-            </div>
+                    <th>Joining<br />Date</th>
 
-            Name:
+                    <th>Location</th>
 
-        </td>
+                </tr>
 
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.ProcessOwnerInterviewerName)
-            </span>
-        </td>
+                <tr>
 
-    </tr>
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.SelectedHoldReject)
+                        </span>
+                    </td>
 
-</table>
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interview.EmployeeType)
+                        </span>
+                    </td>
 
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.SalaryGross?.ToString("N2"))
+                        </span>
+                    </td>
 
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.PLI?.ToString("N2"))
+                        </span>
+                    </td>
 
-   <!-- FINAL OBSERVATIONS -->
-<div class="iv-final-title">
-    Final Observations
-</div>
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.Variable?.ToString("N2"))
+                        </span>
+                    </td>
 
-<table class="iv-final-table">
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.DateOfJoining?.ToString("dd/MM/yyyy"))
+                        </span>
+                    </td>
 
-    <tr>
+                    <td>
+                        <span class="handwritten bgv-inline-value">
+                            @Safe(interviewEvaluation?.Location)
+                        </span>
+                    </td>
 
-        <th>Selected/Hold/Reject</th>
+                </tr>
 
-        <th>Position to be offered</th>
-
-        <th>Salary Gross</th>
-
-        <th>PLI</th>
-
-        <th>Variable</th>
-
-        <th>Joining<br />Date</th>
-
-        <th>Location</th>
-
-    </tr>
-
-    <tr>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.SelectedHoldReject)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interview.EmployeeType)
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.SalaryGross?.ToString("N2"))
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.PLI?.ToString("N2"))
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.Variable?.ToString("N2"))
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.DateOfJoining?.ToString("dd/MM/yyyy"))
-            </span>
-        </td>
-
-        <td>
-            <span class="handwritten bgv-inline-value">
-                @Safe(interviewEvaluation?.Location)
-            </span>
-        </td>
-
-    </tr>
-
-</table>
+            </table>
 
 
-<!-- SIGNATURE -->
-<table class="iv-bottom-signature">
+            <!-- SIGNATURE -->
+            <table class="iv-bottom-signature">
 
-    <tr>
+                <tr>
 
-        <td>
-            <div class="iv-bottom-sign-space"></div>
-            Signature of Interviewers
-                 @if (employeeSignatureDocument != null)
-                {
-                    var signaturePath = GetDocumentFilePath(interviewerSignature);
+                    <td>
+                        <div class="iv-bottom-sign-space"></div>
+                        Signature of Interviewers
+                        @if (employeeSignatureDocument != null)
+                        {
+                            var signaturePath = GetDocumentFilePath(interviewerSignature);
 
-                    if (!string.IsNullOrWhiteSpace(signaturePath))
-                    {
-                        <img src="@signaturePath"
-                             class="undertaking-signature-image"
-                             alt="Employee Signature" />
-                    }
-                }
-        </td>
+                            if (!string.IsNullOrWhiteSpace(signaturePath))
+                            {
+                                <img src="@signaturePath"
+                                     class="undertaking-signature-image"
+                                     alt="Employee Signature" />
+                            }
+                        }
+                    </td>
 
-        <td>
-            <div class="iv-bottom-date">
-                <span class="handwritten bgv-inline-value">
-                    @(interview?.FinalDate.HasValue == true
-        ? interview.FinalDate.Value.ToString("dd/MM/yyyy")
-        : "")
+                    <td>
+                        <div class="iv-bottom-date">
+                            <span class="handwritten bgv-inline-value">
+                                @(interview?.FinalDate.HasValue == true
+                    ? interview.FinalDate.Value.ToString("dd/MM/yyyy")
+                    : "")
+                            </span>
+                        </div>
+                        Date
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+            <!-- FOOTER -->
+            <div class="iv-footer">
+
+                <span>
+                    01 | Page&nbsp;&nbsp; Interview Evaluation Sheet
                 </span>
+
+                <span>
+                    PSPL-HRManual
+                </span>
+
             </div>
-            Date
-        </td>
 
-    </tr>
-
-</table>
-
-
-<!-- FOOTER -->
-<div class="iv-footer">
-
-    <span>
-        01 | Page&nbsp;&nbsp; Interview Evaluation Sheet
-    </span>
-
-    <span>
-        PSPL-HRManual
-    </span>
-
-</div>
-
-</div>
-<!-- =========================================================
+        </div>
+        <!-- =========================================================
      UPLOADED DOCUMENTS
 ========================================================== -->
-<!-- =========================================================
+        <!-- =========================================================
      SELECTED UPLOADED DOCUMENTS
 ========================================================== -->
-<!-- =========================================================
+        <!-- =========================================================
      SELECTED UPLOADED DOCUMENTS
 ========================================================== -->
-@{
-    var selectedDocumentTypes = new[]
-    {
+        @{
+            var selectedDocumentTypes = new[]
+            {
         "Resume",
         "OfferLetter",
         "ExperienceCertificate",
@@ -14933,595 +14925,1132 @@ else
         "BankDocument"
     };
 
-    var selectedDocuments = Model?.DocumnetList?
-        .Where(x =>
-            !string.IsNullOrWhiteSpace(x.DocumentType) &&
-            selectedDocumentTypes.Contains(
-                x.DocumentType,
-                StringComparer.OrdinalIgnoreCase))
-        .ToList()
-        ?? new List<EmployeeOnboardingDocumentsModel>();
-}
+            var selectedDocuments = Model?.DocumnetList?
+                .Where(x =>
+                    !string.IsNullOrWhiteSpace(x.DocumentType) &&
+                    selectedDocumentTypes.Contains(
+                        x.DocumentType,
+                        StringComparer.OrdinalIgnoreCase))
+                .ToList()
+                ?? new List<EmployeeOnboardingDocumentsModel>();
+        }
 
 
-@if (selectedDocuments.Any())
-{
-    <!-- =====================================================
+        @if (selectedDocuments.Any())
+        {
+            <!-- =====================================================
          UPLOADED DOCUMENTS COVER
     ====================================================== -->
-
-  
-
-
-      
-
-    <!-- =====================================================
+            <!-- =====================================================
          ACTUAL UPLOADED DOCUMENTS
     ====================================================== -->
+            @for (int documentIndex = 0; documentIndex < selectedDocuments.Count; documentIndex++)
+            {
+                var document = selectedDocuments[documentIndex];
+                var isLastDocument = documentIndex == selectedDocuments.Count - 1;
+                var documentPath =
+                    GetDocumentFilePath(document);
 
-@for (int documentIndex = 0; documentIndex < selectedDocuments.Count; documentIndex++)
-{
-    var document = selectedDocuments[documentIndex];
-    var isLastDocument = documentIndex == selectedDocuments.Count - 1;
-        var documentPath =
-            GetDocumentFilePath(document);
+                var documentType =
+                    document.DocumentType ?? "";
 
-        var documentType =
-            document.DocumentType ?? "";
+                var displayName = documentType;
 
-        var displayName = documentType;
-
-        if (documentType.Equals(
-            "Resume",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "Resume / CV";
-        }
-        else if (documentType.Equals(
-            "OfferLetter",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "Offer Letter";
-        }
-        else if (documentType.Equals(
-            "ExperienceCertificate",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "Experience Certificate";
-        }
-        else if (documentType.Equals(
-            "SalarySlip",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "Salary Slip";
-        }
-        else if (documentType.Equals(
-            "EducationCertificate",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "Education Certificate";
-        }
-        else if (documentType.Equals(
-            "Aadhaar",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "Aadhaar Card";
-        }
-        else if (documentType.Equals(
-            "PAN",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "PAN Card";
-        }
-        else if (documentType.Equals(
-            "Passport",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "Passport";
-        }
-        else if (documentType.Equals(
-            "BankDocument",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            displayName = "Bank Details";
-        }
-
-
-        if (!string.IsNullOrWhiteSpace(documentPath))
-        {
-            var isPdf =
-                documentPath.EndsWith(
-                    ".pdf",
-                    StringComparison.OrdinalIgnoreCase);
-
-            var isImage =
-                documentPath.EndsWith(
-                    ".jpg",
-                    StringComparison.OrdinalIgnoreCase)
-                ||
-                documentPath.EndsWith(
-                    ".jpeg",
-                    StringComparison.OrdinalIgnoreCase)
-                ||
-                documentPath.EndsWith(
-                    ".png",
-                    StringComparison.OrdinalIgnoreCase);
+                if (documentType.Equals(
+                    "Resume",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "Resume / CV";
+                }
+                else if (documentType.Equals(
+                    "OfferLetter",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "Offer Letter";
+                }
+                else if (documentType.Equals(
+                    "ExperienceCertificate",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "Experience Certificate";
+                }
+                else if (documentType.Equals(
+                    "SalarySlip",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "Salary Slip";
+                }
+                else if (documentType.Equals(
+                    "EducationCertificate",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "Education Certificate";
+                }
+                else if (documentType.Equals(
+                    "Aadhaar",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "Aadhaar Card";
+                }
+                else if (documentType.Equals(
+                    "PAN",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "PAN Card";
+                }
+                else if (documentType.Equals(
+                    "Passport",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "Passport";
+                }
+                else if (documentType.Equals(
+                    "BankDocument",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    displayName = "Bank Details";
+                }
 
 
-            <!-- =================================================
+                if (!string.IsNullOrWhiteSpace(documentPath))
+                {
+                    var isPdf =
+                        documentPath.EndsWith(
+                            ".pdf",
+                            StringComparison.OrdinalIgnoreCase);
+
+                    var isImage =
+                        documentPath.EndsWith(
+                            ".jpg",
+                            StringComparison.OrdinalIgnoreCase)
+                        ||
+                        documentPath.EndsWith(
+                            ".jpeg",
+                            StringComparison.OrdinalIgnoreCase)
+                        ||
+                        documentPath.EndsWith(
+                            ".png",
+                            StringComparison.OrdinalIgnoreCase);
+
+
+                    <!-- =================================================
                  PDF
             ================================================== -->
+                    if (isPdf)
+                    {
+                        <div class="uploaded-document-container @(isLastDocument ? "last-uploaded-document" : "")">
+                            <div class="uploaded-document-label">
+                                @displayName
+                            </div>
 
-            if (isPdf)
-            {
-<div class="uploaded-document-container @(isLastDocument ? "last-uploaded-document" : "")">
-    <div class="uploaded-document-label">
-        @displayName
-    </div>
+                            <div class="uploaded-pdf-document"
+                                 data-pdf-url="@documentPath"
+                                 data-document-name="@displayName">
 
-    <div class="uploaded-pdf-document"
-                         data-pdf-url="@documentPath"
-                         data-document-name="@displayName">
+                                <div class="pdf-loading">
+                                    Loading @displayName...
+                                </div>
 
-                        <div class="pdf-loading">
-                            Loading @displayName...
+                            </div>
+
                         </div>
-
-                    </div>
-
-                </div>
-            }
+                    }
 
 
-            <!-- =================================================
+                    <!-- =================================================
                  IMAGE
             ================================================== -->
+                    if (isImage)
+                    {
+                        <div class="uploaded-document-container @(isLastDocument ? "last-uploaded-document" : "")">
+                            <div class="uploaded-document-label">
+                                @displayName
+                            </div>
 
-            if (isImage)
-            {
-<div class="uploaded-document-container @(isLastDocument ? "last-uploaded-document" : "")">
-    <div class="uploaded-document-label">
-        @displayName
-    </div>
+                            <div class="uploaded-image-page">
 
-    <div class="uploaded-image-page">
+                                <img src="@documentPath"
+                                     class="uploaded-document-image"
+                                     alt="@displayName"
+                                     onerror="this.style.display='none';" />
 
-                        <img src="@documentPath"
-                             class="uploaded-document-image"
-                             alt="@displayName"
-                             onerror="this.style.display='none';" />
+                            </div>
 
-                    </div>
-
-                </div>
+                        </div>
+                    }
+                }
             }
         }
-    }
-}
-<style>
-/* =========================================================
-   UPLOADED DOCUMENTS
-========================================================= */
+        <style>
+                /* =========================================================
+                   UPLOADED DOCUMENTS
+                ========================================================= */
 
-.uploaded-documents-page {
-    width: 210mm;
-    min-height: 297mm;
+                .uploaded-documents-page {
+                    width: 210mm;
+                    min-height: 297mm;
+                    box-sizing: border-box;
+                    margin: 0 auto;
+                    padding: 15mm 15mm 12mm 15mm;
+                    background: #fff;
+                    font-family: Arial, Helvetica, sans-serif;
+                    color: #111;
+                    page-break-after: always;
+                }
 
-    box-sizing: border-box;
 
-    margin: 0 auto;
+                /* =========================================================
+                   COVER HEADER
+                ========================================================= */
+
+                .uploaded-documents-cover {
+                    display: block;
+                }
+
 
-    padding: 15mm 15mm 12mm 15mm;
-
-    background: #fff;
-
-    font-family: Arial, Helvetica, sans-serif;
-
-    color: #111;
-
-    page-break-after: always;
-}
-
-
-/* =========================================================
-   COVER HEADER
-========================================================= */
-
-.uploaded-documents-cover {
-    display: block;
-}
-
-
-.uploaded-documents-header {
-    display: flex;
-
-    align-items: center;
-
-    border-bottom: 1px solid #222;
-
-    padding-bottom: 7mm;
-
-    margin-bottom: 7mm;
-}
-
-
-.uploaded-documents-logo {
-    width: 30%;
-
-    display: flex;
-
-    align-items: center;
-}
-
-
-.uploaded-documents-logo img {
-    width: 55px;
-
-    height: auto;
-
-    object-fit: contain;
-}
-
-
-.uploaded-documents-heading {
-    width: 70%;
-
-    text-align: center;
-}
-
-
-.uploaded-documents-title {
-    font-size: 20px;
-
-    font-weight: 700;
-
-    text-transform: uppercase;
-
-    letter-spacing: .3px;
-}
-
-
-.uploaded-documents-code {
-    font-size: 10px;
-
-    margin-top: 4px;
-
-    color: #555;
-}
-
-
-/* =========================================================
-   EMPLOYEE INFORMATION
-========================================================= */
-
-.uploaded-employee-info {
-    display: flex;
-
-    justify-content: space-between;
-
-    border: 1px solid #222;
-
-    padding: 9px 12px;
-
-    margin-bottom: 8mm;
-
-    font-size: 10px;
-}
-
-
-.uploaded-employee-info span {
-    margin-left: 5px;
-
-    font-family: "Segoe Print",
-                 "Comic Sans MS",
-                 cursive;
-}
-
-
-/* =========================================================
-   SUMMARY
-========================================================= */
-
-.uploaded-document-summary {
-    border: 1px solid #222;
-}
-
-
-.uploaded-summary-title {
-    background: #f1f1f1;
-
-    border-bottom: 1px solid #222;
-
-    padding: 8px 10px;
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    text-transform: uppercase;
-}
-
-
-.uploaded-summary-grid {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    padding: 8px 10px;
-}
-
-
-.uploaded-summary-item {
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    min-height: 25px;
-
-    font-size: 10px;
-}
-
-
-.uploaded-summary-check {
-    width: 15px;
-
-    height: 15px;
-
-    border: 1px solid #222;
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 10px;
-
-    font-weight: bold;
-}
-
-
-/* =========================================================
-   EACH DOCUMENT
-========================================================= */
-
-.uploaded-document-container {
-    width: 210mm;
-
-    margin: 0 auto;
-
-    background: #fff;
-
-    page-break-after: always;
-
-    box-sizing: border-box;
-}
-
-
-.uploaded-document-label {
-    width: 210mm;
-
-    box-sizing: border-box;
-
-    padding: 5px 8px;
-
-    border: 1px solid #222;
-
-    border-bottom: none;
-
-    background: #f3f3f3;
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    text-transform: uppercase;
-}
-
-
-/* =========================================================
-   PDF PAGE
-========================================================= */
-
-.uploaded-pdf-document {
-    width: 210mm;
-
-    box-sizing: border-box;
-
-    background: #fff;
-}
-
-
-.uploaded-pdf-page {
-    width: 100%;
-    min-height: 0;
-    height: auto;
-    box-sizing: border-box;
-    margin: 0 auto;
-    padding: 0;
-    background: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    overflow: hidden;
-    page-break-after: auto;
-    break-after: auto;
-}
-
-
-.uploaded-pdf-canvas {
-    display: block;
-
-    width: 100%;
-    height: auto;
-
-    max-width: 100%;
-
-    margin: 0;
-    padding: 0;
-}
-
-
-/* =========================================================
-   IMAGE DOCUMENT
-========================================================= */
-
-.uploaded-image-page {
-    width: 100%;
-    min-height: 0;
-    height: auto;
-    box-sizing: border-box;
-    background: #fff;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 5mm;
-    page-break-after: auto;
-    break-after: auto;
-    overflow: hidden;
-}
-
-.uploaded-document-image {
-    display: block;
-
-    max-width: 200mm;
-
-    max-height: 287mm;
-
-    width: auto;
-
-    height: auto;
-
-    object-fit: contain;
-
-    margin: 0 auto;
-}
-
-
-/* =========================================================
-   LOADING / ERROR
-========================================================= */
-
-.pdf-loading {
-    width: 210mm;
-
-    min-height: 297mm;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    font-size: 11px;
-
-    color: #555;
-
-    background: #fff;
-}
-
-
-.pdf-error {
-    width: 210mm;
-
-    min-height: 50mm;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border: 1px solid #ccc;
-
-    font-size: 11px;
-
-    color: #b00020;
-}
-
-
-/* =========================================================
-   SCREEN
-========================================================= */
-
-@@media screen {
-
-    .uploaded-document-container {
-        margin-top: 15px;
-
-        margin-bottom: 15px;
-
-        box-shadow: 0 0 8px rgba(0,0,0,.15);
-    }
-
-    .uploaded-document-label {
-        margin: 0;
-    }
-
-}
-
-
-/* =========================================================
-   PRINT
-========================================================= */
-
+                .uploaded-documents-header {
+                    display: flex;
+                    align-items: center;
+                    border-bottom: 1px solid #222;
+                    padding-bottom: 7mm;
+                    margin-bottom: 7mm;
+                }
+
+
+                .uploaded-documents-logo {
+                    width: 30%;
+                    display: flex;
+                    align-items: center;
+                }
+
+
+                    .uploaded-documents-logo img {
+                        width: 55px;
+                        height: auto;
+                        object-fit: contain;
+                    }
+
+
+                .uploaded-documents-heading {
+                    width: 70%;
+                    text-align: center;
+                }
+
+
+                .uploaded-documents-title {
+                    font-size: 20px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: .3px;
+                }
+
+
+                .uploaded-documents-code {
+                    font-size: 10px;
+                    margin-top: 4px;
+                    color: #555;
+                }
+
+
+                /* =========================================================
+                   EMPLOYEE INFORMATION
+                ========================================================= */
+
+                .uploaded-employee-info {
+                    display: flex;
+                    justify-content: space-between;
+                    border: 1px solid #222;
+                    padding: 9px 12px;
+                    margin-bottom: 8mm;
+                    font-size: 10px;
+                }
+
+
+                    .uploaded-employee-info span {
+                        margin-left: 5px;
+                        font-family: "Segoe Print", "Comic Sans MS", cursive;
+                    }
+
+
+                /* =========================================================
+                   SUMMARY
+                ========================================================= */
+
+                .uploaded-document-summary {
+                    border: 1px solid #222;
+                }
+
+
+                .uploaded-summary-title {
+                    background: #f1f1f1;
+                    border-bottom: 1px solid #222;
+                    padding: 8px 10px;
+                    font-size: 11px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+
+
+                .uploaded-summary-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    padding: 8px 10px;
+                }
+
+
+                .uploaded-summary-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 7px;
+                    min-height: 25px;
+                    font-size: 10px;
+                }
+
+
+                .uploaded-summary-check {
+                    width: 15px;
+                    height: 15px;
+                    border: 1px solid #222;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 10px;
+                    font-weight: bold;
+                }
+
+
+                /* =========================================================
+                   EACH DOCUMENT
+                ========================================================= */
+
+                .uploaded-document-container {
+                    width: 210mm;
+                    margin: 0 auto;
+                    background: #fff;
+                    page-break-after: always;
+                    box-sizing: border-box;
+                }
+
+
+                .uploaded-document-label {
+                    width: 210mm;
+                    box-sizing: border-box;
+                    padding: 5px 8px;
+                    border: 1px solid #222;
+                    border-bottom: none;
+                    background: #f3f3f3;
+                    font-size: 11px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+
+
+                /* =========================================================
+                   PDF PAGE
+                ========================================================= */
+
+                .uploaded-pdf-document {
+                    width: 210mm;
+                    box-sizing: border-box;
+                    background: #fff;
+                }
+
+
+                .uploaded-pdf-page {
+                    width: 100%;
+                    min-height: 0;
+                    height: auto;
+                    box-sizing: border-box;
+                    margin: 0 auto;
+                    padding: 0;
+                    background: #fff;
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-start;
+                    overflow: hidden;
+                    page-break-after: auto;
+                    break-after: auto;
+                }
+
+
+                .uploaded-pdf-canvas {
+                    display: block;
+                    width: 100%;
+                    height: auto;
+                    max-width: 100%;
+                    margin: 0;
+                    padding: 0;
+                }
+
+
+                /* =========================================================
+                   IMAGE DOCUMENT
+                ========================================================= */
+
+                .uploaded-image-page {
+                    width: 100%;
+                    min-height: 0;
+                    height: auto;
+                    box-sizing: border-box;
+                    background: #fff;
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: center;
+                    padding: 5mm;
+                    page-break-after: auto;
+                    break-after: auto;
+                    overflow: hidden;
+                }
+
+                .uploaded-document-image {
+                    display: block;
+                    max-width: 200mm;
+                    max-height: 287mm;
+                    width: auto;
+                    height: auto;
+                    object-fit: contain;
+                    margin: 0 auto;
+                }
+
+
+                /* =========================================================
+                   LOADING / ERROR
+                ========================================================= */
+
+                .pdf-loading {
+                    width: 210mm;
+                    min-height: 297mm;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 11px;
+                    color: #555;
+                    background: #fff;
+                }
+
+
+                .pdf-error {
+                    width: 210mm;
+                    min-height: 50mm;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid #ccc;
+                    font-size: 11px;
+                    color: #b00020;
+                }
+
+
+                /* =========================================================
+                   SCREEN
+                ========================================================= */
+
+                @@media screen {
+
+                    .uploaded-document-container {
+                        margin-top: 15px;
+                        margin-bottom: 15px;
+                        box-shadow: 0 0 8px rgba(0,0,0,.15);
+                    }
+
+                    .uploaded-document-label {
+                        margin: 0;
+                    }
+                }
+
+
+                /* =========================================================
+                   PRINT
+                ========================================================= */
+
+            
 @@media print {
 
+    /* Do not add an extra page after the document-list wrapper */
     .uploaded-documents-page {
         width: 210mm;
-        min-height: 297mm;
-        margin: 0;
-        padding: 15mm 15mm 12mm 15mm;
-        box-shadow: none;
-        break-after: page;
+        min-height: 0;
+        height: auto;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        break-after: auto !important;
+        page-break-after: auto !important;
+        overflow: visible !important;
     }
 
-    /* One page break per uploaded document */
+    /* Each uploaded document occupies its own starting page */
     .uploaded-document-container {
         width: 210mm;
-        margin: 0;
-        box-shadow: none;
+        height: auto;
+        min-height: 0;
+        margin: 0 !important;
+        box-shadow: none !important;
+        box-sizing: border-box;
 
-        break-after: page;
-        page-break-after: always;
+        break-after: auto !important;
+        page-break-after: auto !important;
+
+        break-inside: auto;
+        page-break-inside: auto;
     }
-    .uploaded-document-container.last-uploaded-document {
-    page-break-after: auto !important;
-    break-after: auto !important;
-}
+
+    /* Start subsequent documents on a new page */
+    .uploaded-document-container
+    + .uploaded-document-container {
+        break-before: page !important;
+        page-break-before: always !important;
+    }
+
+    /* Keep the document label with its content */
     .uploaded-document-label {
-        width: 210mm;
+        width: 100%;
+        box-sizing: border-box;
+        break-after: avoid !important;
+        page-break-after: avoid !important;
     }
 
-    /* Do NOT force another page break here */
+    /* PDF pages should fit below their labels */
     .uploaded-pdf-page {
-        width: 210mm;
-        min-height: 297mm;
-        margin: 0;
+        width: 100%;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
 
-        break-after: auto;
-        page-break-after: auto;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        break-after: auto !important;
+        page-break-after: auto !important;
     }
 
     .uploaded-pdf-canvas {
-        width: 210mm;
-        max-width: 210mm;
+        display: block;
+        width: auto !important;
+        height: auto !important;
+        max-width: 195mm !important;
+        max-height: 275mm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
     }
 
-    /* Do NOT force another page break here */
+    /* Image documents follow the same page sizing */
     .uploaded-image-page {
-        width: 210mm;
-        min-height: 297mm;
-        margin: 0;
+        width: 100%;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 3mm !important;
+        box-sizing: border-box;
 
-        break-after: auto;
-        page-break-after: auto;
+        break-after: auto !important;
+        page-break-after: auto !important;
+    }
+
+    .uploaded-document-image {
+        display: block;
+        max-width: 195mm !important;
+        max-height: 275mm !important;
+        width: auto;
+        height: auto;
+        margin: 0 auto !important;
+        object-fit: contain;
+    }
+}
+        </style>
+        
+<style>
+@@media print {
+
+    .uploaded-documents-page {
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        break-after: auto !important;
+        page-break-after: auto !important;
+    }
+
+    .uploaded-document-container {
+        break-after: auto !important;
+        page-break-after: auto !important;
+    }
+
+    .uploaded-document-container
+    + .uploaded-document-container {
+        break-before: page !important;
+        page-break-before: always !important;
+    }
+
+    .uploaded-pdf-page {
+        height: auto !important;
+        min-height: 0 !important;
     }
 }
 </style>
+        <style>
+                /* ============================================================
+                   PROTALK EMPLOYMENT FORM - GLOBAL FORMATTING STANDARD
+                   Added as a final override so existing Razor/HTML content
+                   and business logic remain unchanged.
+                ============================================================ */
 
+                :root {
+                    --form-font: Arial, Helvetica, sans-serif;
+                    --form-size: 8.5pt;
+                    --form-line-height: 1.28;
+                    --page-top: 10mm;
+                    --page-right: 12mm;
+                    --page-bottom: 9mm;
+                    --page-left: 12mm;
+                    --logo-width: 34mm;
+                    --logo-height: 16mm;
+                    --border: #333;
+                    --text: #111;
+                }
+
+                /* -----------------------------
+                   COMMON PAGE STANDARD
+                ----------------------------- */
+                .a4-page,
+                .undertaking-page,
+                .it-compliance-page,
+                .background-verification-page,
+                .form-f-page,
+                .interview-form-page,
+                .document-page,
+                .uploaded-documents-page {
+                    font-family: var(--form-font);
+                    font-size: var(--form-size);
+                    line-height: var(--form-line-height);
+                    color: var(--text);
+                }
+
+                /* Keep every custom A4 page on the same printable canvas. */
+                .a4-page,
+                .undertaking-page,
+                .it-compliance-page,
+                .background-verification-page,
+                .form-f-page,
+                .interview-form-page,
+                .document-page,
+                .uploaded-documents-page {
+                    width: 210mm;
+                    min-height: 297mm;
+                    box-sizing: border-box;
+                    padding: var(--page-top) var(--page-right) var(--page-bottom) var(--page-left);
+                }
+
+                /* -----------------------------
+                   UNIFORM LOGO
+                ----------------------------- */
+                .company-logo,
+                .undertaking-logo-img,
+                .it-logo-img,
+                .bgv-logo,
+                .iv-logo,
+                .dc-logo {
+                    width: var(--logo-width);
+                    height: var(--logo-height);
+                    max-width: var(--logo-width);
+                    max-height: var(--logo-height);
+                    min-width: var(--logo-width);
+                    min-height: var(--logo-height);
+                    object-fit: contain;
+                    object-position: left center;
+                    display: block;
+                }
+
+                /* Logo wrapper: same visual footprint everywhere. */
+                .header-left,
+                .undertaking-logo,
+                .it-logo,
+                .bgv-logo-section,
+                .iv-logo-section,
+                .dc-logo-section {
+                    height: var(--logo-height);
+                    min-height: var(--logo-height);
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: flex-start;
+                }
+
+                /* -----------------------------
+                   UNIFORM HEADER HEIGHT
+                ----------------------------- */
+                .document-header,
+                .undertaking-header,
+                .it-header,
+                .bgv-header,
+                .iv-header,
+                .dc-header {
+                    min-height: var(--logo-height);
+                    margin-bottom: 3.5mm;
+                    align-items: flex-start;
+                }
+
+                /* Header titles line up vertically with the logo. */
+                .header-center,
+                .header-right,
+                .undertaking-heading,
+                .it-header-title,
+                .bgv-title-section,
+                .iv-title-section,
+                .dc-title-section {
+                    padding-top: 1mm;
+                }
+
+                /* -----------------------------
+                   TYPOGRAPHY
+                ----------------------------- */
+                .section-title,
+                .box-title,
+                .header-center-title,
+                .undertaking-title,
+                .it-main-title,
+                .bgv-title,
+                .iv-title,
+                .dc-title {
+                    font-family: var(--form-font);
+                    line-height: 1.15;
+                }
+
+                .section-title {
+                    font-size: 9.5pt;
+                    margin-top: 4mm;
+                    margin-bottom: 2mm;
+                }
+
+                .field-row {
+                    min-height: 19px;
+                    margin-bottom: 2px;
+                }
+
+                .field-value {
+                    min-height: 18px;
+                    padding: 2px 4px;
+                }
+
+                .field-value-box,
+                .top-value {
+                    min-height: 20px;
+                    padding: 3px 5px;
+                }
+
+                /* -----------------------------
+                   TABLE STANDARD
+                ----------------------------- */
+                .form-table {
+                    margin-top: 2mm;
+                    margin-bottom: 2mm;
+                }
+
+                    .form-table th,
+                    .form-table td {
+                        border-color: var(--border);
+                        padding: 2.2mm 2mm;
+                        line-height: 1.22;
+                        vertical-align: middle;
+                    }
+
+                    .form-table th {
+                        font-size: 8pt;
+                        line-height: 1.15;
+                    }
+
+                    .form-table td {
+                        font-size: 8.2pt;
+                    }
+
+                    /* Prevent text from touching table borders. */
+                    .form-table td,
+                    .form-table th {
+                        overflow-wrap: anywhere;
+                    }
+
+                /* -----------------------------
+                   COMMON GRID SPACING
+                ----------------------------- */
+                .top-info,
+                .address-meta,
+                .contact-grid,
+                .emergency-grid,
+                .two-column {
+                    gap: 6mm;
+                }
+
+                .box {
+                    padding: 4mm;
+                    margin-top: 3mm;
+                }
+
+                .address-line {
+                    min-height: 19px;
+                    padding: 2px 4px;
+                    margin-bottom: 2px;
+                }
+
+                /* -----------------------------
+                   SIGNATURES
+                ----------------------------- */
+                .signature-box,
+                .approval-signature,
+                .undertaking-signature-box,
+                .signature-space,
+                .it-signature-field,
+                .signature-line {
+                    box-sizing: border-box;
+                }
+
+                .signature-box {
+                    height: 42px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                    .signature-box img,
+                    .approval-signature-image,
+                    .undertaking-signature-image,
+                    .undertaking-execution-signature,
+                    .it-employee-signature {
+                        width: auto;
+                        height: 28px;
+                        max-width: 42mm;
+                        max-height: 28px;
+                        object-fit: contain;
+                    }
+
+                /* -----------------------------
+                   FOOTER
+                ----------------------------- */
+                .page-footer {
+                    left: var(--page-left);
+                    right: var(--page-right);
+                    bottom: 4mm;
+                    font-family: var(--form-font);
+                    font-size: 7pt;
+                    line-height: 1.1;
+                }
+
+                /* -----------------------------
+                   SCREEN PREVIEW
+                ----------------------------- */
+                @@media screen {
+                    html,
+                    body {
+                        background: #e8e8e8;
+                    }
+
+                    .a4-page,
+                    .undertaking-page,
+                    .it-compliance-page,
+                    .background-verification-page,
+                    .form-f-page,
+                    .interview-form-page,
+                    .document-page,
+                    .uploaded-documents-page {
+                        margin: 15px auto;
+                        box-shadow: 0 0 8px rgba(0,0,0,.18);
+                    }
+                }
+
+                /* -----------------------------
+                   PRINT STANDARD
+                ----------------------------- */
+                @@media print {
+                    html,
+                    body {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        background: #fff !important;
+                        font-family: var(--form-font);
+                    }
+
+                    .a4-page,
+                    .undertaking-page,
+                    .it-compliance-page,
+                    .background-verification-page,
+                    .form-f-page,
+                    .interview-form-page,
+                    .document-page,
+                    .uploaded-documents-page {
+                        width: 210mm;
+                        height: 297mm;
+                        min-height: 297mm;
+                        margin: 0 !important;
+                        box-shadow: none !important;
+                        page-break-after: always;
+                        overflow: hidden;
+                        box-sizing: border-box;
+                    }
+
+                    .document-header,
+                    .undertaking-header,
+                    .it-header,
+                    .bgv-header,
+                    .iv-header,
+                    .dc-header {
+                        page-break-after: avoid;
+                        break-inside: avoid;
+                    }
+
+                    .form-table,
+                    .box,
+                    .two-column {
+                        break-inside: avoid;
+                        page-break-inside: avoid;
+                    }
+
+                    .no-print {
+                        display: none !important;
+                    }
+
+                    @@page {
+                        size: A4 portrait;
+                        margin: 0;
+                    }
+                }
+        </style>
+
+
+
+
+        <style>
+                /* FINAL STANDARD - INTERVIEW EVALUATION FORM */
+                .interview-form-page {
+                    width: 210mm !important;
+                    height: 297mm !important;
+                    min-height: 297mm !important;
+                    margin: 0 auto !important;
+                    padding: 10mm 12mm 9mm 12mm !important;
+                    box-sizing: border-box !important;
+                    font-family: Arial,Helvetica,sans-serif !important;
+                    font-size: 8pt !important;
+                    line-height: 1.22 !important;
+                    color: #111 !important;
+                }
+
+                .iv-header {
+                    width: 100% !important;
+                    display: grid !important;
+                    grid-template-columns: 38mm 1fr 35mm !important;
+                    align-items: center !important;
+                    min-height: 16mm !important;
+                    margin-bottom: 4mm !important;
+                }
+
+                .iv-logo-section {
+                    height: 16mm !important;
+                    min-height: 16mm !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: flex-start !important;
+                    justify-content: center !important;
+                    text-align: left !important;
+                }
+
+                .iv-logo {
+                    width: 34mm !important;
+                    height: 16mm !important;
+                    max-width: 34mm !important;
+                    max-height: 16mm !important;
+                    min-width: 34mm !important;
+                    min-height: 16mm !important;
+                    object-fit: contain !important;
+                    object-position: left center !important;
+                    display: block !important;
+                }
+
+                .iv-company {
+                    font-size: 7pt !important;
+                    line-height: 1.1 !important;
+                    font-weight: 700 !important;
+                    margin-top: 1mm !important;
+                    white-space: nowrap !important
+                }
+
+                .iv-title-section {
+                    text-align: center !important;
+                    padding-top: 0 !important
+                }
+
+                .iv-title {
+                    font-size: 11pt !important;
+                    line-height: 1.15 !important;
+                    font-weight: 700 !important
+                }
+
+                .iv-form-code {
+                    font-size: 7.5pt !important;
+                    line-height: 1.15 !important;
+                    margin-top: 1mm !important
+                }
+
+                .iv-release {
+                    font-size: 6.5pt !important;
+                    line-height: 1.15 !important;
+                    margin-top: 1mm !important
+                }
+
+                .iv-candidate-table, .iv-rating-table, .iv-general-table, .iv-overall-table,
+                .iv-interviewer-table, .iv-final-table, .iv-bottom-signature {
+                    font-family: Arial,Helvetica,sans-serif !important;
+                }
+
+                    .iv-candidate-table td {
+                        height: 6mm !important;
+                        padding: 1.2mm 1.5mm !important;
+                        font-size: 8pt !important;
+                        line-height: 1.2 !important
+                    }
+
+                .iv-detail-label, .iv-detail-value {
+                    font-size: 8pt !important
+                }
+
+                .iv-rating-table th, .iv-rating-table td {
+                    padding: 1.1mm 1.2mm !important;
+                    font-size: 7.5pt !important;
+                    line-height: 1.18 !important
+                }
+
+                .iv-rating-table thead tr:nth-child(2) th {
+                    height: 8mm !important;
+                    font-size: 7.5pt !important;
+                    line-height: 1.15 !important
+                }
+
+                .iv-rating-table tbody tr {
+                    height: 6mm !important
+                }
+
+                .iv-rating-table tbody td:nth-child(2),
+                .iv-rating-table tbody td:nth-child(3),
+                .iv-rating-table tbody td:nth-child(4) {
+                    font-size: 8pt !important
+                }
+
+                .iv-comments-area {
+                    font-size: 7.5pt !important;
+                    line-height: 1.2 !important
+                }
+
+                .iv-general-table th, .iv-general-table td {
+                    padding: 1.1mm 1.5mm !important;
+                    font-size: 7.5pt !important;
+                    line-height: 1.18 !important
+                }
+
+                .iv-general-table th {
+                    height: 6mm !important
+                }
+
+                .iv-overall-table th, .iv-overall-table td {
+                    padding: 1mm !important;
+                    font-size: 7.5pt !important;
+                    line-height: 1.18 !important
+                }
+
+                .iv-overall-table th {
+                    height: 6mm !important
+                }
+
+                .iv-overall-table td {
+                    height: 9mm !important
+                }
+
+                .iv-interviewer-table th, .iv-interviewer-table td {
+                    padding: 1mm !important;
+                    font-size: 7.5pt !important;
+                    line-height: 1.18 !important
+                }
+
+                .iv-interviewer-table th {
+                    height: 6mm !important
+                }
+
+                .iv-interviewer-table td {
+                    height: 16mm !important
+                }
+
+                .iv-final-title {
+                    font-size: 8pt !important;
+                    line-height: 1.15 !important;
+                    padding: 1mm !important;
+                    height: 6mm !important
+                }
+
+                .iv-final-table th, .iv-final-table td {
+                    padding: 1mm !important;
+                    font-size: 7.5pt !important;
+                    line-height: 1.15 !important
+                }
+
+                .iv-final-table th {
+                    height: 8mm !important
+                }
+
+                .iv-final-table td {
+                    height: 10mm !important
+                }
+
+                .iv-bottom-signature td {
+                    height: 17mm !important;
+                    padding: 1.5mm !important;
+                    font-size: 7.5pt !important;
+                    line-height: 1.18 !important
+                }
+
+                .iv-bottom-sign-space, .iv-bottom-date {
+                    height: 9mm !important
+                }
+
+                .iv-interviewer-sign img {
+                    max-width: 30mm !important;
+                    max-height: 8mm !important
+                }
+
+                .iv-footer {
+                    left: 12mm !important;
+                    right: 12mm !important;
+                    bottom: 4mm !important;
+                    font-size: 7pt !important;
+                    line-height: 1.1 !important
+                }
+
+                .interview-form-page .handwritten {
+                    font-size: 8pt !important;
+                    line-height: 1.2 !important
+                }
+
+                @@media print {
+                    .interview-form-page {
+                        width: 210mm !important;
+                        height: 297mm !important;
+                        min-height: 297mm !important;
+                        margin: 0 !important;
+                        padding: 10mm 12mm 9mm 12mm !important;
+                        overflow: hidden !important;
+                        box-shadow: none !important;
+                        page-break-after: always !important;
+                        box-sizing: border-box !important;
+                    }
+
+                    .iv-header, .iv-candidate-table, .iv-rating-table, .iv-general-table,
+                    .iv-overall-table, .iv-interviewer-table, .iv-final-table, .iv-bottom-signature {
+                        break-inside: avoid !important;
+                        page-break-inside: avoid !important;
+                    }
+                }
+
+                @@media screen {
+                    .interview-form-page {
+                        margin: 15px auto !important;
+                        box-shadow: 0 0 8px rgba(0,0,0,.18) !important
+                    }
+                }
+        </style>
 
 <!-- =============================================================
      JAVASCRIPT

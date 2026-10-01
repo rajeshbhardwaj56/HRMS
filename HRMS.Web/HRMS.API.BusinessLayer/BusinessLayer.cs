@@ -5956,28 +5956,35 @@ namespace HRMS.API.BusinessLayer
             return dataSet.Tables[0].AsEnumerable()
                 .Select(row => new EmploymentHistory
                 {
-                    EmploymentHistoryID = row.Field<long>("EmploymentHistoryID"),
-                    EmployeeID = row.Field<long>("EmployeeID"),
-                    CountryID = row.Field<long>("CountryID"),
+                    EmploymentHistoryID = row.Field<long?>("EmploymentHistoryID") ?? 0,
+                    EmployeeID = row.Field<long?>("EmployeeID") ?? 0,
+                    CountryID = row.Field<long?>("CountryID") ?? 0,
+
                     EmploymentID = row.Field<string>("EmploymentID"),
                     CompanyName = row.Field<string>("CompanyName"),
+
                     From = row.Field<DateTime?>("From"),
                     To = row.Field<DateTime?>("To"),
+
                     Address = row.Field<string>("Address"),
                     Phone = row.Field<string>("Phone"),
                     City = row.Field<string>("City"),
                     State = row.Field<string>("State"),
                     PostalCode = row.Field<string>("PostalCode"),
+
                     ReasionFoLeaving = row.Field<string>("ReasionFoLeaving"),
                     Designition = row.Field<string>("Designition"),
                     GrossSalary = row.Field<string>("GrossSalary"),
+
                     SupervisorName = row.Field<string>("SupervisorName"),
                     SupervisorDesignition = row.Field<string>("SupervisorDesignition"),
                     SupervisorContactNo = row.Field<string>("SupervisorContactNo"),
+
                     HRName = row.Field<string>("HRName"),
                     HREmail = row.Field<string>("HREmail"),
                     HRContactNo = row.Field<string>("HRContactNo")
-                }).ToList();
+                })
+                .ToList();
         }
 
         public Result AddUpdateEmploymentHistory(EmploymentHistory emp)
@@ -13463,6 +13470,10 @@ row["OfficialEmail"]?.ToString();
                 // DOCUMENTS TVP
                 // =========================================================
 
+                // =========================================================
+                // DOCUMENTS TVP
+                // =========================================================
+
                 DataTable documentsTable = new DataTable();
 
                 documentsTable.Columns.Add("DocumentID", typeof(long));
@@ -13472,26 +13483,44 @@ row["OfficialEmail"]?.ToString();
                 documentsTable.Columns.Add("FilePath", typeof(string));
                 documentsTable.Columns.Add("DocumentReferenceID", typeof(long));
 
-                if (modelData.DocumentsList != null)
+                if (modelData.DocumentsList != null &&
+                    modelData.DocumentsList.Count > 0)
                 {
                     foreach (var item in modelData.DocumentsList)
                     {
+                        if (item == null)
+                            continue;
+
+                        // Ignore incomplete document rows
+                        if (string.IsNullOrWhiteSpace(item.DocumentType) ||
+                            string.IsNullOrWhiteSpace(item.FileName) ||
+                            string.IsNullOrWhiteSpace(item.FilePath))
+                        {
+                            continue;
+                        }
+
                         DataRow row = documentsTable.NewRow();
 
-                        row["DocumentID"] = item.DocumentID;
-                        row["OnboardingID"] = onboardingID;
+                        row["DocumentID"] =
+                            item.DocumentID > 0
+                                ? item.DocumentID
+                                : 0;
+
+                        row["OnboardingID"] =
+                            onboardingID;
 
                         row["DocumentType"] =
-                            (object?)item.DocumentType ?? DBNull.Value;
+                            item.DocumentType.Trim();
 
                         row["FileName"] =
-                            (object?)item.FileName ?? DBNull.Value;
+                            item.FileName.Trim();
 
                         row["FilePath"] =
-                            (object?)item.FilePath ?? DBNull.Value;
+                            item.FilePath.Trim();
 
                         row["DocumentReferenceID"] =
-                            item.DocumentReferenceID.HasValue
+                            item.DocumentReferenceID.HasValue &&
+                            item.DocumentReferenceID.Value > 0
                                 ? item.DocumentReferenceID.Value
                                 : DBNull.Value;
 
@@ -13967,6 +13996,20 @@ row["OfficialEmail"]?.ToString();
                 {
                     foreach (var item in modelData.InterviewEvaluationList)
                     {
+                        System.Diagnostics.Debug.WriteLine(
+    "========== APPROVAL SIGNATURE DEBUG ==========");
+
+                        System.Diagnostics.Debug.WriteLine(
+                            $"FunctionalHeadApproval = [{item.FunctionalHeadApproval}]");
+
+                        System.Diagnostics.Debug.WriteLine(
+                            $"SPOCHumanResourcesApproval = [{item.SPOCHumanResourcesApproval}]");
+
+                        System.Diagnostics.Debug.WriteLine(
+                            $"HeadHumanResourcesApproval = [{item.HeadHumanResourcesApproval}]");
+
+                        System.Diagnostics.Debug.WriteLine(
+                            "==============================================");
                         interviewEvaluationTable.Rows.Add(
     item.InterviewEvaluationID > 0
         ? item.InterviewEvaluationID
@@ -14126,32 +14169,45 @@ row["OfficialEmail"]?.ToString();
     string.IsNullOrWhiteSpace(item.DocumentsCheckedBy)
         ? DBNull.Value : item.DocumentsCheckedBy,
 
-    string.IsNullOrWhiteSpace(item.Signature)
-        ? DBNull.Value : item.Signature,
+// =============================================================
+// 50-58 SIGNATURES / APPROVALS / INTERVIEWER DETAILS
+// =============================================================
 
-    string.IsNullOrWhiteSpace(item.FunctionalHeadApproval)
-        ? DBNull.Value : item.FunctionalHeadApproval,
+string.IsNullOrWhiteSpace(item.Signature)
+    ? DBNull.Value
+    : item.Signature,
 
-    string.IsNullOrWhiteSpace(item.SPOCHumanResourcesApproval)
-        ? DBNull.Value : item.SPOCHumanResourcesApproval,
+string.IsNullOrWhiteSpace(item.FunctionalHeadApproval)
+    ? DBNull.Value
+    : item.FunctionalHeadApproval,
 
-    string.IsNullOrWhiteSpace(item.HeadHumanResourcesApproval)
-        ? DBNull.Value : item.HeadHumanResourcesApproval,
+string.IsNullOrWhiteSpace(item.SPOCHumanResourcesApproval)
+    ? DBNull.Value
+    : item.SPOCHumanResourcesApproval,
 
-    string.IsNullOrWhiteSpace(item.NameOfInterviewer)
-        ? DBNull.Value : item.NameOfInterviewer,
+string.IsNullOrWhiteSpace(item.HeadHumanResourcesApproval)
+    ? DBNull.Value
+    : item.HeadHumanResourcesApproval,
 
-    item.DateOfJoining.HasValue
-        ? item.DateOfJoining.Value : DBNull.Value,
+string.IsNullOrWhiteSpace(item.NameOfInterviewer)
+    ? DBNull.Value
+    : item.NameOfInterviewer,
 
-    string.IsNullOrWhiteSpace(item.HRInterviewerName)
-        ? DBNull.Value : item.HRInterviewerName,
+item.DateOfJoining.HasValue
+    ? item.DateOfJoining.Value
+    : DBNull.Value,
 
-    string.IsNullOrWhiteSpace(item.OperationsInterviewerName)
-        ? DBNull.Value : item.OperationsInterviewerName,
+string.IsNullOrWhiteSpace(item.HRInterviewerName)
+    ? DBNull.Value
+    : item.HRInterviewerName,
 
-    string.IsNullOrWhiteSpace(item.ProcessOwnerInterviewerName)
-        ? DBNull.Value : item.ProcessOwnerInterviewerName,
+string.IsNullOrWhiteSpace(item.OperationsInterviewerName)
+    ? DBNull.Value
+    : item.OperationsInterviewerName,
+
+string.IsNullOrWhiteSpace(item.ProcessOwnerInterviewerName)
+    ? DBNull.Value
+    : item.ProcessOwnerInterviewerName,
 
     // =================================================
     // 59-72 MASTER DETAILS
@@ -14710,7 +14766,34 @@ row["OfficialEmail"]?.ToString();
                 // =========================================================
                 // EXECUTE STORED PROCEDURE
                 // =========================================================
+                System.Diagnostics.Debug.WriteLine(
+    "========== BEFORE SP CALL ==========");
 
+                System.Diagnostics.Debug.WriteLine(
+                    $"TVP Rows = {interviewEvaluationTable.Rows.Count}");
+
+                if (interviewEvaluationTable.Rows.Count > 0)
+                {
+                    DataRow row = interviewEvaluationTable.Rows[0];
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"InterviewEvaluationID = [{row["InterviewEvaluationID"]}]");
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"OnboardingID = [{row["OnboardingID"]}]");
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"FunctionalHeadApproval = [{row["FunctionalHeadApproval"]}]");
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"SPOCHumanResourcesApproval = [{row["SPOCHumanResourcesApproval"]}]");
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"HeadHumanResourcesApproval = [{row["HeadHumanResourcesApproval"]}]");
+                }
+
+                System.Diagnostics.Debug.WriteLine(
+                    "====================================");
                 DataSet dataSet =
                     DataLayer.GetDataSetByStoredProcedure(
                         StoredProcedures
@@ -15540,109 +15623,23 @@ public Result ApproveEmployeeOnboarding(
         }
 
 
-// =========================================================
-// REJECT MULTIPLE EMPLOYEE ONBOARDING REQUESTS
-// =========================================================
+        // =========================================================
+        // REJECT MULTIPLE EMPLOYEE ONBOARDING REQUESTS
+        // =========================================================
 
-public Result RejectEmployeeOnboarding(
-    List<string> keys)
+        public Result RejectEmployeeOnboarding(
+            long onboardingId,
+            string comments)
         {
             Result model = new Result();
 
             try
             {
-                // =========================================================
-                // VALIDATION
-                // =========================================================
-
-                if (keys == null || keys.Count == 0)
-                {
-                    model.Message =
-                        "Please select at least one employee.";
-
-                    model.PKNo = 0;
-
-                    return model;
-                }
 
 
-                // =========================================================
-                // REMOVE NULL / EMPTY / DUPLICATE KEYS
-                // =========================================================
 
-                keys = keys
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => x.Trim())
-                    .Distinct()
-                    .ToList();
-
-
-                // =========================================================
-                // VALIDATE CLEANED LIST
-                // =========================================================
-
-                if (keys.Count == 0)
-                {
-                    model.Message =
-                        "No valid onboarding records were selected.";
-
-                    model.PKNo = 0;
-
-                    return model;
-                }
-
-
-                // =========================================================
-                // PRIVATE KEY TVP
-                // =========================================================
-
-                DataTable keyTable = new DataTable();
-
-                keyTable.Columns.Add(
-                    "PrivateKey",
-                    typeof(string));
-
-
-                // =========================================================
-                // ADD SELECTED KEYS
-                // =========================================================
-
-                foreach (var key in keys)
-                {
-                    DataRow row =
-                        keyTable.NewRow();
-
-                    row["PrivateKey"] =
-                        key;
-
-                    keyTable.Rows.Add(row);
-                }
-
-
-                // =========================================================
-                // DEBUG
-                // =========================================================
-
-                System.Diagnostics.Debug.WriteLine(
-                    "================================================");
-
-                System.Diagnostics.Debug.WriteLine(
-                    "REJECT EMPLOYEE ONBOARDING");
-
-                System.Diagnostics.Debug.WriteLine(
-                    $"Selected Records : {keys.Count}");
-
-                foreach (var key in keys)
-                {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"PrivateKey : {key}");
-                }
-
-                System.Diagnostics.Debug.WriteLine(
-                    $"TVP Rows : {keyTable.Rows.Count}");
-
-                System.Diagnostics.Debug.WriteLine(
-                    "================================================");
+                comments =
+                    comments.Trim();
 
 
                 // =========================================================
@@ -15652,18 +15649,15 @@ public Result RejectEmployeeOnboarding(
                 List<SqlParameter> sqlParameter =
                 [
                     // =====================================================
-                    // PRIVATE KEYS TVP
+                    // ONBOARDING ID
                     // =====================================================
 
                     new SqlParameter(
-                "@PrivateKeys",
-                SqlDbType.Structured)
+                "@OnboardingID",
+                SqlDbType.BigInt)
             {
-                TypeName =
-                    "dbo.EmployeeOnboardingPrivateKeyTVP",
-
                 Value =
-                    keyTable
+                    onboardingId
             },
 
 
@@ -15676,12 +15670,26 @@ public Result RejectEmployeeOnboarding(
                 SqlDbType.Int)
             {
                 Value = 7
+            },
+
+
+            // =====================================================
+            // REJECTION COMMENTS
+            // =====================================================
+
+            new SqlParameter(
+                "@ApprovalComments",
+                SqlDbType.NVarChar,
+                1000)
+            {
+                Value =
+                    comments
             }
                 ];
 
 
                 // =========================================================
-                // EXECUTE STORED PROCEDURE
+                // EXECUTE SP
                 // =========================================================
 
                 DataSet dataSet =
@@ -15712,7 +15720,7 @@ public Result RejectEmployeeOnboarding(
                         row.Table.Columns.Contains("Message") &&
                         row["Message"] != DBNull.Value
                             ? row["Message"].ToString()
-                            : "Selected employee(s) rejected successfully.";
+                            : "Employee onboarding rejected successfully.";
 
 
                     // =====================================================
@@ -15729,15 +15737,11 @@ public Result RejectEmployeeOnboarding(
                 else
                 {
                     model.Message =
-                        "Unable to reject the selected onboarding records.";
+                        "Unable to reject the onboarding record.";
 
                     model.PKNo = 0;
                 }
 
-
-                // =========================================================
-                // RETURN
-                // =========================================================
 
                 return model;
             }
@@ -15753,7 +15757,7 @@ public Result RejectEmployeeOnboarding(
         }
 
 
-public Result CompleteEmployeeOnboarding(
+        public Result CompleteEmployeeOnboarding(
     long onboardingID,
     long approvedBy,
     string approvalComments)

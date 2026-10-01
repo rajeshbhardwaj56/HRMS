@@ -21,7 +21,7 @@
      ========================================================= -->
 
 
-<div class="mb-3 align-items-center justify-content-end"
+@* <div class="mb-3 align-items-center justify-content-end"
      id="onboardingBulkActions"
      style="display:none;">
 
@@ -37,7 +37,7 @@
         <i class="fa fa-times me-1"></i> Reject
     </button>
 
-</div>
+</div> *@
 
 
 
@@ -59,14 +59,14 @@
                      SELECT ALL
                      ================================================= -->
 
-                <th style="width:40px; text-align:center;">
+@*                 <th style="width:40px; text-align:center;">
 
                     <input type="checkbox"
                            id="selectAllOnboarding"
                            class="onboarding-checkbox" />
 
                 </th>
-
+ *@
 
                 <!-- =================================================
                      ID
@@ -262,333 +262,166 @@
 
             "ordering": true,
 
-            "order": [
-                [6, "desc"]
-            ],
+        // CHANGED FROM 6 TO 5
+        "order": [
+            [5, "desc"]
+        ],
 
-            "paging": true,
+        "paging": true,
 
-            "searching": true,
+        "searching": true,
 
-            "info": true,
+        "info": true,
 
-            "responsive": true,
+        "responsive": true,
 
+        "columns": [
 
-            // =========================================================
-            // COLUMNS
-            // =========================================================
+            // ID
+            {
+                "data": "onboardingID",
+                "visible": false
+            },
 
-            "columns": [
+            // EMPLOYEE NUMBER
+            {
+                "data": "empCode",
+                "autoWidth": true
+            },
 
+            // EMPLOYEE NAME
+            {
+                "data": "employeeName",
+                "autoWidth": true
+            },
 
-                // =====================================================
-                // SELECT CHECKBOX
-                // =====================================================
+            // EMAIL
+            {
+                "data": "email",
+                "autoWidth": true
+            },
 
-                {
-                    "data": null,
+            // MOBILE
+            {
+                "data": "mobile",
+                "autoWidth": true
+            },
 
-                    "orderable": false,
+            // SUBMITTED DATE
+            {
+                "data": "submittedDate",
+                "autoWidth": true,
 
-                    "searchable": false,
+                "render": function (data) {
 
-                    "className": "text-center",
-
-                    "width": "40px",
-
-                    "render": function (data, type, row) {
-
-                        return (
-
-                            '<input type="checkbox" ' +
-
-                            'class="onboarding-row-checkbox" ' +
-
-                            'value="' +
-                            row.privateKey +
-                            '" ' +
-
-                            'data-key="' +
-                            row.privateKey +
-                            '" />'
-
-                        );
-
+                    if (!data) {
+                        return "";
                     }
 
-                },
+                    var date = new Date(data);
 
-
-                // =====================================================
-                // ONBOARDING ID - HIDDEN
-                // =====================================================
-
-                {
-                    "data": "onboardingID",
-
-                    "visible": false
-                },
-
-
-                // =====================================================
-                // EMPLOYEE NUMBER
-                // =====================================================
-
-                {
-                    "data": "empCode",
-
-                    "autoWidth": true
-                },
-
-
-                // =====================================================
-                // EMPLOYEE NAME
-                // =====================================================
-
-                {
-                    "data": "employeeName",
-
-                    "autoWidth": true
-                },
-
-
-                // =====================================================
-                // EMAIL
-                // =====================================================
-
-                {
-                    "data": "email",
-
-                    "autoWidth": true
-                },
-
-
-                // =====================================================
-                // MOBILE
-                // =====================================================
-
-                {
-                    "data": "mobile",
-
-                    "autoWidth": true
-                },
-
-
-                // =====================================================
-                // SUBMITTED DATE
-                // =====================================================
-
-                {
-                    "data": "submittedDate",
-
-                    "autoWidth": true,
-
-                    "render": function (data) {
-
-                        if (!data) {
-
-                            return "";
-
-                        }
-
-
-                        var date = new Date(data);
-
-
-                        if (isNaN(date.getTime())) {
-
-                            return data;
-
-                        }
-
-
-                        return date.toLocaleDateString("en-GB");
-
+                    if (isNaN(date.getTime())) {
+                        return data;
                     }
 
-                },
-
-
-                // =====================================================
-                // STATUS
-                // =====================================================
-
-                {
-                    "data": "statusName",
-
-                    "autoWidth": true,
-
-                    "render": function (data, type, row) {
-
-
-                        // =============================================
-                        // STATUS NAME FROM API
-                        // =============================================
-
-                        if (data) {
-
-                            return data;
-
-                        }
-
-
-                        // =============================================
-                        // FALLBACK STATUS
-                        // =============================================
-
-                        switch (row.status) {
-
-                            case 1:
-
-                                return "In Progress";
-
-
-                            case 2:
-
-                                return "Submitted";
-
-
-                            case 3:
-
-                                return "Under HR Review";
-
-
-                            case 4:
-
-                                return "HR Completed";
-
-
-                            case 5:
-
-                                return "Employee Created";
-
-
-                            case 6:
-
-                                return "Approved";
-
-
-                            case 7:
-
-                                return "Rejected";
-
-
-                            default:
-
-                                return "";
-
-                        }
-
-                    }
-
-                },
-
-
-                // =====================================================
-                // ACTION
-                // =====================================================
-
-                {
-                    "data": null,
-
-                    "orderable": false,
-
-                    "searchable": false,
-
-                    "autoWidth": true,
-
-                    "className": "text-center",
-
-                    "render": function (data, type, row) {
-
-
-                        // =============================================
-                        // VIEW FORM URL
-                        // =============================================
-
-                        var viewUrl =
-                            '@Url.Action("ViewEmploymentForm", "Onboarding")'
-                            + '?key='
-                            + encodeURIComponent(row.privateKey)
-                            + '&step=1';
-
-
-                        // =============================================
-                        // INTERVIEW URL
-                        // =============================================
-
-                        var interviewUrl =
-                            '@Url.Action("EmploymentForm", "Onboarding")'
-                            + '?key='
-                            + encodeURIComponent(row.privateKey)
-                            + '&step=7';
-
-
-                        // =============================================
-                        // ACTION CONTAINER
-                        // =============================================
-
-                        var html =
-                            '<div class="table-data-feature">';
-
-
-                        // =============================================
-                        // VIEW FORM
-                        // =============================================
-
-                        html +=
-
-                            '<a class="item" ' +
-
-                            'href="' + viewUrl + '" ' +
-
-                            'title="View Form" ' +
-
-                            'data-bs-toggle="tooltip" ' +
-
-                            'data-bs-placement="top">' +
-
-                            '<i class="fa fa-eye"></i>' +
-
-                            '</a>';
-
-
-                        // =============================================
-                        // ADD INTERVIEW DETAILS
-                        // =============================================
-
-                        html +=
-
-                            '<a class="item ms-2" ' +
-
-                            'href="' + interviewUrl + '" ' +
-
-                            'title="Add Interview Details" ' +
-
-                            'data-bs-toggle="tooltip" ' +
-
-                            'data-bs-placement="top">' +
-
-                            '<i class="fa fa-user-plus"></i>' +
-
-                            '</a>';
-
-
-                        // =============================================
-                        // CLOSE ACTION CONTAINER
-                        // =============================================
-
-                        html += '</div>';
-
-
-                        return html;
-
-                    }
-
+                    return date.toLocaleDateString("en-GB");
                 }
+            },
 
-            ]
+            // STATUS
+     
+// STATUS
+{
+    "data": "status",
+    "autoWidth": true,
+
+    "render": function (data, type, row) {
+
+        switch (Number(data)) {
+
+            case 1:
+                return "In Progress";
+
+            case 2:
+                return "Submitted";
+
+            case 3:
+                return "Under HR Review";
+
+            case 4:
+                return "HR Completed";
+
+            case 5:
+                return "Employee Created";
+
+            case 6:
+                return "Approved";
+
+            case 7:
+                return "Rejected";
+
+            default:
+                return "";
+        }
+    }
+},
+
+
+
+            // ACTION
+            {
+                "data": null,
+                "orderable": false,
+                "searchable": false,
+                "autoWidth": true,
+                "className": "text-center",
+
+                "render": function (data, type, row) {
+
+                    var viewUrl =
+                        '@Url.Action("ViewEmploymentForm", "Onboarding")'
+                        + '?key='
+                        + encodeURIComponent(row.privateKey)
+                        + '&step=1';
+
+                    var interviewUrl =
+                        '@Url.Action("EmploymentForm", "Onboarding")'
+                        + '?key='
+                        + encodeURIComponent(row.privateKey)
+                        + '&step=7';
+
+                    var html =
+                        '<div class="table-data-feature">';
+
+                    html +=
+                        '<a class="item" ' +
+                        'href="' + viewUrl + '" ' +
+                        'title="View Form" ' +
+                        'data-bs-toggle="tooltip" ' +
+                        'data-bs-placement="top">' +
+                        '<i class="fa fa-eye"></i>' +
+                        '</a>';
+
+                    if (![4, 5, 6, 7].includes(Number(row.status))) {
+
+                        html +=
+                            '<a class="item ms-2" ' +
+                            'href="' + interviewUrl + '" ' +
+                            'title="Add Interview Details" ' +
+                            'data-bs-toggle="tooltip" ' +
+                            'data-bs-placement="top">' +
+                            '<i class="fa fa-user-plus"></i>' +
+                            '</a>';
+
+                    }
+
+                    html += '</div>';
+
+                    return html;
+                }
+            }
+
+        ]
 
         });
 
