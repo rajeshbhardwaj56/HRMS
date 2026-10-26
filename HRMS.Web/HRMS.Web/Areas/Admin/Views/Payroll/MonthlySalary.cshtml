@@ -482,6 +482,13 @@
                 return;
             }
 
+                // Confirm action with the user before proceeding
+                var confirmMessage = "Calculate monthly salary for ALL users for the selected period? This operation may take time and cannot be undone.";
+
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+
             loadPayrollMonths(
                 payrollPeriods,
                 selectedYear,
@@ -2213,7 +2220,18 @@
         $(document).on(
             'click',
             '#btnAutoCalculateSalary',
-            function() {
+            function (e) {
+
+                // Prevent default actions and ensure this handler runs first
+                try {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
+                catch (err) {
+                    // ignore if event is not available
+                }
+
+                console.log('btnAutoCalculateSalary clicked');
 
                 var year =
                     $('#yearDropdown').val();
@@ -2276,6 +2294,14 @@
 
                 var button =
                     $(this);
+
+                // Confirm action with the user before proceeding
+                var confirmMessage = "Calculate monthly salary for ALL users for the selected period? This operation may take time and cannot be undone.";
+
+                if (!confirm(confirmMessage)) {
+                    console.log('Auto-calculate cancelled by user.');
+                    return;
+                }
 
 
                 button.prop(

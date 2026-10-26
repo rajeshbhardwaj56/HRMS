@@ -13894,388 +13894,864 @@ row["OfficialEmail"]?.ToString();
                 // INTERVIEW EVALUATION TVP
                 // =========================================================
 
-                DataTable interviewEvaluationTable = new DataTable();
+                // ============================================================
+                // INTERVIEW EVALUATION TVP
+                // ============================================================
 
-                interviewEvaluationTable.Columns.Add("InterviewEvaluationID", typeof(long)); // 1
-                interviewEvaluationTable.Columns.Add("OnboardingID", typeof(long));         // 2
-                interviewEvaluationTable.Columns.Add("InterviewPanel", typeof(string));      // 3
-                interviewEvaluationTable.Columns.Add("InterviewDate", typeof(DateTime));    // 4
+                DataTable interviewEvaluationTable =
+                    new DataTable();
 
-                // 5-28 SKILLS
-                interviewEvaluationTable.Columns.Add("JobKnowledgeSkill_HR", typeof(string));
-                interviewEvaluationTable.Columns.Add("JobKnowledgeSkill_Ops", typeof(string));
-                interviewEvaluationTable.Columns.Add("JobKnowledgeSkill_Client", typeof(string));
 
-                interviewEvaluationTable.Columns.Add("CommunicationSkill_HR", typeof(string));
-                interviewEvaluationTable.Columns.Add("CommunicationSkill_Ops", typeof(string));
-                interviewEvaluationTable.Columns.Add("CommunicationSkill_Client", typeof(string));
+                // ============================================================
+                // 1 - 4
+                // ============================================================
 
-                interviewEvaluationTable.Columns.Add("InterpersonalSkills_HR", typeof(string));
-                interviewEvaluationTable.Columns.Add("InterpersonalSkills_Ops", typeof(string));
-                interviewEvaluationTable.Columns.Add("InterpersonalSkills_Client", typeof(string));
+                interviewEvaluationTable.Columns.Add(
+                    "InterviewEvaluationID",
+                    typeof(long));
 
-                interviewEvaluationTable.Columns.Add("RelevantExperience_HR", typeof(string));
-                interviewEvaluationTable.Columns.Add("RelevantExperience_Ops", typeof(string));
-                interviewEvaluationTable.Columns.Add("RelevantExperience_Client", typeof(string));
+                interviewEvaluationTable.Columns.Add(
+                    "OnboardingID",
+                    typeof(long));
 
-                interviewEvaluationTable.Columns.Add("RequiredSkill_HR", typeof(string));
-                interviewEvaluationTable.Columns.Add("RequiredSkill_Ops", typeof(string));
-                interviewEvaluationTable.Columns.Add("RequiredSkill_Client", typeof(string));
+                interviewEvaluationTable.Columns.Add(
+                    "InterviewPanel",
+                    typeof(string));
 
-                interviewEvaluationTable.Columns.Add("TrainingSpecificRole_HR", typeof(string));
-                interviewEvaluationTable.Columns.Add("TrainingSpecificRole_Ops", typeof(string));
-                interviewEvaluationTable.Columns.Add("TrainingSpecificRole_Client", typeof(string));
+                interviewEvaluationTable.Columns.Add(
+                    "InterviewDate",
+                    typeof(DateTime));
 
-                interviewEvaluationTable.Columns.Add("TeamManagement_HR", typeof(string));
-                interviewEvaluationTable.Columns.Add("TeamManagement_Ops", typeof(string));
-                interviewEvaluationTable.Columns.Add("TeamManagement_Client", typeof(string));
 
-                interviewEvaluationTable.Columns.Add("SuitabilitySustainability_HR", typeof(string));
-                interviewEvaluationTable.Columns.Add("SuitabilitySustainability_Ops", typeof(string));
-                interviewEvaluationTable.Columns.Add("SuitabilitySustainability_Client", typeof(string));
+                // ============================================================
+                // 5 - 28
+                // SKILLS
+                // ============================================================
 
-                // 29-36 COMMENTS / SCORES
-                interviewEvaluationTable.Columns.Add("HRComments", typeof(string));
-                interviewEvaluationTable.Columns.Add("TypingAptitudeScore", typeof(string));
-                interviewEvaluationTable.Columns.Add("CurrentCompensationCTC", typeof(decimal));
-                interviewEvaluationTable.Columns.Add("ExpectedCompensationCTC", typeof(decimal));
-                interviewEvaluationTable.Columns.Add("OverallRating", typeof(string));
-                interviewEvaluationTable.Columns.Add("OperationsComments", typeof(string));
-                interviewEvaluationTable.Columns.Add("ProcessOwnerComments", typeof(string));
-                interviewEvaluationTable.Columns.Add("SelectedHoldReject", typeof(string));
+                interviewEvaluationTable.Columns.Add(
+                    "JobKnowledgeSkill_HR",
+                    typeof(string));
 
-                // 37-43 FINAL
-                interviewEvaluationTable.Columns.Add("PositionToBeOffered", typeof(string));
-                interviewEvaluationTable.Columns.Add("SalaryGross", typeof(decimal));
-                interviewEvaluationTable.Columns.Add("PLI", typeof(decimal));
-                interviewEvaluationTable.Columns.Add("Variable", typeof(decimal));
-                interviewEvaluationTable.Columns.Add("Location", typeof(string));
-                interviewEvaluationTable.Columns.Add("InterviewerSignature", typeof(string));
-                interviewEvaluationTable.Columns.Add("FinalDate", typeof(DateTime));
+                interviewEvaluationTable.Columns.Add(
+                    "JobKnowledgeSkill_Ops",
+                    typeof(string));
 
-                // 44-58 CANDIDATE / APPROVAL / INTERVIEWER
-                interviewEvaluationTable.Columns.Add("EmployeeCode", typeof(string));
-                interviewEvaluationTable.Columns.Add("Department", typeof(string));
-                interviewEvaluationTable.Columns.Add("Designation", typeof(string));
-                interviewEvaluationTable.Columns.Add("EmploymentStatus", typeof(string));
-                interviewEvaluationTable.Columns.Add("RefCheckReport", typeof(string));
-                interviewEvaluationTable.Columns.Add("DocumentsCheckedBy", typeof(string));
+                interviewEvaluationTable.Columns.Add(
+                    "JobKnowledgeSkill_Client",
+                    typeof(string));
 
-                interviewEvaluationTable.Columns.Add("Signature", typeof(string));
-                interviewEvaluationTable.Columns.Add("FunctionalHeadApproval", typeof(string));
-                interviewEvaluationTable.Columns.Add("SPOCHumanResourcesApproval", typeof(string));
-                interviewEvaluationTable.Columns.Add("HeadHumanResourcesApproval", typeof(string));
 
-                interviewEvaluationTable.Columns.Add("NameOfInterviewer", typeof(string));
-                interviewEvaluationTable.Columns.Add("DateOfJoining", typeof(DateTime));
-                interviewEvaluationTable.Columns.Add("HRInterviewerName", typeof(string));
-                interviewEvaluationTable.Columns.Add("OperationsInterviewerName", typeof(string));
-                interviewEvaluationTable.Columns.Add("ProcessOwnerInterviewerName", typeof(string));
+                interviewEvaluationTable.Columns.Add(
+                    "CommunicationSkill_HR",
+                    typeof(string));
 
-                // 59-72 MASTER DETAILS
-                interviewEvaluationTable.Columns.Add("CompanyID", typeof(long));
-                interviewEvaluationTable.Columns.Add("EmployeeTypeID", typeof(long));
-                interviewEvaluationTable.Columns.Add("DesignationID", typeof(long));
-                interviewEvaluationTable.Columns.Add("DepartmentID", typeof(long));
-                interviewEvaluationTable.Columns.Add("JobLocationID", typeof(long));
-                interviewEvaluationTable.Columns.Add("SubDepartmentID", typeof(long));
-                interviewEvaluationTable.Columns.Add("PayrollTypeID", typeof(long));
-                interviewEvaluationTable.Columns.Add("ShiftTypeID", typeof(long));
-                interviewEvaluationTable.Columns.Add("ReportingToIDL1", typeof(long));
-                interviewEvaluationTable.Columns.Add("ReportingToIDL2", typeof(long));
-                interviewEvaluationTable.Columns.Add("LeavePolicyID", typeof(long));
-                interviewEvaluationTable.Columns.Add("ClientName", typeof(string));
-                interviewEvaluationTable.Columns.Add("LOB", typeof(string));
-                interviewEvaluationTable.Columns.Add("RoleType", typeof(long));
+                interviewEvaluationTable.Columns.Add(
+                    "CommunicationSkill_Ops",
+                    typeof(string));
 
-                // =========================================================
-                // ADD DATA
-                // =========================================================
+                interviewEvaluationTable.Columns.Add(
+                    "CommunicationSkill_Client",
+                    typeof(string));
 
-                if (modelData.InterviewEvaluationList != null)
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterpersonalSkills_HR",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterpersonalSkills_Ops",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterpersonalSkills_Client",
+                    typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "RelevantExperience_HR",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RelevantExperience_Ops",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RelevantExperience_Client",
+                    typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "RequiredSkill_HR",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RequiredSkill_Ops",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RequiredSkill_Client",
+                    typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "TrainingSpecificRole_HR",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TrainingSpecificRole_Ops",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TrainingSpecificRole_Client",
+                    typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "TeamManagement_HR",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TeamManagement_Ops",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TeamManagement_Client",
+                    typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "SuitabilitySustainability_HR",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SuitabilitySustainability_Ops",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SuitabilitySustainability_Client",
+                    typeof(string));
+
+
+                // ============================================================
+                // 29 - 36
+                // COMMENTS / SCORES
+                // ============================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "HRComments",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "TypingAptitudeScore",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "CurrentCompensationCTC",
+                    typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ExpectedCompensationCTC",
+                    typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "OverallRating",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "OperationsComments",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ProcessOwnerComments",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SelectedHoldReject",
+                    typeof(string));
+
+
+                // ============================================================
+                // 37 - 43
+                // FINAL DECISION
+                // ============================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "PositionToBeOffered",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SalaryGross",
+                    typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "PLI",
+                    typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "Variable",
+                    typeof(decimal));
+
+                interviewEvaluationTable.Columns.Add(
+                    "Location",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "InterviewerSignature",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "FinalDate",
+                    typeof(DateTime));
+
+
+                // ============================================================
+                // 44 - 58
+                // EMPLOYEE / APPROVAL / INTERVIEWER
+                // ============================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "EmployeeCode",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "Department",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "Designation",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "EmploymentStatus",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RefCheckReport",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "DocumentsCheckedBy",
+                    typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "Signature",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "FunctionalHeadApproval",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SPOCHumanResourcesApproval",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "HeadHumanResourcesApproval",
+                    typeof(string));
+
+
+                interviewEvaluationTable.Columns.Add(
+                    "NameOfInterviewer",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "DateOfJoining",
+                    typeof(DateTime));
+
+                interviewEvaluationTable.Columns.Add(
+                    "HRInterviewerName",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "OperationsInterviewerName",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ProcessOwnerInterviewerName",
+                    typeof(string));
+
+
+                // ============================================================
+                // 59 - 72
+                // MASTER DETAILS
+                // ============================================================
+
+                interviewEvaluationTable.Columns.Add(
+                    "CompanyID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "EmployeeTypeID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "DesignationID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "DepartmentID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "JobLocationID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "SubDepartmentID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "PayrollTypeID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ShiftTypeID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ReportingToIDL1",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ReportingToIDL2",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "LeavePolicyID",
+                    typeof(long));
+
+                interviewEvaluationTable.Columns.Add(
+                    "ClientName",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "LOB",
+                    typeof(string));
+
+                interviewEvaluationTable.Columns.Add(
+                    "RoleType",
+                    typeof(long));
+
+
+                // ============================================================
+                // ADD ROW
+                // ============================================================
+
+                if (modelData.InterviewEvaluationList != null &&
+                    modelData.InterviewEvaluationList.Count > 0)
                 {
-                    foreach (var item in modelData.InterviewEvaluationList)
+                    foreach (
+                        var item
+                        in modelData.InterviewEvaluationList)
                     {
-                        System.Diagnostics.Debug.WriteLine(
-    "========== APPROVAL SIGNATURE DEBUG ==========");
+                        DataRow row =
+                            interviewEvaluationTable.NewRow();
 
-                        System.Diagnostics.Debug.WriteLine(
-                            $"FunctionalHeadApproval = [{item.FunctionalHeadApproval}]");
 
-                        System.Diagnostics.Debug.WriteLine(
-                            $"SPOCHumanResourcesApproval = [{item.SPOCHumanResourcesApproval}]");
+                        // --------------------------------------------------------
+                        // IDs
+                        // --------------------------------------------------------
+
+                        row["InterviewEvaluationID"] =
+                            item.InterviewEvaluationID > 0
+                                ? item.InterviewEvaluationID
+                                : DBNull.Value;
+
+
+                        row["OnboardingID"] =
+                            onboardingID;
 
-                        System.Diagnostics.Debug.WriteLine(
-                            $"HeadHumanResourcesApproval = [{item.HeadHumanResourcesApproval}]");
-
-                        System.Diagnostics.Debug.WriteLine(
-                            "==============================================");
-                        interviewEvaluationTable.Rows.Add(
-    item.InterviewEvaluationID > 0
-        ? item.InterviewEvaluationID
-        : DBNull.Value,
-
-    item.OnboardingID > 0
-        ? item.OnboardingID
-        : DBNull.Value,
-
-    string.IsNullOrWhiteSpace(item.InterviewPanel)
-        ? DBNull.Value
-        : item.InterviewPanel,
-
-    item.InterviewDate.HasValue
-        ? item.InterviewDate.Value
-        : DBNull.Value,
-
-    // =================================================
-    // 5-28 SKILLS
-    // =================================================
-
-    string.IsNullOrWhiteSpace(item.JobKnowledgeSkill_HR)
-        ? DBNull.Value : item.JobKnowledgeSkill_HR,
-
-    string.IsNullOrWhiteSpace(item.JobKnowledgeSkill_Ops)
-        ? DBNull.Value : item.JobKnowledgeSkill_Ops,
-
-    string.IsNullOrWhiteSpace(item.JobKnowledgeSkill_Client)
-        ? DBNull.Value : item.JobKnowledgeSkill_Client,
-
-    string.IsNullOrWhiteSpace(item.CommunicationSkill_HR)
-        ? DBNull.Value : item.CommunicationSkill_HR,
-
-    string.IsNullOrWhiteSpace(item.CommunicationSkill_Ops)
-        ? DBNull.Value : item.CommunicationSkill_Ops,
-
-    string.IsNullOrWhiteSpace(item.CommunicationSkill_Client)
-        ? DBNull.Value : item.CommunicationSkill_Client,
-
-    string.IsNullOrWhiteSpace(item.InterpersonalSkills_HR)
-        ? DBNull.Value : item.InterpersonalSkills_HR,
-
-    string.IsNullOrWhiteSpace(item.InterpersonalSkills_Ops)
-        ? DBNull.Value : item.InterpersonalSkills_Ops,
-
-    string.IsNullOrWhiteSpace(item.InterpersonalSkills_Client)
-        ? DBNull.Value : item.InterpersonalSkills_Client,
-
-    string.IsNullOrWhiteSpace(item.RelevantExperience_HR)
-        ? DBNull.Value : item.RelevantExperience_HR,
-
-    string.IsNullOrWhiteSpace(item.RelevantExperience_Ops)
-        ? DBNull.Value : item.RelevantExperience_Ops,
-
-    string.IsNullOrWhiteSpace(item.RelevantExperience_Client)
-        ? DBNull.Value : item.RelevantExperience_Client,
-
-    string.IsNullOrWhiteSpace(item.RequiredSkill_HR)
-        ? DBNull.Value : item.RequiredSkill_HR,
-
-    string.IsNullOrWhiteSpace(item.RequiredSkill_Ops)
-        ? DBNull.Value : item.RequiredSkill_Ops,
-
-    string.IsNullOrWhiteSpace(item.RequiredSkill_Client)
-        ? DBNull.Value : item.RequiredSkill_Client,
-
-    string.IsNullOrWhiteSpace(item.TrainingSpecificRole_HR)
-        ? DBNull.Value : item.TrainingSpecificRole_HR,
-
-    string.IsNullOrWhiteSpace(item.TrainingSpecificRole_Ops)
-        ? DBNull.Value : item.TrainingSpecificRole_Ops,
-
-    string.IsNullOrWhiteSpace(item.TrainingSpecificRole_Client)
-        ? DBNull.Value : item.TrainingSpecificRole_Client,
-
-    string.IsNullOrWhiteSpace(item.TeamManagement_HR)
-        ? DBNull.Value : item.TeamManagement_HR,
-
-    string.IsNullOrWhiteSpace(item.TeamManagement_Ops)
-        ? DBNull.Value : item.TeamManagement_Ops,
-
-    string.IsNullOrWhiteSpace(item.TeamManagement_Client)
-        ? DBNull.Value : item.TeamManagement_Client,
-
-    string.IsNullOrWhiteSpace(item.SuitabilitySustainability_HR)
-        ? DBNull.Value : item.SuitabilitySustainability_HR,
-
-    string.IsNullOrWhiteSpace(item.SuitabilitySustainability_Ops)
-        ? DBNull.Value : item.SuitabilitySustainability_Ops,
-
-    string.IsNullOrWhiteSpace(item.SuitabilitySustainability_Client)
-        ? DBNull.Value : item.SuitabilitySustainability_Client,
-
-    // 29-36
-    string.IsNullOrWhiteSpace(item.HRComments)
-        ? DBNull.Value : item.HRComments,
-
-    string.IsNullOrWhiteSpace(item.TypingAptitudeScore)
-        ? DBNull.Value : item.TypingAptitudeScore,
-
-    item.CurrentCompensationCTC.HasValue
-        ? item.CurrentCompensationCTC.Value : DBNull.Value,
-
-    item.ExpectedCompensationCTC.HasValue
-        ? item.ExpectedCompensationCTC.Value : DBNull.Value,
-
-    string.IsNullOrWhiteSpace(item.OverallRating)
-        ? DBNull.Value : item.OverallRating,
-
-    string.IsNullOrWhiteSpace(item.OperationsComments)
-        ? DBNull.Value : item.OperationsComments,
-
-    string.IsNullOrWhiteSpace(item.ProcessOwnerComments)
-        ? DBNull.Value : item.ProcessOwnerComments,
-
-    string.IsNullOrWhiteSpace(item.SelectedHoldReject)
-        ? DBNull.Value : item.SelectedHoldReject,
-
-    // 37-43
-    string.IsNullOrWhiteSpace(item.PositionToBeOffered)
-        ? DBNull.Value : item.PositionToBeOffered,
-
-    item.SalaryGross.HasValue
-        ? item.SalaryGross.Value : DBNull.Value,
-
-    item.PLI.HasValue
-        ? item.PLI.Value : DBNull.Value,
-
-    item.Variable.HasValue
-        ? item.Variable.Value : DBNull.Value,
-
-    string.IsNullOrWhiteSpace(item.Location)
-        ? DBNull.Value : item.Location,
-
-    string.IsNullOrWhiteSpace(item.InterviewerSignature)
-        ? DBNull.Value : item.InterviewerSignature,
-
-    item.FinalDate.HasValue
-        ? item.FinalDate.Value : DBNull.Value,
-
-    // 44-58
-    string.IsNullOrWhiteSpace(item.EmployeeCode)
-        ? DBNull.Value : item.EmployeeCode,
-
-    string.IsNullOrWhiteSpace(item.Department)
-        ? DBNull.Value : item.Department,
-
-    string.IsNullOrWhiteSpace(item.Designation)
-        ? DBNull.Value : item.Designation,
-
-    string.IsNullOrWhiteSpace(item.EmploymentStatus)
-        ? DBNull.Value : item.EmploymentStatus,
-
-    string.IsNullOrWhiteSpace(item.RefCheckReport)
-        ? DBNull.Value : item.RefCheckReport,
-
-    string.IsNullOrWhiteSpace(item.DocumentsCheckedBy)
-        ? DBNull.Value : item.DocumentsCheckedBy,
-
-// =============================================================
-// 50-58 SIGNATURES / APPROVALS / INTERVIEWER DETAILS
-// =============================================================
-
-string.IsNullOrWhiteSpace(item.Signature)
-    ? DBNull.Value
-    : item.Signature,
-
-string.IsNullOrWhiteSpace(item.FunctionalHeadApproval)
-    ? DBNull.Value
-    : item.FunctionalHeadApproval,
-
-string.IsNullOrWhiteSpace(item.SPOCHumanResourcesApproval)
-    ? DBNull.Value
-    : item.SPOCHumanResourcesApproval,
-
-string.IsNullOrWhiteSpace(item.HeadHumanResourcesApproval)
-    ? DBNull.Value
-    : item.HeadHumanResourcesApproval,
-
-string.IsNullOrWhiteSpace(item.NameOfInterviewer)
-    ? DBNull.Value
-    : item.NameOfInterviewer,
-
-item.DateOfJoining.HasValue
-    ? item.DateOfJoining.Value
-    : DBNull.Value,
-
-string.IsNullOrWhiteSpace(item.HRInterviewerName)
-    ? DBNull.Value
-    : item.HRInterviewerName,
-
-string.IsNullOrWhiteSpace(item.OperationsInterviewerName)
-    ? DBNull.Value
-    : item.OperationsInterviewerName,
-
-string.IsNullOrWhiteSpace(item.ProcessOwnerInterviewerName)
-    ? DBNull.Value
-    : item.ProcessOwnerInterviewerName,
-
-    // =================================================
-    // 59-72 MASTER DETAILS
-    // =================================================
-
-    item.CompanyID.HasValue
-        ? item.CompanyID.Value : 3L,
-
-    item.EmployeeTypeID.HasValue
-        ? item.EmployeeTypeID.Value : DBNull.Value,
-
-    item.DesignationID.HasValue
-        ? item.DesignationID.Value : DBNull.Value,
-
-    item.DepartmentID.HasValue
-        ? item.DepartmentID.Value : DBNull.Value,
-
-    item.JobLocationID.HasValue
-        ? item.JobLocationID.Value : DBNull.Value,
-
-    item.SubDepartmentID.HasValue
-        ? item.SubDepartmentID.Value : DBNull.Value,
-
-    item.PayrollTypeID.HasValue
-        ? item.PayrollTypeID.Value : DBNull.Value,
-
-    item.ShiftTypeID.HasValue
-        ? item.ShiftTypeID.Value : DBNull.Value,
-
-    item.ReportingToIDL1.HasValue
-        ? item.ReportingToIDL1.Value : DBNull.Value,
-
-    item.ReportingToIDL2.HasValue
-        ? item.ReportingToIDL2.Value : DBNull.Value,
-
-    item.LeavePolicyID.HasValue
-        ? item.LeavePolicyID.Value : DBNull.Value,
-
-    string.IsNullOrWhiteSpace(item.ClientName)
-        ? DBNull.Value : item.ClientName,
-
-    string.IsNullOrWhiteSpace(item.LOB)
-        ? DBNull.Value : item.LOB,
-
-    item.RoleType.HasValue
-        ? item.RoleType.Value : DBNull.Value
-);
+
+                        // --------------------------------------------------------
+                        // BASIC
+                        // --------------------------------------------------------
+
+                        row["InterviewPanel"] =
+                            string.IsNullOrWhiteSpace(
+                                item.InterviewPanel)
+                                ? DBNull.Value
+                                : item.InterviewPanel.Trim();
+
+
+                        row["InterviewDate"] =
+                            item.InterviewDate.HasValue
+                                ? item.InterviewDate.Value
+                                : DBNull.Value;
+
+
+                        // --------------------------------------------------------
+                        // SKILLS
+                        // --------------------------------------------------------
+
+                        row["JobKnowledgeSkill_HR"] =
+                            string.IsNullOrWhiteSpace(
+                                item.JobKnowledgeSkill_HR)
+                                ? DBNull.Value
+                                : item.JobKnowledgeSkill_HR.Trim();
+
+                        row["JobKnowledgeSkill_Ops"] =
+                            string.IsNullOrWhiteSpace(
+                                item.JobKnowledgeSkill_Ops)
+                                ? DBNull.Value
+                                : item.JobKnowledgeSkill_Ops.Trim();
+
+                        row["JobKnowledgeSkill_Client"] =
+                            string.IsNullOrWhiteSpace(
+                                item.JobKnowledgeSkill_Client)
+                                ? DBNull.Value
+                                : item.JobKnowledgeSkill_Client.Trim();
+
+
+                        row["CommunicationSkill_HR"] =
+                            string.IsNullOrWhiteSpace(
+                                item.CommunicationSkill_HR)
+                                ? DBNull.Value
+                                : item.CommunicationSkill_HR.Trim();
+
+                        row["CommunicationSkill_Ops"] =
+                            string.IsNullOrWhiteSpace(
+                                item.CommunicationSkill_Ops)
+                                ? DBNull.Value
+                                : item.CommunicationSkill_Ops.Trim();
+
+                        row["CommunicationSkill_Client"] =
+                            string.IsNullOrWhiteSpace(
+                                item.CommunicationSkill_Client)
+                                ? DBNull.Value
+                                : item.CommunicationSkill_Client.Trim();
+
+
+                        row["InterpersonalSkills_HR"] =
+                            string.IsNullOrWhiteSpace(
+                                item.InterpersonalSkills_HR)
+                                ? DBNull.Value
+                                : item.InterpersonalSkills_HR.Trim();
+
+                        row["InterpersonalSkills_Ops"] =
+                            string.IsNullOrWhiteSpace(
+                                item.InterpersonalSkills_Ops)
+                                ? DBNull.Value
+                                : item.InterpersonalSkills_Ops.Trim();
+
+                        row["InterpersonalSkills_Client"] =
+                            string.IsNullOrWhiteSpace(
+                                item.InterpersonalSkills_Client)
+                                ? DBNull.Value
+                                : item.InterpersonalSkills_Client.Trim();
+
+
+                        row["RelevantExperience_HR"] =
+                            string.IsNullOrWhiteSpace(
+                                item.RelevantExperience_HR)
+                                ? DBNull.Value
+                                : item.RelevantExperience_HR.Trim();
+
+                        row["RelevantExperience_Ops"] =
+                            string.IsNullOrWhiteSpace(
+                                item.RelevantExperience_Ops)
+                                ? DBNull.Value
+                                : item.RelevantExperience_Ops.Trim();
+
+                        row["RelevantExperience_Client"] =
+                            string.IsNullOrWhiteSpace(
+                                item.RelevantExperience_Client)
+                                ? DBNull.Value
+                                : item.RelevantExperience_Client.Trim();
+
+
+                        row["RequiredSkill_HR"] =
+                            string.IsNullOrWhiteSpace(
+                                item.RequiredSkill_HR)
+                                ? DBNull.Value
+                                : item.RequiredSkill_HR.Trim();
+
+                        row["RequiredSkill_Ops"] =
+                            string.IsNullOrWhiteSpace(
+                                item.RequiredSkill_Ops)
+                                ? DBNull.Value
+                                : item.RequiredSkill_Ops.Trim();
+
+                        row["RequiredSkill_Client"] =
+                            string.IsNullOrWhiteSpace(
+                                item.RequiredSkill_Client)
+                                ? DBNull.Value
+                                : item.RequiredSkill_Client.Trim();
+
+
+                        row["TrainingSpecificRole_HR"] =
+                            string.IsNullOrWhiteSpace(
+                                item.TrainingSpecificRole_HR)
+                                ? DBNull.Value
+                                : item.TrainingSpecificRole_HR.Trim();
+
+                        row["TrainingSpecificRole_Ops"] =
+                            string.IsNullOrWhiteSpace(
+                                item.TrainingSpecificRole_Ops)
+                                ? DBNull.Value
+                                : item.TrainingSpecificRole_Ops.Trim();
+
+                        row["TrainingSpecificRole_Client"] =
+                            string.IsNullOrWhiteSpace(
+                                item.TrainingSpecificRole_Client)
+                                ? DBNull.Value
+                                : item.TrainingSpecificRole_Client.Trim();
+
+
+                        row["TeamManagement_HR"] =
+                            string.IsNullOrWhiteSpace(
+                                item.TeamManagement_HR)
+                                ? DBNull.Value
+                                : item.TeamManagement_HR.Trim();
+
+                        row["TeamManagement_Ops"] =
+                            string.IsNullOrWhiteSpace(
+                                item.TeamManagement_Ops)
+                                ? DBNull.Value
+                                : item.TeamManagement_Ops.Trim();
+
+                        row["TeamManagement_Client"] =
+                            string.IsNullOrWhiteSpace(
+                                item.TeamManagement_Client)
+                                ? DBNull.Value
+                                : item.TeamManagement_Client.Trim();
+
+
+                        row["SuitabilitySustainability_HR"] =
+                            string.IsNullOrWhiteSpace(
+                                item.SuitabilitySustainability_HR)
+                                ? DBNull.Value
+                                : item.SuitabilitySustainability_HR.Trim();
+
+                        row["SuitabilitySustainability_Ops"] =
+                            string.IsNullOrWhiteSpace(
+                                item.SuitabilitySustainability_Ops)
+                                ? DBNull.Value
+                                : item.SuitabilitySustainability_Ops.Trim();
+
+                        row["SuitabilitySustainability_Client"] =
+                            string.IsNullOrWhiteSpace(
+                                item.SuitabilitySustainability_Client)
+                                ? DBNull.Value
+                                : item.SuitabilitySustainability_Client.Trim();
+
+
+                        // --------------------------------------------------------
+                        // COMMENTS
+                        // --------------------------------------------------------
+
+                        row["HRComments"] =
+                            string.IsNullOrWhiteSpace(item.HRComments)
+                                ? DBNull.Value
+                                : item.HRComments.Trim();
+
+                        row["TypingAptitudeScore"] =
+                            string.IsNullOrWhiteSpace(
+                                item.TypingAptitudeScore)
+                                ? DBNull.Value
+                                : item.TypingAptitudeScore.Trim();
+
+                        row["CurrentCompensationCTC"] =
+                            item.CurrentCompensationCTC.HasValue
+                                ? item.CurrentCompensationCTC.Value
+                                : DBNull.Value;
+
+                        row["ExpectedCompensationCTC"] =
+                            item.ExpectedCompensationCTC.HasValue
+                                ? item.ExpectedCompensationCTC.Value
+                                : DBNull.Value;
+
+                        row["OverallRating"] =
+                            string.IsNullOrWhiteSpace(item.OverallRating)
+                                ? DBNull.Value
+                                : item.OverallRating.Trim();
+
+                        row["OperationsComments"] =
+                            string.IsNullOrWhiteSpace(
+                                item.OperationsComments)
+                                ? DBNull.Value
+                                : item.OperationsComments.Trim();
+
+                        row["ProcessOwnerComments"] =
+                            string.IsNullOrWhiteSpace(
+                                item.ProcessOwnerComments)
+                                ? DBNull.Value
+                                : item.ProcessOwnerComments.Trim();
+
+                        row["SelectedHoldReject"] =
+                            string.IsNullOrWhiteSpace(
+                                item.SelectedHoldReject)
+                                ? DBNull.Value
+                                : item.SelectedHoldReject.Trim();
+
+
+                        // --------------------------------------------------------
+                        // FINAL DECISION
+                        // --------------------------------------------------------
+
+                        row["PositionToBeOffered"] =
+                            string.IsNullOrWhiteSpace(
+                                item.PositionToBeOffered)
+                                ? DBNull.Value
+                                : item.PositionToBeOffered.Trim();
+
+                        row["SalaryGross"] =
+                            item.SalaryGross.HasValue
+                                ? item.SalaryGross.Value
+                                : DBNull.Value;
+
+                        row["PLI"] =
+                            item.PLI.HasValue
+                                ? item.PLI.Value
+                                : DBNull.Value;
+
+                        row["Variable"] =
+                            item.Variable.HasValue
+                                ? item.Variable.Value
+                                : DBNull.Value;
+
+                        row["Location"] =
+                            string.IsNullOrWhiteSpace(item.Location)
+                                ? DBNull.Value
+                                : item.Location.Trim();
+
+                        row["InterviewerSignature"] =
+                            string.IsNullOrWhiteSpace(
+                                item.InterviewerSignature)
+                                ? DBNull.Value
+                                : item.InterviewerSignature.Trim();
+
+                        row["FinalDate"] =
+                            item.FinalDate.HasValue
+                                ? item.FinalDate.Value
+                                : DBNull.Value;
+
+
+                        // --------------------------------------------------------
+                        // EMPLOYEE
+                        // --------------------------------------------------------
+
+                        row["EmployeeCode"] =
+                            string.IsNullOrWhiteSpace(item.EmployeeCode)
+                                ? DBNull.Value
+                                : item.EmployeeCode.Trim();
+
+                        row["Department"] =
+                            string.IsNullOrWhiteSpace(item.Department)
+                                ? DBNull.Value
+                                : item.Department.Trim();
+
+                        row["Designation"] =
+                            string.IsNullOrWhiteSpace(item.Designation)
+                                ? DBNull.Value
+                                : item.Designation.Trim();
+
+                        row["EmploymentStatus"] =
+                            string.IsNullOrWhiteSpace(
+                                item.EmploymentStatus)
+                                ? DBNull.Value
+                                : item.EmploymentStatus.Trim();
+
+                        row["RefCheckReport"] =
+                            string.IsNullOrWhiteSpace(
+                                item.RefCheckReport)
+                                ? DBNull.Value
+                                : item.RefCheckReport.Trim();
+
+                        row["DocumentsCheckedBy"] =
+                            string.IsNullOrWhiteSpace(
+                                item.DocumentsCheckedBy)
+                                ? DBNull.Value
+                                : item.DocumentsCheckedBy.Trim();
+
+
+                        // ========================================================
+                        // IMPORTANT
+                        // APPROVAL SIGNATURES
+                        // ========================================================
+
+                        row["Signature"] =
+                            string.IsNullOrWhiteSpace(item.Signature)
+                                ? DBNull.Value
+                                : item.Signature.Trim();
+
+
+                        row["FunctionalHeadApproval"] =
+                            string.IsNullOrWhiteSpace(
+                                item.FunctionalHeadApproval)
+                                ? DBNull.Value
+                                : item.FunctionalHeadApproval.Trim();
+
+
+                        row["SPOCHumanResourcesApproval"] =
+                            string.IsNullOrWhiteSpace(
+                                item.SPOCHumanResourcesApproval)
+                                ? DBNull.Value
+                                : item.SPOCHumanResourcesApproval.Trim();
+
+
+                        row["HeadHumanResourcesApproval"] =
+                            string.IsNullOrWhiteSpace(
+                                item.HeadHumanResourcesApproval)
+                                ? DBNull.Value
+                                : item.HeadHumanResourcesApproval.Trim();
+
+
+                        // --------------------------------------------------------
+                        // INTERVIEWER
+                        // --------------------------------------------------------
+
+                        row["NameOfInterviewer"] =
+                            string.IsNullOrWhiteSpace(
+                                item.NameOfInterviewer)
+                                ? DBNull.Value
+                                : item.NameOfInterviewer.Trim();
+
+                        row["DateOfJoining"] =
+                            item.DateOfJoining.HasValue
+                                ? item.DateOfJoining.Value
+                                : DBNull.Value;
+
+                        row["HRInterviewerName"] =
+                            string.IsNullOrWhiteSpace(
+                                item.HRInterviewerName)
+                                ? DBNull.Value
+                                : item.HRInterviewerName.Trim();
+
+                        row["OperationsInterviewerName"] =
+                            string.IsNullOrWhiteSpace(
+                                item.OperationsInterviewerName)
+                                ? DBNull.Value
+                                : item.OperationsInterviewerName.Trim();
+
+                        row["ProcessOwnerInterviewerName"] =
+                            string.IsNullOrWhiteSpace(
+                                item.ProcessOwnerInterviewerName)
+                                ? DBNull.Value
+                                : item.ProcessOwnerInterviewerName.Trim();
+
+
+                        // --------------------------------------------------------
+                        // MASTER DETAILS
+                        // --------------------------------------------------------
+
+                        row["CompanyID"] =
+                            item.CompanyID.HasValue
+                                ? item.CompanyID.Value
+                                : 3L;
+
+                        row["EmployeeTypeID"] =
+                            item.EmployeeTypeID.HasValue
+                                ? item.EmployeeTypeID.Value
+                                : DBNull.Value;
+
+                        row["DesignationID"] =
+                            item.DesignationID.HasValue
+                                ? item.DesignationID.Value
+                                : DBNull.Value;
+
+                        row["DepartmentID"] =
+                            item.DepartmentID.HasValue
+                                ? item.DepartmentID.Value
+                                : DBNull.Value;
+
+                        row["JobLocationID"] =
+                            item.JobLocationID.HasValue
+                                ? item.JobLocationID.Value
+                                : DBNull.Value;
+
+                        row["SubDepartmentID"] =
+                            item.SubDepartmentID.HasValue
+                                ? item.SubDepartmentID.Value
+                                : DBNull.Value;
+
+                        row["PayrollTypeID"] =
+                            item.PayrollTypeID.HasValue
+                                ? item.PayrollTypeID.Value
+                                : DBNull.Value;
+
+                        row["ShiftTypeID"] =
+                            item.ShiftTypeID.HasValue
+                                ? item.ShiftTypeID.Value
+                                : DBNull.Value;
+
+                        row["ReportingToIDL1"] =
+                            item.ReportingToIDL1.HasValue
+                                ? item.ReportingToIDL1.Value
+                                : DBNull.Value;
+
+                        row["ReportingToIDL2"] =
+                            item.ReportingToIDL2.HasValue
+                                ? item.ReportingToIDL2.Value
+                                : DBNull.Value;
+
+                        row["LeavePolicyID"] =
+                            item.LeavePolicyID.HasValue
+                                ? item.LeavePolicyID.Value
+                                : DBNull.Value;
+
+                        row["ClientName"] =
+                            string.IsNullOrWhiteSpace(item.ClientName)
+                                ? DBNull.Value
+                                : item.ClientName.Trim();
+
+                        row["LOB"] =
+                            string.IsNullOrWhiteSpace(item.LOB)
+                                ? DBNull.Value
+                                : item.LOB.Trim();
+
+                        row["RoleType"] =
+                            item.RoleType.HasValue
+                                ? item.RoleType.Value
+                                : DBNull.Value;
+
+
+                        interviewEvaluationTable.Rows.Add(row);
                     }
                 }
-                // =========================================================
-                // OPTIONAL DEBUG
-                // This will help verify the TVP before sending to SQL.
-                // =========================================================
+
+
+                // ============================================================
+                // DEBUG BEFORE SQL
+                // ============================================================
 
                 System.Diagnostics.Debug.WriteLine(
-                    "Interview Evaluation TVP Columns: " +
-                    interviewEvaluationTable.Columns.Count);
+                    "====================================================");
 
                 System.Diagnostics.Debug.WriteLine(
-                    "Interview Evaluation TVP Rows: " +
-                    interviewEvaluationTable.Rows.Count);
+                    "INTERVIEW EVALUATION TVP");
 
-                foreach (DataColumn column in interviewEvaluationTable.Columns)
+                System.Diagnostics.Debug.WriteLine(
+                    $"Rows = {interviewEvaluationTable.Rows.Count}");
+
+                if (interviewEvaluationTable.Rows.Count > 0)
                 {
+                    DataRow row =
+                        interviewEvaluationTable.Rows[0];
+
                     System.Diagnostics.Debug.WriteLine(
-                        $"{column.Ordinal + 1}. {column.ColumnName} - {column.DataType.Name}");
+                        $"InterviewEvaluationID = " +
+                        $"[{row["InterviewEvaluationID"]}]");
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"OnboardingID = " +
+                        $"[{row["OnboardingID"]}]");
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"FunctionalHeadApproval = " +
+                        $"[{row["FunctionalHeadApproval"]}]");
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"SPOCHumanResourcesApproval = " +
+                        $"[{row["SPOCHumanResourcesApproval"]}]");
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"HeadHumanResourcesApproval = " +
+                        $"[{row["HeadHumanResourcesApproval"]}]");
                 }
 
+                System.Diagnostics.Debug.WriteLine(
+                    "====================================================");
 
                 // =========================================================
                 // MAIN EMPLOYEE PARAMETERS

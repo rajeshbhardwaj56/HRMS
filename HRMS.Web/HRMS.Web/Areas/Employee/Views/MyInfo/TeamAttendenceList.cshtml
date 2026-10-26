@@ -1113,6 +1113,7 @@ oldStatus: $("#oldStatus").val();
                                 case 'leave': return '#ffc107';
                                 case 'half day': return '#05397b';
                                 case 'pending': return '#fd7e14';
+                                case 'holiday': return '#1c5db1';
                                 default: return '#6c757d';
                             }
                         };
@@ -1206,30 +1207,37 @@ oldStatus: $("#oldStatus").val();
                         else if (oldStatus === "WEEK OFF" || oldStatus === "WEEKOFF") {
                             oldStatus = "WO";
                         }
+                        else if (oldStatus === "HOLIDAY") {
+                            oldStatus = "H";
+                        }
 
                         const isAdminOrSuperAdmin =
                             roleId === ROLE_ADMIN ||
                             roleId === ROLE_SUPERADMIN;
 
-                        let statusOptions = `
-            <option value="">Select status</option>
-        `;
+                        // Holiday rows come from usp_GetDailyAttendanceDetails,
+                        // already filtered by the employee's job location
+                        const isHolidayForEmployee =
+                            Array.isArray(data.holidays) && data.holidays.length > 0;
 
-                        /*
-                         * ADMIN / SUPER ADMIN
-                         *
-                         * Can change everything.
-                         */
+                        let statusOptions = `
+                            <option value="">Select status</option>
+                        `;
+
                         if (isAdminOrSuperAdmin) {
 
                             statusOptions += `
-                <option value="P">Present</option>
-                <option value="A">Absent</option>
-                <option value="HD">Half Day</option>
-                <option value="WO">Week Off</option>
-            `;
-                        }
+                                <option value="P">Present</option>
+                                <option value="A">Absent</option>
+                                <option value="HD">Half Day</option>
+                                <option value="WO">Week Off</option>
+                            `;
 
+                            // Holiday only for Admin/Super Admin, and only on that employee's holiday
+                            if (isHolidayForEmployee) {
+                                statusOptions += `<option value="H">Holiday</option>`;
+                            }
+                        }
                         /*
                          * NORMAL USER
                          */

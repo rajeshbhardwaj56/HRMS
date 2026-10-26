@@ -1452,8 +1452,8 @@ namespace HRMS.Web.Controllers
                 // PASSPORT
                 // =========================================================
 
-if (model.PassportFile != null &&
-    model.PassportFile.Length > 0)
+                if (model.PassportFile != null &&
+                    model.PassportFile.Length > 0)
                 {
                     string? passportPath =
                         await SaveDocument(
